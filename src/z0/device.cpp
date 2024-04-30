@@ -9,7 +9,8 @@ namespace z0 {
     Device::Device(VkInstance instance, const vector<const char*>& requestedLayers,
                    const ApplicationConfig& applicationConfig, const z0::Window &theWindow):
         vkInstance{instance},
-        window{theWindow} {
+        window{theWindow},
+        samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)} {
 
         //////////////////// Find the best GPU
 
@@ -33,6 +34,7 @@ namespace z0 {
 
         // Requested device extensions
         const vector<const char*> deviceExtensions = {
+                // Mandatory to create a swap chain
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                 // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
                 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
@@ -50,13 +52,15 @@ namespace z0 {
         multimap<uint32_t, VkPhysicalDevice> candidates;
         for (const auto& dev : devices) {
             uint32_t score = rateDeviceSuitability(dev, deviceExtensions);
-            candidates.insert(std::make_pair(score, dev));
+            candidates.insert(make_pair(score, dev));
         }
         // Check if the best candidate is suitable at all
         if (candidates.rbegin()->first > 0) {
-            // Select the better suitable device and get some useful properties
+            // Select the better suitable device found
             physicalDevice = candidates.rbegin()->second;
+            // Select the best MSAA samples count if requested
             if (applicationConfig.msaa == MSAA_AUTO) samples = getMaxUsableMSAASampleCount();
+            // Get the physical device properties for futur uses
             vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
         } else {
             die("Failed to find a suitable GPU!");
@@ -189,7 +193,7 @@ namespace z0 {
             if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) die("failed to allocate command buffers!");
         }
 
-        // Create sync objects
+        //////////////////// Create sync objects
         {
             imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
             renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
