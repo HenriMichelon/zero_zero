@@ -20,6 +20,7 @@ namespace z0 {
         void cleanup();
 
         VmaAllocator getAllocator() const { return allocator; }
+        VkDevice getVkDevice() const { return device; }
 
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
                                     uint32_t mipLevels = 1, VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D);

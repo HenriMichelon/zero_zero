@@ -50,6 +50,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/device.h
 		${Z0_INCLUDE_DIR}/buffer.h
 		${Z0_INCLUDE_DIR}/stats.h
+		${Z0_INCLUDE_DIR}/descriptors.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 
@@ -62,6 +63,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/device.cpp
 		${Z0_ENGINE_DIR}/buffer.cpp
 		${Z0_ENGINE_DIR}/stats.cpp
+		${Z0_ENGINE_DIR}/descriptors.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 
