@@ -15,6 +15,7 @@ namespace z0 {
         virtual void onReady() {}
 
         id_t getId() const { return id; }
+        bool operator==(const Node& other) const { return id == other.id;}
 
     protected:
         string name;

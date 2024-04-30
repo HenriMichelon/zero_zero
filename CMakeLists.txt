@@ -49,11 +49,17 @@ add_executable(${PROJECT_NAME}
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 
+		${Z0_INCLUDE_DIR}/resources/resource.h
+		${Z0_INCLUDE_DIR}/resources/image.h
+
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
+
+		${Z0_ENGINE_DIR}/resources/resource.cpp
+		${Z0_ENGINE_DIR}/resources/image.cpp
 
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
 )

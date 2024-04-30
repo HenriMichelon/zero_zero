@@ -7,7 +7,7 @@ namespace z0 {
 
     Node::id_t Node::currentId = 0;
 
-    Node::Node(string  nodeName): name{move(nodeName)}, id{currentId++}   {
+    Node::Node(string nodeName): name{std::move(nodeName)}, id{currentId++}   {
         replace(name.begin(), name.end(),  '/', '_');
     }
 
