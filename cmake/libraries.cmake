@@ -13,3 +13,11 @@ if (WIN32)
     set(VOLK_STATIC_DEFINES VK_USE_PLATFORM_WIN32_KHR)
 endif()
 target_link_libraries(${PROJECT_NAME} volk)
+
+FetchContent_Declare(
+        fetch_glm
+        GIT_REPOSITORY https://github.com/g-truc/glm
+        GIT_TAG        1.0.1
+)
+FetchContent_MakeAvailable(fetch_glm)
+target_link_libraries(${PROJECT_NAME} glm::glm)

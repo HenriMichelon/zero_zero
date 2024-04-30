@@ -17,6 +17,7 @@ namespace z0 {
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }
         const Window& getWindow() const;
+        Device& getDevice() { return *device; }
         VkInstance getVkInstance() const { return vkInstance; }
 
     private:

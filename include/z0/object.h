@@ -12,7 +12,7 @@ namespace z0 {
         }
 
     protected:
-        [[nodiscard]] virtual string toString() const { return "??"; };
+        virtual string toString() const { return "??"; };
     };
 
 }

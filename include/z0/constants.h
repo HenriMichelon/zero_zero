@@ -28,4 +28,17 @@ namespace z0 {
         MSAA_8X         = VK_SAMPLE_COUNT_8_BIT,
     };
 
+    enum CullMode {
+        CULLMODE_DISABLED   = 0,
+        CULLMODE_BACK       = 1,
+        CULLMODE_FRONT      = 2,
+    };
+
+    enum Transparency {
+        TRANSPARENCY_DISABLED         = 0,
+        TRANSPARENCY_ALPHA            = 1, // alpha only
+        TRANSPARENCY_SCISSOR          = 2, // scissor onmy
+        TRANSPARENCY_SCISSOR_ALPHA    = 3, // scissor then alpha
+    };
+
 }

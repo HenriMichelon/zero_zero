@@ -51,11 +51,15 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/buffer.h
 		${Z0_INCLUDE_DIR}/stats.h
 		${Z0_INCLUDE_DIR}/descriptors.h
+		${Z0_INCLUDE_DIR}/color.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
+		${Z0_INCLUDE_DIR}/resources/texture.h
+		${Z0_INCLUDE_DIR}/resources/material.h
+		${Z0_INCLUDE_DIR}/resources/mesh.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -69,9 +73,12 @@ add_executable(${PROJECT_NAME}
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
+		${Z0_ENGINE_DIR}/resources/texture.cpp
+		${Z0_ENGINE_DIR}/resources/mesh.cpp
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
+
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)

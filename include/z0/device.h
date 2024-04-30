@@ -20,10 +20,37 @@ namespace z0 {
         void cleanup();
 
         VmaAllocator getAllocator() const { return allocator; }
-        VkDevice getVkDevice() const { return device; }
+        VkDevice getDevice() const { return device; }
+        VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
-                                    uint32_t mipLevels = 1, VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D);
+        VkImageView createImageView(VkImage image,
+                                    VkFormat format,
+                                    VkImageAspectFlags aspectFlags,
+                                    uint32_t mipLevels = 1,
+                                    VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D);
+        void createImage(uint32_t width,
+                         uint32_t height,
+                         uint32_t mipLevels,
+                         VkSampleCountFlagBits numSamples,
+                         VkFormat format,
+                         VkImageTiling tiling,
+                         VkImageUsageFlags usage,
+                         VkMemoryPropertyFlags properties,
+                         VkImage& image,
+                         VkDeviceMemory& imageMemory,
+                         VkImageCreateFlags flags = 0,
+                         uint32_t layers = 1);
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        void transitionImageLayout(VkCommandBuffer commandBuffer,
+                                   VkImage image,
+                                   VkImageLayout oldLayout,
+                                   VkImageLayout newLayout,
+                                   VkAccessFlags srcAccessMask,
+                                   VkAccessFlags dstAccessMask,
+                                   VkPipelineStageFlags srcStageMask,
+                                   VkPipelineStageFlags dstStageMask,
+                                   VkImageAspectFlags aspectMask,
+                                   uint32_t mipLevels = 1);
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 

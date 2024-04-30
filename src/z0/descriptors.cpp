@@ -46,7 +46,7 @@ namespace z0 {
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
         if (vkCreateDescriptorSetLayout(
-                device.getVkDevice(),
+                device.getDevice(),
                 &descriptorSetLayoutInfo,
                 nullptr,
                 &descriptorSetLayout) != VK_SUCCESS) {
@@ -55,7 +55,7 @@ namespace z0 {
     }
 
     DescriptorSetLayout::~DescriptorSetLayout() {
-        vkDestroyDescriptorSetLayout(device.getVkDevice(), descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(device.getDevice(), descriptorSetLayout, nullptr);
     }
 
     DescriptorPool::Builder &DescriptorPool::Builder::addPoolSize(
@@ -92,14 +92,14 @@ namespace z0 {
         descriptorPoolInfo.maxSets = maxSets;
         descriptorPoolInfo.flags = poolFlags;
 
-        if (vkCreateDescriptorPool(device.getVkDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
+        if (vkCreateDescriptorPool(device.getDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
             VK_SUCCESS) {
             die("failed to create descriptor pool!");
         }
     }
 
     DescriptorPool::~DescriptorPool() {
-        vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
+        vkDestroyDescriptorPool(device.getDevice(), descriptorPool, nullptr);
     }
 
     bool DescriptorPool::allocateDescriptor(
@@ -112,7 +112,7 @@ namespace z0 {
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
-        if (vkAllocateDescriptorSets(device.getVkDevice(), &allocInfo, &descriptor) != VK_SUCCESS) {
+        if (vkAllocateDescriptorSets(device.getDevice(), &allocInfo, &descriptor) != VK_SUCCESS) {
             return false;
         }
 #ifdef VULKAN_STATS
@@ -123,14 +123,14 @@ namespace z0 {
 
     void DescriptorPool::freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const {
         vkFreeDescriptorSets(
-                device.getVkDevice(),
+                device.getDevice(),
                 descriptorPool,
                 static_cast<uint32_t>(descriptors.size()),
                 descriptors.data());
     }
 
     void DescriptorPool::resetPool() {
-        vkResetDescriptorPool(device.getVkDevice(), descriptorPool, 0);
+        vkResetDescriptorPool(device.getDevice(), descriptorPool, 0);
     }
 
     DescriptorWriter::DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool):
@@ -178,7 +178,7 @@ namespace z0 {
         for (auto &write : writes) {
             write.dstSet = set;
         }
-        vkUpdateDescriptorSets(pool.device.getVkDevice(), writes.size(), writes.data(), 0, nullptr);
+        vkUpdateDescriptorSets(pool.device.getDevice(), writes.size(), writes.data(), 0, nullptr);
     }
 
 }

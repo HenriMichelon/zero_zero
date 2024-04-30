@@ -228,9 +228,60 @@ namespace z0 {
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
     }
 
+    // https://vulkan-tutorial.com/Texture_mapping/Images#page_Texture-Image
+    void Device::createImage(uint32_t width,
+                             uint32_t height,
+                             uint32_t mipLevels,
+                             VkSampleCountFlagBits numSamples,
+                             VkFormat format,
+                             VkImageTiling tiling,
+                             VkImageUsageFlags usage,
+                             VkMemoryPropertyFlags properties,
+                             VkImage &image,
+                             VkDeviceMemory &imageMemory,
+                             VkImageCreateFlags flags,
+                             uint32_t layers) {
+        VkImageCreateInfo imageInfo{};
+        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = width;
+        imageInfo.extent.height = height;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = mipLevels;
+        imageInfo.arrayLayers = layers;
+        imageInfo.format = format;
+        imageInfo.tiling = tiling;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = usage;
+        imageInfo.samples = numSamples;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.flags = flags;
+
+        if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create image!");
+        }
+
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+        if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+            die("failed to allocate image memory!");
+        }
+
+        vkBindImageMemory(device, image, imageMemory, 0);
+    }
+
     // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Image_views
-    VkImageView Device::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
-                                        uint32_t mipLevels, VkImageViewType type) {
+    VkImageView Device::createImageView(VkImage image,
+                                        VkFormat format,
+                                        VkImageAspectFlags aspectFlags,
+                                        uint32_t mipLevels,
+                                        VkImageViewType type) {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
@@ -245,6 +296,45 @@ namespace z0 {
         VkImageView imageView;
         if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) die("failed to create texture image view!");
         return imageView;
+    }
+
+    // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
+    // https://vulkan-tutorial.com/Generating_Mipmaps#page_Generating-Mipmaps
+    void Device::transitionImageLayout(VkCommandBuffer commandBuffer,
+                                       VkImage image,
+                                       VkImageLayout oldLayout,
+                                       VkImageLayout newLayout,
+                                       VkAccessFlags srcAccessMask,
+                                       VkAccessFlags dstAccessMask,
+                                       VkPipelineStageFlags srcStageMask,
+                                       VkPipelineStageFlags dstStageMask,
+                                       VkImageAspectFlags aspectMask,
+                                       uint32_t mipLevels) {
+        VkImageMemoryBarrier barrier = {
+                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                .srcAccessMask = srcAccessMask,
+                .dstAccessMask = dstAccessMask,
+                .oldLayout = oldLayout,
+                .newLayout = newLayout,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image =image,
+                .subresourceRange = {
+                        .aspectMask = aspectMask,
+                        .baseMipLevel = 0,
+                        .levelCount = mipLevels,
+                        .baseArrayLayer = 0,
+                        .layerCount = VK_REMAINING_ARRAY_LAYERS,
+                }
+        };
+        vkCmdPipelineBarrier(
+                commandBuffer,
+                srcStageMask ,
+                dstStageMask ,
+                0,
+                0, nullptr,
+                0, nullptr,
+                1, &barrier);
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain
@@ -466,14 +556,27 @@ namespace z0 {
                     .width = window.getWidth(),
                     .height = window.getHeight()
             };
-            actualExtent.width = max(
+            actualExtent.width = std::max(
                     capabilities.minImageExtent.width,
                     std::min(capabilities.maxImageExtent.width, actualExtent.width));
-            actualExtent.height = max(
+            actualExtent.height = std::max(
                     capabilities.minImageExtent.height,
                     std::min(capabilities.maxImageExtent.height, actualExtent.height));
             return actualExtent;
         }
+    }
+
+    uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if ((typeFilter & (1 << i)) &&
+                (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+        die("failed to find suitable memory type!");
+        return 0;
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
