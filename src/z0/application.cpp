@@ -3,6 +3,7 @@
 #include "z0/window.h"
 
 #include <cassert>
+#include <vector>
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance,
@@ -18,14 +19,73 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance,
 
 namespace z0 {
 
+    const vector<const char*> requestedLayers = {
+#ifndef NDEBUG
+        "VK_LAYER_KHRONOS_validation"
+#endif
+    };
+
     Application* Application::_instance = nullptr;
 
     Application::Application(const z0::ApplicationConfig &appConfig, const shared_ptr<Node>& node):
         applicationConfig{appConfig},
-        rootNode{node} {
+        rootNode{node},
+        vkInstance{nullptr} {
         assert(_instance == nullptr);
         assert(rootNode != nullptr);
         _instance = this;
+
+        if (volkInitialize() != VK_SUCCESS) die("Failed to initialize Volk");
+
+        // Check if all the requested Vulkan layers are supported by the Vulkan instance
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+        for (const char* layerName : requestedLayers) {
+            bool layerFound = false;
+            for (const auto& layerProperties : availableLayers) {
+                if (strcmp(layerName, layerProperties.layerName) == 0) {
+                    layerFound = true;
+                    break;
+                }
+            }
+            if (!layerFound) die("A requested Vulkan layer is not supported");
+        }
+
+        std::vector<const char*> instanceExtensions{};
+        // Abstract native platform surface or window objects for use with Vulkan.
+        instanceExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+#ifdef _WIN32
+        // Provides a mechanism to create a VkSurfaceKHR object (defined by the VK_KHR_surface extension) that refers to a Win32 HWND
+        instanceExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#endif
+        // for Vulkan Memory Allocator
+        instanceExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+        // Use Vulkan 1.3.x
+        const VkApplicationInfo applicationInfo{
+                .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                .apiVersion = VK_API_VERSION_1_3
+        };
+        // Initialize Vulkan instances, extensions & layers
+        const VkInstanceCreateInfo createInfo = {
+                VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                nullptr,
+                0,
+                &applicationInfo,
+                static_cast<uint32_t>(requestedLayers.size()),
+                requestedLayers.data(),
+                static_cast<uint32_t>(instanceExtensions.size()),
+                instanceExtensions.data()
+        };
+        if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)die("Failed to create Vulkan instance");
+
+        volkLoadInstance(vkInstance);
+    }
+
+    Application::~Application() {
+        vkDestroyInstance(vkInstance, nullptr);
     }
 
 #ifdef _WIN32

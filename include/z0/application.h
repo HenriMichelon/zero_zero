@@ -3,6 +3,11 @@
 #include "z0/window.h"
 #include "z0/nodes/node.h"
 
+#include <volk.h>
+#ifdef _WIN32
+    #include <vulkan/vulkan_win32.h>
+#endif
+
 #include <filesystem>
 #include <cassert>
 
@@ -22,15 +27,18 @@ namespace z0 {
     class Application: public Object {
     public:
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
+        virtual ~Application();
 
         static Application& get();
 
-        const ApplicationConfig& getConfig() { return applicationConfig; }
-        [[nodiscard]] Window& getWindow() const;
+        const ApplicationConfig& getConfig() const { return applicationConfig; }
+        Window& getWindow() const;
+        VkInstance getVkInstance() const { return vkInstance; }
 
     private:
         const ApplicationConfig& applicationConfig;
         shared_ptr<Node> rootNode;
+        VkInstance vkInstance;
 
     public:
         // The following members are accessed by global function WinMain

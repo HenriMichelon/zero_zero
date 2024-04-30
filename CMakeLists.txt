@@ -61,6 +61,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
 
+		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
 )
 
