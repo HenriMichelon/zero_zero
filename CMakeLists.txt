@@ -3,12 +3,15 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 # Engine sources directory
-set(Z0_ENGINE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/z0)
-# Examples sources directory
-set(Z0_EXAMPLES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/examples)
-# GLSL shaders sources directory
+set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
+set(Z0_ENGINE_DIR ${SRC_DIR}/z0)
 set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
+# Examples sources directory
+set(Z0_EXAMPLES_DIR ${SRC_DIR}/examples)
 # SPIR-V compiled shaders directory
 set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 make_directory(${Z0_SHADERS_BUILD_DIR})
@@ -34,9 +37,10 @@ add_shaders(${PROJECT_NAME}_shaders ${Z0_GLSL_SOURCE_FILES})
 # compile engine + examples
 add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
+		${INCLUDE_DIR}/vk_mem_alloc.h
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR})
 
 include(cmake/libraries.cmake)

@@ -13,7 +13,7 @@ ZeroZero is a 3D game engine based on Vulkan 1.3 & Jolt Physics 4.x
 - Dynamic rendering (VK_KHR_dynamic_rendering)
 - Shader object (VK_EXT_shader_object)
 - volk https://github.com/zeux/volk
-
+- VulkanMemoryAllocator https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 
 **Building tools needed**
 - GCC/MINGW 11+ (C++ 23)
