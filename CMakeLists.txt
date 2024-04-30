@@ -48,6 +48,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/window.h
 		${Z0_INCLUDE_DIR}/application.h
 		${Z0_INCLUDE_DIR}/device.h
+		${Z0_INCLUDE_DIR}/buffer.h
+		${Z0_INCLUDE_DIR}/stats.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 
@@ -58,6 +60,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/device.cpp
+		${Z0_ENGINE_DIR}/buffer.cpp
+		${Z0_ENGINE_DIR}/stats.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 

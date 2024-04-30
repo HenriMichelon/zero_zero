@@ -135,7 +135,7 @@ namespace z0 {
         };
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) die("Failed to create the command pool");
 
-        //////////////////// Create allocator
+        //////////////////// Create VMA allocator
 
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
         const VmaVulkanFunctions vulkanFunctions {
@@ -373,7 +373,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Querying-details-of-swap-chain-support
-    SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) {
+    Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) {
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, surface, &details.capabilities);
         uint32_t formatCount;
@@ -392,7 +392,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
-    QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
+    Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
         QueueFamilyIndices indices;
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, nullptr);
@@ -474,6 +474,38 @@ namespace z0 {
                     std::min(capabilities.maxImageExtent.height, actualExtent.height));
             return actualExtent;
         }
+    }
+
+    // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
+    VkCommandBuffer Device::beginSingleTimeCommands() {
+        const VkCommandBufferAllocateInfo allocInfo{
+                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                .commandPool = commandPool,
+                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                .commandBufferCount = 1
+        };
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+        const VkCommandBufferBeginInfo beginInfo{
+                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+        };
+        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        return commandBuffer;
+    }
+
+    // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
+    void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+        vkEndCommandBuffer(commandBuffer);
+        const VkSubmitInfo submitInfo{
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                .commandBufferCount = 1,
+                .pCommandBuffers = &commandBuffer
+        };
+        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(graphicsQueue);
+        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
 }
