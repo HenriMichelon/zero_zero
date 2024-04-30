@@ -1,23 +1,12 @@
 #pragma once
 
-#include "z0/window.h"
+#include "z0/device.h"
 #include "z0/nodes/node.h"
 
 #include <filesystem>
 #include <cassert>
 
 namespace z0 {
-
-    struct ApplicationConfig {
-        string appName             = "MyApp";
-        filesystem::path appDir    = ".";
-        WindowMode windowMode      = WINDOW_MODE_WINDOWED;
-        uint32_t windowWidth       = 800;
-        uint32_t windowHeight      = 600;
-        /*MSAA msaa                  = MSAA_AUTO;
-        float gamma                = 1.0f;
-        float exposure             = 1.0f;*/
-    };
 
     class Application: public Object {
     public:
@@ -27,12 +16,14 @@ namespace z0 {
         static Application& get();
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }
-        Window& getWindow() const;
+        const Window& getWindow() const;
         VkInstance getVkInstance() const { return vkInstance; }
 
     private:
         const ApplicationConfig& applicationConfig;
         shared_ptr<Node> rootNode;
+        unique_ptr<Window> window;
+        unique_ptr<Device> device;
         VkInstance vkInstance;
 
     public:
@@ -40,7 +31,6 @@ namespace z0 {
         static Application* _instance;
 #ifdef _WIN32
         MSG _messages;
-        unique_ptr<Window> _window;
         void _mainLoop();
 #endif
 

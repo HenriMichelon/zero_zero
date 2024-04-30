@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef _WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif
+#include <volk.h>
+
 #include <string>
 #include <memory>
 using namespace std;
@@ -16,11 +21,11 @@ namespace z0 {
         WINDOW_MODE_FULLSCREEN          = 3,
     };
 
-    /*enum MSAA {
+    enum MSAA {
         MSAA_AUTO       = 0,
-        MSAA_2X         = 1,
-        MSAA_4X         = 2,
-        MSAA_8X         = 3,
-    };*/
+        MSAA_2X         = VK_SAMPLE_COUNT_2_BIT,
+        MSAA_4X         = VK_SAMPLE_COUNT_4_BIT,
+        MSAA_8X         = VK_SAMPLE_COUNT_8_BIT,
+    };
 
 }

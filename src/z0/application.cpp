@@ -11,7 +11,6 @@
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
     if (z0::Application::_instance == nullptr) z0::die("No Application object found");
     z0::Application& application = z0::Application::get();
-    application._window = make_unique<z0::Window>(hThisInstance, application.getVkInstance());
     application._mainLoop();
     return application._messages.wParam;
 }
@@ -19,25 +18,26 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszA
 
 namespace z0 {
 
-    const vector<const char*> requestedLayers = {
-#ifndef NDEBUG
-        "VK_LAYER_KHRONOS_validation"
-#endif
-    };
-
     Application* Application::_instance = nullptr;
 
     Application::Application(const z0::ApplicationConfig &appConfig, const shared_ptr<Node>& node):
         applicationConfig{appConfig},
-        rootNode{node},
-        vkInstance{nullptr} {
+        rootNode{node} {
         assert(_instance == nullptr);
         assert(rootNode != nullptr);
         _instance = this;
 
+        // https://github.com/zeux/volk
         if (volkInitialize() != VK_SUCCESS) die("Failed to initialize Volk");
 
+        // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
+
         // Check if all the requested Vulkan layers are supported by the Vulkan instance
+        const std::vector<const char*> requestedLayers = {
+#ifndef NDEBUG
+                "VK_LAYER_KHRONOS_validation"
+#endif
+        };
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
         std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -82,26 +82,28 @@ namespace z0 {
         if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)die("Failed to create Vulkan instance");
 
         volkLoadInstance(vkInstance);
+
+        window = make_unique<Window>(applicationConfig);
+        device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
     }
 
     Application::~Application() {
+        device->cleanup();
         vkDestroyInstance(vkInstance, nullptr);
     }
 
 #ifdef _WIN32
     void Application::_mainLoop() {
         rootNode->onReady();
-        while (GetMessage(&_messages, nullptr, 0, 0))
-        {
+        while (GetMessage(&_messages, nullptr, 0, 0)) {
             TranslateMessage(&_messages);
             DispatchMessage(&_messages);
         }
     }
 #endif
 
-    Window &Application::getWindow() const {
-        assert(_window != nullptr);
-        return *_window;
+    const Window &Application::getWindow() const {
+        return *window;
     }
 
     Application &Application::get() {

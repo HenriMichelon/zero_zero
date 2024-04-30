@@ -1,4 +1,4 @@
-#include "z0/application.h"
+#include "z0/window.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -52,12 +52,12 @@ namespace z0 {
         height = h;
     }
 
-    Window::Window(HINSTANCE hThisInstance, VkInstance vkInstance):
+    Window::Window(const ApplicationConfig& applicationConfig):
         width{0},
         height{0},
         background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
 
-        z0::Application& application = z0::Application::get();
+        auto hInstance = GetModuleHandle(nullptr);
 
         const WNDCLASSEX wincl{
             .cbSize = sizeof(WNDCLASSEX),
@@ -65,7 +65,7 @@ namespace z0 {
             .lpfnWndProc = WindowProcedure,
             .cbClsExtra = 0,
             .cbWndExtra = 0,
-            .hInstance = hThisInstance,
+            .hInstance = hInstance,
             .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
             .hCursor = LoadCursor(nullptr, IDC_ARROW),
             .hbrBackground = background,
@@ -89,14 +89,14 @@ namespace z0 {
 
         DWORD style = 0;
         DWORD exStyle = 0;
-        switch (application.getConfig().windowMode) {
+        switch (applicationConfig.windowMode) {
             case WINDOW_MODE_WINDOWED:{
                 style = WS_OVERLAPPEDWINDOW;
                 RECT rect{
                     .left = 0,
                     .top = 0,
-                    .right = static_cast<int>(application.getConfig().windowWidth),  // Desired width of the client area
-                    .bottom = static_cast<int>(application.getConfig().windowHeight),
+                    .right = static_cast<int>(applicationConfig.windowWidth),  // Desired width of the client area
+                    .bottom = static_cast<int>(applicationConfig.windowHeight),
                 };
                 AdjustWindowRect(&rect, style, FALSE); // Adjust the rect to include the frame
                 w = rect.right - rect.left;
@@ -113,8 +113,8 @@ namespace z0 {
                 DEVMODE dmScreenSettings;
                 memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
                 dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-                dmScreenSettings.dmPelsWidth = static_cast<int>(application.getConfig().windowWidth);
-                dmScreenSettings.dmPelsHeight =  static_cast<int>(application.getConfig().windowHeight);
+                dmScreenSettings.dmPelsWidth = static_cast<int>(applicationConfig.windowWidth);
+                dmScreenSettings.dmPelsHeight =  static_cast<int>(applicationConfig.windowHeight);
                 dmScreenSettings.dmBitsPerPel = 32;
                 dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
                 if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
@@ -140,7 +140,7 @@ namespace z0 {
         hwnd = CreateWindowEx(
                 exStyle,
                 szClassName,
-                application.getConfig().appName.c_str(),
+                applicationConfig.appName.c_str(),
                 style,
                 x,
                 y,
@@ -148,22 +148,13 @@ namespace z0 {
                 h,
                 HWND_DESKTOP,
                 nullptr,
-                hThisInstance,
+                hInstance,
                 this
         );
         if (hwnd == nullptr) die("Cannot create Window", std::to_string(GetLastError()));
 
-        ShowWindow(hwnd, SW_SHOW );
+        ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
-
-        // Create Vulkan surface associated with the new Window
-        const VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-            .hinstance = hThisInstance,
-            .hwnd = hwnd,
-        };
-        if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS) die("Failed to create window surface!");
-
     }
 
     Window::~Window() {
