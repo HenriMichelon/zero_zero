@@ -12,7 +12,7 @@ namespace z0 {
     public:
         class Builder {
         public:
-            Builder(Device &dev) : device{dev} {}
+            explicit Builder(Device &dev) : device{dev} {}
 
             Builder& addBinding(
                     uint32_t binding,
@@ -46,7 +46,7 @@ namespace z0 {
     public:
         class Builder {
         public:
-            Builder(Device &dev) : device{dev} {}
+            explicit Builder(Device &dev) : device{dev} {}
 
             Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
             Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
@@ -69,7 +69,7 @@ namespace z0 {
         DescriptorPool(const DescriptorPool &) = delete;
         DescriptorPool &operator=(const DescriptorPool &) = delete;
 
-        bool allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet &descriptor) const;
+        bool allocateDescriptor(const VkDescriptorSetLayout& descriptorSetLayout, VkDescriptorSet &descriptor) const;
         void freeDescriptors(vector<VkDescriptorSet> &descriptors) const;
         void resetPool();
         VkDescriptorPool getPool() const { return descriptorPool; }
