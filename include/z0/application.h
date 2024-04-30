@@ -3,11 +3,6 @@
 #include "z0/window.h"
 #include "z0/nodes/node.h"
 
-#include <volk.h>
-#ifdef _WIN32
-    #include <vulkan/vulkan_win32.h>
-#endif
-
 #include <filesystem>
 #include <cassert>
 

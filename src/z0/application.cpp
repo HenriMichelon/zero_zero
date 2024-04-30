@@ -2,16 +2,16 @@
 #include "z0/application.h"
 #include "z0/window.h"
 
+#include <vulkan/vulkan.hpp>
+
 #include <cassert>
 #include <vector>
 
 #ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance,
-                   LPSTR lpszArgument, int nCmdShow)
-{
+int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
     if (z0::Application::_instance == nullptr) z0::die("No Application object found");
     z0::Application& application = z0::Application::get();
-    application._window = make_unique<z0::Window>(hThisInstance);
+    application._window = make_unique<z0::Window>(hThisInstance, application.getVkInstance());
     application._mainLoop();
     return application._messages.wParam;
 }

@@ -1,5 +1,7 @@
 #include "z0/application.h"
 
+#include <vulkan/vulkan.hpp>
+
 #ifdef _WIN32
 char szClassName[ ] = "WindowsApp";
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -50,7 +52,7 @@ namespace z0 {
         height = h;
     }
 
-    Window::Window(HINSTANCE hThisInstance):
+    Window::Window(HINSTANCE hThisInstance, VkInstance vkInstance):
         width{0},
         height{0},
         background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
@@ -153,6 +155,15 @@ namespace z0 {
 
         ShowWindow(hwnd, SW_SHOW );
         UpdateWindow(hwnd);
+
+        // Create Vulkan surface associated with the new Window
+        const VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+            .hinstance = hThisInstance,
+            .hwnd = hwnd,
+        };
+        if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS) die("Failed to create window surface!");
+
     }
 
     Window::~Window() {

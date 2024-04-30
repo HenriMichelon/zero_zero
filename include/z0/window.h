@@ -2,6 +2,11 @@
 
 #include "z0/object.h"
 
+#ifdef _WIN32
+ #define VK_USE_PLATFORM_WIN32_KHR
+#endif
+#include <volk.h>
+
 namespace z0 {
 
     class Window: public Object {
@@ -19,6 +24,7 @@ namespace z0 {
         static uint32_t screenHeight;
         uint32_t width;
         uint32_t height;
+        VkSurfaceKHR surface;
 
 #ifdef _WIN32
         HWND hwnd;
@@ -31,7 +37,7 @@ namespace z0 {
 
 #ifdef _WIN32
         // accessed by global function WinMain
-        Window(HINSTANCE hThisInstance);
+        Window(HINSTANCE hThisInstance, VkInstance vkInstance);
         void _setSize(int width, int height);
 #endif
     };
