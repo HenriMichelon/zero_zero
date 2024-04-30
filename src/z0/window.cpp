@@ -4,19 +4,19 @@
 char szClassName[ ] = "WindowsApp";
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
     switch (message)
     {
+        case WM_CREATE:
+            // Save the Window pointer passed to CreateWindowEx
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
+            return 0;
+        case WM_SIZING:
         case WM_ACTIVATE: {
-            // Clear window background
-            PAINTSTRUCT ps2;
-            HDC hdc = BeginPaint(hwnd, &ps2);
-            HBRUSH brush = CreateSolidBrush(
-                    RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]));
+            // Get window content size
             RECT rect = {};
             GetClientRect(hwnd, &rect);
-            FillRect(hdc, &rect, brush);
-            DeleteObject(brush);
-            EndPaint(hwnd, &ps2);
+            window->_setSize( rect.right - rect.left, rect.bottom - rect.top);
             break;
         }
         case WM_CLOSE:
@@ -37,25 +37,40 @@ namespace z0 {
     uint32_t Window::screenWidth = 0;
     uint32_t Window::screenHeight = 0;
 
+    string Window::toString() const {
+        stringstream s;
+        s << "Window " << width << "x" << height;
+        return s.str();
+    }
+
 #ifdef _WIN32
-    Window::Window(HINSTANCE hThisInstance) {
+
+    void Window::_setSize(int w, int h) {
+        width = w;
+        height = h;
+    }
+
+    Window::Window(HINSTANCE hThisInstance):
+        width{0},
+        height{0},
+        background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
+
         z0::Application& application = z0::Application::get();
 
-        WNDCLASSEX wincl;
-
-        wincl.hInstance = hThisInstance;
-        wincl.lpszClassName = szClassName;
-        wincl.lpfnWndProc = WindowProcedure;
-        wincl.style = CS_DBLCLKS;
-        wincl.cbSize = sizeof (WNDCLASSEX);
-
-        wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-        wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-        wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-        wincl.lpszMenuName = NULL;
-        wincl.cbClsExtra = 0;
-        wincl.cbWndExtra = 0;
-        wincl.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
+        const WNDCLASSEX wincl{
+            .cbSize = sizeof(WNDCLASSEX),
+            .style = CS_DBLCLKS,
+            .lpfnWndProc = WindowProcedure,
+            .cbClsExtra = 0,
+            .cbWndExtra = 0,
+            .hInstance = hThisInstance,
+            .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
+            .hCursor = LoadCursor(nullptr, IDC_ARROW),
+            .hbrBackground = background,
+            .lpszMenuName = nullptr,
+            .lpszClassName = szClassName,
+            .hIconSm = LoadIcon(nullptr, IDI_APPLICATION),
+        };
 
         if (!RegisterClassEx(&wincl)) die("Cannot register Window class");
 
@@ -74,16 +89,21 @@ namespace z0 {
         DWORD exStyle = 0;
         switch (application.getConfig().windowMode) {
             case WINDOW_MODE_WINDOWED:{
-                exStyle = WS_EX_OVERLAPPEDWINDOW;
                 style = WS_OVERLAPPEDWINDOW;
-                x = static_cast<int>((screenWidth- application.getConfig().windowWidth) / 2);
-                y = static_cast<int>((screenHeight- application.getConfig().windowHeight) / 2);
-                w = static_cast<int>(application.getConfig().windowWidth);
-                h = static_cast<int>(application.getConfig().windowHeight);
+                RECT rect{
+                    .left = 0,
+                    .top = 0,
+                    .right = static_cast<int>(application.getConfig().windowWidth),  // Desired width of the client area
+                    .bottom = static_cast<int>(application.getConfig().windowHeight),
+                };
+                AdjustWindowRect(&rect, style, FALSE); // Adjust the rect to include the frame
+                w = rect.right - rect.left;
+                h = rect.bottom - rect.top;
+                x = static_cast<int>((screenWidth - w) / 2);
+                y = static_cast<int>((screenHeight - h) / 2);
                 break;
             }
             case WINDOW_MODE_WINDOWED_MAXIMIZED:{
-                exStyle = WS_EX_OVERLAPPEDWINDOW;
                 style = WS_OVERLAPPEDWINDOW | WS_MAXIMIZE;
                 break;
             }
@@ -127,12 +147,16 @@ namespace z0 {
                 HWND_DESKTOP,
                 nullptr,
                 hThisInstance,
-                nullptr
+                this
         );
         if (hwnd == nullptr) die("Cannot create Window", std::to_string(GetLastError()));
 
         ShowWindow(hwnd, SW_SHOW );
         UpdateWindow(hwnd);
+    }
+
+    Window::~Window() {
+        DeleteObject(background);
     }
 
 #endif

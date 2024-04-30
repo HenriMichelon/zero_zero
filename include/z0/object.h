@@ -2,10 +2,6 @@
 
 #include "z0/tools.h"
 
-#include <memory>
-#include <string>
-using namespace std;
-
 namespace z0 {
 
     class Object {

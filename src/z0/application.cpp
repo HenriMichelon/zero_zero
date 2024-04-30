@@ -20,14 +20,17 @@ namespace z0 {
 
     Application* Application::_instance = nullptr;
 
-    Application::Application(const z0::ApplicationConfig &appConfig):
-        applicationConfig{appConfig} {
+    Application::Application(const z0::ApplicationConfig &appConfig, const shared_ptr<Node>& node):
+        applicationConfig{appConfig},
+        rootNode{node} {
         assert(_instance == nullptr);
+        assert(rootNode != nullptr);
         _instance = this;
     }
 
 #ifdef _WIN32
     void Application::_mainLoop() {
+        rootNode->onReady();
         while (GetMessage(&_messages, nullptr, 0, 0))
         {
             TranslateMessage(&_messages);

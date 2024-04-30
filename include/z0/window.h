@@ -4,32 +4,35 @@
 
 namespace z0 {
 
-    enum WindowMode {
-        WINDOW_MODE_WINDOWED            = 0,
-        WINDOW_MODE_WINDOWED_MAXIMIZED  = 1,
-        WINDOW_MODE_WINDOWED_FULLSCREEN = 2,
-        WINDOW_MODE_FULLSCREEN          = 3,
-    };
-
-    const int WINDOW_CLEAR_COLOR[] { 0, 0, 0 };
-
-    class Window {
+    class Window: public Object {
     public:
+        virtual ~Window();
+
         static uint32_t getScreenWidth() { return screenWidth; };
         static uint32_t getScreenHeight() { return screenHeight; };
+
+    protected:
+        string toString() const override;
 
     private:
         static uint32_t screenWidth;
         static uint32_t screenHeight;
+        uint32_t width;
+        uint32_t height;
 
 #ifdef _WIN32
         HWND hwnd;
+        HBRUSH background;
 #endif
 
     public:
+        Window(const Window&) = delete;
+        Window& operator=(const Window&) = delete;
+
 #ifdef _WIN32
         // accessed by global function WinMain
         Window(HINSTANCE hThisInstance);
+        void _setSize(int width, int height);
 #endif
     };
 

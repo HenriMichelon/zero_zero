@@ -41,14 +41,19 @@ add_shaders(${PROJECT_NAME}_shaders ${Z0_GLSL_SOURCE_FILES})
 add_executable(${PROJECT_NAME}
 		${INCLUDE_DIR}/vk_mem_alloc.h
 
+		${Z0_INCLUDE_DIR}/constants.h
 		${Z0_INCLUDE_DIR}/tools.h
 		${Z0_INCLUDE_DIR}/object.h
 		${Z0_INCLUDE_DIR}/window.h
 		${Z0_INCLUDE_DIR}/application.h
 
+		${Z0_INCLUDE_DIR}/nodes/node.h
+
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/application.cpp
+
+		${Z0_ENGINE_DIR}/nodes/node.cpp
 
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
 )

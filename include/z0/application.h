@@ -1,18 +1,12 @@
 #pragma once
 
 #include "z0/window.h"
+#include "z0/nodes/node.h"
 
 #include <filesystem>
 #include <cassert>
 
 namespace z0 {
-
-    /*enum MSAA {
-        MSAA_AUTO       = 0,
-        MSAA_2X         = 1,
-        MSAA_4X         = 2,
-        MSAA_8X         = 3,
-    };*/
 
     struct ApplicationConfig {
         string appName             = "MyApp";
@@ -27,7 +21,7 @@ namespace z0 {
 
     class Application: public Object {
     public:
-        explicit Application(const ApplicationConfig& applicationConfig);
+        explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
 
         static Application& get();
 
@@ -36,7 +30,7 @@ namespace z0 {
 
     private:
         const ApplicationConfig& applicationConfig;
-
+        shared_ptr<Node> rootNode;
 
     public:
         // The following members are accessed by global function WinMain
