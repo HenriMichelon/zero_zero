@@ -8,6 +8,7 @@ namespace z0 {
         BaseRenderpass(dev, sDir) {}
 
     void BaseModelsRenderer::cleanup() {
+        depthFrameBuffer->cleanupImagesResources();
         cleanupImagesResources();
         modelUniformBuffers.clear();
         BaseRenderpass::cleanup();

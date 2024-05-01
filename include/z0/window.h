@@ -18,6 +18,9 @@ namespace z0 {
         uint32_t getWidth() const { return width; }
         uint32_t getHeight() const { return height; }
 
+        void close() { closing = true; }
+        bool shouldClose() const { return closing; }
+
     protected:
         string toString() const override;
 
@@ -26,6 +29,7 @@ namespace z0 {
         static uint32_t screenHeight;
         uint32_t width;
         uint32_t height;
+        bool closing{false};
 
 #ifdef _WIN32
         HWND hwnd;

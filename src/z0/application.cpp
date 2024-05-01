@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszA
     if (z0::Application::_instance == nullptr) z0::die("No Application object found");
     z0::Application& application = z0::Application::get();
     application._mainLoop();
-    return application._messages.wParam;
+    return 0;
 }
 #endif
 
@@ -92,19 +92,24 @@ namespace z0 {
     }
 
     Application::~Application() {
-        device->cleanup();
         vkDestroyInstance(vkInstance, nullptr);
     }
 
 #ifdef _WIN32
     void Application::_mainLoop() {
         rootNode->onReady();
-        while (GetMessage(&_messages, nullptr, 0, 0)) {
-            TranslateMessage(&_messages);
-            DispatchMessage(&_messages);
+        while (!window->shouldClose()) {
+            MSG _messages;
+            if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
+                TranslateMessage(&_messages);
+                DispatchMessage(&_messages);
+            }
             device->drawFrame();
         }
         device->wait();
+        device->cleanup();
+        DestroyWindow(window->_getHandle());
+        PostQuitMessage(0);
     }
 #endif
 

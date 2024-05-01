@@ -21,11 +21,13 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             window->_setSize( rect.right - rect.left, rect.bottom - rect.top);
             break;
         }
-        case WM_CLOSE:
-            DestroyWindow(hwnd);
-            break;
-        case WM_DESTROY:
-            PostQuitMessage(0);
+        case WM_SYSCOMMAND:
+            if (wParam == SC_CLOSE) {
+                // Mark the window for closing
+                window->close();
+                // cancel the default close operation
+                return 0;
+            }
             break;
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);

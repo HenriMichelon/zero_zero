@@ -36,7 +36,6 @@ namespace z0 {
         // The following members are accessed by global function WinMain
         static Application* _instance;
 #ifdef _WIN32
-        MSG _messages;
         void _mainLoop();
 #endif
 
