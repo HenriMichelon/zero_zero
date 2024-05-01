@@ -11,8 +11,11 @@ namespace z0 {
 
     void BaseModelsRenderer::addNode(const shared_ptr<Node>& node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
-            currentCamera = camera;
-            log << "Using camera " << *currentCamera << endl;
+            if (currentCamera == nullptr) {
+                currentCamera = camera;
+                currentCamera->_setActive(true);
+                log << "Using camera " << *currentCamera << endl;
+            }
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
             const auto index = models.size();
             models.push_back(meshInstance);
@@ -25,7 +28,10 @@ namespace z0 {
 
     void BaseModelsRenderer::removeNode(const shared_ptr<z0::Node> &node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
-            if (camera == currentCamera) currentCamera = nullptr;
+            if (camera == currentCamera) {
+                currentCamera->_setActive(false);
+                currentCamera = nullptr;
+            }
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
             auto it = find(models.begin(), models.end(), meshInstance);
             if (it != models.end()) {
@@ -35,6 +41,13 @@ namespace z0 {
             descriptorSetNeedUpdate = true;
             log << "Removed model " << *meshInstance << endl;
         }
+    }
+
+    void BaseModelsRenderer::activateCamera(const shared_ptr<z0::Camera> &camera) {
+        if (currentCamera != nullptr) currentCamera->_setActive(false);
+        currentCamera = camera.get();
+        currentCamera->_setActive(true);
+        log << "Using camera " << *currentCamera << endl;
     }
 
     void BaseModelsRenderer::cleanup() {

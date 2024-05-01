@@ -90,7 +90,7 @@ namespace z0 {
     }
 
     bool Node::addChild(const shared_ptr<Node>& child) {
-        if (find(children.begin(), children.end(), child) != children.end()) return false;
+        if (haveChild(child)) return false;
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
@@ -100,13 +100,24 @@ namespace z0 {
     }
 
     bool Node::removeChild(const shared_ptr<Node>& node) {
-        if (find(children.begin(), children.end(), node) == children.end()) return false;
+        if (!haveChild(node)) return false;
         children.remove(node);
         node->parent = nullptr;
         Application::get().removeNode(node);
         return true;
     }
 
+    bool Node::haveChild(const shared_ptr<z0::Node> &child, bool recursive) {
+        if (recursive) {
+            if (haveChild(child)) return true;
+            for(const auto& node : children) {
+                if (node->haveChild(child, true)) return true;
+            }
+            return false;
+        } else {
+            return find(children.begin(), children.end(), child) != children.end();
+        }
+    }
 
     shared_ptr<Node> Node::duplicate() {
         shared_ptr<Node> dup = duplicateInstance();

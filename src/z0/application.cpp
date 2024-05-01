@@ -110,6 +110,12 @@ namespace z0 {
         removedNodes.push_back(node);
     }
 
+    void Application::activateCamera(const shared_ptr<z0::Camera> &camera) {
+        if (rootNode->haveChild(camera, true)) {
+            sceneRenderer->activateCamera(camera);
+        }
+    }
+
     void Application::drawFrame() {
         if (!addedNodes.empty()) {
             for (const auto &node: addedNodes) {

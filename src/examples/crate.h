@@ -1,4 +1,5 @@
 #include <z0/nodes/mesh_instance.h>
+#include <z0/nodes/camera.h>
 using namespace z0;
 
 class MainScene: public Node {
@@ -10,4 +11,6 @@ public:
 private:
     shared_ptr<Node> crateModel;
     list<shared_ptr<Node>> crates;
+    shared_ptr<Camera> camera1;
+    shared_ptr<Camera> camera2;
 };

@@ -10,8 +10,9 @@ namespace z0 {
 
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        virtual void addNode(const shared_ptr<Node>& node);
-        virtual void removeNode(const shared_ptr<Node>& node);
+        void addNode(const shared_ptr<Node>& node);
+        void removeNode(const shared_ptr<Node>& node);
+        void activateCamera(const shared_ptr<Camera>& camera);
         void cleanup() override;
 
     protected:

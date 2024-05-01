@@ -8,6 +8,8 @@ namespace z0 {
         explicit Camera(const string& nodeName = "Camera");
         ~Camera() override = default;
 
+        bool isActive() const { return active; }
+
         void setOrthographicProjection(float left, float right,
                                        float top, float bottom,
                                        float near, float far);
@@ -28,7 +30,11 @@ namespace z0 {
         mat4 projectionMatrix{1.0f};
         mat4 viewMatrix{1.0f};
         const vec3 direction{0.0f, 0.0f, 1.0f };
+        bool active{false};
 
         void setViewDirection();
+
+    public:
+        void _setActive(bool isActive) { active = isActive; }
     };
 }

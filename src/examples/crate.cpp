@@ -4,9 +4,14 @@
 #include <z0/loader.h>
 
 void MainScene::onReady() {
-    auto camera = make_shared<Camera>();
-    camera->setPosition({0.0f, 0.0f, 1.0f});
-    addChild(camera);
+    camera1 = make_shared<Camera>("Camera 1");
+    camera1->setPosition({0.0f, 0.0f, 1.0f});
+    addChild(camera1);
+    camera2 = make_shared<Camera>("Camera 2");
+    camera2->rotateX(radians(-90.0));
+    camera2->setPosition({0.0f, 10.0f, -10.0f});
+    addChild(camera2);
+
     crateModel = Loader::loadModelFromFile("models/crate.glb");
     crateModel->setPosition({-5.0f, 0.0f, -10.0f});
     addChild(crateModel);
@@ -23,6 +28,14 @@ void MainScene::onProcess(float alpha) {
     }
     if (Input::isKeyJustPressed(KEY_KP_SUBTRACT)) {
         if (removeChild(crates.back())) crates.pop_back();
+    }
+    if (Input::isKeyJustPressed(KEY_BACKSPACE)) {
+        if (camera1->isActive()) {
+            Application::get().activateCamera(camera2);
+        } else {
+            Application::get().activateCamera(camera1);
+        }
+
     }
 }
 

@@ -25,6 +25,7 @@ namespace z0 {
 
         void addNode(const shared_ptr<Node>& node);
         void removeNode(const shared_ptr<Node>& node);
+        void activateCamera(const shared_ptr<Camera>& camera);
 
     private:
         const ApplicationConfig& applicationConfig;
