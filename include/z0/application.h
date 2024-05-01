@@ -24,6 +24,7 @@ namespace z0 {
         void setPaused(bool pause) { paused = pause; }
 
         void addNode(const shared_ptr<Node>& node);
+        void removeNode(const shared_ptr<Node>& node);
 
     private:
         const ApplicationConfig& applicationConfig;
@@ -34,6 +35,7 @@ namespace z0 {
         bool paused{false};
         shared_ptr<SceneRenderer> sceneRenderer;
         vector<shared_ptr<Node>> addedNodes{};
+        vector<shared_ptr<Node>> removedNodes{};
 
         using Clock = std::chrono::steady_clock;
         static constexpr float dt = 0.01;

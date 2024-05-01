@@ -2,6 +2,8 @@
 #include "z0/resources/mesh.h"
 #include "z0/descriptors.h"
 
+#include <algorithm>
+
 namespace z0 {
 
     BaseModelsRenderer::BaseModelsRenderer(const Device &dev, const string& sDir):
@@ -12,12 +14,27 @@ namespace z0 {
             currentCamera = camera;
             log << "Using camera " << *currentCamera << endl;
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
+            const auto index = models.size();
             models.push_back(meshInstance);
-            addingModel(meshInstance);
+            addingModel(meshInstance, index);
             descriptorSetNeedUpdate = true;
             log << "Added model " << *meshInstance << endl;
         }
         createResources();
+    }
+
+    void BaseModelsRenderer::removeNode(const shared_ptr<z0::Node> &node) {
+        if (auto* camera = dynamic_cast<Camera*>(node.get())) {
+            if (camera == currentCamera) currentCamera = nullptr;
+        } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
+            auto it = find(models.begin(), models.end(), meshInstance);
+            if (it != models.end()) {
+                models.erase(it);
+                removingModel(meshInstance);
+            }
+            descriptorSetNeedUpdate = true;
+            log << "Removed model " << *meshInstance << endl;
+        }
     }
 
     void BaseModelsRenderer::cleanup() {

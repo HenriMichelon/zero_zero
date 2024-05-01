@@ -11,17 +11,19 @@ namespace z0 {
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
         virtual void addNode(const shared_ptr<Node>& node);
+        virtual void removeNode(const shared_ptr<Node>& node);
         void cleanup() override;
 
     protected:
         Camera* currentCamera {nullptr};
-        vector<MeshInstance*> models {};
+        list<MeshInstance*> models {};
         vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
 
         BaseModelsRenderer(const Device& device, const string& shaderDirectory);
 
-        virtual void addingModel(MeshInstance* meshInstance) {};
+        virtual void addingModel(MeshInstance* meshInstance, uint32_t index) {};
+        virtual void removingModel(MeshInstance* meshInstance) {};
         void setInitialState(VkCommandBuffer commandBuffer);
 
     public:

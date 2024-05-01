@@ -30,11 +30,12 @@ namespace z0 {
         void cleanup() override;
 
     protected:
-        void addingModel(MeshInstance* meshInstance) override;
+        void addingModel(MeshInstance* meshInstance, uint32_t index) override;
+        void removingModel(MeshInstance* meshInstance) override;
 
     private:
         map<Node::id_t, uint32_t> modelsIndices {};
-        vector<MeshInstance*> opaquesModels {};
+        list<MeshInstance*> opaquesModels {};
 
         // Offscreen frame buffers attachements
         ColorFrameBuffer colorFrameBufferMultisampled;
@@ -52,7 +53,7 @@ namespace z0 {
         void beginRendering(VkCommandBuffer commandBuffer) override;
         void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
 
-        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const vector<MeshInstance*>& modelsToDraw);
+        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw);
 
     public:
         SceneRenderer(const SceneRenderer&) = delete;

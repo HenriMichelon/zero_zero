@@ -16,11 +16,13 @@ void MainScene::onReady() {
 }
 
 void MainScene::onProcess(float alpha) {
-    if (Input::isKeyJustPressed(KEY_ENTER)) {
+    if (Input::isKeyJustPressed(KEY_KP_ADD)) {
         auto crate2 = crateModel->duplicate();
         crate2->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
-        addChild(crate2);
-        crates.push_back(crate2);
+        if (addChild(crate2)) crates.push_back(crate2);
+    }
+    if (Input::isKeyJustPressed(KEY_KP_SUBTRACT)) {
+        if (removeChild(crates.back())) crates.pop_back();
     }
 }
 

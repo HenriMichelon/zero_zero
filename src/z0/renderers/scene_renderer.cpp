@@ -20,11 +20,16 @@ namespace z0 {
         BaseModelsRenderer::cleanup();
     }
 
-    void SceneRenderer::addingModel(MeshInstance *meshInstance) {
-        auto it = find(models.begin(), models.end(), meshInstance);
-        if (it != models.end()) {
-            opaquesModels.push_back(meshInstance);
-            modelsIndices[meshInstance->getId()] = it - models.begin();
+    void SceneRenderer::addingModel(MeshInstance *meshInstance, uint32_t index) {
+        opaquesModels.push_back(meshInstance);
+        modelsIndices[meshInstance->getId()] = index;
+    }
+
+    void SceneRenderer::removingModel(z0::MeshInstance *meshInstance) {
+        auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
+        if (it != opaquesModels.end()) {
+            opaquesModels.erase(it);
+            modelsIndices.erase(meshInstance->getId());
         }
     }
 
@@ -65,7 +70,7 @@ namespace z0 {
         drawModels(commandBuffer, currentFrame, opaquesModels);
     }
 
-    void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const vector<MeshInstance*>& modelsToDraw) {
+    void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw) {
         for (const auto& meshInstance : modelsToDraw) {
             if (meshInstance->isValid()) {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];

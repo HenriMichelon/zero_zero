@@ -89,16 +89,27 @@ namespace z0 {
         }
     }
 
-    void Node::addChild(const shared_ptr<Node>& child) {
+    bool Node::addChild(const shared_ptr<Node>& child) {
+        if (find(children.begin(), children.end(), child) != children.end()) return false;
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
         if (inReady) child->_onReady();
         Application::get().addNode(child);
+        return true;
     }
 
+    bool Node::removeChild(const shared_ptr<Node>& node) {
+        if (find(children.begin(), children.end(), node) == children.end()) return false;
+        children.remove(node);
+        node->parent = nullptr;
+        Application::get().removeNode(node);
+        return true;
+    }
+
+
     shared_ptr<Node> Node::duplicate() {
-        std::shared_ptr<Node> dup = duplicateInstance();
+        shared_ptr<Node> dup = duplicateInstance();
         dup->children.clear();
         for(auto&child : children) {
             dup->addChild(child->duplicate());

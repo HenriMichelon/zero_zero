@@ -41,7 +41,8 @@ namespace z0 {
         bool isProcessed() const;
 
         Node* getParent() const { return parent; }
-        void addChild(const shared_ptr<Node>& child);
+        bool addChild(const shared_ptr<Node>& child);
+        bool removeChild(const shared_ptr<Node>& child);
         list<shared_ptr<Node>>& getChildren() { return children; }
         shared_ptr<Node> getChild(const string& name);
         shared_ptr<Node> getNode(const string& path);

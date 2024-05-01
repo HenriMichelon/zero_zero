@@ -103,12 +103,25 @@ namespace z0 {
         addedNodes.push_back(node);
     }
 
+    void Application::removeNode(const shared_ptr<z0::Node> &node) {
+        for(auto& child: node->getChildren()) {
+            removeNode(child);
+        }
+        removedNodes.push_back(node);
+    }
+
     void Application::drawFrame() {
         if (!addedNodes.empty()) {
             for (const auto &node: addedNodes) {
                 sceneRenderer->addNode(node);
             }
             addedNodes.clear();
+        }
+        if (!removedNodes.empty()) {
+            for (const auto &node: removedNodes) {
+                sceneRenderer->removeNode(node);
+            }
+            removedNodes.clear();
         }
 
         // https://gafferongames.com/post/fix_your_timestep/
