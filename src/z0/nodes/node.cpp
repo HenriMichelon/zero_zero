@@ -1,6 +1,10 @@
 #include "z0/nodes/node.h"
 #include "z0/application.h"
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include <algorithm>
 #include <utility>
 
@@ -40,6 +44,21 @@ namespace z0 {
         for (const auto& child : children) {
             child->updateTransform(worldTransform);
         }
+    }
+
+    void Node::rotateX(float angle) {
+        localTransform = rotate(localTransform, angle, AXIS_X);
+        updateTransform();
+    }
+
+    void Node::rotateY(float angle) {
+        localTransform = rotate(localTransform, angle, AXIS_Y);
+        updateTransform();
+    }
+
+    void Node::rotateZ(float angle) {
+        localTransform = rotate(localTransform, angle, AXIS_Z);
+        updateTransform();
     }
 
     void Node::addChild(const shared_ptr<Node>& child) {

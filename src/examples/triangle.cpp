@@ -1,6 +1,5 @@
 #include "triangle.h"
 #include <z0/application.h>
-#include <z0/nodes/mesh_instance.h>
 
 void Main::onReady() {
     cout << *this << ".onReady" << endl;
@@ -22,8 +21,13 @@ void Main::onReady() {
             make_shared<Surface>(0, indices.size())
     };
     auto triangleMesh = make_shared<Mesh>(vertices, indices, surfaces);
-    auto triangle = make_shared<MeshInstance>(triangleMesh);
+    triangle = make_shared<MeshInstance>(triangleMesh);
     addChild(triangle);
 
     printTree(cout);
+}
+
+void Main::onPhysicsProcess(float delta) {
+    auto angle = delta * radians(90.0f) / 2;
+    triangle->rotateY(angle);
 }

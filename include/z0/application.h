@@ -35,9 +35,21 @@ namespace z0 {
         shared_ptr<SceneRenderer> sceneRenderer;
         vector<shared_ptr<Node>> addedNodes{};
 
+        using Clock = std::chrono::steady_clock;
+        static constexpr float dt = 0.01;
+        double t = 0.0;
+        double currentTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+        double accumulator = 0.0;
+        uint32_t frameCount = 0;
+        float elapsedSeconds = 0.0;
+
         void start();
         void drawFrame();
         void end();
+
+        void ready(const std::shared_ptr<Node>& node);
+        void process(const std::shared_ptr<Node>& node, float alpha);
+        void physicsProcess(const std::shared_ptr<Node>& node, float delta);
 
     public:
         // The following members are accessed by global function WinMain

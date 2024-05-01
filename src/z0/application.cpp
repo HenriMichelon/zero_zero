@@ -19,6 +19,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszA
 
 namespace z0 {
 
+
     Application* Application::_instance = nullptr;
 
     Application::Application(const z0::ApplicationConfig &appConfig, const shared_ptr<Node>& node):
@@ -108,18 +109,69 @@ namespace z0 {
             }
             addedNodes.clear();
         }
+
+        // https://gafferongames.com/post/fix_your_timestep/
+        double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+        double frameTime = newTime - currentTime;
+        if (frameTime > 0.25) frameTime = 0.25; // Note: Max frame time to avoid spiral of death
+        currentTime = newTime;
+        accumulator += frameTime;
+        while (accumulator >= dt) {
+            physicsProcess(rootNode, dt);
+            t += dt;
+            accumulator -= dt;
+        }
+
+        const double alpha = accumulator / dt;
+        process(rootNode, static_cast<float>(alpha));
         device->drawFrame();
+
+        elapsedSeconds += static_cast<float>(frameTime);
+        frameCount++;
+        if (elapsedSeconds >= 0.250) {
+            auto fps = static_cast<float>(frameCount) / elapsedSeconds;
+#ifdef VULKAN_STATS
+            VulkanStats::get().averageFps = static_cast<uint32_t >((static_cast<float>(VulkanStats::get().averageFps) + fps) / 2.0f);
+#endif
+            //viewport->_setFPS(fps);
+            frameCount = 0;
+            elapsedSeconds = 0;
+        }
     }
 
     void Application::start() {
         addNode(rootNode);
-        rootNode->onReady();
+        ready(rootNode);
     }
 
     void Application::end() {
 #ifdef VULKAN_STATS
         VulkanStats::get().display();
 #endif
+    }
+
+    void Application::ready(const std::shared_ptr<Node>& node) {
+        for(auto& child: node->getChildren()) {
+            ready(child);
+        }
+        node->onReady();
+    }
+
+    void Application::process(const std::shared_ptr<Node>& node, float delta) {
+        if (node->isProcessed()) {
+            node->onProcess(delta);
+        }
+        for(auto& child: node->getChildren()) {
+            process(child, delta);
+        }
+    }
+    void Application::physicsProcess(const std::shared_ptr<Node>& node, float delta) {
+        if (node->isProcessed()) {
+            node->onPhysicsProcess(delta);
+        }
+        for(auto& child: node->getChildren()) {
+            physicsProcess(child, delta);
+        }
     }
 
 #ifdef _WIN32
