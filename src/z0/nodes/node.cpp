@@ -10,10 +10,16 @@ namespace z0 {
 
     Node::Node(string nodeName): name{std::move(nodeName)}, id{currentId++}   {
         replace(name.begin(), name.end(),  '/', '_');
+        localTransform = mat4 {1.0};
+        updateTransform(mat4{1.0f});
     }
 
     Node::Node(const Node& orig): id{currentId++} {
         name = orig.name;
+        parent = orig.parent;
+        localTransform = orig.localTransform;
+        worldTransform = orig.worldTransform;
+        processMode = orig.processMode;
     }
 
     void Node::setPosition(vec3 pos) {

@@ -16,11 +16,11 @@ namespace z0 {
 
         virtual void onReady() {}
 
-        glm::mat4& getTransform() { return localTransform; }
-        virtual void setTransform(glm::mat4 transform) { localTransform = transform; }
+        mat4& getTransform() { return localTransform; }
+        virtual void setTransform(mat4 transform) { localTransform = transform; }
         virtual void updateTransform(const mat4& parentMatrix);
         virtual void updateTransform();
-        glm::mat4 getTransformGlobal() const { return worldTransform; }
+        mat4 getTransformGlobal() const { return worldTransform; }
 
         // parent relative position
         virtual void setPosition(vec3 position);
