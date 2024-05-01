@@ -22,6 +22,7 @@ namespace z0 {
         VmaAllocator getAllocator() const { return allocator; }
         VkDevice getDevice() const { return device; }
         VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties; }
 
         VkImageView createImageView(VkImage image,
                                     VkFormat format,
