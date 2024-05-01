@@ -19,6 +19,8 @@ namespace z0 {
         const Window& getWindow() const;
         Device& getDevice() { return *device; }
         VkInstance getVkInstance() const { return vkInstance; }
+        bool isPaused() const { return paused; }
+        void setPaused(bool pause) { paused = pause; }
 
     private:
         const ApplicationConfig& applicationConfig;
@@ -26,6 +28,7 @@ namespace z0 {
         unique_ptr<Window> window;
         unique_ptr<Device> device;
         VkInstance vkInstance;
+        bool paused{false};
 
     public:
         // The following members are accessed by global function WinMain

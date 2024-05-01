@@ -8,13 +8,13 @@
 namespace z0 {
 
     Image::Image(const Device& dev,
-                 const filesystem::path& filename,
+                 const string& name,
                  uint32_t w,
                  uint32_t h,
-                 const VkDeviceSize imageSize,
+                 VkDeviceSize imageSize,
                  const void* data,
-                 const VkFormat format):
-            Resource(filename.string()),
+                 VkFormat format):
+            Resource(name),
             device{dev},
             width{w},
             height{h} {

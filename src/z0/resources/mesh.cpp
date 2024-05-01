@@ -43,11 +43,22 @@ namespace z0 {
         surfaces[surfaceIndex]->material = material;
     }
 
+    Mesh::Mesh(const Device &dev, const std::string& meshName):
+            Resource{meshName},
+            device{dev},
+            vertices{},
+            indices{} {
+    }
+
     Mesh::Mesh(const Device &dev, const vector<Vertex> &vtx, const vector<uint32_t> &idx, const std::string& meshName):
             Resource{meshName},
             device{dev},
             vertices{vtx},
-            indices(idx){
+            indices{idx} {
+        _buildModel();
+    }
+
+    void Mesh::_buildModel() {
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at leat 3");
@@ -69,7 +80,7 @@ namespace z0 {
         );
         vtxStagingBuffer.copyTo(*vertexBuffer, sizeof (vertices[0]) * vertexCount);
 
-        ////////////// Create indicex buffer
+        ////////////// Create indices buffer
         const auto indexCount = static_cast<uint32_t>(indices.size());
         if (indexCount <= 0) die("Unindexed meshes aren't supported");
         const auto indexSize = sizeof(indices[0]);
@@ -91,6 +102,7 @@ namespace z0 {
     }
 
     void Mesh::_draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count)  const{
+        assert(vertexBuffer != nullptr && indexBuffer != nullptr);
         //////// Bind to command buffer
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };

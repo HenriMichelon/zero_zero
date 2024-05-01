@@ -14,6 +14,7 @@ if (WIN32)
 endif()
 target_link_libraries(${PROJECT_NAME} volk)
 
+###### Using GLM for maths
 FetchContent_Declare(
         fetch_glm
         GIT_REPOSITORY https://github.com/g-truc/glm
@@ -21,3 +22,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fetch_glm)
 target_link_libraries(${PROJECT_NAME} glm::glm)
+
+###### Using FastGTLF to load models
+FetchContent_Declare(
+        fetch_fastgltf
+        GIT_REPOSITORY https://github.com/spnda/fastgltf
+        GIT_TAG        v0.7.1
+)
+FetchContent_MakeAvailable(fetch_fastgltf)
+target_link_libraries(${PROJECT_NAME} fastgltf)

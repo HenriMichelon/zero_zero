@@ -52,8 +52,10 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/stats.h
 		${Z0_INCLUDE_DIR}/descriptors.h
 		${Z0_INCLUDE_DIR}/color.h
+		${Z0_INCLUDE_DIR}/loader.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
+		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -68,8 +70,10 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/buffer.cpp
 		${Z0_ENGINE_DIR}/stats.cpp
 		${Z0_ENGINE_DIR}/descriptors.cpp
+		${Z0_ENGINE_DIR}/loader.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
+		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp

@@ -3,8 +3,6 @@
 #include "z0/device.h"
 #include "z0/resources/resource.h"
 
-#include <filesystem>
-
 namespace z0 {
 
     class Image: public Resource {
@@ -33,12 +31,12 @@ namespace z0 {
         VkDescriptorImageInfo _getImageInfo() const;
 
         explicit Image(const Device& device,
-                       const filesystem::path& filepath,
+                       const string& name,
                        uint32_t width,
                        uint32_t height,
-                       const VkDeviceSize imageSize,
+                       VkDeviceSize imageSize,
                        const void* data,
-                       const VkFormat format);
+                       VkFormat format);
     };
 
 }
