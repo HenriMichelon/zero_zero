@@ -9,7 +9,7 @@
 
 namespace z0 {
 
-    Buffer::Buffer(Device &dev,
+    Buffer::Buffer(const Device &dev,
                    VkDeviceSize instanceSize,
                    uint32_t instanceCount,
                    VkBufferUsageFlags usageFlags,
@@ -55,7 +55,7 @@ namespace z0 {
         return vmaMapMemory(device.getAllocator(), allocation, &mapped);
     }
 
-    void Buffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset) const {
+    void Buffer::writeToBuffer(const void *data, const VkDeviceSize size, const VkDeviceSize offset) const {
         if (size == VK_WHOLE_SIZE) {
             vmaCopyMemoryToAllocation(device.getAllocator(),
                                       data,
@@ -71,7 +71,7 @@ namespace z0 {
         }
     }
 
-    VkDescriptorBufferInfo Buffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) const {
+    const VkDescriptorBufferInfo Buffer::descriptorInfo(const VkDeviceSize size, const VkDeviceSize offset) const {
         return VkDescriptorBufferInfo{
                 buffer,
                 offset,
@@ -79,7 +79,7 @@ namespace z0 {
         };
     }
 
-    void Buffer::copyTo(Buffer& dstBuffer, VkDeviceSize size) const {
+    void Buffer::copyTo(Buffer& dstBuffer, const VkDeviceSize size) const {
         VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
         const VkBufferCopy copyRegion {size };
         vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);

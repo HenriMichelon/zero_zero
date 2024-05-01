@@ -9,13 +9,13 @@ namespace z0 {
         using id_t = unsigned int;
 
         explicit Node(string name = "Node");
-        Node(const Node&);
+        explicit Node(const Node&);
         virtual ~Node() = default;
 
         virtual void onReady() {}
 
         id_t getId() const { return id; }
-        bool operator==(const Node& other) const { return id == other.id;}
+        bool operator == (const Node& other) const { return id == other.id;}
 
     protected:
         string name;
@@ -23,9 +23,8 @@ namespace z0 {
         string toString() const override { return name; }
 
     private:
-        id_t id;
+        const id_t id;
         static id_t currentId;
-
     };
 
 }

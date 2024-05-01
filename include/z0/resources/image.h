@@ -13,14 +13,14 @@ namespace z0 {
 
         uint32_t getWidth() const { return width; }
         uint32_t getHeight() const { return height; }
-        vec2 getSize() const { return glm::vec2{getWidth(), getHeight()}; }
+        vec2 getSize() const { return vec2{getWidth(), getHeight()}; }
 
+        // Load image from file, relative to the application directory
         static shared_ptr<Image> loadFromFile(const string& filepath);
 
     private:
-        Device& device;
-        uint32_t width, height;
-        uint32_t mipLevels;
+        const Device& device;
+        uint32_t width, height, mipLevels;
         VkImage textureImage;
         VkDeviceMemory textureImageMemory;
         VkImageView textureImageView;
@@ -30,15 +30,15 @@ namespace z0 {
         void generateMipmaps(VkFormat imageFormat);
 
     public:
-        VkDescriptorImageInfo _getImageInfo();
+        VkDescriptorImageInfo _getImageInfo() const;
 
-        explicit Image(Device& device,
+        explicit Image(const Device& device,
                        const filesystem::path& filepath,
                        uint32_t width,
                        uint32_t height,
-                       VkDeviceSize imageSize,
-                       void* data,
-                       VkFormat format);
+                       const VkDeviceSize imageSize,
+                       const void* data,
+                       const VkFormat format);
     };
 
 }

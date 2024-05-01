@@ -27,7 +27,7 @@ namespace z0 {
                                     VkFormat format,
                                     VkImageAspectFlags aspectFlags,
                                     uint32_t mipLevels = 1,
-                                    VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D);
+                                    VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D) const;
         void createImage(uint32_t width,
                          uint32_t height,
                          uint32_t mipLevels,
@@ -39,8 +39,8 @@ namespace z0 {
                          VkImage& image,
                          VkDeviceMemory& imageMemory,
                          VkImageCreateFlags flags = 0,
-                         uint32_t layers = 1);
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+                         uint32_t layers = 1) const;
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         void transitionImageLayout(VkCommandBuffer commandBuffer,
                                    VkImage image,
                                    VkImageLayout oldLayout,
@@ -50,9 +50,9 @@ namespace z0 {
                                    VkPipelineStageFlags srcStageMask,
                                    VkPipelineStageFlags dstStageMask,
                                    VkImageAspectFlags aspectMask,
-                                   uint32_t mipLevels = 1);
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+                                   uint32_t mipLevels = 1) const;
+        VkCommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
     private:
         const Window& window;
@@ -114,15 +114,15 @@ namespace z0 {
         };
 
         // Rate physical device by properties to find the best suitable GPU
-        uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions);
+        uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) const;
         // Get the swap chain capabilities
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) const;
         // Get the supported queues families for a particular GPU
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
         // Get the maximum MSAA samples
-        VkSampleCountFlagBits getMaxUsableMSAASampleCount();
+        VkSampleCountFlagBits getMaxUsableMSAASampleCount() const;
         // Get the swap chain images sizes
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 
     public:
         Device(const Device&) = delete;

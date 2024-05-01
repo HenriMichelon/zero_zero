@@ -240,7 +240,7 @@ namespace z0 {
                              VkImage &image,
                              VkDeviceMemory &imageMemory,
                              VkImageCreateFlags flags,
-                             uint32_t layers) {
+                             uint32_t layers) const {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -281,7 +281,7 @@ namespace z0 {
                                         VkFormat format,
                                         VkImageAspectFlags aspectFlags,
                                         uint32_t mipLevels,
-                                        VkImageViewType type) {
+                                        VkImageViewType type) const {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
@@ -309,7 +309,7 @@ namespace z0 {
                                        VkPipelineStageFlags srcStageMask,
                                        VkPipelineStageFlags dstStageMask,
                                        VkImageAspectFlags aspectMask,
-                                       uint32_t mipLevels) {
+                                       uint32_t mipLevels) const {
         VkImageMemoryBarrier barrier = {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                 .srcAccessMask = srcAccessMask,
@@ -435,7 +435,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Multisampling#page_Getting-available-sample-count
-    VkSampleCountFlagBits Device::getMaxUsableMSAASampleCount() {
+    VkSampleCountFlagBits Device::getMaxUsableMSAASampleCount() const {
         VkPhysicalDeviceProperties physicalDeviceProperties;
         vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
         VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
@@ -463,7 +463,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Querying-details-of-swap-chain-support
-    Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) {
+    Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) const {
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, surface, &details.capabilities);
         uint32_t formatCount;
@@ -482,7 +482,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
-    Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
+    Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const {
         QueueFamilyIndices indices;
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, nullptr);
@@ -501,7 +501,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Base-device-suitability-checks
-    uint32_t Device::rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) {
+    uint32_t Device::rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) const {
         VkPhysicalDeviceProperties _deviceProperties;
         vkGetPhysicalDeviceProperties(vkPhysicalDevice, &_deviceProperties);
         VkPhysicalDeviceFeatures deviceFeatures;
@@ -548,7 +548,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Swap-extent
-    VkExtent2D Device::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
+    VkExtent2D Device::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const {
         if (capabilities.currentExtent.width != numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         } else {
@@ -566,7 +566,7 @@ namespace z0 {
         }
     }
 
-    uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
         VkPhysicalDeviceMemoryProperties memProperties;
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
@@ -580,7 +580,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
-    VkCommandBuffer Device::beginSingleTimeCommands() {
+    VkCommandBuffer Device::beginSingleTimeCommands() const {
         const VkCommandBufferAllocateInfo allocInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 .commandPool = commandPool,
@@ -599,7 +599,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
-    void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+    void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) const {
         vkEndCommandBuffer(commandBuffer);
         const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,

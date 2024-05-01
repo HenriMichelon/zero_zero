@@ -19,44 +19,37 @@ namespace z0 {
         }
     };
 
-    struct MeshSurface {
+    struct Surface {
         uint32_t firstVertexIndex;
         uint32_t indexCount;
         shared_ptr<Material> material;
-        MeshSurface(uint32_t first, uint32_t count): firstVertexIndex{first}, indexCount{count} {};
+        Surface(uint32_t first, uint32_t count): firstVertexIndex{first}, indexCount{count} {};
     };
 
     class Mesh: public Resource {
     public:
-        explicit Mesh(const std::string& meshName): Resource{meshName} {};
+        Mesh(const Device &dev, const vector<Vertex> &vertices, const vector<uint32_t> &indices, const std::string& meshName);
 
-        vector<std::shared_ptr<MeshSurface>>& getSurfaces() { return surfaces; };
-        shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex);
+        const vector<std::shared_ptr<Surface>>& getSurfaces() const { return surfaces; };
+        const shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex) const;
         void setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material>& material);
         vector<Vertex>& getVertices() { return vertices; }
         vector<uint32_t>& getIndices() { return indices; }
 
     private:
+        const Device& device;
         vector<Vertex> vertices{};
         vector<uint32_t> indices{};
-        vector<std::shared_ptr<MeshSurface>> surfaces{};
+        vector<std::shared_ptr<Surface>> surfaces{};
         unordered_set<std::shared_ptr<Material>> _materials{};
-
-        Device& device;
-        uint32_t vertexCount{0};
-        uint32_t indexCount{0};
         unique_ptr<Buffer> vertexBuffer;
         unique_ptr<Buffer> indexBuffer;
 
-        void bind(VkCommandBuffer commandBuffer);
-        void createVertexBuffers();
-        void createIndexBuffers();
-
     public:
-        unordered_set<std::shared_ptr<Material>>& _getMaterials() { return _materials; };
+        const unordered_set<std::shared_ptr<Material>>& _getMaterials() const { return _materials; };
         static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
         static vector<VkVertexInputAttributeDescription2EXT> _getAttributeDescription();
-        void _draw(VkCommandBuffer commandBuffer, uint32_t first, uint32_t count);
+        void _draw(VkCommandBuffer commandBuffer, uint32_t first, uint32_t count) const;
 
         Mesh(const Mesh&) = delete;
         Mesh &operator=(const Mesh&) = delete;

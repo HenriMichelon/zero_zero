@@ -7,13 +7,13 @@
 
 namespace z0 {
 
-    Image::Image(Device& dev,
+    Image::Image(const Device& dev,
                  const filesystem::path& filename,
                  uint32_t w,
                  uint32_t h,
-                 VkDeviceSize imageSize,
-                 void* data,
-                 VkFormat format):
+                 const VkDeviceSize imageSize,
+                 const void* data,
+                 const VkFormat format):
             Resource(filename.string()),
             device{dev},
             width{w},
@@ -113,7 +113,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Combined_image_sampler#page_Updating-the-descriptors
-    VkDescriptorImageInfo Image::_getImageInfo() {
+    VkDescriptorImageInfo Image::_getImageInfo() const {
         return VkDescriptorImageInfo {
                 .sampler = textureSampler,
                 .imageView = textureImageView,
