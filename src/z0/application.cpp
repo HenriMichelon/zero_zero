@@ -117,6 +117,8 @@ namespace z0 {
     }
 
     void Application::drawFrame() {
+        if (stopped) return;
+
         if (!addedNodes.empty()) {
             for (const auto &node: addedNodes) {
                 sceneRenderer->addNode(node);

@@ -34,6 +34,7 @@ namespace z0 {
         unique_ptr<Device> device;
         VkInstance vkInstance;
         bool paused{false};
+        bool stopped{false};
         shared_ptr<SceneRenderer> sceneRenderer;
         vector<shared_ptr<Node>> addedNodes{};
         vector<shared_ptr<Node>> removedNodes{};
@@ -61,7 +62,7 @@ namespace z0 {
 #ifdef _WIN32
         void _mainLoop();
 #endif
-
+        void _stop(bool stop) { stopped = stop; };
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
     };

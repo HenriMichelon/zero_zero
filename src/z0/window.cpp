@@ -1,3 +1,4 @@
+#include "z0/application.h"
 #include "z0/window.h"
 #include "z0/input.h"
 
@@ -14,12 +15,13 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             // Save the Window pointer passed to CreateWindowEx
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
             return 0;
-        case WM_SIZING:
-        case WM_ACTIVATE: {
-            // Get window content size
-            RECT rect = {};
-            GetClientRect(hwnd, &rect);
-            window->_setSize( rect.right - rect.left, rect.bottom - rect.top);
+        case WM_SIZE: {
+            if (!IsIconic(hwnd)) {
+                // Get window content size
+                RECT rect = {};
+                GetClientRect(hwnd, &rect);
+                window->_setSize(rect.right - rect.left, rect.bottom - rect.top);
+            }
             break;
         }
         case WM_SYSCOMMAND:
@@ -28,6 +30,12 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 window->close();
                 // cancel the default close operation
                 return 0;
+            } else if (wParam == SC_MINIMIZE) {
+                z0::Application::get()._stop(true);
+                ShowWindow(hwnd, SW_MINIMIZE);
+            } else if (wParam == SC_RESTORE ) {
+                ShowWindow(hwnd, SW_RESTORE);
+                z0::Application::get()._stop(false);
             }
             break;
         case WM_KEYDOWN: {
@@ -104,11 +112,10 @@ namespace z0 {
         int w = CW_USEDEFAULT;
         int h = CW_USEDEFAULT;
 
-        DWORD style = 0;
+        DWORD style = WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER;
         DWORD exStyle = 0;
         switch (applicationConfig.windowMode) {
             case WINDOW_MODE_WINDOWED:{
-                style = WS_OVERLAPPEDWINDOW;
                 RECT rect{
                     .left = 0,
                     .top = 0,
@@ -123,7 +130,7 @@ namespace z0 {
                 break;
             }
             case WINDOW_MODE_WINDOWED_MAXIMIZED:{
-                style = WS_OVERLAPPEDWINDOW | WS_MAXIMIZE;
+                style |=  WS_MAXIMIZE;
                 break;
             }
             case WINDOW_MODE_FULLSCREEN: {
