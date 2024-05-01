@@ -19,7 +19,7 @@ namespace z0 {
         VkImageView imageView;
         VkDeviceMemory imageMemory;
 
-        BaseFrameBuffer(const Device &dev): device{dev} {};
+        explicit BaseFrameBuffer(const Device &dev): device{dev} {};
 
         // Helper function for children classes
         void createImage(uint32_t width,

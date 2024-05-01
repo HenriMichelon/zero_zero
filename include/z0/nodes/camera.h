@@ -5,8 +5,8 @@
 namespace z0 {
     class Camera: public Node {
     public:
-        explicit Camera(const string nodeName = "Camera");
-        virtual ~Camera() = default;
+        explicit Camera(const string& nodeName = "Camera");
+        ~Camera() override = default;
 
         void setOrthographicProjection(float left, float right,
                                        float top, float bottom,
@@ -17,8 +17,8 @@ namespace z0 {
         const mat4& getProjection();
         const mat4& getView() const { return viewMatrix; }
 
-        void updateTransform(const mat4& parentMatrix);
-        void updateTransform();
+        void updateTransform(const mat4& parentMatrix) override;
+        void updateTransform() override;
 
     private:
         float fov{75.0};
@@ -27,10 +27,8 @@ namespace z0 {
         bool usePerspectiveProjection{false};
         mat4 projectionMatrix{1.0f};
         mat4 viewMatrix{1.0f};
-
         const vec3 direction{0.0f, 0.0f, 1.0f };
 
         void setViewDirection();
-
     };
 }

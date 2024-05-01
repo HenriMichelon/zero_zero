@@ -53,7 +53,7 @@ namespace z0 {
                 .imageExtent = { width, height, 1 },
         };
         VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
-        device.transitionImageLayout(commandBuffer,
+        Device::transitionImageLayout(commandBuffer,
                                    textureImage,
                                    VK_IMAGE_LAYOUT_UNDEFINED,
                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -87,7 +87,7 @@ namespace z0 {
         // Create texture image
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Loading-an-image
         int texWidth, texHeight, texChannels;
-        stbi_uc *pixels = stbi_load(filepath.c_str(),
+        auto* pixels = stbi_load(filepath.c_str(),
                                     &texWidth,
                                     &texHeight,
                                     &texChannels,
@@ -208,8 +208,6 @@ namespace z0 {
 
     // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Samplers
     void Image::createTextureSampler() {
-        VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(device.getPhysicalDevice(), &properties);
         const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 .magFilter = VK_FILTER_LINEAR,
@@ -220,7 +218,7 @@ namespace z0 {
                 .addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,
                 .mipLodBias = 0.0f, // Optional
                 .anisotropyEnable = VK_TRUE, // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Anisotropy-device-feature
-                .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
+                .maxAnisotropy = device.getDeviceProperties().limits.maxSamplerAnisotropy,
                 .compareEnable = VK_FALSE,
                 .compareOp = VK_COMPARE_OP_ALWAYS,
                 .minLod =  0.0f,

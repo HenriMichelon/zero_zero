@@ -8,7 +8,7 @@ namespace z0 {
 
     class Texture: public Resource {
     public:
-        explicit Texture(string resName): Resource{std::move(resName)} {};
+        explicit Texture(const string& resName): Resource{resName} {};
         virtual uint32_t getWidth() const = 0;
         virtual uint32_t getHeight() const = 0;
         virtual vec2 getSize() const { return vec2{getWidth(), getHeight()}; };
@@ -24,7 +24,7 @@ namespace z0 {
         uint32_t getHeight() const override { return image->getHeight(); };
 
     protected:
-        std::shared_ptr<Image> image {nullptr};
+        shared_ptr<Image> image {nullptr};
     };
 
 

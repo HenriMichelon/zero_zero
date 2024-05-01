@@ -7,10 +7,10 @@
 
 namespace z0 {
 
-    BaseRenderpass::BaseRenderpass(const Device &dev, string sDir) :
+    BaseRenderpass::BaseRenderpass(const Device &dev, const string& sDir) :
             device{dev},
             vkDevice{dev.getDevice()},
-            shaderDirectory(std::move(sDir)) {}
+            shaderDirectory(sDir) {}
 
     void BaseRenderpass::cleanup() {
         globalUniformBuffers.clear();
@@ -40,7 +40,7 @@ namespace z0 {
     }
 
     void BaseRenderpass::writeUniformBuffer(const std::vector<std::unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index) {
-        uint32_t size = buffers[currentFrame]->getAlignmentSize();
+        const auto size = buffers[currentFrame]->getAlignmentSize();
         buffers[currentFrame]->writeToBuffer(data, size, size * index);
     }
 
@@ -87,11 +87,11 @@ namespace z0 {
         }
     }
 
-    std::unique_ptr<Shader> BaseRenderpass::createShader(const std::string& filename,
-                                                               VkShaderStageFlagBits stage,
-                                                               VkShaderStageFlags next_stage) {
+    unique_ptr<Shader> BaseRenderpass::createShader(const string& filename,
+                                                    VkShaderStageFlagBits stage,
+                                                    VkShaderStageFlags next_stage) {
         auto code = readFile(filename);
-        std::unique_ptr<Shader> shader  = std::make_unique<Shader>(
+        unique_ptr<Shader> shader  = make_unique<Shader>(
                 device,
                 stage,
                 next_stage,
@@ -132,15 +132,15 @@ namespace z0 {
     }
 
     std::vector<char> BaseRenderpass::readFile(const std::string &fileName) {
-        std::filesystem::path filepath = shaderDirectory;
+        filesystem::path filepath = shaderDirectory;
         filepath /= fileName;
         filepath += ".spv";
-        std::ifstream file{filepath, std::ios::ate | std::ios::binary};
+        ifstream file{filepath, std::ios::ate | std::ios::binary};
         if (!file.is_open()) {
             die("failed to open file : ", fileName);
         }
         size_t fileSize = static_cast<size_t>(file.tellg());
-        std::vector<char> buffer(fileSize);
+        vector<char> buffer(fileSize);
         file.seekg(0);
         file.read(buffer.data(), fileSize);
         file.close();

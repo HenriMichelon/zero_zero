@@ -4,8 +4,8 @@
 
 namespace z0 {
 
-    BaseModelsRenderer::BaseModelsRenderer(const Device &dev, std::string sDir):
-        BaseRenderpass(dev, std::move(sDir)) {}
+    BaseModelsRenderer::BaseModelsRenderer(const Device &dev, const string& sDir):
+        BaseRenderpass(dev, sDir) {}
 
     void BaseModelsRenderer::addNode(const shared_ptr<Node>& node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
@@ -31,8 +31,8 @@ namespace z0 {
         vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
         vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
-        auto vertexBinding = Mesh::_getBindingDescription();
-        auto vertexAttribute = Mesh::_getAttributeDescription();
+        const auto vertexBinding = Mesh::_getBindingDescription();
+        const auto vertexAttribute = Mesh::_getAttributeDescription();
         vkCmdSetVertexInputEXT(commandBuffer,
                                vertexBinding.size(),
                                vertexBinding.data(),

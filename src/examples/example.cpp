@@ -10,4 +10,4 @@ const ApplicationConfig applicationConfig {
     .windowWidth = 1024,
     .windowHeight = 768,
 };
-Application application(applicationConfig, make_shared<Main>());
+Application application(applicationConfig, make_shared<MainScene>());

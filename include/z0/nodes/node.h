@@ -11,7 +11,7 @@ namespace z0 {
         using id_t = unsigned int;
 
         Node(const Node&);
-        explicit Node(string name = "Node");
+        explicit Node(const string& name = "Node");
         virtual ~Node() = default;
 
         virtual void onReady() {}
@@ -61,7 +61,10 @@ namespace z0 {
         static id_t currentId;
         const id_t id;
         ProcessMode processMode{PROCESS_MODE_INHERIT};
+        bool inReady{false};
 
+    public:
+        virtual void _onReady();
     };
 
 }

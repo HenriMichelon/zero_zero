@@ -5,13 +5,12 @@
 #include "z0/renderers/scene_renderer.h"
 
 #include <array>
-#include <set>
 #include <algorithm>
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(const Device &dev, std::string sDir) :
-            BaseModelsRenderer{dev, std::move(sDir)},
+    SceneRenderer::SceneRenderer(const Device &dev, const string& sDir) :
+            BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
      }
@@ -69,10 +68,10 @@ namespace z0 {
     void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const vector<MeshInstance*>& modelsToDraw) {
         for (const auto& meshInstance : modelsToDraw) {
             if (meshInstance->isValid()) {
-                auto modelIndex = modelsIndices[meshInstance->getId()];
-                auto model = meshInstance->getMesh();
+                const auto& modelIndex = modelsIndices[meshInstance->getId()];
+                const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
-                    std::array<uint32_t, 2> offsets = {
+                    array<uint32_t, 2> offsets = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                     };
@@ -113,7 +112,7 @@ namespace z0 {
         for (uint32_t i = 0; i < descriptorSets.size(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
-            std::vector<VkDescriptorImageInfo> imagesInfo{};
+            vector<VkDescriptorImageInfo> imagesInfo{};
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeBuffer(1, &modelBufferInfo);

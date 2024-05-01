@@ -3,8 +3,8 @@
 namespace z0 {
 
     DepthFrameBuffer::DepthFrameBuffer(const Device &dev, bool _multisampled):
-    BaseFrameBuffer{dev},
-    multisampled{_multisampled} {
+        BaseFrameBuffer{dev},
+        multisampled{_multisampled} {
          createImagesResources();
      }
 

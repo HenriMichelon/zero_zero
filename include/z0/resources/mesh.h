@@ -28,11 +28,11 @@ namespace z0 {
 
     class Mesh: public Resource {
     public:
-        explicit Mesh(const std::string& meshName = "Mesh");
+        explicit Mesh(const string& meshName = "Mesh");
         Mesh(const vector<Vertex> &vertices,
              const vector<uint32_t> &indices,
              const vector<shared_ptr<Surface>>& surfaces,
-             const std::string& meshName = "Mesh");
+             const string& meshName = "Mesh");
 
         vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
         const shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex) const;

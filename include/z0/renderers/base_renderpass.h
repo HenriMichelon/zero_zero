@@ -30,19 +30,17 @@ namespace z0 {
                     1.0f}}};
         const VkClearValue depthClearValue { .depthStencil = {1.0f, 0} };
 
-        BaseRenderpass(const Device& device, std::string shaderDirectory);
+        BaseRenderpass(const Device& device, const string& shaderDirectory);
 
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
-        static void writeUniformBuffer(const std::vector<std::unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index = 0);
+        static void writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index = 0);
 
         void createResources();
-        void createUniformBuffers(std::vector<std::unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count = 1);
+        void createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count = 1);
         void bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count = 0, uint32_t *offsets = nullptr);
         void bindShaders(VkCommandBuffer commandBuffer);
-        std::unique_ptr<Shader> createShader(const std::string& filename,
-                                                   VkShaderStageFlagBits stage,
-                                                   VkShaderStageFlags next_stage);
+        unique_ptr<Shader> createShader(const string& filename, VkShaderStageFlagBits stage, VkShaderStageFlags next_stage);
 
         virtual void loadShaders() = 0;
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
@@ -51,7 +49,8 @@ namespace z0 {
     private:
         void buildShader(Shader& shader);
         void createPipelineLayout();
-        std::vector<char> readFile(const std::string& fileName);
+
+        vector<char> readFile(const string& fileName);
 
     public:
         BaseRenderpass(const BaseRenderpass&) = delete;

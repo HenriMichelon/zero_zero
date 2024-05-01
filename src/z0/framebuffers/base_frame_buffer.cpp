@@ -19,15 +19,11 @@ namespace z0 {
                                       VkSampleCountFlagBits samples,
                                       VkImageUsageFlags usage,
                                       VkImageAspectFlags flags) {
-        device.createImage(width,
-                                 height,
-                                 1,
-                                 samples,
-                                 format,
-                                 VK_IMAGE_TILING_OPTIMAL,
-                                 usage,
-                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                 image, imageMemory);
+        device.createImage(width, height,
+                           1,samples,
+                           format,VK_IMAGE_TILING_OPTIMAL,
+                           usage,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                           image, imageMemory);
         imageView = device.createImageView(image, format,flags,1);
     }
 

@@ -35,14 +35,14 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
 
         // Check if all the requested Vulkan layers are supported by the Vulkan instance
-        const std::vector<const char*> requestedLayers = {
+        const vector<const char*> requestedLayers = {
 #ifndef NDEBUG
                 "VK_LAYER_KHRONOS_validation"
 #endif
         };
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vector<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
         for (const char* layerName : requestedLayers) {
             bool layerFound = false;
@@ -55,7 +55,7 @@ namespace z0 {
             if (!layerFound) die("A requested Vulkan layer is not supported");
         }
 
-        std::vector<const char*> instanceExtensions{};
+        vector<const char*> instanceExtensions{};
         // Abstract native platform surface or window objects for use with Vulkan.
         instanceExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef _WIN32
@@ -154,7 +154,7 @@ namespace z0 {
         for(auto& child: node->getChildren()) {
             ready(child);
         }
-        node->onReady();
+        node->_onReady();
     }
 
     void Application::process(const std::shared_ptr<Node>& node, float delta) {

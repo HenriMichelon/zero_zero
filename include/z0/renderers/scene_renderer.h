@@ -21,7 +21,7 @@ namespace z0 {
             mat4 matrix;
         };
 
-        SceneRenderer(const Device& device, std::string shaderDirectory);
+        SceneRenderer(const Device& device, const string& shaderDirectory);
 
         shared_ptr<ColorFrameBufferHDR>& getColorFrameBufferHDR() { return colorFrameBufferHdr; }
         VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }

@@ -14,11 +14,10 @@ namespace z0 {
         public:
             explicit Builder(const Device &dev) : device{dev} {}
 
-            Builder& addBinding(
-                    uint32_t binding,
-                    VkDescriptorType descriptorType,
-                    VkShaderStageFlags stageFlags,
-                    uint32_t count = 1);
+            Builder& addBinding(uint32_t binding,
+                                VkDescriptorType descriptorType,
+                                VkShaderStageFlags stageFlags,
+                                uint32_t count = 1);
             unique_ptr<DescriptorSetLayout> build() const;
 
         private:

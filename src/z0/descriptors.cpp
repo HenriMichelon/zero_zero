@@ -40,10 +40,11 @@ namespace z0 {
         for (auto kv : bindings) {
             setLayoutBindings.push_back(kv.second);
         }
-        VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
-        descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-        descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+        const VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                .bindingCount = static_cast<uint32_t>(setLayoutBindings.size()),
+                .pBindings = setLayoutBindings.data(),
+        };
         if (vkCreateDescriptorSetLayout(
                 device.getDevice(),
                 &descriptorSetLayoutInfo,
@@ -78,19 +79,18 @@ namespace z0 {
         return std::make_unique<DescriptorPool>(device, maxSets, poolFlags, poolSizes);
     }
 
-    DescriptorPool::DescriptorPool(
-            const Device &device,
-            uint32_t maxSets,
-            VkDescriptorPoolCreateFlags poolFlags,
-            const std::vector<VkDescriptorPoolSize> &poolSizes):
+    DescriptorPool::DescriptorPool(const Device &device,
+                                   uint32_t maxSets,
+                                   VkDescriptorPoolCreateFlags poolFlags,
+                                   const std::vector<VkDescriptorPoolSize> &poolSizes):
             device{device} {
-        VkDescriptorPoolCreateInfo descriptorPoolInfo{};
-        descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-        descriptorPoolInfo.pPoolSizes = poolSizes.data();
-        descriptorPoolInfo.maxSets = maxSets;
-        descriptorPoolInfo.flags = poolFlags;
-
+        const VkDescriptorPoolCreateInfo descriptorPoolInfo{
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+                .flags = poolFlags,
+                .maxSets = maxSets,
+                .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
+                .pPoolSizes = poolSizes.data(),
+        };
         if (vkCreateDescriptorPool(device.getDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
             VK_SUCCESS) {
             die("failed to create descriptor pool!");
@@ -101,14 +101,14 @@ namespace z0 {
         vkDestroyDescriptorPool(device.getDevice(), descriptorPool, nullptr);
     }
 
-    bool DescriptorPool::allocateDescriptor(
-            const VkDescriptorSetLayout& descriptorSetLayout, VkDescriptorSet &descriptor) const {
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = descriptorPool;
-        allocInfo.pSetLayouts = &descriptorSetLayout;
-        allocInfo.descriptorSetCount = 1;
-
+    bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout& descriptorSetLayout,
+                                            VkDescriptorSet &descriptor) const {
+        const VkDescriptorSetAllocateInfo allocInfo{
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+                .descriptorPool = descriptorPool,
+                .descriptorSetCount = 1,
+                .pSetLayouts = &descriptorSetLayout,
+        };
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
         if (vkAllocateDescriptorSets(device.getDevice(), &allocInfo, &descriptor) != VK_SUCCESS) {
@@ -120,7 +120,7 @@ namespace z0 {
         return true;
     }
 
-    void DescriptorPool::freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const {
+    void DescriptorPool::freeDescriptors(vector<VkDescriptorSet> &descriptors) const {
         vkFreeDescriptorSets(
                 device.getDevice(),
                 descriptorPool,
@@ -138,7 +138,7 @@ namespace z0 {
 
     DescriptorWriter &DescriptorWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
-        auto &bindingDescription = setLayout.bindings[binding];
+        const auto &bindingDescription = setLayout.bindings[binding];
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
             .dstBinding = binding,
@@ -152,7 +152,7 @@ namespace z0 {
 
     DescriptorWriter &DescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
-        auto &bindingDescription = setLayout.bindings[binding];
+        const auto &bindingDescription = setLayout.bindings[binding];
         VkWriteDescriptorSet write{
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
             .dstBinding = binding,
@@ -165,7 +165,7 @@ namespace z0 {
     }
 
     bool DescriptorWriter::build(VkDescriptorSet &set) {
-        bool success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
+        auto success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
         if (!success) {
             return false;
         }

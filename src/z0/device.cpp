@@ -73,7 +73,7 @@ namespace z0 {
         vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
         {
-            float queuePriority = 1.0f;
+            auto queuePriority = 1.0f;
             set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
             for (uint32_t queueFamily: uniqueQueueFamilies) {
                 const VkDeviceQueueCreateInfo queueCreateInfo{
@@ -127,7 +127,7 @@ namespace z0 {
         ////////////////////  Create the device command pool
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+        auto queueFamilyIndices = findQueueFamilies(physicalDevice);
         const VkCommandPoolCreateInfo poolInfo = {
                 .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                 .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
@@ -423,34 +423,32 @@ namespace z0 {
                              VkDeviceMemory &imageMemory,
                              VkImageCreateFlags flags,
                              uint32_t layers) const {
-        VkImageCreateInfo imageInfo{};
-        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        imageInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageInfo.extent.width = width;
-        imageInfo.extent.height = height;
-        imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = mipLevels;
-        imageInfo.arrayLayers = layers;
-        imageInfo.format = format;
-        imageInfo.tiling = tiling;
-        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageInfo.usage = usage;
-        imageInfo.samples = numSamples;
-        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        imageInfo.flags = flags;
-
+        const VkImageCreateInfo imageInfo{
+                .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+                .flags = flags,
+                .imageType = VK_IMAGE_TYPE_2D,
+                .format = format,
+                .extent = { width, height, 1 },
+                .mipLevels = mipLevels,
+                .arrayLayers = layers,
+                .samples = numSamples,
+                .tiling = tiling,
+                .usage = usage,
+                .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        };
         if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image!");
+            die("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(device, image, &memRequirements);
 
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
+        const VkMemoryAllocateInfo allocInfo{
+                .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                .allocationSize = memRequirements.size,
+                .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
+        };
         if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             die("failed to allocate image memory!");
         }
@@ -464,17 +462,19 @@ namespace z0 {
                                         VkImageAspectFlags aspectFlags,
                                         uint32_t mipLevels,
                                         VkImageViewType type) const {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
-        viewInfo.viewType = type;
-        viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = aspectFlags;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = mipLevels;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : 1;
-
+        const VkImageViewCreateInfo viewInfo{
+                .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+                .image = image,
+                .viewType = type,
+                .format = format,
+                .subresourceRange = {
+                        .aspectMask = aspectFlags,
+                        .baseMipLevel = 0,
+                        .levelCount = mipLevels,
+                        .baseArrayLayer = 0,
+                        .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : 1,
+                }
+        };
         VkImageView imageView;
         if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) die("failed to create texture image view!");
         return imageView;

@@ -7,7 +7,7 @@ namespace z0 {
     class Resource: public Object {
     public:
         using id_t = unsigned int;
-        explicit Resource(string name);
+        explicit Resource(const string& name);
 
         id_t getId() const { return id; }
         const string& getName() const { return name; }
@@ -15,7 +15,7 @@ namespace z0 {
 
     protected:
         string name;
-        std::string toString() const override { return name; }
+        string toString() const override { return name; }
 
     private:
         id_t id;

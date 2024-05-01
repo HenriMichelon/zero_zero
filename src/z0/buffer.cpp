@@ -24,7 +24,7 @@ namespace z0 {
                 .usage = usageFlags,
                 .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         };
-        VmaAllocationCreateInfo allocInfo = {
+        const VmaAllocationCreateInfo allocInfo = {
                 .flags = usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT  ?
                          VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT :
                          VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,

@@ -15,11 +15,11 @@ namespace z0 {
 
     protected:
         Camera* currentCamera {nullptr};
-        std::vector<MeshInstance*> models {};
-        std::vector<std::unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        vector<MeshInstance*> models {};
+        vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
 
-        BaseModelsRenderer(const Device& device, string shaderDirectory);
+        BaseModelsRenderer(const Device& device, const string& shaderDirectory);
 
         virtual void addingModel(MeshInstance* meshInstance) {};
         void setInitialState(VkCommandBuffer commandBuffer);

@@ -12,7 +12,9 @@ namespace z0 {
 
     Node::id_t Node::currentId = 0;
 
-    Node::Node(string nodeName): name{std::move(nodeName)}, id{currentId++}   {
+    Node::Node(const string& nodeName):
+        name{nodeName},
+        id{currentId++}   {
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};
         updateTransform(mat4{1.0f});
@@ -61,10 +63,17 @@ namespace z0 {
         updateTransform();
     }
 
+    void Node::_onReady() {
+        inReady = true;
+        onReady();
+        inReady = false;
+    }
+
     void Node::addChild(const shared_ptr<Node>& child) {
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
+        if (inReady) child->_onReady();
         Application::get().addNode(child);
     }
 
@@ -77,8 +86,8 @@ namespace z0 {
     }
 
     bool Node::isProcessed() const {
-        bool paused = Application::get().isPaused();
-        ProcessMode mode = processMode;
+        const auto paused = Application::get().isPaused();
+        auto mode = processMode;
         if ((parent == nullptr) && (mode == PROCESS_MODE_INHERIT)) mode = PROCESS_MODE_PAUSABLE;
         return ((mode == PROCESS_MODE_INHERIT) && (parent->isProcessed())) ||
                (!paused && (mode == PROCESS_MODE_PAUSABLE)) ||
