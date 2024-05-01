@@ -2,6 +2,7 @@
 
 #include "z0/window.h"
 #include "z0/application_config.h"
+#include "z0/renderers/base_renderer.h"
 
 #define VMA_VULKAN_VERSION 1003000
 #include "vk_mem_alloc.h"
@@ -28,6 +29,10 @@ namespace z0 {
         VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
         float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
 
+        void drawFrame();
+        void wait();
+        void registerRenderer(const shared_ptr<BaseRenderer>& renderer);
+
         VkImageView createImageView(VkImage image,
                                     VkFormat format,
                                     VkImageAspectFlags aspectFlags,
@@ -46,7 +51,7 @@ namespace z0 {
                          VkImageCreateFlags flags = 0,
                          uint32_t layers = 1) const;
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-        void transitionImageLayout(VkCommandBuffer commandBuffer,
+        static void transitionImageLayout(VkCommandBuffer commandBuffer,
                                    VkImage image,
                                    VkImageLayout oldLayout,
                                    VkImageLayout newLayout,
@@ -55,7 +60,7 @@ namespace z0 {
                                    VkPipelineStageFlags srcStageMask,
                                    VkPipelineStageFlags dstStageMask,
                                    VkImageAspectFlags aspectMask,
-                                   uint32_t mipLevels = 1) const;
+                                   uint32_t mipLevels = 1) ;
         // Find a suitable IMAGE_TILING format (for the Depth buffering image)
         VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
                                                 VkImageTiling tiling,
@@ -66,6 +71,7 @@ namespace z0 {
     private:
         const Window& window;
         VkInstance vkInstance;
+        vector<shared_ptr<BaseRenderer>> renderers;
 
         // Physical & logical device management
         VkSurfaceKHR surface;
@@ -122,6 +128,8 @@ namespace z0 {
             vector<VkPresentModeKHR> presentModes;
         };
 
+        // Set the initiale state for the dynamic rendering
+        void setInitialState(VkCommandBuffer commandBuffer);
         // Rate physical device by properties to find the best suitable GPU
         uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) const;
         // Get the swap chain capabilities

@@ -228,6 +228,185 @@ namespace z0 {
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
     }
 
+    void Device::wait() {
+        vkDeviceWaitIdle(device);
+    }
+
+    void Device::registerRenderer(const std::shared_ptr<BaseRenderer>& renderer) {
+        renderers.insert(renderers.begin(), renderer);
+    }
+
+    // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
+    void Device::drawFrame() {
+        vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+        uint32_t imageIndex;
+        auto result = vkAcquireNextImageKHR(device,
+                                            swapChain,
+                                            UINT64_MAX,
+                                            imageAvailableSemaphores[currentFrame],
+                                            VK_NULL_HANDLE,
+                                            &imageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            for (auto& renderer: renderers) {
+                renderer->recreateImagesResources();
+            }
+            return;
+        } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            die("failed to acquire swap chain image!");
+        }
+        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+        {
+            for (auto& renderer: renderers) {
+                renderer->update(currentFrame);
+            }
+            vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+            const VkCommandBufferBeginInfo beginInfo{
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                    .flags = 0,
+                    .pInheritanceInfo = nullptr
+            };
+            if (vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
+                die("failed to begin recording command buffer!");
+            }
+
+            setInitialState(commandBuffers[currentFrame]);
+            auto lastRenderer = renderers.back();
+            for (auto& renderer: renderers) {
+                renderer->beginRendering(commandBuffers[currentFrame]);
+                renderer->recordCommands(commandBuffers[currentFrame], currentFrame);
+                renderer->endRendering(commandBuffers[currentFrame], renderer == lastRenderer);
+            }
+
+            transitionImageLayout(
+                    commandBuffers[currentFrame],
+                    swapChainImages[imageIndex],
+                    VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    0,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    VK_IMAGE_ASPECT_COLOR_BIT);
+            vkCmdBlitImage(commandBuffers[currentFrame],
+                           lastRenderer->getImage(),
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           swapChainImages[imageIndex],
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           1,
+                           &colorImageBlit,
+                           VK_FILTER_LINEAR );
+            transitionImageLayout(
+                    commandBuffers[currentFrame],
+                    swapChainImages[imageIndex],
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    0,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                    VK_IMAGE_ASPECT_COLOR_BIT);
+
+
+            if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS) {
+                die("failed to record command buffer!");
+            }
+        }
+
+        const VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+        {
+            const VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+            const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+            const VkSubmitInfo submitInfo{
+                    .sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                    .waitSemaphoreCount     = 1,
+                    .pWaitSemaphores        = waitSemaphores,
+                    .pWaitDstStageMask      = waitStages,
+                    .commandBufferCount     = 1,
+                    .pCommandBuffers        = &commandBuffers[currentFrame],
+                    .signalSemaphoreCount   = 1,
+                    .pSignalSemaphores      = signalSemaphores
+            };
+            if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+                die("failed to submit draw command buffer!");
+            }
+        }
+
+        {
+            const VkSwapchainKHR swapChains[] = {swapChain};
+            const VkPresentInfoKHR presentInfo{
+                    .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                    .waitSemaphoreCount = 1,
+                    .pWaitSemaphores    = signalSemaphores,
+                    .swapchainCount     = 1,
+                    .pSwapchains        = swapChains,
+                    .pImageIndices      = &imageIndex,
+                    .pResults           = nullptr // Optional
+            };
+            result = vkQueuePresentKHR(presentQueue, &presentInfo);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+                recreateSwapChain();
+                for (auto& renderer: renderers) {
+                    renderer->recreateImagesResources();
+                }
+            } else if (result != VK_SUCCESS) {
+                die("failed to present swap chain image!");
+            }
+        }
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    }
+
+    // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/extensions/shader_object/shader_object.cpp
+    void Device::setInitialState(VkCommandBuffer commandBuffer)
+    {
+        {
+            vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
+            const VkColorBlendEquationEXT colorBlendEquation{
+                    .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
+                    .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+                    .colorBlendOp = VK_BLEND_OP_ADD,
+                    .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+                    .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+                    .alphaBlendOp = VK_BLEND_OP_ADD,
+            };
+            vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
+        }
+
+        // Set the topology to triangles, don't restart primitives
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        vkCmdSetPrimitiveRestartEnableEXT(commandBuffer, VK_FALSE);
+        vkCmdSetRasterizationSamplesEXT(commandBuffer, samples);
+
+        const VkSampleMask sample_mask = 0xffffffff;
+        vkCmdSetSampleMaskEXT(commandBuffer, samples, &sample_mask);
+
+        // Do not use alpha to coverage or alpha to one because not using MSAA
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
+
+        vkCmdSetPolygonModeEXT(commandBuffer, VK_POLYGON_MODE_FILL);
+
+        // Set front face, cull mode is set in build_command_buffers.
+        vkCmdSetFrontFace(commandBuffer, VK_FRONT_FACE_COUNTER_CLOCKWISE);
+
+        // Set depth state, the depth write. Don't enable depth bounds, bias, or stencil test.
+        vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
+        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS);
+        vkCmdSetDepthBoundsTestEnable(commandBuffer, VK_FALSE);
+        vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
+        vkCmdSetStencilTestEnable(commandBuffer, VK_FALSE);
+
+        // Do not enable logic op
+        vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);
+
+        VkBool32 color_blend_enables[] = {VK_FALSE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+
+        // Use RGBA color write mask
+        VkColorComponentFlags color_component_flags[] = {VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_A_BIT};
+        vkCmdSetColorWriteMaskEXT(commandBuffer, 0, 1, color_component_flags);
+    }
+
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Texture-Image
     void Device::createImage(uint32_t width,
                              uint32_t height,
@@ -309,7 +488,7 @@ namespace z0 {
                                        VkPipelineStageFlags srcStageMask,
                                        VkPipelineStageFlags dstStageMask,
                                        VkImageAspectFlags aspectMask,
-                                       uint32_t mipLevels) const {
+                                       uint32_t mipLevels) {
         VkImageMemoryBarrier barrier = {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                 .srcAccessMask = srcAccessMask,

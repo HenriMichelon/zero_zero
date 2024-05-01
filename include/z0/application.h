@@ -2,6 +2,7 @@
 
 #include "z0/device.h"
 #include "z0/nodes/node.h"
+#include "z0/renderers/scene_renderer.h"
 
 #include <filesystem>
 #include <cassert>
@@ -29,6 +30,7 @@ namespace z0 {
         unique_ptr<Device> device;
         VkInstance vkInstance;
         bool paused{false};
+        shared_ptr<SceneRenderer> sceneRenderer;
 
     public:
         // The following members are accessed by global function WinMain

@@ -85,6 +85,10 @@ namespace z0 {
 
         window = make_unique<Window>(applicationConfig);
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
+
+        const string shaderDir{(applicationConfig.appDir / "shaders").string()};
+        sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
+        device->registerRenderer(sceneRenderer);
     }
 
     Application::~Application() {
@@ -98,7 +102,9 @@ namespace z0 {
         while (GetMessage(&_messages, nullptr, 0, 0)) {
             TranslateMessage(&_messages);
             DispatchMessage(&_messages);
+            device->drawFrame();
         }
+        device->wait();
     }
 #endif
 
