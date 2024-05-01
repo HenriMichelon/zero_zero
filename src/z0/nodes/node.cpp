@@ -23,6 +23,14 @@ namespace z0 {
         }
     }
 
+    void Node::updateTransform() {
+        auto parentMatrix = parent == nullptr ? mat4{1.0f} : parent->worldTransform;
+        worldTransform = parentMatrix * localTransform;
+        for (const auto& child : children) {
+            child->updateTransform(worldTransform);
+        }
+    }
+
     void Node::addChild(const shared_ptr<Node>& child) {
         children.push_back(child);
         child->parent = this;

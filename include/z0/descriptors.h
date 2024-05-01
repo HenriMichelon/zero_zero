@@ -12,7 +12,7 @@ namespace z0 {
     public:
         class Builder {
         public:
-            explicit Builder(Device &dev) : device{dev} {}
+            explicit Builder(const Device &dev) : device{dev} {}
 
             Builder& addBinding(
                     uint32_t binding,
@@ -22,12 +22,11 @@ namespace z0 {
             unique_ptr<DescriptorSetLayout> build() const;
 
         private:
-            Device &device;
+            const Device &device;
             unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
         };
 
-        DescriptorSetLayout(
-                Device &Device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+        DescriptorSetLayout(const Device &Device, unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
         ~DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayout &) = delete;
         DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
@@ -35,7 +34,7 @@ namespace z0 {
         VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
 
     private:
-        Device &device;
+        const Device &device;
         VkDescriptorSetLayout descriptorSetLayout;
         unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
 
@@ -46,7 +45,7 @@ namespace z0 {
     public:
         class Builder {
         public:
-            explicit Builder(Device &dev) : device{dev} {}
+            explicit Builder(const Device &dev) : device{dev} {}
 
             Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
             Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
@@ -54,14 +53,14 @@ namespace z0 {
             unique_ptr<DescriptorPool> build() const;
 
         private:
-            Device &device;
+            const Device &device;
             vector<VkDescriptorPoolSize> poolSizes{};
             uint32_t maxSets = 1000;
             VkDescriptorPoolCreateFlags poolFlags = 0;
         };
 
         DescriptorPool(
-                Device &device,
+                const Device &device,
                 uint32_t maxSets,
                 VkDescriptorPoolCreateFlags poolFlags,
                 const vector<VkDescriptorPoolSize> &poolSizes);
@@ -75,7 +74,7 @@ namespace z0 {
         VkDescriptorPool getPool() const { return descriptorPool; }
 
     private:
-        Device &device;
+        const Device &device;
         VkDescriptorPool descriptorPool;
 
         friend class DescriptorWriter;

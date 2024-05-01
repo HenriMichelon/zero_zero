@@ -13,15 +13,15 @@ namespace z0 {
             shaderDirectory(std::move(sDir)) {}
 
     void BaseRenderpass::cleanup() {
-        globalBuffers.clear();
+        globalUniformBuffers.clear();
         if (vertShader != nullptr) vertShader.reset();
         if (fragShader != nullptr) fragShader.reset();
         if (pipelineLayout != VK_NULL_HANDLE) {
             vkDestroyPipelineLayout(vkDevice, pipelineLayout, nullptr);
             pipelineLayout = VK_NULL_HANDLE;
         }
-        globalSetLayout.reset();
-        globalPool.reset();
+        setLayout.reset();
+        descriptorPool.reset();
     }
 
     void BaseRenderpass::bindShaders(VkCommandBuffer commandBuffer) {
@@ -68,7 +68,7 @@ namespace z0 {
 
     void BaseRenderpass::createResources() {
         createDescriptorSetLayout();
-        if (globalSetLayout != nullptr) {
+        if (setLayout != nullptr) {
             createPipelineLayout();
             loadShaders();
         }
@@ -78,7 +78,7 @@ namespace z0 {
         const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
                 .setLayoutCount = 1,
-                .pSetLayouts = globalSetLayout->getDescriptorSetLayout(),
+                .pSetLayouts = setLayout->getDescriptorSetLayout(),
                 .pushConstantRangeCount = 0,
                 .pPushConstantRanges = nullptr
         };
@@ -97,7 +97,7 @@ namespace z0 {
                 next_stage,
                 filename,
                 code,
-                globalSetLayout->getDescriptorSetLayout(),
+                setLayout->getDescriptorSetLayout(),
                 nullptr);
         buildShader(*shader);
         return shader;

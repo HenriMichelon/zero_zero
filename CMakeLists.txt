@@ -55,11 +55,19 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/loader.h
 		${Z0_INCLUDE_DIR}/shader.h
 
+		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
+		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
+		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer.h
+		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer_hdr.h
+
 		${Z0_INCLUDE_DIR}/renderers/base_renderer.h
+		${Z0_INCLUDE_DIR}/renderers/base_models_renderer.h
 		${Z0_INCLUDE_DIR}/renderers/base_renderpass.h
+		${Z0_INCLUDE_DIR}/renderers/scene_renderer.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
+		${Z0_INCLUDE_DIR}/nodes/camera.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -77,10 +85,18 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/loader.cpp
 		${Z0_ENGINE_DIR}/shader.cpp
 
+		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cpp
+
 		${Z0_ENGINE_DIR}/renderers/base_renderpass.cpp
+		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/base_models_renderer.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp
+		${Z0_ENGINE_DIR}/nodes/camera.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
@@ -89,7 +105,6 @@ add_executable(${PROJECT_NAME}
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/exemple_1.cpp
-
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)

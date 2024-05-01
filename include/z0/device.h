@@ -23,6 +23,10 @@ namespace z0 {
         VkDevice getDevice() const { return device; }
         VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
         VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties; }
+        VkSampleCountFlagBits getSamples() const { return samples; }
+        const VkExtent2D& getSwapChainExtent() const { return swapChainExtent;}
+        VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+        float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
 
         VkImageView createImageView(VkImage image,
                                     VkFormat format,
@@ -52,6 +56,10 @@ namespace z0 {
                                    VkPipelineStageFlags dstStageMask,
                                    VkImageAspectFlags aspectMask,
                                    uint32_t mipLevels = 1) const;
+        // Find a suitable IMAGE_TILING format (for the Depth buffering image)
+        VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
+                                                VkImageTiling tiling,
+                                                VkFormatFeatureFlags features) const;
         VkCommandBuffer beginSingleTimeCommands() const;
         void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 

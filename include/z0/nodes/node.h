@@ -19,6 +19,14 @@ namespace z0 {
         glm::mat4& getTransform() { return localTransform; }
         virtual void setTransform(glm::mat4 transform) { localTransform = transform; }
         virtual void updateTransform(const mat4& parentMatrix);
+        virtual void updateTransform();
+        glm::mat4 getTransformGlobal() const { return worldTransform; }
+
+        // parent relative position
+        vec3 getPosition() const { return localTransform[3]; };
+
+        // world relative position
+        vec3 getPositionGlobal() const { return worldTransform[3]; }
 
         ProcessMode getProcessMode() const { return processMode; }
         void setProcessMode(ProcessMode mode) { processMode = mode; }

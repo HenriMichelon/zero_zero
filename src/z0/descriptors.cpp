@@ -9,7 +9,6 @@
 #include "z0/stats.h"
 
 #include <cassert>
-#include <stdexcept>
 
 namespace z0 {
 
@@ -33,8 +32,8 @@ namespace z0 {
         return make_unique<DescriptorSetLayout>(device, bindings);
     }
 
-    DescriptorSetLayout::DescriptorSetLayout(
-            Device &device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings):
+    DescriptorSetLayout::DescriptorSetLayout(const Device &device,
+                                             unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings):
             device{device},
             bindings{bindings} {
         vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
@@ -80,7 +79,7 @@ namespace z0 {
     }
 
     DescriptorPool::DescriptorPool(
-            Device &device,
+            const Device &device,
             uint32_t maxSets,
             VkDescriptorPoolCreateFlags poolFlags,
             const std::vector<VkDescriptorPoolSize> &poolSizes):

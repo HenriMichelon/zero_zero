@@ -579,6 +579,23 @@ namespace z0 {
         return 0;
     }
 
+    // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
+    VkFormat Device::findImageTilingSupportedFormat(const std::vector<VkFormat> &candidates,
+                                                    VkImageTiling tiling,
+                                                    VkFormatFeatureFlags features) const {
+        for (VkFormat format : candidates) {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        die("failed to find supported format for the depth buffer");
+        return candidates.at(0);
+    }
+
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
     VkCommandBuffer Device::beginSingleTimeCommands() const {
         const VkCommandBufferAllocateInfo allocInfo{
