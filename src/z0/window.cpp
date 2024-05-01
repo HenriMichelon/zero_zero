@@ -1,4 +1,5 @@
 #include "z0/window.h"
+#include "z0/input.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -29,6 +30,20 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 return 0;
             }
             break;
+        case WM_KEYDOWN: {
+            auto scanCode = static_cast<z0::Key>((lParam & 0x00FF0000) >> 16);
+            z0::Input::_keyJustPressedStates[scanCode] = !z0::Input::_keyPressedStates[scanCode];
+            z0::Input::_keyPressedStates[scanCode] = true;
+            z0::Input::_keyJustReleasedStates[scanCode] = false;
+            break;
+        }
+        case WM_KEYUP: {
+            auto scanCode = static_cast<z0::Key>((lParam & 0x00FF0000) >> 16);
+            z0::Input::_keyPressedStates[scanCode] = false;
+            z0::Input::_keyJustPressedStates[scanCode] = false;
+            z0::Input::_keyJustReleasedStates[scanCode] = true;
+            break;
+        }
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
     }
@@ -157,6 +172,13 @@ namespace z0 {
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
+
+        RAWINPUTDEVICE rid[1];
+        rid[0].usUsagePage = 0x01; // Usage page for keyboards
+        rid[0].usUsage = 0x06; // Usage for keyboard
+        rid[0].dwFlags = RIDEV_INPUTSINK; // Capture input even when not in foreground
+        rid[0].hwndTarget = hwnd; // Handle to the window receiving input
+        RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE));
     }
 
     Window::~Window() {

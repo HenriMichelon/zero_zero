@@ -2,6 +2,7 @@
 #include "z0/application.h"
 #include "z0/window.h"
 #include "z0/stats.h"
+#include "z0/input.h"
 
 #include <vulkan/vulkan.hpp>
 

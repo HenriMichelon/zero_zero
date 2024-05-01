@@ -54,6 +54,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/color.h
 		${Z0_INCLUDE_DIR}/loader.h
 		${Z0_INCLUDE_DIR}/shader.h
+		${Z0_INCLUDE_DIR}/input_event.h
+		${Z0_INCLUDE_DIR}/input.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
@@ -84,6 +86,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/descriptors.cpp
 		${Z0_ENGINE_DIR}/loader.cpp
 		${Z0_ENGINE_DIR}/shader.cpp
+		${Z0_ENGINE_DIR}/input_event.cpp
+		${Z0_ENGINE_DIR}/input.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
@@ -105,8 +109,10 @@ add_executable(${PROJECT_NAME}
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/example.cpp
-		${Z0_EXAMPLES_DIR}/triangle.h
-		${Z0_EXAMPLES_DIR}/triangle.cpp
+		#${Z0_EXAMPLES_DIR}/triangle.h
+		#${Z0_EXAMPLES_DIR}/triangle.cpp
+		${Z0_EXAMPLES_DIR}/crate.h
+		${Z0_EXAMPLES_DIR}/crate.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
