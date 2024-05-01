@@ -146,6 +146,7 @@ namespace z0 {
     }
 
     void Application::end() {
+        cleanup(rootNode);
 #ifdef VULKAN_STATS
         VulkanStats::get().display();
 #endif
@@ -173,6 +174,13 @@ namespace z0 {
         for(auto& child: node->getChildren()) {
             physicsProcess(child, delta);
         }
+    }
+
+    void Application::cleanup(shared_ptr<z0::Node> &node) {
+        for(auto& child: node->getChildren()) {
+            cleanup(child);
+        }
+        node.reset();
     }
 
 #ifdef _WIN32

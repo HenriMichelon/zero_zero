@@ -43,10 +43,13 @@ namespace z0 {
         Node* getParent() const { return parent; }
         void addChild(const shared_ptr<Node>& child);
         list<shared_ptr<Node>>& getChildren() { return children; }
+        shared_ptr<Node> getChild(const string& name);
+        shared_ptr<Node> getNode(const string& path);
         void printTree(ostream&, int tab = 0);
 
         id_t getId() const { return id; }
         bool operator == (const Node& other) const { return id == other.id;}
+        shared_ptr<Node> duplicate();
 
     protected:
         string name;
@@ -56,10 +59,11 @@ namespace z0 {
         mat4 worldTransform {};
 
         string toString() const override { return name; }
+        virtual shared_ptr<Node> duplicateInstance();
 
     private:
         static id_t currentId;
-        const id_t id;
+        id_t id;
         ProcessMode processMode{PROCESS_MODE_INHERIT};
         bool inReady{false};
 

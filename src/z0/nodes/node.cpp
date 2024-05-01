@@ -69,12 +69,47 @@ namespace z0 {
         inReady = false;
     }
 
+    shared_ptr<Node> Node::getChild(const string& name) {
+        auto it = std::find_if(children.begin(), children.end(), [name](std::shared_ptr<Node> elem) {
+            return elem->name == name;
+        });
+        return it == children.end() ? nullptr : *it;
+    }
+
+    shared_ptr<Node> Node::getNode(const string& path) {
+        size_t pos = path.find('/');
+        if (pos != std::string::npos) {
+            auto child = getChild(path.substr(0, pos));
+            if (child != nullptr) {
+                return child->getNode(path.substr(pos + 1));
+            }
+            return nullptr;
+        } else {
+            return getChild(path);
+        }
+    }
+
     void Node::addChild(const shared_ptr<Node>& child) {
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
         if (inReady) child->_onReady();
         Application::get().addNode(child);
+    }
+
+    shared_ptr<Node> Node::duplicate() {
+        std::shared_ptr<Node> dup = duplicateInstance();
+        dup->children.clear();
+        for(auto&child : children) {
+            dup->addChild(child->duplicate());
+        }
+        dup->id = currentId++;
+        dup->name = name;
+        return dup;
+    }
+
+    shared_ptr<Node> Node::duplicateInstance() {
+        return make_shared<Node>(*this);
     }
 
     void Node::printTree(ostream& out, int tab) {

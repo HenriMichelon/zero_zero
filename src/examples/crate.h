@@ -8,5 +8,6 @@ public:
     void onProcess(float alpha) override;
     void onPhysicsProcess(float delta) override;
 private:
-    shared_ptr<Node> crate1;
+    shared_ptr<Node> crateModel;
+    list<shared_ptr<Node>> crates;
 };

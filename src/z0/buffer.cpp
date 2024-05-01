@@ -14,8 +14,8 @@ namespace z0 {
                    uint32_t instanceCount,
                    VkBufferUsageFlags usageFlags,
                    VkDeviceSize minOffsetAlignment):
-        device{dev} {
-
+        device{dev},
+        allocator{dev.getAllocator()} {
         alignmentSize = minOffsetAlignment > 0 ? (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1) : instanceSize;
         bufferSize = alignmentSize * instanceCount;
         const VkBufferCreateInfo bufferInfo{
@@ -30,7 +30,7 @@ namespace z0 {
                          VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
                 .usage = VMA_MEMORY_USAGE_AUTO,
         };
-        if (vmaCreateBuffer(device.getAllocator(),
+        if (vmaCreateBuffer(allocator,
                             &bufferInfo,
                             &allocInfo,
                             &buffer,
@@ -45,25 +45,25 @@ namespace z0 {
 
     Buffer::~Buffer() {
         if (mapped) {
-            vmaUnmapMemory(device.getAllocator(), allocation);
+            vmaUnmapMemory(allocator, allocation);
             mapped = nullptr;
         }
-        vmaDestroyBuffer(device.getAllocator(), buffer, allocation);
+        vmaDestroyBuffer(allocator, buffer, allocation);
     }
 
     VkResult Buffer::map() {
-        return vmaMapMemory(device.getAllocator(), allocation, &mapped);
+        return vmaMapMemory(allocator, allocation, &mapped);
     }
 
     void Buffer::writeToBuffer(const void *data, const VkDeviceSize size, const VkDeviceSize offset) const {
         if (size == VK_WHOLE_SIZE) {
-            vmaCopyMemoryToAllocation(device.getAllocator(),
+            vmaCopyMemoryToAllocation(allocator,
                                       data,
                                       allocation,
                                       0,
                                       bufferSize);
         } else {
-            vmaCopyMemoryToAllocation(device.getAllocator(),
+            vmaCopyMemoryToAllocation(allocator,
                                       data,
                                       allocation,
                                       offset,

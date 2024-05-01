@@ -71,16 +71,14 @@ namespace z0 {
                 device,
                 vertexSize,
                 vertexCount,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT
         };
         vtxStagingBuffer.writeToBuffer((void*)vertices.data());
         vertexBuffer = make_unique<Buffer>(
                 device,
                 vertexSize,
                 vertexCount,
-                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
         );
         vtxStagingBuffer.copyTo(*vertexBuffer, sizeof (vertices[0]) * vertexCount);
 
@@ -99,8 +97,7 @@ namespace z0 {
                 device,
                 indexSize,
                 indexCount,
-                VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
         );
         idxStagingBuffer.copyTo(*indexBuffer, sizeof (indices[0]) * indexCount);
     }

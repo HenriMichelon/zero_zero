@@ -7,21 +7,27 @@ void MainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 1.0f});
     addChild(camera);
-    crate1 = Loader::loadModelFromFile("models/crate.glb");
-    crate1->setPosition({-5.0f, 0.0f, -10.0f});
-    addChild(crate1);
+    crateModel = Loader::loadModelFromFile("models/crate.glb");
+    crateModel->setPosition({-5.0f, 0.0f, -10.0f});
+    addChild(crateModel);
+    crates.push_back(crateModel);
 
     printTree(cout);
 }
 
 void MainScene::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_ENTER)) {
-        cout << "ENTER just pressed" << endl;
+        auto crate2 = crateModel->duplicate();
+        crate2->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
+        addChild(crate2);
+        crates.push_back(crate2);
     }
 }
 
 void MainScene::onPhysicsProcess(float delta) {
     auto angle = delta * radians(90.0f) / 2;
-    crate1->rotateY(angle);
-    crate1->rotateX(angle);
+    for (auto& crate: crates) {
+        crate->rotateY(angle);
+        crate->rotateX(angle);
+    }
 }

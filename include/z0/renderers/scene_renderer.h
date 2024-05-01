@@ -44,6 +44,7 @@ namespace z0 {
         void update(uint32_t currentFrame) override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
         void createDescriptorSetLayout() override;
+        void updateDescriptorSet() override;
         void loadShaders() override;
         void createImagesResources() override;
         void cleanupImagesResources() override;

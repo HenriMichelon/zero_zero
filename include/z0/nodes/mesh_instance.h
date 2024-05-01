@@ -12,6 +12,9 @@ namespace z0 {
         const shared_ptr<Mesh>& getMesh() const { return mesh; }
         bool isValid() const { return mesh != nullptr; }
 
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
+
     private:
         shared_ptr<Mesh> mesh;
     };

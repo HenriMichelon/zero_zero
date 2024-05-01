@@ -47,6 +47,7 @@ namespace z0 {
         void drawFrame();
         void end();
 
+        void cleanup(shared_ptr<Node>& node);
         void ready(const shared_ptr<Node>& node);
         void process(const shared_ptr<Node>& node, float alpha);
         void physicsProcess(const shared_ptr<Node>& node, float delta);

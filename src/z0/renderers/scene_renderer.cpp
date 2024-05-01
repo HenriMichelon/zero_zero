@@ -92,14 +92,6 @@ namespace z0 {
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // model UBO
                 .build();
 
-        // Global UBO
-        const VkDeviceSize globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
-
-        // Models UBO
-        const VkDeviceSize modelUniformBufferSize = sizeof(ModelUniformBuffer);
-        createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
-
         setLayout = DescriptorSetLayout::Builder(device)
             .addBinding(0, // global UBO
                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
@@ -109,14 +101,38 @@ namespace z0 {
                         VK_SHADER_STAGE_VERTEX_BIT)
            .build();
 
-        for (uint32_t i = 0; i < descriptorSets.size(); i++) {
+        // Global UBO
+        globalUniformBufferSize = sizeof(GobalUniformBuffer);
+        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+
+        // Models UBO
+        const VkDeviceSize modelUniformBufferSize = sizeof(ModelUniformBuffer);
+        createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
+
+        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
             vector<VkDescriptorImageInfo> imagesInfo{};
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeBuffer(1, &modelBufferInfo);
-            if (!writer.build(descriptorSets[i])) die("Cannot allocate descriptor set");
+            if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
+        }
+    }
+
+    void SceneRenderer::updateDescriptorSet() {
+        // Models UBO
+        const VkDeviceSize modelUniformBufferSize = sizeof(ModelUniformBuffer);
+        createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
+
+        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+            auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
+            vector<VkDescriptorImageInfo> imagesInfo{};
+            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                    .writeBuffer(0, &globalBufferInfo)
+                    .writeBuffer(1, &modelBufferInfo);
+            writer.overwrite(descriptorSet[i]);
         }
     }
 

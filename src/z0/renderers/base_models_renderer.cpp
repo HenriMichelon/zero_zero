@@ -14,6 +14,7 @@ namespace z0 {
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
             models.push_back(meshInstance);
             addingModel(meshInstance);
+            descriptorSetNeedUpdate = true;
             log << "Added model " << *meshInstance << endl;
         }
         createResources();

@@ -11,7 +11,7 @@ namespace z0 {
                uint32_t instanceCount,
                VkBufferUsageFlags usageFlags,
                VkDeviceSize minOffsetAlignment = 1);
-        ~Buffer();
+        virtual ~Buffer();
 
         VkBuffer getBuffer() const { return buffer; }
         VkDeviceSize getAlignmentSize() const { return alignmentSize; }
@@ -23,6 +23,7 @@ namespace z0 {
 
     private:
         const Device& device;
+        VmaAllocator allocator;
         VkBuffer buffer = VK_NULL_HANDLE;
         VmaAllocation allocation = VK_NULL_HANDLE;
         VkDeviceSize bufferSize;

@@ -39,21 +39,21 @@ namespace z0 {
         }
     }
 
-    void BaseRenderpass::writeUniformBuffer(const std::vector<std::unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index) {
+    void BaseRenderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index) {
         const auto size = buffers[currentFrame]->getAlignmentSize();
         buffers[currentFrame]->writeToBuffer(data, size, size * index);
     }
 
-    void BaseRenderpass::createUniformBuffers(std::vector<std::unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count) {
-        for (auto &uboBuffer: buffers) {
-            uboBuffer = make_unique<Buffer>(
+    void BaseRenderpass::createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count) {
+        for (auto &buffer: buffers) {
+            buffer = make_unique<Buffer>(
                     device,
                     size,
                     count,
                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                     device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
             );
-            uboBuffer->map();
+            buffer->map();
         }
     }
 
@@ -62,15 +62,20 @@ namespace z0 {
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 pipelineLayout,
                                 0, 1,
-                                &descriptorSets[currentFrame],
+                                &descriptorSet[currentFrame],
                                 count, offsets);
     }
 
     void BaseRenderpass::createResources() {
-        createDescriptorSetLayout();
-        if (setLayout != nullptr) {
-            createPipelineLayout();
-            loadShaders();
+        if (descriptorPool == nullptr) {
+            createDescriptorSetLayout();
+            if (setLayout != nullptr) {
+                createPipelineLayout();
+                loadShaders();
+            }
+        } else if (descriptorSetNeedUpdate) {
+            descriptorSetNeedUpdate = false;
+            updateDescriptorSet();
         }
     };
 

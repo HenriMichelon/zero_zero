@@ -18,10 +18,12 @@ namespace z0 {
         VkPipelineLayout pipelineLayout { VK_NULL_HANDLE };
         shared_ptr<DescriptorPool> descriptorPool {};
         unique_ptr<DescriptorSetLayout> setLayout {};
-        vector<VkDescriptorSet> descriptorSets{MAX_FRAMES_IN_FLIGHT};
+        vector<VkDescriptorSet> descriptorSet{MAX_FRAMES_IN_FLIGHT};
         unique_ptr<Shader> vertShader;
         unique_ptr<Shader> fragShader;
+        VkDeviceSize globalUniformBufferSize;
         vector<unique_ptr<Buffer>> globalUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        bool descriptorSetNeedUpdate{false};
 
         const VkClearValue clearColor {{{
                     static_cast<float>(WINDOW_CLEAR_COLOR[0]) / 256.0f,
@@ -45,6 +47,7 @@ namespace z0 {
         virtual void loadShaders() = 0;
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
         virtual void createDescriptorSetLayout() = 0;
+        virtual void updateDescriptorSet()  = 0;
 
     private:
         void buildShader(Shader& shader);
