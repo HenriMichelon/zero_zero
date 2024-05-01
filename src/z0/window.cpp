@@ -172,13 +172,6 @@ namespace z0 {
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
-
-        RAWINPUTDEVICE rid[1];
-        rid[0].usUsagePage = 0x01; // Usage page for keyboards
-        rid[0].usUsage = 0x06; // Usage for keyboard
-        rid[0].dwFlags = RIDEV_INPUTSINK; // Capture input even when not in foreground
-        rid[0].hwndTarget = hwnd; // Handle to the window receiving input
-        RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE));
     }
 
     Window::~Window() {
