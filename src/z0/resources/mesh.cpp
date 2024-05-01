@@ -6,6 +6,7 @@
 */
 
 #include "z0/resources/mesh.h"
+#include "z0/application.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -43,22 +44,25 @@ namespace z0 {
         surfaces[surfaceIndex]->material = material;
     }
 
-    Mesh::Mesh(const Device &dev, const std::string& meshName):
+    Mesh::Mesh(const std::string& meshName):
             Resource{meshName},
-            device{dev},
             vertices{},
             indices{} {
     }
 
-    Mesh::Mesh(const Device &dev, const vector<Vertex> &vtx, const vector<uint32_t> &idx, const std::string& meshName):
+    Mesh::Mesh(const vector<Vertex> &vtx,
+               const vector<uint32_t> &idx,
+               const vector<shared_ptr<Surface>>& surfs,
+               const std::string& meshName):
             Resource{meshName},
-            device{dev},
             vertices{vtx},
-            indices{idx} {
+            indices{idx},
+            surfaces{surfs}{
         _buildModel();
     }
 
     void Mesh::_buildModel() {
+        const auto& device = Application::get().getDevice();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at leat 3");

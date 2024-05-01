@@ -10,6 +10,7 @@ namespace z0 {
 
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
+        virtual void addNode(const shared_ptr<Node>& node);
         void cleanup() override;
 
     protected:
@@ -20,6 +21,7 @@ namespace z0 {
 
         BaseModelsRenderer(const Device& device, string shaderDirectory);
 
+        virtual void addingModel(MeshInstance* meshInstance) {};
         void setInitialState(VkCommandBuffer commandBuffer);
 
     public:

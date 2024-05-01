@@ -1,16 +1,7 @@
 #include <z0/application.h>
+#include "triangle.h"
 
 using namespace z0;
-
-class Main: public Node {
-public:
-    Main(): Node{"Main"} {};
-
-    void onReady() override {
-        cout << *this << ".onReady" << endl;
-        cout << Application::get().getWindow() << endl;
-    }
-};
 
 const ApplicationConfig applicationConfig {
     .appName = "Example App",

@@ -71,7 +71,7 @@ namespace z0 {
         }
     }
 
-    const VkDescriptorBufferInfo Buffer::descriptorInfo(const VkDeviceSize size, const VkDeviceSize offset) const {
+    VkDescriptorBufferInfo Buffer::descriptorInfo(const VkDeviceSize size, const VkDeviceSize offset) const {
         return VkDescriptorBufferInfo{
                 buffer,
                 offset,
@@ -81,7 +81,9 @@ namespace z0 {
 
     void Buffer::copyTo(Buffer& dstBuffer, const VkDeviceSize size) const {
         VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
-        const VkBufferCopy copyRegion {size };
+        const VkBufferCopy copyRegion {
+            .size = size
+        };
         vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);
         device.endSingleTimeCommands(commandBuffer);
     }

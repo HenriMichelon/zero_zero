@@ -1,6 +1,7 @@
 
 #include "z0/application.h"
 #include "z0/window.h"
+#include "z0/stats.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -92,24 +93,50 @@ namespace z0 {
     }
 
     Application::~Application() {
+        device->cleanup();
         vkDestroyInstance(vkInstance, nullptr);
+    }
+
+    void Application::addNode(const shared_ptr<z0::Node>& node) {
+        addedNodes.push_back(node);
+    }
+
+    void Application::drawFrame() {
+        if (!addedNodes.empty()) {
+            for (const auto &node: addedNodes) {
+                sceneRenderer->addNode(node);
+            }
+            addedNodes.clear();
+        }
+        device->drawFrame();
+    }
+
+    void Application::start() {
+        addNode(rootNode);
+        rootNode->onReady();
+    }
+
+    void Application::end() {
+#ifdef VULKAN_STATS
+        VulkanStats::get().display();
+#endif
     }
 
 #ifdef _WIN32
     void Application::_mainLoop() {
-        rootNode->onReady();
+        start();
         while (!window->shouldClose()) {
             MSG _messages;
             if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&_messages);
                 DispatchMessage(&_messages);
             }
-            device->drawFrame();
+            drawFrame();
         }
         device->wait();
-        device->cleanup();
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);
+        end();
     }
 #endif
 

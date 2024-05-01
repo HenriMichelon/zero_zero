@@ -15,7 +15,7 @@ namespace z0 {
 
         VkBuffer getBuffer() const { return buffer; }
         VkDeviceSize getAlignmentSize() const { return alignmentSize; }
-        const VkDescriptorBufferInfo descriptorInfo(const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
+        VkDescriptorBufferInfo descriptorInfo(const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
         VkResult map();
         void writeToBuffer(const void* data, const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;

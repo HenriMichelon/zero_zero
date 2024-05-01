@@ -151,7 +151,7 @@ namespace z0 {
 
         std::vector<std::shared_ptr<Mesh>> meshes;
         for (fastgltf::Mesh& glftMesh : gltf.meshes) {
-            std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Application::get().getDevice(), glftMesh.name.data());
+            std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(glftMesh.name.data());
             std::vector<Vertex>& vertices = mesh->getVertices();
             std::vector<uint32_t>& indices = mesh->getIndices();
             for (auto&& p : glftMesh.primitives) {

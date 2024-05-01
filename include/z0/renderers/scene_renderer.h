@@ -29,6 +29,9 @@ namespace z0 {
 
         void cleanup() override;
 
+    protected:
+        void addingModel(MeshInstance* meshInstance) override;
+
     private:
         map<Node::id_t, uint32_t> modelsIndices {};
         vector<MeshInstance*> opaquesModels {};

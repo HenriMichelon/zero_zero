@@ -23,6 +23,7 @@ namespace z0 {
         glm::mat4 getTransformGlobal() const { return worldTransform; }
 
         // parent relative position
+        virtual void setPosition(vec3 position);
         vec3 getPosition() const { return localTransform[3]; };
 
         // world relative position
@@ -34,6 +35,7 @@ namespace z0 {
 
         Node* getParent() const { return parent; }
         void addChild(const shared_ptr<Node>& child);
+        void printTree(ostream&, int tab = 0);
 
         id_t getId() const { return id; }
         bool operator == (const Node& other) const { return id == other.id;}

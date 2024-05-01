@@ -6,6 +6,7 @@
 
 #include <array>
 #include <set>
+#include <algorithm>
 
 namespace z0 {
 
@@ -18,6 +19,14 @@ namespace z0 {
     void SceneRenderer::cleanup() {
         opaquesModels.clear();
         BaseModelsRenderer::cleanup();
+    }
+
+    void SceneRenderer::addingModel(MeshInstance *meshInstance) {
+        auto it = find(models.begin(), models.end(), meshInstance);
+        if (it != models.end()) {
+            opaquesModels.push_back(meshInstance);
+            modelsIndices[meshInstance->getId()] = it - models.begin();
+        }
     }
 
     void SceneRenderer::loadShaders() {
@@ -63,10 +72,11 @@ namespace z0 {
                 auto modelIndex = modelsIndices[meshInstance->getId()];
                 auto model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
-                    std::array<uint32_t, 5> offsets = {
+                    std::array<uint32_t, 2> offsets = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                     };
+                    vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                 }
@@ -140,12 +150,12 @@ namespace z0 {
 
     // https://lesleylai.info/en/vk-khr-dynamic-rendering/
     void SceneRenderer::beginRendering(VkCommandBuffer commandBuffer) {
-        device.transitionImageLayout(commandBuffer, colorFrameBufferMultisampled.getImage(),
+        Device::transitionImageLayout(commandBuffer, colorFrameBufferMultisampled.getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                      0, VK_ACCESS_TRANSFER_WRITE_BIT,
                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        device.transitionImageLayout(commandBuffer, colorFrameBufferHdr->getImage(),
+        Device::transitionImageLayout(commandBuffer, colorFrameBufferHdr->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                      0, VK_ACCESS_TRANSFER_WRITE_BIT,
                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -189,7 +199,7 @@ namespace z0 {
 
     void SceneRenderer::endRendering(VkCommandBuffer commandBuffer, bool isLast) {
         vkCmdEndRendering(commandBuffer);
-        device.transitionImageLayout(commandBuffer, colorFrameBufferHdr->getImage(),
+        Device::transitionImageLayout(commandBuffer, colorFrameBufferHdr->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                            isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                      0,
@@ -197,7 +207,7 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                            isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        device.transitionImageLayout(commandBuffer, resolvedDepthFrameBuffer->getImage(),
+        Device::transitionImageLayout(commandBuffer, resolvedDepthFrameBuffer->getImage(),
                                            VK_IMAGE_LAYOUT_UNDEFINED,
                                            VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
                                            0,

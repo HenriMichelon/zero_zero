@@ -13,6 +13,8 @@
 
 namespace z0 {
 
+    static constexpr auto& log = cout;
+
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {

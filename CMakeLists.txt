@@ -104,7 +104,9 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/mesh.cpp
 
 		${SRC_DIR}/libraries.cpp
-		${Z0_EXAMPLES_DIR}/exemple_1.cpp
+		${Z0_EXAMPLES_DIR}/example.cpp
+		${Z0_EXAMPLES_DIR}/triangle.h
+		${Z0_EXAMPLES_DIR}/triangle.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)

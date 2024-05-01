@@ -23,6 +23,8 @@ namespace z0 {
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }
 
+        void addNode(const shared_ptr<Node>& node);
+
     private:
         const ApplicationConfig& applicationConfig;
         shared_ptr<Node> rootNode;
@@ -31,6 +33,11 @@ namespace z0 {
         VkInstance vkInstance;
         bool paused{false};
         shared_ptr<SceneRenderer> sceneRenderer;
+        vector<shared_ptr<Node>> addedNodes{};
+
+        void start();
+        void drawFrame();
+        void end();
 
     public:
         // The following members are accessed by global function WinMain

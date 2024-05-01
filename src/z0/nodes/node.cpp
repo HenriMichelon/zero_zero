@@ -16,6 +16,11 @@ namespace z0 {
         name = orig.name;
     }
 
+    void Node::setPosition(vec3 pos) {
+        localTransform[3] = vec4(pos, 1.0f);
+        updateTransform(mat4{1.0f});
+    }
+
     void Node::updateTransform(const mat4& parentMatrix) {
         worldTransform = parentMatrix * localTransform;
         for (const auto& child : children) {
@@ -35,6 +40,15 @@ namespace z0 {
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
+        Application::get().addNode(child);
+    }
+
+    void Node::printTree(ostream& out, int tab) {
+        for (int i = 0; i < (tab*2); i++) {
+            out << " ";
+        }
+        out << toString() << std::endl;
+        for (auto& child: children) child->printTree(out, tab+1);
     }
 
     bool Node::isProcessed() const {

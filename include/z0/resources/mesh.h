@@ -28,26 +28,28 @@ namespace z0 {
 
     class Mesh: public Resource {
     public:
-        Mesh(const Device &dev, const std::string& meshName);
-        Mesh(const Device &dev, const vector<Vertex> &vertices, const vector<uint32_t> &indices, const std::string& meshName);
+        explicit Mesh(const std::string& meshName = "Mesh");
+        Mesh(const vector<Vertex> &vertices,
+             const vector<uint32_t> &indices,
+             const vector<shared_ptr<Surface>>& surfaces,
+             const std::string& meshName = "Mesh");
 
-        vector<std::shared_ptr<Surface>>& getSurfaces() { return surfaces; };
+        vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
         const shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex) const;
         void setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material>& material);
         vector<Vertex>& getVertices() { return vertices; }
         vector<uint32_t>& getIndices() { return indices; }
 
     private:
-        const Device& device;
         vector<Vertex> vertices;
         vector<uint32_t> indices;
-        vector<std::shared_ptr<Surface>> surfaces{};
-        unordered_set<std::shared_ptr<Material>> _materials{};
+        vector<shared_ptr<Surface>> surfaces{};
+        unordered_set<shared_ptr<Material>> _materials{};
         unique_ptr<Buffer> vertexBuffer;
         unique_ptr<Buffer> indexBuffer;
 
     public:
-        unordered_set<std::shared_ptr<Material>>& _getMaterials() { return _materials; };
+        unordered_set<shared_ptr<Material>>& _getMaterials() { return _materials; };
         static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
         static vector<VkVertexInputAttributeDescription2EXT> _getAttributeDescription();
         void _draw(VkCommandBuffer commandBuffer, uint32_t first, uint32_t count) const;

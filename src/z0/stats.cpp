@@ -8,10 +8,10 @@ namespace z0 {
     unique_ptr<VulkanStats> VulkanStats::instance = make_unique<VulkanStats>();
 
     void VulkanStats::display() const {
-        std::cout << buffersCount << " buffers" << std::endl;
-        std::cout << descriptorSetsCount << " descriptor sets" << std::endl;
-        std::cout << imagesCount << " images" << std::endl;
-        std::cout << averageFps << " avg FPS" << std::endl;
+        cout << buffersCount << " buffers" << endl;
+        cout << descriptorSetsCount << " descriptor sets" << endl;
+        cout << imagesCount << " images" << endl;
+        cout << averageFps << " avg FPS" << endl;
     }
 #endif
 
