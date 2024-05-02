@@ -17,12 +17,14 @@ namespace z0 {
                 log << "Using camera " << *currentCamera << endl;
             }
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
-            const auto index = models.size();
-            models.push_back(meshInstance);
-            addingModel(meshInstance, index);
-            descriptorSetNeedUpdate = true;
-            createOrUpdateResources();
-            log << "Added model " << *meshInstance << endl;
+            if (meshInstance->isValid()) {
+                const auto index = models.size();
+                models.push_back(meshInstance);
+                addingModel(meshInstance, index);
+                descriptorSetNeedUpdate = true;
+                createOrUpdateResources();
+                log << "Added model " << *meshInstance << endl;
+            }
         }
     }
 

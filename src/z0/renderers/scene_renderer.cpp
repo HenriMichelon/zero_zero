@@ -78,12 +78,10 @@ namespace z0 {
 
         uint32_t modelIndex = 0;
         for (const auto& meshInstance: models) {
-            if (meshInstance->isValid()) {
-                ModelUniformBuffer modelUbo {
-                    .matrix = meshInstance->getTransformGlobal(),
-                };
-                writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
-            }
+            ModelUniformBuffer modelUbo {
+                .matrix = meshInstance->getTransformGlobal(),
+            };
+            writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
             modelIndex += 1;
         }
 
