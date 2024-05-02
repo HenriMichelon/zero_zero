@@ -46,6 +46,18 @@ namespace z0 {
         }
     }
 
+    void SceneRenderer::addedModel(z0::MeshInstance *meshInstance) {
+        for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
+            if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
+                if (materialShaders.count(shaderMaterial->getFileName()) == 0) {
+                    materialShaders[shaderMaterial->getFileName()] = createShader(shaderMaterial->getFileName(),
+                                                                                  VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                                                  0);
+                }
+            }
+        }
+    }
+
     void SceneRenderer::addImage(const shared_ptr<Image>& image) {
         if (find(images.begin(), images.end(), image.get()) != images.end()) return;
         if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
@@ -118,18 +130,28 @@ namespace z0 {
     }
 
     void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw) {
+        Shader* previousShader = fragShader.get();
+        auto previousCullMode = CULLMODE_DISABLED;
         for (const auto& meshInstance : modelsToDraw) {
             if (meshInstance->isValid()) {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
-                    if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
+                    if (surface->material->getCullMode() != previousCullMode) {
+                        previousCullMode = surface->material->getCullMode();
                         vkCmdSetCullMode(commandBuffer,
-                                         standardMaterial->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                         standardMaterial->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT
-                                                                                          : VK_CULL_MODE_FRONT_BIT);
-                    } else {
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                                         previousCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
+                                         previousCullMode == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
+                    }
+                    if (auto shaderMaterial = dynamic_cast<ShaderMaterial*>(surface->material.get())) {
+                        Shader* materialShader = materialShaders[shaderMaterial->getFileName()].get();
+                        if (materialShader != previousShader) {
+                            previousShader = materialShader;
+                            vkCmdBindShadersEXT(commandBuffer, 1, materialShader->getStage(), materialShader->getShader());
+                        }
+                    } else if (fragShader.get() != previousShader) {
+                        previousShader = fragShader.get();
+                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
                     array<uint32_t, 3> offsets = {

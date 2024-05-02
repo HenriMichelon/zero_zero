@@ -7,7 +7,7 @@ namespace z0 {
     class Resource: public Object {
     public:
         using id_t = unsigned int;
-        explicit Resource(const string& name);
+        explicit Resource(string  name);
 
         id_t getId() const { return id; }
         const string& getName() const { return name; }

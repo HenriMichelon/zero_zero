@@ -6,15 +6,18 @@ project(ZeroZero)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# Engine sources directory
+# Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
 set(Z0_ENGINE_DIR ${SRC_DIR}/z0)
 set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
-# Examples sources directory
-set(Z0_EXAMPLES_DIR ${SRC_DIR}/examples)
-# SPIR-V compiled shaders directory
 set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 make_directory(${Z0_SHADERS_BUILD_DIR})
+
+# Examples sources & build directories
+set(Z0_EXAMPLES_DIR ${SRC_DIR}/examples)
+set(Z0_EXAMPLES_SHADERS_DIR ${Z0_EXAMPLES_DIR}/shaders)
+set(Z0_EXAMPLES_SHADERS_BUILD_DIR ${Z0_SHADERS_BUILD_DIR}/examples)
+make_directory(${Z0_EXAMPLES_SHADERS_BUILD_DIR})
 
 include(FetchContent)
 if(EXISTS .env.cmake)
@@ -32,10 +35,15 @@ endif()
 
 # compile GLSL shaders
 file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
-        "${Z0_SHADERS_DIR}/*.frag"
-        "${Z0_SHADERS_DIR}/*.vert"
+		"${Z0_SHADERS_DIR}/*.frag"
+		"${Z0_SHADERS_DIR}/*.vert"
 )
-add_shaders(${PROJECT_NAME}_shaders ${Z0_GLSL_SOURCE_FILES})
+add_shaders(${PROJECT_NAME}_z0_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_GLSL_SOURCE_FILES})
+file(GLOB_RECURSE Z0_EXAMPLES_GLSL_SOURCE_FILES
+		"${Z0_EXAMPLES_SHADERS_DIR}/*.frag"
+		"${Z0_EXAMPLES_SHADERS_DIR}/*.vert"
+)
+add_shaders(${PROJECT_NAME}_z0_examples_shaders  ${Z0_EXAMPLES_SHADERS_BUILD_DIR} ${Z0_EXAMPLES_GLSL_SOURCE_FILES})
 
 # compile engine + examples
 add_executable(${PROJECT_NAME}
@@ -122,6 +130,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 
 		${SRC_DIR}/libraries.cpp
+
 		${Z0_EXAMPLES_DIR}/example.cpp
 		${Z0_EXAMPLES_DIR}/triangle.h
 		${Z0_EXAMPLES_DIR}/triangle.cpp
@@ -131,7 +140,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/physics.cpp
 )
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 
 include(cmake/jolt.cmake)

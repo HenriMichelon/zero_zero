@@ -409,6 +409,8 @@ namespace z0 {
         // Use RGBA color write mask
         VkColorComponentFlags color_component_flags[] = {VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_A_BIT};
         vkCmdSetColorWriteMaskEXT(commandBuffer, 0, 1, color_component_flags);
+
+        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Images#page_Texture-Image

@@ -9,12 +9,19 @@ namespace z0 {
 
     class Material: public Resource {
     public:
+        CullMode getCullMode() const { return cullMode;}
+        void setCullMode(CullMode mode) {cullMode = mode;}
+
+    protected:
         explicit Material(const string& name): Resource(name) {}
+
+    private:
+        CullMode cullMode { CULLMODE_BACK };
     };
 
     class StandardMaterial: public Material {
     public:
-        explicit StandardMaterial(const string& name): Material(name) {}
+        explicit StandardMaterial(const string& name = "StandardMaterial"): Material(name) {}
 
         const Color &getAlbedoColor() const { return albedoColor;}
         void setAlbedoColor(const Color &color) { albedoColor = color;}
@@ -28,9 +35,6 @@ namespace z0 {
         const shared_ptr<ImageTexture> &getNormalTexture() const {return normalTexture;}
         void setNormalTexture(const shared_ptr<ImageTexture> &texture) {normalTexture = texture;}
 
-        CullMode getCullMode() const { return cullMode;}
-        void setCullMode(CullMode mode) {cullMode = mode;}
-
         Transparency getTransparency() const { return transparency;}
         void setTransparency(Transparency transparencyMode) {transparency = transparencyMode;}
 
@@ -42,9 +46,17 @@ namespace z0 {
         shared_ptr<ImageTexture>   albedoTexture {nullptr};
         shared_ptr<ImageTexture>   specularTexture {nullptr};
         shared_ptr<ImageTexture>   normalTexture {nullptr};
-        CullMode                   cullMode { CULLMODE_BACK };
         Transparency               transparency { TRANSPARENCY_DISABLED };
         float                      alphaScissor { 0.1 };
+    };
+
+    class ShaderMaterial: public Material {
+    public:
+        explicit ShaderMaterial(string shaderFileName, const string& name = "ShaderMaterial"): Material(name), fileName{std::move(shaderFileName)} {}
+
+        const string& getFileName() const { return fileName; }
+    private:
+        const string fileName;
     };
 
 }

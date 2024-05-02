@@ -34,6 +34,8 @@ namespace z0 {
 
         // A model is currently been added to the scene, called before updating the descriptor set
         virtual void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) {};
+        // A model is have been added to the scene, called after updating the descriptor set
+        virtual void addedModel(MeshInstance* meshInstance) {};
         // A model is currently been removed to the scene, called before updating the descriptor set
         virtual void removingModel(MeshInstance* meshInstance) {};
         // Set the initial states of the dynamic rendering

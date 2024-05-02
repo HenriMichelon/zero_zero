@@ -1,7 +1,7 @@
 ##### compile GLSL sources files into SPIR-V
-function(add_shaders TARGET_NAME)
+function(add_shaders TARGET_NAME BUILD_DIR)
     set(SHADER_SOURCE_FILES ${ARGN}) # the rest of arguments to this function will be assigned as shader source files
-    set(SHADER_BINARIES ${Z0_SHADERS_BUILD_DIR})
+    set(SHADER_BINARIES ${BUILD_DIR})
 
     # Validate that source files have been passed
     list(LENGTH SHADER_SOURCE_FILES FILE_COUNT)

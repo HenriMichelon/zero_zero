@@ -23,6 +23,7 @@ namespace z0 {
                 addingModel(meshInstance, index);
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
+                addedModel(meshInstance);
                 //log << "Added model " << *meshInstance << endl;
             }
         }

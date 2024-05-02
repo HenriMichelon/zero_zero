@@ -41,6 +41,7 @@ namespace z0 {
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
+        void addedModel(MeshInstance* meshInstance) override;
         void removingModel(MeshInstance* meshInstance) override;
 
     private:
@@ -62,6 +63,8 @@ namespace z0 {
         static constexpr VkDeviceSize materialUniformBufferSize {  sizeof(MaterialUniformBuffer) };
         // Currently allocated material uniform buffer count
         uint32_t materialUniformBufferCount {0};
+        // All material shaders
+        map<string, unique_ptr<Shader>> materialShaders;
         // All the images used in the scene
         list<Image*> images;
         // Indices of each images in the descriptor binding
