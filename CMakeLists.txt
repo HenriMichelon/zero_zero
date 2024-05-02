@@ -56,6 +56,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/shader.h
 		${Z0_INCLUDE_DIR}/input_event.h
 		${Z0_INCLUDE_DIR}/input.h
+		${Z0_INCLUDE_DIR}/physics.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
@@ -70,12 +71,16 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/nodes/node.h
 		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
 		${Z0_INCLUDE_DIR}/nodes/camera.h
+		${Z0_INCLUDE_DIR}/nodes/physics_body.h
+		${Z0_INCLUDE_DIR}/nodes/rigid_body.h
+		${Z0_INCLUDE_DIR}/nodes/static_body.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
 		${Z0_INCLUDE_DIR}/resources/texture.h
 		${Z0_INCLUDE_DIR}/resources/material.h
 		${Z0_INCLUDE_DIR}/resources/mesh.h
+		${Z0_INCLUDE_DIR}/resources/shape.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -101,12 +106,16 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
+		${Z0_ENGINE_DIR}/nodes/physics_body.cpp
+		${Z0_ENGINE_DIR}/nodes/rigid_body.cpp
+		${Z0_ENGINE_DIR}/nodes/static_body.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 		${Z0_ENGINE_DIR}/resources/mesh.cpp
 		${Z0_ENGINE_DIR}/resources/material.cpp
+		${Z0_ENGINE_DIR}/renderers/shape.cpp
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/example.cpp
@@ -114,9 +123,12 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/triangle.cpp
 		${Z0_EXAMPLES_DIR}/add_remove_child.h
 		${Z0_EXAMPLES_DIR}/add_remove_child.cpp
+		${Z0_EXAMPLES_DIR}/physics.h
+		${Z0_EXAMPLES_DIR}/physics.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 
+include(cmake/jolt.cmake)
 include(cmake/libraries.cmake)

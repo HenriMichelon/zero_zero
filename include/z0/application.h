@@ -3,6 +3,7 @@
 #include "z0/device.h"
 #include "z0/nodes/node.h"
 #include "z0/renderers/scene_renderer.h"
+#include "z0/physics.h"
 
 #include <filesystem>
 #include <cassert>
@@ -39,6 +40,9 @@ namespace z0 {
         vector<shared_ptr<Node>> addedNodes{};
         vector<shared_ptr<Node>> removedNodes{};
 
+        /*
+         * Main loop members
+         */
         using Clock = std::chrono::steady_clock;
         static constexpr float dt = 0.01;
         double t = 0.0;
@@ -46,6 +50,16 @@ namespace z0 {
         double accumulator = 0.0;
         uint32_t frameCount = 0;
         float elapsedSeconds = 0.0;
+
+        /*
+         * Physic system members
+         */
+        JPH::PhysicsSystem physicsSystem;
+        BPLayerInterfaceImpl broad_phase_layer_interface;
+        ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter;
+        ObjectLayerPairFilterImpl object_vs_object_layer_filter;
+        unique_ptr<JPH::TempAllocatorImpl> temp_allocator;
+        unique_ptr<JPH::JobSystemThreadPool> job_system;
 
         void start();
         void drawFrame();
@@ -63,6 +77,9 @@ namespace z0 {
         void _mainLoop();
 #endif
         void _stop(bool stop) { stopped = stop; };
+
+        JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
+
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
     };

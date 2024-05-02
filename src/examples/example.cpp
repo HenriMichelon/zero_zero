@@ -1,6 +1,7 @@
 #include <z0/application.h>
 #include "triangle.h"
 #include "add_remove_child.h"
+#include "physics.h"
 
 using namespace z0;
 
@@ -12,4 +13,4 @@ const ApplicationConfig applicationConfig {
     .windowHeight = 768,
 };
 Application application(applicationConfig,
-                        make_shared<AddRemoveChildMainScene>());
+                        make_shared<PhysicsMainScene>());

@@ -29,12 +29,14 @@ namespace z0 {
         vec3 getPosition() const { return localTransform[3]; };
 
         // world relative position
+        virtual void setPositionGlobal(vec3 position);
         vec3 getPositionGlobal() const { return worldTransform[3]; }
 
         // rotations around own center
         void rotateX(float angle);
         void rotateY(float angle);
         void rotateZ(float angle);
+        void setRotation(quat quat);
 
         ProcessMode getProcessMode() const { return processMode; }
         void setProcessMode(ProcessMode mode) { processMode = mode; }
@@ -59,6 +61,7 @@ namespace z0 {
         list<shared_ptr<Node>> children;
         mat4 localTransform {};
         mat4 worldTransform {};
+        bool needPhysics{false};
 
         string toString() const override { return name; }
         virtual shared_ptr<Node> duplicateInstance();
@@ -72,6 +75,11 @@ namespace z0 {
 
     public:
         virtual void _onReady();
+        virtual void _onEnterScene() {};
+        virtual void _onExitScene() {};
+        virtual void _physicsUpdate() {};
+
+        bool _needPhysics() const { return needPhysics; }
         void _setAddedToScene(bool added) { addedToScene = added; }
     };
 

@@ -33,6 +33,18 @@ namespace z0 {
         updateTransform(mat4{1.0f});
     }
 
+    void Node::setPositionGlobal(glm::vec3 pos) {
+        if (parent == nullptr) {
+            setPosition(pos);
+            return;
+        }
+        auto inverseParentTransform = inverse(parent->worldTransform);
+        auto newLocalPositionHomogeneous = inverseParentTransform * vec4(pos, 1.0);
+        auto newLocalPosition = vec3(newLocalPositionHomogeneous);
+        localTransform[3] = vec4(newLocalPosition, 1.0f);
+        updateTransform(mat4{1.0f});
+    }
+
     void Node::updateTransform(const mat4& parentMatrix) {
         worldTransform = parentMatrix * localTransform;
         for (const auto& child : children) {
@@ -60,6 +72,21 @@ namespace z0 {
 
     void Node::rotateZ(float angle) {
         localTransform = rotate(localTransform, angle, AXIS_Z);
+        updateTransform();
+    }
+
+    void Node::setRotation(quat quater) {
+        vec3 scale, translation, skew;
+        vec4 perspective;
+        quat orientation;
+        // Decompose the original matrix to extract translation, rotation (orientation), and scale
+        decompose(localTransform, scale, orientation, translation, skew, perspective);
+        // Create a rotation matrix from the new quaternion
+        mat4 rotationMatrix = toMat4(quater);
+        // Reconstruct the transformation matrix with the new rotation, preserving the original translation and scale
+        localTransform = translate(mat4(1.0f), translation)
+                         * rotationMatrix
+                         * glm::scale(mat4(1.0f), scale);
         updateTransform();
     }
 

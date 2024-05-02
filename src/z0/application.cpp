@@ -1,10 +1,11 @@
-
 #include "z0/application.h"
 #include "z0/window.h"
 #include "z0/stats.h"
 #include "z0/input.h"
 
 #include <vulkan/vulkan.hpp>
+
+#include <Jolt/RegisterTypes.h>
 
 #include <cassert>
 #include <vector>
@@ -19,7 +20,6 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszA
 #endif
 
 namespace z0 {
-
 
     Application* Application::_instance = nullptr;
 
@@ -89,6 +89,26 @@ namespace z0 {
         window = make_unique<Window>(applicationConfig);
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
+        JPH::RegisterDefaultAllocator();
+        JPH::Factory::sInstance = new JPH::Factory();
+        JPH::RegisterTypes();
+
+        temp_allocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
+        job_system = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs,
+                                                                JPH::cMaxPhysicsBarriers,
+                                                                JPH::thread::hardware_concurrency() - 1);
+        const uint32_t cMaxBodies = 1024;
+        const uint32_t cNumBodyMutexes = 0;
+        const uint32_t cMaxBodyPairs = 1024;
+        const uint32_t cMaxContactConstraints = 1024;
+        physicsSystem.Init(cMaxBodies,
+                           cNumBodyMutexes,
+                           cMaxBodyPairs,
+                           cMaxContactConstraints,
+                           broad_phase_layer_interface,
+                           object_vs_broadphase_layer_filter,
+                           object_vs_object_layer_filter);
+
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
         device->registerRenderer(sceneRenderer);
@@ -102,6 +122,7 @@ namespace z0 {
     void Application::addNode(const shared_ptr<z0::Node>& node) {
         addedNodes.push_back(node);
         node->_setAddedToScene(true);
+        node->_onEnterScene();
         for(const auto& child: node->getChildren()) {
             addNode(child);
         }
@@ -112,6 +133,8 @@ namespace z0 {
             removeNode(child);
         }
         removedNodes.push_back(node);
+        node->_setAddedToScene(false);
+        node->_onExitScene();
     }
 
     void Application::activateCamera(const shared_ptr<z0::Camera> &camera) {
@@ -144,6 +167,7 @@ namespace z0 {
         accumulator += frameTime;
         while (accumulator >= dt) {
             physicsProcess(rootNode, dt);
+            physicsSystem.Update(dt, 1, temp_allocator.get(), job_system.get());
             t += dt;
             accumulator -= dt;
         }
@@ -194,6 +218,7 @@ namespace z0 {
     }
     void Application::physicsProcess(const std::shared_ptr<Node>& node, float delta) {
         if (node->isProcessed()) {
+            if (node->_needPhysics()) node->_physicsUpdate();
             node->onPhysicsProcess(delta);
         }
         for(auto& child: node->getChildren()) {
