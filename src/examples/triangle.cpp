@@ -19,10 +19,15 @@ void Triangle::onReady() {
     const vector<uint32_t> indices {
             0, 1, 2
     };
+    auto material = make_shared<StandardMaterial>("Triangle material");
+    material->setAlbedoColor(Color(vec3{0.5, 0.5, 0.5}));
+    material->setCullMode(CULLMODE_DISABLED);
     const vector<shared_ptr<Surface>> surfaces {
-            make_shared<Surface>(0, indices.size())
+        make_shared<Surface>(0, indices.size())
     };
-    triangle = make_shared<MeshInstance>(make_shared<Mesh>(vertices, indices, surfaces));
+    auto mesh = make_shared<Mesh>(vertices, indices, surfaces);
+    mesh->setSurfaceMaterial(0, material);
+    triangle = make_shared<MeshInstance>(mesh);
     addChild(triangle);
 }
 

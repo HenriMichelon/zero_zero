@@ -31,6 +31,7 @@ namespace z0 {
     }
 
     void SceneRenderer::addingModel(MeshInstance *meshInstance, uint32_t modelIndex) {
+        if (meshInstance->getMesh()->_getMaterials().empty()) die("Models without materials are not supported");
         opaquesModels.push_back(meshInstance);
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
@@ -122,20 +123,20 @@ namespace z0 {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
+                    if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
+                        vkCmdSetCullMode(commandBuffer,
+                                         standardMaterial->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
+                                         standardMaterial->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT
+                                                                                          : VK_CULL_MODE_FRONT_BIT);
+                    } else {
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                    }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
                     array<uint32_t, 3> offsets = {
                         0, // globalBuffers
                         static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                         static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                     };
-                    if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
-                        vkCmdSetCullMode(commandBuffer,
-                                         standardMaterial->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                         standardMaterial->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT
-                                                                                     : VK_CULL_MODE_FRONT_BIT);
-                    } else {
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
-                    }
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                 }
@@ -196,8 +197,12 @@ namespace z0 {
             modelUniformBufferCount = models.size();
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
         }
-        if (materialUniformBufferCount != materials.size()) {
+        if ((materials.size() > 0) && (materialUniformBufferCount != materials.size())) {
             materialUniformBufferCount = materials.size();
+            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
+        }
+        if (materialUniformBufferCount == 0) {
+            materialUniformBufferCount = 1;
             createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
         }
 

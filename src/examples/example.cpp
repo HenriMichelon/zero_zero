@@ -13,4 +13,4 @@ const ApplicationConfig applicationConfig {
     .windowHeight = 768,
 };
 Application application(applicationConfig,
-                        make_shared<PhysicsMainScene>());
+                        make_shared<TriangleMainScene>());

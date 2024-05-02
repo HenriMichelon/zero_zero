@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <unordered_map>
+#include <utility>
 
 namespace  z0 {
     // from: https://stackoverflow.com/a/57595105
@@ -40,8 +41,9 @@ namespace z0 {
         return surfaces[surfaceIndex]->material;
     }
 
-    void Mesh::setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material>& material) {
-        surfaces[surfaceIndex]->material = material;
+    void Mesh::setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material> material) {
+        surfaces[surfaceIndex]->material = std::move(material);
+        _materials.insert(surfaces[surfaceIndex]->material);
     }
 
     Mesh::Mesh(const std::string& meshName):

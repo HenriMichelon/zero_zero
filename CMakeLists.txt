@@ -74,6 +74,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/nodes/physics_body.h
 		${Z0_INCLUDE_DIR}/nodes/rigid_body.h
 		${Z0_INCLUDE_DIR}/nodes/static_body.h
+		${Z0_INCLUDE_DIR}/nodes/skybox.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -81,6 +82,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/resources/material.h
 		${Z0_INCLUDE_DIR}/resources/mesh.h
 		${Z0_INCLUDE_DIR}/resources/shape.h
+		${Z0_INCLUDE_DIR}/resources/cubemap.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -109,6 +111,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/nodes/physics_body.cpp
 		${Z0_ENGINE_DIR}/nodes/rigid_body.cpp
 		${Z0_ENGINE_DIR}/nodes/static_body.cpp
+		${Z0_ENGINE_DIR}/nodes/skybox.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
@@ -116,6 +119,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/mesh.cpp
 		${Z0_ENGINE_DIR}/resources/material.cpp
 		${Z0_ENGINE_DIR}/renderers/shape.cpp
+		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/example.cpp
