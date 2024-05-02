@@ -10,7 +10,8 @@ public:
     void onPhysicsProcess(float delta) override;
 private:
     shared_ptr<Node> crateModel;
-    list<shared_ptr<Node>> crates;
+    shared_ptr<Node> sphereModel;
+    list<shared_ptr<Node>> rotatingNodes;
     shared_ptr<Camera> camera1;
     shared_ptr<Camera> camera2;
 };

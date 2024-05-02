@@ -12,22 +12,28 @@ void AddRemoveChildMainScene::onReady() {
     camera2->setPosition({0.0f, 10.0f, -10.0f});
     addChild(camera2);
 
+    sphereModel = Loader::loadModelFromFile("models/sphere.glb");
     crateModel = Loader::loadModelFromFile("models/crate.glb");
-    crateModel->setPosition({-5.0f, 0.0f, -10.0f});
+
+    /*crateModel->setPosition({-5.0f, 0.0f, -10.0f});
     addChild(crateModel);
-    crates.push_back(crateModel);
+    rotatingNodes.push_back(crateModel);
+
+    sphereModel->setPosition({5.0f, 0.0f, -10.0f});
+    addChild(sphereModel);
+    rotatingNodes.push_back(sphereModel);*/
 
     printTree(cout);
 }
 
 void AddRemoveChildMainScene::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_KP_ADD)) {
-        auto crate2 = crateModel->duplicate();
-        crate2->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
-        if (addChild(crate2)) crates.push_back(crate2);
+        auto newNode = (rand()%2 == 0) ? crateModel->duplicate() : sphereModel->duplicate();
+        newNode->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
+        if (addChild(newNode)) rotatingNodes.push_back(newNode);
     }
     if (Input::isKeyJustPressed(KEY_KP_SUBTRACT)) {
-        if (removeChild(crates.back())) crates.pop_back();
+        if (removeChild(rotatingNodes.back())) rotatingNodes.pop_back();
     }
     if (Input::isKeyJustPressed(KEY_BACKSPACE)) {
         if (camera1->isActive()) {
@@ -41,7 +47,7 @@ void AddRemoveChildMainScene::onProcess(float alpha) {
 
 void AddRemoveChildMainScene::onPhysicsProcess(float delta) {
     auto angle = delta * radians(90.0f) / 2;
-    for (auto& crate: crates) {
+    for (auto& crate: rotatingNodes) {
         crate->rotateY(angle);
         crate->rotateX(angle);
     }

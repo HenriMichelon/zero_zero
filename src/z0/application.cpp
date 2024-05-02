@@ -101,6 +101,10 @@ namespace z0 {
 
     void Application::addNode(const shared_ptr<z0::Node>& node) {
         addedNodes.push_back(node);
+        node->_setAddedToScene(true);
+        for(const auto& child: node->getChildren()) {
+            addNode(child);
+        }
     }
 
     void Application::removeNode(const shared_ptr<z0::Node> &node) {
@@ -162,8 +166,8 @@ namespace z0 {
     }
 
     void Application::start() {
-        addNode(rootNode);
         ready(rootNode);
+        addNode(rootNode);
     }
 
     void Application::end() {

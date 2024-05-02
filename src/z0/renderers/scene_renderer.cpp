@@ -87,25 +87,22 @@ namespace z0 {
 
         uint32_t materialIndex = 0;
         for (auto *material: materials) {
-            if (material->_isUpdated()) {
-                material->_resetUpdate();
-                MaterialUniformBuffer materialUbo{};
-                if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
-                    materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
-                    if (standardMaterial->getAlbedoTexture() != nullptr) {
-                        materialUbo.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
-                    }
-                    if (standardMaterial->getSpecularTexture() != nullptr) {
-                        materialUbo.specularIndex = imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
-                    }
-                    if (standardMaterial->getNormalTexture() != nullptr) {
-                        materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
-                    }
-                    materialUbo.transparency = standardMaterial->getTransparency();
-                    materialUbo.alphaScissor = standardMaterial->getAlphaScissor();
+            MaterialUniformBuffer materialUbo{};
+            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
+                materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
+                if (standardMaterial->getAlbedoTexture() != nullptr) {
+                    materialUbo.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
                 }
-                writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
+                if (standardMaterial->getSpecularTexture() != nullptr) {
+                    materialUbo.specularIndex = imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
+                }
+                if (standardMaterial->getNormalTexture() != nullptr) {
+                    materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                }
+                materialUbo.transparency = standardMaterial->getTransparency();
+                materialUbo.alphaScissor = standardMaterial->getAlphaScissor();
             }
+            writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
             materialIndex += 1;
         }
     }
@@ -131,7 +128,14 @@ namespace z0 {
                         static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                         static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                     };
-                    vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                    if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
+                        vkCmdSetCullMode(commandBuffer,
+                                         standardMaterial->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
+                                         standardMaterial->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT
+                                                                                     : VK_CULL_MODE_FRONT_BIT);
+                    } else {
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                    }
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                 }

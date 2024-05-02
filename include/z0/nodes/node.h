@@ -68,9 +68,11 @@ namespace z0 {
         id_t id;
         ProcessMode processMode{PROCESS_MODE_INHERIT};
         bool inReady{false};
+        bool addedToScene{false};
 
     public:
         virtual void _onReady();
+        void _setAddedToScene(bool added) { addedToScene = added; }
     };
 
 }

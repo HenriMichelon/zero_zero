@@ -95,7 +95,7 @@ namespace z0 {
         child->parent = this;
         child->updateTransform(worldTransform);
         if (inReady) child->_onReady();
-        Application::get().addNode(child);
+        if (addedToScene) Application::get().addNode(child);
         return true;
     }
 
