@@ -4,25 +4,52 @@
  */
 #include "z0/renderers/scene_renderer.h"
 
-#include <array>
+#include <stb_image_write.h>
+
 #include <algorithm>
 
 namespace z0 {
 
+    void stb_write_func(void *context, void *data, int size) {
+        auto* buffer = reinterpret_cast<vector<unsigned char>*>(context);
+        auto* ptr = static_cast<unsigned char*>(data);
+        buffer->insert(buffer->end(), ptr, ptr + size);
+    }
+
     SceneRenderer::SceneRenderer(const Device &dev, const string& sDir) :
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
-        createImagesResources();
      }
 
     void SceneRenderer::cleanup() {
+        if (blankImage != nullptr) {
+            blankImage.reset();
+            blankImageData.clear();
+        }
         opaquesModels.clear();
         BaseModelsRenderer::cleanup();
     }
 
-    void SceneRenderer::addingModel(MeshInstance *meshInstance, uint32_t index) {
+    void SceneRenderer::addingModel(MeshInstance *meshInstance, uint32_t modelIndex) {
         opaquesModels.push_back(meshInstance);
-        modelsIndices[meshInstance->getId()] = index;
+        modelsIndices[meshInstance->getId()] = modelIndex;
+        for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
+            materialsIndices[material->getId()] = materials.size();
+            materials.push_back(material.get());
+            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
+                if (standardMaterial->albedoTexture != nullptr) addImage(standardMaterial->albedoTexture->_getImagePointer());
+                if (standardMaterial->specularTexture != nullptr) addImage(standardMaterial->specularTexture->_getImagePointer());
+                if (standardMaterial->normalTexture != nullptr) addImage(standardMaterial->normalTexture->_getImagePointer());
+            }
+        }
+    }
+
+    void SceneRenderer::addImage(const shared_ptr<Image>& image) {
+        if (find(images.begin(), images.end(), image.get()) != images.end()) return;
+        if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
+        imagesIndices[image->getId()] = images.size();
+        images.push_back(image.get());
     }
 
     void SceneRenderer::removingModel(z0::MeshInstance *meshInstance) {
@@ -59,6 +86,27 @@ namespace z0 {
             }
             modelIndex += 1;
         }
+
+        uint32_t materialIndex = 0;
+        for (auto* material : materials) {
+            MaterialUniformBuffer materialUbo{};
+            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
+                materialUbo.albedoColor = standardMaterial->albedoColor.color;
+                if (standardMaterial->albedoTexture != nullptr) {
+                    materialUbo.diffuseIndex = imagesIndices[standardMaterial->albedoTexture->_getImagePointer()->getId()];
+                }
+                if (standardMaterial->specularTexture != nullptr) {
+                    materialUbo.specularIndex = imagesIndices[standardMaterial->specularTexture->_getImagePointer()->getId()];
+                }
+                if (standardMaterial->normalTexture != nullptr) {
+                    materialUbo.normalIndex = imagesIndices[standardMaterial->normalTexture->_getImagePointer()->getId()];
+                }
+                materialUbo.transparency = standardMaterial->transparency;
+                materialUbo.alphaScissor = standardMaterial->alphaScissor;
+            }
+            writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
+            materialIndex += 1;
+        }
     }
 
     void SceneRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
@@ -76,9 +124,11 @@ namespace z0 {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
-                    array<uint32_t, 2> offsets = {
-                            0, // globalBuffers
-                            static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
+                    const auto& materialIndex = materialsIndices[surface->material->getId()];
+                    array<uint32_t, 3> offsets = {
+                        0, // globalBuffers
+                        static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
+                        static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                     };
                     vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
@@ -94,50 +144,72 @@ namespace z0 {
         descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // model UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // models UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // materials UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // images textures
                 .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
-            .addBinding(0, // global UBO
-                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                        VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, // model UBO
-                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                        VK_SHADER_STAGE_VERTEX_BIT)
-           .build();
+                .addBinding(0, // global UBO
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_ALL_GRAPHICS)
+                .addBinding(1, // models UBO
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_VERTEX_BIT)
+                .addBinding(2, // materials UBO
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_FRAGMENT_BIT)
+                .addBinding(3, // images textures
+                            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            VK_SHADER_STAGE_FRAGMENT_BIT,
+                            MAX_IMAGES)
+                .build();
 
-        // Global UBO
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
 
-        // Models UBO
-        const VkDeviceSize modelUniformBufferSize = sizeof(ModelUniformBuffer);
-        createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
-
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
-            vector<VkDescriptorImageInfo> imagesInfo{};
-            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                .writeBuffer(0, &globalBufferInfo)
-                .writeBuffer(1, &modelBufferInfo);
-            if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
+        // Create an in-memory default blank image
+        // and initialize the image info array with this image
+        if (blankImage == nullptr) {
+            auto data = new unsigned char[1 * 1 * 3];
+            data[0] = 0;
+            data[1] = 0;
+            data[2] = 0;
+            stbi_write_jpg_to_func(stb_write_func, &blankImageData, 1, 1, 3, data, 100);
+            delete[] data;
+            blankImage = make_shared<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
+            for (auto &imageIndex: imagesInfo) {
+                imageIndex = blankImage->_getImageInfo();
+            }
         }
+
+        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+        createOrUpdateDescriptorSet(true);
     }
 
-    void SceneRenderer::updateDescriptorSet() {
-        // Models UBO
-        const VkDeviceSize modelUniformBufferSize = sizeof(ModelUniformBuffer);
+    void SceneRenderer::createOrUpdateDescriptorSet(bool create) {
         createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
+        createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialsIndices.size());
+
+        uint32_t imageIndex = 0;
+        for(const auto& image : images) {
+            imagesInfo[imageIndex] = image->_getImageInfo();
+            imageIndex += 1;
+        }
 
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
-            vector<VkDescriptorImageInfo> imagesInfo{};
+            auto materialBufferInfo = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                    .writeBuffer(0, &globalBufferInfo)
-                    .writeBuffer(1, &modelBufferInfo);
-            writer.overwrite(descriptorSet[i]);
+                .writeBuffer(0, &globalBufferInfo)
+                .writeBuffer(1, &modelBufferInfo)
+                .writeBuffer(2, &materialBufferInfo)
+                .writeImage(3, imagesInfo.data());
+            if (create) {
+                if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
+            } else {
+                writer.overwrite(descriptorSet[i]);
+            }
         }
     }
 

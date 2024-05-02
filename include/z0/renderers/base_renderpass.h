@@ -14,7 +14,7 @@ namespace z0 {
     protected:
         const Device& device;
         VkDevice vkDevice;
-        string shaderDirectory;
+        string shaderDirectory; // SPIR-V Compiled shaders directory
         VkPipelineLayout pipelineLayout { VK_NULL_HANDLE };
         shared_ptr<DescriptorPool> descriptorPool {};
         unique_ptr<DescriptorSetLayout> setLayout {};
@@ -38,7 +38,7 @@ namespace z0 {
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
         static void writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index = 0);
 
-        void createResources();
+        void createOrUpdateResources();
         void createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count = 1);
         void bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count = 0, uint32_t *offsets = nullptr);
         void bindShaders(VkCommandBuffer commandBuffer);
@@ -47,7 +47,7 @@ namespace z0 {
         virtual void loadShaders() = 0;
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
         virtual void createDescriptorSetLayout() = 0;
-        virtual void updateDescriptorSet()  = 0;
+        virtual void createOrUpdateDescriptorSet(bool create) = 0;
 
     private:
         void buildShader(Shader& shader);

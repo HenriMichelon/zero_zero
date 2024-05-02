@@ -2,9 +2,9 @@
 #include <z0/nodes/camera.h>
 using namespace z0;
 
-class MainScene: public Node {
+class AddRemoveChildMainScene: public Node {
 public:
-    MainScene(): Node{"Main Scene"} {};
+    AddRemoveChildMainScene(): Node{"Main Scene"} {};
     void onReady() override;
     void onProcess(float alpha) override;
     void onPhysicsProcess(float delta) override;

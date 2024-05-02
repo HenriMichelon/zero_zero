@@ -1,9 +1,9 @@
-#include "crate.h"
+#include "add_remove_child.h"
 #include <z0/application.h>
 #include <z0/input.h>
 #include <z0/loader.h>
 
-void MainScene::onReady() {
+void AddRemoveChildMainScene::onReady() {
     camera1 = make_shared<Camera>("Camera 1");
     camera1->setPosition({0.0f, 0.0f, 1.0f});
     addChild(camera1);
@@ -20,7 +20,7 @@ void MainScene::onReady() {
     printTree(cout);
 }
 
-void MainScene::onProcess(float alpha) {
+void AddRemoveChildMainScene::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_KP_ADD)) {
         auto crate2 = crateModel->duplicate();
         crate2->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
@@ -39,7 +39,7 @@ void MainScene::onProcess(float alpha) {
     }
 }
 
-void MainScene::onPhysicsProcess(float delta) {
+void AddRemoveChildMainScene::onPhysicsProcess(float delta) {
     auto angle = delta * radians(90.0f) / 2;
     for (auto& crate: crates) {
         crate->rotateY(angle);

@@ -66,7 +66,7 @@ namespace z0 {
                                 count, offsets);
     }
 
-    void BaseRenderpass::createResources() {
+    void BaseRenderpass::createOrUpdateResources() {
         if (descriptorPool == nullptr) {
             createDescriptorSetLayout();
             if (setLayout != nullptr) {
@@ -75,7 +75,7 @@ namespace z0 {
             }
         } else if (descriptorSetNeedUpdate) {
             descriptorSetNeedUpdate = false;
-            updateDescriptorSet();
+            createOrUpdateDescriptorSet(false);
         }
     };
 

@@ -1,7 +1,7 @@
 #include "triangle.h"
 #include <z0/application.h>
 
-void MainScene::onReady() {
+void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 1.0f});
     addChild(camera);

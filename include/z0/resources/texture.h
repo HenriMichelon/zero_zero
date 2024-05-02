@@ -25,6 +25,9 @@ namespace z0 {
 
     protected:
         shared_ptr<Image> image {nullptr};
+
+    public:
+        shared_ptr<Image> _getImagePointer() { return image; }
     };
 
 

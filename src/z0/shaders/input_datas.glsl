@@ -9,6 +9,18 @@ layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
     mat4 matrix;
 } model;
 
+layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
+    int transparency;
+    float alphaScissor;
+    int diffuseIndex;
+    int specularIndex;
+    int normalIndex;
+    vec4 albedoColor;
+    float shininess;
+} material;
+
+layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer.MAX_IMAGES
+
 struct VertexOut {
     vec2 UV;
     vec3 NORMAL;

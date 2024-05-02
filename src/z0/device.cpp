@@ -236,6 +236,7 @@ namespace z0 {
     }
 
     void Device::registerRenderer(const std::shared_ptr<BaseRenderer>& renderer) {
+        renderer->createImagesResources();
         renderers.insert(renderers.begin(), renderer);
     }
 

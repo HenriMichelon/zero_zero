@@ -104,7 +104,7 @@ namespace z0 {
 
     void Mesh::_draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count)  const{
         assert(vertexBuffer != nullptr && indexBuffer != nullptr);
-        //////// Bind to command buffer
+        //////// Bind vertices & indices datas to command buffer
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);

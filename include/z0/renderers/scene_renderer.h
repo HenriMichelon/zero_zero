@@ -6,6 +6,7 @@
 #include "z0/nodes/camera.h"
 
 #include <map>
+#include <array>
 
 namespace z0 {
 
@@ -14,11 +15,20 @@ namespace z0 {
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
-            vec4 ambient{ 1.0f, 1.0f, 1.0f, .0f }; // RGB + Intensity;
+            vec4 ambient{ 1.0f, 1.0f, 1.0f, 1.0f }; // RGB + Intensity;
             alignas(16) vec3 cameraPosition;
         };
         struct ModelUniformBuffer {
             mat4 matrix;
+        };
+        struct MaterialUniformBuffer {
+            alignas(4) int transparency;
+            alignas(4) float alphaScissor;
+            alignas(4) int32_t diffuseIndex{-1};
+            alignas(4) int32_t specularIndex{-1};
+            alignas(4) int32_t normalIndex{-1};
+            alignas(16) vec4 albedoColor;
+            alignas(4) float shininess{32.0f};
         };
 
         SceneRenderer(const Device& device, const string& shaderDirectory);
@@ -30,12 +40,36 @@ namespace z0 {
         void cleanup() override;
 
     protected:
-        void addingModel(MeshInstance* meshInstance, uint32_t index) override;
+        void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
         void removingModel(MeshInstance* meshInstance) override;
 
     private:
+        // Indices of each models datas in the models uniform buffer
         map<Node::id_t, uint32_t> modelsIndices {};
+        // All non-transparents models
         list<MeshInstance*> opaquesModels {};
+        // Size of the model uniform buffer
+        static constexpr VkDeviceSize modelUniformBufferSize { sizeof(ModelUniformBuffer) };
+        // All the materials of the scene
+        list<Material*> materials;
+        // Indices of each material in the materials uniform buffer
+        map<Resource::id_t, uint32_t> materialsIndices {};
+        // Datas for all the materials of the scene, one buffer for all the materials
+        vector<unique_ptr<Buffer>> materialsUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        // Size of the above uniform buffers
+        static constexpr VkDeviceSize materialUniformBufferSize {  sizeof(MaterialUniformBuffer) };
+        // All the images used in the scene
+        list<Image*> images;
+        // Indices of each images in the descriptor binding
+        map<Resource::id_t, uint32_t> imagesIndices {};
+        // Maximum number of images supported by this renderer
+        static constexpr uint32_t MAX_IMAGES = 200;
+        // Images infos for descriptor sets, pre-filled with blank images
+        array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
+        // Default blank image
+        shared_ptr<Image> blankImage{nullptr};
+        // Default blank image raw datas
+        vector<unsigned char> blankImageData;
 
         // Offscreen frame buffers attachements
         ColorFrameBuffer colorFrameBufferMultisampled;
@@ -45,7 +79,7 @@ namespace z0 {
         void update(uint32_t currentFrame) override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
         void createDescriptorSetLayout() override;
-        void updateDescriptorSet() override;
+        void createOrUpdateDescriptorSet(bool create) override;
         void loadShaders() override;
         void createImagesResources() override;
         void cleanupImagesResources() override;
@@ -53,6 +87,7 @@ namespace z0 {
         void beginRendering(VkCommandBuffer commandBuffer) override;
         void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
 
+        void addImage(const shared_ptr<Image>& image);
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw);
 
     public:

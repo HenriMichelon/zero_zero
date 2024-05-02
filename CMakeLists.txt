@@ -109,10 +109,10 @@ add_executable(${PROJECT_NAME}
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/example.cpp
-		#${Z0_EXAMPLES_DIR}/triangle.h
-		#${Z0_EXAMPLES_DIR}/triangle.cpp
-		${Z0_EXAMPLES_DIR}/crate.h
-		${Z0_EXAMPLES_DIR}/crate.cpp
+		${Z0_EXAMPLES_DIR}/triangle.h
+		${Z0_EXAMPLES_DIR}/triangle.cpp
+		${Z0_EXAMPLES_DIR}/add_remove_child.h
+		${Z0_EXAMPLES_DIR}/add_remove_child.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)

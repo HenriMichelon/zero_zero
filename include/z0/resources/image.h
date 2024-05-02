@@ -36,7 +36,7 @@ namespace z0 {
                        uint32_t height,
                        VkDeviceSize imageSize,
                        const void* data,
-                       VkFormat format);
+                       VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
     };
 
 }

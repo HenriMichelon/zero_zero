@@ -7,9 +7,10 @@
 
 namespace z0 {
 
+    // TODO : manage dirty materials to update the uniform buffers
     class Material: public Resource {
     public:
-        explicit Material(string name): Resource(std::move(name)) {}
+        explicit Material(const string& name): Resource(name) {}
     };
 
     class StandardMaterial: public Material {
@@ -22,7 +23,7 @@ namespace z0 {
         Transparency               transparency { TRANSPARENCY_DISABLED };
         float                      alphaScissor { 0.1 };
 
-        explicit StandardMaterial(string name): Material(std::move(name)) {}
+        explicit StandardMaterial(const string& name): Material(name) {}
     };
 
 }

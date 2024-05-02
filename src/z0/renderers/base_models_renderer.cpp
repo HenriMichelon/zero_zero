@@ -21,9 +21,9 @@ namespace z0 {
             models.push_back(meshInstance);
             addingModel(meshInstance, index);
             descriptorSetNeedUpdate = true;
+            createOrUpdateResources();
             log << "Added model " << *meshInstance << endl;
         }
-        createResources();
     }
 
     void BaseModelsRenderer::removeNode(const shared_ptr<z0::Node> &node) {

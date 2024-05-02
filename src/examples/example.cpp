@@ -1,5 +1,6 @@
 #include <z0/application.h>
-#include "crate.h"
+#include "triangle.h"
+#include "add_remove_child.h"
 
 using namespace z0;
 
@@ -10,4 +11,5 @@ const ApplicationConfig applicationConfig {
     .windowWidth = 1024,
     .windowHeight = 768,
 };
-Application application(applicationConfig, make_shared<MainScene>());
+Application application(applicationConfig,
+                        make_shared<AddRemoveChildMainScene>());

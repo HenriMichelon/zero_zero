@@ -10,8 +10,8 @@ private:
     shared_ptr<MeshInstance> triangle;
 };
 
-class MainScene: public Node {
+class TriangleMainScene: public Node {
 public:
-    MainScene(): Node{"Main Scene"} {};
+    TriangleMainScene(): Node{"Main Scene"} {};
     void onReady() override;
 };
