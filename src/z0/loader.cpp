@@ -121,28 +121,28 @@ namespace z0 {
                 //std::cout << material->toString() << std::endl;
                 auto imageIndex = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
                 shared_ptr<Image> image =  loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
-                material->albedoTexture = make_shared<ImageTexture>(image);
+                material->setAlbedoTexture(make_shared<ImageTexture>(image));
             }
-            material->albedoColor = Color{
+            material->setAlbedoColor(Color{
                 mat.pbrData.baseColorFactor[0],
                 mat.pbrData.baseColorFactor[1],
                 mat.pbrData.baseColorFactor[2],
                 mat.pbrData.baseColorFactor[3],
-            };
+            });
             if (mat.specular != nullptr) {
                 if (mat.specular->specularColorTexture.has_value()) {
                     auto imageIndex = gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.value();
                     shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
-                    material->specularTexture = std::make_shared<ImageTexture>(image);
+                    material->setSpecularTexture(std::make_shared<ImageTexture>(image));
                 }
             }
             if (mat.normalTexture.has_value()) {
                 auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
                 // https://www.reddit.com/r/vulkan/comments/wksa4z/comment/jd7504e/
                 shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
-                material->normalTexture = std::make_shared<ImageTexture>(image);
+                material->setNormalTexture(std::make_shared<ImageTexture>(image));
             }
-            material->cullMode = forceBackFaceCulling ? CULLMODE_BACK : mat.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK;
+            material->setCullMode(forceBackFaceCulling ? CULLMODE_BACK : mat.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK);
             materials.push_back(material);
         }
         if (materials.empty()) {

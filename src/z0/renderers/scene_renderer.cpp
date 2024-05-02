@@ -38,9 +38,9 @@ namespace z0 {
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
-                if (standardMaterial->albedoTexture != nullptr) addImage(standardMaterial->albedoTexture->_getImagePointer());
-                if (standardMaterial->specularTexture != nullptr) addImage(standardMaterial->specularTexture->_getImagePointer());
-                if (standardMaterial->normalTexture != nullptr) addImage(standardMaterial->normalTexture->_getImagePointer());
+                if (standardMaterial->getAlbedoTexture() != nullptr) addImage(standardMaterial->getAlbedoTexture()->getImage());
+                if (standardMaterial->getSpecularTexture() != nullptr) addImage(standardMaterial->getSpecularTexture()->getImage());
+                if (standardMaterial->getNormalTexture() != nullptr) addImage(standardMaterial->getNormalTexture()->getImage());
             }
         }
     }
@@ -48,7 +48,7 @@ namespace z0 {
     void SceneRenderer::addImage(const shared_ptr<Image>& image) {
         if (find(images.begin(), images.end(), image.get()) != images.end()) return;
         if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
-        imagesIndices[image->getId()] = images.size();
+        imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
         images.push_back(image.get());
     }
 
@@ -88,23 +88,26 @@ namespace z0 {
         }
 
         uint32_t materialIndex = 0;
-        for (auto* material : materials) {
-            MaterialUniformBuffer materialUbo{};
-            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
-                materialUbo.albedoColor = standardMaterial->albedoColor.color;
-                if (standardMaterial->albedoTexture != nullptr) {
-                    materialUbo.diffuseIndex = imagesIndices[standardMaterial->albedoTexture->_getImagePointer()->getId()];
+        for (auto *material: materials) {
+            if (material->_isUpdated()) {
+                material->_resetUpdate();
+                MaterialUniformBuffer materialUbo{};
+                if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
+                    materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
+                    if (standardMaterial->getAlbedoTexture() != nullptr) {
+                        materialUbo.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                    }
+                    if (standardMaterial->getSpecularTexture() != nullptr) {
+                        materialUbo.specularIndex = imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
+                    }
+                    if (standardMaterial->getNormalTexture() != nullptr) {
+                        materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                    }
+                    materialUbo.transparency = standardMaterial->getTransparency();
+                    materialUbo.alphaScissor = standardMaterial->getAlphaScissor();
                 }
-                if (standardMaterial->specularTexture != nullptr) {
-                    materialUbo.specularIndex = imagesIndices[standardMaterial->specularTexture->_getImagePointer()->getId()];
-                }
-                if (standardMaterial->normalTexture != nullptr) {
-                    materialUbo.normalIndex = imagesIndices[standardMaterial->normalTexture->_getImagePointer()->getId()];
-                }
-                materialUbo.transparency = standardMaterial->transparency;
-                materialUbo.alphaScissor = standardMaterial->alphaScissor;
+                writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
             }
-            writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
             materialIndex += 1;
         }
     }
@@ -177,8 +180,8 @@ namespace z0 {
             stbi_write_jpg_to_func(stb_write_func, &blankImageData, 1, 1, 3, data, 100);
             delete[] data;
             blankImage = make_shared<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
-            for (auto &imageIndex: imagesInfo) {
-                imageIndex = blankImage->_getImageInfo();
+            for (auto &imageInfo: imagesInfo) {
+                imageInfo = blankImage->_getImageInfo();
             }
         }
 

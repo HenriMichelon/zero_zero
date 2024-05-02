@@ -33,7 +33,7 @@ namespace z0 {
     }
 
     DescriptorSetLayout::DescriptorSetLayout(const Device &device,
-                                             unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings):
+                                             const unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings):
             device{device},
             bindings{bindings} {
         vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};

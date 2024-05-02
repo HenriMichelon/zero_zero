@@ -65,7 +65,7 @@ namespace z0 {
         // All the images used in the scene
         list<Image*> images;
         // Indices of each images in the descriptor binding
-        map<Resource::id_t, uint32_t> imagesIndices {};
+        map<Resource::id_t, int32_t> imagesIndices {};
         // Maximum number of images supported by this renderer
         static constexpr uint32_t MAX_IMAGES = 200;
         // Images infos for descriptor sets, pre-filled with blank images

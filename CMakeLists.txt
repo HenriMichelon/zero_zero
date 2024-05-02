@@ -106,6 +106,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/image.cpp
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 		${Z0_ENGINE_DIR}/resources/mesh.cpp
+		${Z0_ENGINE_DIR}/resources/material.cpp
 
 		${SRC_DIR}/libraries.cpp
 		${Z0_EXAMPLES_DIR}/example.cpp

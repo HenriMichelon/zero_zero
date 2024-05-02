@@ -25,7 +25,7 @@ namespace z0 {
             unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
         };
 
-        DescriptorSetLayout(const Device &Device, unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+        DescriptorSetLayout(const Device &Device, const unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
         ~DescriptorSetLayout();
         DescriptorSetLayout(const DescriptorSetLayout &) = delete;
         DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
