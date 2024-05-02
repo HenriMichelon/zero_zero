@@ -50,6 +50,8 @@ namespace z0 {
         list<MeshInstance*> opaquesModels {};
         // Size of the model uniform buffer
         static constexpr VkDeviceSize modelUniformBufferSize { sizeof(ModelUniformBuffer) };
+        // Currently allocated model uniform buffer count
+        uint32_t modelUniformBufferCount {0};
         // All the materials of the scene
         list<Material*> materials;
         // Indices of each material in the materials uniform buffer
@@ -58,6 +60,8 @@ namespace z0 {
         vector<unique_ptr<Buffer>> materialsUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         // Size of the above uniform buffers
         static constexpr VkDeviceSize materialUniformBufferSize {  sizeof(MaterialUniformBuffer) };
+        // Currently allocated material uniform buffer count
+        uint32_t materialUniformBufferCount {0};
         // All the images used in the scene
         list<Image*> images;
         // Indices of each images in the descriptor binding

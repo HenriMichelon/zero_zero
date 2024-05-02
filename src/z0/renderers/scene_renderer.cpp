@@ -187,8 +187,14 @@ namespace z0 {
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(bool create) {
-        createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, models.size());
-        createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialsIndices.size());
+        if (modelUniformBufferCount != models.size()) {
+            modelUniformBufferCount = models.size();
+            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
+        }
+        if (materialUniformBufferCount != materials.size()) {
+            materialUniformBufferCount = materials.size();
+            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
+        }
 
         uint32_t imageIndex = 0;
         for(const auto& image : images) {
