@@ -10,6 +10,7 @@ void TriangleMainScene::onReady() {
     printTree(cout);
 }
 
+//TODO shader material + skybox
 void Triangle::onReady() {
     const vector<Vertex> vertices {
             {.position = {0.0, 0.5, 0.0}, .uv = {0.5, 0.25}},
