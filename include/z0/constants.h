@@ -298,13 +298,13 @@ namespace z0 {
     };
 #endif
 
-/*
+
     enum MouseButton {
         MOUSE_BUTTON_LEFT      = 0,
         MOUSE_BUTTON_RIGHT     = 1,
         MOUSE_BUTTON_MIDDLE    = 2,
     };
-
+/*
     enum GamepadButton {
         GAMEPAD_BUTTON_A            = 0,
         GAMEPAD_BUTTON_B            = 1,

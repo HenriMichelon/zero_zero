@@ -12,11 +12,11 @@ namespace z0 {
         static bool isKeyPressed(Key key);
         static bool isKeyJustPressed(Key key);
         static bool isKeyJustReleased(Key key);
-        /*static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
+        //static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
 
-        static bool isMouseButtonPressed(MouseButton mouseButton);
+        //static bool isMouseButtonPressed(MouseButton mouseButton);
         static void setMouseMode(MouseMode mode);
-
+/*
         static int getConnectedJoypads();
         static bool isGamepad(int index);
         static string getGamepadName(int index);

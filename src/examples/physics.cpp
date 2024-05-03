@@ -136,11 +136,13 @@ void Player::onReady() {
 }
 
 void Player::captureMouse() {
-    //Input::setMouseMode(z0::MOUSE_MODE_HIDDEN_CAPTURED);
+    Input::setMouseMode(MOUSE_MODE_HIDDEN_CAPTURED);
     mouseCaptured = true;
 }
 
 void Player::releaseMouse() {
-    //Input::setMouseMode(z0::MOUSE_MODE_VISIBLE);
+    Input::setMouseMode(MOUSE_MODE_VISIBLE);
     mouseCaptured = false;
 }
+
+//TODO : key code + translate, mouse inputevent, mouse buttons,

@@ -140,6 +140,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/add_remove_child.cpp
 		${Z0_EXAMPLES_DIR}/physics.h
 		${Z0_EXAMPLES_DIR}/physics.cpp
+		${Z0_EXAMPLES_DIR}/ui.h
+		${Z0_EXAMPLES_DIR}/ui.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

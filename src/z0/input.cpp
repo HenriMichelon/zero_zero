@@ -1,3 +1,4 @@
+#include "z0/application.h"
 #include "z0/input.h"
 
 #include <unordered_map>
@@ -34,4 +35,29 @@ namespace z0 {
         _keyJustReleasedStates[key] = false;
         return result;
     }
+
+#ifdef _WIN32
+    void Input::setMouseMode(MouseMode mode) {
+        switch (mode) {
+            case MOUSE_MODE_VISIBLE:
+                ReleaseCapture();
+                ShowCursor(TRUE);
+                break;
+            case MOUSE_MODE_HIDDEN:
+                ReleaseCapture();
+                ShowCursor(FALSE);
+                break;
+            case MOUSE_MODE_VISIBLE_CAPTURED:
+                SetCapture(Application::get().getWindow()._getHandle());
+                ShowCursor(TRUE);
+                break;
+            case MOUSE_MODE_HIDDEN_CAPTURED:
+                SetCapture(Application::get().getWindow()._getHandle());
+                ShowCursor(FALSE);
+                break;
+            default:
+                die("Unknown mouse mode");
+        }
+    }
+#endif
 }
