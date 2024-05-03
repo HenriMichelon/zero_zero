@@ -14,7 +14,9 @@ namespace z0 {
         static bool isKeyJustReleased(Key key);
         //static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
 
-        //static bool isMouseButtonPressed(MouseButton mouseButton);
+        static bool isMouseButtonPressed(MouseButton mouseButton);
+        static bool isMouseButtonJustPressed(MouseButton mouseButton);
+        static bool isMouseButtonJustReleased(MouseButton mouseButton);
         static void setMouseMode(MouseMode mode);
 /*
         static int getConnectedJoypads();
@@ -33,6 +35,9 @@ namespace z0 {
         static unordered_map<Key, bool> _keyPressedStates;
         static unordered_map<Key, bool> _keyJustPressedStates;
         static unordered_map<Key, bool> _keyJustReleasedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonPressedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonJustPressedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonJustReleasedStates;
 
         static OsKey keyToOsKey(Key key);
         static Key osKeyToKey(OsKey key);

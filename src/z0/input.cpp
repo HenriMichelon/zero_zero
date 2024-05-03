@@ -9,6 +9,9 @@ namespace z0 {
     unordered_map<Key, bool> Input::_keyPressedStates;
     unordered_map<Key, bool> Input::_keyJustPressedStates;
     unordered_map<Key, bool> Input::_keyJustReleasedStates;
+    unordered_map<MouseButton, bool> Input::_mouseButtonPressedStates;
+    unordered_map<MouseButton, bool> Input::_mouseButtonJustPressedStates;
+    unordered_map<MouseButton, bool> Input::_mouseButtonJustReleasedStates;
 
     void Input::injectInputEvent(const shared_ptr<InputEvent>& event) {
         _inputQueue.push_back(event);
@@ -18,6 +21,22 @@ namespace z0 {
         const auto& event = _inputQueue.front();
         _inputQueue.pop_front();
         return event;
+    }
+
+    bool Input::isMouseButtonPressed(MouseButton mouseButton) {
+        return _mouseButtonPressedStates[mouseButton];
+    }
+
+    bool Input::isMouseButtonJustPressed(MouseButton mouseButton) {
+        auto result = _mouseButtonJustPressedStates[mouseButton];
+        _mouseButtonJustPressedStates[mouseButton] = false;
+        return result;
+    }
+
+    bool Input::isMouseButtonJustReleased(MouseButton mouseButton) {
+        auto result = _mouseButtonJustReleasedStates[mouseButton];
+        _mouseButtonJustReleasedStates[mouseButton] = false;
+        return result;
     }
 
     bool Input::isKeyPressed(Key key) {

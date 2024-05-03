@@ -68,6 +68,36 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Application::get().onInput(event);
             break;
         }
+        case WM_LBUTTONDOWN:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT];
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = true;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
+            break;
+        case WM_LBUTTONUP:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
+            break;
+        case WM_RBUTTONDOWN:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT];
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = true;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
+            break;
+        case WM_RBUTTONUP:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
+            break;
+        case WM_MBUTTONDOWN:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE];
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = true;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            break;
+        case WM_MBUTTONUP:
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            break;
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
     }

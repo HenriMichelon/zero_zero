@@ -28,7 +28,12 @@ void UIMainScene::onReady() {
     mesh1->setSurfaceMaterial(0, material1);
     auto triangle1 = make_shared<MeshInstance>(mesh1);
     triangle1->setPosition({0.0, 0.0, -1.0});
-    addChild(triangle1);
+    //addChild(triangle1);
 }
 
-//TODO : key code + translate, mouse inputevent, mouse buttons,
+//TODO : , mouse inputevent, mouse buttons,
+void UIMainScene::onProcess(float alpha) {
+    if (Input::isMouseButtonJustReleased(MOUSE_BUTTON_LEFT)) {
+        cout << "MOUSE LEFT" << endl;
+    }
+}
