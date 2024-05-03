@@ -49,20 +49,22 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             }
             break;
         case WM_KEYDOWN: {
-            auto scanCode = static_cast<z0::Key>((lParam & 0x00FF0000) >> 16);
-            z0::Input::_keyJustPressedStates[scanCode] = !z0::Input::_keyPressedStates[scanCode];
-            z0::Input::_keyPressedStates[scanCode] = true;
-            z0::Input::_keyJustReleasedStates[scanCode] = false;
-            auto event = z0::InputEventKey{scanCode, true, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            auto scanCode = static_cast<z0::OsKey>((lParam & 0x00FF0000) >> 16);
+            auto key = z0::Input::osKeyToKey(scanCode);
+            z0::Input::_keyJustPressedStates[key] = !z0::Input::_keyPressedStates[key];
+            z0::Input::_keyPressedStates[key] = true;
+            z0::Input::_keyJustReleasedStates[key] = false;
+            auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
             z0::Application::get().onInput(event);
             break;
         }
         case WM_KEYUP: {
-            auto scanCode = static_cast<z0::Key>((lParam & 0x00FF0000) >> 16);
-            z0::Input::_keyPressedStates[scanCode] = false;
-            z0::Input::_keyJustPressedStates[scanCode] = false;
-            z0::Input::_keyJustReleasedStates[scanCode] = true;
-            auto event = z0::InputEventKey{scanCode, false, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            auto scanCode = static_cast<z0::OsKey>((lParam & 0x00FF0000) >> 16);
+            auto key = z0::Input::osKeyToKey(scanCode);
+            z0::Input::_keyPressedStates[key] = false;
+            z0::Input::_keyJustPressedStates[key] = false;
+            z0::Input::_keyJustReleasedStates[key] = true;
+            auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
             z0::Application::get().onInput(event);
             break;
         }

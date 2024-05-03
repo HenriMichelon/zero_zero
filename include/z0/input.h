@@ -33,6 +33,9 @@ namespace z0 {
         static unordered_map<Key, bool> _keyPressedStates;
         static unordered_map<Key, bool> _keyJustPressedStates;
         static unordered_map<Key, bool> _keyJustReleasedStates;
+
+        static OsKey keyToOsKey(Key key);
+        static Key osKeyToKey(OsKey key);
     };
 
 
