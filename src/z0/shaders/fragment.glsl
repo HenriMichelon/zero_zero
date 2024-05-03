@@ -56,5 +56,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             color = material.albedoColor;
         }
     }
+    if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
+        discard;
+    }
+    color = vec4(color.rgb, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
     return color;
 }
