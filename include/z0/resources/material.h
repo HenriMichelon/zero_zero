@@ -1,9 +1,9 @@
 #pragma once
 
-#include <utility>
-
 #include "z0/color.h"
 #include "z0/resources/texture.h"
+
+#include <array>
 
 namespace z0 {
 
@@ -55,8 +55,11 @@ namespace z0 {
         explicit ShaderMaterial(string shaderFileName, const string& name = "ShaderMaterial"): Material(name), fileName{std::move(shaderFileName)} {}
 
         const string& getFileName() const { return fileName; }
+        array<float, 2>& getParameters() { return parameters; }
+
     private:
         const string fileName;
+        array<float, 2> parameters;
     };
 
 }

@@ -13,6 +13,8 @@ private:
     shared_ptr<MeshInstance> triangle2;
     shared_ptr<StandardMaterial> material1;
     shared_ptr<ShaderMaterial> material2;
+    float gradientSpeed = 0.5f;
+    float gradient = 0.0f;
 };
 
 class TriangleMainScene: public Node {

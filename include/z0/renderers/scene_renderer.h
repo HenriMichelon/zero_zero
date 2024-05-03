@@ -29,6 +29,7 @@ namespace z0 {
             alignas(4) int32_t normalIndex{-1};
             alignas(16) vec4 albedoColor;
             alignas(4) float shininess{32.0f};
+            alignas(16) float parameters[2];
         };
 
         SceneRenderer(const Device& device, const string& shaderDirectory);

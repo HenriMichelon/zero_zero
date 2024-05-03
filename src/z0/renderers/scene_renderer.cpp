@@ -114,6 +114,10 @@ namespace z0 {
                 }
                 materialUbo.transparency = standardMaterial->getTransparency();
                 materialUbo.alphaScissor = standardMaterial->getAlphaScissor();
+            } else if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material)) {
+                for (int i = 0; i < shaderMaterial->getParameters().size(); i++) {
+                    materialUbo.parameters[i] = shaderMaterial->getParameters()[i];
+                }
             }
             writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
             materialIndex += 1;

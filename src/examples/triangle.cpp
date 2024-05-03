@@ -40,6 +40,7 @@ void Triangle::onReady() {
     auto mesh2 = make_shared<Mesh>(vertices, indices, surfaces2);
     material2 = make_shared<ShaderMaterial>("examples/uv_gradient.frag");
     material2->setCullMode(CULLMODE_DISABLED);
+    material2->getParameters()[0] = 0.0;
     mesh2->setSurfaceMaterial(0, material2);
     triangle2 = make_shared<MeshInstance>(mesh2);
     triangle2->setPosition({-1.0, 0.0, 0.0});
@@ -50,16 +51,25 @@ void Triangle::onPhysicsProcess(float delta) {
     auto angle = delta * radians(90.0f) / 2;
     triangle1->rotateY(angle);
     triangle2->rotateY(-angle);
+    gradient += gradientSpeed * delta;
+    // Ensure the color component remains within the range [0, 1]
+    if (gradient > 1.0f) {
+        gradient = 1.0f;
+        gradientSpeed = -gradientSpeed; // Reverse the direction when reaching the upper limit
+    }
+    if (gradient < 0.0f) {
+        gradient = 0.0f;
+        gradientSpeed = -gradientSpeed; // Reverse the direction when reaching the lower limit
+    }
+    material2->getParameters()[0] = gradient;
 }
 
 void Triangle::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_ENTER)) {
         if (triangle1->getMesh()->getSurfaceMaterial(0).get() == material1.get()) {
             triangle1->getMesh()->setSurfaceMaterial(0, material2);
-            triangle2->getMesh()->setSurfaceMaterial(0, material1);
         } else {
             triangle1->getMesh()->setSurfaceMaterial(0, material1);
-            triangle2->getMesh()->setSurfaceMaterial(0, material2);
 
         }
     }
