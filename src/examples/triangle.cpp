@@ -8,7 +8,6 @@ void TriangleMainScene::onReady() {
     camera->setPosition({0.0f, 0.0f, 2.0f});
     addChild(camera);
 
-
     auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
     addChild(skybox);
 
@@ -17,7 +16,6 @@ void TriangleMainScene::onReady() {
     printTree(cout);
 }
 
-//TODO shader material + skybox
 void Triangle::onReady() {
     const vector<Vertex> vertices {
             {.position = {0.0, 0.5, 0.0}, .uv = {0.5, 0.25}},
@@ -55,9 +53,11 @@ void Triangle::onReady() {
 }
 
 void Triangle::onPhysicsProcess(float delta) {
-    auto angle = delta * radians(90.0f) / 4;
-    triangle1->rotateY(angle);
-    triangle2->rotateY(-angle);
+    if (rotate) {
+        auto angle = delta * radians(90.0f) / 2;
+        triangle1->rotateY(angle);
+        triangle2->rotateY(-angle);
+    }
     gradient += gradientSpeed * delta;
     // Ensure the color component remains within the range [0, 1]
     if (gradient > 1.0f) {
@@ -79,4 +79,15 @@ void Triangle::onProcess(float alpha) {
             triangle1->getMesh()->setSurfaceMaterial(0, material1);
         }
     }
+}
+
+bool Triangle::onInput(InputEvent &inputEvent) {
+    if (inputEvent.getType() == INPUT_EVENT_KEY) {
+        auto& eventKey = dynamic_cast<InputEventKey&>(inputEvent);
+        if ((eventKey.getKeyCode() == KEY_SPACE) && !eventKey.isPressed()) {
+            rotate = !rotate;
+            return true;
+        }
+    }
+    return false;
 }

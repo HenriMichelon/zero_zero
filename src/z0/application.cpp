@@ -189,6 +189,10 @@ namespace z0 {
         }
     }
 
+    void Application::onInput(z0::InputEvent &inputEvent) {
+        input(rootNode, inputEvent);
+    }
+
     void Application::start() {
         ready(rootNode);
         addNode(rootNode);
@@ -206,6 +210,13 @@ namespace z0 {
             ready(child);
         }
         node->_onReady();
+    }
+
+    bool Application::input(const std::shared_ptr<Node>& node, InputEvent& inputEvent) {
+        for(auto& child: node->getChildren()) {
+            if (input(child, inputEvent)) return true;
+        }
+        return node->onInput(inputEvent);
     }
 
     void Application::process(const std::shared_ptr<Node>& node, float delta) {

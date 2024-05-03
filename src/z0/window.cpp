@@ -1,11 +1,21 @@
 #include "z0/application.h"
 #include "z0/window.h"
 #include "z0/input.h"
+#include "z0/input_event.h"
 
 #include <vulkan/vulkan.hpp>
 
 #ifdef _WIN32
 char szClassName[ ] = "WindowsApp";
+
+int _getModifiers() {
+    int modifiers = 0;
+    if (GetKeyState(VK_SHIFT) & 0x8000) modifiers |= z0::KEY_MODIFIER_SHIFT;
+    if (GetKeyState(VK_CONTROL) & 0x8000) modifiers |= z0::KEY_MODIFIER_CONTROL;
+    if (GetKeyState(VK_MENU) & 0x8000) modifiers |= z0::KEY_MODIFIER_ALT;
+    return modifiers;
+}
+
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -43,6 +53,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyJustPressedStates[scanCode] = !z0::Input::_keyPressedStates[scanCode];
             z0::Input::_keyPressedStates[scanCode] = true;
             z0::Input::_keyJustReleasedStates[scanCode] = false;
+            auto event = z0::InputEventKey{scanCode, true, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            z0::Application::get().onInput(event);
             break;
         }
         case WM_KEYUP: {
@@ -50,6 +62,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyPressedStates[scanCode] = false;
             z0::Input::_keyJustPressedStates[scanCode] = false;
             z0::Input::_keyJustReleasedStates[scanCode] = true;
+            auto event = z0::InputEventKey{scanCode, false, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            z0::Application::get().onInput(event);
             break;
         }
         default:

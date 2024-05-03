@@ -1,6 +1,7 @@
 #pragma once
 
 #include "z0/object.h"
+#include "z0/input_event.h"
 
 #include <list>
 
@@ -11,12 +12,13 @@ namespace z0 {
         using id_t = unsigned int;
 
         Node(const Node&);
-        explicit Node(const string& name = "Node");
+        explicit Node(string name = "Node");
         virtual ~Node() = default;
 
         virtual void onReady() {}
         virtual void onProcess(float alpha) {}
         virtual void onPhysicsProcess(float delta) {}
+        virtual bool onInput(InputEvent& inputEvent) { return false; }
 
         mat4& getTransform() { return localTransform; }
         virtual void setTransform(mat4 transform) { localTransform = transform; }

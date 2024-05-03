@@ -12,8 +12,8 @@ namespace z0 {
 
     Node::id_t Node::currentId = 0;
 
-    Node::Node(const string& nodeName):
-        name{nodeName},
+    Node::Node(string nodeName):
+        name{std::move(nodeName)},
         id{currentId++}   {
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};

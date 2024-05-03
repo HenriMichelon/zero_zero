@@ -23,6 +23,7 @@ namespace z0 {
         VkInstance getVkInstance() const { return vkInstance; }
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }
+        void onInput(InputEvent& inputEvent);
 
         void addNode(const shared_ptr<Node>& node);
         void removeNode(const shared_ptr<Node>& node);
@@ -69,6 +70,7 @@ namespace z0 {
         void ready(const shared_ptr<Node>& node);
         void process(const shared_ptr<Node>& node, float alpha);
         void physicsProcess(const shared_ptr<Node>& node, float delta);
+        bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
 
     public:
         // The following members are accessed by global function WinMain
@@ -76,8 +78,8 @@ namespace z0 {
 #ifdef _WIN32
         void _mainLoop();
 #endif
-        void _stop(bool stop) { stopped = stop; };
 
+        void _stop(bool stop) { stopped = stop; };
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
 
         Application(const Application&) = delete;

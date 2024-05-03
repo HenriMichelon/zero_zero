@@ -17,16 +17,16 @@ namespace z0 {
 
     class InputEventKey: public InputEvent {
     public:
-        InputEventKey(Key key, bool pressed, bool repeat, int modifiers);
+        InputEventKey(Key key, bool pressed, int repeat, int modifiers);
 
         Key getKeyCode() const { return keycode; }
-        bool isRepeat() const { return repeat; }
+        int getRepeatCount() const { return repeat; }
         bool isPressed() const { return pressed; }
         int getModifiers() const { return modifiers; }
 
     private:
         Key keycode;
-        bool repeat;
+        int repeat;
         bool pressed;
         int modifiers;
     };

@@ -71,16 +71,13 @@ namespace z0 {
         INPUT_EVENT_MOUSE_MOTION    = 1,
         INPUT_EVENT_MOUSE_BUTTON    = 2,
     };
-/*
+
     enum KeyModifier {
         KEY_MODIFIER_SHIFT      = 0x0001,
         KEY_MODIFIER_CONTROL    = 0x0002,
         KEY_MODIFIER_ALT        = 0x0004,
-        KEY_MODIFIER_SUPER      = 0x0008,
-        KEY_MODIFIER_CAPSLOCK   = 0x0010,
-        KEY_MODIFIER_NUMLOCK    = 0x0020
     };
-*/
+
 /*
     enum Key {
         KEY_SPACE      = 1,
