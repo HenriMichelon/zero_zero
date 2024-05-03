@@ -116,6 +116,8 @@ namespace z0 {
         uint32_t materialIndex = 0;
         for (auto *material: materials) {
             MaterialUniformBuffer materialUbo{};
+            materialUbo.transparency = material->getTransparency();
+            materialUbo.alphaScissor = material->getAlphaScissor();
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
                 materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
                 if (standardMaterial->getAlbedoTexture() != nullptr) {
@@ -127,8 +129,6 @@ namespace z0 {
                 if (standardMaterial->getNormalTexture() != nullptr) {
                     materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                 }
-                materialUbo.transparency = standardMaterial->getTransparency();
-                materialUbo.alphaScissor = standardMaterial->getAlphaScissor();
             } else if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material)) {
                 for (int i = 0; i < shaderMaterial->getParameters().size(); i++) {
                     materialUbo.parameters[i] = shaderMaterial->getParameters()[i];

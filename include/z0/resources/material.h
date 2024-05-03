@@ -12,11 +12,19 @@ namespace z0 {
         CullMode getCullMode() const { return cullMode;}
         void setCullMode(CullMode mode) {cullMode = mode;}
 
+        Transparency getTransparency() const { return transparency;}
+        void setTransparency(Transparency transparencyMode) {transparency = transparencyMode;}
+
+        float getAlphaScissor() const { return alphaScissor;}
+        void setAlphaScissor(float scissor) {alphaScissor = scissor;}
+
     protected:
         explicit Material(const string& name): Resource(name) {}
 
     private:
         CullMode cullMode { CULLMODE_BACK };
+        Transparency transparency { TRANSPARENCY_DISABLED };
+        float alphaScissor { 0.1 };
     };
 
     class StandardMaterial: public Material {
@@ -35,19 +43,11 @@ namespace z0 {
         const shared_ptr<ImageTexture> &getNormalTexture() const {return normalTexture;}
         void setNormalTexture(const shared_ptr<ImageTexture> &texture) {normalTexture = texture;}
 
-        Transparency getTransparency() const { return transparency;}
-        void setTransparency(Transparency transparencyMode) {transparency = transparencyMode;}
-
-        float getAlphaScissor() const { return alphaScissor;}
-        void setAlphaScissor(float scissor) {alphaScissor = scissor;}
-
     private:
         Color                      albedoColor {0.8f, 0.3f, 0.5f, 1.0f };
         shared_ptr<ImageTexture>   albedoTexture {nullptr};
         shared_ptr<ImageTexture>   specularTexture {nullptr};
         shared_ptr<ImageTexture>   normalTexture {nullptr};
-        Transparency               transparency { TRANSPARENCY_DISABLED };
-        float                      alphaScissor { 0.1 };
     };
 
     class ShaderMaterial: public Material {

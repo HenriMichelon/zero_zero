@@ -34,7 +34,6 @@ void Triangle::onReady() {
     auto mesh1 = make_shared<Mesh>(vertices, indices, surfaces1);
     material1 = make_shared<StandardMaterial>();
     material1->setAlbedoColor(Color(vec4{0.5, 0.5, 0.5, 0.5}));
-    material1->setTransparency(TRANSPARENCY_ALPHA);
     material1->setCullMode(CULLMODE_DISABLED);
     mesh1->setSurfaceMaterial(0, material1);
     triangle1 = make_shared<MeshInstance>(mesh1);
@@ -46,6 +45,7 @@ void Triangle::onReady() {
     };
     auto mesh2 = make_shared<Mesh>(vertices, indices, surfaces2);
     material2 = make_shared<ShaderMaterial>("examples/uv_gradient.frag");
+    material2->setTransparency(TRANSPARENCY_ALPHA);
     material2->setCullMode(CULLMODE_DISABLED);
     material2->getParameters()[0] = 0.0;
     mesh2->setSurfaceMaterial(0, material2);

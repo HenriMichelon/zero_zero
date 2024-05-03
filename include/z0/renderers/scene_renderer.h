@@ -23,12 +23,12 @@ namespace z0 {
             mat4 matrix;
         };
         struct MaterialUniformBuffer {
-            alignas(4) int transparency;
-            alignas(4) float alphaScissor;
+            alignas(4) int transparency{TRANSPARENCY_DISABLED};
+            alignas(4) float alphaScissor{0.1};
             alignas(4) int32_t diffuseIndex{-1};
             alignas(4) int32_t specularIndex{-1};
             alignas(4) int32_t normalIndex{-1};
-            alignas(16) vec4 albedoColor;
+            alignas(16) vec4 albedoColor{0.5,0.5,0.5,1.0};
             alignas(4) float shininess{32.0f};
             alignas(16) float parameters[2];
         };
