@@ -69,6 +69,7 @@ namespace z0 {
     void BaseRenderpass::createOrUpdateResources() {
         if (descriptorPool == nullptr) {
             createDescriptorSetLayout();
+            createOrUpdateDescriptorSet(true);
             if (setLayout != nullptr) {
                 createPipelineLayout();
                 loadShaders();

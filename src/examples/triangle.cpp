@@ -1,4 +1,5 @@
 #include "triangle.h"
+#include "z0/nodes/skybox.h"
 #include <z0/application.h>
 #include <z0/input.h>
 
@@ -6,6 +7,11 @@ void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 2.0f});
     addChild(camera);
+
+
+    auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
+    addChild(skybox);
+
     addChild(make_shared<Triangle>());
 
     printTree(cout);
@@ -48,18 +54,18 @@ void Triangle::onReady() {
 }
 
 void Triangle::onPhysicsProcess(float delta) {
-    auto angle = delta * radians(90.0f) / 2;
+    auto angle = delta * radians(90.0f) / 4;
     triangle1->rotateY(angle);
     triangle2->rotateY(-angle);
     gradient += gradientSpeed * delta;
     // Ensure the color component remains within the range [0, 1]
     if (gradient > 1.0f) {
         gradient = 1.0f;
-        gradientSpeed = -gradientSpeed; // Reverse the direction when reaching the upper limit
+        gradientSpeed = -gradientSpeed;
     }
     if (gradient < 0.0f) {
         gradient = 0.0f;
-        gradientSpeed = -gradientSpeed; // Reverse the direction when reaching the lower limit
+        gradientSpeed = -gradientSpeed;
     }
     material2->getParameters()[0] = gradient;
 }
@@ -70,7 +76,6 @@ void Triangle::onProcess(float alpha) {
             triangle1->getMesh()->setSurfaceMaterial(0, material2);
         } else {
             triangle1->getMesh()->setSurfaceMaterial(0, material1);
-
         }
     }
 }

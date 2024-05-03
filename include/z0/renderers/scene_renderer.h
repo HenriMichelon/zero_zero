@@ -4,6 +4,7 @@
 #include "z0/framebuffers/color_frame_buffer.h"
 #include "z0/framebuffers/color_frame_buffer_hdr.h"
 #include "z0/nodes/camera.h"
+#include "skybox_renderer.h"
 
 #include <map>
 #include <array>
@@ -39,6 +40,7 @@ namespace z0 {
         VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
 
         void cleanup() override;
+        void addNode(const shared_ptr<Node>& node);
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -78,6 +80,8 @@ namespace z0 {
         shared_ptr<Image> blankImage{nullptr};
         // Default blank image raw datas
         vector<unsigned char> blankImageData;
+        // For rendering an optional skybox
+        unique_ptr<SkyboxRenderer> skyboxRenderer {nullptr};
 
         // Offscreen frame buffers attachements
         ColorFrameBuffer colorFrameBufferMultisampled;

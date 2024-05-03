@@ -3,6 +3,7 @@
  * https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
  */
 #include "z0/renderers/scene_renderer.h"
+#include "z0/nodes/skybox.h"
 
 #include <stb_image_write.h>
 
@@ -26,6 +27,7 @@ namespace z0 {
             blankImage.reset();
             blankImageData.clear();
         }
+        if (skyboxRenderer != nullptr) skyboxRenderer->cleanup();
         opaquesModels.clear();
         BaseModelsRenderer::cleanup();
     }
@@ -43,6 +45,17 @@ namespace z0 {
                 if (standardMaterial->getSpecularTexture() != nullptr) addImage(standardMaterial->getSpecularTexture()->getImage());
                 if (standardMaterial->getNormalTexture() != nullptr) addImage(standardMaterial->getNormalTexture()->getImage());
             }
+        }
+    }
+
+    void SceneRenderer::addNode(const shared_ptr<z0::Node> &node) {
+        if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
+            skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
+            skyboxRenderer->loadScene(skybox->getCubemap());
+            log << "Using skybox" <<  skybox << endl;
+
+        } else {
+            BaseModelsRenderer::addNode(node);
         }
     }
 
@@ -74,12 +87,14 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
+        if (skyboxRenderer != nullptr) skyboxRenderer->loadShaders();
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
         if (currentCamera == nullptr) return;
+        if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentFrame);
         if (models.empty()) return;
 
         GobalUniformBuffer globalUbo{
@@ -131,6 +146,7 @@ namespace z0 {
         vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
         vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
         drawModels(commandBuffer, currentFrame, opaquesModels);
+        if (skyboxRenderer != nullptr) skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
     void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw) {
@@ -197,8 +213,6 @@ namespace z0 {
                             MAX_IMAGES)
                 .build();
 
-        globalUniformBufferSize = sizeof(GobalUniformBuffer);
-
         // Create an in-memory default blank image
         // and initialize the image info array with this image
         if (blankImage == nullptr) {
@@ -214,8 +228,8 @@ namespace z0 {
             }
         }
 
+        globalUniformBufferSize = sizeof(GobalUniformBuffer);
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
-        createOrUpdateDescriptorSet(true);
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(bool create) {
@@ -223,7 +237,7 @@ namespace z0 {
             modelUniformBufferCount = models.size();
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
         }
-        if ((materials.size() > 0) && (materialUniformBufferCount != materials.size())) {
+        if ((!materials.empty()) && (materialUniformBufferCount != materials.size())) {
             materialUniformBufferCount = materials.size();
             createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
         }
