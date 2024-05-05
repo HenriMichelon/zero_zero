@@ -35,7 +35,7 @@ namespace z0 {
 
         SceneRenderer(const Device& device, const string& shaderDirectory);
 
-        shared_ptr<ColorFrameBufferHDR>& getColorFrameBufferHDR() { return colorFrameBufferHdr; }
+        shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
         VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
         VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
 

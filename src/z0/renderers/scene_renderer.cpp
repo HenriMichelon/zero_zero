@@ -20,6 +20,7 @@ namespace z0 {
     SceneRenderer::SceneRenderer(const Device &dev, const string& sDir) :
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
+        createImagesResources();
      }
 
     void SceneRenderer::cleanup() {
@@ -141,11 +142,13 @@ namespace z0 {
 
     void SceneRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
         if (currentCamera == nullptr) return;
-        if (models.empty()) return;
         setInitialState(commandBuffer);
-        vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
-        drawModels(commandBuffer, currentFrame, opaquesModels);
+        if (!models.empty()) {
+            vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
+            drawModels(commandBuffer, currentFrame, opaquesModels);
+        }
         if (skyboxRenderer != nullptr) skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
@@ -347,22 +350,24 @@ namespace z0 {
 
     void SceneRenderer::endRendering(VkCommandBuffer commandBuffer, bool isLast) {
         vkCmdEndRendering(commandBuffer);
-        Device::transitionImageLayout(commandBuffer, colorFrameBufferHdr->getImage(),
+        Device::transitionImageLayout(commandBuffer,
+                                      colorFrameBufferHdr->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
-                                           isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                     isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                      0,
-                                           isLast ? VK_ACCESS_TRANSFER_READ_BIT : VK_ACCESS_SHADER_READ_BIT,
+                                     isLast ? VK_ACCESS_TRANSFER_READ_BIT : VK_ACCESS_SHADER_READ_BIT,
                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                           isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                     isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        Device::transitionImageLayout(commandBuffer, resolvedDepthFrameBuffer->getImage(),
-                                           VK_IMAGE_LAYOUT_UNDEFINED,
-                                           VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
-                                           0,
-                                           VK_ACCESS_SHADER_READ_BIT,
-                                           VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                           VK_IMAGE_ASPECT_DEPTH_BIT);
+        Device::transitionImageLayout(commandBuffer,
+                                      resolvedDepthFrameBuffer->getImage(),
+                                      VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+                                      0,
+                                      VK_ACCESS_SHADER_READ_BIT,
+                                      VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                      VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
 

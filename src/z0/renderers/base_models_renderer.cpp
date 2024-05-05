@@ -63,7 +63,6 @@ namespace z0 {
     void BaseModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) {
         bindShaders(commandBuffer);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
-        vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         const auto vertexBinding = Mesh::_getBindingDescription();
         const auto vertexAttribute = Mesh::_getAttributeDescription();

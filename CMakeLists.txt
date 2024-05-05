@@ -76,6 +76,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/renderers/base_renderpass.h
 		${Z0_INCLUDE_DIR}/renderers/scene_renderer.h
 		${Z0_INCLUDE_DIR}/renderers/skybox_renderer.h
+		${Z0_INCLUDE_DIR}/renderers/vector_renderer.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
@@ -114,6 +115,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/base_models_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp
@@ -128,7 +130,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 		${Z0_ENGINE_DIR}/resources/mesh.cpp
 		${Z0_ENGINE_DIR}/resources/material.cpp
-		${Z0_ENGINE_DIR}/renderers/shape.cpp
+		${Z0_ENGINE_DIR}/resources/shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 
 		${SRC_DIR}/libraries.cpp

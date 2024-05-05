@@ -236,7 +236,6 @@ namespace z0 {
     }
 
     void Device::registerRenderer(const std::shared_ptr<BaseRenderer>& renderer) {
-        renderer->createImagesResources();
         renderers.insert(renderers.begin(), renderer);
     }
 
@@ -311,7 +310,6 @@ namespace z0 {
                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                     VK_IMAGE_ASPECT_COLOR_BIT);
 
-
             if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS) {
                 die("failed to record command buffer!");
             }
@@ -364,18 +362,24 @@ namespace z0 {
     // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/extensions/shader_object/shader_object.cpp
     void Device::setInitialState(VkCommandBuffer commandBuffer)
     {
-        {
-            vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
-            const VkColorBlendEquationEXT colorBlendEquation{
-                    .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
-                    .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
-                    .colorBlendOp = VK_BLEND_OP_ADD,
-                    .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
-                    .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
-                    .alphaBlendOp = VK_BLEND_OP_ADD,
-            };
-            vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
-        }
+        vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
+        /*const VkColorBlendEquationEXT colorBlendEquation {
+                .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
+                .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+                .colorBlendOp = VK_BLEND_OP_ADD,
+                .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+                .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+                .alphaBlendOp = VK_BLEND_OP_ADD,
+        };*/
+        const VkColorBlendEquationEXT colorBlendEquation {
+                .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
+                .dstColorBlendFactor = VK_BLEND_FACTOR_DST_ALPHA,
+                .colorBlendOp = VK_BLEND_OP_ADD,
+                .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+                .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+                .alphaBlendOp = VK_BLEND_OP_ADD,
+        };
+        vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
 
         // Set the topology to triangles, don't restart primitives
         vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
@@ -399,6 +403,7 @@ namespace z0 {
         vkCmdSetDepthBoundsTestEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
         vkCmdSetStencilTestEnable(commandBuffer, VK_FALSE);
+        vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
 
         // Do not enable logic op
         vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);

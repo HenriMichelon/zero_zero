@@ -1,6 +1,6 @@
 #include "z0/resources/shape.h"
 
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include "Jolt/Physics/Collision/Shape/BoxShape.h"
 
 namespace z0 {
 

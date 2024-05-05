@@ -10,8 +10,8 @@ const ApplicationConfig applicationConfig {
     .appName = "Example App",
     .appDir = "..",
     .windowMode = WINDOW_MODE_WINDOWED,
-    .windowWidth = 640,
-    .windowHeight = 480,
+    .windowWidth = 1024,
+    .windowHeight = 768,
 };
 Application application(applicationConfig,
-                        make_shared<UIMainScene>());
+                        make_shared<TriangleMainScene>());

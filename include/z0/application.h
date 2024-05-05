@@ -1,9 +1,10 @@
 #pragma once
 
 #include "z0/device.h"
+#include "z0/physics.h"
 #include "z0/nodes/node.h"
 #include "z0/renderers/scene_renderer.h"
-#include "z0/physics.h"
+#include "z0/renderers/vector_renderer.h"
 
 #include <filesystem>
 #include <cassert>
@@ -38,6 +39,7 @@ namespace z0 {
         bool paused{false};
         bool stopped{false};
         shared_ptr<SceneRenderer> sceneRenderer;
+        shared_ptr<VectorRenderer> vectorRenderer;
         vector<shared_ptr<Node>> addedNodes{};
         vector<shared_ptr<Node>> removedNodes{};
 

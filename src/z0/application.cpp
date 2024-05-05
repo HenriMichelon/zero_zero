@@ -111,6 +111,10 @@ namespace z0 {
 
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
+        vectorRenderer = make_shared<VectorRenderer>(*device,
+                                                     shaderDir,
+                                                     sceneRenderer->getColorAttachement());
+        device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
     }
 
@@ -196,6 +200,11 @@ namespace z0 {
     void Application::start() {
         ready(rootNode);
         addNode(rootNode);
+        vectorRenderer->beginDraw();
+        vectorRenderer->setTransparency(0.5);
+        vectorRenderer->setPenColor({1.0, 0.0, 0.0});
+        vectorRenderer->drawFilledRect({-0.25, 0.25}, { 0.25, -0.25});
+        vectorRenderer->endDraw();
     }
 
     void Application::end() {
