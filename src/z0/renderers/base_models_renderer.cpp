@@ -62,8 +62,12 @@ namespace z0 {
 
     void BaseModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) {
         bindShaders(commandBuffer);
-        vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
+
+        VkBool32 color_blend_enables[] = {VK_FALSE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
+
         const auto vertexBinding = Mesh::_getBindingDescription();
         const auto vertexAttribute = Mesh::_getAttributeDescription();
         vkCmdSetVertexInputEXT(commandBuffer,

@@ -201,9 +201,11 @@ namespace z0 {
         ready(rootNode);
         addNode(rootNode);
         vectorRenderer->beginDraw();
-        vectorRenderer->setTransparency(0.5);
-        vectorRenderer->setPenColor({1.0, 0.0, 0.0});
-        vectorRenderer->drawFilledRect({-0.25, 0.25}, { 0.25, -0.25});
+        vectorRenderer->setPenColor({1.0, 0.647, 0.0});
+        vectorRenderer->setTransparency(1.0);
+        vectorRenderer->drawFilledRect({-0.5, 0.95}, { 0.5, 0.9});
+        vectorRenderer->setTransparency(0.1);
+        vectorRenderer->drawFilledRect({-0.5, 0.5}, { 0.5, -0.5});
         vectorRenderer->endDraw();
     }
 

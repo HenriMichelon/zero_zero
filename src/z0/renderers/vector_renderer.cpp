@@ -110,7 +110,12 @@ namespace z0 {
         if (vertices.empty()) return;
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
+
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
+        VkBool32 color_blend_enables[] = {VK_TRUE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
+
         vkCmdSetLineWidth(commandBuffer, 1);
         vkCmdSetVertexInputEXT(commandBuffer,
                                1,

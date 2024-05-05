@@ -363,17 +363,9 @@ namespace z0 {
     void Device::setInitialState(VkCommandBuffer commandBuffer)
     {
         vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
-        /*const VkColorBlendEquationEXT colorBlendEquation {
-                .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
-                .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
-                .colorBlendOp = VK_BLEND_OP_ADD,
-                .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
-                .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
-                .alphaBlendOp = VK_BLEND_OP_ADD,
-        };*/
         const VkColorBlendEquationEXT colorBlendEquation {
-                .srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
-                .dstColorBlendFactor = VK_BLEND_FACTOR_DST_ALPHA,
+                .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+                .dstColorBlendFactor = VK_BLEND_FACTOR_ONE,
                 .colorBlendOp = VK_BLEND_OP_ADD,
                 .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
                 .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
@@ -389,12 +381,7 @@ namespace z0 {
         const VkSampleMask sample_mask = 0xffffffff;
         vkCmdSetSampleMaskEXT(commandBuffer, samples, &sample_mask);
 
-        // Do not use alpha to coverage or alpha to one because not using MSAA
-        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
-
         vkCmdSetPolygonModeEXT(commandBuffer, VK_POLYGON_MODE_FILL);
-
-        // Set front face, cull mode is set in build_command_buffers.
         vkCmdSetFrontFace(commandBuffer, VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
         // Set depth state, the depth write. Don't enable depth bounds, bias, or stencil test.
@@ -407,9 +394,6 @@ namespace z0 {
 
         // Do not enable logic op
         vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);
-
-        VkBool32 color_blend_enables[] = {VK_FALSE};
-        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
 
         // Use RGBA color write mask
         VkColorComponentFlags color_component_flags[] = {VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_A_BIT};
