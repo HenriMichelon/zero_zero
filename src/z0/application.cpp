@@ -203,9 +203,9 @@ namespace z0 {
         vectorRenderer->beginDraw();
         vectorRenderer->setPenColor({1.0, 0.647, 0.0});
         vectorRenderer->setTransparency(1.0);
-        vectorRenderer->drawFilledRect({-0.5, 0.95}, { 0.5, 0.9});
+        vectorRenderer->drawFilledRect({0.25, 0.975}, { 0.75, 0.95});
         vectorRenderer->setTransparency(0.1);
-        vectorRenderer->drawFilledRect({-0.5, 0.5}, { 0.5, -0.5});
+        vectorRenderer->drawFilledRect({0.25, 0.75}, { 0.75, 0.25});
         vectorRenderer->endDraw();
     }
 

@@ -11,6 +11,6 @@ layout(location = 0) out struct {
 void main() {
     Out.color = color;
     Out.uv = uv;
-    vec2 pos = {position.x, -position.y};
-    gl_Position = vec4(pos, 0, 1);
+    vec2 pos = 2 * (position - 0.5); // remap to [-1,1]
+    gl_Position = vec4(pos.x, -pos.y, 0, 1);
 }
