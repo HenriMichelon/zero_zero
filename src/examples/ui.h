@@ -5,5 +5,7 @@ class UIMainScene: public Node {
 public:
     UIMainScene(): Node{"Main Scene"} {};
     void onReady() override;
-    void onProcess(float alpha) override;
+    void onPhysicsProcess(float delta) override;
+private:
+    shared_ptr<Node> sphere;
 };

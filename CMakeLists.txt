@@ -93,6 +93,15 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/resources/mesh.h
 		${Z0_INCLUDE_DIR}/resources/shape.h
 		${Z0_INCLUDE_DIR}/resources/cubemap.h
+		${Z0_INCLUDE_DIR}/resources/font.h
+
+		${Z0_INCLUDE_DIR}/gui/gwindow.h
+		${Z0_INCLUDE_DIR}/gui/gwidget.h
+		${Z0_INCLUDE_DIR}/gui/grect.h
+		${Z0_INCLUDE_DIR}/gui/gevent.h
+		${Z0_INCLUDE_DIR}/gui/gresource.h
+		${Z0_INCLUDE_DIR}/gui/glayout.h
+		${Z0_INCLUDE_DIR}/gui/gpanel.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -132,6 +141,13 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/resources/material.cpp
 		${Z0_ENGINE_DIR}/resources/shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
+		${Z0_ENGINE_DIR}/resources/font.cpp
+
+		${Z0_ENGINE_DIR}/gui/gwindow.cpp
+		${Z0_ENGINE_DIR}/gui/gwidget.cpp
+		${Z0_ENGINE_DIR}/gui/grect.cpp
+		${Z0_ENGINE_DIR}/gui/gevent.cpp
+		${Z0_ENGINE_DIR}/gui/glayout.cpp
 
 		${SRC_DIR}/libraries.cpp
 

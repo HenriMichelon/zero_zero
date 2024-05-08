@@ -5,8 +5,6 @@
 
 namespace z0 {
 
-    class Application;
-
     class Window: public Object {
     public:
         explicit Window(const ApplicationConfig& applicationConfig);
