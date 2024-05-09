@@ -4,7 +4,6 @@
 #include "z0/buffer.h"
 
 #include <unordered_set>
-#include <vector>
 
 namespace z0 {
 

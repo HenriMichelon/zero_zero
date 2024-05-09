@@ -8,7 +8,6 @@
 #include <Jolt/RegisterTypes.h>
 
 #include <cassert>
-#include <vector>
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {

@@ -2,7 +2,6 @@
 
 #include "z0/input_event.h"
 
-#include <list>
 #include <unordered_map>
 
 namespace z0 {

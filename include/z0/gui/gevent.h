@@ -1,12 +1,12 @@
 #pragma once
 
-#include <utility>
+#include "z0/object.h"
 
-#include "z0/constants.h"
+#include <utility>
 
 namespace z0 {
 
-    class GEvent {
+    class GEvent: public Object {
     public:
         //! Event list
         enum Type {

@@ -1033,7 +1033,7 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    uint32_t GWidget::getPadding() const {
+    int32_t GWidget::getPadding() const {
         return mPadding;
     }
 

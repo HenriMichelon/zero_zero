@@ -5,7 +5,7 @@ using namespace std;
 
 namespace z0 {
 
-    class GResource {
+    class GResource: public Object {
     public:
         explicit GResource(const string&R): res(R) {};
         virtual ~GResource() = default;

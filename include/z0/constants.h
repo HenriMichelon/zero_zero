@@ -16,7 +16,6 @@ using namespace glm;
 
 #include <string>
 #include <memory>
-
 using namespace std;
 
 namespace z0 {

@@ -7,7 +7,7 @@ namespace z0 {
 
     class GWindow;
 
-    class GWidget {
+    class GWidget: public Object {
     public:
         typedef void (*GEventFunction)(GWidget&, GEvent*);
         
@@ -97,14 +97,14 @@ namespace z0 {
         //! Return true is the widget is reactive to user action (mouse & keyboard)
         bool isEnabled() const;
 
-        //! Enable or disable widget reactino
+        //! Enable or disable widget reaction
         void enable(bool = true);
 
         //! Return the top border position of the widget (in pixels), relative to the parent widget
-        uint32_t getTop() const;
+        int32_t getTop() const { return rect.top; };
 
         //! Return the left border position of the widget (in pixels), relative to the parent widget
-        uint32_t getLeft() const;
+        int32_t getLeft() const { return rect.left; };
 
         /*! Move the widget to a particular position.
             \param int32_t	: Left position in pixels
@@ -114,10 +114,10 @@ namespace z0 {
         void setPos(int32_t, int32_t, bool = true);
 
         //! Return the width of the widget, in pixels
-        uint32_t getWidth() const;
+        uint32_t getWidth() const { return rect.width; };
 
         //! Return the height of the widget, in pixels
-        uint32_t getHeight() const;
+        uint32_t getHeight() const { return rect.height; };
 
         /*! Resize the widget
             \param uint32_t	: width in pixels
@@ -166,7 +166,7 @@ namespace z0 {
         /*! Return the list of direct childs widgets.
             Do NOT use this list to add or remove childs widget, 
             use Add(), Drop() & DropAll() instead */
-        virtual list<shared_ptr<GWidget>>& getChildren();
+        virtual list<shared_ptr<GWidget>>& getChildren() { return childs; };
 
         /*! Add a child widget.
               Childs widget will be destroyed on parent destruction.
@@ -187,7 +187,7 @@ namespace z0 {
         void setPadding(int32_t);
 
         /*! Return current childs padding (space between childs) */
-        uint32_t getPadding() const;
+        int32_t getPadding() const;
 
         uint32_t getVBorder() const;
         uint32_t getHBorder() const;
@@ -301,7 +301,7 @@ namespace z0 {
         class GEventSlot
         {
         public:
-            GWidget		*obj;   // TODO Object ?
+            Object* obj;
             GEventFunction	func;
 
             GEventSlot(): obj(nullptr), func(nullptr) {};

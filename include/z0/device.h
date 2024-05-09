@@ -8,7 +8,6 @@
 #include "vk_mem_alloc.h"
 
 #include <optional>
-#include <vector>
 
 namespace z0 {
 

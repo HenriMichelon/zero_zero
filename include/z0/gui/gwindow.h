@@ -5,7 +5,7 @@
 
 namespace z0 {
 
-    class GWindow {
+    class GWindow: public Object {
     public:
         GWindow();
         virtual ~GWindow() = default;
@@ -28,17 +28,28 @@ namespace z0 {
 
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
+        /*! Return the y position of the client area (not the window) */
+        int32_t getTop() const { return rect.top; }
+
+        /*! Return the x position of the client area (not the window) */
+        int32_t getLeft() const { return rect.left; };
+
         /*! Return the width of the client area (not the window) */
-        uint32_t getWidth() const;
+        uint32_t getWidth() const { return rect.width; };
 
         /*! Return the height of the client area (not the window) */
-        uint32_t getHeight() const;
+        uint32_t getHeight() const { return rect.height; };
+
+        /*! Return size size & position of the widget */
+        const GRect& getRect() const { return rect; };
 
         /*! Change the window default background color */
-        void setBgColor(Color);
+        void setBgColor(Color c) { bgColor = c; };
+
+        Color getBgColor() { return bgColor; }
 
         /*! \return TRUE if window is currently visible */
-        bool isVisible() const;
+        bool isVisible() const { return visible; }
 
         /*! Event called after window creation (by the window manager) */
         inline virtual void onCreate() {};
@@ -92,9 +103,10 @@ namespace z0 {
         void refresh();
 
     private:
+        GRect rect;
+        bool visible;
+        Color bgColor;
         bool	mFreeze;
-        bool	mDestroylayout;
-        int32_t	mModalResult;
         GRect	mRefreshrect;
         shared_ptr<GLayout> mLayout;
         shared_ptr<GWidget> mWidget;

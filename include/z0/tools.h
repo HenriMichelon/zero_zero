@@ -7,6 +7,7 @@
 #include <vector>
 #include <list>
 #include <string_view>
+using namespace std;
 
 namespace z0 {
 

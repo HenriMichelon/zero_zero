@@ -4,15 +4,11 @@
 #include "z0/gui/grect.h"
 #include "z0/gui/gresource.h"
 
-#include <string>
-#include <list>
-using namespace std;
-
 namespace z0 {
 
     class GWidget;
 
-    class GLayout
+    class GLayout: public Object
     {
     public:
         GLayout();

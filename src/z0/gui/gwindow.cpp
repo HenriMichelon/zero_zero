@@ -3,8 +3,6 @@
 #include "z0/gui/gwindow.h"
 
 #include <ranges>
-#include <iostream>
-#include <string>
 namespace z0 {
 
 
@@ -14,7 +12,6 @@ namespace z0 {
     {
         mFreeze = false;
         mLayout = nullptr;
-        mDestroylayout = false;
     }
 
 
@@ -58,7 +55,6 @@ namespace z0 {
     {
         mLayout = std::move(LAYOUT);
         if (mLayout == nullptr) { mLayout = GLayout::create(); }
-        mDestroylayout = true;
 
         auto opt = mLayout->getOption("color_background");
         if (!opt.empty()) {
@@ -87,7 +83,6 @@ namespace z0 {
     {
         if (mWidget) { mWidget->eventDestroy(); }
         onDestroy();
-        mModalResult = -1;
     }
 
 
