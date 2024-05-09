@@ -7,11 +7,8 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    GWindow::GWindow(): 
-                        mWidget(nullptr), mFocusedWidget(nullptr)
-    {
+    GWindow::GWindow(GRect r): rect{r} {
         mFreeze = false;
-        mLayout = nullptr;
     }
 
 

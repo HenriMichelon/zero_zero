@@ -7,7 +7,7 @@ namespace z0 {
 
     class GWindow: public Object {
     public:
-        GWindow();
+        explicit GWindow(GRect rect);
         virtual ~GWindow() = default;
 
         /*! Return the current layout or nullptr */
@@ -104,13 +104,13 @@ namespace z0 {
 
     private:
         GRect rect;
-        bool visible;
-        Color bgColor;
-        bool	mFreeze;
+        bool visible{true};
+        Color bgColor{0.5,0.5,0.5, 1.0f};
+        bool	mFreeze{false};
         GRect	mRefreshrect;
-        shared_ptr<GLayout> mLayout;
-        shared_ptr<GWidget> mWidget;
-        GWidget* mFocusedWidget;
+        shared_ptr<GLayout> mLayout{nullptr};
+        shared_ptr<GWidget> mWidget{nullptr};
+        GWidget* mFocusedWidget{nullptr};
 
         void unFreeze(shared_ptr<GWidget>&);
 

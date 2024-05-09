@@ -115,6 +115,7 @@ namespace z0 {
                                                      sceneRenderer->getColorAttachement());
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
+        windowManager = make_unique<GManager>(vectorRenderer);
     }
 
     Application::~Application() {
@@ -199,13 +200,14 @@ namespace z0 {
     void Application::start() {
         ready(rootNode);
         addNode(rootNode);
-        vectorRenderer->beginDraw();
+        windowManager->refresh();
+        /*vectorRenderer->beginDraw();
         vectorRenderer->setPenColor({1.0, 0.647, 0.0});
         vectorRenderer->setTransparency(1.0);
         vectorRenderer->drawFilledRect({0.25, 0.975}, { 0.75, 0.95});
         vectorRenderer->setTransparency(0.1);
         vectorRenderer->drawFilledRect({0.25, 0.75}, { 0.75, 0.25});
-        vectorRenderer->endDraw();
+        vectorRenderer->endDraw();*/
     }
 
     void Application::end() {
@@ -213,6 +215,10 @@ namespace z0 {
 #ifdef VULKAN_STATS
         VulkanStats::get().display();
 #endif
+    }
+
+    void Application::add(shared_ptr<z0::GWindow> &window) {
+        _instance->windowManager->add(window);
     }
 
     void Application::ready(const std::shared_ptr<Node>& node) {

@@ -102,6 +102,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/gui/gresource.h
 		${Z0_INCLUDE_DIR}/gui/glayout.h
 		${Z0_INCLUDE_DIR}/gui/gpanel.h
+		${Z0_INCLUDE_DIR}/gui/gmanager.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -148,6 +149,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/grect.cpp
 		${Z0_ENGINE_DIR}/gui/gevent.cpp
 		${Z0_ENGINE_DIR}/gui/glayout.cpp
+		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 
 		${SRC_DIR}/libraries.cpp
 

@@ -5,6 +5,7 @@
 #include "z0/nodes/node.h"
 #include "z0/renderers/scene_renderer.h"
 #include "z0/renderers/vector_renderer.h"
+#include "z0/gui/gmanager.h"
 
 #include <filesystem>
 #include <cassert>
@@ -17,11 +18,13 @@ namespace z0 {
         virtual ~Application();
 
         static Application& get();
+        static void add(shared_ptr<GWindow>&);
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }
         const Window& getWindow() const;
         Device& getDevice() { return *device; }
         VkInstance getVkInstance() const { return vkInstance; }
+
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }
         void onInput(InputEvent& inputEvent);
@@ -42,6 +45,7 @@ namespace z0 {
         shared_ptr<VectorRenderer> vectorRenderer;
         vector<shared_ptr<Node>> addedNodes{};
         vector<shared_ptr<Node>> removedNodes{};
+        unique_ptr<GManager> windowManager;
 
         /*
          * Main loop members
