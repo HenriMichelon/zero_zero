@@ -7,6 +7,8 @@
 
 #include "ui.h"
 
+
+
 void UIMainScene::onReady() {
     auto camera = make_shared<Camera>();
     addChild(camera);
@@ -18,7 +20,7 @@ void UIMainScene::onReady() {
     auto window1 = make_shared<GWindow>(GRect{250, 975, 500, 25});
     window1->setBgColor({1.0, 0.647, 0.0, 1.0});
     Application::add(window1);
-    auto window2 = make_shared<GWindow>(GRect{250, 750, 500, 500});
+    window2 = make_shared<Window2>(GRect{250, 750, 500, 500});
     window2->setBgColor({1.0, 0.647, 0.0, 0.1});
     Application::add(window2);
 }
@@ -26,4 +28,11 @@ void UIMainScene::onReady() {
 void UIMainScene::onPhysicsProcess(float delta) {
     auto angle = delta * radians(90.0f) / 2;
     sphere->rotateY(angle);
+}
+
+void UIMainScene::onProcess(float alpha) {
+    if (Input::isKeyJustPressed(KEY_ENTER)) {
+        window2->setHeight(250);
+        window2->setPos(0, 750);
+    }
 }

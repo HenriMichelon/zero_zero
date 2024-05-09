@@ -71,10 +71,12 @@ namespace z0 {
         };
         vector<VkVertexInputAttributeDescription2EXT> attributeDescriptions {};
         vector<Vertex> vertices;
+        bool needRefresh{false};
         uint32_t vertexCount{0};
         VkDeviceSize vertexBufferSize{0};
-        unique_ptr<Buffer> stagingBuffer{VK_NULL_HANDLE};
-        unique_ptr<Buffer> vertexBuffer{VK_NULL_HANDLE};
+        shared_ptr<Buffer> stagingBuffer{VK_NULL_HANDLE};
+        shared_ptr<Buffer> vertexBuffer{VK_NULL_HANDLE};
+        list<shared_ptr<Buffer>> oldBuffers;
         bool internalColorFrameBuffer;
         shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr{VK_NULL_HANDLE};
 

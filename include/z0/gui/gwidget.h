@@ -148,7 +148,7 @@ namespace z0 {
         AlignmentType getAlignment() const;
 
         /*! Set the widget placement. Calling this method involve 
-            redrawing the parent widget & resizing all the childs widgets */
+            redrawing the parent widget & resizing all the children widgets */
         void setAlignment(AlignmentType);
 
         /*! Return the current font of the widget */
@@ -163,10 +163,10 @@ namespace z0 {
         //! Return the parent widget, or nullptr */
         shared_ptr<GWidget> getParent() const;
 
-        /*! Return the list of direct childs widgets.
-            Do NOT use this list to add or remove childs widget, 
+        /*! Return the list of direct children widgets.
+            Do NOT use this list to add or remove children widget,
             use Add(), Drop() & DropAll() instead */
-        virtual list<shared_ptr<GWidget>>& getChildren() { return childs; };
+        virtual list<shared_ptr<GWidget>>& getChildren() { return children; };
 
         /*! Add a child widget.
               Childs widget will be destroyed on parent destruction.
@@ -180,13 +180,13 @@ namespace z0 {
         /*! Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
 
-        /*! Remove all childs widgets recusivly */
+        /*! Remove all children widgets recusivly */
         virtual void removeAll();
 
-        /*! Change childs padding (space between childs) */
+        /*! Change children padding (space between children) */
         void setPadding(int32_t);
 
-        /*! Return current childs padding (space between childs) */
+        /*! Return current children padding (space between children) */
         int32_t getPadding() const;
 
         uint32_t getVBorder() const;
@@ -221,14 +221,14 @@ namespace z0 {
 
         /*! Call the object method connected to an event, if any.
           \param	EventType	: event to simulate
-          \param	GEvent		: event parameter. Note: this pointer is AUTOMATICALLY deleted 
+          \param	GEvent		: event parameter.
         */
-        void call(GEvent::Type, GEvent* = nullptr);
+        void call(GEvent::Type, shared_ptr<GEvent> = nullptr);
 
         /*! Simulate a user/system event
           \param	EventType	: event to simulate
         */
-        void simulate(GEvent::Type, GEvent* = nullptr);
+        void simulate(GEvent::Type,  shared_ptr<GEvent> = nullptr);
 
         /*GPopupMenu* PopupMenu();
         GPopupMenu* SetPopupMenu(GPopupMenu*);
@@ -252,29 +252,28 @@ namespace z0 {
         GWindow& Window();
         
     protected:
-        int32_t			mHborder;
-        int32_t			mVborder;
-        int32_t			mPadding;
-        bool			focused;
-        bool			allowFocus;
-        bool			allowChilds;
-        bool			transparent;
-        bool			drawBackground;
-        bool			moveChildsOnPush;
-        bool			moveChildsNow;
-        bool			redrawOnMouseEvent;
-        bool			redrawOnMouseMove;
-        bool			mouseMoveOnFocus;
-        GRect			rect;
-        shared_ptr<Font>			font;
-        GWidget*			parent;
-        GWindow*			window;
-        Type		    type;
-        AlignmentType	alignment;
-        shared_ptr<GLayout>			layout;
-        shared_ptr<GResource>		resource;
-
-        list<shared_ptr<GWidget>>	childs;
+        int32_t			          hborder;
+        int32_t			          vborder;
+        int32_t		          padding;
+        bool			          focused;
+        bool			          allowFocus;
+        bool			          allowChilds;
+        bool			          transparent;
+        bool			          drawBackground;
+        bool			          moveChildsOnPush;
+        bool			          moveChildsNow;
+        bool			          redrawOnMouseEvent;
+        bool			          redrawOnMouseMove;
+        bool			          mouseMoveOnFocus;
+        GRect			          rect;
+        shared_ptr<Font>          font;
+        GWidget*		          parent;
+        GWindow*		          window;
+        Type		              type;
+        AlignmentType             alignment;
+        shared_ptr<GLayout>	      layout;
+        shared_ptr<GResource>     resource;
+        list<shared_ptr<GWidget>> children;
 
         void maxRect(GRect&, GRect, GRect) const;
         bool clipRect(GRect&, const GRect&, const GRect&) const;
@@ -282,7 +281,7 @@ namespace z0 {
 
         virtual void eventCreate();
         virtual void eventDestroy();
-        virtual void eventDraw(const GRect&, bool);
+        virtual void eventDraw(bool);
         virtual void eventShow();
         virtual void eventHide();
         virtual void eventEnable();
@@ -298,32 +297,26 @@ namespace z0 {
         virtual void eventLostFocus();
 
     private:
-        class GEventSlot
-        {
-        public:
-            Object* obj;
-            GEventFunction	func;
-
-            GEventSlot(): obj(nullptr), func(nullptr) {};
+        struct GEventSlot {
+            Object*         obj{nullptr};
+            GEventFunction	func{nullptr};
         };
 
-        bool		mPushed;
-        bool		mPointed;
-        bool		mFreeze;
-        bool		mEnabled;
-        bool		mVisible;
+        bool		pushed;
+        bool		pointed;
+        bool		freeze;
+        bool		enabled;
+        bool		visible;
 
-        void*		mUserData;
-        int32_t		mGroupIndex;
-        GRect		mChildsRect;
-        GRect		mRefreshRect;
+        void*		userData;
+        int32_t		groupIndex;
+        GRect		childrenRect;
         GEventSlot	slots[GEvent::nbEvents];
 
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void flushRefresh(GRect&);
-        void reallyDraw(const GRect&);
+        void flushRefresh();
         void init(GWidget&, AlignmentType, const string&, uint32_t);
     };
 

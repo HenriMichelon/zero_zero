@@ -11,14 +11,17 @@ namespace z0 {
     class GManager: public Object {
     public:
         explicit GManager(shared_ptr<VectorRenderer>&);
-        void add(shared_ptr<GWindow>&);
+
+        void add(const shared_ptr<GWindow>&);
+        void refresh() { needRedraw = true; }
 
     private:
         const vec2 SCALE = vec2{1000.0f};
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>> windows;
+        bool needRedraw{false};
 
-        void refresh();
+        void drawFrame();
 
         friend class Application;
 

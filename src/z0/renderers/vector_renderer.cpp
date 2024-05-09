@@ -74,26 +74,8 @@ namespace z0 {
     }
 
     void VectorRenderer::endDraw() {
-        if (vertices.empty()) return;
+        needRefresh = true;
         nextCommand(PRIMITIVE_NONE);
-        vertexCount = vertices.size();
-        if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
-            vertexBufferSize = vertexSize * vertexCount;
-            stagingBuffer = make_unique<Buffer>(
-                    device,
-                    vertexSize,
-                    vertexCount,
-                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-            );
-            vertexBuffer = make_unique<Buffer>(
-                    device,
-                    vertexSize,
-                    vertexCount,
-                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
-            );
-        }
-        stagingBuffer->writeToBuffer((void*)vertices.data());
-        stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
     }
 
     void VectorRenderer::loadShaders() {
@@ -103,11 +85,36 @@ namespace z0 {
 
     void VectorRenderer::update(uint32_t currentFrame) {
         if (vertices.empty()) return;
+        if (needRefresh) {
+            oldBuffers.clear();
+            needRefresh = false;
+            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+                oldBuffers.push_back(stagingBuffer);
+                oldBuffers.push_back(vertexBuffer);
+                vertexCount = vertices.size();
+                vertexBufferSize = vertexSize * vertexCount;
+                stagingBuffer = make_shared<Buffer>(
+                        device,
+                        vertexSize,
+                        vertexCount,
+                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+                );
+                vertexBuffer = make_shared<Buffer>(
+                        device,
+                        vertexSize,
+                        vertexCount,
+                        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+                );
+            }
+            stagingBuffer->writeToBuffer((void*)vertices.data());
+            stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
+        }
         createOrUpdateResources();
     }
 
     void VectorRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
         if (vertices.empty()) return;
+
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
 

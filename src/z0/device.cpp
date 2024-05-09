@@ -259,10 +259,10 @@ namespace z0 {
         }
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
         {
+            vkResetCommandBuffer(commandBuffers[currentFrame], 0);
             for (auto& renderer: renderers) {
                 renderer->update(currentFrame);
             }
-            vkResetCommandBuffer(commandBuffers[currentFrame], 0);
             const VkCommandBufferBeginInfo beginInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
                     .flags = 0,

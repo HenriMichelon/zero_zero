@@ -1,269 +1,169 @@
-#include "z0/tools.h"
 #include "z0/gui/gpanel.h"
-#include "z0/gui/gwindow.h"
+#include "z0/gui/gmanager.h"
 
 #include <ranges>
+
 namespace z0 {
 
+    GWindow::GWindow(GRect r): rect{r} { }
 
-//------------------------------------------------------------
-    GWindow::GWindow(GRect r): rect{r} {
-        mFreeze = false;
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::unFreeze(shared_ptr<GWidget>&W)
-    {
+    void GWindow::unFreeze(shared_ptr<GWidget>&W){
         for (auto& child: W->getChildren()) {
             unFreeze(child);
         }
         W->isFreezed() = false;
     }
 
-//------------------------------------------------------------
-    GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, uint32_t PADDING)
-    {
-        if (mLayout == nullptr) { setLayout(nullptr); }
+    GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, int32_t PADDING){
+        if (layout == nullptr) { setLayout(nullptr); }
         if (WIDGET == nullptr) {
-            mWidget = make_shared<GPanel>();
+            widget = make_shared<GPanel>();
         }
         else {
-            mWidget = std::move(WIDGET);
+            widget = std::move(WIDGET);
         }
-        mWidget->mFreeze = true;
-        mWidget->mPadding = PADDING;
-        mWidget->window = this;
-        mWidget->layout = mLayout;
-        mWidget->font = mWidget->layout->getFont();
-        mWidget->layout->addResource(*mWidget, RES);
-        mWidget->setDrawBackground(true);
-        mWidget->eventCreate();
-        mWidget->setPos(0, 0);
-        mWidget->setSize(getWidth(), getHeight());
-        mFocusedWidget = mWidget->setFocus();
-        unFreeze(mWidget);
-        return *mWidget;
+        widget->freeze = true;
+        widget->padding = PADDING;
+        widget->window = this;
+        widget->layout = layout;
+        widget->font = widget->layout->getFont();
+        widget->layout->addResource(*widget, RES);
+        widget->setDrawBackground(true);
+        widget->eventCreate();
+        widget->setPos(0, 0);
+        widget->setSize(getWidth(), getHeight());
+        focusedWidget = widget->setFocus();
+        unFreeze(widget);
+        return *widget;
     }
 
-
-//------------------------------------------------------------
-    void GWindow::setLayout(shared_ptr<GLayout> LAYOUT)
-    {
-        mLayout = std::move(LAYOUT);
-        if (mLayout == nullptr) { mLayout = GLayout::create(); }
-
-        auto opt = mLayout->getOption("color_background");
-        if (!opt.empty()) {
-            auto rgb = split(opt, ',');
-            if (rgb.size() == 3) {
-                auto red = stof(string(rgb[0]));
-                auto green = stof(string(rgb[0]));
-                auto blue = stof(string(rgb[0]));
-                setBgColor(Color(red, green, blue));
-            }
+    void GWindow::setLayout(shared_ptr<GLayout> LAYOUT) {
+        if (layout == nullptr) {
+            layout = GLayout::create();
+        } else {
+            layout = std::move(LAYOUT);
         }
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventCreate()
-    {
+    void GWindow::eventCreate() {
         onCreate();
-        if (mWidget == nullptr) { setWidget(); }
-        if (mWidget != nullptr ) { mWidget->resizeChildren(); }
+        if (widget == nullptr) { setWidget(); }
+        if (widget != nullptr ) { widget->resizeChildren(); }
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventDestroy()
-    {
-        if (mWidget) { mWidget->eventDestroy(); }
+    void GWindow::eventDestroy() {
+        if (widget) { widget->eventDestroy(); }
         onDestroy();
     }
 
-
-//------------------------------------------------------------
-    bool GWindow::eventQueryDestroy()
-    {
-        return onQueryDestroy();
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::eventDraw(const GRect&R)
-    {
-        if (mFreeze) { return; }
-        if (mWidget) { mWidget->refresh(); }
-        onDraw(R);
-        endRefresh();
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::eventShow()
-    {
-        if (mWidget) { mWidget->eventShow(); }
+    void GWindow::eventShow() {
+        if (widget) { widget->eventShow(); }
         onShow();
-        endRefresh();
+        refresh();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventKeybDown(Key K)
-    {
-/*	if ((K == keyb.KEY_TAB) && mWidget)
+    void GWindow::eventKeybDown(Key K) {
+/*	if ((K == keyb.KEY_TAB) && widget)
 	{
-//		mWidget->ClosePopup();
-		if (mFocusedWidget)
-			mFocusedWidget = mFocusedWidget->SetNextFocus();
+//		widget->ClosePopup();
+		if (focusedWidget)
+			focusedWidget = focusedWidget->SetNextFocus();
 		else
-			mFocusedWidget = mWidget->SetFocus();
+			focusedWidget = widget->SetFocus();
 	}
-	else*/ if (mFocusedWidget != nullptr) {
-            mFocusedWidget->eventKeybDown(K);
+	else*/ if (focusedWidget != nullptr) {
+            focusedWidget->eventKeybDown(K);
         }
         onKeybDown(K);
-        //if (!display->NativeDoubleBuffer()) {
-            endRefresh();
-        //}
+        refresh();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventKeybUp(Key K)
-    {
-        if (mFocusedWidget != nullptr) mFocusedWidget->eventKeybUp(K);
+    void GWindow::eventKeybUp(Key K) {
+        if (focusedWidget != nullptr) focusedWidget->eventKeybUp(K);
         onKeybUp(K);
-        //if (handle == nullptr) { return; }
-        //if (!display->NativeDoubleBuffer()) {
-            endRefresh();
-        //}
+        refresh();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y)
-    {
-        if (mWidget) {
-            shared_ptr<GWidget>newfocused = mWidget->eventMouseDown(B, X, Y);
-            //if (handle == nullptr) { return; }
-            if (newfocused.get() != mFocusedWidget) {
-                if (mFocusedWidget != nullptr) { mFocusedWidget->setFocus(false); }
-                mFocusedWidget = newfocused.get();
+    void GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
+        if (widget) {
+            shared_ptr<GWidget>newfocused = widget->eventMouseDown(B, X, Y);
+            if (newfocused.get() != focusedWidget) {
+                if (focusedWidget != nullptr) { focusedWidget->setFocus(false); }
+                focusedWidget = newfocused.get();
             }
         }
         onMouseDown(B, X, Y);
-        //if (handle == nullptr) { return; }
-        //if (!display->NativeDoubleBuffer()) {
-        endRefresh();
-        //}
+        refresh();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventMouseUp(MouseButton B, int32_t X, int32_t Y)
-    {
-        if (mWidget) {
-            mWidget->eventMouseUp(B, X, Y);
-            //if (handle == nullptr) { return; }
+    void GWindow::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
+        if (widget) {
+            widget->eventMouseUp(B, X, Y);
         }
         onMouseUp(B, X, Y);
-        //if (handle == nullptr) { return; }
-        //if (!display->NativeDoubleBuffer()) {
-        endRefresh();
-        //}
+        refresh();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventMouseMove(MouseButton B, int32_t X, int32_t Y)
-    {
-        if ((mFocusedWidget != nullptr) &&
-            (mFocusedWidget->mouseMoveOnFocus)) {
-            mFocusedWidget->eventMouseMove(B, X, Y);
+    void GWindow::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
+        if ((focusedWidget != nullptr) &&
+            (focusedWidget->mouseMoveOnFocus)) {
+            focusedWidget->eventMouseMove(B, X, Y);
         }
-        else if (mWidget) {
-            mWidget->eventMouseMove(B, X, Y);
+        else if (widget) {
+            widget->eventMouseMove(B, X, Y);
         }
-        //if (handle == nullptr) { return; }
         onMouseMove(B, X, Y);
-        //if (handle == nullptr) { return; }
-        //if (!display->NativeDoubleBuffer()) {
-            endRefresh();
-        //}
+        refresh();
     }
 
+    void GWindow::refresh() {
+        if (freezed) { return; }
+        if (widget) { widget->refresh(); }
+        freezed = true;
+        if (isVisible()) {
+            if (widget != nullptr) widget->flushRefresh();
+            windowManager->refresh();
+        }
+        freezed = false;
+    }
 
-//------------------------------------------------------------
-    void GWindow::eventGotFocus()
-    {
+    void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W) {
+        focusedWidget = W.get();
+    }
+
+    GWidget& GWindow::getWidget() {
+        return *widget;
+    };
+
+    void GWindow::setHeight(uint32_t h) {
+        rect.height = h;
+        refresh();
+    }
+
+    void GWindow::setWidth(uint32_t w) {
+        rect.width = w;
+        refresh();
+    }
+
+    void GWindow::setPos(int32_t l, int32_t t) {
+        rect.left = l;
+        rect.top = t;
+        refresh();
+    }
+
+    shared_ptr<GLayout> GWindow::getLayout() const {
+        return layout;
+    };
+
+    void GWindow::eventHide() {
+        onHide();
+    }
+
+    void GWindow::eventGotFocus() {
         onGotFocus();
     }
 
-
-//------------------------------------------------------------
-    void GWindow::eventLostFocus()
-    {
+    void GWindow::eventLostFocus() {
         onLostFocus();
     }
-
-
-//------------------------------------------------------------
-    void GWindow::endRefresh()
-    {
-        if (mFreeze) { return; }
-        mFreeze = true;
-        if (isVisible() && mWidget) {
-            startRefresh();
-            mWidget->flushRefresh(mRefreshrect);
-            if (mRefreshrect.width && mRefreshrect.height) {
-                //refreshDisplay(mRefreshrect); // XXX
-            }
-        }
-        mFreeze = false;
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::startRefresh()
-    {
-        mRefreshrect.left = mRefreshrect.top =
-        mRefreshrect.width = mRefreshrect.height = 0;
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::refresh()
-    {
-        if (mWidget) { mWidget->refresh(); }
-        endRefresh();
-    }
-
-
-//------------------------------------------------------------
-    void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W)
-    {
-        mFocusedWidget = W.get();
-    }
-
-
-//------------------------------------------------------------
-    GWidget& GWindow::getWidget() {
-        return *mWidget;
-    };
-
-
-//------------------------------------------------------------
-    shared_ptr<GLayout> GWindow::getLayout() const {
-        return mLayout;
-    };
-
-
-//------------------------------------------------------------
-    void GWindow::eventHide() {
-        onHide();
-    };
-
-
 }

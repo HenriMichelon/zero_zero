@@ -18,7 +18,7 @@ namespace z0 {
         virtual ~Application();
 
         static Application& get();
-        static void add(shared_ptr<GWindow>&);
+        static void add(const shared_ptr<GWindow>);
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }
         const Window& getWindow() const;

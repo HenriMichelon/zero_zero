@@ -162,6 +162,7 @@ namespace z0 {
             }
             removedNodes.clear();
         }
+        windowManager->drawFrame();
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
@@ -200,14 +201,6 @@ namespace z0 {
     void Application::start() {
         ready(rootNode);
         addNode(rootNode);
-        windowManager->refresh();
-        /*vectorRenderer->beginDraw();
-        vectorRenderer->setPenColor({1.0, 0.647, 0.0});
-        vectorRenderer->setTransparency(1.0);
-        vectorRenderer->drawFilledRect({0.25, 0.975}, { 0.75, 0.95});
-        vectorRenderer->setTransparency(0.1);
-        vectorRenderer->drawFilledRect({0.25, 0.75}, { 0.75, 0.25});
-        vectorRenderer->endDraw();*/
     }
 
     void Application::end() {
@@ -217,25 +210,25 @@ namespace z0 {
 #endif
     }
 
-    void Application::add(shared_ptr<z0::GWindow> &window) {
+    void Application::add(const shared_ptr<z0::GWindow> window) {
         _instance->windowManager->add(window);
     }
 
-    void Application::ready(const std::shared_ptr<Node>& node) {
+    void Application::ready(const shared_ptr<Node>& node) {
         for(auto& child: node->getChildren()) {
             ready(child);
         }
         node->_onReady();
     }
 
-    bool Application::input(const std::shared_ptr<Node>& node, InputEvent& inputEvent) {
+    bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
         for(auto& child: node->getChildren()) {
             if (input(child, inputEvent)) return true;
         }
         return node->onInput(inputEvent);
     }
 
-    void Application::process(const std::shared_ptr<Node>& node, float delta) {
+    void Application::process(const shared_ptr<Node>& node, float delta) {
         if (node->isProcessed()) {
             node->onProcess(delta);
         }
@@ -243,7 +236,7 @@ namespace z0 {
             process(child, delta);
         }
     }
-    void Application::physicsProcess(const std::shared_ptr<Node>& node, float delta) {
+    void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
         if (node->isProcessed()) {
             if (node->_needPhysics()) node->_physicsUpdate();
             node->onPhysicsProcess(delta);

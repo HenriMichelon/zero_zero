@@ -5,6 +5,8 @@
 
 namespace z0 {
 
+    class GManager;
+
     class GWindow: public Object {
     public:
         explicit GWindow(GRect rect);
@@ -24,23 +26,32 @@ namespace z0 {
 
         /*! Set the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
-        GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", uint32_t = 0);
+        GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", int32_t = 0);
 
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
-        /*! Return the y position of the client area (not the window) */
+        /*! Return the y position of the client area */
         int32_t getTop() const { return rect.top; }
 
-        /*! Return the x position of the client area (not the window) */
+        /*! Return the x position of the client area */
         int32_t getLeft() const { return rect.left; };
 
-        /*! Return the width of the client area (not the window) */
+        /*! Return the width of the client area */
         uint32_t getWidth() const { return rect.width; };
 
-        /*! Return the height of the client area (not the window) */
+        /*! Return the height of the client area */
         uint32_t getHeight() const { return rect.height; };
 
-        /*! Return size size & position of the widget */
+        /*! Set the width of the client area */
+        void setWidth(uint32_t w);
+
+        /*! Set the height of the client area */
+        void setHeight(uint32_t h);
+
+        /*! Set the position of the window */
+        void setPos(int32_t l, int32_t t);
+
+        /*! Return the size & position of the widget */
         const GRect& getRect() const { return rect; };
 
         /*! Change the window default background color */
@@ -54,15 +65,8 @@ namespace z0 {
         /*! Event called after window creation (by the window manager) */
         inline virtual void onCreate() {};
 
-        /*! Event called before window destruction.
-            \return true if the window can be destroyed, FALSE cancel destruction */
-        inline virtual bool onQueryDestroy() { return true; };
-
         /*! Event called after window destruction (by the window manager) */
         inline virtual void onDestroy() {};
-
-        /*! Event called before a part of the window is refreshed */
-        inline virtual void onDraw(const GRect&) {};
 
         /*! Event called when (before) the window manager need to show the window */
         inline virtual void onShow() {};
@@ -91,42 +95,34 @@ namespace z0 {
         /*! Event called when the window lost the keyboard focus */
         inline virtual void onLostFocus() {};
 
-        /*! Start refresing session. All refreshed widgets will be
-            recorded */
-        void startRefresh();
-
-        /*! End refreshing session. All recorded widgets will be
-            refreshed, and window content updated */
-        void endRefresh();
-
         /*! Refresh the entire content of the window and all the widgets */
         void refresh();
 
     private:
-        GRect rect;
-        bool visible{true};
-        Color bgColor{0.5,0.5,0.5, 1.0f};
-        bool	mFreeze{false};
-        GRect	mRefreshrect;
-        shared_ptr<GLayout> mLayout{nullptr};
-        shared_ptr<GWidget> mWidget{nullptr};
-        GWidget* mFocusedWidget{nullptr};
+        GManager*           windowManager{nullptr};
+        GRect               rect;
+        bool                visible{true};
+        Color               bgColor{0.5,0.5,0.5, 1.0f};
+        bool	            freezed{false};
+        shared_ptr<GLayout> layout{nullptr};
+        shared_ptr<GWidget> widget{nullptr};
+        GWidget*            focusedWidget{nullptr};
 
         void unFreeze(shared_ptr<GWidget>&);
 
-        virtual void eventCreate();
-        virtual void eventDestroy();
-        virtual bool eventQueryDestroy();
-        virtual void eventDraw(const GRect&);
-        virtual void eventShow();
-        virtual void eventHide();
-        virtual void eventKeybDown(Key);
-        virtual void eventKeybUp(Key);
-        virtual void eventMouseDown(MouseButton, int32_t, int32_t);
-        virtual void eventMouseUp(MouseButton, int32_t, int32_t);
-        virtual void eventMouseMove(MouseButton, int32_t, int32_t);
-        virtual void eventGotFocus();
-        virtual void eventLostFocus();
+        friend class GManager;
+
+        void eventCreate();
+        void eventDestroy();
+        void eventShow();
+        void eventHide();
+        void eventKeybDown(Key);
+        void eventKeybUp(Key);
+        void eventMouseDown(MouseButton, int32_t, int32_t);
+        void eventMouseUp(MouseButton, int32_t, int32_t);
+        void eventMouseMove(MouseButton, int32_t, int32_t);
+        void eventGotFocus();
+        void eventLostFocus();
     };
 
 }

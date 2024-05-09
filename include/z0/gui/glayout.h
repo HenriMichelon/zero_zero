@@ -24,7 +24,7 @@ namespace z0 {
           \param	string : string that describe the resources of a widget
           \return 	NEVER return nullptr
         */
-        virtual void addResource(GWidget&, const string& = "") = 0;
+        virtual void addResource(GWidget&, const string&) = 0;
 
         /*! Delete a resource created with AddResource() */
         virtual void deleteResource(GResource*) = 0;
@@ -44,19 +44,16 @@ namespace z0 {
         /*! Draw a widget.
           \param	GWidget	: widget to draw
           \param	GResource : resources used for drawing this widget
-          \param	GRect : unused
-          \param	bool : TRUE = before drawing childs, FALSE = after
+          \param	bool : TRUE = before drawing children, FALSE = after
         */
-        virtual void draw(GWidget&, GResource&, const GRect&, bool) = 0;
+        virtual void draw(GWidget&, GResource&, bool) = 0;
 
 
         /*! Resize a widget.
           \param	GWidget	: widget to draw
           \param	GResource : resources used for resizing this widget
-          \param	uint32_t	: width
-          \param	uint32_t	: height
         */
-        virtual void resize(GWidget&, GRect&, GResource&) = 0;
+        virtual void resize(GWidget&, GResource&) = 0;
 
 
         /*! Return the default font for the layout.

@@ -6,9 +6,12 @@ namespace z0 {
 
     }
 
-    void GManager::refresh() {
+    void GManager::drawFrame() {
+        if (!needRedraw) return;
+        needRedraw = false;
         vectorRenderer->beginDraw();
         for (auto& window: windows) {
+            if (!window->isVisible()) continue;
             vectorRenderer->setPenColor(window->getBgColor().color);
             vectorRenderer->setTransparency(window->getBgColor().color.a);
             auto& rect = window->getRect();
@@ -19,8 +22,10 @@ namespace z0 {
         vectorRenderer->endDraw();
     }
 
-    void GManager::add(shared_ptr<z0::GWindow> &window) {
+    void GManager::add(const shared_ptr<GWindow> &window) {
         windows.push_back(window);
+        window->windowManager = this;
+        needRedraw = true;
     }
 
 }

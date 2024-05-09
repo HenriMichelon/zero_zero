@@ -53,7 +53,6 @@ namespace z0 {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
             skyboxRenderer->loadScene(skybox->getCubemap());
-            log << "Using skybox" <<  skybox << endl;
 
         } else {
             BaseModelsRenderer::addNode(node);
