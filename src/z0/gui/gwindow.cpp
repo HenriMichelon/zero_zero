@@ -19,12 +19,12 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    void GWindow::unFreeze(GWidget&W)
+    void GWindow::unFreeze(shared_ptr<GWidget>&W)
     {
-        for (auto& child: W.getChildren()) {
+        for (auto& child: W->getChildren()) {
             unFreeze(child);
         }
-        W.isFreezed() = false;
+        W->isFreezed() = false;
     }
 
 //------------------------------------------------------------
@@ -48,7 +48,7 @@ namespace z0 {
         mWidget->setPos(0, 0);
         mWidget->setSize(getWidth(), getHeight());
         mFocusedWidget = mWidget->setFocus();
-        unFreeze(*mWidget);
+        unFreeze(mWidget);
         return *mWidget;
     }
 
@@ -156,9 +156,9 @@ namespace z0 {
         if (mWidget) {
             shared_ptr<GWidget>newfocused = mWidget->eventMouseDown(B, X, Y);
             //if (handle == nullptr) { return; }
-            if (newfocused && (newfocused != mFocusedWidget)) {
+            if (newfocused.get() != mFocusedWidget) {
                 if (mFocusedWidget != nullptr) { mFocusedWidget->setFocus(false); }
-                mFocusedWidget = newfocused;
+                mFocusedWidget = newfocused.get();
             }
         }
         onMouseDown(B, X, Y);
@@ -250,9 +250,9 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    void GWindow::setFocusedWidget(shared_ptr<GWidget> W)
+    void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W)
     {
-        mFocusedWidget = std::move(W);
+        mFocusedWidget = W.get();
     }
 
 

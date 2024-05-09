@@ -31,11 +31,11 @@ namespace z0 {
 //----------------------------------------------------------
     bool GWidget::isVisible() const
     {
-        const shared_ptr<GWidget>p = this;
+        const GWidget* p = this;
         do {
             if (!p->mVisible) { return false; }
         }
-        while ( (p = p->parent.get()) != nullptr);
+        while ( (p = p->parent) != nullptr);
         return (window && window->isVisible());
     }
 
@@ -88,22 +88,22 @@ namespace z0 {
 
 
     //----------------------------------------------------------
-    shared_ptr<GWidget> GWidget::setNextFocus()
+    GWidget* GWidget::setNextFocus()
     {
         if (focused) {
             setFocus(false);
         }
         else {
-            shared_ptr<GWidget> r = setFocus();
+            GWidget* r = setFocus();
             if (r) return r;
         }
 
         if (!parent) return nullptr;
         uint32_t idx;
-        shared_ptr<GWidget> p = parent;
+        GWidget* p = parent;
         GWidget* s = this;
 
-        ListIterator<GWidget> list;
+       /* auto it = childs.begin();
         do {
             list = p->childs;
             if (!((idx = list.IndexOf(*s)) == p->childs.Count())) { break; }
@@ -111,7 +111,9 @@ namespace z0 {
             p = p->parent;
             if (!p) return s->SetFocus();
         } while (true);
-        return list[idx+1].SetNextFocus();
+        return list[idx+1].SetNextFocus();*/
+       die("Not implemented");
+       return nullptr;
     }
 
 
@@ -122,7 +124,7 @@ namespace z0 {
 
         if (F && (!allowFocus)) {
             for (auto& child : childs) {
-                auto w = child.setFocus(F);
+                auto w = child->setFocus(F);
                 if (w) return w;
             }
             return nullptr;
@@ -150,7 +152,7 @@ namespace z0 {
     {
         allowFocus = A;
         for (auto& child : childs) {
-            child.allowingFocus(false);
+            child->allowingFocus(false);
         }
     }
 
@@ -173,18 +175,15 @@ namespace z0 {
 
 
 //----------------------------------------------------------
-    void GWidget::remove(GWidget&W)
+    void GWidget::remove(shared_ptr<GWidget>& W)
     {
-        ListIterator<GWidget> list(childs);
-        uint32_t idx = list.IndexOf(W);
-        if (idx) {
-            /*dprintf("drop %x, %x, %x\n", this, &W, parent);*/
-            W.parent = nullptr;
-            list = W.Childs();
-            while (!list.End()) {
-                W.remove(list.Next());
+        auto it = std::find(childs.begin(), childs.end(), W);
+        if (it != childs.end()) {
+            W->parent = nullptr;
+            for (auto& child: W->getChildren()) {
+                W->remove(child);
             }
-            childs.remove(idx);
+            childs.remove(W);
             resizeChildren();
         }
         refresh();
@@ -195,22 +194,10 @@ namespace z0 {
     void GWidget::removeAll()
     {
         for (auto& child: childs) {
-            child.removeAll();
+            child->removeAll();
         }
         childs.clear();
         refresh();
-    }
-
-
-//----------------------------------------------------------
-    GWidget& GWidget::add(GWidget&WND, AlignmentType ALIGN, const string&RES,
-                          uint32_t P)
-    {
-        //PRE(window, "GWidget::Add: widget must be added to another widget before use");
-        if (!allowChilds) return WND;
-        childs.push_back(WND);
-        init(WND, ALIGN, RES, P);
-        return WND;
     }
 
 
@@ -220,7 +207,7 @@ namespace z0 {
     {
         //PRE(window, "GWidget::Add: widget must be added to another widget before use");
         if (!allowChilds) return WND;
-        childs.push_back(*WND);
+        childs.push_back(WND);
         init(*WND, ALIGN, RES, P);
         return WND;
     }
@@ -232,7 +219,7 @@ namespace z0 {
     {
         //PRE(OBJ, "Invalid object for event slot connection");
         //PRE(FUNC, "Invalid method for event slot connection");
-        slots[TYP].obj = OBJ;
+        slots[TYP].obj = static_cast<GWidget *>(OBJ); // TODO cast to Object ??
         slots[TYP].func = FUNC;
     }
 
@@ -258,7 +245,8 @@ namespace z0 {
         const GWidget::GEventSlot &slot = slots[TYP];
         if (slot.func) {
             //ASSERT(slot.obj);
-            (slot.obj->*slot.func)(*this, EVT);
+            //(slot.obj->*slot.func)(*this, EVT);
+            die("Not implemented");
         }
     }
 
@@ -274,7 +262,7 @@ namespace z0 {
     void GWidget::eventDestroy()
     {
         for (auto& child: childs) {
-            child.eventDestroy();
+            child->eventDestroy();
         }
         //if (popup) popup->EventDestroy();
         call(GEvent::OnDestroy);
@@ -287,7 +275,7 @@ namespace z0 {
         if (mVisible) {
             call(GEvent::OnShow);
             for (auto& child: childs) {
-                child.eventShow();
+                child->eventShow();
             }
             if (parent) { refresh(); }
         }
@@ -299,7 +287,7 @@ namespace z0 {
     {
         if (!mVisible) {
             for (auto& child: childs) {
-                child.eventHide();
+                child->eventHide();
             }
             if (parent) { parent->refresh(rect); }
             call(GEvent::OnHide);
@@ -312,7 +300,7 @@ namespace z0 {
     {
         call(GEvent::OnEnable);
         for (auto& child: childs) {
-            child.enable();
+            child->enable();
         }
         refresh();
     }
@@ -322,7 +310,7 @@ namespace z0 {
     void GWidget::eventDisable()
     {
         for (auto& child: childs) {
-            child.enable(false);
+            child->enable(false);
         }
         call(GEvent::OnDisable);
         refresh();
@@ -338,7 +326,7 @@ namespace z0 {
         rect.left = L;
         rect.top = T;
         for (auto& w: childs) {
-            w.setPos(w.rect.left - diffX, w.rect.top - diffY, false);
+            w->setPos(w->rect.left - diffX, w->rect.top - diffY, false);
         }
         GEventPos event(T, L);
         call(GEvent::OnMove, &event);
@@ -385,14 +373,11 @@ namespace z0 {
             arect.height = 0;
         }
 
-        ListIterator<GWidget> list(childs);
-        while ((arect.width>0) && (arect.height>0) && (!list.End())) {
-            GWidget &w = list.Next();
-            GRect wrect = w.rect;
-            /*dprintf("ResizeChild: %d,%d,%d,%d / %d,%d,%d,%d\n",
-                    wrect.left, wrect.top, wrect.width, wrect.height,
-                    arect.left, arect.top, arect.width, arect.height);*/
-            switch (w.alignment)
+        auto it = childs.begin();
+        while ((arect.width>0) && (arect.height>0) && (it != childs.end())) {
+            auto& w = *it;
+            GRect wrect = w->rect;
+            switch (w->alignment)
             {
                 case CLIENT:
                     wrect = arect;
@@ -435,7 +420,7 @@ namespace z0 {
                     wrect.width = arect.width;
                     arect.top += wrect.height + mPadding;
                     //arect.top = min(rect.height, arect.top + wrect.height + mPadding);
-                    arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*mPadding)));
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2*mPadding)));
                     break;
                 case LEFT:
                     wrect.left = arect.left;
@@ -443,7 +428,7 @@ namespace z0 {
                     wrect.height = arect.height;
                     arect.left += wrect.width + mPadding;
                     //arect.left = min(rect.width, arect.left + wrect.width + mPadding);
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case BOTTOM:
                     wrect.left = arect.left;
@@ -451,7 +436,7 @@ namespace z0 {
                         wrect.top = 0;
                     else
                         wrect.top = arect.top + arect.height - wrect.height;
-                    arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*mPadding)));
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2*mPadding)));
                     wrect.width = arect.width;
                     break;
                 case RIGHT:
@@ -461,7 +446,7 @@ namespace z0 {
                         wrect.left = arect.left + arect.width - wrect.width;
                     wrect.top = arect.top;
                     wrect.height = arect.height;
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case TOPCENTER:
                     wrect.top = arect.top;
@@ -483,7 +468,7 @@ namespace z0 {
                         wrect.left = 0;
                     else
                         wrect.left = arect.left + (arect.width - wrect.width)/2;
-                    arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*mPadding)));
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2*mPadding)));
                     break;
                 case LEFTCENTER:
                     wrect.left = arect.left;
@@ -493,7 +478,7 @@ namespace z0 {
                         wrect.top = arect.top + (arect.height- wrect.height)/2;
                     arect.left += wrect.width + mPadding;
                     //arect.left = min(rect.width, arect.left + wrect.width + mPadding);
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case RIGHTCENTER:
                     if (wrect.width > arect.width)
@@ -504,7 +489,7 @@ namespace z0 {
                         wrect.top = 0;
                     else
                         wrect.top = arect.top + (arect.height- wrect.height)/2;
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case TOPLEFT:
                     wrect.left = arect.left;
@@ -520,7 +505,7 @@ namespace z0 {
                         wrect.top = 0;
                     else
                         wrect.top = arect.top + arect.height - wrect.height;
-                    arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*mPadding)));
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2*mPadding)));
                     break;
                 case BOTTOMRIGHT:
                     if (wrect.width > arect.width)
@@ -531,7 +516,7 @@ namespace z0 {
                         wrect.top = 0;
                     else
                         wrect.top = arect.top + arect.height - wrect.height;
-                    arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*mPadding)));
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2*mPadding)));
                     break;
                 case TOPRIGHT:
                     wrect.top = arect.top;
@@ -549,7 +534,7 @@ namespace z0 {
                     wrect.top = arect.top;
                     arect.left += wrect.width + mPadding;
                     //arect.left = min(rect.width, arect.left + wrect.width + mPadding);
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case LEFTBOTTOM:
                     wrect.left = arect.left;
@@ -559,7 +544,7 @@ namespace z0 {
                         wrect.top = arect.top + arect.height - wrect.height;
                     arect.left += wrect.width + mPadding;
                     //arect.left = min(rect.width, arect.left + wrect.width + mPadding);
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case RIGHTBOTTOM:
                     if (wrect.width > arect.width)
@@ -570,7 +555,7 @@ namespace z0 {
                         wrect.top = 0;
                     else
                         wrect.top = arect.top + arect.height - wrect.height;
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case RIGHTTOP:
                     wrect.top = arect.top;
@@ -578,7 +563,7 @@ namespace z0 {
                         wrect.left = 0;
                     else
                         wrect.left = arect.left + arect.width - wrect.width;
-                    arect.width = max(0l, int32_t(arect.width - (wrect.width + 2*mPadding)));
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2*mPadding)));
                     break;
                 case CORNERTOPLEFT:
                     wrect.left = arect.left;
@@ -614,18 +599,15 @@ namespace z0 {
                     continue;
                     break;
             }
-            /*dprintf("ResizeChild: %d,%d,%d,%d / %d,%d,%d,%d\n",
-                    wrect.left, wrect.top, wrect.width, wrect.height,
-                    arect.left, arect.top, arect.width, arect.height);*/
-            w.rect = wrect;
-            w.eventResize(false);
+            w->rect = wrect;
+            w->eventResize(false);
         }
         mFreeze = false;
     }
 
 
 //----------------------------------------------------------
-    Key GWidget::EventKeybDown(Key K)
+    Key GWidget::eventKeybDown(Key K)
     {
         //PRE(mEnabled, "Disabled widget received a KeybUp event");
         GEventKeyb event(K);
@@ -657,7 +639,7 @@ namespace z0 {
 
 
 //----------------------------------------------------------
-    shared_ptr<GWidget> GWidget::EventMouseDown(MouseButton B, int32_t X, int32_t Y)
+    shared_ptr<GWidget> GWidget::eventMouseDown(MouseButton B, int32_t X, int32_t Y)
     {
         if (!mEnabled) return nullptr;
 
@@ -665,14 +647,14 @@ namespace z0 {
         ClosePopup();*/
 
         mPushed = !isTransparent();
-        shared_ptr<GWidget>wfocus = nullptr;
+        GWidget* wfocus = nullptr;
 
         for (auto& w: childs) {
-            if (w.getRect().contains(X, Y)) {
-                wfocus = w.eventMouseDown(B, X, Y);
-                if ((!wfocus) && w.allowFocus) { wfocus = w.setFocus(); }
-                if (w.redrawOnMouseEvent && w.getRect().contains(X, Y) && (!w.isTransparent())) {
-                    w.refresh();
+            if (w->getRect().contains(X, Y)) {
+                wfocus = w->eventMouseDown(B, X, Y).get();
+                if ((!wfocus) && w->allowFocus) { wfocus = w->setFocus(); }
+                if (w->redrawOnMouseEvent && w->getRect().contains(X, Y) && (!w->isTransparent())) {
+                    w->refresh();
                 }
             }
         }
@@ -680,7 +662,7 @@ namespace z0 {
 
         GEventMouse event(B, X, Y);
         call(GEvent::OnMouseDown, &event);
-        return wfocus;
+        return shared_ptr<GWidget>(wfocus);
     }
 
 
@@ -691,9 +673,9 @@ namespace z0 {
         bool r = redrawOnMouseEvent && (rect.contains(X, Y) || mPushed);
         mPushed = false;
         for (auto& w : childs) {
-            w.eventMouseUp(B, X, Y);
-            if (w.redrawOnMouseEvent && (w.getRect().Contains(X, Y) || w.mPushed) && (!w.isTransparent())) {
-                w.refresh();
+            w->eventMouseUp(B, X, Y);
+            if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->mPushed) && (!w->isTransparent())) {
+                w->refresh();
             }
         }
         if (r && (!transparent)) { refresh(); }
@@ -708,15 +690,15 @@ namespace z0 {
         if (!mEnabled) { return; }
         bool p = rect.contains(X, Y);
         for (auto& w : childs) {
-            p = w.getRect().contains(X, Y);
-            if (w.redrawOnMouseMove && (w.mPointed != p)) {
-                w.mPointed = p;
-                w.refresh();
+            p = w->getRect().contains(X, Y);
+            if (w->redrawOnMouseMove && (w->mPointed != p)) {
+                w->mPointed = p;
+                w->refresh();
             }
             if (p) {
-                w.eventMouseMove(B, X, Y);
-            } else if (w.mPushed) {
-                w.eventMouseUp(B, X, Y);
+                w->eventMouseMove(B, X, Y);
+            } else if (w->mPushed) {
+                w->eventMouseUp(B, X, Y);
             }
         }
         if (redrawOnMouseMove && (mPointed != p) && (!transparent)) { refresh(); }
@@ -748,19 +730,19 @@ namespace z0 {
             return false;
         }
         if (R1.left > R2.left) {
-            R.width = min(R1.width, R2.width - (R1.left - R2.left));
+            R.width = std::min(R1.width, R2.width - (R1.left - R2.left));
             R.left = R1.left;
         }
         else {
-            R.width = min(R2.width, R1.width - (R2.left - R1.left));
+            R.width = std::min(R2.width, R1.width - (R2.left - R1.left));
             R.left = R2.left;
         }
         if (R1.top > R2.top) {
-            R.height = min(R1.height, R2.height - (R1.top - R2.top));
+            R.height = std::min(R1.height, R2.height - (R1.top - R2.top));
             R.top = R1.top;
         }
         else {
-            R.height = min(R2.height, R1.height - (R2.top - R1.top));
+            R.height = std::min(R2.height, R1.height - (R2.top - R1.top));
             R.top = R2.top;
         }
         return ((R.width > 0) && (R.height > 0));
@@ -777,17 +759,13 @@ namespace z0 {
             R = A;
         }
         else {
-            R.width = max(0, max(A.left + int32_t(A.width), B.left + int32_t(B.width)));
-            R.height = max(0, max(A.top + int32_t(A.height), B.top + int32_t(B.height)));
-            R.left = max(0, min(A.left, B.left));
-            R.top = max(0, min(A.top, B.top));
+            R.width = std::max(0, std::max(A.left + int32_t(A.width), B.left + int32_t(B.width)));
+            R.height = std::max(0, std::max(A.top + int32_t(A.height), B.top + int32_t(B.height)));
+            R.left = std::max(0, std::min(A.left, B.left));
+            R.top = std::max(0, std::min(A.top, B.top));
             R.width -= R.left;
             R.height -= R.top;
         }
-        /*dprintf("MaxRect: %d,%d,%d,%d / %d,%d,%d,%d = %d,%d,%d,%d\n",
-            A.left, A.top, A.width, A.height,
-            B.left, B.top, B.width, B.height,
-            R.left, R.top, R.width, R.height);*/
     }
 
 
@@ -836,18 +814,14 @@ namespace z0 {
         }
         GRect refreshzone;
         if (clipRect(refreshzone, rect, R)) {
-            shared_ptr<GWidget>p = parent;
+            GWidget* p = parent;
             while (p) {
                 if (!clipRect(refreshzone, refreshzone, p->rect)) {
-                    //Debug(dprintf("EventDraw(%x): refreshzone out of parent widget rect\n", this));
                     return;
                 }
                 p = p->parent;
             }
             maxRect(mRefreshRect, mRefreshRect, refreshzone);
-            /*Debug(dprintf("Refresh(%x, %d): %d,%d,%d,%d -> %d,%d,%d,%d\n", this, Type(),
-                    R.left, R.top, R.width, R.height,
-                    mRefreshRect.left, mRefreshRect.top, mRefreshRect.width, mRefreshRect.height	);)*/
         }
     }
 
@@ -860,7 +834,7 @@ namespace z0 {
             reallyDraw(mRefreshRect);
         }
         for (auto& w : childs) {
-            w.flushRefresh(R);
+            w->flushRefresh(R);
         }
     }
 
@@ -870,17 +844,15 @@ namespace z0 {
     {
         GRect refreshzone;
         if (!clipRect(refreshzone, rect, R)) {
-            //Debug(dprintf("ReallyDraw(%x): refreshzone out of widget rect\n", this));
             mRefreshRect.top =
             mRefreshRect.left =
             mRefreshRect.width =
             mRefreshRect.height = 0;
             return;
         }
-        shared_ptr<GWidget>p = parent;
+        GWidget* p = parent;
         while (p) {
             if (!p->rect.contains(refreshzone)) {
-                //Debug(dprintf("ReallyDraw(%x): refreshzone out of parent widget rect\n", this));
                 mRefreshRect.top =
                 mRefreshRect.left =
                 mRefreshRect.width =
@@ -891,9 +863,6 @@ namespace z0 {
         }
 
         maxRect(refreshzone, mRefreshRect, refreshzone);
-        /*Debug(dprintf("ReallyDraw(%x): %d,%d,%d,%d -> %d,%d,%d,%d\n", this,
-                R.left, R.top, R.width, R.height,
-                refreshzone.left, refreshzone.top, refreshzone.width, refreshzone.height	);)*/
 
         eventDraw(refreshzone, true);
         GRect inner_refreshzone(rect.left + mHborder,
@@ -904,23 +873,23 @@ namespace z0 {
             GRect child_refreshzone;
             for (auto& child : childs) {
                 if ((mPushed && moveChildsOnPush) || (moveChildsNow)) {
-                    child.moveChildsNow = true;
-                    child.mFreeze = true;
-                    ++child.rect.left;
-                    ++child.rect.top;
-                    if (clipRect(child_refreshzone, child.rect, inner_refreshzone)) {
+                    child->moveChildsNow = true;
+                    child->mFreeze = true;
+                    ++child->rect.left;
+                    ++child->rect.top;
+                    if (clipRect(child_refreshzone, child->rect, inner_refreshzone)) {
                         if (rect.contains(child_refreshzone)) {
-                            child.reallyDraw(child_refreshzone);
+                            child->reallyDraw(child_refreshzone);
                         }
                     }
-                    child.mFreeze = false;
-                    --child.rect.left;
-                    --child.rect.top;
+                    child->mFreeze = false;
+                    --child->rect.left;
+                    --child->rect.top;
                 }
-                else if (clipRect(child_refreshzone, child.rect, inner_refreshzone)) {
-                    child.moveChildsNow = false;
+                else if (clipRect(child_refreshzone, child->rect, inner_refreshzone)) {
+                    child->moveChildsNow = false;
                     if (rect.contains(child_refreshzone)) {
-                        child.reallyDraw(child_refreshzone);
+                        child->reallyDraw(child_refreshzone);
                     }
                 }
             }
@@ -945,9 +914,9 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    void GWidget::setFont(shared_ptr<Font>F)
+    void GWidget::setFont(shared_ptr<Font>&F)
     {
-        font = &F;
+        font = F;
         resizeChildren();
         refresh();
     }
@@ -972,7 +941,7 @@ namespace z0 {
     }
 
 //------------------------------------------------------------
-    GRect& GWidget::getChildsRect() {
+    GRect& GWidget::getChildrenRect() {
         return mChildsRect;
     }
 
@@ -990,14 +959,14 @@ namespace z0 {
 
 
 //------------------------------------------------------------
-    GWidget::WidgetType GWidget::getType() const {
+    GWidget::Type GWidget::getType() const {
         return type;
     }
 
 
 //------------------------------------------------------------
     shared_ptr<GWidget> GWidget::getParent() const {
-        return parent;
+        return shared_ptr<GWidget>(parent);
     }
 
 
@@ -1058,7 +1027,7 @@ namespace z0 {
     }
 
 //------------------------------------------------------------
-    bool& GWidget::redrawOnMouseEvent() {
+    bool& GWidget::isRedrawOnMouseEvent() {
         return redrawOnMouseEvent;
     }
 

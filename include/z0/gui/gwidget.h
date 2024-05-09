@@ -130,13 +130,13 @@ namespace z0 {
         const GRect& getRect() const;
 
         /*! Change the size & position of the widget
-          \param	uint32_t	: left position in pixels
-          \param	uint32_t	: top position in pixels
+          \param	int32_t	: left position in pixels
+          \param	int32_t	: top position in pixels
           \param	uint32_t	: width in pixels
           \param	uint32_t	: height in pixels
             \param bool	: force redraw
         */
-        void setRect(uint32_t, uint32_t, uint32_t, uint32_t, bool = true);
+        void setRect(int32_t, int32_t, uint32_t, uint32_t, bool = true);
 
         /*! Change the size & position of the widget
           \param	GRect	: size & position, all in pixels
@@ -155,7 +155,7 @@ namespace z0 {
         Font& getFont();
 
         //! Set the current font of the widget
-        void setFont(shared_ptr<Font>);
+        void setFont(shared_ptr<Font>&);
 
         //! Return true if the widget have keyboard focus
         bool isFocused() const;
@@ -166,16 +166,7 @@ namespace z0 {
         /*! Return the list of direct childs widgets.
             Do NOT use this list to add or remove childs widget, 
             use Add(), Drop() & DropAll() instead */
-        virtual list<GWidget>& getChildren();
-
-        /*! Add a child widget.
-              Childs widget will NOT be destroyed on parent destruction.
-            \param	GWidget	: child widget to add
-            \param	AlignementType	: placement
-            \param	string	: resource string
-            \param	uint32_t	: default padding
-        */
-        virtual GWidget& add(GWidget&, AlignmentType = NONE, const string& = "", uint32_t = 0);
+        virtual list<shared_ptr<GWidget>>& getChildren();
 
         /*! Add a child widget.
               Childs widget will be destroyed on parent destruction.
@@ -187,7 +178,7 @@ namespace z0 {
         virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType = NONE, const string& = "", uint32_t = 0);
 
         /*! Remove a child widget */
-        virtual void remove(GWidget&);
+        virtual void remove(shared_ptr<GWidget>&);
 
         /*! Remove all childs widgets recusivly */
         virtual void removeAll();
@@ -283,7 +274,7 @@ namespace z0 {
         shared_ptr<GLayout>			layout;
         shared_ptr<GResource>		resource;
 
-        list<GWidget>	childs;
+        list<shared_ptr<GWidget>>	childs;
 
         void maxRect(GRect&, GRect, GRect) const;
         bool clipRect(GRect&, const GRect&, const GRect&) const;
@@ -310,7 +301,7 @@ namespace z0 {
         class GEventSlot
         {
         public:
-            void		*obj;
+            GWidget		*obj;   // TODO Object ?
             GEventFunction	func;
 
             GEventSlot(): obj(nullptr), func(nullptr) {};
@@ -328,7 +319,7 @@ namespace z0 {
         GRect		mRefreshRect;
         GEventSlot	slots[GEvent::nbEvents];
 
-        shared_ptr<GWidget> setNextFocus();
+        GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
         void flushRefresh(GRect&);

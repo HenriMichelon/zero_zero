@@ -26,7 +26,7 @@ namespace z0 {
             Call SetLayout(nullptr) if no layout have been set previously */
         GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", uint32_t = 0);
 
-        void setFocusedWidget(shared_ptr<GWidget>);
+        void setFocusedWidget(const shared_ptr<GWidget>&);
 
         /*! Return the width of the client area (not the window) */
         uint32_t getWidth() const;
@@ -98,9 +98,9 @@ namespace z0 {
         GRect	mRefreshrect;
         shared_ptr<GLayout> mLayout;
         shared_ptr<GWidget> mWidget;
-        shared_ptr<GWidget> mFocusedWidget;
+        GWidget* mFocusedWidget;
 
-        void unFreeze(GWidget&);
+        void unFreeze(shared_ptr<GWidget>&);
 
         virtual void eventCreate();
         virtual void eventDestroy();
