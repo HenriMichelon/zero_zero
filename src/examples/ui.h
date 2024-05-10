@@ -3,7 +3,7 @@ using namespace z0;
 
 class Window2 : public GWindow {
 public:
-    explicit Window2(GRect rect) : GWindow{rect} {}
+    explicit Window2(Rect rect) : GWindow{rect} {}
 
     void onCreate() override {
         cout << "onCreate" << endl;

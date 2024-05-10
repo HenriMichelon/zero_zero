@@ -1,4 +1,6 @@
 #include "z0/gui/glayout.h"
+#include "z0/gui/glayout_vector.h"
+
 namespace z0 {
 
 //----------------------------------------------
@@ -12,10 +14,10 @@ namespace z0 {
     shared_ptr<GLayout> GLayout::create(const string&NAME)
     {
         shared_ptr<GLayout> tmp;
-        /*if (NAME == "vector") {
-            tmp = (GLayout*) new GLayoutVector;
+        if (NAME == "vector") {
+            tmp = make_shared<GLayoutVector>();
         }
-        else if (NAME == "pixmap") {
+        /*else if (NAME == "pixmap") {
             tmp = (GLayout*) new GLayoutPixmap;
         }*/
         if (tmp != nullptr) {

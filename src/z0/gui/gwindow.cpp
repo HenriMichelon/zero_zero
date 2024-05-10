@@ -5,13 +5,25 @@
 
 namespace z0 {
 
-    GWindow::GWindow(GRect r): rect{r} { }
+    GWindow::GWindow(Rect r): rect{r} {
+        eventCreate();
+    }
+
+    GWindow::~GWindow() {
+        eventDestroy();
+    }
+
+    void GWindow::draw(VectorRenderer&D) const {
+        if (!isVisible()) return;
+        D.setTranslate({rect.x, rect.y});
+        widget->draw(D);
+    }
 
     void GWindow::unFreeze(shared_ptr<GWidget>&W){
         for (auto& child: W->getChildren()) {
             unFreeze(child);
         }
-        W->isFreezed() = false;
+        W->setFreezed(false);
     }
 
     GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, int32_t PADDING){
@@ -145,9 +157,9 @@ namespace z0 {
         refresh();
     }
 
-    void GWindow::setPos(int32_t l, int32_t t) {
-        rect.left = l;
-        rect.top = t;
+    void GWindow::setPos(int32_t x, int32_t y) {
+        rect.x = x;
+        rect.y = y;
         refresh();
     }
 

@@ -16,7 +16,7 @@ namespace z0 {
         void refresh() { needRedraw = true; }
 
     private:
-        const vec2 SCALE = vec2{1000.0f};
+
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>> windows;
         bool needRedraw{false};

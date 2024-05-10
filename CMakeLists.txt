@@ -65,6 +65,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/input_event.h
 		${Z0_INCLUDE_DIR}/input.h
 		${Z0_INCLUDE_DIR}/physics.h
+		${Z0_INCLUDE_DIR}/rect.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
@@ -97,12 +98,13 @@ add_executable(${PROJECT_NAME}
 
 		${Z0_INCLUDE_DIR}/gui/gwindow.h
 		${Z0_INCLUDE_DIR}/gui/gwidget.h
-		${Z0_INCLUDE_DIR}/gui/grect.h
 		${Z0_INCLUDE_DIR}/gui/gevent.h
 		${Z0_INCLUDE_DIR}/gui/gresource.h
 		${Z0_INCLUDE_DIR}/gui/glayout.h
 		${Z0_INCLUDE_DIR}/gui/gpanel.h
 		${Z0_INCLUDE_DIR}/gui/gmanager.h
+		${Z0_INCLUDE_DIR}/gui/glayout_vector.h
+		${Z0_INCLUDE_DIR}/gui/gresource_vector.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -115,6 +117,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/shader.cpp
 		${Z0_ENGINE_DIR}/input_event.cpp
 		${Z0_ENGINE_DIR}/input.cpp
+		${Z0_ENGINE_DIR}/rect.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
@@ -146,10 +149,11 @@ add_executable(${PROJECT_NAME}
 
 		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 		${Z0_ENGINE_DIR}/gui/gwidget.cpp
-		${Z0_ENGINE_DIR}/gui/grect.cpp
 		${Z0_ENGINE_DIR}/gui/gevent.cpp
 		${Z0_ENGINE_DIR}/gui/glayout.cpp
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
+		${Z0_ENGINE_DIR}/gui/gresource_vector.cpp
+		${Z0_ENGINE_DIR}/gui/glayout_vector.cpp
 
 		${SRC_DIR}/libraries.cpp
 

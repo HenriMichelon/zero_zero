@@ -38,34 +38,44 @@ namespace z0 {
 
     void VectorRenderer::drawPoint(vec2 point) {
         nextCommand(PRIMITIVE_POINT);
-        vertices.emplace_back(point, vec4{penColor,transparency});
+        point = (point + translate) / SCALE;
+        vertices.emplace_back(point, penColor.color);
     }
 
     void VectorRenderer::drawLine(vec2 start, vec2 end) {
         nextCommand(PRIMITIVE_LINE);
-        auto color = vec4{penColor,transparency};
-        vertices.emplace_back(start, color);
-        vertices.emplace_back(end, color);
+        start = (start + translate) / SCALE;
+        end = (end + translate) / SCALE;
+        vertices.emplace_back(start, penColor.color);
+        vertices.emplace_back(end, penColor.color);
     }
 
-    void VectorRenderer::drawRect(vec2 topLeft, vec2 rightBottom) {
+    /*void VectorRenderer::drawRect(const Rect& rect) {
         drawLine(topLeft, {rightBottom.x, topLeft.y});
         drawLine({rightBottom.x, topLeft.y}, rightBottom);
         drawLine(rightBottom, {topLeft.x, rightBottom.y});
         drawLine({topLeft.x, rightBottom.y}, topLeft);
+    }*/
+
+    void VectorRenderer::drawFilledRect(const Rect& rect) {
+        drawFilledRect(static_cast<float>(rect.x),
+                       static_cast<float>(rect.y),
+                       static_cast<float>(rect.width),
+                       static_cast<float>(rect.height));
     }
 
-    void VectorRenderer::drawFilledRect(vec2 topLeft, vec2 rightBottom) {
+    void VectorRenderer::drawFilledRect(float x, float y, float w, float h) {
         nextCommand(PRIMITIVE_RECT);
-        auto color = vec4{penColor,transparency};
+        auto pos = (vec2{x, y} + translate) / SCALE;
+        auto size = vec2{w, h} / SCALE;
         // First triangle
-        vertices.emplace_back(topLeft, color);
-        vertices.emplace_back(vec2{rightBottom.x, topLeft.y}, color);
-        vertices.emplace_back(rightBottom, color);
+        vertices.emplace_back(vec2{pos.x, pos.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, penColor.color);
         // Second triangle
-        vertices.emplace_back(topLeft, color);
-        vertices.emplace_back(rightBottom, color);
-        vertices.emplace_back(vec2{topLeft.x, rightBottom.y}, color);
+        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y+size.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, penColor.color);
     }
 
     void VectorRenderer::beginDraw() {
@@ -119,7 +129,7 @@ namespace z0 {
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
 
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-        VkBool32 color_blend_enables[] = {VK_TRUE};
+        VkBool32 color_blend_enables[] = {VK_FALSE};
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
 

@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    GManager::GManager(shared_ptr<z0::VectorRenderer> &renderer): vectorRenderer{renderer}{
+    GManager::GManager(shared_ptr<VectorRenderer> &renderer): vectorRenderer{renderer}{
 
     }
 
@@ -11,13 +11,7 @@ namespace z0 {
         needRedraw = false;
         vectorRenderer->beginDraw();
         for (auto& window: windows) {
-            if (!window->isVisible()) continue;
-            vectorRenderer->setPenColor(window->getBgColor().color);
-            vectorRenderer->setTransparency(window->getBgColor().color.a);
-            auto& rect = window->getRect();
-            vec2 topLeft = vec2{rect.left, rect.top} / SCALE;
-            vec2 bottomRight = vec2{rect.left+rect.width, rect.top-rect.height} / SCALE;
-            vectorRenderer->drawFilledRect(topLeft, bottomRight);
+            window->draw(*vectorRenderer);
         }
         vectorRenderer->endDraw();
     }

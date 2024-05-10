@@ -9,8 +9,8 @@ namespace z0 {
 
     class GWindow: public Object {
     public:
-        explicit GWindow(GRect rect);
-        virtual ~GWindow() = default;
+        explicit GWindow(Rect rect);
+        virtual ~GWindow();
 
         /*! Return the current layout or nullptr */
         shared_ptr<GLayout> getLayout() const;
@@ -30,12 +30,6 @@ namespace z0 {
 
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
-        /*! Return the y position of the client area */
-        int32_t getTop() const { return rect.top; }
-
-        /*! Return the x position of the client area */
-        int32_t getLeft() const { return rect.left; };
-
         /*! Return the width of the client area */
         uint32_t getWidth() const { return rect.width; };
 
@@ -52,12 +46,7 @@ namespace z0 {
         void setPos(int32_t l, int32_t t);
 
         /*! Return the size & position of the widget */
-        const GRect& getRect() const { return rect; };
-
-        /*! Change the window default background color */
-        void setBgColor(Color c) { bgColor = c; };
-
-        Color getBgColor() { return bgColor; }
+        const Rect& getRect() const { return rect; };
 
         /*! \return TRUE if window is currently visible */
         bool isVisible() const { return visible; }
@@ -98,11 +87,13 @@ namespace z0 {
         /*! Refresh the entire content of the window and all the widgets */
         void refresh();
 
+        /*! draw the window and his widget */
+        void draw(VectorRenderer&) const;
+
     private:
         GManager*           windowManager{nullptr};
-        GRect               rect;
+        Rect                rect;
         bool                visible{true};
-        Color               bgColor{0.5,0.5,0.5, 1.0f};
         bool	            freezed{false};
         shared_ptr<GLayout> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};

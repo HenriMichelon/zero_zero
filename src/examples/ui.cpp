@@ -4,6 +4,7 @@
 #include "z0/nodes/skybox.h"
 #include "z0/loader.h"
 #include "z0/application.h"
+#include "z0/gui/gwidget.h"
 
 #include "ui.h"
 
@@ -17,11 +18,12 @@ void UIMainScene::onReady() {
     sphere = Loader::loadModelFromFile("examples/models/sphere.glb");
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);
-    auto window1 = make_shared<GWindow>(GRect{250, 975, 500, 25});
-    window1->setBgColor({1.0, 0.647, 0.0, 1.0});
+    auto window1 = make_shared<GWindow>(Rect{250, 950, 500, 25});
+    //window1->setBgColor({1.0, 0.647, 0.0, 1.0});
     Application::add(window1);
-    window2 = make_shared<Window2>(GRect{250, 750, 500, 500});
-    window2->setBgColor({1.0, 0.647, 0.0, 0.1});
+    window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
+    //window2->setBgColor({1.0, 0.647, 0.0, 0.1});
+    window2->setWidget(make_shared<GWidget>(GWidget::Type::BOX));
     Application::add(window2);
 }
 

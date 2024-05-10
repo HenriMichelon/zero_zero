@@ -4,6 +4,7 @@
 #include "z0/renderers/base_renderpass.h"
 #include "z0/resources/cubemap.h"
 #include "z0/nodes/camera.h"
+#include "z0/rect.h"
 
 namespace z0 {
 
@@ -17,10 +18,11 @@ namespace z0 {
 
         void drawPoint(vec2 point);
         void drawLine(vec2 start, vec2 end);
-        void drawRect(vec2 topLeft, vec2 rightBottom);
-        void drawFilledRect(vec2 topLeft, vec2 rightBottom);
-        void setPenColor(vec3 color) { penColor = color; }
-        void setTransparency(float alpha) { transparency = alpha; }
+        //void drawRect(const Rect& rect);
+        void drawFilledRect(const Rect& rect);
+        void drawFilledRect(float x, float y, float w, float h);
+        void setPenColor(Color color) { penColor = color; }
+        void setTranslate(vec2 t) { translate = t; }
 
         void beginDraw();
         void endDraw();
@@ -39,8 +41,9 @@ namespace z0 {
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
 
     private:
-        vec3 penColor {1.0f,1.0f,1.0f};
-        float transparency {1.0f};
+        const vec2 SCALE{1000.0f };
+        Color penColor {1.0f,1.0f,1.0f,1.0f};
+        vec2 translate {0.0f, 0.0f};
         enum Primitive {
             PRIMITIVE_NONE,
             PRIMITIVE_POINT,

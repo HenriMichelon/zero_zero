@@ -4,11 +4,11 @@
 
 namespace z0 {
 
-    struct GRect {
-        /*! Top-Left corner */
-        int32_t	left;
-        /*! Top-Left corner */
-        int32_t	top;
+    struct Rect {
+        /*! Bottom-Left corner */
+        int32_t	x;
+        /*! Bottom-Left corner */
+        int32_t	y;
         /*! Width */
         uint32_t width;
         /*! Height  */
@@ -18,16 +18,16 @@ namespace z0 {
         bool contains(uint32_t X, uint32_t Y) const;
 
         /*! Return true if the given rect is inside the rect */
-        bool contains(const GRect&) const;
+        bool contains(const Rect&) const;
 
         /*! */
-        GRect& operator = (const GRect&R);
+        Rect& operator = (const Rect&R);
 
         /*! */
-        bool operator == (const GRect&R) const;
+        bool operator == (const Rect&R) const;
 
         /*! The rect is the resulst of the intersection between two rects */
-        void intersect(const GRect&, const GRect&);
+        void intersect(const Rect&, const Rect&);
     };
 
 }

@@ -81,7 +81,7 @@ namespace z0 {
         };
 
         //! Create a widget of a particular type
-        GWidget(Type = WIDGET);
+        explicit GWidget(Type = WIDGET);
 
         virtual ~GWidget() = default;
 
@@ -100,18 +100,11 @@ namespace z0 {
         //! Enable or disable widget reaction
         void enable(bool = true);
 
-        //! Return the top border position of the widget (in pixels), relative to the parent widget
-        int32_t getTop() const { return rect.top; };
-
-        //! Return the left border position of the widget (in pixels), relative to the parent widget
-        int32_t getLeft() const { return rect.left; };
-
         /*! Move the widget to a particular position.
             \param int32_t	: Left position in pixels
             \param int32_t	: top position in pixels
-            \param bool	: force redraw 
          */
-        void setPos(int32_t, int32_t, bool = true);
+        void setPos(int32_t, int32_t);
 
         //! Return the width of the widget, in pixels
         uint32_t getWidth() const { return rect.width; };
@@ -122,27 +115,24 @@ namespace z0 {
         /*! Resize the widget
             \param uint32_t	: width in pixels
             \param uint32_t	: height in pixels
-            \param bool	: force redraw
         */
-        void setSize(uint32_t, uint32_t, bool = true);
+        void setSize(uint32_t, uint32_t);
 
         /*! Return size size & position of the widget */
-        const GRect& getRect() const;
+        const Rect& getRect() const;
 
         /*! Change the size & position of the widget
           \param	int32_t	: left position in pixels
-          \param	int32_t	: top position in pixels
+          \param	int32_t	: bottom position in pixels
           \param	uint32_t	: width in pixels
           \param	uint32_t	: height in pixels
-            \param bool	: force redraw
         */
-        void setRect(int32_t, int32_t, uint32_t, uint32_t, bool = true);
+        void setRect(int32_t, int32_t, uint32_t, uint32_t);
 
         /*! Change the size & position of the widget
           \param	GRect	: size & position, all in pixels
-          \param	bool	: force redraw
          */
-        void setRect(const GRect&, bool = true);
+        void setRect(const Rect&);
 
         //! Return the current widget placement
         AlignmentType getAlignment() const;
@@ -175,7 +165,7 @@ namespace z0 {
             \param	string	: resource string
             \param	uint32_t	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType = NONE, const string& = "", uint32_t = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, const string&, uint32_t);
 
         /*! Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
@@ -194,23 +184,26 @@ namespace z0 {
         void setVBorder(uint32_t);
         void setHBorder(uint32_t);
 
-        bool getDrawBackground() const;
+        bool isDrawBackground() const;
         void setDrawBackground(bool);
 
-        bool& isPushed();
-        bool& isPointed();
-        bool& isFreezed();
-        bool& isTransparent();
-        bool& isRedrawOnMouseEvent();
-        bool& isMoveChildsOnPush();
-        GRect& getChildrenRect();
+        bool isPushed() const;
+        bool isPointed() const;
+        bool isFreezed() const;
+        bool isTransparent() const;
+        bool isRedrawOnMouseEvent() const;
+        bool isMoveChildsOnPush() const;
+        Rect getChildrenRect() const;
         void resizeChildren();
+
+        void setTransparent(bool t) { transparent = t; }
+        void setFreezed(bool f) { freeze = f; }
 
         /*! Force a refresh of the entire widget */
         void refresh();
 
         /*! Force a refresh of a part of the widget */
-        void refresh(const GRect&, bool = true);
+        void refresh(const Rect&, bool = true);
 
         /*! Connect an object method to a event.
           \param	EventType	: event type
@@ -230,9 +223,8 @@ namespace z0 {
         */
         void simulate(GEvent::Type,  shared_ptr<GEvent> = nullptr);
 
-        /*GPopupMenu* PopupMenu();
-        GPopupMenu* SetPopupMenu(GPopupMenu*);
-        void ClosePopup();*/
+        /*! Change widget resources. Use with caution ! */
+        void setResource(shared_ptr<GResource>);
 
         /*! Return the user defined group index */
         uint32_t getGroupIndex() const;
@@ -248,13 +240,13 @@ namespace z0 {
 
         friend class GWindow;
 
-        /*! Return the parent window */
-        GWindow& Window();
+        /*! recursively draw the widget and his children */
+        void draw(VectorRenderer&) const;
         
     protected:
         int32_t			          hborder;
         int32_t			          vborder;
-        int32_t		          padding;
+        int32_t		              padding;
         bool			          focused;
         bool			          allowFocus;
         bool			          allowChilds;
@@ -265,7 +257,7 @@ namespace z0 {
         bool			          redrawOnMouseEvent;
         bool			          redrawOnMouseMove;
         bool			          mouseMoveOnFocus;
-        GRect			          rect;
+        Rect			          rect;
         shared_ptr<Font>          font;
         GWidget*		          parent;
         GWindow*		          window;
@@ -275,8 +267,8 @@ namespace z0 {
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 
-        void maxRect(GRect&, GRect, GRect) const;
-        bool clipRect(GRect&, const GRect&, const GRect&) const;
+        void maxRect(Rect&, Rect, Rect) const;
+        bool clipRect(Rect&, const Rect&, const Rect&) const;
         void allowingFocus(bool = true);
 
         virtual void eventCreate();
@@ -286,8 +278,8 @@ namespace z0 {
         virtual void eventHide();
         virtual void eventEnable();
         virtual void eventDisable();
-        virtual void eventMove(int32_t, int32_t, bool);
-        virtual void eventResize(bool);
+        virtual void eventMove(int32_t, int32_t);
+        virtual void eventResize();
         virtual Key eventKeybDown(Key);
         virtual Key eventKeybUp(Key);
         virtual shared_ptr<GWidget> eventMouseDown(MouseButton, int32_t, int32_t);
@@ -306,11 +298,11 @@ namespace z0 {
         bool		pointed;
         bool		freeze;
         bool		enabled;
-        bool		visible;
+        bool		visible{true};
 
         void*		userData;
         int32_t		groupIndex;
-        GRect		childrenRect;
+        Rect		childrenRect;
         GEventSlot	slots[GEvent::nbEvents];
 
         GWidget* setNextFocus();

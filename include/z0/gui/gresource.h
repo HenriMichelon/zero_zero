@@ -1,13 +1,14 @@
 #pragma once
 
-#include <string>
-using namespace std;
+#include <utility>
+
+#include "z0/object.h"
 
 namespace z0 {
 
     class GResource: public Object {
     public:
-        explicit GResource(const string&R): res(R) {};
+        explicit GResource(string R): res(std::move(R)) {};
         virtual ~GResource() = default;
 
         const string& Resource() const { return res; };

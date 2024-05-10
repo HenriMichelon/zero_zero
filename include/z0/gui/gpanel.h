@@ -4,8 +4,7 @@
 
 namespace z0 {
 
-    class GPanel: public GWidget
-    {
+    class GPanel: public GWidget {
     public:
         GPanel(): GWidget(PANEL) {};
 
