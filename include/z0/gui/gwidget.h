@@ -194,16 +194,12 @@ namespace z0 {
         bool isRedrawOnMouseEvent() const;
         bool isMoveChildsOnPush() const;
         Rect getChildrenRect() const;
-        void resizeChildren();
 
         void setTransparent(bool t) { transparent = t; }
         void setFreezed(bool f) { freeze = f; }
 
         /*! Force a refresh of the entire widget */
         void refresh();
-
-        /*! Force a refresh of a part of the widget */
-        void refresh(const Rect&, bool = true);
 
         /*! Connect an object method to a event.
           \param	EventType	: event type
@@ -270,10 +266,10 @@ namespace z0 {
         void maxRect(Rect&, Rect, Rect) const;
         bool clipRect(Rect&, const Rect&, const Rect&) const;
         void allowingFocus(bool = true);
+        void resizeChildren();
 
         virtual void eventCreate();
         virtual void eventDestroy();
-        virtual void eventDraw(bool);
         virtual void eventShow();
         virtual void eventHide();
         virtual void eventEnable();
@@ -308,7 +304,6 @@ namespace z0 {
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void flushRefresh();
         void init(GWidget&, AlignmentType, const string&, uint32_t);
     };
 

@@ -11,7 +11,7 @@ namespace z0 {
         needRedraw = false;
         vectorRenderer->beginDraw();
         for (auto& window: windows) {
-            window->draw(*vectorRenderer);
+            window->draw();
         }
         vectorRenderer->endDraw();
     }
@@ -19,6 +19,7 @@ namespace z0 {
     void GManager::add(const shared_ptr<GWindow> &window) {
         windows.push_back(window);
         window->windowManager = this;
+        window->eventCreate();
         needRedraw = true;
     }
 

@@ -14,9 +14,9 @@ namespace z0 {
 
         void add(const shared_ptr<GWindow>&);
         void refresh() { needRedraw = true; }
+        VectorRenderer& getRenderer() { return *vectorRenderer; }
 
     private:
-
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>> windows;
         bool needRedraw{false};

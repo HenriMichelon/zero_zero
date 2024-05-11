@@ -5,11 +5,15 @@ class Window2 : public GWindow {
 public:
     explicit Window2(Rect rect) : GWindow{rect} {}
 
-    void onCreate() override {
-        cout << "onCreate" << endl;
-    };
+    void onCreate() override;
     void onDestroy() override {
         cout << "onDestroy" << endl;
+    };
+    void onResize() override {
+        cout << "onResize" << endl;
+    };
+    void onMove() override {
+        cout << "onMove" << endl;
     };
     void onShow() override {
         cout << "onShow" << endl;

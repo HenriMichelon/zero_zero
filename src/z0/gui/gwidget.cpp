@@ -73,14 +73,14 @@ namespace z0 {
 
     void GWidget::setSize(uint32_t W, uint32_t H) {
         if ((W == rect.width) && (H == rect.height)) return;
-        if (parent) { parent->refresh(rect); }
+        if (parent) { parent->refresh(); }
         rect.width = W;
         rect.height = H;
         eventResize();
     }
 
     void GWidget::setResource(shared_ptr<GResource> R) {
-        resource = R;
+        resource = std::move(R);
         refresh();
     }
 
@@ -247,7 +247,7 @@ namespace z0 {
             for (auto& child: children) {
                 child->eventHide();
             }
-            if (parent) { parent->refresh(rect); }
+            if (parent) { parent->refresh(); }
             call(GEvent::OnHide);
         }
     }
@@ -279,20 +279,20 @@ namespace z0 {
         }
         auto event = make_shared<GEventPos>(X, Y);
         call(GEvent::OnMove, event);
-        if (parent) { parent->refresh(old_rect); }
+        if (parent) { parent->refresh(); }
         refresh();
     }
 
     void GWidget::eventResize() {
         if (freeze) return;
         freeze = true;
-        refresh();
         if (parent && (!parent->freeze)) parent->resizeChildren();
         if (rect.width && rect.height) {
             auto event = make_shared<GEventSize>(rect.width, rect.height);
-            call(GEvent::OnResize, event);
             resizeChildren();
+            call(GEvent::OnResize, event);
         }
+        refresh();
         freeze = false;
     }
 
@@ -692,31 +692,7 @@ namespace z0 {
 
     void GWidget::refresh() {
         if (!freeze) {
-            refresh(rect);
-        }
-    }
-     void GWidget::refresh(const Rect&R, bool PARENT)
-    {
-        if ((!visible) || (window && (!window->isVisible())) ||
-            (!R.width) || (!R.height) || (!rect.width) || (!rect.height)) {
-            return;
-        }
-        if (PARENT && (transparent || (!visible)) && parent) {
-            parent->refresh(R);
-        }
-    }
-
-
-    void GWidget::flushRefresh() {
-        eventDraw(false);
-        for (auto& w : children) {
-            w->flushRefresh();
-        }
-    }
-
-    void GWidget::eventDraw(bool BEFORECHILDS) {
-        if (isVisible()) {
-            if (BEFORECHILDS) { call(GEvent::OnDraw); }
+            //refresh(rect);
         }
     }
 

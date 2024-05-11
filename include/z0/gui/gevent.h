@@ -12,7 +12,6 @@ namespace z0 {
         enum Type {
             OnCreate,		//! called after widget creation (all widgets)
             OnDestroy,		//! called before widget destruction (all widgets)
-            OnDraw,			//! called after widget drawing (all widgets)
             OnKeybDown,		//! called when the user press a key & the widget have the keyboard focus (all widgets)
             OnKeybUp, 		//! called when the user press a key & the widget have the keyboard focus (all widgets)
             OnMouseDown,	//! the mouse button have been pressed above the widget or a child (all widgets)

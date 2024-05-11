@@ -5,10 +5,12 @@
 #include "z0/loader.h"
 #include "z0/application.h"
 #include "z0/gui/gwidget.h"
-#include "z0/gui/gline.h"
 
 #include "ui.h"
 
+void Window2::onCreate() {
+    getWidget().add(make_shared<GWidget>(GWidget::Type::BOX), GWidget::CENTER, "70,40,RAISED");
+}
 
 
 void UIMainScene::onReady() {
@@ -24,8 +26,6 @@ void UIMainScene::onReady() {
     Application::add(window1);
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     //window2->setBgColor({1.0, 0.647, 0.0, 0.1});
-    //window2->setWidget(widget2);
-    window2->getWidget().add(make_shared<GVLine>(), GWidget::VCENTER, ",,LOWERED");
     Application::add(window2);
 }
 
@@ -37,6 +37,6 @@ void UIMainScene::onPhysicsProcess(float delta) {
 void UIMainScene::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_ENTER)) {
         window2->setHeight(250);
-        window2->setPos(0, 750);
+        window2->setPos(0, 250);
     }
 }

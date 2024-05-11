@@ -52,60 +52,62 @@ namespace z0 {
         bool isVisible() const { return visible; }
 
         /*! Event called after window creation (by the window manager) */
-        inline virtual void onCreate() {};
+        virtual void onCreate() {};
 
         /*! Event called after window destruction (by the window manager) */
-        inline virtual void onDestroy() {};
+        virtual void onDestroy() {};
 
         /*! Event called when (before) the window manager need to show the window */
-        inline virtual void onShow() {};
+        virtual void onShow() {};
 
         /*! Event called when (after) the window manager need to hide the window */
-        inline virtual void onHide() {};
+        virtual void onHide() {};
+
+        virtual void onResize() {};
+        virtual void onMove() {};
 
         /*! Event called when a key was pressed */
-        inline virtual void onKeybDown(Key) {};
+        virtual void onKeybDown(Key) {};
 
         /*! Event called when a key was released */
-        inline virtual void onKeybUp(Key) {};
+        virtual void onKeybUp(Key) {};
 
         /*! Event called when a mouse button was pressed */
-        inline virtual void onMouseDown(MouseButton, int32_t, int32_t) {};
+        virtual void onMouseDown(MouseButton, int32_t, int32_t) {};
 
         /*! Event called when a mouse button was released */
-        inline virtual void onMouseUp(MouseButton, int32_t, int32_t) {};
+        virtual void onMouseUp(MouseButton, int32_t, int32_t) {};
 
         /*! Event called when mouse is moved above the window */
-        inline virtual void onMouseMove(MouseButton, int32_t, int32_t) {};
+        virtual void onMouseMove(MouseButton, int32_t, int32_t) {};
 
         /*! Event called when the window got the keyboard focus */
-        inline virtual void onGotFocus() {};
+        virtual void onGotFocus() {};
 
         /*! Event called when the window lost the keyboard focus */
-        inline virtual void onLostFocus() {};
-
-        /*! Refresh the entire content of the window and all the widgets */
-        void refresh();
+        virtual void onLostFocus() {};
 
         /*! draw the window and his widget */
-        void draw(VectorRenderer&) const;
+        void draw() const;
 
     private:
         GManager*           windowManager{nullptr};
         Rect                rect;
         bool                visible{true};
-        bool	            freezed{false};
         shared_ptr<GLayout> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};
 
         void unFreeze(shared_ptr<GWidget>&);
+        void refresh();
 
         friend class GManager;
 
         void eventCreate();
         void eventDestroy();
         void eventShow();
+        void eventResize();
+        void eventMove();
         void eventHide();
         void eventKeybDown(Key);
         void eventKeybUp(Key);

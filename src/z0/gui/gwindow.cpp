@@ -13,10 +13,10 @@ namespace z0 {
         eventDestroy();
     }
 
-    void GWindow::draw(VectorRenderer&D) const {
+    void GWindow::draw() const {
         if (!isVisible()) return;
-        D.setTranslate({rect.x, rect.y});
-        widget->draw(D);
+        windowManager->getRenderer().setTranslate({rect.x, rect.y});
+        widget->draw(windowManager->getRenderer());
     }
 
     void GWindow::unFreeze(shared_ptr<GWidget>&W){
@@ -129,14 +129,7 @@ namespace z0 {
     }
 
     void GWindow::refresh() {
-        if (freezed) { return; }
-        if (widget) { widget->refresh(); }
-        freezed = true;
-        if (isVisible()) {
-            if (widget != nullptr) widget->flushRefresh();
-            windowManager->refresh();
-        }
-        freezed = false;
+        windowManager->refresh();
     }
 
     void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W) {
@@ -149,33 +142,47 @@ namespace z0 {
 
     void GWindow::setHeight(uint32_t h) {
         rect.height = h;
-        refresh();
+        eventResize();
     }
 
     void GWindow::setWidth(uint32_t w) {
         rect.width = w;
-        refresh();
+        eventResize();
     }
 
     void GWindow::setPos(int32_t x, int32_t y) {
         rect.x = x;
         rect.y = y;
-        refresh();
+        eventMove();
     }
 
     shared_ptr<GLayout> GWindow::getLayout() const {
         return layout;
-    };
+    }
+
+    void GWindow::eventResize() {
+        if (widget) { widget->setSize(rect.width, rect.height); }
+        onResize();
+        refresh();
+    }
+
+    void GWindow::eventMove() {
+        onMove();
+        refresh();
+    }
 
     void GWindow::eventHide() {
         onHide();
+        refresh();
     }
 
     void GWindow::eventGotFocus() {
         onGotFocus();
+        refresh();
     }
 
     void GWindow::eventLostFocus() {
         onLostFocus();
+        refresh();
     }
 }
