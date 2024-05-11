@@ -359,12 +359,11 @@ namespace z0 {
     }
 
     // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/extensions/shader_object/shader_object.cpp
-    void Device::setInitialState(VkCommandBuffer commandBuffer)
-    {
+    void Device::setInitialState(VkCommandBuffer commandBuffer) {
         vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
         const VkColorBlendEquationEXT colorBlendEquation {
-                .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-                .dstColorBlendFactor = VK_BLEND_FACTOR_ONE,
+                .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA ,
+                .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
                 .colorBlendOp = VK_BLEND_OP_ADD,
                 .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
                 .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,

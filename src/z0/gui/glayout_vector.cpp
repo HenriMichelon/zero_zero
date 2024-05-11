@@ -29,6 +29,8 @@ namespace z0 {
             auto rgb = split(opt, ',');
             if (rgb.size() == 3) {
                 return Color(vec3{stof(string{rgb[0]}),stof(string{rgb[1]}),stof(string{rgb[2]})});
+            } else if (rgb.size() == 4) {
+                return Color(vec4{stof(string{rgb[0]}),stof(string{rgb[1]}),stof(string{rgb[2]}),stof(string{rgb[3]})});
             }
         }
         return Color(vec3{R, G, B});

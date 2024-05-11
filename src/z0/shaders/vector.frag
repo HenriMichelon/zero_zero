@@ -7,5 +7,5 @@ layout(location = 0) in struct {
 } In;
 
 void main()  {
-    COLOR = vec4(In.color.rgb, 1.0);
+    COLOR = In.color;
 }

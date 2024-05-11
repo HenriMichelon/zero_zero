@@ -123,7 +123,7 @@ namespace z0 {
         vkDestroyInstance(vkInstance, nullptr);
     }
 
-    void Application::addNode(const shared_ptr<z0::Node>& node) {
+    void Application::addNode(const shared_ptr<Node>& node) {
         addedNodes.push_back(node);
         node->_setAddedToScene(true);
         node->_onEnterScene();

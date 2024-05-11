@@ -128,8 +128,13 @@ namespace z0 {
             // Push new vertices data to GPU memory
             stagingBuffer->writeToBuffer((void*)vertices.data());
             stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
+            // Initialize pipeline layout if needed
+            if (setLayout == nullptr) {
+                createDescriptorSetLayout();
+                createPipelineLayout();
+                loadShaders();
+            }
         }
-        createOrUpdateResources();
     }
 
     void VectorRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
@@ -139,7 +144,7 @@ namespace z0 {
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
 
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-        VkBool32 color_blend_enables[] = {VK_FALSE};
+        VkBool32 color_blend_enables[] = {VK_TRUE};
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
 

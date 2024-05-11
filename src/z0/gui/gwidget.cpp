@@ -249,7 +249,6 @@ namespace z0 {
     }
 
     void GWidget::eventMove(int32_t X, int32_t Y) {
-        Rect old_rect(rect);
         int32_t diffX = rect.x - X;
         int32_t diffY = rect.y - Y;
         rect.x = X;
