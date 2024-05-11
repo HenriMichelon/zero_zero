@@ -19,10 +19,12 @@ namespace z0 {
     }
 
     void VectorRenderer::cleanup() {
-        if (internalColorFrameBuffer) colorFrameBufferHdr->cleanupImagesResources();
+        if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
     }
 
     void VectorRenderer::nextCommand(Primitive primitive) {
+        // We only create a new drawing command when we change the primitive type
+        // to reduce the number of vkCmdDraw calls
         if (currentCommand.primitive != primitive) {
             if (currentCommand.primitive != PRIMITIVE_NONE) {
                 auto count = currentCommand.count;
@@ -33,6 +35,7 @@ namespace z0 {
             currentCommand.primitive = primitive;
             currentCommand.count = 0;
         }
+        // Increment the number of primitive for the current primitive type
         currentCommand.count += 1;
     }
 
@@ -84,8 +87,8 @@ namespace z0 {
     }
 
     void VectorRenderer::endDraw() {
-        needRefresh = true;
-        nextCommand(PRIMITIVE_NONE);
+        needRefresh = true; // We need to update the GPU memory
+        nextCommand(PRIMITIVE_NONE); // Flush the current drawing command
     }
 
     void VectorRenderer::loadShaders() {
@@ -94,13 +97,19 @@ namespace z0 {
     }
 
     void VectorRenderer::update(uint32_t currentFrame) {
-        if (vertices.empty()) return;
+        if (vertices.empty()) { return; }
+        // If we need to update the GPU memory
         if (needRefresh) {
-            oldBuffers.clear();
             needRefresh = false;
+            // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
+            oldBuffers.clear();
+            // Resize the buffers only if needed by recreating them
             if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+                // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
+                // and can't be destroyed now
                 oldBuffers.push_back(stagingBuffer);
                 oldBuffers.push_back(vertexBuffer);
+                // Allocate new buffers to change size
                 vertexCount = vertices.size();
                 vertexBufferSize = vertexSize * vertexCount;
                 stagingBuffer = make_shared<Buffer>(
@@ -116,6 +125,7 @@ namespace z0 {
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
             }
+            // Push new vertices data to GPU memory
             stagingBuffer->writeToBuffer((void*)vertices.data());
             stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
         }
@@ -133,18 +143,17 @@ namespace z0 {
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
 
-        vkCmdSetLineWidth(commandBuffer, 1);
+        vkCmdSetLineWidth(commandBuffer, 1); // Some GPU don't support other values but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
         vkCmdSetVertexInputEXT(commandBuffer,
                                1,
                                &bindingDescription,
                                attributeDescriptions.size(),
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-        //bindDescriptorSets(commandBuffer, currentFrame);
+
         uint32_t vertexIndex = 0;
         for (const auto& command : commands) {
             vkCmdSetPrimitiveTopologyEXT(commandBuffer,
@@ -157,30 +166,22 @@ namespace z0 {
     }
 
     void VectorRenderer::createDescriptorSetLayout() {
-        descriptorPool = DescriptorPool::Builder(device)
-                .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                .build();
-        setLayout = DescriptorSetLayout::Builder(device)
-                .build();
-    }
-
-    void VectorRenderer::createOrUpdateDescriptorSet(bool create) {
+        setLayout = DescriptorSetLayout::Builder(device).build();
     }
 
     void VectorRenderer::recreateImagesResources() {
         cleanupImagesResources();
-        if (internalColorFrameBuffer) colorFrameBufferHdr->createImagesResources();
+        if (internalColorFrameBuffer) { colorFrameBufferHdr->createImagesResources(); }
     }
 
     void VectorRenderer::createImagesResources() {
-        if (internalColorFrameBuffer) colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
+        if (internalColorFrameBuffer) { colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device); }
     }
 
     void VectorRenderer::cleanupImagesResources() {
-        if (internalColorFrameBuffer) colorFrameBufferHdr->cleanupImagesResources();
+        if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
     }
 
-    // https://lesleylai.info/en/vk-khr-dynamic-rendering/
     void VectorRenderer::beginRendering(VkCommandBuffer commandBuffer) {
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferHdr->getImage(),
@@ -188,8 +189,6 @@ namespace z0 {
                                      0, VK_ACCESS_TRANSFER_WRITE_BIT,
                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        // Color attachement : where the rendering is done (multisampled memory image)
-        // Resolved into a non multisampled image
         const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView = colorFrameBufferHdr->getImageView(),

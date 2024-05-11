@@ -84,13 +84,13 @@ namespace z0 {
         /*! Event called when a key was released */
         virtual void onKeybUp(Key) {};
 
-        /*! Event called when a mouse button was pressed */
+        /*! Event called when a mouse button was pressed inside the window */
         virtual void onMouseDown(MouseButton, int32_t, int32_t) {};
 
-        /*! Event called when a mouse button was released */
+        /*! Event called when a mouse button was released inside the window */
         virtual void onMouseUp(MouseButton, int32_t, int32_t) {};
 
-        /*! Event called when mouse is moved above the window */
+        /*! Event called when mouse is moved above the window client area */
         virtual void onMouseMove(MouseButton, int32_t, int32_t) {};
 
         /*! Event called when the window got the keyboard focus */

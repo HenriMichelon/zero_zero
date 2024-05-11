@@ -47,7 +47,7 @@ namespace z0 {
         virtual void loadShaders() = 0;
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
         virtual void createDescriptorSetLayout() = 0;
-        virtual void createOrUpdateDescriptorSet(bool create) = 0;
+        virtual void createOrUpdateDescriptorSet(bool create) { };
         virtual void createPipelineLayout();
 
     private:
