@@ -9,10 +9,6 @@ namespace z0 {
         eventCreate();
     }
 
-    GWindow::~GWindow() {
-        eventDestroy();
-    }
-
     void GWindow::draw() const {
         if (!isVisible()) return;
         windowManager->getRenderer().setTranslate({rect.x, rect.y});
@@ -55,6 +51,26 @@ namespace z0 {
         } else {
             layout = std::move(LAYOUT);
         }
+        refresh();
+    }
+
+    void GWindow::setVisible(bool isVisible) {
+        if (visible != isVisible) {
+            visible = isVisible;
+            if (visible) {
+                eventShow();
+            } else {
+                eventHide();
+            }
+        }
+    }
+
+    void GWindow::hide() {
+        setVisible(false);
+    }
+
+    void GWindow::show() {
+        setVisible(true);
     }
 
     void GWindow::eventCreate() {
@@ -66,6 +82,7 @@ namespace z0 {
     void GWindow::eventDestroy() {
         if (widget) { widget->eventDestroy(); }
         onDestroy();
+        widget.reset();
     }
 
     void GWindow::eventShow() {
@@ -129,7 +146,7 @@ namespace z0 {
     }
 
     void GWindow::refresh() {
-        windowManager->refresh();
+        if (windowManager) windowManager->refresh();
     }
 
     void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W) {
@@ -138,7 +155,7 @@ namespace z0 {
 
     GWidget& GWindow::getWidget() {
         return *widget;
-    };
+    }
 
     void GWindow::setHeight(uint32_t h) {
         rect.height = h;

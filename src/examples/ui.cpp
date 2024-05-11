@@ -12,7 +12,6 @@ void Window2::onCreate() {
     getWidget().add(make_shared<GWidget>(GWidget::Type::BOX), GWidget::CENTER, "70,40,RAISED");
 }
 
-
 void UIMainScene::onReady() {
     auto camera = make_shared<Camera>();
     addChild(camera);
@@ -36,7 +35,6 @@ void UIMainScene::onPhysicsProcess(float delta) {
 
 void UIMainScene::onProcess(float alpha) {
     if (Input::isKeyJustPressed(KEY_ENTER)) {
-        window2->setHeight(250);
-        window2->setPos(0, 250);
+        window2->setVisible(!window2->isVisible());
     }
 }

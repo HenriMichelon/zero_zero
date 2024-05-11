@@ -11,6 +11,7 @@ namespace z0 {
     class GManager: public Object {
     public:
         explicit GManager(shared_ptr<VectorRenderer>&);
+        ~GManager();
 
         void add(const shared_ptr<GWindow>&);
         void refresh() { needRedraw = true; }

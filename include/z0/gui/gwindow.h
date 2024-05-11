@@ -10,7 +10,7 @@ namespace z0 {
     class GWindow: public Object {
     public:
         explicit GWindow(Rect rect);
-        virtual ~GWindow();
+        virtual ~GWindow() = default;
 
         /*! Return the current layout or nullptr */
         shared_ptr<GLayout> getLayout() const;
@@ -50,6 +50,15 @@ namespace z0 {
 
         /*! \return TRUE if window is currently visible */
         bool isVisible() const { return visible; }
+
+        /*! set the window visibility */
+        void setVisible(bool);
+
+        /*! hide the window */
+        void hide();
+
+        /*! show the window */
+        void show();
 
         /*! Event called after window creation (by the window manager) */
         virtual void onCreate() {};

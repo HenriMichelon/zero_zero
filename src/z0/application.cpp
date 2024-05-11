@@ -204,6 +204,7 @@ namespace z0 {
     }
 
     void Application::end() {
+        windowManager.reset();
         cleanup(rootNode);
 #ifdef VULKAN_STATS
         VulkanStats::get().display();

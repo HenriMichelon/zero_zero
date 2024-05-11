@@ -228,8 +228,8 @@ namespace z0 {
         for (auto& child: children) {
             child->eventDestroy();
         }
-        //if (popup) popup->EventDestroy();
         call(GEvent::OnDestroy);
+        children.clear();
     }
 
     void GWidget::eventShow() {
