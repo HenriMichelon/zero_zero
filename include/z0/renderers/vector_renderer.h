@@ -38,6 +38,8 @@ namespace z0 {
         void setPenColor(Color color) { penColor = color; }
         // Change the [x,y] translation for the next drawing commands
         void setTranslate(vec2 t) { translate = t; }
+        // Change the global transparency for the next drawing commands. Value is substracted from the vertex alpha
+        void setTransparency(float a) { transparency = a;}
 
         // Restart a new drawing session, clearing all the previous datas (vertices and drawing commands)
         void beginDraw();
@@ -82,6 +84,8 @@ namespace z0 {
         Color           penColor {1.0f,1.0f,1.0f,1.0f};
         // [x,y] translation for the next drawing commands
         vec2            translate {0.0f, 0.0f};
+        // Global transparency for the next drawing commands. Value is substracted from the vertex alpha
+        float           transparency{0.0f};
         // Current drawing command
         Command         currentCommand{PRIMITIVE_NONE, 0};
         // All drawing commands

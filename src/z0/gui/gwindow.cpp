@@ -12,6 +12,7 @@ namespace z0 {
     void GWindow::draw() const {
         if (!isVisible()) return;
         windowManager->getRenderer().setTranslate({rect.x, rect.y});
+        windowManager->getRenderer().setTransparency(1.0f - transparency);
         widget->draw(windowManager->getRenderer());
     }
 
@@ -174,6 +175,11 @@ namespace z0 {
 
     shared_ptr<GLayout> GWindow::getLayout() const {
         return layout;
+    }
+
+    void GWindow::setTransparency(float alpha) {
+        transparency = alpha;
+        refresh();
     }
 
     void GWindow::eventResize() {

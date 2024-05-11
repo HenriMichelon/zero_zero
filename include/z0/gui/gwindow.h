@@ -60,6 +60,8 @@ namespace z0 {
         /*! show the window */
         void show();
 
+        void setTransparency(float);
+
         /*! Event called after window creation (by the window manager) */
         virtual void onCreate() {};
 
@@ -107,6 +109,7 @@ namespace z0 {
         shared_ptr<GLayout> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};
+        float               transparency{1.0};
 
         void unFreeze(shared_ptr<GWidget>&);
         void refresh();

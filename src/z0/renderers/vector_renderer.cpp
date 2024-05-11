@@ -42,15 +42,17 @@ namespace z0 {
     void VectorRenderer::drawPoint(vec2 point) {
         nextCommand(PRIMITIVE_POINT);
         point = (point + translate) / SCALE;
-        vertices.emplace_back(point, penColor.color);
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        vertices.emplace_back(point, color);
     }
 
     void VectorRenderer::drawLine(vec2 start, vec2 end) {
         nextCommand(PRIMITIVE_LINE);
         start = (start + translate) / SCALE;
         end = (end + translate) / SCALE;
-        vertices.emplace_back(start, penColor.color);
-        vertices.emplace_back(end, penColor.color);
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        vertices.emplace_back(start, color);
+        vertices.emplace_back(end, color);
     }
 
     /*void VectorRenderer::drawRect(const Rect& rect) {
@@ -71,14 +73,15 @@ namespace z0 {
         nextCommand(PRIMITIVE_RECT);
         auto pos = (vec2{x, y} + translate) / SCALE;
         auto size = vec2{w, h} / SCALE;
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
         // First triangle
-        vertices.emplace_back(vec2{pos.x, pos.y}, penColor.color);
-        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, penColor.color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x, pos.y}, color);
+        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, color);
         // Second triangle
-        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, penColor.color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y+size.y}, penColor.color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, penColor.color);
+        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y+size.y}, color);
+        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, color);
     }
 
     void VectorRenderer::beginDraw() {
