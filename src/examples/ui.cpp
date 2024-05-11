@@ -23,7 +23,8 @@ void UIMainScene::onReady() {
     Application::add(window1);
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     //window2->setBgColor({1.0, 0.647, 0.0, 0.1});
-    window2->setWidget(make_shared<GWidget>(GWidget::Type::BOX));
+    //window2->setWidget(widget2);
+    window2->getWidget().add(make_shared<GWidget>(GWidget::Type::BOX), GWidget::CORNERTOPRIGHT, "70,40,RAISED");
     Application::add(window2);
 }
 

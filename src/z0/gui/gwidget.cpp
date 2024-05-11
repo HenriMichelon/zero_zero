@@ -320,7 +320,7 @@ namespace z0 {
             Rect wrect = w->rect;
             switch (w->alignment)
             {
-                case CLIENT:
+                case FILL:
                     wrect = arect;
                     arect.width = 0;
                     arect.height = 0;
@@ -355,7 +355,7 @@ namespace z0 {
                     wrect.width = arect.width;
                     arect.width = 0;
                     break;
-                case TOP:
+                case BOTTOM:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     wrect.width = arect.width;
@@ -371,7 +371,7 @@ namespace z0 {
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
-                case BOTTOM:
+                case TOP:
                     wrect.x = arect.x;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
@@ -389,7 +389,7 @@ namespace z0 {
                     wrect.height = arect.height;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
-                case TOPCENTER:
+                case BOTTOMCENTER:
                     wrect.y = arect.y;
                     if (wrect.width > arect.width)
                         wrect.x = 0;
@@ -400,7 +400,7 @@ namespace z0 {
                     arect.height -= wrect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
                     break;
-                case BOTTOMCENTER:
+                case TOPCENTER:
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
@@ -432,7 +432,7 @@ namespace z0 {
                         wrect.y = arect.y + (arect.height- wrect.height)/2;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
-                case TOPLEFT:
+                case BOTTOMLEFT:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     arect.y += wrect.height + padding;
@@ -440,19 +440,8 @@ namespace z0 {
                     arect.height -= wrect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
                     break;
-                case BOTTOMLEFT:
+                case TOPLEFT:
                     wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
-                    else
-                        wrect.y = arect.y + arect.height - wrect.height;
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
-                    break;
-                case BOTTOMRIGHT:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
-                    else
-                        wrect.x = arect.x + arect.width - wrect.width;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
@@ -460,6 +449,17 @@ namespace z0 {
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     break;
                 case TOPRIGHT:
+                    if (wrect.width > arect.width)
+                        wrect.x = 0;
+                    else
+                        wrect.x = arect.x + arect.width - wrect.width;
+                    if (wrect.height > arect.height)
+                        wrect.y = 0;
+                    else
+                        wrect.y = arect.y + arect.height - wrect.height;
+                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
+                    break;
+                case BOTTOMRIGHT:
                     wrect.y = arect.y;
                     if (wrect.width > arect.width)
                         wrect.x = 0;
@@ -470,14 +470,14 @@ namespace z0 {
                     arect.y += wrect.height + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     break;
-                case LEFTTOP:
+                case LEFTBOTTOM:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     arect.x += wrect.width + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
-                case LEFTBOTTOM:
+                case LEFTTOP:
                     wrect.x = arect.x;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
@@ -485,20 +485,20 @@ namespace z0 {
                         wrect.y = arect.y + arect.height - wrect.height;
                     arect.x += wrect.width + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
-                    break;
-                case RIGHTBOTTOM:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
-                    else
-                        wrect.x = arect.x + arect.width - wrect.width;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
-                    else
-                        wrect.y = arect.y + arect.height - wrect.height;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
                 case RIGHTTOP:
+                    if (wrect.width > arect.width)
+                        wrect.x = 0;
+                    else
+                        wrect.x = arect.x + arect.width - wrect.width;
+                    if (wrect.height > arect.height)
+                        wrect.y = 0;
+                    else
+                        wrect.y = arect.y + arect.height - wrect.height;
+                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                    break;
+                case RIGHTBOTTOM:
                     wrect.y = arect.y;
                     if (wrect.width > arect.width)
                         wrect.x = 0;
@@ -506,29 +506,29 @@ namespace z0 {
                         wrect.x = arect.x + arect.width - wrect.width;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
-                case CORNERTOPLEFT:
+                case CORNERBOTTOMLEFT:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     arect.y += wrect.height + padding;
                     break;
-                case CORNERBOTTOMLEFT:
+                case CORNERTOPLEFT:
                     wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
-                    else
-                        wrect.y = arect.y + arect.height - wrect.height;
-                    break;
-                case CORNERBOTTOMRIGHT:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
-                    else
-                        wrect.x = arect.x + arect.width - wrect.width;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
                         wrect.y = arect.y + arect.height - wrect.height;
                     break;
                 case CORNERTOPRIGHT:
+                    if (wrect.width > arect.width)
+                        wrect.x = 0;
+                    else
+                        wrect.x = arect.x + arect.width - wrect.width;
+                    if (wrect.height > arect.height)
+                        wrect.y = 0;
+                    else
+                        wrect.y = arect.y + arect.height - wrect.height;
+                    break;
+                case CORNERBOTTOMRIGHT:
                     wrect.y = arect.y;
                     if (wrect.width > arect.width)
                         wrect.x = 0;
@@ -542,6 +542,7 @@ namespace z0 {
             }
             w->rect = wrect;
             w->eventResize();
+            ++it;
         }
         freeze = false;
     }

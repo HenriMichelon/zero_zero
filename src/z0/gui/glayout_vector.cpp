@@ -56,7 +56,7 @@ namespace z0 {
 
     void GLayoutVector::addResource(GWidget&W, const string&RES)
     {
-        auto res = make_shared<GResourceVector>(RES);
+        auto res = make_shared<GLayoutVectorResource>(RES);
         W.setResource(res);
         W.setSize(res->width, res->height);
         switch (W.getType()) {
@@ -130,7 +130,7 @@ namespace z0 {
     }
 
     void GLayoutVector::draw(const GWidget&W, GResource&RES, VectorRenderer&D, bool BEFORE) const {
-        auto &res = (GResourceVector &)RES;
+        auto &res = (GLayoutVectorResource &)RES;
         if (!W.isVisible()) { return; }
         if (BEFORE) {
             switch (W.getType()) {
@@ -208,7 +208,7 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::drawPanel(const GPanel&W, GResourceVector&RES, VectorRenderer&D) const {
+    void GLayoutVector::drawPanel(const GPanel&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
         if (W.isDrawBackground()) {
             D.setPenColor(background);
             D.drawFilledRect(W.getRect());
@@ -216,7 +216,7 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::drawBox(const GWidget&W, GResourceVector&RES, VectorRenderer&D) const {
+    void GLayoutVector::drawBox(const GWidget&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
         if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
         uint32_t l = W.getRect().x;
         uint32_t b = W.getRect().y;
@@ -231,12 +231,12 @@ namespace z0 {
             }
             D.drawFilledRect(W.getRect());
         }
-        if (RES.style != GResourceVector::FLAT) {
+        if (RES.style != GLayoutVectorResource::FLAT) {
             switch (RES.style) {
-                case GResourceVector::LOWERED:
+                case GLayoutVectorResource::LOWERED:
                     D.setPenColor(shadowBright);
                     break;
-                case GResourceVector::RAISED:
+                case GLayoutVectorResource::RAISED:
                     D.setPenColor(shadowDark);
                     break;
                 default:
@@ -245,10 +245,10 @@ namespace z0 {
             D.drawLine({l, b}, {l+w, b});
             D.drawLine({l, b}, {l, b+h});
             switch (RES.style) {
-                case GResourceVector::RAISED:
+                case GLayoutVectorResource::RAISED:
                     D.setPenColor(shadowBright);
                     break;
-                case GResourceVector::LOWERED:
+                case GLayoutVectorResource::LOWERED:
                     D.setPenColor(shadowDark);
                     break;
                 default:
@@ -266,15 +266,15 @@ namespace z0 {
 
     /*
     //----------------------------------------------
-    void GLayoutVector::DrawLine(GLine&W, GResourceVector&, VectorRenderer&, floatRES)
+    void GLayoutVector::DrawLine(GLine&W, GLayoutVectorResource&, VectorRenderer&, floatRES)
     {
         Color c1, c2;
         switch (RES.style) {
-            case GResourceVector::LOWERED:
+            case GLayoutVectorResource::LOWERED:
                 c1 = shadowDark;
                 c2 = shadowBright;
                 break;
-            case GResourceVector::RAISED:
+            case GLayoutVectorResource::RAISED:
                 c1 = shadowBright;
                 c2 = shadowDark;
                 break;
@@ -300,7 +300,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawFrame(GFrame&W, GResourceVector&, VectorRenderer&, floatRES)
+    void GLayoutVector::DrawFrame(GFrame&W, GLayoutVectorResource&, VectorRenderer&, floatRES)
     {
         const uint32_t LEFTOFFSET = 8;
 
@@ -315,15 +315,15 @@ namespace z0 {
         Color c1;
         Color c2;
         switch (RES.style) {
-            case GResourceVector::RAISED:
+            case GLayoutVectorResource::RAISED:
                 c1 = shadowBright;
                 c2 = shadowDark;
                 break;
-            case GResourceVector::LOWERED:
+            case GLayoutVectorResource::LOWERED:
                 c1 = shadowDark;
                 c2 = shadowBright;
                 break;
-            case GResourceVector::FLAT:
+            case GLayoutVectorResource::FLAT:
                 c1 = shadowDark;
                 c2 = shadowDark;
                 break;
@@ -359,7 +359,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawArrow(GArrow&W, GResourceVector&, VectorRenderer&, float)
+    void GLayoutVector::DrawArrow(GArrow&W, GLayoutVectorResource&, VectorRenderer&, float)
     {
         if ((W.Width() < 4) || (W.Height() < 4)) return;
         //dprintf("Draw Arrow %x\n", &W);
@@ -418,15 +418,15 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawToggleButton(GToggleButton&W, GResourceVector&, VectorRenderer&, floatRESR)
+    void GLayoutVector::DrawToggleButton(GToggleButton&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
     {
         W.SetDrawBackground(!RES.flat);
         if (W.State() == GCheckWidget::CHECK) {
-            RES.style = GResourceVector::LOWERED;
+            RES.style = GLayoutVectorResource::LOWERED;
             W.Pushed() = true;
         }
         else {
-            RES.style = GResourceVector::RAISED;
+            RES.style = GLayoutVectorResource::RAISED;
             W.Pushed() = FALSE;
         }
         DrawBox(W, D, RES, R);
@@ -434,24 +434,24 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawButton(GButton&W, GResourceVector&, VectorRenderer&, floatRESR)
+    void GLayoutVector::DrawButton(GButton&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
     {
         //dprintf("Draw Button %x\n", &W);
         //W.SetDrawBackground(!RES.flat);
         if (W.Pushed()) {
-            RES.style = GResourceVector::LOWERED;
+            RES.style = GLayoutVectorResource::LOWERED;
         }
         else {
             if (RES.flat) {
                 if (W.Pointed()) {
-                    RES.style = GResourceVector::RAISED;
+                    RES.style = GLayoutVectorResource::RAISED;
                 }
                 else {
-                    RES.style = GResourceVector::FLAT;
+                    RES.style = GLayoutVectorResource::FLAT;
                 }
             }
             else {
-                RES.style = GResourceVector::RAISED;
+                RES.style = GLayoutVectorResource::RAISED;
             }
         }
         DrawBox(W, D, RES, R);
@@ -459,7 +459,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawCheckmark(GCheckmark&W, GResourceVector&, VectorRenderer&, float)
+    void GLayoutVector::DrawCheckmark(GCheckmark&W, GLayoutVectorResource&, VectorRenderer&, float)
     {
         if ((W.Width() < 5) || (W.Height() < 5)) return;
 
@@ -483,7 +483,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawText(GText&W, GResourceVector&, VectorRenderer&, floatRESR)
+    void GLayoutVector::DrawText(GText&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
     {
         if ((!W.Width()) && W.Text().Len()) {
             W.ComputeSize();
@@ -494,7 +494,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawTextEdit(GTextEdit&W, GResourceVector&, VectorRenderer&, floatRESR)
+    void GLayoutVector::DrawTextEdit(GTextEdit&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
     {
         if (W.HaveFocus() && (!W.ReadOnly())) {
             UStringz txt = W.DisplayedText().Left(W.SelStart() -
@@ -512,7 +512,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayoutVector::DrawProgressBar(GProgressBar&W, GResourceVector&, VectorRenderer&, float)
+    void GLayoutVector::DrawProgressBar(GProgressBar&W, GLayoutVectorResource&, VectorRenderer&, float)
     {
         D.SetPenColor(fgDown);
         if (W.Max() > W.Min()) {
@@ -545,7 +545,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawSelection(GSelection&W, VectorRenderer&D,
-                                      GResourceVector&)
+                                      GLayoutVectorResource&)
     {
         D.SetPenColor(fgDown);
         D.DrawRect(W.Rect());
@@ -555,7 +555,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawTrackBar(GTrackBar&W, VectorRenderer&D,
-                                     GResourceVector&)
+                                     GLayoutVectorResource&)
     {
         if (W.TrackBarType() == GTrackBar::HORIZ) {
             _LONG left = W.Left() + W.tracker.Width()/2 - 1;
@@ -592,7 +592,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawTabs(GTabs&W, VectorRenderer&D,
-                                 GResourceVector&)
+                                 GLayoutVectorResource&)
     {
         D.SetPenColor(shadowBright);
         if (W.Childs().Count() == 0) {
@@ -617,7 +617,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawTabButton(GTabButton&W, VectorRenderer&D,
-                                      GResourceVector&RES)
+                                      GLayoutVectorResource&RES)
     {
         if ((W.Width()<4) || (W.Height()<4)) { return; }
         uint32_t l = W.Rect().left;
@@ -653,7 +653,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawRoundButton(GRoundButton&W, VectorRenderer&D,
-                                        GResourceVector&)
+                                        GLayoutVectorResource&)
     {
         uint32_t beam = MIN(W.Width() / 2, W.Height() / 2);
         uint32_t outer = beam / 3;
@@ -712,7 +712,7 @@ namespace z0 {
 
 //--------------------------------------------------------------------------
     void GLayoutVector::DrawGridCell(GGridCell&W, VectorRenderer&D,
-                                     GResourceVector&RES)
+                                     GLayoutVectorResource&RES)
     {
         if ((W.Width()<2) || (W.Height()<2)) { return; }
         uint32_t l = W.Rect().left;
@@ -722,7 +722,7 @@ namespace z0 {
         --w;
         --h;
         switch (RES.style) {
-            case GResourceVector::LOWERED:
+            case GLayoutVectorResource::LOWERED:
                 D.SetPenColor(shadowBright);
                 break;
             default:

@@ -2,7 +2,7 @@
 
 #include "z0/color.h"
 #include "z0/gui/gpanel.h"
-#include "z0/gui/gresource_vector.h"
+#include "z0/gui/glayout_vector_resource.h"
 
 namespace z0 {
 
@@ -30,23 +30,23 @@ namespace z0 {
 
         void updateOptions() override;
         Color extractColor(const string&, float, float, float);
-        void drawPanel(const GPanel&, GResourceVector&, VectorRenderer&) const;
-        void drawBox(const GWidget&, GResourceVector&, VectorRenderer&) const;
-        /*void drawLine(GLine&, GResourceVector&, VectorRenderer&);
-        void drawFrame(GFrame&, GResourceVector&, VectorRenderer&);
-        void drawArrow(GArrow&, GResourceVector&, VectorRenderer&);
-        void drawButton(GButton&, GResourceVector&, VectorRenderer&);
-        void drawCheckmark(GCheckmark&, GResourceVector&, VectorRenderer&);
-        void drawText(GText&, GResourceVector&, VectorRenderer&);
-        void drawTextEdit(GTextEdit&, GResourceVector&, VectorRenderer&);
-        void drawProgressBar(GProgressBar&, GResourceVector&, VectorRenderer&);
-        void drawSelection(GSelection&, GResourceVector&, VectorRenderer&);
-        void drawTrackBar(GTrackBar&, GResourceVector&, VectorRenderer&);
-        void drawToggleButton(GToggleButton&, GResourceVector&, VectorRenderer&);
-        void drawRoundButton(GRoundButton&, GResourceVector&, VectorRenderer&);
-        void drawTabButton(GTabButton&, GResourceVector&, VectorRenderer&);
-        void drawTabs(GTabs&, GResourceVector&, VectorRenderer&);
-        void drawGridCell(GGridCell&, GResourceVector&, VectorRenderer&);*/
+        void drawPanel(const GPanel&, GLayoutVectorResource&, VectorRenderer&) const;
+        void drawBox(const GWidget&, GLayoutVectorResource&, VectorRenderer&) const;
+        /*void drawLine(GLine&, GLayoutVectorResource&, VectorRenderer&);
+        void drawFrame(GFrame&, GLayoutVectorResource&, VectorRenderer&);
+        void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
+        void drawButton(GButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
+        void drawText(GText&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
+        void drawProgressBar(GProgressBar&, GLayoutVectorResource&, VectorRenderer&);
+        void drawSelection(GSelection&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTrackBar(GTrackBar&, GLayoutVectorResource&, VectorRenderer&);
+        void drawToggleButton(GToggleButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawRoundButton(GRoundButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTabButton(GTabButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTabs(GTabs&, GLayoutVectorResource&, VectorRenderer&);
+        void drawGridCell(GGridCell&, GLayoutVectorResource&, VectorRenderer&);*/
 
     };
 
