@@ -19,13 +19,16 @@ namespace z0 {
 
     private:
         shared_ptr<VectorRenderer>& vectorRenderer;
-        list<shared_ptr<GWindow>> windows;
-        bool needRedraw{false};
+        list<shared_ptr<GWindow>>   windows;
+        GWindow*                    focusedWindow{nullptr};
+        bool                        needRedraw{false};
 
         void drawFrame();
+        void windowHidden(GWindow*);
+        void windowShown(GWindow*);
 
         friend class Application;
-
+        friend class GWindow;
     };
 
 }

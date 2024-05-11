@@ -20,9 +20,8 @@ void UIMainScene::onReady() {
     sphere = Loader::loadModelFromFile("examples/models/sphere.glb");
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);
-    auto window1 = make_shared<GWindow>(Rect{250, 950, 500, 25});
     //window1->setBgColor({1.0, 0.647, 0.0, 1.0});
-    Application::add(window1);
+    Application::add(make_shared<GWindow>(Rect{250, 950, 500, 25}));
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     //window2->setBgColor({1.0, 0.647, 0.0, 0.1});
     Application::add(window2);

@@ -211,7 +211,7 @@ namespace z0 {
 #endif
     }
 
-    void Application::add(const shared_ptr<z0::GWindow> window) {
+    void Application::add(const shared_ptr<z0::GWindow>& window) {
         _instance->windowManager->add(window);
     }
 

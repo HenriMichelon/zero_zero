@@ -29,4 +29,22 @@ namespace z0 {
         needRedraw = true;
     }
 
+    void GManager::windowHidden(GWindow *window) {
+        if (focusedWindow == window) {
+            window->eventLostFocus();
+            if (windows.empty()) {
+                focusedWindow = nullptr;
+            } else {
+                focusedWindow = windows.back().get();
+                focusedWindow->eventGotFocus();
+            }
+        }
+    }
+
+    void GManager::windowShown(GWindow *window) {
+        if (focusedWindow) { focusedWindow->eventLostFocus(); }
+        focusedWindow = window;
+        window->eventGotFocus();
+    }
+
 }

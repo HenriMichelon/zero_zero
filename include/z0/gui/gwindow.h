@@ -72,7 +72,10 @@ namespace z0 {
         /*! Event called when (after) the window manager need to hide the window */
         virtual void onHide() {};
 
+        /*! Event called after a size change */
         virtual void onResize() {};
+
+        /*! Event called after a position change */
         virtual void onMove() {};
 
         /*! Event called when a key was pressed */
@@ -96,12 +99,10 @@ namespace z0 {
         /*! Event called when the window lost the keyboard focus */
         virtual void onLostFocus() {};
 
-        /*! draw the window and his widget */
-        void draw() const;
 
     private:
-        GManager*           windowManager{nullptr};
         Rect                rect;
+        GManager*           windowManager{nullptr};
         bool                visible{true};
         shared_ptr<GLayout> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
@@ -109,6 +110,7 @@ namespace z0 {
 
         void unFreeze(shared_ptr<GWidget>&);
         void refresh();
+        void draw() const;
 
         friend class GManager;
 

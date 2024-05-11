@@ -86,6 +86,7 @@ namespace z0 {
     }
 
     void GWindow::eventShow() {
+        if (windowManager) { windowManager->windowShown(this); }
         if (widget) { widget->eventShow(); }
         onShow();
         refresh();
@@ -189,6 +190,7 @@ namespace z0 {
     }
 
     void GWindow::eventHide() {
+        if (windowManager) { windowManager->windowHidden(this); }
         onHide();
         refresh();
     }
