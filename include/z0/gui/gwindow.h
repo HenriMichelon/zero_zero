@@ -79,10 +79,10 @@ namespace z0 {
         virtual void onMove() {};
 
         /*! Event called when a key was pressed */
-        virtual void onKeybDown(Key) {};
+        virtual bool onKeyDown(Key) { return false; };
 
         /*! Event called when a key was released */
-        virtual void onKeybUp(Key) {};
+        virtual bool onKeyUp(Key) { return false; };
 
         /*! Event called when a mouse button was pressed inside the window */
         virtual void onMouseDown(MouseButton, int32_t, int32_t) {};
@@ -120,8 +120,8 @@ namespace z0 {
         void eventResize();
         void eventMove();
         void eventHide();
-        void eventKeybDown(Key);
-        void eventKeybUp(Key);
+        bool eventKeybDown(Key);
+        bool eventKeybUp(Key);
         void eventMouseDown(MouseButton, int32_t, int32_t);
         void eventMouseUp(MouseButton, int32_t, int32_t);
         void eventMouseMove(MouseButton, int32_t, int32_t);

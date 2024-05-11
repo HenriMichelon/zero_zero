@@ -276,8 +276,8 @@ namespace z0 {
         virtual void eventDisable();
         virtual void eventMove(int32_t, int32_t);
         virtual void eventResize();
-        virtual Key eventKeybDown(Key);
-        virtual Key eventKeybUp(Key);
+        virtual bool eventKeybDown(Key);
+        virtual bool eventKeybUp(Key);
         virtual shared_ptr<GWidget> eventMouseDown(MouseButton, int32_t, int32_t);
         virtual void eventMouseUp(MouseButton, int32_t, int32_t);
         virtual void eventMouseMove(MouseButton, int32_t, int32_t);

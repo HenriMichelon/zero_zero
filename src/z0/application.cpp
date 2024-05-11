@@ -194,7 +194,8 @@ namespace z0 {
         }
     }
 
-    void Application::onInput(z0::InputEvent &inputEvent) {
+    void Application::onInput(InputEvent &inputEvent) {
+        if (windowManager->onInput(inputEvent)) { return; }
         input(rootNode, inputEvent);
     }
 
@@ -211,7 +212,7 @@ namespace z0 {
 #endif
     }
 
-    void Application::add(const shared_ptr<z0::GWindow>& window) {
+    void Application::add(const shared_ptr<GWindow>& window) {
         _instance->windowManager->add(window);
     }
 

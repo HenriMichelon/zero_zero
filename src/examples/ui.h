@@ -21,11 +21,13 @@ public:
     void onHide() override {
         cout << "onHide" << endl;
     };
-    void onKeybDown(Key) override {
-        cout << "onKeybDown" << endl;
+    bool onKeyDown(Key key) override {
+        cout << "onKeyDown " << key << endl;
+        return false;
     };
-    void onKeybUp(Key) override {
-        cout << "onKeybUp" << endl;
+    bool onKeyUp(Key key) override {
+        cout << "onKeyUp " << key << endl;
+        return false;
     };
     void onMouseDown(MouseButton, int32_t, int32_t) override {
         cout << "onMouseDown" << endl;

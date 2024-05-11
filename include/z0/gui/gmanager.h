@@ -24,6 +24,7 @@ namespace z0 {
         bool                        needRedraw{false};
 
         void drawFrame();
+        bool onInput(InputEvent& inputEvent);
         void windowHidden(GWindow*);
         void windowShown(GWindow*);
 

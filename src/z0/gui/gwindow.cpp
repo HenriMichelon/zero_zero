@@ -92,26 +92,24 @@ namespace z0 {
         refresh();
     }
 
-    void GWindow::eventKeybDown(Key K) {
-/*	if ((K == keyb.KEY_TAB) && widget)
-	{
-//		widget->ClosePopup();
-		if (focusedWidget)
-			focusedWidget = focusedWidget->SetNextFocus();
-		else
-			focusedWidget = widget->SetFocus();
-	}
-	else*/ if (focusedWidget != nullptr) {
-            focusedWidget->eventKeybDown(K);
+    bool GWindow::eventKeybDown(Key K) {
+        bool consumed = false;
+	    if (focusedWidget) {
+            consumed = focusedWidget->eventKeybDown(K);
         }
-        onKeybDown(K);
+        consumed |= onKeyDown(K);
         refresh();
+        return consumed;
     }
 
-    void GWindow::eventKeybUp(Key K) {
-        if (focusedWidget != nullptr) focusedWidget->eventKeybUp(K);
-        onKeybUp(K);
+    bool GWindow::eventKeybUp(Key K) {
+        bool consumed = false;
+        if (focusedWidget) {
+            focusedWidget->eventKeybUp(K);
+        }
+        consumed |= onKeyUp(K);
         refresh();
+        return consumed;
     }
 
     void GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {

@@ -29,6 +29,22 @@ namespace z0 {
         needRedraw = true;
     }
 
+    bool GManager::onInput(InputEvent &inputEvent) {
+        try {
+            auto& keyInputEvent = dynamic_cast<InputEventKey&>(inputEvent);
+            if (focusedWindow != nullptr) {
+                if (keyInputEvent.isPressed()) {
+                    focusedWindow->eventKeybDown(keyInputEvent.getKeyCode());
+                } else {
+                    focusedWindow->eventKeybUp(keyInputEvent.getKeyCode());
+                }
+            }
+            return false;
+        } catch (const std::bad_cast& e) {
+            return false;
+        }
+    }
+
     void GManager::windowHidden(GWindow *window) {
         if (focusedWindow == window) {
             window->eventLostFocus();

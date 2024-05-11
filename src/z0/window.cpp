@@ -8,7 +8,7 @@
 #ifdef _WIN32
 char szClassName[ ] = "WindowsApp";
 
-int _getModifiers() {
+int _getKeyboardModifiers() {
     int modifiers = 0;
     if (GetKeyState(VK_SHIFT) & 0x8000) modifiers |= z0::KEY_MODIFIER_SHIFT;
     if (GetKeyState(VK_CONTROL) & 0x8000) modifiers |= z0::KEY_MODIFIER_CONTROL;
@@ -54,7 +54,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyJustPressedStates[key] = !z0::Input::_keyPressedStates[key];
             z0::Input::_keyPressedStates[key] = true;
             z0::Input::_keyJustReleasedStates[key] = false;
-            auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
             z0::Application::get().onInput(event);
             break;
         }
@@ -64,7 +64,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyPressedStates[key] = false;
             z0::Input::_keyJustPressedStates[key] = false;
             z0::Input::_keyJustReleasedStates[key] = true;
-            auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getModifiers()};
+            auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
             z0::Application::get().onInput(event);
             break;
         }

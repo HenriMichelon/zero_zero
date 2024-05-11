@@ -549,21 +549,21 @@ namespace z0 {
         freeze = false;
     }
 
-    Key GWidget::eventKeybDown(Key K) {
-        //PRE(enabled, "Disabled widget received a KeybUp event");
+    bool GWidget::eventKeybDown(Key K) {
+        if (!enabled) { return false; }
         auto event = make_shared<GEventKeyb>(K);
-        call(GEvent::OnKeybDown, event);
-        return event->key;
+        call(GEvent::OnKeybDown, event); // XXX consumed
+        return false;
     }
 
-    Key GWidget::eventKeybUp(Key K) {
-        //PRE(enabled, "Disabled widget received a KeybUp event");
+    bool GWidget::eventKeybUp(Key K) {
+        if (!enabled) { return false; }
         if (focused) {
             auto event = make_shared<GEventKeyb>(K);
-            call(GEvent::OnKeybUp, event);
-            return event->key;
+            call(GEvent::OnKeybUp, event); // XXX consumed
+            return false;
         }
-        return K;
+        return false;
     }
 
     shared_ptr<GWidget> GWidget::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
