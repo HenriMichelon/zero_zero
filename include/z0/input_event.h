@@ -31,6 +31,20 @@ namespace z0 {
         int modifiers;
     };
 
+    class InputEventMouseButton: public InputEvent {
+    public:
+        InputEventMouseButton(MouseButton button, bool pressed, int modifiers);
+
+        MouseButton getMouseButton() const { return button; }
+        bool isPressed() const { return pressed; }
+        int getModifiers() const { return modifiers; }
+
+    private:
+        MouseButton button;
+        bool pressed;
+        int modifiers;
+    };
+
     class InputEventMouseMotion: public InputEvent {
     public:
         InputEventMouseMotion(float posX, float posY, float relativeX, float relativeY);
