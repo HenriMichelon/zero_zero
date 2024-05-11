@@ -180,8 +180,10 @@ namespace z0 {
         refresh();
     }
 
-    shared_ptr<GWidget> GWidget::add(shared_ptr<GWidget>WND, AlignmentType ALIGN, const string&RES,
-                          uint32_t P) {
+    shared_ptr<GWidget> GWidget::add(shared_ptr<GWidget>WND,
+                                     AlignmentType ALIGN,
+                                     const string RES,
+                                     uint32_t P) {
         //PRE(window, "GWidget::Add: widget must be added to another widget before use");
         if (!allowChilds) return WND;
         children.push_back(WND);

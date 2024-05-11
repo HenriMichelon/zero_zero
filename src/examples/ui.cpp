@@ -5,6 +5,7 @@
 #include "z0/loader.h"
 #include "z0/application.h"
 #include "z0/gui/gwidget.h"
+#include "z0/gui/gline.h"
 
 #include "ui.h"
 
@@ -24,7 +25,7 @@ void UIMainScene::onReady() {
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     //window2->setBgColor({1.0, 0.647, 0.0, 0.1});
     //window2->setWidget(widget2);
-    window2->getWidget().add(make_shared<GWidget>(GWidget::Type::BOX), GWidget::CORNERTOPRIGHT, "70,40,RAISED");
+    window2->getWidget().add(make_shared<GVLine>(), GWidget::VCENTER, ",,LOWERED");
     Application::add(window2);
 }
 

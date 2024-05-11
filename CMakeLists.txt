@@ -101,10 +101,11 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/gui/gevent.h
 		${Z0_INCLUDE_DIR}/gui/gresource.h
 		${Z0_INCLUDE_DIR}/gui/glayout.h
-		${Z0_INCLUDE_DIR}/gui/gpanel.h
 		${Z0_INCLUDE_DIR}/gui/gmanager.h
 		${Z0_INCLUDE_DIR}/gui/glayout_vector.h
 		${Z0_INCLUDE_DIR}/gui/glayout_vector_resource.h
+		${Z0_INCLUDE_DIR}/gui/gpanel.h
+		${Z0_INCLUDE_DIR}/gui/gline.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -154,6 +155,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/glayout_vector.cpp
 		${Z0_ENGINE_DIR}/gui/glayout_vector_resource.cpp
+		${Z0_ENGINE_DIR}/gui/gline.cpp
 
 		${SRC_DIR}/libraries.cpp
 

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "z0/color.h"
-#include "z0/gui/gpanel.h"
 #include "z0/gui/glayout_vector_resource.h"
+#include "z0/gui/gpanel.h"
+#include "z0/gui/gline.h"
 
 namespace z0 {
 
@@ -32,8 +33,8 @@ namespace z0 {
         Color extractColor(const string&, float, float, float);
         void drawPanel(const GPanel&, GLayoutVectorResource&, VectorRenderer&) const;
         void drawBox(const GWidget&, GLayoutVectorResource&, VectorRenderer&) const;
-        /*void drawLine(GLine&, GLayoutVectorResource&, VectorRenderer&);
-        void drawFrame(GFrame&, GLayoutVectorResource&, VectorRenderer&);
+        void drawLine(GLine&, GLayoutVectorResource&, VectorRenderer&) const;
+        /*void drawFrame(GFrame&, GLayoutVectorResource&, VectorRenderer&);
         void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
         void drawButton(GButton&, GLayoutVectorResource&, VectorRenderer&);
         void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);

@@ -145,11 +145,11 @@ namespace z0 {
                 case GWidget::SCROLLBOX:
                     drawBox(W, res, D);
                     break;
+                case GWidget::LINE:
+                    drawLine((GLine&)W, res, D);
+                    break;
                 /*case GWidget::GRIDCELL:
                     DrawGridCell((GGridCell&)W, D, res);
-                    break;
-                case GWidget::LINE:
-                    DrawLine((GLine&)W, D, res);
                     break;
                 case GWidget::FRAME:
                     DrawFrame((GFrame&)W, D, res);
@@ -264,17 +264,14 @@ namespace z0 {
         }
     }
 
-    /*
-    //----------------------------------------------
-    void GLayoutVector::DrawLine(GLine&W, GLayoutVectorResource&, VectorRenderer&, floatRES)
-    {
+    void GLayoutVector::drawLine(GLine&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
         Color c1, c2;
         switch (RES.style) {
-            case GLayoutVectorResource::LOWERED:
+            case GLayoutVectorResource::RAISED:
                 c1 = shadowDark;
                 c2 = shadowBright;
                 break;
-            case GLayoutVectorResource::RAISED:
+            case GLayoutVectorResource::LOWERED:
                 c1 = shadowBright;
                 c2 = shadowDark;
                 break;
@@ -283,21 +280,21 @@ namespace z0 {
                 c2 = shadowDark;
                 break;
         }
-        Rect rect = W.Rect();
-        D.SetPenColor(c1);
-        if (W.Style() == GLine::HORIZ)
-            D.DrawLine(rect.left, rect.top, rect.left+rect.width-1, rect.top);
-        else if (W.Style() == GLine::VERT)
-            D.DrawLine(rect.left, rect.top, rect.left, rect.top+rect.height-1);
-        D.SetPenColor(c2);
-        if (W.Style() == GLine::HORIZ)
-            D.DrawLine(rect.left, rect.top+1, rect.left+rect.width-1, rect.top+1);
-        else if (W.Style() == GLine::VERT)
-            D.DrawLine(rect.left+1, rect.top, rect.left+1, rect.top+rect.height-1);
+        auto rect = W.getRect();
+        D.setPenColor(c1);
+        if (W.getStyle() == GLine::HORIZ)
+            D.drawLine({rect.x, rect.y}, {rect.x+rect.width, rect.y});
+        else if (W.getStyle() == GLine::VERT)
+            D.drawLine({rect.x, rect.y}, {rect.x, rect.y+rect.height});
+        D.setPenColor(c2);
+        if (W.getStyle() == GLine::HORIZ)
+            D.drawLine({rect.x, rect.y+1}, {rect.x+rect.width, rect.y+1});
+        else if (W.getStyle() == GLine::VERT)
+            D.drawLine({rect.x+1, rect.y}, {rect.x+1, rect.y+rect.height});
     }
 
 
-
+/*
 
 //----------------------------------------------
     void GLayoutVector::DrawFrame(GFrame&W, GLayoutVectorResource&, VectorRenderer&, floatRES)

@@ -165,7 +165,7 @@ namespace z0 {
             \param	string	: resource string
             \param	uint32_t	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, const string&, uint32_t = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, const string ="", uint32_t = 0);
 
         /*! Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
