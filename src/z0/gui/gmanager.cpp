@@ -30,19 +30,17 @@ namespace z0 {
     }
 
     bool GManager::onInput(InputEvent &inputEvent) {
-        try {
-            auto& keyInputEvent = dynamic_cast<InputEventKey&>(inputEvent);
-            if (focusedWindow != nullptr) {
+        if (inputEvent.getType() == INPUT_EVENT_KEY) {
+            auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
+            if ((focusedWindow != nullptr) && (focusedWindow->isVisible())) {
                 if (keyInputEvent.isPressed()) {
-                    focusedWindow->eventKeybDown(keyInputEvent.getKeyCode());
+                    return focusedWindow->eventKeybDown(keyInputEvent.getKeyCode());
                 } else {
-                    focusedWindow->eventKeybUp(keyInputEvent.getKeyCode());
+                    return focusedWindow->eventKeybUp(keyInputEvent.getKeyCode());
                 }
             }
-            return false;
-        } catch (const std::bad_cast& e) {
-            return false;
         }
+        return false;
     }
 
     void GManager::windowHidden(GWindow *window) {

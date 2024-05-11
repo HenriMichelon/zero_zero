@@ -5,25 +5,9 @@
 
 namespace z0 {
 
-    GWidget::GWidget(Type T): focused(false),
-                                    allowFocus(false), allowChilds(true),
-                                    drawBackground(true),
-                                    moveChildsOnPush(false),
-                                    redrawOnMouseEvent(false),
-                                    redrawOnMouseMove(false),
-                                    mouseMoveOnFocus(false),
-                                    font(nullptr),
-                                    parent(nullptr), window(nullptr),
-            //popup(nullptr),
-                                    type(T),
-                                    alignment(NONE),
-                                    layout(nullptr)
-    {
-        transparent = (type == WIDGET);
-        hborder = vborder = padding = groupIndex = 0;
-        userData = nullptr;
-        moveChildsNow = pushed = pointed = false;
-        visible = freeze = enabled = true;
+    GWidget::GWidget(Type T):
+        type{T},
+        transparent{type == WIDGET} {
     }
 
     void GWidget::draw(VectorRenderer &R) const {
@@ -185,7 +169,7 @@ namespace z0 {
                                      const string RES,
                                      uint32_t P) {
         //PRE(window, "GWidget::Add: widget must be added to another widget before use");
-        if (!allowChilds) return WND;
+        if (!allowChildren) return WND;
         children.push_back(WND);
         init(*WND, ALIGN, RES, P);
         return WND;
@@ -213,11 +197,7 @@ namespace z0 {
 
     void GWidget::call(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
         const GWidget::GEventSlot &slot = slots[TYP];
-        if (slot.func) {
-            //ASSERT(slot.obj);
-            //(slot.obj->*slot.func)(*this, EVT);
-            die("Not implemented");
-        }
+        if (slot.func) { (slot.obj->*slot.func)(*this, EVT.get()); }
     }
 
     void GWidget::eventCreate() {
@@ -552,7 +532,7 @@ namespace z0 {
     bool GWidget::eventKeybDown(Key K) {
         if (!enabled) { return false; }
         auto event = make_shared<GEventKeyb>(K);
-        call(GEvent::OnKeybDown, event); // XXX consumed
+        call(GEvent::OnKeyDown, event); // XXX consumed
         return false;
     }
 
@@ -560,7 +540,7 @@ namespace z0 {
         if (!enabled) { return false; }
         if (focused) {
             auto event = make_shared<GEventKeyb>(K);
-            call(GEvent::OnKeybUp, event); // XXX consumed
+            call(GEvent::OnKeyUp, event); // XXX consumed
             return false;
         }
         return false;

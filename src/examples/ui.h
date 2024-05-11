@@ -1,4 +1,5 @@
 #include <z0/nodes/node.h>
+#include <z0/gui/gevent.h>
 using namespace z0;
 
 class Window2 : public GWindow {
@@ -6,6 +7,9 @@ public:
     explicit Window2(Rect rect) : GWindow{rect} {}
 
     void onCreate() override;
+    bool onKeyDown(Key key) override;
+    bool onKeyUp(Key key) override;
+
     void onDestroy() override {
         cout << "onDestroy" << endl;
     };
@@ -20,14 +24,6 @@ public:
     };
     void onHide() override {
         cout << "onHide" << endl;
-    };
-    bool onKeyDown(Key key) override {
-        cout << "onKeyDown " << key << endl;
-        return false;
-    };
-    bool onKeyUp(Key key) override {
-        cout << "onKeyUp " << key << endl;
-        return false;
     };
     void onMouseDown(MouseButton, int32_t, int32_t) override {
         cout << "onMouseDown" << endl;
@@ -44,6 +40,9 @@ public:
     void onLostFocus() override {
         cout << "onLostFocus" << endl;
     };
+
+private:
+    void onBoxCreate(GWidget&, GEvent*);
 };
 
 class UIMainScene: public Node {
@@ -52,6 +51,7 @@ public:
     void onReady() override;
     void onPhysicsProcess(float delta) override;
     void onProcess(float alpha) override;
+    bool onInput(z0::InputEvent &inputEvent) override;
 private:
     shared_ptr<Node> sphere;
     shared_ptr<Window2> window2;

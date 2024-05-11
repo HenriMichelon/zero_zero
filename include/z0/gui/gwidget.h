@@ -9,8 +9,6 @@ namespace z0 {
 
     class GWidget: public Object {
     public:
-        typedef void (*GEventFunction)(GWidget&, GEvent*);
-        
         enum Type {
             WIDGET,				// transparent widget
             PANEL,				// rectangular widget with only a background
@@ -240,26 +238,26 @@ namespace z0 {
         void draw(VectorRenderer&) const;
         
     protected:
-        int32_t			          hborder;
-        int32_t			          vborder;
-        int32_t		              padding;
-        bool			          focused;
-        bool			          allowFocus;
-        bool			          allowChilds;
+        int32_t			          hborder{0};
+        int32_t			          vborder{0};
+        int32_t		              padding{0};
+        bool			          focused{false};
+        bool			          allowFocus{false};
+        bool			          allowChildren{true};
         bool			          transparent;
-        bool			          drawBackground;
-        bool			          moveChildsOnPush;
-        bool			          moveChildsNow;
-        bool			          redrawOnMouseEvent;
-        bool			          redrawOnMouseMove;
-        bool			          mouseMoveOnFocus;
+        bool			          drawBackground{true};
+        bool			          moveChildsOnPush{false};
+        bool			          moveChildsNow{false};
+        bool			          redrawOnMouseEvent{false};
+        bool			          redrawOnMouseMove{false};
+        bool			          mouseMoveOnFocus{false};
         Rect			          rect;
-        shared_ptr<Font>          font;
-        GWidget*		          parent;
-        GWindow*		          window;
+        shared_ptr<Font>          font{nullptr};
+        GWidget*		          parent{nullptr};
+        GWindow*		          window{nullptr};
         Type		              type;
-        AlignmentType             alignment;
-        shared_ptr<GLayout>	      layout;
+        AlignmentType             alignment{NONE};
+        shared_ptr<GLayout>	      layout{nullptr};
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 
@@ -290,14 +288,14 @@ namespace z0 {
             GEventFunction	func{nullptr};
         };
 
-        bool		pushed;
-        bool		pointed;
-        bool		freeze;
-        bool		enabled;
+        bool		pushed{false};
+        bool		pointed{false};
+        bool		freeze{true};
+        bool		enabled{true};
         bool		visible{true};
 
-        void*		userData;
-        int32_t		groupIndex;
+        void*		userData{nullptr};
+        int32_t		groupIndex{0};
         Rect		childrenRect;
         GEventSlot	slots[GEvent::nbEvents];
 

@@ -6,14 +6,14 @@
 
 namespace z0 {
 
-    class GEvent: public Object {
+    class GEvent {
     public:
         //! Event list
         enum Type {
             OnCreate,		//! called after widget creation (all widgets)
             OnDestroy,		//! called before widget destruction (all widgets)
-            OnKeybDown,		//! called when the user press a key & the widget have the keyboard focus (all widgets)
-            OnKeybUp, 		//! called when the user press a key & the widget have the keyboard focus (all widgets)
+            OnKeyDown,		//! called when the user press a key & the widget have the keyboard focus (all widgets)
+            OnKeyUp, 		//! called when the user press a key & the widget have the keyboard focus (all widgets)
             OnMouseDown,	//! the mouse button have been pressed above the widget or a child (all widgets)
             OnMouseUp,		//! the mouse button have been pressed above the widget or a child (all widgets)
             OnMouseMove,	//! the mouse have been moved above the widget (all widgets)
@@ -39,20 +39,14 @@ namespace z0 {
         } ;
     };
 
-
-//-------------------------------------------------------
-    class GEventKeyb: public GEvent
-    {
+    class GEventKeyb: public GEvent {
     public:
         Key	key;
 
-        GEventKeyb(Key K): key(K) { };
+        explicit GEventKeyb(Key K): key(K) { };
     };
 
-
-//-------------------------------------------------------
-    class GEventMouse: public GEvent
-    {
+    class GEventMouse: public GEvent {
     public:
         MouseButton	button;
         uint32_t	x;
@@ -63,10 +57,7 @@ namespace z0 {
         GEventMouse() = default;
     };
 
-
-//-------------------------------------------------------
-    class GEventSize: public GEvent
-    {
+    class GEventSize: public GEvent {
     public:
         uint32_t	width;
         uint32_t	height;
@@ -74,10 +65,7 @@ namespace z0 {
         GEventSize(uint32_t W, uint32_t H): width(W), height(H) {};
     };
 
-
-//-------------------------------------------------------
-    class GEventPos: public GEvent
-    {
+    class GEventPos: public GEvent {
     public:
         int32_t	top;
         int32_t	left;
@@ -85,10 +73,7 @@ namespace z0 {
         GEventPos(int32_t T, int32_t L): top(T), left(L) {};
     };
 
-
-//-------------------------------------------------------
-    class GEventValue: public GEvent
-    {
+    class GEventValue: public GEvent {
     public:
         int32_t	value;
         int32_t	previous;
@@ -96,10 +81,7 @@ namespace z0 {
         explicit GEventValue(int32_t V = 0, int32_t P = 0): value(V), previous(P)  {};
     };
 
-
-//-------------------------------------------------------
-    class GEventRange: public GEvent
-    {
+    class GEventRange: public GEvent {
     public:
         int32_t	min;
         int32_t	max;
@@ -109,38 +91,26 @@ namespace z0 {
                 value(V) { min = I; max = A; };
     };
 
-
-//-------------------------------------------------------
-    class GEventState: public GEvent
-    {
+    class GEventState: public GEvent {
     public:
         int32_t	state;
         explicit GEventState(int32_t S = 0): state(S) {};
     };
 
-
-//-------------------------------------------------------
-    class GEventText: public GEvent
-    {
+    class GEventText: public GEvent {
     public:
         const string	text;
         explicit GEventText(string  T = ""): text(std::move(T)) {};
         virtual ~GEventText() = default;
     };
 
-
-//-------------------------------------------------------
-    /*class GEventPicture: public GEvent
-    {
-    public:
+    /*class GEventPicture: public GEvent {
         IPixmap	*pixmap;
     };*/
 
     class GWidget;
 
-//-------------------------------------------------------
-    class GEventItem: public GEvent
-    {
+    class GEventItem: public GEvent {
     public:
         int32_t	index;
         shared_ptr<GWidget> item;
@@ -148,5 +118,7 @@ namespace z0 {
         GEventItem(int32_t I, shared_ptr<GWidget> S): index(I), item(std::move(S)) {};
         virtual ~GEventItem() = default;
     };
+
+    typedef void (Object::*GEventFunction)(GWidget&, GEvent*);
 
 }

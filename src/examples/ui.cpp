@@ -9,7 +9,34 @@
 #include "ui.h"
 
 void Window2::onCreate() {
-    getWidget().add(make_shared<GWidget>(GWidget::Type::BOX), GWidget::CENTER, "70,40,RAISED");
+    auto box = make_shared<GWidget>(GWidget::Type::BOX);
+    box->connect(GEvent::OnCreate, this, GEventFunction(&Window2::onBoxCreate));
+    getWidget().add(box, GWidget::CENTER, "70,40,RAISED");
+}
+
+bool Window2::onKeyDown(Key key) {
+    cout << "onKeyDown " << key << endl;
+    return false;
+};
+
+bool Window2::onKeyUp(Key key) {
+    cout << "onKeyUp " << key << endl;
+    return false;
+};
+
+void Window2::onBoxCreate(GWidget &widget, GEvent*) {
+    cout << "BOX CREATE" << endl;
+}
+
+bool UIMainScene::onInput(InputEvent &inputEvent) {
+    if (inputEvent.getType() == INPUT_EVENT_KEY) {
+        auto& keyInputEvent = dynamic_cast<InputEventKey&>(inputEvent);
+        if ((keyInputEvent.getKeyCode() == KEY_ENTER) && keyInputEvent.isPressed()) {
+            window2->setVisible(!window2->isVisible());
+            return true;
+        }
+    }
+    return false;
 }
 
 void UIMainScene::onReady() {
@@ -33,7 +60,5 @@ void UIMainScene::onPhysicsProcess(float delta) {
 }
 
 void UIMainScene::onProcess(float alpha) {
-    if (Input::isKeyJustPressed(KEY_ENTER)) {
-        window2->setVisible(!window2->isVisible());
-    }
+
 }
