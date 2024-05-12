@@ -12,17 +12,17 @@ namespace z0 {
 
     class GWidget;
 
-    class GLayout: public Object
+    class GStyle: public Object
     {
     public:
-        GLayout();
-        virtual ~GLayout() = default;
+        GStyle();
+        virtual ~GStyle() = default;
 
         /*! Create a new layout.
           \param	string	: layout name
           \return 	nullptr on error (unknown layout)
         */
-        static shared_ptr<GLayout> create(const string& = "vector");
+        static shared_ptr<GStyle> create(const string& = "vector");
 
         /*! Create a resource from a resource description string.
           \param	string : string that describe the resources of a widget

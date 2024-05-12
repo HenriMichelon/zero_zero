@@ -1,7 +1,7 @@
 #pragma once
 
 #include "z0/color.h"
-#include "z0/gui/glayout.h"
+#include "z0/gui/gstyle.h"
 
 namespace z0 {
 
@@ -13,11 +13,11 @@ namespace z0 {
         virtual ~GWindow() = default;
 
         /*! Return the current layout or nullptr */
-        shared_ptr<GLayout> getLayout() const;
+        shared_ptr<GStyle> getLayout() const;
 
         /*! Set the current layout.
             If nullptr, install a default layout */
-        void setLayout(shared_ptr<GLayout>);
+        void setLayout(shared_ptr<GStyle>);
 
         /*! Return the main widget .
             This is widget that cover the entire window and is the parent
@@ -106,7 +106,7 @@ namespace z0 {
         Rect                rect;
         GManager*           windowManager{nullptr};
         bool                visible{true};
-        shared_ptr<GLayout> layout{nullptr};
+        shared_ptr<GStyle> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};
         float               transparency{1.0};

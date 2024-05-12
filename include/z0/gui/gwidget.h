@@ -1,7 +1,7 @@
 #pragma once
 
 #include "z0/gui/gevent.h"
-#include "z0/gui/glayout.h"
+#include "z0/gui/gstyle.h"
 
 namespace z0 {
 
@@ -195,6 +195,7 @@ namespace z0 {
 
         void setTransparent(bool t) { transparent = t; }
         void setFreezed(bool f) { freeze = f; }
+        void setPushed(bool p) { pushed = p; }
 
         /*! Force a refresh of the entire widget */
         void refresh();
@@ -210,7 +211,7 @@ namespace z0 {
           \param	EventType	: event to simulate
           \param	GEvent		: event parameter.
         */
-        void call(GEvent::Type, shared_ptr<GEvent> = nullptr);
+        bool call(GEvent::Type, shared_ptr<GEvent> = nullptr);
 
         /*! Simulate a user/system event
           \param	EventType	: event to simulate
@@ -257,7 +258,7 @@ namespace z0 {
         GWindow*		          window{nullptr};
         Type		              type;
         AlignmentType             alignment{NONE};
-        shared_ptr<GLayout>	      layout{nullptr};
+        shared_ptr<GStyle>	      layout{nullptr};
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 

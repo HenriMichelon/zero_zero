@@ -100,12 +100,16 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/gui/gwidget.h
 		${Z0_INCLUDE_DIR}/gui/gevent.h
 		${Z0_INCLUDE_DIR}/gui/gresource.h
-		${Z0_INCLUDE_DIR}/gui/glayout.h
+		${Z0_INCLUDE_DIR}/gui/gstyle.h
 		${Z0_INCLUDE_DIR}/gui/gmanager.h
-		${Z0_INCLUDE_DIR}/gui/glayout_vector.h
-		${Z0_INCLUDE_DIR}/gui/glayout_vector_resource.h
+		${Z0_INCLUDE_DIR}/gui/gstyle_classic.h
+		${Z0_INCLUDE_DIR}/gui/gstyle_classic_resource.h
 		${Z0_INCLUDE_DIR}/gui/gpanel.h
 		${Z0_INCLUDE_DIR}/gui/gline.h
+		${Z0_INCLUDE_DIR}/gui/gbutton.h
+		${Z0_INCLUDE_DIR}/gui/gbox.h
+		${Z0_INCLUDE_DIR}/gui/gtoggle_button.h
+		${Z0_INCLUDE_DIR}/gui/gcheck_widget.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -151,11 +155,14 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 		${Z0_ENGINE_DIR}/gui/gwidget.cpp
 		${Z0_ENGINE_DIR}/gui/gevent.cpp
-		${Z0_ENGINE_DIR}/gui/glayout.cpp
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
-		${Z0_ENGINE_DIR}/gui/glayout_vector.cpp
-		${Z0_ENGINE_DIR}/gui/glayout_vector_resource.cpp
+		${Z0_ENGINE_DIR}/gui/gstyle.cpp
+		${Z0_ENGINE_DIR}/gui/gstyle_classic.cpp
+		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.cpp
 		${Z0_ENGINE_DIR}/gui/gline.cpp
+		${Z0_ENGINE_DIR}/gui/gbox.cpp
+		${Z0_ENGINE_DIR}/gui/gbutton.cpp
+		${Z0_ENGINE_DIR}/gui/gcheck_widget.cpp
 
 		${SRC_DIR}/libraries.cpp
 
@@ -168,6 +175,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/physics.cpp
 		${Z0_EXAMPLES_DIR}/ui.h
 		${Z0_EXAMPLES_DIR}/ui.cpp
+		src/z0/gui/gtoggle_button.cpp
+
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

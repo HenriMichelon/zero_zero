@@ -1,14 +1,14 @@
 #include "z0/tools.h"
-#include "z0/gui/glayout_vector_resource.h"
+#include "z0/gui/gstyle_classic_resource.h"
 
 namespace z0 {
 
-    GLayoutVectorResource::GLayoutVectorResource(const string&RES):
+    GStyleClassicResource::GStyleClassicResource(const string&RES):
         GResource(RES) {
         splitResString(RES);
     }
 
-    void GLayoutVectorResource::splitResString(const string&RES) {
+    void GStyleClassicResource::splitResString(const string&RES) {
         auto res = split(RES, ',');
         if ((!res.empty()) && (!res[0].empty())) {
             width = stoul(string{res[0]});

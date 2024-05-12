@@ -46,9 +46,9 @@ namespace z0 {
         return *widget;
     }
 
-    void GWindow::setLayout(shared_ptr<GLayout> LAYOUT) {
+    void GWindow::setLayout(shared_ptr<GStyle> LAYOUT) {
         if (layout == nullptr) {
-            layout = GLayout::create();
+            layout = GStyle::create();
         } else {
             layout = std::move(LAYOUT);
         }
@@ -114,6 +114,7 @@ namespace z0 {
     }
 
     bool GWindow::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
         consumed |= onMouseDown(B, X, Y);
@@ -122,6 +123,7 @@ namespace z0 {
     }
 
     bool GWindow::eventMouseUp(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
         consumed |= onMouseUp(B, X, Y);
@@ -130,6 +132,7 @@ namespace z0 {
     }
 
     bool GWindow::eventMouseMove(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!visible) { return false; }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
@@ -171,7 +174,7 @@ namespace z0 {
         eventMove();
     }
 
-    shared_ptr<GLayout> GWindow::getLayout() const {
+    shared_ptr<GStyle> GWindow::getLayout() const {
         return layout;
     }
 

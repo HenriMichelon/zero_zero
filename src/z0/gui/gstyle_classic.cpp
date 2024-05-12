@@ -1,16 +1,16 @@
-#include "z0/gui/glayout_vector.h"
+#include "z0/gui/gstyle_classic.h"
 
 namespace z0 {
 
-    GLayoutVector::GLayoutVector(): GLayout()//, texture(nullptr)
+    GStyleClassic::GStyleClassic(): GStyle()//, texture(nullptr)
     {
     }
     
-    GLayoutVector::~GLayoutVector() {
+    GStyleClassic::~GStyleClassic() {
         //if (texture) { delete texture; }
     }
 
-    bool GLayoutVector::init() {
+    bool GStyleClassic::init() {
         //if (!(font = IFont::Create())) { return FALSE; } XXX
         setOption("color_focus", "");
         setOption("color_shadow_dark", "");
@@ -23,7 +23,7 @@ namespace z0 {
         return true;
     }
 
-    Color GLayoutVector::extractColor(const string&OPT, float R, float G, float B) {
+    Color GStyleClassic::extractColor(const string&OPT, float R, float G, float B) {
         string opt = getOption(OPT);
         if (!opt.empty()) {
             auto rgb = split(opt, ',');
@@ -36,7 +36,7 @@ namespace z0 {
         return Color(vec3{R, G, B});
     }
 
-    void GLayoutVector::updateOptions() {
+    void GStyleClassic::updateOptions() {
         focus = extractColor("color_focus", 0.1, 0.1, 0.1);
         shadowDark = extractColor("color_shadow_dark", 0.3, 0.3, 0.3);
         shadowBright = extractColor("color_shadow_light", 0.94, 0.94, 0.94);
@@ -56,9 +56,9 @@ namespace z0 {
         }*/
     }
 
-    void GLayoutVector::addResource(GWidget&W, const string&RES)
+    void GStyleClassic::addResource(GWidget&W, const string&RES)
     {
-        auto res = make_shared<GLayoutVectorResource>(RES);
+        auto res = make_shared<GStyleClassicResource>(RES);
         W.setResource(res);
         W.setSize(res->width, res->height);
         switch (W.getType()) {
@@ -103,7 +103,7 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::resize(GWidget&W, Rect&R, GResource&) {
+    void GStyleClassic::resize(GWidget&W, Rect&R, GResource&) {
         switch (W.getType()) {
             case GWidget::BOX:
             case GWidget::BUTTON:
@@ -131,8 +131,8 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::draw(const GWidget&W, GResource&RES, VectorRenderer&D, bool BEFORE) const {
-        auto &res = (GLayoutVectorResource &)RES;
+    void GStyleClassic::draw(const GWidget&W, GResource&RES, VectorRenderer&D, bool BEFORE) const {
+        auto &res = (GStyleClassicResource &)RES;
         if (!W.isVisible()) { return; }
         if (BEFORE) {
             switch (W.getType()) {
@@ -150,6 +150,12 @@ namespace z0 {
                 case GWidget::LINE:
                     drawLine((GLine&)W, res, D);
                     break;
+                case GWidget::BUTTON:
+                    drawButton((GButton&)W, res, D);
+                    break;
+                case GWidget::TOGGLEBUTTON:
+                    drawToggleButton((GToggleButton&)(GCheckWidget&)W, res, D);
+                    break;
                 /*case GWidget::GRIDCELL:
                     DrawGridCell((GGridCell&)W, D, res);
                     break;
@@ -158,9 +164,6 @@ namespace z0 {
                     break;
                 case GWidget::ARROW:
                     DrawArrow((GArrow&)W, D, res);
-                    break;
-                case GWidget::BUTTON:
-                    DrawButton((GButton&)W, D, res);
                     break;
                 case GWidget::CHECKMARK:
                     DrawCheckmark((GCheckmark&)W, D, res);
@@ -176,9 +179,6 @@ namespace z0 {
                     break;
                 case GWidget::ROUNDBUTTON:
                     DrawRoundButton((GRoundButton&)W, D, res);
-                    break;
-                case GWidget::TOGGLEBUTTON:
-                    DrawToggleButton((GToggleButton&)(GCheckWidget&)W, D, res);
                     break;
                 case GWidget::TABBUTTON:
                     DrawTabButton((GTabButton&)W, D, res);
@@ -210,7 +210,7 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::drawPanel(const GPanel&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
+    void GStyleClassic::drawPanel(const GPanel&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         if (W.isDrawBackground()) {
             D.setPenColor(background);
             D.drawFilledRect(W.getRect());
@@ -218,7 +218,7 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::drawBox(const GWidget&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
+    void GStyleClassic::drawBox(const GWidget&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
         uint32_t l = W.getRect().x;
         uint32_t b = W.getRect().y;
@@ -233,12 +233,12 @@ namespace z0 {
             }
             D.drawFilledRect(W.getRect());
         }
-        if (RES.style != GLayoutVectorResource::FLAT) {
+        if (RES.style != GStyleClassicResource::FLAT) {
             switch (RES.style) {
-                case GLayoutVectorResource::LOWERED:
+                case GStyleClassicResource::LOWERED:
                     D.setPenColor(shadowBright);
                     break;
-                case GLayoutVectorResource::RAISED:
+                case GStyleClassicResource::RAISED:
                     D.setPenColor(shadowDark);
                     break;
                 default:
@@ -247,10 +247,10 @@ namespace z0 {
             D.drawLine({l, b}, {l+w, b});
             D.drawLine({l, b}, {l, b+h});
             switch (RES.style) {
-                case GLayoutVectorResource::RAISED:
+                case GStyleClassicResource::RAISED:
                     D.setPenColor(shadowBright);
                     break;
-                case GLayoutVectorResource::LOWERED:
+                case GStyleClassicResource::LOWERED:
                     D.setPenColor(shadowDark);
                     break;
                 default:
@@ -266,14 +266,14 @@ namespace z0 {
         }
     }
 
-    void GLayoutVector::drawLine(GLine&W, GLayoutVectorResource&RES, VectorRenderer&D) const {
+    void GStyleClassic::drawLine(GLine&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         Color c1, c2;
         switch (RES.style) {
-            case GLayoutVectorResource::RAISED:
+            case GStyleClassicResource::RAISED:
                 c1 = shadowDark;
                 c2 = shadowBright;
                 break;
-            case GLayoutVectorResource::LOWERED:
+            case GStyleClassicResource::LOWERED:
                 c1 = shadowBright;
                 c2 = shadowDark;
                 break;
@@ -293,6 +293,39 @@ namespace z0 {
             D.drawLine({rect.x, rect.y+1}, {rect.x+rect.width, rect.y+1});
         else if (W.getStyle() == GLine::VERT)
             D.drawLine({rect.x+1, rect.y}, {rect.x+1, rect.y+rect.height});
+    }
+
+    void GStyleClassic::drawButton(GButton&W, GStyleClassicResource&RES, VectorRenderer&D) const {
+        if (W.isPushed()) {
+            RES.style = GStyleClassicResource::LOWERED;
+        }
+        else {
+            if (RES.flat) {
+                if (W.isPointed()) {
+                    RES.style = GStyleClassicResource::RAISED;
+                }
+                else {
+                    RES.style = GStyleClassicResource::FLAT;
+                }
+            }
+            else {
+                RES.style = GStyleClassicResource::RAISED;
+            }
+        }
+        drawBox(W, RES, D);
+    }
+
+    void GStyleClassic::drawToggleButton(GToggleButton&W, GStyleClassicResource&RES, VectorRenderer&D) const {
+        W.setDrawBackground(!RES.flat);
+        if (W.getState() == GCheckWidget::CHECK) {
+            RES.style = GStyleClassicResource::LOWERED;
+            W.setPushed(true);
+        }
+        else {
+            RES.style = GStyleClassicResource::RAISED;
+            W.setPushed(false);
+        }
+        drawBox(W, RES, D);
     }
 
 
@@ -414,48 +447,6 @@ namespace z0 {
                 break;
         }
     }
-
-
-//----------------------------------------------
-    void GLayoutVector::DrawToggleButton(GToggleButton&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
-    {
-        W.SetDrawBackground(!RES.flat);
-        if (W.State() == GCheckWidget::CHECK) {
-            RES.style = GLayoutVectorResource::LOWERED;
-            W.Pushed() = true;
-        }
-        else {
-            RES.style = GLayoutVectorResource::RAISED;
-            W.Pushed() = FALSE;
-        }
-        DrawBox(W, D, RES, R);
-    }
-
-
-//----------------------------------------------
-    void GLayoutVector::DrawButton(GButton&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
-    {
-        //dprintf("Draw Button %x\n", &W);
-        //W.SetDrawBackground(!RES.flat);
-        if (W.Pushed()) {
-            RES.style = GLayoutVectorResource::LOWERED;
-        }
-        else {
-            if (RES.flat) {
-                if (W.Pointed()) {
-                    RES.style = GLayoutVectorResource::RAISED;
-                }
-                else {
-                    RES.style = GLayoutVectorResource::FLAT;
-                }
-            }
-            else {
-                RES.style = GLayoutVectorResource::RAISED;
-            }
-        }
-        DrawBox(W, D, RES, R);
-    }
-
 
 //----------------------------------------------
     void GLayoutVector::DrawCheckmark(GCheckmark&W, GLayoutVectorResource&, VectorRenderer&, float)

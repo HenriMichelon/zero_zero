@@ -36,8 +36,9 @@ public:
     };
 
 private:
-    void onBoxCreate(GWidget&, GEvent*);
-    void onBoxMouseDown(GWidget&, GEvent*);
+    /*void onBoxCreate(GWidget&, GEvent*);
+    void onBoxMouseDown(GWidget&, GEvent*);*/
+    void onButtonClic(GWidget&, GEvent*);
 };
 
 class UIMainScene: public Node {

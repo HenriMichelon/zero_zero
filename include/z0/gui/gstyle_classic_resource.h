@@ -6,7 +6,7 @@
 
 namespace z0 {
 
-    class GLayoutVectorResource: public GResource {
+    class GStyleClassicResource: public GResource {
     public:
         enum Style {
             FLAT,
@@ -19,7 +19,7 @@ namespace z0 {
         uint32_t	height{0};
         bool		flat{false};
 
-        explicit GLayoutVectorResource(const string&);
+        explicit GStyleClassicResource(const string&);
 
     private:
         void splitResString(const string&);

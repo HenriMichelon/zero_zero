@@ -1,21 +1,21 @@
-#include "z0/gui/glayout.h"
-#include "z0/gui/glayout_vector.h"
+#include "z0/gui/gstyle.h"
+#include "z0/gui/gstyle_classic.h"
 
 namespace z0 {
 
 //----------------------------------------------
-    GLayout::GLayout()
+    GStyle::GStyle()
     {
         font = nullptr;
     }
 
 
 //----------------------------------------------
-    shared_ptr<GLayout> GLayout::create(const string&NAME)
+    shared_ptr<GStyle> GStyle::create(const string&NAME)
     {
-        shared_ptr<GLayout> tmp;
+        shared_ptr<GStyle> tmp;
         if (NAME == "vector") {
-            tmp = make_shared<GLayoutVector>();
+            tmp = make_shared<GStyleClassic>();
         }
         /*else if (NAME == "pixmap") {
             tmp = (GLayout*) new GLayoutPixmap;
@@ -30,7 +30,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    void GLayout :: setOption(const string&NAME, const string&VAL)
+    void GStyle :: setOption(const string&NAME, const string&VAL)
     {
         shared_ptr<GLayoutOption> option;
         for(auto& opt: options) {
@@ -49,7 +49,7 @@ namespace z0 {
 
 
 //----------------------------------------------
-    string GLayout :: getOption(const string&NAME)
+    string GStyle :: getOption(const string&NAME)
     {
         shared_ptr<GLayoutOption> option;
         for(auto& opt: options) {

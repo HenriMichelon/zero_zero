@@ -1,19 +1,25 @@
-#include <z0/input.h>
 #include <z0/nodes/camera.h>
 #include "z0/nodes/skybox.h"
 #include "z0/loader.h"
 #include "z0/application.h"
 #include "z0/gui/gwidget.h"
+#include "z0/gui/gbutton.h"
+#include "z0/gui/gtoggle_button.h"
 
 #include "ui.h"
 
 void Window2::onCreate() {
-    setTransparency(0.5f);
-    //getLayout()->setOption("color_background", "1.0,0.647,0.0,0.5");
-    auto box = make_shared<GWidget>(GWidget::Type::BOX);
-    box->connect(GEvent::OnCreate, this, GEventFunction(&Window2::onBoxCreate));
-    box->connect(GEvent::OnMouseDown, this, GEventFunction(&Window2::onBoxMouseDown));
-    getWidget().add(box, GWidget::CENTER, "70,40,RAISED");
+    setTransparency(0.8f);
+    getWidget().setPadding(5);
+    auto button = make_shared<GButton>();
+    button->connect(GEvent::OnClick, this, GEventFunction(&Window2::onButtonClic));
+    getWidget().add(button, GWidget::CENTER, "70,40");
+    auto button2 = make_shared<GToggleButton>();
+    getWidget().add(button2, GWidget::TOPCENTER, "70,40");
+}
+
+void Window2::onButtonClic(GWidget &, GEvent *) {
+    cout << "BUTTON CLIC" << endl;
 }
 /*
 bool Window2::onKeyDown(Key key) {
@@ -38,7 +44,6 @@ bool Window2::onMouseMove(MouseButton, uint32_t x, uint32_t y) {
     cout << "onMouseMove " << x << " " << y << endl;
     return true;
 };
-*/
 
 void Window2::onBoxCreate(GWidget &widget, GEvent*) {
     cout << "BOX CREATE" << endl;
@@ -48,10 +53,9 @@ void Window2::onBoxMouseDown(z0::GWidget &widget, GEvent *event) {
     auto* mouseEvent = (GEventMouse*)event;
     cout << "BOX MOUSE DOWN" << mouseEvent->x << "x" << mouseEvent->y << endl;
     mouseEvent->consumed = true;
-}
+}*/
 
 bool UIMainScene::onInput(InputEvent &inputEvent) {
-    cout << "UIMainScene input" << endl;
     if (inputEvent.getType() == INPUT_EVENT_KEY) {
         auto& keyInputEvent = dynamic_cast<InputEventKey&>(inputEvent);
         if ((keyInputEvent.getKeyCode() == KEY_ENTER) && keyInputEvent.isPressed()) {
@@ -60,7 +64,7 @@ bool UIMainScene::onInput(InputEvent &inputEvent) {
         }
     } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) {
         auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(inputEvent);
-        cout << mouseInputEvent.getX() << " " << mouseInputEvent.getY() << endl;
+        //cout << mouseInputEvent.getX() << " " << mouseInputEvent.getY() << endl;
     }
     return false;
 }
