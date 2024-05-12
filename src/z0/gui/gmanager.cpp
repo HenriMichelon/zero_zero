@@ -39,6 +39,25 @@ namespace z0 {
                     return focusedWindow->eventKeybUp(keyInputEvent.getKeyCode());
                 }
             }
+        } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) {
+            auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(inputEvent);
+            auto scaleX = vectorRenderer->SCALE.x / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().width);
+            auto scaleY = vectorRenderer->SCALE.y / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().height);
+            auto x = static_cast<uint32_t>(mouseInputEvent.getX() * scaleX);
+            auto y = static_cast<uint32_t>(mouseInputEvent.getY() * scaleY);
+            for (auto& window: windows) {
+                if (window->getRect().contains(x, y)) {
+                    x = x - window->getRect().x;
+                    y = y - window->getRect().y;
+                    if (mouseInputEvent.isPressed()) {
+                        return window->eventMouseDown(mouseInputEvent.getMouseButton(), x, y);
+                    } else {
+                        return window->eventMouseUp(mouseInputEvent.getMouseButton(), x, y);
+                    }
+                }
+            }
+        } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
+            //die("Not implemented");
         }
         return false;
     }

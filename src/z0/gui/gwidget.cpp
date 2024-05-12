@@ -545,48 +545,56 @@ namespace z0 {
         return false;
     }
 
-    shared_ptr<GWidget> GWidget::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
-        if (!enabled) return nullptr;
-
-        /*uint32_t close = popup && popup->Visible();
-        ClosePopup();*/
-
+    bool GWidget::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!enabled) { return false; }
+        bool consumed = false;
+        bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = !isTransparent();
         GWidget* wfocus = nullptr;
-
-        for (auto& w: children) {
+        for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
-                wfocus = w->eventMouseDown(B, X, Y).get();
-                if ((!wfocus) && w->allowFocus) { wfocus = w->setFocus(); }
-                if (w->redrawOnMouseEvent && w->getRect().contains(X, Y) && (!w->isTransparent())) {
+                consumed |= w->eventMouseDown(B, X, Y);
+                wfocus = w.get();
+                if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->pushed) && (!w->isTransparent())) {
                     w->refresh();
                 }
+                if (consumed) { break; }
             }
         }
-        if (redrawOnMouseEvent && rect.contains(X, Y) && (!transparent)) { refresh(); }
-
+        if ((wfocus != nullptr) && (wfocus->allowFocus)) {
+            wfocus->setFocus();
+        }
+        if (r && (!transparent)) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseDown, event);
-        return shared_ptr<GWidget>(wfocus);
+        consumed |= event->consumed;
+        return consumed;
     }
 
-    void GWidget::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
-        if (!enabled) { return; }
+    bool GWidget::eventMouseUp(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!enabled) { return false; }
+        bool consumed = false;
         bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = false;
         for (auto& w : children) {
-            w->eventMouseUp(B, X, Y);
-            if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->pushed) && (!w->isTransparent())) {
-                w->refresh();
+            if (w->getRect().contains(X, Y)) {
+                consumed |= w->eventMouseUp(B, X, Y);
+                if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->pushed) && (!w->isTransparent())) {
+                    w->refresh();
+                }
+                if (consumed) { break; }
             }
         }
         if (r && (!transparent)) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseUp, event);
+        consumed |= event->consumed;
+        return consumed;
     }
 
-    void GWidget::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
-        if (!enabled) { return; }
+    bool GWidget::eventMouseMove(MouseButton B, uint32_t X, uint32_t Y) {
+        if (!enabled) { return false; }
+        bool consumed = false;
         bool p = rect.contains(X, Y);
         for (auto& w : children) {
             p = w->getRect().contains(X, Y);
@@ -595,14 +603,17 @@ namespace z0 {
                 w->refresh();
             }
             if (p) {
-                w->eventMouseMove(B, X, Y);
+                consumed |= w->eventMouseMove(B, X, Y);
             } else if (w->pushed) {
-                w->eventMouseUp(B, X, Y);
+                consumed |= w->eventMouseUp(B, X, Y);
             }
+            if (consumed) { break; }
         }
         if (redrawOnMouseMove && (pointed != p) && (!transparent)) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMove, event);
+        consumed |= event->consumed;
+        return consumed;
     }
 
     void GWidget::eventGotFocus() {

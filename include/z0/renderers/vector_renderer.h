@@ -16,6 +16,9 @@ namespace z0 {
      */
     class VectorRenderer: public BaseRenderpass, public BaseRenderer {
     public:
+        // Default coordinates system scale [ 1000, 1000 ]
+        const vec2 SCALE{1000.0f };
+
         // Used when this renderer is the only renderer
         VectorRenderer(const Device& device,
                        const string& shaderDirectory);
@@ -78,8 +81,6 @@ namespace z0 {
             alignas(16) vec2 uv;
         };
 
-        // Default coordinates system scale [ 1000, 1000 ]
-        const vec2      SCALE{1000.0f };
         // Fragment color for the next drawing commands
         Color           penColor {1.0f,1.0f,1.0f,1.0f};
         // [x,y] translation for the next drawing commands

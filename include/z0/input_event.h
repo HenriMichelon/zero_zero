@@ -33,13 +33,17 @@ namespace z0 {
 
     class InputEventMouseButton: public InputEvent {
     public:
-        InputEventMouseButton(MouseButton button, bool pressed, int modifiers);
+        InputEventMouseButton(MouseButton button, bool pressed, int modifiers, float posX, float posY);
 
         MouseButton getMouseButton() const { return button; }
         bool isPressed() const { return pressed; }
         int getModifiers() const { return modifiers; }
+        vec2 getPosition() const { return vec2{x, y}; }
+        float getX() const { return x; }
+        float getY() const { return y; }
 
     private:
+        float x, y;
         MouseButton button;
         bool pressed;
         int modifiers;

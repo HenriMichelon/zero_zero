@@ -72,7 +72,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT];
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = true;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT, true, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
+                                                   true,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }
@@ -80,7 +84,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT, false, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
+                                                   false,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }
@@ -88,7 +96,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT];
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = true;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT, true, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
+                                                   true,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }
@@ -96,7 +108,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT, false, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
+                                                   false,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }
@@ -104,7 +120,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE];
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = true;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE, true, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
+                                                   true,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }
@@ -112,7 +132,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
             z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
             z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE, false, _getKeyboardModifiers());
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
+                                                   false,
+                                                   _getKeyboardModifiers(),
+                                                   LOWORD(lParam),
+                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
             z0::Application::get().onInput(event);
             break;
         }

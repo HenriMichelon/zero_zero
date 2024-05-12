@@ -51,9 +51,9 @@ namespace z0 {
         MouseButton	button;
         uint32_t	x;
         uint32_t	y;
+        bool        consumed{false};
 
-        GEventMouse(MouseButton B, uint32_t X, uint32_t Y):
-                button(B), x(X), y(Y) {};
+        GEventMouse(MouseButton B, uint32_t X, uint32_t Y): button(B), x(X), y(Y) {};
         GEventMouse() = default;
     };
 

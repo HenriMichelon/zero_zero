@@ -9,11 +9,13 @@ namespace z0 {
             pressed{_pressed},
             modifiers{_modifiers} {}
 
-    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers):
+    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, float posX, float posY):
             InputEvent{INPUT_EVENT_MOUSE_BUTTON},
             button{_button},
             pressed{_pressed},
-            modifiers{_modifiers} {}
+            modifiers{_modifiers},
+            x{posX},
+            y{posY} {}
 
     InputEventMouseMotion::InputEventMouseMotion(float posX, float posY, float rX, float rY):
             InputEvent{INPUT_EVENT_MOUSE_MOTION},

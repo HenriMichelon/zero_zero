@@ -96,7 +96,7 @@ namespace z0 {
     bool GWindow::eventKeybDown(Key K) {
         bool consumed = false;
 	    if (focusedWidget) {
-            consumed = focusedWidget->eventKeybDown(K);
+            consumed = focusedWidget->eventKeybDown(K); // XXX consumed
         }
         consumed |= onKeyDown(K);
         refresh();
@@ -106,43 +106,41 @@ namespace z0 {
     bool GWindow::eventKeybUp(Key K) {
         bool consumed = false;
         if (focusedWidget) {
-            focusedWidget->eventKeybUp(K);
+            focusedWidget->eventKeybUp(K); // XXX consumed
         }
         consumed |= onKeyUp(K);
         refresh();
         return consumed;
     }
 
-    void GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
-        if (widget) {
-            shared_ptr<GWidget>newfocused = widget->eventMouseDown(B, X, Y);
-            if (newfocused.get() != focusedWidget) {
-                if (focusedWidget != nullptr) { focusedWidget->setFocus(false); }
-                focusedWidget = newfocused.get();
-            }
-        }
-        onMouseDown(B, X, Y);
+    bool GWindow::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
+        bool consumed = false;
+        if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
+        consumed |= onMouseDown(B, X, Y);
         refresh();
+        return consumed;
     }
 
-    void GWindow::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
-        if (widget) {
-            widget->eventMouseUp(B, X, Y);
-        }
-        onMouseUp(B, X, Y);
+    bool GWindow::eventMouseUp(MouseButton B, uint32_t X, uint32_t Y) {
+        bool consumed = false;
+        if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
+        consumed |= onMouseUp(B, X, Y);
         refresh();
+        return consumed;
     }
 
-    void GWindow::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
+    bool GWindow::eventMouseMove(MouseButton B, uint32_t X, uint32_t Y) {
+        bool consumed = false;
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
-            focusedWidget->eventMouseMove(B, X, Y);
+            consumed = focusedWidget->eventMouseMove(B, X, Y);
         }
         else if (widget) {
-            widget->eventMouseMove(B, X, Y);
+            consumed = widget->eventMouseMove(B, X, Y);
         }
-        onMouseMove(B, X, Y);
+        consumed |= onMouseMove(B, X, Y);
         refresh();
+        return consumed;
     }
 
     void GWindow::refresh() {

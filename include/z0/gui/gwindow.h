@@ -87,13 +87,13 @@ namespace z0 {
         virtual bool onKeyUp(Key) { return false; };
 
         /*! Event called when a mouse button was pressed inside the window */
-        virtual void onMouseDown(MouseButton, int32_t, int32_t) {};
+        virtual bool onMouseDown(MouseButton, uint32_t, uint32_t) { return false; };
 
         /*! Event called when a mouse button was released inside the window */
-        virtual void onMouseUp(MouseButton, int32_t, int32_t) {};
+        virtual bool onMouseUp(MouseButton, uint32_t, uint32_t) { return false; };
 
         /*! Event called when mouse is moved above the window client area */
-        virtual void onMouseMove(MouseButton, int32_t, int32_t) {};
+        virtual bool onMouseMove(MouseButton, uint32_t, uint32_t) { return false; };
 
         /*! Event called when the window got the keyboard focus */
         virtual void onGotFocus() {};
@@ -125,9 +125,9 @@ namespace z0 {
         void eventHide();
         bool eventKeybDown(Key);
         bool eventKeybUp(Key);
-        void eventMouseDown(MouseButton, int32_t, int32_t);
-        void eventMouseUp(MouseButton, int32_t, int32_t);
-        void eventMouseMove(MouseButton, int32_t, int32_t);
+        bool eventMouseDown(MouseButton, uint32_t, uint32_t);
+        bool eventMouseUp(MouseButton, uint32_t, uint32_t);
+        bool eventMouseMove(MouseButton, uint32_t, uint32_t);
         void eventGotFocus();
         void eventLostFocus();
     };

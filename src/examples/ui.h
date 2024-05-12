@@ -7,8 +7,11 @@ public:
     explicit Window2(Rect rect) : GWindow{rect} {}
 
     void onCreate() override;
-    bool onKeyDown(Key key) override;
+    /*bool onKeyDown(Key key) override;
     bool onKeyUp(Key key) override;
+    bool onMouseDown(MouseButton, uint32_t, uint32_t) override ;
+    bool onMouseUp(MouseButton, uint32_t, uint32_t) override;
+    bool onMouseMove(MouseButton, uint32_t, uint32_t) override;*/
 
     void onDestroy() override {
         cout << "onDestroy" << endl;
@@ -25,15 +28,6 @@ public:
     void onHide() override {
         cout << "onHide" << endl;
     };
-    void onMouseDown(MouseButton, int32_t, int32_t) override {
-        cout << "onMouseDown" << endl;
-    };
-    void onMouseUp(MouseButton, int32_t, int32_t) override {
-        cout << "onMouseUp" << endl;
-    };
-    void onMouseMove(MouseButton, int32_t, int32_t) override {
-        cout << "onMouseMove" << endl;
-    };
     void onGotFocus() override {
         cout << "onGotFocus" << endl;
     };
@@ -43,6 +37,7 @@ public:
 
 private:
     void onBoxCreate(GWidget&, GEvent*);
+    void onBoxMouseDown(GWidget&, GEvent*);
 };
 
 class UIMainScene: public Node {

@@ -11,6 +11,8 @@ namespace z0 {
     public:
         virtual void cleanup();
 
+        const Device& getDevice() const { return device; }
+
     protected:
         const Device& device;
         VkDevice vkDevice;
