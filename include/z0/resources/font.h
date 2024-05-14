@@ -15,18 +15,13 @@ namespace z0 {
 
         /*! Load a font.
             Default font & size are architecture dependent
-            \param String&	: font name, if "" then the engine default font is loaded
+            \param String&	: font name, if "" then the platform default font is loaded
             \param uint32_t	: size, if 0 then a default size is selected
             \param bool	: bold
             \param bool	: italic
             \param bool	: underline
 	    */
         static shared_ptr<Font> create(const string& = "", uint32_t = 0, bool = false, bool = false, bool = false);
-
-        /*! Select the text (pen) color
-            default color is (0, 0, 0)	
-        */
-        void setTextColor(const Color&);
 
         /*! Return the maximum height (in pixels) for the font */
         uint32_t getHeight() const { return height; };
@@ -52,9 +47,9 @@ namespace z0 {
             \param char	: char to render
             \param int32_t	: xoffset
             \param int32_t	: yoffset
-            \return NULL if error
+            \return NULL if error or a managed bitmap address
 	     */
-        void* render(wchar_t, int32_t&, int32_t&);
+        uint8_t* render(wchar_t, int32_t&, int32_t&);
 
     private:
         struct CachedCharacter {
@@ -63,10 +58,10 @@ namespace z0 {
             /*! left side bearing (space between left border of the char & the first char pixel) */
             int32_t	    leftbearing;
             /*! Ascent in pixel (number of pixel above the base line) */
-            int32_t	    ascent; // bboxtop
+            int32_t	    ascent;
             /*! Descent in pixel (number of pixel below the base line) */
-            int32_t	    descent; // yMin
-            /*! Height in pixels (normaly ascent+descent, but only for horizontal writting) */
+            int32_t	    descent;
+            /*! Height in pixels (generaly ascent+descent, but only for horizontal writting) */
             uint32_t	height;
             /*! Width in pixels*/
             uint32_t	width;
@@ -74,10 +69,12 @@ namespace z0 {
             uint8_t*    bitmap;
         };
 
-        Color	                        textColor;
+        // Already rendered characters
         map<wchar_t, CachedCharacter>   cache;
-        uint32_t                        height; // Maximum height of chars
-        uint32_t                        ymin; // font descent (number of lines under the font's baseline)
+        // Maximum height of chars
+        uint32_t                        height;
+        // font descent (number of lines under the font's baseline)
+        uint32_t                        ymin;
 
         CachedCharacter &getFromCache(wchar_t);
         void render(CachedCharacter&, wchar_t);

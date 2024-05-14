@@ -22,7 +22,6 @@ namespace z0 {
     uint32_t Font::getHeight(wchar_t CHAR) {
         auto& rchar = getFromCache(CHAR);
         return rchar.height + rchar.descent;
-
     }
 
     uint32_t Font::getWidth(const string &STR) {
@@ -45,12 +44,11 @@ namespace z0 {
         return ymax;
     }
 
-    void* Font::render(wchar_t CHAR, int32_t &XOFF, int32_t &YOFF)
-    {
-        CachedCharacter &font = getFromCache(CHAR);
-        XOFF = font.leftbearing;
-        YOFF = font.descent;
-        return font.bitmap;
+    uint8_t* Font::render(wchar_t CHAR, int32_t &XOFF, int32_t &YOFF) {
+        auto& cchar = getFromCache(CHAR);
+        XOFF = cchar.leftbearing;
+        YOFF = cchar.descent;
+        return cchar.bitmap;
     }
 
     Font::CachedCharacter& Font::getFromCache(wchar_t CHAR) {
@@ -77,7 +75,10 @@ namespace z0 {
         mat2.eM22 = fixedFromDouble(1.0);
     }
 
-Font::~Font() {
+    Font::~Font() {
+        for (auto& cchar : cache) {
+            delete[]cchar.second.bitmap;
+        }
         DeleteObject(font);
     }
 
@@ -93,14 +94,17 @@ Font::~Font() {
         }
 
         uint32_t size = SIZE;
-        if (!size) { size = 11; }
+        if (!size) { size = 12; }
 
         int weight = FW_NORMAL;
         if (B) { weight = FW_BOLD; }
 
         HDC dc = GetDC(nullptr);
-        if (!dc) return false;
-        font = CreateFont(-size,
+        if (!dc) {
+            die("Font::openFont cannot get DC");
+            return false;
+        }
+        font = CreateFont(static_cast<int>(-size),
                           0,
                           0,
                           0,
@@ -115,7 +119,7 @@ Font::~Font() {
                           DEFAULT_PITCH | FF_DONTCARE,
                           name.c_str());
         if (SelectObject(dc, font) == nullptr) {
-            die("FontRenderer::CreateFont error");
+            die("FontRenderer::openFont(): SelectObject() error\n");
             ReleaseDC(nullptr, dc);
             return false;
         }
@@ -139,13 +143,13 @@ Font::~Font() {
         }
 
         UINT dchar = CHAR;
-        uint32_t size = GetGlyphOutlineA(dc,
-                                         dchar,
-                                         GGO_BITMAP, // + GGO_GLYPH_INDEX,
-                                         &gm,
-                                         0,
-                                         nullptr,
-                                         &mat2);
+        uint32_t size = GetGlyphOutline(dc,
+                                        dchar,
+                                        GGO_BITMAP, // + GGO_GLYPH_INDEX,
+                                        &gm,
+                                        0,
+                                        nullptr,
+                                        &mat2);
         if (size == GDI_ERROR)	{
             size = GetGlyphOutline(dc,
                                    20,
@@ -162,16 +166,18 @@ Font::~Font() {
 
         car.height = gm.gmBlackBoxY;
         if (size)	{
-            if ((size*4) > (gm.gmBlackBoxX*gm.gmBlackBoxY))
-                car.width = gm.gmBlackBoxX+(size*4 - gm.gmBlackBoxX*gm.gmBlackBoxY)/gm.gmBlackBoxY;
-            else
-                car.width = gm.gmBlackBoxX-(gm.gmBlackBoxX*gm.gmBlackBoxY - size*4)/gm.gmBlackBoxY;
+            if ((size*4) > (gm.gmBlackBoxX*gm.gmBlackBoxY)) {
+                car.width = gm.gmBlackBoxX + (size * 4 - gm.gmBlackBoxX * gm.gmBlackBoxY) / gm.gmBlackBoxY;
+            } else {
+                car.width = gm.gmBlackBoxX - (gm.gmBlackBoxX * gm.gmBlackBoxY - size * 4) / gm.gmBlackBoxY;
+            }
 
             car.bitmap = new uint8_t[car.width*car.height];
             auto *bitmap = new uint8_t[size];
             GetGlyphOutline(dc, dchar, GGO_BITMAP, &gm, size, bitmap, &mat2);
             std::memset(car.bitmap, 0, car.width*car.height);
 
+            // Remap to 8 BPP
             uint32_t idx = 0;
             for (uint32_t y=0; y<car.height; y++) {
                 for (uint32_t x=0; x<(car.width/8); x++) {
