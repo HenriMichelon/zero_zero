@@ -163,7 +163,7 @@ namespace z0 {
             \param	string	: resource string
             \param	uint32_t	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, const string ="", uint32_t = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", uint32_t = 0);
 
         /*! Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
@@ -205,7 +205,7 @@ namespace z0 {
           \param	_PTR		: object address
           \param	GEventFunction	: method offset 
         */
-        void connect(GEvent::Type, void*, const GEventFunction);
+        void connect(GEvent::Type, void*, GEventFunction);
 
         /*! Call the object method connected to an event, if any.
           \param	EventType	: event to simulate
