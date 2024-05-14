@@ -6,8 +6,7 @@
 
 namespace z0 {
 
-    shared_ptr<Font> Font::create(const string& NAME, const string& ENGINE,
-                         uint32_t SIZE, bool B, bool I, bool U) {
+    shared_ptr<Font> Font::create(const string& NAME, uint32_t SIZE, bool B, bool I, bool U) {
         auto font = make_shared<Font>(NAME);
         if (font->openFont(NAME, SIZE, B, I, U)) {
             return font;

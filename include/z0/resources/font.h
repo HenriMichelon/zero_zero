@@ -16,14 +16,12 @@ namespace z0 {
         /*! Load a font.
             Default font & size are architecture dependent
             \param String&	: font name, if "" then the engine default font is loaded
-            \param String&	: engine name, if "" then the os/wm default engine is used
             \param uint32_t	: size, if 0 then a default size is selected
             \param bool	: bold
             \param bool	: italic
             \param bool	: underline
 	    */
-        static shared_ptr<Font> create(const string& = "", const string& = "",
-                                uint32_t = 0, bool = false, bool = false, bool = false);
+        static shared_ptr<Font> create(const string& = "", uint32_t = 0, bool = false, bool = false, bool = false);
 
         /*! Select the text (pen) color
             default color is (0, 0, 0)	
