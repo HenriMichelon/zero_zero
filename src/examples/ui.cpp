@@ -11,11 +11,13 @@
 void Window2::onCreate() {
     setTransparency(0.8f);
     getWidget().setPadding(5);
+
+    auto button2 = make_shared<GToggleButton>();
+    getWidget().add(button2, GWidget::TOPCENTER, "70,40");
+
     auto button = make_shared<GButton>();
     button->connect(GEvent::OnClick, this, GEventFunction(&Window2::onButtonClic));
     getWidget().add(button, GWidget::CENTER, "70,40");
-    auto button2 = make_shared<GToggleButton>();
-    getWidget().add(button2, GWidget::TOPCENTER, "70,40");
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
