@@ -24,10 +24,9 @@ void Window2::onCreate() {
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
     auto font = Font::create("../examples/LeagueSpartan-Bold.otf", 30);
-    uint32_t w, h;
-    auto bitmap = font->render("apU", w, h);
-    // Write the image data to a PNG file
-    if (stbi_write_png("output.png", w, h, 1, bitmap.data(), w * 1)) {
+    uint32_t width, height;
+    auto bitmap = font->render("apU", width, height);
+    if (stbi_write_png("output.png", width, height, 1, bitmap.data(), width * 1)) {
         std::cout << "Image saved successfully.\n";
     } else {
         std::cerr << "Failed to save the image.\n";

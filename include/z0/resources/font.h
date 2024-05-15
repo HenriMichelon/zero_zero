@@ -20,29 +20,16 @@ namespace z0 {
             Default font & size are architecture dependent
             \param String&	: font name, if "" then the platform default font is loaded
             \param uint32_t	: size, if 0 then a default size is selected
-            \param bool	: bold
-            \param bool	: italic
-            \param bool	: underline
 	    */
         static shared_ptr<Font> create(const string& = "", uint32_t = 0);
 
-        /*! Return the width (in pixels) for a character */
-        uint32_t getWidth(wchar_t);
-
-        /*! Return the maximum height (in pixels) for a character */
-        uint32_t getHeight(wchar_t);
-
-        /*! Return the width (in pixels) for a string */
-        uint32_t getWidth(const string&);
-
-        /*! Return the maximum height (in pixels) for a string */
-        uint32_t getHeight(const string&);
+        /*! Return the size (in pixels) for a string */
+        void getSize(const string&, uint32_t&, uint32_t&);
 
         /*! Render a string into 8 bpp bitmap.
             Offsets are incremented
             \param string	: string to render
-            \param uint32_t	: width
-            \param uint32_t	: height
+            \param uint32_t : size in pixels
             \return NULL if error or a managed bitmap address
         */
         vector<uint8_t> render(const string&, uint32_t&, uint32_t&);
@@ -50,17 +37,11 @@ namespace z0 {
     private:
         // Already rendered characters
         struct CachedCharacter {
-            /*! X Advance in pixels (space to the next character) */
-            int32_t	        xAdvance;
-            /*! Ascent in pixel (number of pixel above the base line) */
-            int32_t	        ascent;
-            /*! Descent in pixel (number of pixel below the base line) */
-            int32_t	        descent;
-            /*! Height in pixels (generaly ascent+descent, but only for horizontal writting) */
-            uint32_t	    height;
-            /*! Width in pixels*/
+            int32_t	        advance;
+            int32_t	        xBearing;
+            int32_t	        yBearing;
             uint32_t	    width;
-            /*! Rendered pixmap */
+            uint32_t	    height;
             unique_ptr<vector<uint8_t>> bitmap;
         };
         map<wchar_t, CachedCharacter>   cache;

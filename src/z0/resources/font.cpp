@@ -15,33 +15,21 @@ namespace z0 {
         return nullptr;
     }
 
-    uint32_t Font::getWidth(wchar_t CHAR) {
-        return getFromCache(CHAR).xAdvance;
-    }
-
-    uint32_t Font::getHeight(wchar_t CHAR) {
-        auto& rchar = getFromCache(CHAR);
-        return rchar.height + rchar.descent;
-    }
-
-    uint32_t Font::getWidth(const string &STR) {
+    void Font::getSize(const std::string &str, uint32_t&width, uint32_t&height) {
         wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        auto wideString  = converter.from_bytes(STR);
-        uint32_t width = 0;
+        auto wideString= converter.from_bytes(str);
+        width = 0;
+        uint32_t max_height = 0;
+        uint32_t max_descender = 0;
         for (wchar_t wc : wideString) {
-            width += getWidth(wc);
+            auto& cchar = getFromCache(wc);
+            width += cchar.advance;
+            auto descender = cchar.height - cchar.yBearing;
+            max_height = std::max(max_height, cchar.height);
+            max_descender = std::max(max_descender, descender);
         }
-        return width;
-    }
+        height = max_height + max_descender;
 
-    uint32_t Font::getHeight(const string &STR) {
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        auto wideString  = converter.from_bytes(STR);
-        uint32_t ymax = 0;
-        for (wchar_t wc : wideString) {
-            ymax += std::max(ymax, getHeight(wc));
-        }
-        return ymax;
     }
 
     Font::CachedCharacter& Font::getFromCache(wchar_t CHAR) {
@@ -54,22 +42,32 @@ namespace z0 {
         }
     }
 
-    vector<uint8_t> Font::render(const std::string &STR, uint32_t &WIDTH, uint32_t &HEIGHT) {
-        WIDTH = getWidth(STR);
-        HEIGHT = getHeight(STR);
-        auto bitmap = vector<uint8_t>(WIDTH * HEIGHT);
+    vector<uint8_t> Font::render(const std::string &str, uint32_t&width, uint32_t&height) {
         wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        auto wideString  = converter.from_bytes(STR);
-        int32_t x = 0;
-        int32_t y = 0;
+        auto wideString= converter.from_bytes(str);
+        width = 0;
+        uint32_t max_height = 0;
+        uint32_t max_descender = 0;
         for (wchar_t wc : wideString) {
             auto& cchar = getFromCache(wc);
+            width += cchar.advance;
+            auto descender = cchar.height - cchar.yBearing;
+            max_height = std::max(max_height, cchar.height);
+            max_descender = std::max(max_descender, descender);
+        }
+        height = max_height + max_descender;
+
+        auto bitmap = vector<uint8_t>(width * height);
+        int32_t x = 0;
+        for (wchar_t wc : wideString) {
+            auto& cchar = getFromCache(wc);
+            auto offset = height - cchar.yBearing - max_descender;
             for(int line = 0; line < cchar.height; line++) {
-                auto dest = bitmap.data() + line * WIDTH + x;
-                auto src = cchar.bitmap->data() + line * cchar.width;
+                auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
+                auto src = cchar.bitmap->data() + (line * cchar.width);
                 std::memcpy(dest, src, cchar.width);
             }
-            x += cchar.xAdvance;
+            x += cchar.advance;
         }
         return bitmap;
     }
@@ -105,7 +103,7 @@ namespace z0 {
         return true;
     }
 
-    void __saveBitmapAsPGM(const char* filename, uint8_t* bitmap, uint32_t width, uint32_t  rows) {
+    /*void __saveBitmapAsPGM(const char* filename, uint8_t* bitmap, uint32_t width, uint32_t  rows) {
         auto *file = fopen(filename, "wb");
         if (file) {
             fprintf(file, "P5\n%d %d\n255\n", width, rows);
@@ -114,26 +112,21 @@ namespace z0 {
         } else {
             die("Failed to save PGM file", filename);
         }
-    }
+    }*/
 
     void Font::render(z0::Font::CachedCharacter &cachedCharacter, wchar_t wchar) {
-        // Load and render the glyph for the character 'A'
+        // Load and render the glyph for the character
         auto glyph_index = FT_Get_Char_Index(face, wchar);
-        if (FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT)) {
-            die("Could not load glyph");
-        }
-        // Render the glyph to a bitmap
-        if (FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL)) {
+        if (FT_Load_Glyph(face, glyph_index, FT_LOAD_RENDER)) {
             die("Could not render glyph");
         }
         auto width = face->glyph->bitmap.width;
         auto height = face->glyph->bitmap.rows;
         cachedCharacter.width = width;
         cachedCharacter.height = height;
-        // Convert from 1/64th of points to pixels (assuming 72 DPI for simplicity)
-        cachedCharacter.xAdvance = static_cast<int32_t>(static_cast<float>(face->glyph->advance.x) / 64.0f);
-        cachedCharacter.ascent = static_cast<int32_t>(static_cast<float>(face->size->metrics.ascender) / 64.0f);
-        cachedCharacter.descent = static_cast<int32_t>(static_cast<float>(face->size->metrics.descender) / 64.0f);
+        cachedCharacter.advance = static_cast<int32_t>(static_cast<float>(face->glyph->advance.x) / 64.0f);
+        cachedCharacter.xBearing = static_cast<int32_t>(face->glyph->bitmap_left);
+        cachedCharacter.yBearing = static_cast<int32_t>(face->glyph->bitmap_top);
 
         cachedCharacter.bitmap = make_unique<vector<uint8_t>>(width * height);
         FT_Bitmap& srcBitmap = face->glyph->bitmap;
@@ -141,7 +134,7 @@ namespace z0 {
         for (int y = 0; y < height; ++y) {
             std::memcpy(dstBitmap + (y * width), srcBitmap.buffer + (y * srcBitmap.pitch), width);
         }
-        __saveBitmapAsPGM("output.pgm", dstBitmap, width, height);
+        //__saveBitmapAsPGM("output.pgm", dstBitmap, width, height);
     }
 
 #endif
