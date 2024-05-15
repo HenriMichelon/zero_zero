@@ -23,7 +23,7 @@ void Window2::onCreate() {
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
-    auto font = Font::create("../examples/LeagueSpartan-Bold.otf", 30);
+    auto font = make_shared<Font>("../examples/LeagueSpartan-Bold.otf", 30);
     uint32_t width, height;
     auto bitmap = font->render("apU", width, height);
     if (stbi_write_png("output.png", width, height, 1, bitmap.data(), width * 1)) {

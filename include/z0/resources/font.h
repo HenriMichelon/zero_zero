@@ -13,7 +13,7 @@ namespace z0 {
 
     class Font: public Resource {
     public:
-        explicit Font(const string& name);
+        explicit Font(const string&, uint32_t);
         ~Font();
 
         /*! Load a font.
@@ -48,7 +48,6 @@ namespace z0 {
 
         CachedCharacter &getFromCache(wchar_t);
         void render(CachedCharacter&, wchar_t);
-        bool openFont(const string&, uint32_t);
 
 #ifdef FT_FREETYPE_H
         FT_Face				face;
