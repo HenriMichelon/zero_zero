@@ -13,6 +13,21 @@ namespace z0 {
 
     class SceneRenderer: public BaseModelsRenderer {
     public:
+               SceneRenderer(const Device& device, const string& shaderDirectory);
+
+        shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
+        VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
+        VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
+
+        void cleanup() override;
+        void addNode(const shared_ptr<Node>& node);
+
+    protected:
+        void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
+        void addedModel(MeshInstance* meshInstance) override;
+        void removingModel(MeshInstance* meshInstance) override;
+
+    private:
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
@@ -33,21 +48,6 @@ namespace z0 {
             alignas(16) float parameters[2];
         };
 
-        SceneRenderer(const Device& device, const string& shaderDirectory);
-
-        shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
-        VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
-        VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
-
-        void cleanup() override;
-        void addNode(const shared_ptr<Node>& node);
-
-    protected:
-        void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
-        void addedModel(MeshInstance* meshInstance) override;
-        void removingModel(MeshInstance* meshInstance) override;
-
-    private:
         // Indices of each models datas in the models uniform buffer
         map<Node::id_t, uint32_t> modelsIndices {};
         // All non-transparents models

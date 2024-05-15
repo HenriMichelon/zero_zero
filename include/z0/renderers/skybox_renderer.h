@@ -8,11 +8,6 @@ namespace z0 {
 
     class SkyboxRenderer: public BaseRenderpass {
     public:
-        struct GobalUniformBuffer {
-            mat4 projection{1.0f};
-            mat4 view{1.0f};
-        };
-
         SkyboxRenderer(const Device& device, const string& shaderDirectory);
 
         void loadScene(shared_ptr<Cubemap>& cubemap);
@@ -25,6 +20,11 @@ namespace z0 {
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
 
     private:
+        struct GobalUniformBuffer {
+            mat4 projection{1.0f};
+            mat4 view{1.0f};
+        };
+
         uint32_t vertexCount;
         shared_ptr<Cubemap> cubemap;
         unique_ptr<Buffer> vertexBuffer;

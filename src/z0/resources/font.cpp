@@ -6,9 +6,9 @@
 
 namespace z0 {
 
-    shared_ptr<Font> Font::create(const string& NAME, uint32_t SIZE, bool B, bool I, bool U) {
+    shared_ptr<Font> Font::create(const string& NAME, uint32_t SIZE) {
         auto font = make_shared<Font>(NAME);
-        if (font->openFont(NAME, SIZE, B, I, U)) {
+        if (font->openFont(NAME, SIZE)) {
             return font;
         }
         die("Font::Create: Cannot open font ", NAME);
@@ -44,13 +44,6 @@ namespace z0 {
         return ymax;
     }
 
-    uint8_t* Font::render(wchar_t CHAR, int32_t &XOFF, int32_t &YOFF) {
-        auto& cchar = getFromCache(CHAR);
-        XOFF = cchar.leftbearing;
-        YOFF = cchar.descent;
-        return cchar.bitmap;
-    }
-
     Font::CachedCharacter& Font::getFromCache(wchar_t CHAR) {
         if (cache.contains(CHAR)) {
             return cache[CHAR];
@@ -61,149 +54,96 @@ namespace z0 {
         }
     }
 
-#ifdef _WIN32
-
-    FIXED Font::fixedFromDouble(double d) {
-        long l = (long) (d * 65536L);
-        return *(FIXED *)&l;
+    vector<uint8_t> Font::render(const std::string &STR, uint32_t &WIDTH, uint32_t &HEIGHT) {
+        WIDTH = getWidth(STR);
+        HEIGHT = getHeight(STR);
+        auto bitmap = vector<uint8_t>(WIDTH * HEIGHT);
+        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+        auto wideString  = converter.from_bytes(STR);
+        int32_t x = 0;
+        int32_t y = 0;
+        for (wchar_t wc : wideString) {
+            auto& cchar = getFromCache(wc);
+            for(int line = 0; line < cchar.height; line++) {
+                auto dest = bitmap.data() + line * WIDTH + x;
+                auto src = cchar.bitmap->data() + line * cchar.width;
+                std::memcpy(dest, src, cchar.width);
+            }
+            x += cchar.xAdvance;
+        }
+        return bitmap;
     }
 
-    Font::Font(const string& name): Resource{name} {
-        mat2.eM11 = fixedFromDouble(1.0);
-        mat2.eM12 = fixedFromDouble(0.0);
-        mat2.eM21 = fixedFromDouble(0.0);
-        mat2.eM22 = fixedFromDouble(1.0);
+#ifdef FT_FREETYPE_H
+
+    FT_Library Font::library{nullptr};
+    uint32_t Font::libraryRef{0};
+
+    Font::Font(const std::string &name): Resource{name} {
+        if (library == nullptr) {
+            if (FT_Init_FreeType(&library)) {
+                die("Could not initialize FreeType library");
+            }
+        }
+        libraryRef += 1;
     }
 
     Font::~Font() {
-        for (auto& cchar : cache) {
-            delete[]cchar.second.bitmap;
-        }
-        DeleteObject(font);
+        FT_Done_Face(face);
+        libraryRef -= 1;
+        if (libraryRef == 0) { FT_Done_FreeType(library); }
     }
 
-    bool Font::openFont(const string &NAME, const uint32_t SIZE, const bool B, const bool I, const bool U) {
-        if (font != nullptr) { DeleteObject(font); }
-
-        string name;
-        if (NAME.empty()) {
-            name = "Verdana";
-        }
-        else {
-            name = NAME;
-        }
-
-        uint32_t size = SIZE;
-        if (!size) { size = 12; }
-
-        int weight = FW_NORMAL;
-        if (B) { weight = FW_BOLD; }
-
-        HDC dc = GetDC(nullptr);
-        if (!dc) {
-            die("Font::openFont cannot get DC");
+    bool Font::openFont(const std::string &FONTNAME, uint32_t SIZE) {
+        // Load a font face from a file
+        if (FT_New_Face(library, FONTNAME.c_str(), 0, &face)) {
+            die("Could not load font face", FONTNAME);
             return false;
         }
-        font = CreateFont(static_cast<int>(-size),
-                          0,
-                          0,
-                          0,
-                          weight,
-                          I,
-                          U,
-                          FALSE,
-                          DEFAULT_CHARSET,
-                          OUT_DEFAULT_PRECIS,
-                          CLIP_DEFAULT_PRECIS,
-                          DEFAULT_QUALITY,
-                          DEFAULT_PITCH | FF_DONTCARE,
-                          name.c_str());
-        if (SelectObject(dc, font) == nullptr) {
-            die("FontRenderer::openFont(): SelectObject() error\n");
-            ReleaseDC(nullptr, dc);
-            return false;
-        }
-        TEXTMETRIC textmetric;
-        GetTextMetrics(dc, &textmetric);
-        height = textmetric.tmAscent + textmetric.tmDescent;
-        ymin = textmetric.tmDescent;
-        ReleaseDC(nullptr, dc);
-        return font != nullptr;
+        // Set the character size (width and height in 1/64th points)
+        FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(SIZE)*64, 300, 300);
+        return true;
     }
 
-    void Font::render(CachedCharacter &car, wchar_t CHAR) {
-        GLYPHMETRICS gm;
-
-        HDC dc = GetDC(nullptr);
-        if (!dc) return;
-        if (SelectObject(dc, font) == nullptr)	{
-            die("FontRenderer::render(): SelectObject() error\n");
-            ReleaseDC(nullptr, dc);
-            return;
+    void __saveBitmapAsPGM(const char* filename, uint8_t* bitmap, uint32_t width, uint32_t  rows) {
+        auto *file = fopen(filename, "wb");
+        if (file) {
+            fprintf(file, "P5\n%d %d\n255\n", width, rows);
+            fwrite(bitmap, 1, width * rows, file);
+            fclose(file);
+        } else {
+            die("Failed to save PGM file", filename);
         }
+    }
 
-        UINT dchar = CHAR;
-        uint32_t size = GetGlyphOutline(dc,
-                                        dchar,
-                                        GGO_BITMAP, // + GGO_GLYPH_INDEX,
-                                        &gm,
-                                        0,
-                                        nullptr,
-                                        &mat2);
-        if (size == GDI_ERROR)	{
-            size = GetGlyphOutline(dc,
-                                   20,
-                                   GGO_BITMAP,
-                                   &gm,
-                                   0,
-                                   nullptr,
-                                   &mat2);
-            if (size == GDI_ERROR)	{
-                ReleaseDC(nullptr, dc);
-                return;
-            }
+    void Font::render(z0::Font::CachedCharacter &cachedCharacter, wchar_t wchar) {
+        // Load and render the glyph for the character 'A'
+        auto glyph_index = FT_Get_Char_Index(face, wchar);
+        if (FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT)) {
+            die("Could not load glyph");
         }
-
-        car.height = gm.gmBlackBoxY;
-        if (size)	{
-            if ((size*4) > (gm.gmBlackBoxX*gm.gmBlackBoxY)) {
-                car.width = gm.gmBlackBoxX + (size * 4 - gm.gmBlackBoxX * gm.gmBlackBoxY) / gm.gmBlackBoxY;
-            } else {
-                car.width = gm.gmBlackBoxX - (gm.gmBlackBoxX * gm.gmBlackBoxY - size * 4) / gm.gmBlackBoxY;
-            }
-
-            car.bitmap = new uint8_t[car.width*car.height];
-            auto *bitmap = new uint8_t[size];
-            GetGlyphOutline(dc, dchar, GGO_BITMAP, &gm, size, bitmap, &mat2);
-            std::memset(car.bitmap, 0, car.width*car.height);
-
-            // Remap to 8 BPP
-            uint32_t idx = 0;
-            for (uint32_t y=0; y<car.height; y++) {
-                for (uint32_t x=0; x<(car.width/8); x++) {
-                    for (uint8_t i=0; i<8; i++) {
-                        car.bitmap[y*car.width + x*8 + (7-i)] = (bitmap[idx] >> i) & 1;
-                    }
-                    idx++;
-                }
-                idx += (car.width/4) - (car.width/8);
-            }
-            delete []bitmap;
+        // Render the glyph to a bitmap
+        if (FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL)) {
+            die("Could not render glyph");
         }
-        else {
-            car.width = gm.gmBlackBoxX;
-            car.bitmap = new uint8_t[car.width*car.height];
-            std::memset(car.bitmap, 0, car.width*car.height);
+        auto width = face->glyph->bitmap.width;
+        auto height = face->glyph->bitmap.rows;
+        cachedCharacter.width = width;
+        cachedCharacter.height = height;
+        // Convert from 1/64th of points to pixels (assuming 72 DPI for simplicity)
+        cachedCharacter.xAdvance = static_cast<int32_t>(static_cast<float>(face->glyph->advance.x) / 64.0f);
+        cachedCharacter.ascent = static_cast<int32_t>(static_cast<float>(face->size->metrics.ascender) / 64.0f);
+        cachedCharacter.descent = static_cast<int32_t>(static_cast<float>(face->size->metrics.descender) / 64.0f);
+
+        cachedCharacter.bitmap = make_unique<vector<uint8_t>>(width * height);
+        FT_Bitmap& srcBitmap = face->glyph->bitmap;
+        uint8_t* dstBitmap = cachedCharacter.bitmap->data();
+        for (int y = 0; y < height; ++y) {
+            std::memcpy(dstBitmap + (y * width), srcBitmap.buffer + (y * srcBitmap.pitch), width);
         }
-        car.leftbearing =  gm.gmptGlyphOrigin.x;
-        car.xAdvance = gm.gmCellIncX; // + car.leftbearing;
-        car.ascent = gm.gmptGlyphOrigin.y;
-        car.descent = gm.gmBlackBoxY-gm.gmptGlyphOrigin.y;
-        ReleaseDC(nullptr, dc);
+        __saveBitmapAsPGM("output.pgm", dstBitmap, width, height);
     }
 
 #endif
-
-
 
 }

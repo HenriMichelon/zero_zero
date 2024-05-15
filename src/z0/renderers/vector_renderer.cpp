@@ -1,5 +1,7 @@
 #include "z0/renderers/vector_renderer.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace z0 {
 
     VectorRenderer::VectorRenderer(const Device &dev,
@@ -42,7 +44,7 @@ namespace z0 {
     void VectorRenderer::drawPoint(vec2 point) {
         nextCommand(PRIMITIVE_POINT);
         point = (point + translate) / SCALE;
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
         vertices.emplace_back(point, color);
     }
 
@@ -50,7 +52,7 @@ namespace z0 {
         nextCommand(PRIMITIVE_LINE);
         start = (start + translate) / SCALE;
         end = (end + translate) / SCALE;
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
         vertices.emplace_back(start, color);
         vertices.emplace_back(end, color);
     }
@@ -71,17 +73,27 @@ namespace z0 {
 
     void VectorRenderer::drawFilledRect(float x, float y, float w, float h) {
         nextCommand(PRIMITIVE_RECT);
-        auto pos = (vec2{x, y} + translate) / SCALE;
-        auto size = vec2{w, h} / SCALE;
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        const auto pos = (vec2{x, y} + translate) / SCALE;
+        const auto size = vec2{w, h} / SCALE;
+        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        /*
+         * v1 ---- v3
+         * |  \     |
+         * |    \   |
+         * v0 ---- v2
+         */
+        const Vertex v0{vec2{pos.x, pos.y}, color, vec2{0.0f, 0.0f}};
+        const Vertex v1{vec2{pos.x, pos.y+size.y}, color, vec2{0.0f, 1.0f}};
+        const Vertex v2{vec2{pos.x+size.x, pos.y}, color, vec2{1.0f, 0.0f}};
+        const Vertex v3{vec2{pos.x+size.x, pos.y+size.y}, color, vec2{1.0f, 1.0f}};
         // First triangle
-        vertices.emplace_back(vec2{pos.x, pos.y}, color);
-        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, color);
+        vertices.emplace_back(v0);
+        vertices.emplace_back(v1);
+        vertices.emplace_back(v2);
         // Second triangle
-        vertices.emplace_back(vec2{pos.x, pos.y+size.y}, color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y+size.y}, color);
-        vertices.emplace_back(vec2{pos.x+size.x, pos.y}, color);
+        vertices.emplace_back(v1);
+        vertices.emplace_back(v3);
+        vertices.emplace_back(v2);
     }
 
     void VectorRenderer::beginDraw() {
@@ -132,11 +144,7 @@ namespace z0 {
             stagingBuffer->writeToBuffer((void*)vertices.data());
             stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
             // Initialize pipeline layout if needed
-            if (setLayout == nullptr) {
-                createDescriptorSetLayout();
-                createPipelineLayout();
-                loadShaders();
-            }
+            createOrUpdateResources();
         }
     }
 
@@ -161,6 +169,7 @@ namespace z0 {
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+        //bindDescriptorSets(commandBuffer, currentFrame);
 
         uint32_t vertexIndex = 0;
         for (const auto& command : commands) {
@@ -174,7 +183,31 @@ namespace z0 {
     }
 
     void VectorRenderer::createDescriptorSetLayout() {
-        setLayout = DescriptorSetLayout::Builder(device).build();
+        /*descriptorPool = DescriptorPool::Builder(device)
+                .setMaxSets(MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                .build();*/
+
+
+        setLayout = DescriptorSetLayout::Builder(device)
+                /*.addBinding(1,
+                            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            VK_SHADER_STAGE_FRAGMENT_BIT,
+                            1)*/
+                .build();
+    }
+
+    void VectorRenderer::createOrUpdateDescriptorSet(bool create) {
+        /*if (create) {
+            for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+                //auto imageInfo = cubemap->_getImageInfo();
+                auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                        .writeBuffer(0, &globalBufferInfo);
+                //.writeImage(1, &imageInfo);
+                if (!writer.build(descriptorSet[i])) die("Cannot allocate VectorRenderer descriptor set");
+            }
+        }*/
     }
 
     void VectorRenderer::recreateImagesResources() {

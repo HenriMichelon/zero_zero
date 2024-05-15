@@ -146,13 +146,15 @@ namespace z0 {
     }
 
     void SkyboxRenderer::createOrUpdateDescriptorSet(bool create) {
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto imageInfo = cubemap->_getImageInfo();
-            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                    .writeBuffer(0, &globalBufferInfo)
-                    .writeImage(1, &imageInfo);
-            if (!writer.build(descriptorSet[i])) die("Cannot allocate skybox renderer descriptor set");
+        if (create) {
+            for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+                auto imageInfo = cubemap->_getImageInfo();
+                auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                        .writeBuffer(0, &globalBufferInfo)
+                        .writeImage(1, &imageInfo);
+                if (!writer.build(descriptorSet[i])) die("Cannot allocate skybox renderer descriptor set");
+            }
         }
     }
 

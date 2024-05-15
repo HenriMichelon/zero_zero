@@ -60,6 +60,7 @@ namespace z0 {
         void loadShaders() override;
         void createDescriptorSetLayout() override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void createOrUpdateDescriptorSet(bool create) override;
 
     private:
         // Drawind commands primitives
@@ -124,6 +125,9 @@ namespace z0 {
         bool                                          internalColorFrameBuffer;
         // The color attachemenbt for rendering
         shared_ptr<ColorFrameBufferHDR>               colorFrameBufferHdr{VK_NULL_HANDLE};
+        // Maximum number of images supported by this renderer
+        static constexpr uint32_t                     MAX_IMAGES = 200;
+
         void init();
     };
 
