@@ -1,7 +1,7 @@
 #pragma once
 
 #include "z0/color.h"
-#include "z0/resources/resource.h"
+#include "z0/resources/image.h"
 
 #include <map>
 
@@ -26,28 +26,36 @@ namespace z0 {
         /*! Return the size (in pixels) for a string */
         void getSize(const string&, uint32_t&, uint32_t&);
 
-        /*! Render a string into 8 bpp bitmap.
+        /*! Render a string into RGBA bitmap,
+         *  Glyph is white with alpha channel mapped to the glyphs geometry
             Offsets are incremented
             \param string	: string to render
             \param uint32_t : size in pixels
-            \return NULL if error or a managed bitmap address
+            \return
         */
-        vector<uint8_t> render(const string&, uint32_t&, uint32_t&);
+        vector<uint32_t> renderToBitmap(const string&, uint32_t&, uint32_t&);
+
+        /*! Render a string into 8 bpp bitmap.
+            Offsets are incremented
+            \param string	: string to render
+            \return
+        */
+        shared_ptr<Image> renderToImage(const Device&, const string&);
 
     private:
         // Already rendered characters
         struct CachedCharacter {
-            int32_t	        advance;
-            int32_t	        xBearing;
-            int32_t	        yBearing;
-            uint32_t	    width;
-            uint32_t	    height;
-            unique_ptr<vector<uint8_t>> bitmap;
+            int32_t	                     advance;
+            int32_t	                     xBearing;
+            int32_t	                     yBearing;
+            uint32_t	                 width;
+            uint32_t	                 height;
+            unique_ptr<vector<uint32_t>> bitmap;
         };
-        map<wchar_t, CachedCharacter>   cache;
+        map<char, CachedCharacter>   cache;
 
-        CachedCharacter &getFromCache(wchar_t);
-        void render(CachedCharacter&, wchar_t);
+        CachedCharacter &getFromCache(char);
+        void render(CachedCharacter&, char);
 
 #ifdef FT_FREETYPE_H
         FT_Face				face;

@@ -2,7 +2,16 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <stb_image.h>
+#include <stb_image_write.h>
+
 namespace z0 {
+
+    void vr_stb_write_func(void *context, void *data, int size) {
+        auto* buffer = reinterpret_cast<vector<unsigned char>*>(context);
+        auto* ptr = static_cast<unsigned char*>(data);
+        buffer->insert(buffer->end(), ptr, ptr + size);
+    }
 
     VectorRenderer::VectorRenderer(const Device &dev,
                                    const string& sDir) :
@@ -169,7 +178,10 @@ namespace z0 {
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-        //bindDescriptorSets(commandBuffer, currentFrame);
+
+        int textureIndex = -1;
+        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(int), &textureIndex);
+        bindDescriptorSets(commandBuffer, currentFrame);
 
         uint32_t vertexIndex = 0;
         for (const auto& command : commands) {
@@ -182,32 +194,62 @@ namespace z0 {
         }
     }
 
+    void VectorRenderer::createPipelineLayout() {
+        VkPushConstantRange push_constants[1] = {};
+        push_constants[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        push_constants[0].offset = 0;
+        push_constants[0].size = sizeof(int) * 1;
+        const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
+                .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+                .setLayoutCount = 1,
+                .pSetLayouts = setLayout->getDescriptorSetLayout(),
+                .pushConstantRangeCount = 1,
+                .pPushConstantRanges = push_constants
+        };
+        if (vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+            die("failed to create pipeline layout!");
+        }
+    }
+
     void VectorRenderer::createDescriptorSetLayout() {
-        /*descriptorPool = DescriptorPool::Builder(device)
+        descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
-                .build();*/
-
+                .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
-                /*.addBinding(1,
+                .addBinding(0,
                             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                             VK_SHADER_STAGE_FRAGMENT_BIT,
-                            1)*/
+                            MAX_IMAGES)
                 .build();
+
+        // Create an in-memory default blank image
+        // and initialize the image info array with this image
+        if (blankImage == nullptr) {
+            auto data = new unsigned char[1 * 1 * 3];
+            data[0] = 0;
+            data[1] = 0;
+            data[2] = 0;
+            stbi_write_jpg_to_func(vr_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
+            delete[] data;
+            blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
+            for (auto &imageInfo: imagesInfo) {
+                imageInfo = blankImage->_getImageInfo();
+            }
+        }
     }
 
     void VectorRenderer::createOrUpdateDescriptorSet(bool create) {
-        /*if (create) {
-            for (uint32_t i = 0; i < descriptorSet.size(); i++) {
-                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-                //auto imageInfo = cubemap->_getImageInfo();
-                auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                        .writeBuffer(0, &globalBufferInfo);
-                //.writeImage(1, &imageInfo);
-                if (!writer.build(descriptorSet[i])) die("Cannot allocate VectorRenderer descriptor set");
+        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                    .writeImage(0, imagesInfo.data());
+            if (create) {
+                if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
+            } else {
+                writer.overwrite(descriptorSet[i]);
             }
-        }*/
+        }
     }
 
     void VectorRenderer::recreateImagesResources() {

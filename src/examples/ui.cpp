@@ -8,7 +8,8 @@
 
 #include "ui.h"
 
-#include "stb_image_write.h"
+/*#include <stb_image.h>
+#include <stb_image_write.h>*/
 
 void Window2::onCreate() {
     setTransparency(0.8f);
@@ -23,14 +24,14 @@ void Window2::onCreate() {
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
-    auto font = make_shared<Font>("../examples/LeagueSpartan-Bold.otf", 30);
+    /*auto font = make_shared<Font>("../examples/LeagueSpartan-Bold.otf", 12);
     uint32_t width, height;
-    auto bitmap = font->render("apU", width, height);
-    if (stbi_write_png("output.png", width, height, 1, bitmap.data(), width * 1)) {
+    auto bitmap = font->renderToBitmap("Bonjour, monde !", width, height);
+    if (stbi_write_png("output.png", width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha)) {
         std::cout << "Image saved successfully.\n";
     } else {
         std::cerr << "Failed to save the image.\n";
-    }
+    }*/
     cout << "BUTTON CLIC" << endl;
 }
 /*

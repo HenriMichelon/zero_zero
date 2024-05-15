@@ -11,7 +11,7 @@
 
 namespace z0 {
 
-    void stb_write_func(void *context, void *data, int size) {
+    void sc_stb_write_func(void *context, void *data, int size) {
         auto* buffer = reinterpret_cast<vector<unsigned char>*>(context);
         auto* ptr = static_cast<unsigned char*>(data);
         buffer->insert(buffer->end(), ptr, ptr + size);
@@ -222,9 +222,9 @@ namespace z0 {
             data[0] = 0;
             data[1] = 0;
             data[2] = 0;
-            stbi_write_jpg_to_func(stb_write_func, &blankImageData, 1, 1, 3, data, 100);
+            stbi_write_jpg_to_func(sc_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
             delete[] data;
-            blankImage = make_shared<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
+            blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
             for (auto &imageInfo: imagesInfo) {
                 imageInfo = blankImage->_getImageInfo();
             }

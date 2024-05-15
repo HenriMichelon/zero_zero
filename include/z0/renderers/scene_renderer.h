@@ -13,14 +13,14 @@ namespace z0 {
 
     class SceneRenderer: public BaseModelsRenderer {
     public:
-               SceneRenderer(const Device& device, const string& shaderDirectory);
+        SceneRenderer(const Device& device, const string& shaderDirectory);
 
         shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
         VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
         VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
 
         void cleanup() override;
-        void addNode(const shared_ptr<Node>& node);
+        void addNode(const shared_ptr<Node>& node) override;
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -77,16 +77,16 @@ namespace z0 {
         // Images infos for descriptor sets, pre-filled with blank images
         array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
         // Default blank image
-        shared_ptr<Image> blankImage{nullptr};
+        unique_ptr<Image> blankImage{nullptr};
         // Default blank image raw datas
         vector<unsigned char> blankImageData;
         // For rendering an optional skybox
-        unique_ptr<SkyboxRenderer> skyboxRenderer {nullptr};
+        unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
 
         // Offscreen frame buffers attachements
-        ColorFrameBuffer colorFrameBufferMultisampled;
+        ColorFrameBuffer                colorFrameBufferMultisampled;
         shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
-        shared_ptr<DepthFrameBuffer> resolvedDepthFrameBuffer;
+        shared_ptr<DepthFrameBuffer>    resolvedDepthFrameBuffer;
 
         void update(uint32_t currentFrame) override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;

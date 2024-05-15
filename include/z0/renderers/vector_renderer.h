@@ -61,6 +61,7 @@ namespace z0 {
         void createDescriptorSetLayout() override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
         void createOrUpdateDescriptorSet(bool create) override;
+        void createPipelineLayout() override;
 
     private:
         // Drawind commands primitives
@@ -126,7 +127,13 @@ namespace z0 {
         // The color attachemenbt for rendering
         shared_ptr<ColorFrameBufferHDR>               colorFrameBufferHdr{VK_NULL_HANDLE};
         // Maximum number of images supported by this renderer
-        static constexpr uint32_t                     MAX_IMAGES = 200;
+        static constexpr uint32_t                     MAX_IMAGES = 100;
+        // Default blank image
+        unique_ptr<Image>                             blankImage{nullptr};
+        // Default blank image raw datas
+        vector<unsigned char>                         blankImageData;
+        // Images infos for descriptor sets, pre-filled with blank images
+        array<VkDescriptorImageInfo, MAX_IMAGES>      imagesInfo;
 
         void init();
     };

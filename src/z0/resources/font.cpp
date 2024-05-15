@@ -4,6 +4,9 @@
 #include <codecvt>
 #include <cstring>
 
+#include <stb_image.h>
+//#include <stb_image_write.h>
+
 namespace z0 {
 
     void Font::getSize(const std::string &str, uint32_t&width, uint32_t&height) {
@@ -22,7 +25,7 @@ namespace z0 {
         height = max_height + max_descender;
     }
 
-    Font::CachedCharacter& Font::getFromCache(wchar_t CHAR) {
+    Font::CachedCharacter& Font::getFromCache(char CHAR) {
         if (cache.contains(CHAR)) {
             return cache[CHAR];
         } else {
@@ -32,13 +35,11 @@ namespace z0 {
         }
     }
 
-    vector<uint8_t> Font::render(const std::string &str, uint32_t&width, uint32_t&height) {
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        auto wideString= converter.from_bytes(str);
+    vector<uint32_t> Font::renderToBitmap(const std::string &str, uint32_t&width, uint32_t&height) {
         width = 0;
         uint32_t max_height = 0;
         uint32_t max_descender = 0;
-        for (wchar_t wc : wideString) {
+        for (auto wc : str) {
             auto& cchar = getFromCache(wc);
             width += cchar.advance;
             auto descender = cchar.height - cchar.yBearing;
@@ -47,19 +48,32 @@ namespace z0 {
         }
         height = max_height + max_descender;
 
-        auto bitmap = vector<uint8_t>(width * height);
+        auto bitmap = vector<uint32_t>(width * height, 0);
         int32_t x = 0;
-        for (wchar_t wc : wideString) {
+        for (auto wc : str) {
             auto& cchar = getFromCache(wc);
             auto offset = height - cchar.yBearing - max_descender;
             for(int line = 0; line < cchar.height; line++) {
                 auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
                 auto src = cchar.bitmap->data() + (line * cchar.width);
-                std::memcpy(dest, src, cchar.width);
+                std::memcpy(dest, src, cchar.width * 4);
             }
             x += cchar.advance;
         }
         return bitmap;
+    }
+
+    shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
+        uint32_t width, height;
+        auto bitmap = renderToBitmap(str, width, height);
+        return make_shared<Image>(device,
+                                  str,
+                                  width,
+                                  height,
+                                  width * height * STBI_rgb_alpha,
+                                  bitmap.data(),
+                                  VK_FORMAT_R32G32B32A32_SFLOAT,
+                                  VK_IMAGE_TILING_LINEAR );
     }
 
 #ifdef FT_FREETYPE_H
@@ -102,7 +116,7 @@ namespace z0 {
         }
     }*/
 
-    void Font::render(CachedCharacter &cachedCharacter, wchar_t wchar) {
+    void Font::render(CachedCharacter &cachedCharacter, char wchar) {
         // Load and render the glyph for the character
         auto glyph_index = FT_Get_Char_Index(face, wchar);
         if (FT_Load_Glyph(face, glyph_index, FT_LOAD_RENDER)) {
@@ -117,15 +131,21 @@ namespace z0 {
         cachedCharacter.advance = static_cast<int32_t>(static_cast<float>(face->glyph->advance.x) / 64.0f);
         cachedCharacter.xBearing = static_cast<int32_t>(face->glyph->bitmap_left);
         cachedCharacter.yBearing = static_cast<int32_t>(face->glyph->bitmap_top);
-        cachedCharacter.bitmap = make_unique<vector<uint8_t>>(width * height);
 
-        // Copy temporary bitmap to bitmap vector
-        FT_Bitmap& srcBitmap = face->glyph->bitmap;
-        uint8_t* dstBitmap = cachedCharacter.bitmap->data();
+        // Allocate RGBA bitmap
+        cachedCharacter.bitmap = make_unique<vector<uint32_t>>(width * height, 0);
+
+        // Copy temporary bitmap to bitmap vector while converting to RGBA
+        auto& srcBitmap = face->glyph->bitmap;
+        auto* dstBitmap = cachedCharacter.bitmap->data();
         for (int y = 0; y < height; ++y) {
-            std::memcpy(dstBitmap + (y * width), srcBitmap.buffer + (y * srcBitmap.pitch), width);
+            for (int x = 0; x < width; x++) {
+                uint8_t gray = srcBitmap.buffer[y * srcBitmap.pitch + x];
+                dstBitmap[y * width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray;
+            }
         }
-        //__saveBitmapAsPGM("output.pgm", dstBitmap, width, height);
+        //__saveBitmapAsPGM("output.pgm", srcBitmap.buffer, width, height);
+        //STBI_rgb_alphastbi_write_png("glyph.png", width, height, STBI_rgb_alpha, dstBitmap, width * STBI_rgb_alpha);
     }
 
 #endif

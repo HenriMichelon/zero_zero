@@ -13,7 +13,8 @@ namespace z0 {
                  uint32_t h,
                  VkDeviceSize imageSize,
                  const void* data,
-                 VkFormat format):
+                 VkFormat format,
+                 VkImageTiling tiling):
             Resource(name),
             device{dev},
             width{w},
@@ -32,7 +33,7 @@ namespace z0 {
                            mipLevels,
                            VK_SAMPLE_COUNT_1_BIT,
                            format,
-                           VK_IMAGE_TILING_OPTIMAL,
+                           tiling,
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                            textureImage,
@@ -99,8 +100,7 @@ namespace z0 {
                                        static_cast<uint32_t>(texWidth),
                                        static_cast<uint32_t>(texHeight),
                                        imageSize,
-                                       (void*)pixels,
-                                       VK_FORMAT_R8G8B8A8_SRGB);
+                                       (void*)pixels);
         stbi_image_free(pixels);
         return image;
     }

@@ -10,7 +10,7 @@ namespace z0 {
 
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        // Add a model to the scene and update descriptor set
+        virtual // Add a model to the scene and update descriptor set
         void addNode(const shared_ptr<Node>& node);
         // Remove a model to the scene and update descriptor set
         void removeNode(const shared_ptr<Node>& node);
