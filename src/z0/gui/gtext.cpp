@@ -33,14 +33,9 @@ namespace z0 {
             uint32_t w, h;
             getFont()->getSize(text, w, h);
             if (autoSize) {
-                if (parent) {
-                    w = std::min(w, parent->getWidth());
-                    h = std::min(h, parent->getHeight());
-                }
                 setSize(w, h);
             } else {
                 setFreezed(true);
-                if (parent) { h = std::min(h, parent->getHeight()); }
                 rect.height = h;
                 resizeChildren();
                 setFreezed(false);

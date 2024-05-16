@@ -302,6 +302,10 @@ namespace z0 {
         else {
             arect.height = 0;
         }
+        if (pushed) {
+            arect.x += 1;
+            arect.y -= 1;
+        }
 
         auto it = children.begin();
         while ((arect.width>0) && (arect.height>0) && (it != children.end())) {
@@ -318,11 +322,11 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + (arect.width - wrect.width)/2;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + (arect.height- wrect.height)/2;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
                     arect.width = 0;
                     arect.height = 0;
                     break;
@@ -330,7 +334,7 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + (arect.width - wrect.width)/2;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
                     wrect.y = arect.y;
                     wrect.height = arect.height;
                     arect.width = 0;
@@ -339,7 +343,7 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + (arect.height- wrect.height)/2;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
                     wrect.x = arect.x;
                     wrect.width = arect.width;
                     arect.width = 0;
@@ -348,7 +352,7 @@ namespace z0 {
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     wrect.width = arect.width;
-                    arect.y += wrect.height + padding;
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     break;
@@ -356,7 +360,7 @@ namespace z0 {
                     wrect.x = arect.x;
                     wrect.y = arect.y;
                     wrect.height = arect.height;
-                    arect.x += wrect.width + padding;
+                    arect.x += static_cast<int32_t>(wrect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
@@ -365,7 +369,7 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     wrect.width = arect.width;
                     break;
@@ -373,7 +377,7 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     wrect.y = arect.y;
                     wrect.height = arect.height;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
@@ -383,8 +387,8 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + (arect.width - wrect.width)/2;
-                    arect.y += wrect.height + padding;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     arect.height -= wrect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
@@ -393,11 +397,11 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + (arect.width - wrect.width)/2;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     break;
                 case LEFTCENTER:
@@ -405,8 +409,8 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + (arect.height- wrect.height)/2;
-                    arect.x += wrect.width + padding;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
+                    arect.x += static_cast<int32_t>(wrect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
@@ -414,17 +418,17 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + (arect.height- wrect.height)/2;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
                 case BOTTOMLEFT:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
-                    arect.y += wrect.height + padding;
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     arect.height -= wrect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
@@ -434,18 +438,18 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     break;
                 case TOPRIGHT:
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
                     break;
                 case BOTTOMRIGHT:
@@ -453,16 +457,16 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     arect.height -= wrect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
-                    arect.y += wrect.height + padding;
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     break;
                 case LEFTBOTTOM:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
-                    arect.x += wrect.width + padding;
+                    arect.x += static_cast<int32_t>(wrect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
@@ -471,8 +475,8 @@ namespace z0 {
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
-                    arect.x += wrect.width + padding;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
+                    arect.x += static_cast<int32_t>(wrect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
@@ -480,11 +484,11 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
                 case RIGHTBOTTOM:
@@ -492,38 +496,38 @@ namespace z0 {
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
                     break;
                 case CORNERBOTTOMLEFT:
                     wrect.x = arect.x;
                     wrect.y = arect.y;
-                    arect.y += wrect.height + padding;
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     break;
                 case CORNERTOPLEFT:
                     wrect.x = arect.x;
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     break;
                 case CORNERTOPRIGHT:
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
                     if (wrect.height > arect.height)
                         wrect.y = 0;
                     else
-                        wrect.y = arect.y + arect.height - wrect.height;
+                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
                     break;
                 case CORNERBOTTOMRIGHT:
                     wrect.y = arect.y;
                     if (wrect.width > arect.width)
                         wrect.x = 0;
                     else
-                        wrect.x = arect.x + arect.width - wrect.width;
-                    arect.y += wrect.height + padding;
+                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
+                    arect.y += static_cast<int32_t>(wrect.height) + padding;
                     break;
                 default:
                     continue;
@@ -557,15 +561,13 @@ namespace z0 {
         if (!enabled) { return false; }
         bool consumed = false;
         bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
-        pushed = !isTransparent();
+        pushed = true;
         GWidget* wfocus = nullptr;
         for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
                 consumed |= w->eventMouseDown(B, X, Y);
                 wfocus = w.get();
-                if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->pushed) && (!w->isTransparent())) {
-                    w->refresh();
-                }
+                if (w->redrawOnMouseEvent) { w->refresh(); }
                 if (consumed) { break; }
             }
         }
@@ -587,9 +589,7 @@ namespace z0 {
         for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
                 consumed |= w->eventMouseUp(B, X, Y);
-                if (w->redrawOnMouseEvent && (w->getRect().contains(X, Y) || w->pushed) && (!w->isTransparent())) {
-                    w->refresh();
-                }
+                if (w->redrawOnMouseEvent) { w->refresh(); }
                 if (consumed) { break; }
             }
         }
@@ -690,7 +690,7 @@ namespace z0 {
 
     void GWidget::refresh() {
         if (!freeze) {
-            //refresh(rect);
+            resizeChildren();
         }
     }
 

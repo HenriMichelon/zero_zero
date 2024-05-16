@@ -5,7 +5,7 @@ namespace z0 {
     GButton::GButton(): GBox{BUTTON} {
         moveChildsOnPush = true;
         redrawOnMouseEvent = true;
-        redrawOnMouseMove = true;
+        //redrawOnMouseMove = true;
         allowFocus = true;
     }
 

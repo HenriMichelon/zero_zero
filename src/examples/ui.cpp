@@ -19,7 +19,7 @@ void Window2::onCreate() {
     auto button = make_shared<GButton>();
     button->connect(GEvent::OnClick, this, GEventFunction(&Window2::onButtonClic));
     getWidget().add(button, GWidget::CENTER, "70,40");
-    button->add(make_shared<GText>("Clic me !"), GWidget::CENTER);
+    button->add(make_shared<GText>("Clic me !"), GWidget::FILL);
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
