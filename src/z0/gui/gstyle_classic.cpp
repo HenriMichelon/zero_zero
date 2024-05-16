@@ -222,7 +222,7 @@ namespace z0 {
         uint32_t w = W.getRect().width;
         uint32_t h = W.getRect().height;
         if (W.isDrawBackground())	{
-            if (W.isPushed() && W.isMoveChildsOnPush()) {
+            if (W.isPushed()) {
                 D.setPenColor(fgDown);
             }
             else {

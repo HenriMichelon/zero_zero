@@ -153,7 +153,6 @@ namespace z0 {
     void VectorRenderer::loadShaders() {
         vertShader = createShader("vector.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("vector.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-        cout << "loadShaders" << endl;
     }
 
     void VectorRenderer::update(uint32_t currentFrame) {

@@ -190,7 +190,6 @@ namespace z0 {
         bool isFreezed() const;
         bool isTransparent() const;
         bool isRedrawOnMouseEvent() const;
-        bool isMoveChildsOnPush() const;
         Rect getChildrenRect() const;
 
         void setTransparent(bool t) { transparent = t; }
@@ -248,7 +247,6 @@ namespace z0 {
         bool			          transparent;
         bool			          drawBackground{true};
         bool			          moveChildsOnPush{false};
-        bool			          moveChildsNow{false};
         bool			          redrawOnMouseEvent{false};
         bool			          redrawOnMouseMove{false};
         bool			          mouseMoveOnFocus{false};

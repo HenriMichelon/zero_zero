@@ -102,7 +102,7 @@ namespace z0 {
         virtual void onLostFocus() {};
 
         shared_ptr<Font>& getDefaultFont() const;
-
+        void refresh();
 
     private:
         Rect                rect;
@@ -114,7 +114,6 @@ namespace z0 {
         float               transparency{1.0};
 
         void unFreeze(shared_ptr<GWidget>&);
-        void refresh();
         void draw() const;
 
         friend class GManager;

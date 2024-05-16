@@ -9,9 +9,6 @@
 
 #include "ui.h"
 
-/*#include <stb_image.h>
-#include <stb_image_write.h>*/
-
 void Window2::onCreate() {
     //setTransparency(0.8f);
     getWidget().setPadding(5);
@@ -25,39 +22,6 @@ void Window2::onCreate() {
 void Window2::onButtonClic(GWidget &, GEvent *) {
     cout << "BUTTON CLIC" << endl;
 }
-/*
-bool Window2::onKeyDown(Key key) {
-    cout << "onKeyDown " << key << endl;
-    return false;
-};
-
-bool Window2::onKeyUp(Key key) {
-    cout << "onKeyUp " << key << endl;
-    return false;
-};
-
-bool Window2::onMouseDown(MouseButton, uint32_t x, uint32_t y) {
-    cout << "onMouseDown " << x << " " << y << endl;
-    return true;
-};
-bool Window2::onMouseUp(MouseButton, uint32_t x, uint32_t y) {
-    cout << "onMouseUp " << x << " " << y << endl;
-    return true;
-};
-bool Window2::onMouseMove(MouseButton, uint32_t x, uint32_t y) {
-    cout << "onMouseMove " << x << " " << y << endl;
-    return true;
-};
-
-void Window2::onBoxCreate(GWidget &widget, GEvent*) {
-    cout << "BOX CREATE" << endl;
-}
-
-void Window2::onBoxMouseDown(z0::GWidget &widget, GEvent *event) {
-    auto* mouseEvent = (GEventMouse*)event;
-    cout << "BOX MOUSE DOWN" << mouseEvent->x << "x" << mouseEvent->y << endl;
-    mouseEvent->consumed = true;
-}*/
 
 bool UIMainScene::onInput(InputEvent &inputEvent) {
     if (inputEvent.getType() == INPUT_EVENT_KEY) {

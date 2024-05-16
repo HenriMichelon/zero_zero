@@ -273,7 +273,7 @@ namespace z0 {
     void GWidget::eventResize() {
         if (freeze) return;
         freeze = true;
-        if (parent && (!parent->freeze)) parent->resizeChildren();
+        if (parent) parent->resizeChildren();
         if (rect.width && rect.height) {
             auto event = make_shared<GEventSize>(rect.width, rect.height);
             resizeChildren();
@@ -283,258 +283,301 @@ namespace z0 {
         freeze = false;
     }
 
+    bool GWidget::clipRect(Rect&R, const Rect& R1, const Rect& R2) const {
+        if ((!R1.width) || (!R1.height) ||
+            (!R2.width) || (!R2.height)) {
+            return false;
+        }
+        if (R1.x > R2.x) {
+            R.width = std::min(R1.width, R2.width - (R1.x - R2.x));
+            R.x = R1.x;
+        }
+        else {
+            R.width = std::min(R2.width, R1.width - (R2.x - R1.x));
+            R.x = R2.x;
+        }
+        if (R1.y > R2.y) {
+            R.height = std::min(R1.height, R2.height - (R1.y - R2.y));
+            R.y = R1.y;
+        }
+        else {
+            R.height = std::min(R2.height, R1.height - (R2.y - R1.y));
+            R.y = R2.y;
+        }
+        return ((R.width > 0) && (R.height > 0));
+    }
+
+    void GWidget::maxRect(Rect&R, const Rect A, const Rect B) const {
+        if ((!A.width) || (!A.height)) {
+            R = B;
+        }
+        else if ((!B.width) || (!B.height)) {
+            R = A;
+        }
+        else {
+            R.width = std::max(0, std::max(A.x + int32_t(A.width), B.x + int32_t(B.width)));
+            R.height = std::max(0, std::max(A.y + int32_t(A.height), B.y + int32_t(B.height)));
+            R.x = std::max(0, std::min(A.x, B.x));
+            R.y = std::max(0, std::min(A.y, B.y));
+            R.width -= R.x;
+            R.height -= R.y;
+        }
+    }
+
+
     void GWidget::resizeChildren() {
-        if (!layout) { return; }
+        if ((!layout) || (freeze)) { return; }
         freeze = true;
         layout->resize(*this, rect, *resource);
-        Rect arect = rect;
-        arect.x += hborder + padding + childrenRect.x;
-        if (arect.width > (2 * hborder + 2 * padding) ) {
-            arect.width -= 2 * hborder + 2 * padding;
+
+        Rect clientRect = rect;
+        clientRect.x += hborder + padding;
+        if (clientRect.width > (2 * hborder + 2 * padding) ) {
+            clientRect.width -= 2 * hborder + 2 * padding;
         }
         else {
-            arect.width = 0;
+            clientRect.width = 0;
         }
-        arect.y += vborder + padding + childrenRect.y;
-        if (arect.height > (2 * vborder + 2 * padding) ) {
-            arect.height -= 2 * vborder + 2 * padding;
+        clientRect.y += vborder + padding;
+        if (clientRect.height > (2 * vborder + 2 * padding) ) {
+            clientRect.height -= 2 * vborder + 2 * padding;
         }
         else {
-            arect.height = 0;
+            clientRect.height = 0;
         }
         if (pushed) {
-            arect.x += 1;
-            arect.y -= 1;
+            clientRect.x += 1;
+            clientRect.y -= 1;
+            clientRect.width -= 1;
+            clientRect.height -= 1;
         }
 
         auto it = children.begin();
-        while ((arect.width>0) && (arect.height>0) && (it != children.end())) {
-            auto& w = *it;
-            Rect wrect = w->rect;
-            switch (w->alignment)
-            {
+        while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {
+            auto& child = *it;
+            Rect childRect = child->rect;
+            switch (child->alignment) {
                 case FILL:
-                    wrect = arect;
-                    arect.width = 0;
-                    arect.height = 0;
+                    childRect = clientRect;
+                    clientRect.width = 0;
+                    clientRect.height = 0;
                     break;
                 case CENTER:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width) / 2;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
-                    arect.width = 0;
-                    arect.height = 0;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height) / 2;
+                    clientRect.width = 0;
+                    clientRect.height = 0;
                     break;
                 case VCENTER:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
-                    wrect.y = arect.y;
-                    wrect.height = arect.height;
-                    arect.width = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width) / 2;
+                    childRect.y = clientRect.y;
+                    childRect.height = clientRect.height;
+                    clientRect.width = 0;
                     break;
                 case HCENTER:
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
-                    wrect.x = arect.x;
-                    wrect.width = arect.width;
-                    arect.width = 0;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height) / 2;
+                    childRect.x = clientRect.x;
+                    childRect.width = clientRect.width;
+                    clientRect.width = 0;
                     break;
                 case BOTTOM:
-                    wrect.x = arect.x;
-                    wrect.y = arect.y;
-                    wrect.width = arect.width;
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                    childRect.x = clientRect.x;
+                    childRect.y = clientRect.y;
+                    childRect.width = clientRect.width;
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
+                    clientRect.height = std::max(0, int32_t(clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case LEFT:
-                    wrect.x = arect.x;
-                    wrect.y = arect.y;
-                    wrect.height = arect.height;
-                    arect.x += static_cast<int32_t>(wrect.width) + padding;
+                    childRect.x = clientRect.x;
+                    childRect.y = clientRect.y;
+                    childRect.height = clientRect.height;
+                    clientRect.x += static_cast<int32_t>(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case TOP:
-                    wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    childRect.x = clientRect.x;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
-                    wrect.width = arect.width;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    clientRect.height = std::max(0, int32_t(clientRect.height - (childRect.height + 2 * padding)));
+                    childRect.width = clientRect.width;
                     break;
                 case RIGHT:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    wrect.y = arect.y;
-                    wrect.height = arect.height;
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    childRect.y = clientRect.y;
+                    childRect.height = clientRect.height;
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMCENTER:
-                    wrect.y = arect.y;
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    childRect.y = clientRect.y;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width) / 2;
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
-                    arect.height -= wrect.height + 2 * padding;
+                    clientRect.height -= childRect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
                     break;
                 case TOPCENTER:
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width)/2;
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width) / 2;
+                    clientRect.height = std::max(0, int32_t(clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case LEFTCENTER:
-                    wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    childRect.x = clientRect.x;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
-                    arect.x += static_cast<int32_t>(wrect.width) + padding;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height) / 2;
+                    clientRect.x += static_cast<int32_t>(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTCENTER:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height- wrect.height)/2;
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height) / 2;
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMLEFT:
-                    wrect.x = arect.x;
-                    wrect.y = arect.y;
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                    childRect.x = clientRect.x;
+                    childRect.y = clientRect.y;
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
-                    arect.height -= wrect.height + 2 * padding;
+                    clientRect.height -= childRect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
                     break;
                 case TOPLEFT:
-                    wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    childRect.x = clientRect.x;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    clientRect.height = std::max(0, int32_t(clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case TOPRIGHT:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    arect.height = std::max(0, int32_t(arect.height - (wrect.height + 2 * padding)));
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    clientRect.height = std::max(0, int32_t(clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case BOTTOMRIGHT:
-                    wrect.y = arect.y;
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    childRect.y = clientRect.y;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    arect.height -= wrect.height + 2 * padding;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    clientRect.height -= childRect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     break;
                 case LEFTBOTTOM:
-                    wrect.x = arect.x;
-                    wrect.y = arect.y;
-                    arect.x += static_cast<int32_t>(wrect.width) + padding;
+                    childRect.x = clientRect.x;
+                    childRect.y = clientRect.y;
+                    clientRect.x += static_cast<int32_t>(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case LEFTTOP:
-                    wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    childRect.x = clientRect.x;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    arect.x += static_cast<int32_t>(wrect.width) + padding;
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    clientRect.x += static_cast<int32_t>(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTTOP:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTBOTTOM:
-                    wrect.y = arect.y;
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    childRect.y = clientRect.y;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    arect.width = std::max(0, int32_t(arect.width - (wrect.width + 2 * padding)));
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    clientRect.width = std::max(0, int32_t(clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case CORNERBOTTOMLEFT:
-                    wrect.x = arect.x;
-                    wrect.y = arect.y;
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                    childRect.x = clientRect.x;
+                    childRect.y = clientRect.y;
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     break;
                 case CORNERTOPLEFT:
-                    wrect.x = arect.x;
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                    childRect.x = clientRect.x;
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
                     break;
                 case CORNERTOPRIGHT:
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    if (wrect.height > arect.height)
-                        wrect.y = 0;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    if (childRect.height > clientRect.height)
+                        childRect.y = 0;
                     else
-                        wrect.y = arect.y + static_cast<int32_t>(arect.height - wrect.height);
+                        childRect.y = clientRect.y + static_cast<int32_t>(clientRect.height - childRect.height);
                     break;
                 case CORNERBOTTOMRIGHT:
-                    wrect.y = arect.y;
-                    if (wrect.width > arect.width)
-                        wrect.x = 0;
+                    childRect.y = clientRect.y;
+                    if (childRect.width > clientRect.width)
+                        childRect.x = 0;
                     else
-                        wrect.x = arect.x + static_cast<int32_t>(arect.width - wrect.width);
-                    arect.y += static_cast<int32_t>(wrect.height) + padding;
+                        childRect.x = clientRect.x + static_cast<int32_t>(clientRect.width - childRect.width);
+                    clientRect.y += static_cast<int32_t>(childRect.height) + padding;
                     break;
                 default:
-                    continue;
                     break;
             }
-            w->rect = wrect;
-            w->eventResize();
+            child->rect = childRect;
+            child->eventResize();
             ++it;
         }
         freeze = false;
@@ -632,47 +675,6 @@ namespace z0 {
         call(GEvent::OnLostFocus);
     }
 
-    bool GWidget::clipRect(Rect&R, const Rect& R1, const Rect& R2) const {
-        if ((!R1.width) || (!R1.height) ||
-            (!R2.width) || (!R2.height)) {
-            return false;
-        }
-        if (R1.x > R2.x) {
-            R.width = std::min(R1.width, R2.width - (R1.x - R2.x));
-            R.x = R1.x;
-        }
-        else {
-            R.width = std::min(R2.width, R1.width - (R2.x - R1.x));
-            R.x = R2.x;
-        }
-        if (R1.y > R2.y) {
-            R.height = std::min(R1.height, R2.height - (R1.y - R2.y));
-            R.y = R1.y;
-        }
-        else {
-            R.height = std::min(R2.height, R1.height - (R2.y - R1.y));
-            R.y = R2.y;
-        }
-        return ((R.width > 0) && (R.height > 0));
-    }
-
-    void GWidget::maxRect(Rect&R, const Rect A, const Rect B) const {
-        if ((!A.width) || (!A.height)) {
-            R = B;
-        }
-        else if ((!B.width) || (!B.height)) {
-            R = A;
-        }
-        else {
-            R.width = std::max(0, std::max(A.x + int32_t(A.width), B.x + int32_t(B.width)));
-            R.height = std::max(0, std::max(A.y + int32_t(A.height), B.y + int32_t(B.height)));
-            R.x = std::max(0, std::min(A.x, B.x));
-            R.y = std::max(0, std::min(A.y, B.y));
-            R.width -= R.x;
-            R.height -= R.y;
-        }
-    }
-
     void GWidget::setPadding(int32_t P) {
         padding = P;
         eventResize();
@@ -689,8 +691,8 @@ namespace z0 {
     }
 
     void GWidget::refresh() {
-        if (!freeze) {
-            resizeChildren();
+        if ((!freeze) && (window)){
+            window->refresh();
         }
     }
 
@@ -758,10 +760,6 @@ namespace z0 {
 
     bool GWidget::isFreezed() const  {
         return freeze;
-    }
-
-    bool GWidget::isMoveChildsOnPush() const {
-        return moveChildsOnPush;
     }
 
     bool GWidget::isTransparent() const {
