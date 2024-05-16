@@ -68,6 +68,7 @@ namespace z0 {
 
     void BaseRenderpass::createOrUpdateResources() {
         if (descriptorPool == nullptr) {
+            descriptorSetNeedUpdate = false;
             createDescriptorSetLayout();
             createOrUpdateDescriptorSet(true);
             if (setLayout != nullptr) {

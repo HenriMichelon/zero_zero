@@ -4,6 +4,7 @@
 
 #include <stb_image.h>
 #include <stb_image_write.h>
+#include <algorithm>
 
 namespace z0 {
 
@@ -92,10 +93,48 @@ namespace z0 {
     void VectorRenderer::beginDraw() {
         vertices.clear();
         commands.clear();
+        textures.clear();
+        texturesIndices.clear();
     }
 
     void VectorRenderer::endDraw() {
-        needRefresh = true; // We need to update the GPU memory
+        // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
+        oldBuffers.clear();
+        // Resize the buffers only if needed by recreating them
+        if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+            // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
+            // and can't be destroyed now
+            oldBuffers.push_back(stagingBuffer);
+            oldBuffers.push_back(vertexBuffer);
+            // Allocate new buffers to change size
+            vertexCount = vertices.size();
+            vertexBufferSize = vertexSize * vertexCount;
+            stagingBuffer = make_shared<Buffer>(
+                    device,
+                    vertexSize,
+                    vertexCount,
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+            );
+            vertexBuffer = make_shared<Buffer>(
+                    device,
+                    vertexSize,
+                    vertexCount,
+                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+            );
+        }
+        // Push new vertices data to GPU memory
+        stagingBuffer->writeToBuffer((void*)vertices.data());
+        stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
+        descriptorSetNeedUpdate = true;
+        // Initialize or update pipeline layout & descriptos sets if needed
+        createOrUpdateResources();
+    }
+
+    void VectorRenderer::addImage(const shared_ptr<Image>& image) {
+        if (std::find(textures.begin(), textures.end(), image.get()) != textures.end()) return;
+        if (textures.size() == MAX_IMAGES) die("Maximum images count reached for the vector renderer");
+        texturesIndices[image->getId()] = static_cast<int32_t>(textures.size());
+        textures.push_back(image.get());
     }
 
     void VectorRenderer::loadShaders() {
@@ -106,50 +145,15 @@ namespace z0 {
 
     void VectorRenderer::update(uint32_t currentFrame) {
         if (vertices.empty()) { return; }
-        // If we need to update the GPU memory
-        if (needRefresh) {
-            needRefresh = false;
-            // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
-            oldBuffers.clear();
-            // Resize the buffers only if needed by recreating them
-            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
-                // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
-                // and can't be destroyed now
-                oldBuffers.push_back(stagingBuffer);
-                oldBuffers.push_back(vertexBuffer);
-                // Allocate new buffers to change size
-                vertexCount = vertices.size();
-                vertexBufferSize = vertexSize * vertexCount;
-                stagingBuffer = make_shared<Buffer>(
-                        device,
-                        vertexSize,
-                        vertexCount,
-                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-                );
-                vertexBuffer = make_shared<Buffer>(
-                        device,
-                        vertexSize,
-                        vertexCount,
-                        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
-                );
-            }
-            // Push new vertices data to GPU memory
-            stagingBuffer->writeToBuffer((void*)vertices.data());
-            stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
-            // Initialize pipeline layout if needed
-            createOrUpdateResources();
-        }
-
         uint32_t commandIndex = 0;
         for (const auto& command : commands) {
             CommandUniformBuffer commandUBO {
                 .color = command.color,
-                .textureIndex = -1
+                .textureIndex = (command.texture == nullptr ? -1 :  texturesIndices[command.texture->getId()])
             };
             writeUniformBuffer(commandUniformBuffers, currentFrame, &commandUBO, commandIndex);
             commandIndex += 1;
         }
-
     }
 
     void VectorRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
@@ -173,7 +177,6 @@ namespace z0 {
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
         VkDeviceSize vertexOffsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
-
 
         uint32_t vertexIndex = 0;
         uint32_t commandIndex = 0;
