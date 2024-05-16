@@ -52,7 +52,7 @@ namespace z0 {
             uint32_t	                 height;
             unique_ptr<vector<uint32_t>> bitmap;
         };
-        map<char, CachedCharacter>   cache;
+        map<char, CachedCharacter> cache;
 
         CachedCharacter &getFromCache(char);
         void render(CachedCharacter&, char);

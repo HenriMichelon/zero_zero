@@ -23,6 +23,10 @@ namespace z0 {
         W->setFreezed(false);
     }
 
+    shared_ptr<Font> &GWindow::getDefaultFont() const {
+        return windowManager->defaultFont;
+    }
+
     GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, int32_t PADDING){
         if (layout == nullptr) { setLayout(nullptr); }
         if (WIDGET == nullptr) {

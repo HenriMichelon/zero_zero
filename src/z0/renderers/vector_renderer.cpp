@@ -64,7 +64,7 @@ namespace z0 {
                        static_cast<float>(rect.height));
     }
 
-    void VectorRenderer::drawFilledRect(float x, float y, float w, float h) {
+    void VectorRenderer::drawFilledRect(float x, float y, float w, float h, const shared_ptr<Image>& texture) {
         const auto pos = (vec2{x, y} + translate) / SCALE;
         const auto size = vec2{w, h} / SCALE;
         /*
@@ -73,10 +73,10 @@ namespace z0 {
          * |    \   |
          * v0 ---- v2
          */
-        const Vertex v0{vec2{pos.x, pos.y}, vec2{0.0f, 0.0f}};
-        const Vertex v1{vec2{pos.x, pos.y+size.y}, vec2{0.0f, 1.0f}};
-        const Vertex v2{vec2{pos.x+size.x, pos.y}, vec2{1.0f, 0.0f}};
-        const Vertex v3{vec2{pos.x+size.x, pos.y+size.y}, vec2{1.0f, 1.0f}};
+        const Vertex v0{vec2{pos.x, pos.y}, vec2{0.0f, 1.0f}};
+        const Vertex v1{vec2{pos.x, pos.y+size.y}, vec2{0.0f, 0.0f}};
+        const Vertex v2{vec2{pos.x+size.x, pos.y}, vec2{1.0f, 1.0f}};
+        const Vertex v3{vec2{pos.x+size.x, pos.y+size.y}, vec2{1.0f, 0.0f}};
         // First triangle
         vertices.emplace_back(v0);
         vertices.emplace_back(v1);
@@ -87,7 +87,20 @@ namespace z0 {
         vertices.emplace_back(v2);
 
         auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
-        commands.emplace_back(PRIMITIVE_RECT, 6, color);
+        commands.emplace_back(PRIMITIVE_RECT, 6, color, texture);
+        if (texture != nullptr) { addImage(texture); }
+    }
+
+    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect) {
+        drawText(text, font,
+                       static_cast<float>(rect.x),
+                       static_cast<float>(rect.y),
+                       static_cast<float>(rect.width),
+                       static_cast<float>(rect.height));
+    }
+
+    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, float x, float y, float w, float h) {
+        drawFilledRect(x, y, w, h, font->renderToImage(device, text));
     }
 
     void VectorRenderer::beginDraw() {
@@ -237,7 +250,11 @@ namespace z0 {
             commandUniformBufferCount = 1;
             createUniformBuffers(commandUniformBuffers, commandUniformBufferSize, commandUniformBufferCount);
         }
-
+        uint32_t imageIndex = 0;
+        for(const auto& image : textures) {
+            imagesInfo[imageIndex] = image->_getImageInfo();
+            imageIndex += 1;
+        }
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto commandBufferInfo = commandUniformBuffers[i]->descriptorInfo(commandUniformBufferSize);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)

@@ -2,7 +2,12 @@
 
 namespace z0 {
 
-    GManager::GManager(shared_ptr<VectorRenderer> &renderer): vectorRenderer{renderer} {}
+    GManager::GManager(shared_ptr<VectorRenderer> &renderer,
+                       const string& defaultFontName,
+                       uint32_t defaultFontSize):
+        vectorRenderer{renderer} {
+        defaultFont = make_shared<Font>(defaultFontName, defaultFontSize);
+    }
 
     GManager::~GManager() {
         for (auto& window: windows) {

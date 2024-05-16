@@ -2,7 +2,7 @@
 
 #include "z0/framebuffers/color_frame_buffer_hdr.h"
 #include "z0/renderers/base_renderpass.h"
-#include "z0/resources/cubemap.h"
+#include "z0/resources/font.h"
 #include "z0/nodes/camera.h"
 #include "z0/rect.h"
 
@@ -38,7 +38,10 @@ namespace z0 {
         // Draw a filled rectangle
         void drawFilledRect(const Rect& rect);
         // Draw a filled rectangle
-        void drawFilledRect(float x, float y, float w, float h);
+        void drawFilledRect(float x, float y, float w, float h, const shared_ptr<Image>& texture = nullptr);
+        // Draw a rectangle filled with a text
+        void drawText(const string&, shared_ptr<Font>& font,  const Rect& rect);
+        void drawText(const string&, shared_ptr<Font>& font, float x, float y, float w, float h);
         // Change the color of the fragment for the next drawing commands
         void setPenColor(Color color) { penColor = color; }
         // Change the [x,y] translation for the next drawing commands

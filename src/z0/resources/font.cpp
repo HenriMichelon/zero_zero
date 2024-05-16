@@ -56,7 +56,10 @@ namespace z0 {
             for(int line = 0; line < cchar.height; line++) {
                 auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
                 auto src = cchar.bitmap->data() + (line * cchar.width);
-                std::memcpy(dest, src, cchar.width * 4);
+                for (int col = 0; col < cchar.width; col++) {
+                    auto value = src[col];
+                    if (value != 0) { dest[col] = value; }
+                }
             }
             x += cchar.advance;
         }
@@ -71,9 +74,7 @@ namespace z0 {
                                   width,
                                   height,
                                   width * height * STBI_rgb_alpha,
-                                  bitmap.data(),
-                                  VK_FORMAT_R32G32B32A32_SFLOAT,
-                                  VK_IMAGE_TILING_LINEAR );
+                                  bitmap.data());
     }
 
 #ifdef FT_FREETYPE_H
@@ -92,8 +93,14 @@ namespace z0 {
         if (FT_New_Face(library, name.c_str(), 0, &face)) {
             die("Could not load font ", name);
         }
-        // Set the character size (width and height in 1/64th points)
-        FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size)*64, 300, 300);
+#ifdef _WIN32
+        HDC screen = GetDC(nullptr); // Get the device context of the entire screen
+        int dpiX = GetDeviceCaps(screen, LOGPIXELSX); // Horizontal DPI
+        int dpiY = GetDeviceCaps(screen, LOGPIXELSY); // Vertical DPI
+        ReleaseDC(nullptr, screen);
+#endif
+        // Set the character size
+        FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size)*64, dpiX, dpiY);
     }
 
     Font::~Font() {
@@ -141,7 +148,7 @@ namespace z0 {
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; x++) {
                 uint8_t gray = srcBitmap.buffer[y * srcBitmap.pitch + x];
-                dstBitmap[y * width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray;
+                if (gray != 0) { dstBitmap[y * width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray; };
             }
         }
         //__saveBitmapAsPGM("output.pgm", srcBitmap.buffer, width, height);

@@ -6,6 +6,7 @@
 #include "z0/gui/gline.h"
 #include "z0/gui/gbutton.h"
 #include "z0/gui/gtoggle_button.h"
+#include "z0/gui/gtext.h"
 
 namespace z0 {
 
@@ -23,12 +24,13 @@ namespace z0 {
         void resize(GWidget&, Rect&, GResource&) override;
 
     private:
-        Color	background;
-        Color	focus;
-        Color	shadowDark;
-        Color	shadowBright;
-        Color	fgUp;
-        Color	fgDown;
+        Color	         background;
+        Color	         focus;
+        Color	         shadowDark;
+        Color	         shadowBright;
+        Color	         fgUp;
+        Color	         fgDown;
+        Color	         text;
         //GTexture	*texture;
 
         void updateOptions() override;
@@ -38,10 +40,10 @@ namespace z0 {
         void drawLine(GLine&, GStyleClassicResource&, VectorRenderer&) const;
         void drawButton(GButton&, GStyleClassicResource&, VectorRenderer&) const;
         void drawToggleButton(GToggleButton&, GStyleClassicResource&, VectorRenderer&) const;
+        void drawText(GText&, GStyleClassicResource&, VectorRenderer&) const;
         /*void drawFrame(GFrame&, GLayoutVectorResource&, VectorRenderer&);
         void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
         void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
-        void drawText(GText&, GLayoutVectorResource&, VectorRenderer&);
         void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
         void drawProgressBar(GProgressBar&, GLayoutVectorResource&, VectorRenderer&);
         void drawSelection(GSelection&, GLayoutVectorResource&, VectorRenderer&);

@@ -22,7 +22,7 @@ namespace z0 {
 
     Application* Application::_instance = nullptr;
 
-    Application::Application(const z0::ApplicationConfig &appConfig, const shared_ptr<Node>& node):
+    Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node>& node):
         applicationConfig{appConfig},
         rootNode{node} {
         assert(_instance == nullptr);
@@ -115,7 +115,9 @@ namespace z0 {
                                                      sceneRenderer->getColorAttachement());
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
-        windowManager = make_unique<GManager>(vectorRenderer);
+        windowManager = make_unique<GManager>(vectorRenderer,
+                                              (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
+                                              applicationConfig.defaultFontSize);
     }
 
     Application::~Application() {

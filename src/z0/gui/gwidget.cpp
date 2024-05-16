@@ -129,6 +129,10 @@ namespace z0 {
         }
     }
 
+    shared_ptr<Font>& GWidget::getFont() {
+        return (font == nullptr ? window->getDefaultFont() : font);
+    }
+
     void GWidget::init(GWidget&WND, AlignmentType ALIGN,
                        const string&RES, uint32_t P) {
         WND.padding = P;
@@ -168,7 +172,7 @@ namespace z0 {
                                      AlignmentType ALIGN,
                                      const string RES,
                                      uint32_t P) {
-        //PRE(window, "GWidget::Add: widget must be added to another widget before use");
+        assert(window && "GWidget must be added to a window before adding child");
         if (!allowChildren) return WND;
         children.push_back(WND);
         init(*WND, ALIGN, RES, P);

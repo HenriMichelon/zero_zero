@@ -140,7 +140,7 @@ namespace z0 {
         void setAlignment(AlignmentType);
 
         /*! Return the current font of the widget */
-        Font& getFont();
+        shared_ptr<Font>& getFont();
 
         //! Set the current font of the widget
         void setFont(shared_ptr<Font>&);
@@ -253,7 +253,6 @@ namespace z0 {
         bool			          redrawOnMouseMove{false};
         bool			          mouseMoveOnFocus{false};
         Rect			          rect;
-        shared_ptr<Font>          font{nullptr};
         GWidget*		          parent{nullptr};
         GWindow*		          window{nullptr};
         Type		              type;
@@ -289,16 +288,16 @@ namespace z0 {
             GEventFunction	func{nullptr};
         };
 
-        bool		pushed{false};
-        bool		pointed{false};
-        bool		freeze{true};
-        bool		enabled{true};
-        bool		visible{true};
-
-        void*		userData{nullptr};
-        int32_t		groupIndex{0};
-        Rect		childrenRect;
-        GEventSlot	slots[GEvent::nbEvents];
+        bool		     pushed{false};
+        bool		     pointed{false};
+        bool		     freeze{true};
+        bool		     enabled{true};
+        bool		     visible{true};
+        shared_ptr<Font> font{nullptr};
+        void*		     userData{nullptr};
+        int32_t		     groupIndex{0};
+        Rect		     childrenRect;
+        GEventSlot	     slots[GEvent::nbEvents];
 
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);

@@ -1,4 +1,5 @@
 #include "z0/gui/gstyle_classic.h"
+#include "z0/application.h"
 
 namespace z0 {
 
@@ -11,14 +12,13 @@ namespace z0 {
     }
 
     bool GStyleClassic::init() {
-        //if (!(font = IFont::Create())) { return FALSE; } XXX
         setOption("color_focus", "");
         setOption("color_shadow_dark", "");
         setOption("color_shadow_light", "");
         setOption("color_foreground_up", "");
         setOption("color_foreground_down", "");
         setOption("color_background", "0.75,0.75,0.9");
-        setOption("color_font_textcolor", "");
+        setOption("color_textcolor", "0.0,0.0,0.0");
         //setOption("texture", "vectorbg.png");
         return true;
     }
@@ -43,10 +43,7 @@ namespace z0 {
         fgUp = extractColor("color_foreground_up", 0.68, 0.68, 0.81);
         fgDown = extractColor("color_foreground_down", 0.76, 0.85, 0.76);
         background = extractColor("color_background", 0.75, 0.75, 0.90);
-        // XXX
-        //font->SetBgColor(fgUp);
-        //font->SetTextColor(ExtractColor("color_font_textcolor", 0, 0, 0));
-
+        text = extractColor("color_textcolor", 0.0, 0.0, 0.0);
         /*XXXX
         if (texture != nullptr) { delete texture; }
         if (Option("texture").Len() > 0) {
@@ -156,6 +153,9 @@ namespace z0 {
                 case GWidget::TOGGLEBUTTON:
                     drawToggleButton((GToggleButton&)(GCheckWidget&)W, res, D);
                     break;
+                case GWidget::TEXT:
+                    drawText((GText&)W, res, D);
+                    break;
                 /*case GWidget::GRIDCELL:
                     DrawGridCell((GGridCell&)W, D, res);
                     break;
@@ -167,9 +167,6 @@ namespace z0 {
                     break;
                 case GWidget::CHECKMARK:
                     DrawCheckmark((GCheckmark&)W, D, res);
-                    break;
-                case GWidget::TEXT:
-                    DrawText((GText&)W, D, res);
                     break;
                 case GWidget::SELECTION:
                     DrawSelection((GSelection&)W, D, res);
@@ -328,6 +325,14 @@ namespace z0 {
         drawBox(W, RES, D);
     }
 
+    void GStyleClassic::drawText(GText&W, GStyleClassicResource&RES, VectorRenderer&D) const {
+        if ((W.getWidth() == 0) && (!W.getText().empty())) {
+            W.computeSize();
+        }
+        drawPanel(W, RES, D);
+        D.setPenColor(text);
+        D.drawText(W.getText(), W.getFont(), W.getRect());
+    }
 
 /*
 
@@ -470,18 +475,6 @@ namespace z0 {
         }
 
     }
-
-
-//----------------------------------------------
-    void GLayoutVector::DrawText(GText&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)
-    {
-        if ((!W.Width()) && W.Text().Len()) {
-            W.ComputeSize();
-        }
-        DrawPanel(W, D, RES, R);
-        W.Font().Draw(D, W.Text(), W.Left(), W.Top());
-    }
-
 
 //----------------------------------------------
     void GLayoutVector::DrawTextEdit(GTextEdit&W, GLayoutVectorResource&, VectorRenderer&, floatRESR)

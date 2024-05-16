@@ -10,7 +10,7 @@ namespace z0 {
 
     class GManager: public Object {
     public:
-        explicit GManager(shared_ptr<VectorRenderer>&);
+        explicit GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);
         ~GManager();
 
         void add(const shared_ptr<GWindow>&);
@@ -18,6 +18,7 @@ namespace z0 {
         VectorRenderer& getRenderer() { return *vectorRenderer; }
 
     private:
+        shared_ptr<Font>            defaultFont;
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>>   windows;
         GWindow*                    focusedWindow{nullptr};

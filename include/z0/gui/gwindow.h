@@ -101,6 +101,8 @@ namespace z0 {
         /*! Event called when the window lost the keyboard focus */
         virtual void onLostFocus() {};
 
+        shared_ptr<Font>& getDefaultFont() const;
+
 
     private:
         Rect                rect;
