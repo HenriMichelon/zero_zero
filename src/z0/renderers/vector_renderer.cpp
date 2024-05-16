@@ -33,37 +33,20 @@ namespace z0 {
         if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
     }
 
-    void VectorRenderer::nextCommand(Primitive primitive) {
-        // We only create a new drawing command when we change the primitive type
-        // to reduce the number of vkCmdDraw calls
-        if (currentCommand.primitive != primitive) {
-            if (currentCommand.primitive != PRIMITIVE_NONE) {
-                auto count = currentCommand.count;
-                if (currentCommand.primitive == PRIMITIVE_LINE) count *= 2;
-                if (currentCommand.primitive == PRIMITIVE_RECT) count *= 6;
-                commands.emplace_back(currentCommand.primitive, count);
-            }
-            currentCommand.primitive = primitive;
-            currentCommand.count = 0;
-        }
-        // Increment the number of primitive for the current primitive type
-        currentCommand.count += 1;
-    }
-
     void VectorRenderer::drawPoint(vec2 point) {
-        nextCommand(PRIMITIVE_POINT);
         point = (point + translate) / SCALE;
-        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
-        vertices.emplace_back(point, color);
+        vertices.emplace_back(point);
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        commands.emplace_back(PRIMITIVE_POINT, 1, color);
     }
 
     void VectorRenderer::drawLine(vec2 start, vec2 end) {
-        nextCommand(PRIMITIVE_LINE);
         start = (start + translate) / SCALE;
         end = (end + translate) / SCALE;
-        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
-        vertices.emplace_back(start, color);
-        vertices.emplace_back(end, color);
+        vertices.emplace_back(start );
+        vertices.emplace_back(end);
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        commands.emplace_back(PRIMITIVE_LINE, 2, color);
     }
 
     /*void VectorRenderer::drawRect(const Rect& rect) {
@@ -81,20 +64,18 @@ namespace z0 {
     }
 
     void VectorRenderer::drawFilledRect(float x, float y, float w, float h) {
-        nextCommand(PRIMITIVE_RECT);
         const auto pos = (vec2{x, y} + translate) / SCALE;
         const auto size = vec2{w, h} / SCALE;
-        const auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
         /*
          * v1 ---- v3
          * |  \     |
          * |    \   |
          * v0 ---- v2
          */
-        const Vertex v0{vec2{pos.x, pos.y}, color, vec2{0.0f, 0.0f}};
-        const Vertex v1{vec2{pos.x, pos.y+size.y}, color, vec2{0.0f, 1.0f}};
-        const Vertex v2{vec2{pos.x+size.x, pos.y}, color, vec2{1.0f, 0.0f}};
-        const Vertex v3{vec2{pos.x+size.x, pos.y+size.y}, color, vec2{1.0f, 1.0f}};
+        const Vertex v0{vec2{pos.x, pos.y}, vec2{0.0f, 0.0f}};
+        const Vertex v1{vec2{pos.x, pos.y+size.y}, vec2{0.0f, 1.0f}};
+        const Vertex v2{vec2{pos.x+size.x, pos.y}, vec2{1.0f, 0.0f}};
+        const Vertex v3{vec2{pos.x+size.x, pos.y+size.y}, vec2{1.0f, 1.0f}};
         // First triangle
         vertices.emplace_back(v0);
         vertices.emplace_back(v1);
@@ -103,6 +84,9 @@ namespace z0 {
         vertices.emplace_back(v1);
         vertices.emplace_back(v3);
         vertices.emplace_back(v2);
+
+        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        commands.emplace_back(PRIMITIVE_RECT, 6, color);
     }
 
     void VectorRenderer::beginDraw() {
@@ -112,12 +96,12 @@ namespace z0 {
 
     void VectorRenderer::endDraw() {
         needRefresh = true; // We need to update the GPU memory
-        nextCommand(PRIMITIVE_NONE); // Flush the current drawing command
     }
 
     void VectorRenderer::loadShaders() {
         vertShader = createShader("vector.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("vector.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        cout << "loadShaders" << endl;
     }
 
     void VectorRenderer::update(uint32_t currentFrame) {
@@ -155,6 +139,17 @@ namespace z0 {
             // Initialize pipeline layout if needed
             createOrUpdateResources();
         }
+
+        uint32_t commandIndex = 0;
+        for (const auto& command : commands) {
+            CommandUniformBuffer commandUBO {
+                .color = command.color,
+                .textureIndex = -1
+            };
+            writeUniformBuffer(commandUniformBuffers, currentFrame, &commandUBO, commandIndex);
+            commandIndex += 1;
+        }
+
     }
 
     void VectorRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
@@ -176,49 +171,39 @@ namespace z0 {
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
         VkBuffer buffers[] = { vertexBuffer->getBuffer() };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+        VkDeviceSize vertexOffsets[] = { 0 };
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
 
-        int textureIndex = -1;
-        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(int), &textureIndex);
-        bindDescriptorSets(commandBuffer, currentFrame);
 
         uint32_t vertexIndex = 0;
+        uint32_t commandIndex = 0;
         for (const auto& command : commands) {
             vkCmdSetPrimitiveTopologyEXT(commandBuffer,
                                          command.primitive == PRIMITIVE_POINT ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST :
                                          command.primitive == PRIMITIVE_LINE ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST :
                                          VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+            array<uint32_t, 1> offsets = {
+                    static_cast<uint32_t>(commandUniformBuffers[currentFrame]->getAlignmentSize() * commandIndex),
+            };
+            bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
             vkCmdDraw(commandBuffer, command.count, 1, vertexIndex, 0);
             vertexIndex += command.count;
-        }
-    }
-
-    void VectorRenderer::createPipelineLayout() {
-        VkPushConstantRange push_constants[1] = {};
-        push_constants[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        push_constants[0].offset = 0;
-        push_constants[0].size = sizeof(int) * 1;
-        const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
-                .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-                .setLayoutCount = 1,
-                .pSetLayouts = setLayout->getDescriptorSetLayout(),
-                .pushConstantRangeCount = 1,
-                .pPushConstantRanges = push_constants
-        };
-        if (vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-            die("failed to create pipeline layout!");
+            commandIndex += 1;
         }
     }
 
     void VectorRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
                 .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
                 .addBinding(0,
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_FRAGMENT_BIT)
+                .addBinding(1,
                             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                             VK_SHADER_STAGE_FRAGMENT_BIT,
                             MAX_IMAGES)
@@ -241,9 +226,20 @@ namespace z0 {
     }
 
     void VectorRenderer::createOrUpdateDescriptorSet(bool create) {
+        if ((!commands.empty()) && (commandUniformBufferCount != commands.size())) {
+            commandUniformBufferCount = commands.size();
+            createUniformBuffers(commandUniformBuffers, commandUniformBufferSize, commandUniformBufferCount);
+        }
+        if (commandUniformBufferCount == 0) {
+            commandUniformBufferCount = 1;
+            createUniformBuffers(commandUniformBuffers, commandUniformBufferSize, commandUniformBufferCount);
+        }
+
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+            auto commandBufferInfo = commandUniformBuffers[i]->descriptorInfo(commandUniformBufferSize);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                    .writeImage(0, imagesInfo.data());
+                    .writeBuffer(0, &commandBufferInfo)
+                    .writeImage(1, imagesInfo.data());
             if (create) {
                 if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
             } else {
@@ -320,18 +316,10 @@ namespace z0 {
         attributeDescriptions.push_back({
                                                 VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
                                                 nullptr,
-                                                2,
+                                                1,
                                                 0,
                                                 VK_FORMAT_R32G32_SFLOAT,
                                                 offsetof(Vertex, uv)
-                                        });
-        attributeDescriptions.push_back({
-                                                VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
-                                                nullptr,
-                                                1,
-                                                0,
-                                                VK_FORMAT_R32G32B32A32_SFLOAT,
-                                                offsetof(Vertex, color)
                                         });
     }
 

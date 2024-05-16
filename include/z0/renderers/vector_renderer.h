@@ -61,7 +61,6 @@ namespace z0 {
         void createDescriptorSetLayout() override;
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
         void createOrUpdateDescriptorSet(bool create) override;
-        void createPipelineLayout() override;
 
     private:
         // Drawind commands primitives
@@ -74,12 +73,12 @@ namespace z0 {
         // A drawing command
         struct Command {
             Primitive primitive;
-            uint32_t  count; // number of object of this type
+            uint32_t  count; // number of vertex for this command
+            vec4      color;
         };
         // Shader vertex input datas
         struct Vertex {
             alignas(16) vec2 position;
-            alignas(16) vec4 color;
             alignas(16) vec2 uv;
         };
 
@@ -89,13 +88,13 @@ namespace z0 {
         vec2            translate {0.0f, 0.0f};
         // Global transparency for the next drawing commands. Value is substracted from the vertex alpha
         float           transparency{0.0f};
-        // Current drawing command
-        Command         currentCommand{PRIMITIVE_NONE, 0};
         // All drawing commands
         list<Command>   commands;
-        // Flush the current drawing command if needed (primitive type change) or increment current command objects count
-        void nextCommand(Primitive primitive);
 
+        struct CommandUniformBuffer {
+            vec4    color;
+            int     textureIndex;
+        };
         // For vkCmdSetVertexInputEXT
         const VkVertexInputBindingDescription2EXT     bindingDescription  {
                 .sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
@@ -134,6 +133,12 @@ namespace z0 {
         vector<unsigned char>                         blankImageData;
         // Images infos for descriptor sets, pre-filled with blank images
         array<VkDescriptorImageInfo, MAX_IMAGES>      imagesInfo;
+        // Currently allocated command uniform buffer count
+        uint32_t                                      commandUniformBufferCount{0};
+        // Datas for all the commands of the scene, one buffer for all the commands
+        vector<unique_ptr<Buffer>>                    commandUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        // Size of the above uniform buffers
+        static constexpr VkDeviceSize                 commandUniformBufferSize{sizeof(CommandUniformBuffer)};
 
         void init();
     };
