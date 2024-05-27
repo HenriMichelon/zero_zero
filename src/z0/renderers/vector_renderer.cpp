@@ -37,7 +37,7 @@ namespace z0 {
     void VectorRenderer::drawPoint(vec2 point) {
         point = (point + translate) / SCALE;
         vertices.emplace_back(point);
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_POINT, 1, color);
     }
 
@@ -46,16 +46,9 @@ namespace z0 {
         end = (end + translate) / SCALE;
         vertices.emplace_back(start );
         vertices.emplace_back(end);
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_LINE, 2, color);
     }
-
-    /*void VectorRenderer::drawRect(const Rect& rect) {
-        drawLine(topLeft, {rightBottom.x, topLeft.y});
-        drawLine({rightBottom.x, topLeft.y}, rightBottom);
-        drawLine(rightBottom, {topLeft.x, rightBottom.y});
-        drawLine({topLeft.x, rightBottom.y}, topLeft);
-    }*/
 
     void VectorRenderer::drawFilledRect(const Rect& rect) {
         drawFilledRect(static_cast<float>(rect.x),
@@ -86,7 +79,7 @@ namespace z0 {
         vertices.emplace_back(v3);
         vertices.emplace_back(v2);
 
-        auto color = vec4{vec3{penColor.color}, penColor.color.a - transparency};
+        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_RECT, 6, color, texture);
         if (texture != nullptr) { addImage(texture); }
     }

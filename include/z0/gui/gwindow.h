@@ -42,8 +42,11 @@ namespace z0 {
         /*! Set the height of the client area */
         void setHeight(int32_t h);
 
-        /*! Set the position of the window */
-        void setPos(int32_t l, int32_t t);
+        /*! Set the position of the window, bottom-left */
+        void setPos(int32_t x, int32_t y);
+
+        void setX(int32_t);
+        void setY(int32_t);
 
         /*! Return the size & position of the widget */
         const Rect& getRect() const { return rect; };

@@ -10,6 +10,8 @@ namespace z0 {
 
         const string& getText() const { return text; }
         void setText(const string&);
+        void setTextColor(Color c);
+        const Color getTextColor() const { return textColor; }
 
         // get automatic sizing flag
         bool isAutoSize() const { return autoSize; };
@@ -22,6 +24,7 @@ namespace z0 {
 
     protected:
         string	text;
+        Color   textColor;
 
         virtual void eventCreate();
 

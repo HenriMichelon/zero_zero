@@ -105,10 +105,10 @@ namespace z0 {
         void setPos(int32_t, int32_t);
 
         //! Return the width of the widget, in pixels
-        uint32_t getWidth() const { return rect.width; };
+        int32_t getWidth() const { return rect.width; };
 
         //! Return the height of the widget, in pixels
-        uint32_t getHeight() const { return rect.height; };
+        int32_t getHeight() const { return rect.height; };
 
         /*! Resize the widget
             \param int32_t	: width in pixels

@@ -31,7 +31,6 @@ namespace z0 {
         Color	         shadowBright;
         Color	         fgUp;
         Color	         fgDown;
-        Color	         text;
         //GTexture	*texture;
 
         void updateOptions() override;

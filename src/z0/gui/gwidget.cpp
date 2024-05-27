@@ -55,7 +55,6 @@ namespace z0 {
     }
 
     void GWidget::setSize(int32_t W, int32_t H) {
-        if ((W == rect.width) && (H == rect.height)) return;
         if (parent) { parent->refresh(); }
         rect.width = W;
         rect.height = H;
@@ -271,11 +270,13 @@ namespace z0 {
 
     void GWidget::eventResize() {
         if (freeze) return;
+        if (parent) {
+            parent->resizeChildren();
+        }
+        resizeChildren();
         freeze = true;
-        if (parent) parent->resizeChildren();
         if (rect.width && rect.height) {
             auto event = make_shared<GEventSize>(rect.width, rect.height);
-            resizeChildren();
             call(GEvent::OnResize, event);
         }
         refresh();
@@ -344,7 +345,7 @@ namespace z0 {
         else {
             clientRect.height = 0;
         }
-        if (pushed) {
+        if (pushed && moveChildsOnPush) {
             clientRect.x += 1;
             clientRect.y -= 1;
             clientRect.width -= 1;
@@ -535,9 +536,8 @@ namespace z0 {
     bool GWidget::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
         if (!enabled) { return false; }
         bool consumed = false;
-        bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = true;
-        if (r) resizeChildren();
+        if (redrawOnMouseEvent) resizeChildren();
         GWidget* wfocus = nullptr;
         for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
@@ -550,7 +550,7 @@ namespace z0 {
         if ((wfocus != nullptr) && (wfocus->allowFocus)) {
             wfocus->setFocus();
         }
-        if (r) { refresh(); }
+        if (redrawOnMouseEvent) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseDown, event);
         consumed |= event->consumed;
@@ -560,17 +560,16 @@ namespace z0 {
     bool GWidget::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
         if (!enabled) { return false; }
         bool consumed = false;
-        bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = false;
-        if (r) resizeChildren();
+        if (redrawOnMouseEvent) resizeChildren();
         for (auto& w : children) {
-            if (w->getRect().contains(X, Y)) {
+            if (w->getRect().contains(X, Y) || w->isPushed()) {
                 consumed |= w->eventMouseUp(B, X, Y);
                 if (w->redrawOnMouseEvent) { w->refresh(); }
                 if (consumed) { break; }
             }
         }
-        if (r) { refresh(); }
+        if (redrawOnMouseEvent) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseUp, event);
         consumed |= event->consumed;

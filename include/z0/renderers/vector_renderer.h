@@ -33,8 +33,6 @@ namespace z0 {
         void drawPoint(vec2 point);
         // Draw a 1-fragment width line
         void drawLine(vec2 start, vec2 end);
-        // Draw a empty rectangle
-        //void drawRect(const Rect& rect);
         // Draw a filled rectangle
         void drawFilledRect(const Rect& rect);
         // Draw a filled rectangle

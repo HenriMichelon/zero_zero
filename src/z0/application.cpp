@@ -185,12 +185,11 @@ namespace z0 {
 
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
-        if (elapsedSeconds >= 0.250) {
-            auto fps = static_cast<float>(frameCount) / elapsedSeconds;
+        if (elapsedSeconds >= 1.0) {
+            fps = static_cast<uint32_t>(frameCount / elapsedSeconds);
 #ifdef VULKAN_STATS
             VulkanStats::get().averageFps = static_cast<uint32_t >((static_cast<float>(VulkanStats::get().averageFps) + fps) / 2.0f);
 #endif
-            //viewport->_setFPS(fps);
             frameCount = 0;
             elapsedSeconds = 0;
         }
@@ -258,6 +257,11 @@ namespace z0 {
     }
 
 #ifdef _WIN32
+
+    void Application::quit() {
+        window->close();
+    }
+
     void Application::_mainLoop() {
         start();
         while (!window->shouldClose()) {

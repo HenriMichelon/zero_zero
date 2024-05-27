@@ -39,7 +39,6 @@ namespace z0 {
         fgUp = extractColor("color_foreground_up", 0.68, 0.68, 0.81);
         fgDown = extractColor("color_foreground_down", 0.76, 0.85, 0.76);
         background = extractColor("color_background", 0.75, 0.75, 0.90);
-        text = extractColor("color_textcolor", 0.0, 0.0, 0.0);
         /*XXXX
         if (texture != nullptr) { delete texture; }
         if (Option("texture").Len() > 0) {
@@ -332,7 +331,10 @@ namespace z0 {
             W.computeSize();
         }
         drawPanel(W, RES, D);
-        D.setPenColor(text);
+        D.setPenColor(Color{W.getTextColor().color.r,
+                            W.getTextColor().color.g,
+                            W.getTextColor().color.b,
+                            W.getTransparency()});
         uint32_t w, h;
         W.getFont()->getSize(W.getText(), w, h);
         if (w > W.getRect().width) {

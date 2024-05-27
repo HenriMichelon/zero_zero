@@ -9,6 +9,12 @@ namespace z0 {
         drawBackground = false;
     }
 
+    void GText::setTextColor(Color c) {
+        textColor = c;
+        textColor.color.a = 1.0f;
+        refresh();
+    }
+
     void GText::setText(const string &C) {
         text = C;
         if (parent) { parent->refresh(); }

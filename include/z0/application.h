@@ -24,6 +24,8 @@ namespace z0 {
         const Window& getWindow() const;
         Device& getDevice() { return *device; }
         VkInstance getVkInstance() const { return vkInstance; }
+        uint32_t getFPS() const { return fps; }
+        void quit();
 
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }
@@ -41,6 +43,7 @@ namespace z0 {
         VkInstance vkInstance;
         bool paused{false};
         bool stopped{false};
+        uint32_t fps{0};
         shared_ptr<SceneRenderer> sceneRenderer;
         shared_ptr<VectorRenderer> vectorRenderer;
         vector<shared_ptr<Node>> addedNodes{};
@@ -84,7 +87,6 @@ namespace z0 {
 #ifdef _WIN32
         void _mainLoop();
 #endif
-
         void _stop(bool stop) { stopped = stop; };
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
 

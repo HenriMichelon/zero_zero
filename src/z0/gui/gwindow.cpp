@@ -178,6 +178,16 @@ namespace z0 {
         eventMove();
     }
 
+    void GWindow::setX(int32_t x) {
+        rect.x = x;
+        eventMove();
+    }
+
+    void GWindow::setY(int32_t y) {
+        rect.y = y;
+        eventMove();
+    }
+
     shared_ptr<GStyle> GWindow::getLayout() const {
         return layout;
     }
@@ -194,6 +204,7 @@ namespace z0 {
     }
 
     void GWindow::eventMove() {
+        if (widget) { widget->resizeChildren(); }
         onMove();
         refresh();
     }

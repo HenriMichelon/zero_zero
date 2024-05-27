@@ -11,9 +11,10 @@
 #include "ui.h"
 
 void Window2::onCreate() {
-    //setTransparency(0.5f);
+    setTransparency(0.8f);
     getWidget().setPadding(5);
     getWidget().setTransparency(0.1);
+    //getWidget().setDrawBackground(false);
 /*
     auto frame = make_shared<GFrame>("Hello Frame !");
     getWidget().add(frame, GWidget::CENTER, "200,200", 10);
@@ -52,7 +53,30 @@ void UIMainScene::onReady() {
     sphere = Loader::loadModelFromFile("examples/models/sphere.glb");
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);
-    //Application::add(make_shared<GWindow>(Rect{250, 950, 500, 25}));
+
+    topBar = make_shared<GWindow>(Rect{0, 945, 1000, 55});
+    Application::add(topBar);
+
+    auto rightPadding = make_shared<GPanel>();
+    rightPadding->setDrawBackground(false);
+    topBar->getWidget().add(rightPadding, GWidget::RIGHT, "5,5");
+    topBar->getWidget().setDrawBackground(false);
+
+    textFPS = make_shared<GText>("9999");
+    topBar->getWidget().add(textFPS, GWidget::RIGHTCENTER);
+    textFPS->setTextColor(Color{1.0, 1.0, 0.2});
+
+    auto buttonQuit = make_shared<GButton>();
+    buttonQuit->connect(GEvent::OnClick, this, GEventFunction(&UIMainScene::onQuit));
+    topBar->getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
+
+    auto textQuit = make_shared<GText>("Quit");
+    buttonQuit->add(textQuit, GWidget::CENTER);
+    buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
+
+    topBar->setHeight(buttonQuit->getHeight());
+    topBar->setY(1000 - topBar->getHeight());
+
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     Application::add(window2);
 }
@@ -63,5 +87,13 @@ void UIMainScene::onPhysicsProcess(float delta) {
 }
 
 void UIMainScene::onProcess(float alpha) {
+    auto newFPS = Application::get().getFPS();
+    if (newFPS != fps) {
+        fps = newFPS;
+        textFPS->setText(to_string(fps));
+    }
+}
 
+void UIMainScene::onQuit(GWidget &, GEvent *) {
+    Application::get().quit();
 }
