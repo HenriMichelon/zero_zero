@@ -11,8 +11,9 @@
 #include "ui.h"
 
 void Window2::onCreate() {
-    //setTransparency(0.8f);
+    //setTransparency(0.5f);
     getWidget().setPadding(5);
+    getWidget().setTransparency(0.1);
 /*
     auto frame = make_shared<GFrame>("Hello Frame !");
     getWidget().add(frame, GWidget::CENTER, "200,200", 10);

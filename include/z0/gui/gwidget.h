@@ -188,11 +188,9 @@ namespace z0 {
         bool isPushed() const;
         bool isPointed() const;
         bool isFreezed() const;
-        bool isTransparent() const;
         bool isRedrawOnMouseEvent() const;
         Rect getChildrenRect() const;
 
-        void setTransparent(bool t) { transparent = t; }
         void setFreezed(bool f) { freeze = f; }
         void setPushed(bool p) { pushed = p; }
 
@@ -236,7 +234,10 @@ namespace z0 {
 
         /*! recursively draw the widget and his children */
         void draw(VectorRenderer&) const;
-        
+
+        const float getTransparency() const { return transparency; }
+        void setTransparency(float alpha);
+
     protected:
         int32_t			          hborder{0};
         int32_t			          vborder{0};
@@ -244,12 +245,12 @@ namespace z0 {
         bool			          focused{false};
         bool			          allowFocus{false};
         bool			          allowChildren{true};
-        bool			          transparent;
         bool			          drawBackground{true};
         bool			          moveChildsOnPush{false};
         bool			          redrawOnMouseEvent{false};
         bool			          redrawOnMouseMove{false};
         bool			          mouseMoveOnFocus{false};
+        float                     transparency{1.0f};
         Rect			          rect;
         GWidget*		          parent{nullptr};
         GWindow*		          window{nullptr};

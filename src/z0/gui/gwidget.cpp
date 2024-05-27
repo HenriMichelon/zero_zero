@@ -6,9 +6,7 @@
 
 namespace z0 {
 
-    GWidget::GWidget(Type T):
-        type{T},
-        transparent{T == WIDGET} {
+    GWidget::GWidget(Type T): type{T} {
     }
 
     void GWidget::draw(VectorRenderer &R) const {
@@ -552,7 +550,7 @@ namespace z0 {
         if ((wfocus != nullptr) && (wfocus->allowFocus)) {
             wfocus->setFocus();
         }
-        if (r && (!transparent)) { refresh(); }
+        if (r) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseDown, event);
         consumed |= event->consumed;
@@ -572,7 +570,7 @@ namespace z0 {
                 if (consumed) { break; }
             }
         }
-        if (r && (!transparent)) { refresh(); }
+        if (r) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMouseUp, event);
         consumed |= event->consumed;
@@ -596,7 +594,7 @@ namespace z0 {
             }
             if (consumed) { break; }
         }
-        if (redrawOnMouseMove && (pointed != p) && (!transparent)) { refresh(); }
+        if (redrawOnMouseMove && (pointed != p)) { refresh(); }
         auto event = make_shared<GEventMouse>(B, X, Y);
         call(GEvent::OnMove, event);
         consumed |= event->consumed;
@@ -609,6 +607,11 @@ namespace z0 {
 
     void GWidget::eventLostFocus() {
         call(GEvent::OnLostFocus);
+    }
+
+    void GWidget::setTransparency(float alpha) {
+        transparency = alpha;
+        refresh();
     }
 
     void GWidget::setPadding(int32_t P) {
@@ -696,10 +699,6 @@ namespace z0 {
 
     bool GWidget::isFreezed() const  {
         return freeze;
-    }
-
-    bool GWidget::isTransparent() const {
-        return transparent;
     }
 
     bool GWidget::isRedrawOnMouseEvent() const {

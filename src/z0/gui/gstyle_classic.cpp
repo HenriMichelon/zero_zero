@@ -55,9 +55,6 @@ namespace z0 {
         W.setResource(res);
         W.setSize(res->width, res->height);
         switch (W.getType()) {
-            case GWidget::BOX:
-                if (res->flat) { W.setTransparent(true); }
-                break;
             // XXX
             /*case GWidget::UPDOWN:
                 ((GUpDown&)W).SetResources(RES, RES);
@@ -205,7 +202,9 @@ namespace z0 {
 
     void GStyleClassic::drawPanel(const GPanel&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         if (W.isDrawBackground()) {
-            D.setPenColor(background);
+            auto c = background;
+            c.color.a = W.getTransparency();
+            D.setPenColor(c);
             D.drawFilledRect(W.getRect());
             //texture->Draw(D, W.Rect());
         }
@@ -217,22 +216,30 @@ namespace z0 {
         uint32_t b = W.getRect().y;
         uint32_t w = W.getRect().width;
         uint32_t h = W.getRect().height;
+        auto fd = fgDown;
+        auto fu = fgUp;
+        fd.color.a = W.getTransparency();
+        fu.color.a = W.getTransparency();
         if (W.isDrawBackground())	{
             if (W.isPushed()) {
-                D.setPenColor(fgDown);
+                D.setPenColor(fd);
             }
             else {
-                D.setPenColor(fgUp);
+                D.setPenColor(fu);
             }
             D.drawFilledRect(W.getRect());
         }
         if (RES.style != GStyleClassicResource::FLAT) {
+            auto sb = shadowBright;
+            sb.color.a = W.getTransparency();
+            auto sd = shadowDark;
+            sd.color.a = W.getTransparency();
             switch (RES.style) {
                 case GStyleClassicResource::LOWERED:
-                    D.setPenColor(shadowBright);
+                    D.setPenColor(sb);
                     break;
                 case GStyleClassicResource::RAISED:
-                    D.setPenColor(shadowDark);
+                    D.setPenColor(sd);
                     break;
                 default:
                     break;
@@ -241,10 +248,10 @@ namespace z0 {
             D.drawLine({l, b}, {l, b+h});
             switch (RES.style) {
                 case GStyleClassicResource::RAISED:
-                    D.setPenColor(shadowBright);
+                    D.setPenColor(sb);
                     break;
                 case GStyleClassicResource::LOWERED:
-                    D.setPenColor(shadowDark);
+                    D.setPenColor(sd);
                     break;
                 default:
                     break;
@@ -256,18 +263,22 @@ namespace z0 {
 
     void GStyleClassic::drawLine(GLine&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         Color c1, c2;
+        auto sb = shadowBright;
+        sb.color.a = W.getTransparency();
+        auto sd = shadowDark;
+        sd.color.a = W.getTransparency();
         switch (RES.style) {
             case GStyleClassicResource::RAISED:
-                c1 = shadowDark;
-                c2 = shadowBright;
+                c1 = sd;
+                c2 = sb;
                 break;
             case GStyleClassicResource::LOWERED:
-                c1 = shadowBright;
-                c2 = shadowDark;
+                c1 = sb;
+                c2 = sd;
                 break;
             default:
-                c1 = shadowDark;
-                c2 = shadowDark;
+                c1 = sd;
+                c2 = sd;
                 break;
         }
         auto rect = W.getRect();
@@ -342,18 +353,22 @@ namespace z0 {
         uint32_t h = W.getRect().height;
         Color c1;
         Color c2;
+        auto sb = shadowBright;
+        sb.color.a = W.getTransparency();
+        auto sd = shadowDark;
+        sd.color.a = W.getTransparency();
         switch (RES.style) {
             case GStyleClassicResource::LOWERED:
-                c1 = shadowBright;
-                c2 = shadowDark;
+                c1 = sb;
+                c2 = sd;
                 break;
             case GStyleClassicResource::RAISED:
-                c1 = shadowDark;
-                c2 = shadowBright;
+                c1 = sd;
+                c2 = sb;
                 break;
             case GStyleClassicResource::FLAT:
-                c1 = shadowDark;
-                c2 = shadowDark;
+                c1 = sd;
+                c2 = sd;
                 break;
         }
         uint32_t fh, fw;
