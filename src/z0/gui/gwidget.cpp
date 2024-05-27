@@ -13,11 +13,11 @@ namespace z0 {
 
     void GWidget::draw(VectorRenderer &R) const {
         if (!isVisible()) return;
-        layout->draw(*this, *resource, R, true);
+        style->draw(*this, *resource, R, true);
         for(auto& child: children) {
             child->draw(R);
         }
-        layout->draw(*this, *resource, R, false);
+        style->draw(*this, *resource, R, false);
     }
 
     bool GWidget::isVisible() const {
@@ -140,9 +140,9 @@ namespace z0 {
         WND.alignment = ALIGN;
         if (!WND.font) { WND.font = font; }
         WND.window = window;
-        WND.layout = layout;
+        WND.style = style;
         WND.parent = this;
-        layout->addResource(WND, RES);
+        style->addResource(WND, RES);
         WND.eventCreate();
         if (window->isVisible() && resource) { resizeChildren(); }
         WND.freeze = false;
@@ -327,9 +327,9 @@ namespace z0 {
 
 
     void GWidget::resizeChildren() {
-        if ((!layout) || (freeze)) { return; }
+        if ((!style) || (freeze)) { return; }
         freeze = true;
-        layout->resize(*this, rect, *resource);
+        style->resize(*this, rect, *resource);
 
         Rect clientRect = rect;
         clientRect.x += hborder + padding;
@@ -352,11 +352,16 @@ namespace z0 {
             clientRect.width -= 1;
             clientRect.height -= 1;
         }
-
         auto it = children.begin();
         while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {
             auto& child = *it;
             Rect childRect = child->rect;
+            if (childRect.width > clientRect.width)  {
+                childRect.width = clientRect.width;
+            }
+            if (childRect.height > clientRect.height) {
+                childRect.height = clientRect.height;
+            }
             switch (child->alignment) {
                 case FILL:
                     childRect = clientRect;
@@ -364,31 +369,19 @@ namespace z0 {
                     clientRect.height = 0;
                     break;
                 case CENTER:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                     clientRect.width = 0;
                     clientRect.height = 0;
                     break;
                 case VCENTER:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
                     childRect.y = clientRect.y;
                     childRect.height = clientRect.height;
                     clientRect.width = 0;
                     break;
                 case HCENTER:
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                     childRect.x = clientRect.x;
                     childRect.width = clientRect.width;
                     clientRect.width = 0;
@@ -411,63 +404,39 @@ namespace z0 {
                     break;
                 case TOP:
                     childRect.x = clientRect.x;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
                     childRect.width = clientRect.width;
                     break;
                 case RIGHT:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     childRect.y = clientRect.y;
                     childRect.height = clientRect.height;
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMCENTER:
                     childRect.y = clientRect.y;
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x +(clientRect.width - childRect.width) / 2;
+                    childRect.x = clientRect.x +(clientRect.width - childRect.width) / 2;
                     clientRect.y +=(childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
                     clientRect.height -= childRect.height + 2 * padding;
                     //arect.height = max(0l, int32_t(arect.height - (wrect.height + 2*padding)));
                     break;
                 case TOPCENTER:
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
                     clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case LEFTCENTER:
                     childRect.x = clientRect.x;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                     clientRect.x +=(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTCENTER:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMLEFT:
@@ -480,29 +449,17 @@ namespace z0 {
                     break;
                 case TOPLEFT:
                     childRect.x = clientRect.x;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case TOPRIGHT:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case BOTTOMRIGHT:
                     childRect.y = clientRect.y;
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     clientRect.height -= childRect.height + 2 * padding;
                     //arect.height = max(0l, (arect.height - (wrect.height + 2*padding)));
                     clientRect.y += (childRect.height) + padding;
@@ -517,31 +474,19 @@ namespace z0 {
                     break;
                 case LEFTTOP:
                     childRect.x = clientRect.x;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.x += (childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTTOP:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTBOTTOM:
                     childRect.y = clientRect.y;
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case CORNERBOTTOMLEFT:
@@ -551,27 +496,15 @@ namespace z0 {
                     break;
                 case CORNERTOPLEFT:
                     childRect.x = clientRect.x;
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     break;
                 case CORNERTOPRIGHT:
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x + (clientRect.width - childRect.width);
-                    if (childRect.height > clientRect.height)
-                        childRect.y = 0;
-                    else
-                        childRect.y = clientRect.y + (clientRect.height - childRect.height);
+                    childRect.x = clientRect.x + (clientRect.width - childRect.width);
+                    childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     break;
                 case CORNERBOTTOMRIGHT:
                     childRect.y = clientRect.y;
-                    if (childRect.width > clientRect.width)
-                        childRect.x = 0;
-                    else
-                        childRect.x = clientRect.x +(clientRect.width - childRect.width);
+                    childRect.x = clientRect.x +(clientRect.width - childRect.width);
                     clientRect.y += (childRect.height) + padding;
                     break;
                 default:

@@ -111,6 +111,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/gui/gtoggle_button.h
 		${Z0_INCLUDE_DIR}/gui/gcheck_widget.h
 		${Z0_INCLUDE_DIR}/gui/gtext.h
+		${Z0_INCLUDE_DIR}/gui/gframe.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -166,6 +167,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gcheck_widget.cpp
 		${Z0_ENGINE_DIR}/gui/gtoggle_button.cpp
 		${Z0_ENGINE_DIR}/gui/gtext.cpp
+		${Z0_ENGINE_DIR}/gui/gframe.cpp
 
 		${SRC_DIR}/libraries.cpp
 

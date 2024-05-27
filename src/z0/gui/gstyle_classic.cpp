@@ -156,11 +156,11 @@ namespace z0 {
                 case GWidget::TEXT:
                     drawText((GText&)W, res, D);
                     break;
+                case GWidget::FRAME:
+                    drawFrame((GFrame&)W, res, D);
+                    break;
                 /*case GWidget::GRIDCELL:
                     DrawGridCell((GGridCell&)W, D, res);
-                    break;
-                case GWidget::FRAME:
-                    DrawFrame((GFrame&)W, D, res);
                     break;
                 case GWidget::ARROW:
                     DrawArrow((GArrow&)W, D, res);
@@ -334,65 +334,49 @@ namespace z0 {
         D.drawText(W.getText(), W.getFont(), W.getRect());
     }
 
-/*
-
-//----------------------------------------------
-    void GLayoutVector::DrawFrame(GFrame&W, GLayoutVectorResource&, VectorRenderer&, floatRES)
-    {
-        const uint32_t LEFTOFFSET = 8;
-
-        Rect rect = W.Rect();
-
-        uint32_t fh = W.Font().Height();
-        uint32_t fw = W.Font().Width(W.Text());
-        uint32_t l1 = rect.left;
-        uint32_t t1 = rect.top+fh/2;
-        uint32_t l2 = rect.left+rect.width-1;
-        uint32_t t2 = rect.top+rect.height-1;
+    void GStyleClassic::drawFrame(GFrame&W, GStyleClassicResource&RES, VectorRenderer&D) const {
+        if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
+        const int32_t LEFTOFFSET = 8;
+        uint32_t l = W.getRect().x;
+        uint32_t b = W.getRect().y;
+        uint32_t w = W.getRect().width;
+        uint32_t h = W.getRect().height;
         Color c1;
         Color c2;
         switch (RES.style) {
-            case GLayoutVectorResource::RAISED:
+            case GStyleClassicResource::LOWERED:
                 c1 = shadowBright;
                 c2 = shadowDark;
                 break;
-            case GLayoutVectorResource::LOWERED:
+            case GStyleClassicResource::RAISED:
                 c1 = shadowDark;
                 c2 = shadowBright;
                 break;
-            case GLayoutVectorResource::FLAT:
+            case GStyleClassicResource::FLAT:
                 c1 = shadowDark;
                 c2 = shadowDark;
                 break;
         }
-        if (W.Text().Len() && (W.Width() >= fw) && (W.Height() >= fh)) {
-            D.SetPenColor(c1);
-            D.DrawLine(l1, t1, l1+LEFTOFFSET-3, t1);
-            D.DrawLine(l1+LEFTOFFSET+1+fw, t1,
-                       l2, t1);
-            D.SetPenColor(c2);
-            D.DrawLine(l1+1, t1+1, l1+LEFTOFFSET-3, t1+1);
-            D.DrawLine(l1+LEFTOFFSET+1+fw, t1+1,
-                       l2-2, t1+1);
-            W.Font().Draw(D, W.Text(), l1+LEFTOFFSET, t1-fh/2);
+        uint32_t fh, fw;
+        W.getFont()->getSize(W.getText(), fw, fh);
+        D.setPenColor(c2);
+        if ((!W.getText().empty()) && (W.getWidth() >= fw) && (W.getHeight() >= fh)) {
+            D.drawLine({l, b+h}, {l + LEFTOFFSET, b+h});
+            D.drawLine({l + fw + LEFTOFFSET, b+h}, {l + w, b+h});
+            D.setPenColor(c1);
+            D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b+h) - (fh / 2), fw, fh);
+            D.setPenColor(c2);
+        } else {
+            D.drawLine({l+w, b+h}, {l, b+h});
         }
-        else {
-            D.SetPenColor(c1);
-            D.DrawLine(l1, t1, l2, t1);
-            D.SetPenColor(c2);
-            D.DrawLine(l1+1, t1+1, l2-2, t1+1);
-        }
-
-        D.SetPenColor(c1);
-        D.DrawLine(l1, t2, l1, t1);
-        D.DrawLine(l2-1, t1+1, l2-1, t2-1);
-        D.DrawLine(l2-1, t2-1, l1+1, t2-1);
-        D.SetPenColor(c2);
-        D.DrawLine(l1+1, t2-2, l1+1, t1+1);
-        D.DrawLine(l2, t1, l2, t2);
-        D.DrawLine(l2, t2, l1, t2);
+        D.drawLine({l+w, b}, {l+w, b+h});
+        D.setPenColor(c1);
+        D.drawLine({l, b}, {l+w, b});
+        D.drawLine({l, b}, {l, b+h});
     }
 
+
+/*
 
 
 //----------------------------------------------

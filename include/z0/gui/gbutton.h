@@ -10,7 +10,7 @@ namespace z0 {
         GButton();
 
     protected:
-        bool eventMouseUp(MouseButton, uint32_t, uint32_t) override;
+        bool eventMouseUp(MouseButton, int32_t, int32_t) override;
     };
 
 }

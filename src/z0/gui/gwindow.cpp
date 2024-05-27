@@ -38,9 +38,9 @@ namespace z0 {
         widget->freeze = true;
         widget->padding = PADDING;
         widget->window = this;
-        widget->layout = layout;
-        widget->font = widget->layout->getFont();
-        widget->layout->addResource(*widget, RES);
+        widget->style = layout;
+        widget->font = widget->style->getFont();
+        widget->style->addResource(*widget, RES);
         widget->setDrawBackground(true);
         widget->eventCreate();
         widget->setPos(0, 0);

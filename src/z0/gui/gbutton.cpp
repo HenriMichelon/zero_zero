@@ -9,7 +9,7 @@ namespace z0 {
         allowFocus = true;
     }
 
-    bool GButton::eventMouseUp(MouseButton B, uint32_t X, uint32_t Y) {
+    bool GButton::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
         const bool p = isPushed();
         bool consumed = GBox::eventMouseUp(B, X, Y);
         if ((!consumed) && p) {

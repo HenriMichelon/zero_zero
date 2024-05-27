@@ -7,6 +7,7 @@
 #include "z0/gui/gbutton.h"
 #include "z0/gui/gtoggle_button.h"
 #include "z0/gui/gtext.h"
+#include "z0/gui/gframe.h"
 
 namespace z0 {
 
@@ -41,8 +42,8 @@ namespace z0 {
         void drawButton(GButton&, GStyleClassicResource&, VectorRenderer&) const;
         void drawToggleButton(GToggleButton&, GStyleClassicResource&, VectorRenderer&) const;
         void drawText(GText&, GStyleClassicResource&, VectorRenderer&) const;
-        /*void drawFrame(GFrame&, GLayoutVectorResource&, VectorRenderer&);
-        void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
+        void drawFrame(GFrame&, GStyleClassicResource&, VectorRenderer&) const;
+        /*void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
         void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
         void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
         void drawProgressBar(GProgressBar&, GLayoutVectorResource&, VectorRenderer&);

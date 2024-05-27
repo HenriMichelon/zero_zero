@@ -255,7 +255,7 @@ namespace z0 {
         GWindow*		          window{nullptr};
         Type		              type;
         AlignmentType             alignment{NONE};
-        shared_ptr<GStyle>	      layout{nullptr};
+        shared_ptr<GStyle>	      style{nullptr};
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 

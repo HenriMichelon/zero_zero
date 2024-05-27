@@ -6,6 +6,7 @@
 #include "z0/gui/gbutton.h"
 #include "z0/gui/gtoggle_button.h"
 #include "z0/gui/gtext.h"
+#include "z0/gui/gframe.h"
 
 #include "ui.h"
 
@@ -13,10 +14,13 @@ void Window2::onCreate() {
     //setTransparency(0.8f);
     getWidget().setPadding(5);
 
-    auto button = make_shared<GButton>();
+    auto frame = make_shared<GFrame>("Hello Frame !");
+    getWidget().add(frame, GWidget::CENTER, "200,200");
+
+    /*auto button = make_shared<GButton>();
     button->connect(GEvent::OnClick, this, GEventFunction(&Window2::onButtonClic));
     getWidget().add(button, GWidget::CENTER, "70,40");
-    button->add(make_shared<GText>("Clic me !"), GWidget::FILL);
+    button->add(make_shared<GText>("Clic me !"), GWidget::BOTTOM);*/
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
