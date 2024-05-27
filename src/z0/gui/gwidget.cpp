@@ -539,6 +539,7 @@ namespace z0 {
         bool consumed = false;
         bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = true;
+        if (r) resizeChildren();
         GWidget* wfocus = nullptr;
         for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
@@ -563,6 +564,7 @@ namespace z0 {
         bool consumed = false;
         bool r = redrawOnMouseEvent && (rect.contains(X, Y) || pushed);
         pushed = false;
+        if (r) resizeChildren();
         for (auto& w : children) {
             if (w->getRect().contains(X, Y)) {
                 consumed |= w->eventMouseUp(B, X, Y);

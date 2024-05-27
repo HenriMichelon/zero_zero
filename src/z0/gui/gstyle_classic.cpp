@@ -7,10 +7,6 @@ namespace z0 {
     {
     }
     
-    GStyleClassic::~GStyleClassic() {
-        //if (texture) { delete texture; }
-    }
-
     bool GStyleClassic::init() {
         setOption("color_focus", "");
         setOption("color_shadow_dark", "");
@@ -255,11 +251,6 @@ namespace z0 {
             }
             D.drawLine({l+w, b}, {l+w, b+h});
             D.drawLine({l+w, b+h}, {l, b+h});
-
-            l += 1;
-            b += 1;
-            w -= 1;
-            h -= 1;
         }
     }
 

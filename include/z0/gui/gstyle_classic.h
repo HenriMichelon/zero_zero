@@ -17,7 +17,7 @@ namespace z0 {
     {
     public:
         GStyleClassic();
-        ~GStyleClassic() override;
+        ~GStyleClassic() override = default;
 
         bool init() override;
         void draw(const GWidget&, GResource&, VectorRenderer&, bool) const override;
