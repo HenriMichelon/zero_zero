@@ -331,6 +331,7 @@ namespace z0 {
             if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
+            vkQueueWaitIdle(graphicsQueue);
         }
 
         {

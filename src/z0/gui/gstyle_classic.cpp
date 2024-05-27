@@ -331,7 +331,15 @@ namespace z0 {
         }
         drawPanel(W, RES, D);
         D.setPenColor(text);
-        D.drawText(W.getText(), W.getFont(), W.getRect());
+        uint32_t w, h;
+        W.getFont()->getSize(W.getText(), w, h);
+        if (w > W.getRect().width) {
+            w = W.getRect().width;
+        }
+        if (h > W.getRect().height) {
+            h = W.getRect().height;
+        }
+        D.drawText(W.getText(), W.getFont(), W.getRect().x, W.getRect().y, w, h);
     }
 
     void GStyleClassic::drawFrame(GFrame&W, GStyleClassicResource&RES, VectorRenderer&D) const {

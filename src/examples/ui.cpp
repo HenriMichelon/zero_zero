@@ -15,12 +15,14 @@ void Window2::onCreate() {
     getWidget().setPadding(5);
 
     auto frame = make_shared<GFrame>("Hello Frame !");
-    getWidget().add(frame, GWidget::CENTER, "200,200");
+    getWidget().add(frame, GWidget::CENTER, "200,200", 10);
+    frame->add(make_shared<GText>("Text 1"), GWidget::TOPCENTER);
+    frame->add(make_shared<GText>("Text 2"), GWidget::BOTTOMCENTER);
 
-    /*auto button = make_shared<GButton>();
+    auto button = make_shared<GButton>();
     button->connect(GEvent::OnClick, this, GEventFunction(&Window2::onButtonClic));
-    getWidget().add(button, GWidget::CENTER, "70,40");
-    button->add(make_shared<GText>("Clic me !"), GWidget::BOTTOM);*/
+    frame->add(button, GWidget::CENTER, "70,40", 5);
+    button->add(make_shared<GText>("Clic me !"), GWidget::CENTER);
 }
 
 void Window2::onButtonClic(GWidget &, GEvent *) {
