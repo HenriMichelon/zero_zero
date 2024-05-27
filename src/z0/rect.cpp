@@ -1,7 +1,6 @@
 #include <algorithm>
 #include "z0/rect.h"
 
-#include <algorithm>
 using namespace std;
 
 namespace z0 {
@@ -13,13 +12,7 @@ namespace z0 {
         height = min(A.y + A.height, B.y + B.height) - y;
     }
 
-    Rect& Rect :: operator = (const Rect&R) {
-        x = R.x;
-        y = R.y;
-        width = R.width;
-        height = R.height;
-        return *this;
-    }
+    Rect& Rect :: operator = (const Rect&R) = default;
 
     bool Rect :: operator == (const Rect&R) const {
         return ((x == R.x) &&
@@ -28,9 +21,9 @@ namespace z0 {
                 (height == R.height));
     }
 
-    bool Rect :: contains(uint32_t X, uint32_t Y) const {
-        return ((X >= x) && (X < int32_t((x + width))) &&
-                (Y >= y) && (Y < int32_t((y + height))));
+    bool Rect :: contains(int32_t X, int32_t Y) const {
+        return ((X >= x) && (X < (x + width)) &&
+                (Y >= y) && (Y < (y + height)));
     }
 
     bool Rect :: contains(const Rect&R) const {

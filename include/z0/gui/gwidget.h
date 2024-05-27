@@ -111,10 +111,10 @@ namespace z0 {
         uint32_t getHeight() const { return rect.height; };
 
         /*! Resize the widget
-            \param uint32_t	: width in pixels
-            \param uint32_t	: height in pixels
+            \param int32_t	: width in pixels
+            \param int32_t	: height in pixels
         */
-        void setSize(uint32_t, uint32_t);
+        void setSize(int32_t, int32_t);
 
         /*! Return size size & position of the widget */
         const Rect& getRect() const;
@@ -161,9 +161,9 @@ namespace z0 {
             \param	GWidget	: child widget to add
             \param	AlignementType	: placement
             \param	string	: resource string
-            \param	uint32_t	: default padding
+            \param	int32_t	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", uint32_t = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", int32_t = 0);
 
         /*! Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
@@ -177,10 +177,10 @@ namespace z0 {
         /*! Return current children padding (space between children) */
         int32_t getPadding() const;
 
-        uint32_t getVBorder() const;
-        uint32_t getHBorder() const;
-        void setVBorder(uint32_t);
-        void setHBorder(uint32_t);
+        int32_t getVBorder() const;
+        int32_t getHBorder() const;
+        void setVBorder(int32_t);
+        void setHBorder(int32_t);
 
         bool isDrawBackground() const;
         void setDrawBackground(bool);
@@ -259,8 +259,8 @@ namespace z0 {
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 
-        void maxRect(Rect&, Rect, Rect) const;
-        bool clipRect(Rect&, const Rect&, const Rect&) const;
+        static void maxRect(Rect&, Rect, Rect) ;
+        static bool clipRect(Rect&, const Rect&, const Rect&) ;
         void allowingFocus(bool = true);
         void resizeChildren();
 
@@ -274,9 +274,9 @@ namespace z0 {
         virtual void eventResize();
         virtual bool eventKeybDown(Key);
         virtual bool eventKeybUp(Key);
-        virtual bool eventMouseDown(MouseButton, uint32_t, uint32_t);
-        virtual bool eventMouseUp(MouseButton, uint32_t, uint32_t);
-        virtual bool eventMouseMove(MouseButton, uint32_t, uint32_t);
+        virtual bool eventMouseDown(MouseButton, int32_t, int32_t);
+        virtual bool eventMouseUp(MouseButton, int32_t, int32_t);
+        virtual bool eventMouseMove(MouseButton, int32_t, int32_t);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
 
@@ -300,7 +300,7 @@ namespace z0 {
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void init(GWidget&, AlignmentType, const string&, uint32_t);
+        void init(GWidget&, AlignmentType, const string&, int32_t);
     };
 
 }

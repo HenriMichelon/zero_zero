@@ -31,16 +31,16 @@ namespace z0 {
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
         /*! Return the width of the client area */
-        uint32_t getWidth() const { return rect.width; };
+        int32_t getWidth() const { return rect.width; };
 
         /*! Return the height of the client area */
-        uint32_t getHeight() const { return rect.height; };
+        int32_t getHeight() const { return rect.height; };
 
         /*! Set the width of the client area */
-        void setWidth(uint32_t w);
+        void setWidth(int32_t w);
 
         /*! Set the height of the client area */
-        void setHeight(uint32_t h);
+        void setHeight(int32_t h);
 
         /*! Set the position of the window */
         void setPos(int32_t l, int32_t t);
@@ -126,9 +126,9 @@ namespace z0 {
         void eventHide();
         bool eventKeybDown(Key);
         bool eventKeybUp(Key);
-        bool eventMouseDown(MouseButton, uint32_t, uint32_t);
-        bool eventMouseUp(MouseButton, uint32_t, uint32_t);
-        bool eventMouseMove(MouseButton, uint32_t, uint32_t);
+        bool eventMouseDown(MouseButton, int32_t, int32_t);
+        bool eventMouseUp(MouseButton, int32_t, int32_t);
+        bool eventMouseMove(MouseButton, int32_t, int32_t);
         void eventGotFocus();
         void eventLostFocus();
     };

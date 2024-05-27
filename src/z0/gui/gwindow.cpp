@@ -117,7 +117,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
+    bool GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
@@ -126,7 +126,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseUp(MouseButton B, uint32_t X, uint32_t Y) {
+    bool GWindow::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
@@ -135,7 +135,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseMove(MouseButton B, uint32_t X, uint32_t Y) {
+    bool GWindow::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
@@ -162,12 +162,12 @@ namespace z0 {
         return *widget;
     }
 
-    void GWindow::setHeight(uint32_t h) {
+    void GWindow::setHeight(int32_t h) {
         rect.height = h;
         eventResize();
     }
 
-    void GWindow::setWidth(uint32_t w) {
+    void GWindow::setWidth(int32_t w) {
         rect.width = w;
         eventResize();
     }
