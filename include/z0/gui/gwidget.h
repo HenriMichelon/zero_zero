@@ -7,6 +7,7 @@ namespace z0 {
 
     class GWindow;
 
+    // Super class for all widgets
     class GWidget: public Object {
     public:
         enum Type {
@@ -98,9 +99,9 @@ namespace z0 {
         //! Enable or disable widget reaction
         void enable(bool = true);
 
-        /*! Move the widget to a particular position.
-            \param int32_t	: Left position in pixels
-            \param int32_t	: top position in pixels
+        /* Move the widget to a particular position.
+             int32_t	: Left position in pixels
+             int32_t	: top position in pixels
          */
         void setPos(int32_t, int32_t);
 
@@ -110,36 +111,36 @@ namespace z0 {
         //! Return the height of the widget, in pixels
         int32_t getHeight() const { return rect.height; };
 
-        /*! Resize the widget
-            \param int32_t	: width in pixels
-            \param int32_t	: height in pixels
+        /* Resize the widget
+             int32_t	: width in pixels
+             int32_t	: height in pixels
         */
         void setSize(int32_t, int32_t);
 
-        /*! Return size size & position of the widget */
+        /* Return size size & position of the widget */
         const Rect& getRect() const;
 
-        /*! Change the size & position of the widget
-          \param	int32_t	: left position in pixels
-          \param	int32_t	: bottom position in pixels
-          \param	uint32_t	: width in pixels
-          \param	uint32_t	: height in pixels
+        /* Change the size & position of the widget
+          	int32_t	: left position in pixels
+          	int32_t	: bottom position in pixels
+          	uint32_t	: width in pixels
+          	uint32_t	: height in pixels
         */
         void setRect(int32_t, int32_t, uint32_t, uint32_t);
 
-        /*! Change the size & position of the widget
-          \param	GRect	: size & position, all in pixels
+        /* Change the size & position of the widget
+          	GRect	: size & position, all in pixels
          */
         void setRect(const Rect&);
 
         //! Return the current widget placement
         AlignmentType getAlignment() const;
 
-        /*! Set the widget placement. Calling this method involve 
+        /* Set the widget placement. Calling this method involve 
             redrawing the parent widget & resizing all the children widgets */
         void setAlignment(AlignmentType);
 
-        /*! Return the current font of the widget */
+        /* Return the current font of the widget */
         shared_ptr<Font>& getFont();
 
         //! Set the current font of the widget
@@ -151,30 +152,30 @@ namespace z0 {
         //! Return the parent widget, or nullptr */
         shared_ptr<GWidget> getParent() const;
 
-        /*! Return the list of direct children widgets.
+        /* Return the list of direct children widgets.
             Do NOT use this list to add or remove children widget,
             use Add(), Drop() & DropAll() instead */
         virtual list<shared_ptr<GWidget>>& getChildren() { return children; };
 
-        /*! Add a child widget.
+        /* Add a child widget.
               Childs widget will be destroyed on parent destruction.
-            \param	GWidget	: child widget to add
-            \param	AlignementType	: placement
-            \param	string	: resource string
-            \param	int32_t	: default padding
+            	GWidget	: child widget to add
+            	AlignementType	: placement
+            	string	: resource string
+            	int32_t	: default padding
         */
         virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", int32_t = 0);
 
-        /*! Remove a child widget */
+        /* Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
 
-        /*! Remove all children widgets recusivly */
+        /* Remove all children widgets recusivly */
         virtual void removeAll();
 
-        /*! Change children padding (space between children) */
+        /* Change children padding (space between children) */
         void setPadding(int32_t);
 
-        /*! Return current children padding (space between children) */
+        /* Return current children padding (space between children) */
         int32_t getPadding() const;
 
         int32_t getVBorder() const;
@@ -194,45 +195,45 @@ namespace z0 {
         void setFreezed(bool f) { freeze = f; }
         void setPushed(bool p) { pushed = p; }
 
-        /*! Force a refresh of the entire widget */
+        /* Force a refresh of the entire widget */
         void refresh();
 
-        /*! Connect an object method to a event.
-          \param	EventType	: event type
-          \param	_PTR		: object address
-          \param	GEventFunction	: method offset 
+        /* Connect an object method to a event.
+          	EventType	: event type
+          	_PTR		: object address
+          	GEventFunction	: method offset 
         */
         void connect(GEvent::Type, void*, GEventFunction);
 
-        /*! Call the object method connected to an event, if any.
-          \param	EventType	: event to simulate
-          \param	GEvent		: event parameter.
+        /* Call the object method connected to an event, if any.
+          	EventType	: event to simulate
+          	GEvent		: event parameter.
         */
         bool call(GEvent::Type, shared_ptr<GEvent> = nullptr);
 
-        /*! Simulate a user/system event
-          \param	EventType	: event to simulate
+        /* Simulate a user/system event
+          	EventType	: event to simulate
         */
         void simulate(GEvent::Type,  shared_ptr<GEvent> = nullptr);
 
-        /*! Change widget resources. Use with caution ! */
+        /* Change widget resources. Use with caution ! */
         void setResource(shared_ptr<GResource>);
 
-        /*! Return the user defined group index */
+        /* Return the user defined group index */
         uint32_t getGroupIndex() const;
 
-        /*! Set the user defined group index */
+        /* Set the user defined group index */
         void setGroupIndex(int32_t);
 
-        /*! Return user data */
+        /* Return user data */
         void* getData() const;
 
-        /*! set user data */
+        /* set user data */
         void setData(void*);
 
         friend class GWindow;
 
-        /*! recursively draw the widget and his children */
+        /* recursively draw the widget and his children */
         void draw(VectorRenderer&) const;
 
         const float getTransparency() const { return transparency; }

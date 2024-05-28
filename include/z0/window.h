@@ -32,6 +32,7 @@ namespace z0 {
 #ifdef _WIN32
         HWND hwnd;
         HBRUSH background;
+        RECT rect;
 #endif
 
     public:
@@ -41,6 +42,7 @@ namespace z0 {
 #ifdef _WIN32
         void _setSize(int width, int height);
         HWND _getHandle() const { return hwnd; };
+        RECT _getRect() const { return rect; }
 #endif
     };
 

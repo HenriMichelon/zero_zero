@@ -1,7 +1,7 @@
 #pragma once
 
 #include "z0/color.h"
-#include "z0/gui/gstyle_classic_resource.h"
+#include "gstyle_classic_resource.h"
 #include "z0/gui/gpanel.h"
 #include "z0/gui/gline.h"
 #include "z0/gui/gbutton.h"

@@ -1,5 +1,5 @@
 #include "z0/gui/gstyle.h"
-#include "z0/gui/gstyle_classic.h"
+#include "gstyle_classic.h"
 
 namespace z0 {
 

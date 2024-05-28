@@ -20,7 +20,7 @@ namespace z0 {
         if ((!consumed) && p) {
             if (call(GEvent::OnClick)) { return true; }
         }
-        return consumed;
+        return true;
     }
 
 }

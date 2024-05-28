@@ -5,6 +5,7 @@
 
 namespace z0 {
 
+    // A clickable GBox
     class GButton: public GBox {
     public:
         GButton();

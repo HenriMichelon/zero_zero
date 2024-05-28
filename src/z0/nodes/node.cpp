@@ -90,6 +90,22 @@ namespace z0 {
         updateTransform();
     }
 
+    vec3 Node::getRotation() const {
+        return eulerAngles(toQuat(mat3(localTransform)));
+    };
+
+    void Node::setRotationX(float angle) {
+        rotateX(angle - getRotationX());
+    }
+
+    void Node::setRotationY(float angle) {
+        rotateX(angle - getRotationY());
+    }
+
+    void Node::setRotationZ(float angle) {
+        rotateX(angle - getRotationZ());
+    }
+
     void Node::_onReady() {
         inReady = true;
         onReady();

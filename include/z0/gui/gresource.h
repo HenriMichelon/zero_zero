@@ -6,6 +6,7 @@
 
 namespace z0 {
 
+    // Super class for style resources descriptions
     class GResource: public Object {
     public:
         explicit GResource(string R): res(std::move(R)) {};

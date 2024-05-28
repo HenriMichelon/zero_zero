@@ -6,35 +6,35 @@
 
 namespace z0 {
 
+    // List of widgets events
     class GEvent {
     public:
-        //! Event list
         enum Type {
-            OnCreate,		//! called after widget creation (all widgets)
-            OnDestroy,		//! called before widget destruction (all widgets)
-            OnKeyDown,		//! called when the user press a key & the widget have the keyboard focus (all widgets)
-            OnKeyUp, 		//! called when the user press a key & the widget have the keyboard focus (all widgets)
-            OnMouseDown,	//! the mouse button have been pressed above the widget or a child (all widgets)
-            OnMouseUp,		//! the mouse button have been pressed above the widget or a child (all widgets)
-            OnMouseMove,	//! the mouse have been moved above the widget (all widgets)
-            OnResize,		//! the widget size have changed (all widgets)
-            OnMove,			//! the widget position have changed (all widgets)
-            OnGotFocus,		//! widget acquire keyboard focus (all widgets)
-            OnLostFocus,	//! widget lost keyboard focus (all widgets)
-            OnShow,			//! called after visibility change (all widgets)
-            OnHide,			//! called before visibility change (all widgets)
+            OnCreate,		// called after widget creation (all widgets)
+            OnDestroy,		// called before widget destruction (all widgets)
+            OnKeyDown,		// called when the user press a key & the widget have the keyboard focus (all widgets)
+            OnKeyUp, 		// called when the user press a key & the widget have the keyboard focus (all widgets)
+            OnMouseDown,	// the mouse button have been pressed above the widget or a child (all widgets)
+            OnMouseUp,		// the mouse button have been pressed above the widget or a child (all widgets)
+            OnMouseMove,	// the mouse have been moved above the widget (all widgets)
+            OnResize,		// the widget size have changed (all widgets)
+            OnMove,			// the widget position have changed (all widgets)
+            OnGotFocus,		// widget acquire keyboard focus (all widgets)
+            OnLostFocus,	// widget lost keyboard focus (all widgets)
+            OnShow,			// called after visibility change (all widgets)
+            OnHide,			// called before visibility change (all widgets)
             OnEnable,
             OnDisable,
-            OnTextChange,	//! text content of the widget have changed
-            OnClick,		//! the user click above the widget
-            OnStateChange,	//! a CheckWidget state changed
-            OnPictureChange,//! pixmap of a GPicture changed
-            OnInsertItem,	//! item list of a GList widget have changed
-            OnRemoveItem,	//! item list of a GList widget have changed
-            OnSelectItem,	//! user selected an item list of a GList widget
-            OnValueChange,	//! value of a GValueSelect widget changed
-            OnValueUserChange,	//! value of a GValueSelect widget changed by the user
-            OnRangeChange,	//! range of a GValueSelect widget changed
+            OnTextChange,	// text content of the widget have changed
+            OnClick,		// the user click above the widget
+            OnStateChange,	// a CheckWidget state changed
+            OnPictureChange,// pixmap of a GPicture changed
+            OnInsertItem,	// item list of a GList widget have changed
+            OnRemoveItem,	// item list of a GList widget have changed
+            OnSelectItem,	// user selected an item list of a GList widget
+            OnValueChange,	// value of a GValueSelect widget changed
+            OnValueUserChange,	// value of a GValueSelect widget changed by the user
+            OnRangeChange,	// range of a GValueSelect widget changed
             nbEvents
         } ;
     };

@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.hpp>
 
 #ifdef _WIN32
+#include <Windowsx.h> // for GET_X_LPARAM and GET_Y_LPARAM
 char szClassName[ ] = "WindowsApp";
 
 int _getKeyboardModifiers() {
@@ -16,9 +17,11 @@ int _getKeyboardModifiers() {
     return modifiers;
 }
 
-LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    static float lastMouseX = -1.0f;
+    static float lastMouseY = -1.0f;
     auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    auto& app = z0::Application::get();
     switch (message)
     {
         case WM_CREATE:
@@ -41,11 +44,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 // cancel the default close operation
                 return 0;
             } else if (wParam == SC_MINIMIZE) {
-                z0::Application::get()._stop(true);
+                app._stop(true);
                 ShowWindow(hwnd, SW_MINIMIZE);
             } else if (wParam == SC_RESTORE ) {
                 ShowWindow(hwnd, SW_RESTORE);
-                z0::Application::get()._stop(false);
+                app._stop(false);
             }
             break;
         case WM_KEYDOWN: {
@@ -55,7 +58,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyPressedStates[key] = true;
             z0::Input::_keyJustReleasedStates[key] = false;
             auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_KEYUP: {
@@ -65,7 +68,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyJustPressedStates[key] = false;
             z0::Input::_keyJustReleasedStates[key] = true;
             auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_LBUTTONDOWN: {
@@ -77,7 +80,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_LBUTTONUP: {
@@ -89,7 +92,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_RBUTTONDOWN: {
@@ -101,7 +104,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_RBUTTONUP: {
@@ -113,7 +116,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_MBUTTONDOWN: {
@@ -125,7 +128,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
             break;
         }
         case WM_MBUTTONUP: {
@@ -137,7 +140,29 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            z0::Application::get().onInput(event);
+            app.onInput(event);
+            break;
+        }
+        case WM_MOUSEMOVE: {
+            auto xPos = static_cast<float>(GET_X_LPARAM(lParam));
+            auto yPos = 0.0f;
+            auto y = GET_Y_LPARAM(lParam);
+            if (y < window->getHeight()) {
+                yPos = static_cast<float>(window->getHeight()-y);
+            } else if (y < 0){
+                yPos = static_cast<float>(window->getHeight());
+            }
+            if ((lastMouseX != -1) && (lastMouseY != -1)) {
+                auto dx = xPos - lastMouseX;
+                auto dy = yPos - lastMouseY;
+                auto event = z0::InputEventMouseMotion(xPos, yPos, dx, dy);
+                app.onInput(event);
+            } else {
+                auto event = z0::InputEventMouseMotion(xPos, yPos, 0, 0);
+                app.onInput(event);
+            }
+            lastMouseX = xPos;
+            lastMouseY = yPos;
             break;
         }
         default:
@@ -249,6 +274,10 @@ namespace z0 {
                 die("Unknown WindowMode");
         }
 
+        rect.top = y;
+        rect.left = x;
+        rect.bottom = y + h;
+        rect.right = x + w;
         hwnd = CreateWindowEx(
                 exStyle,
                 szClassName,

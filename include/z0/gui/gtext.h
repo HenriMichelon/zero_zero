@@ -4,6 +4,7 @@
 
 namespace z0 {
 
+    // A widget to display a line of text
     class GText: public GPanel {
     public:
         GText(string);

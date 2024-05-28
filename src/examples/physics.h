@@ -1,6 +1,7 @@
 #include <z0/nodes/mesh_instance.h>
 #include <z0/nodes/camera.h>
 #include <z0/nodes/rigid_body.h>
+#include <z0/gui/gtext.h>
 using namespace z0;
 
 class Player: public Node {
@@ -46,4 +47,9 @@ class PhysicsMainScene: public Node {
 public:
     PhysicsMainScene(): Node{"Main Scene"} {};
     void onReady() override;
+    void onProcess(float alpha) override;
+private:
+    uint32_t fps{0};
+    shared_ptr<GText> textFPS;
+    void onQuit(GWidget&, GEvent*);
 };

@@ -102,8 +102,6 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/gui/gresource.h
 		${Z0_INCLUDE_DIR}/gui/gstyle.h
 		${Z0_INCLUDE_DIR}/gui/gmanager.h
-		${Z0_INCLUDE_DIR}/gui/gstyle_classic.h
-		${Z0_INCLUDE_DIR}/gui/gstyle_classic_resource.h
 		${Z0_INCLUDE_DIR}/gui/gpanel.h
 		${Z0_INCLUDE_DIR}/gui/gline.h
 		${Z0_INCLUDE_DIR}/gui/gbutton.h
@@ -168,6 +166,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gtoggle_button.cpp
 		${Z0_ENGINE_DIR}/gui/gtext.cpp
 		${Z0_ENGINE_DIR}/gui/gframe.cpp
+		${Z0_ENGINE_DIR}/gui/gstyle_classic.h
+		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
 
 		${SRC_DIR}/libraries.cpp
 

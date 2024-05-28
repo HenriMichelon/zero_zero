@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "z0/nodes/skybox.h"
+#include "z0/gui/gbutton.h"
 #include <z0/application.h>
 #include <z0/input.h>
 #include <z0/loader.h>
@@ -12,11 +13,11 @@ enum Layers {
     BODIES      = 0b0010,
 };
 
-Crate::Crate(shared_ptr<z0::Node> model):
+Crate::Crate(shared_ptr<Node> model):
     RigidBody{make_shared<z0::BoxShape>(vec3{2.0f,2.0f, 2.0f}),
     Layers::BODIES,
     Layers::WORLD | Layers::BODIES} {
-    addChild(std::move(model));
+    addChild(model);
     setBounce(0.8);
     setGravityScale(0.5);
 }
@@ -48,15 +49,38 @@ void PhysicsMainScene::onReady() {
     floor->setPosition({0.0, -2.0, 0.0});
     addChild(floor);
 
+    auto topBar = make_shared<GWindow>(Rect{0, 945, 1000, 55});
+    Application::add(topBar);
+    auto rightPadding = make_shared<GPanel>();
+    rightPadding->setDrawBackground(false);
+    topBar->getWidget().add(rightPadding, GWidget::RIGHT, "5,5");
+    topBar->getWidget().setDrawBackground(false);
+    textFPS = make_shared<GText>("9999");
+    topBar->getWidget().add(textFPS, GWidget::RIGHTCENTER);
+    textFPS->setTextColor(Color{1.0, 1.0, 0.2});
+    auto buttonQuit = make_shared<GButton>();
+    buttonQuit->connect(GEvent::OnClick, this, GEventFunction(&PhysicsMainScene::onQuit));
+    topBar->getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
+    auto textQuit = make_shared<GText>("Quit");
+    buttonQuit->add(textQuit, GWidget::CENTER);
+    buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
+    topBar->setHeight(buttonQuit->getHeight());
+    topBar->setY(1000 - topBar->getHeight());
 }
 
 bool Player::onInput(InputEvent& event) {
-    /*if ((event.getType() == z0::INPUT_EVENT_MOUSE_MOTION) && mouseCaptured) {
-        auto& eventMouseMotion = dynamic_cast<z0::InputEventMouseMotion&>(event);
+    if ((event.getType() == INPUT_EVENT_MOUSE_MOTION) && mouseCaptured) {
+        auto& eventMouseMotion = dynamic_cast<InputEventMouseMotion&>(event);
         rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
         camera->rotateX(eventMouseMotion.getRelativeY() * mouseSensitivity * mouseInvertedAxisY);
         camera->setRotationX(std::clamp(camera->getRotationX(), maxCameraAngleDown, maxCameraAngleUp));
-    }*/
+    }
+    if ((event.getType() == INPUT_EVENT_MOUSE_BUTTON) && (!mouseCaptured)) {
+        auto& eventMouseButton = dynamic_cast<InputEventMouseButton&>(event);
+        if (!eventMouseButton.isPressed()) {
+            captureMouse();
+        }
+    }
     if ((event.getType() == INPUT_EVENT_KEY) && mouseCaptured) {
         auto& eventKey = dynamic_cast<InputEventKey&>(event);
         if ((eventKey.getKeyCode() == KEY_ESCAPE) && !eventKey.isPressed()) {
@@ -145,4 +169,14 @@ void Player::releaseMouse() {
     mouseCaptured = false;
 }
 
-//TODO : key code + translate, mouse inputevent, mouse buttons,
+void PhysicsMainScene::onQuit(GWidget &, GEvent *) {
+    Application::get().quit();
+}
+
+void PhysicsMainScene::onProcess(float alpha) {
+    auto newFPS = Application::get().getFPS();
+    if (newFPS != fps) {
+        fps = newFPS;
+        textFPS->setText(to_string(fps));
+    }
+}

@@ -1,4 +1,4 @@
-#include "z0/gui/gstyle_classic.h"
+#include "gstyle_classic.h"
 #include "z0/application.h"
 
 namespace z0 {

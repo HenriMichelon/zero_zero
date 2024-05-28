@@ -180,23 +180,39 @@ namespace z0 {
 
 #ifdef _WIN32
     void Input::setMouseMode(MouseMode mode) {
+        auto& wnd = Application::get().getWindow();
+        MSG msg;
+        while(PeekMessageW(&msg, wnd._getHandle(), 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+        }
+        SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
+                     wnd._getRect().top + wnd.getHeight() / 2);
         switch (mode) {
             case MOUSE_MODE_VISIBLE:
                 ReleaseCapture();
                 ShowCursor(TRUE);
+                ClipCursor(nullptr);
                 break;
             case MOUSE_MODE_HIDDEN:
                 ReleaseCapture();
                 ShowCursor(FALSE);
+                ClipCursor(nullptr);
                 break;
-            case MOUSE_MODE_VISIBLE_CAPTURED:
-                SetCapture(Application::get().getWindow()._getHandle());
+            case MOUSE_MODE_VISIBLE_CAPTURED: {
+                auto rect = wnd._getRect();
+                SetCapture(wnd._getHandle());
+                ClipCursor(&rect);
                 ShowCursor(TRUE);
                 break;
-            case MOUSE_MODE_HIDDEN_CAPTURED:
-                SetCapture(Application::get().getWindow()._getHandle());
+            }
+            case MOUSE_MODE_HIDDEN_CAPTURED: {
+                auto rect = wnd._getRect();
+                SetCapture(wnd._getHandle());
+                ClipCursor(&rect);
                 ShowCursor(FALSE);
                 break;
+            }
             default:
                 die("Unknown mouse mode");
         }

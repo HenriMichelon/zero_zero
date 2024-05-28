@@ -4,6 +4,7 @@
 
 namespace z0 {
 
+    // Two states button
     class GToggleButton: public GCheckWidget {
     public:
         GToggleButton();

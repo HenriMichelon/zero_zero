@@ -15,4 +15,4 @@ const ApplicationConfig applicationConfig {
     .defaultFontName = "examples/LeagueSpartan-Bold.otf",
     .defaultFontSize = 12
 };
-Application application(applicationConfig,make_shared<UIMainScene>());
+Application application(applicationConfig,make_shared<PhysicsMainScene>());

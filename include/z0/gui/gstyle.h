@@ -12,53 +12,54 @@ namespace z0 {
 
     class GWidget;
 
+    // Widget drawing super class
     class GStyle: public Object
     {
     public:
         GStyle();
         virtual ~GStyle() = default;
 
-        /*! Create a new layout.
-          \param	string	: layout name
-          \return 	nullptr on error (unknown layout)
+        /* Create a new layout.
+          	string	: layout name
+           	nullptr on error (unknown layout)
         */
         static shared_ptr<GStyle> create(const string& = "vector");
 
-        /*! Create a resource from a resource description string.
-          \param	string : string that describe the resources of a widget
-          \return 	NEVER return nullptr
+        /* Create a resource from a resource description string.
+          	string : string that describe the resources of a widget
+           	NEVER return nullptr
         */
         virtual void addResource(GWidget&, const string&) = 0;
 
         /* Set a layout specific option
-            \param	string	: option name
-            \param	string	: value
+            	string	: option name
+            	string	: value
         */
         virtual void setOption(const string&, const string&);
 
         /* Read a layout specific option
-            \param	string	: option name
-            \return option value
+            	string	: option name
+             option value
         */
         string getOption(const string&);
 
-        /*! Draw a widget.
-          \param	GWidget	: widget to draw
-          \param	GResource : resources used for drawing this widget
-          \param	bool : TRUE = before drawing children, FALSE = after
+        /* Draw a widget.
+          	GWidget	: widget to draw
+          	GResource : resources used for drawing this widget
+          	bool : TRUE = before drawing children, FALSE = after
         */
         virtual void draw(const GWidget&, GResource&, VectorRenderer&, bool) const = 0;
 
 
-        /*! Resize a widget.
-          \param	GWidget	: widget to draw
-          \param	GResource : resources used for resizing this widget
+        /* Resize a widget.
+          	GWidget	: widget to draw
+          	GResource : resources used for resizing this widget
         */
         virtual void resize(GWidget&, Rect&, GResource&) = 0;
 
 
-        /*! Return the default font for the layout.
-          \param	Font	: font to use for the layout
+        /* Return the default font for the layout.
+          	Font	: font to use for the layout
          */
         shared_ptr<Font> getFont() const { return font; };
 

@@ -45,6 +45,17 @@ namespace z0 {
                 }
             }
         } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) {
+#ifdef _WIN32
+            CURSORINFO ci {
+                .cbSize = sizeof(CURSORINFO)
+            };
+            if (GetCursorInfo(&ci)) {
+                // Mouse cursor is hidden
+                if (ci.flags == 0) {
+                    return false;
+                }
+            }
+#endif
             auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(inputEvent);
             auto scaleX = vectorRenderer->SCALE.x / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().width);
             auto scaleY = vectorRenderer->SCALE.y / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().height);
@@ -61,7 +72,7 @@ namespace z0 {
                 } else {
                     consumed |= window->eventMouseUp(mouseInputEvent.getMouseButton(), lx, ly);
                 }
-                if (consumed) { break; }
+                if (consumed) { return true; }
             }
         } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
             //die("Not implemented");

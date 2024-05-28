@@ -4,6 +4,7 @@
 
 namespace z0 {
 
+    // An horizontal or vertical line
     class GLine: public GWidget {
     public:
         enum LineStyle {

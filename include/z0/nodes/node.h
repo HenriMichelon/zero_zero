@@ -37,6 +37,13 @@ namespace z0 {
         void rotateY(float angle);
         void rotateZ(float angle);
         void setRotation(quat quat);
+        void setRotationX(float angle);
+        void setRotationY(float angle);
+        void setRotationZ(float angle);
+        vec3 getRotation() const;
+        float getRotationX() const { return getRotation().x; }
+        float getRotationY() const { return getRotation().y; }
+        float getRotationZ() const { return getRotation().z; }
 
         ProcessMode getProcessMode() const { return processMode; }
         void setProcessMode(ProcessMode mode) { processMode = mode; }

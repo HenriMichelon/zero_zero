@@ -4,6 +4,7 @@
 
 namespace z0 {
 
+    // Super class for all two-states widgets
     class GCheckWidget: public GWidget {
     public:
         //! State of the widget. Change on user action.

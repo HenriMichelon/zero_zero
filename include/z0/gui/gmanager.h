@@ -8,6 +8,7 @@ namespace z0 {
 
     class Application;
 
+    // Manage all the UI windows
     class GManager: public Object {
     public:
         explicit GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);
