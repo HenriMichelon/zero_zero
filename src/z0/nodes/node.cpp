@@ -112,6 +112,25 @@ namespace z0 {
         rotateX(angle - getRotationZ());
     }
 
+    void Node::setScale(float scale) {
+        setScale(vec3{scale, scale, scale});
+    }
+
+    void Node::setScale(glm::vec3 scale) {
+        localTransform = glm::scale(localTransform, scale);
+        updateTransform();
+    }
+
+    glm::vec3 Node::getScale() const {
+        vec3 scale;
+        quat rotation;
+        vec3 translation;
+        vec3 skew;
+        vec4 perspective;
+        decompose(localTransform, scale, rotation, translation, skew, perspective);
+        return scale;
+    }
+
     void Node::_onReady() {
         inReady = true;
         onReady();

@@ -1,16 +1,17 @@
 #pragma once
 
 #include <z0/nodes/camera.h>
+#include <z0/nodes/rigid_body.h>
 using namespace z0;
 
-class Player: public Node {
+class Player: public RigidBody {
 public:
     const float translationSpeed = 2;
     const float mouseSensitivity = 0.008;
     const float viewSensitivity = 0.2;
     const float maxCameraAngleUp = radians(60.0);
     const float maxCameraAngleDown = -radians(45.0);
-    Player(): Node("Player") {}
+    Player();
 
     bool onInput(InputEvent& event) override;
     void onPhysicsProcess(float delta) override;
@@ -34,4 +35,6 @@ private:
 
     void captureMouse();
     void releaseMouse();
+
+    shared_ptr<Node> model;
 };

@@ -239,6 +239,7 @@ namespace z0 {
             process(child, delta);
         }
     }
+
     void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
         if (node->isProcessed()) {
             if (node->_needPhysics()) node->_physicsUpdate();

@@ -1,12 +1,19 @@
 #include <z0/input.h>
+#include <z0/loader.h>
 #include <algorithm>
 
 #include "player.h"
+#include "layers.h"
+
+Player::Player(): RigidBody{make_shared<BoxShape>(vec3{1.0f,2.0f, 1.0f}),
+                            Layers::PLAYER,
+                            Layers::WORLD | Layers::BODIES} {
+}
 
 bool Player::onInput(InputEvent& event) {
     if ((event.getType() == INPUT_EVENT_MOUSE_MOTION) && mouseCaptured) {
         auto& eventMouseMotion = dynamic_cast<InputEventMouseMotion&>(event);
-        rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
+        //rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
         camera->rotateX(eventMouseMotion.getRelativeY() * mouseSensitivity * mouseInvertedAxisY);
         camera->setRotationX(std::clamp(camera->getRotationX(), maxCameraAngleDown, maxCameraAngleUp));
         return true;
@@ -82,10 +89,14 @@ void Player::onProcess(float alpha) {
 }
 
 void Player::onReady() {
+    model = Loader::loadModelFromFile("examples/models/capsule.glb", true);
+    model->setScale(0.5);
+    addChild(model);
+
     captureMouse();
-    setPosition({0.0, 1.0, 2.0});
 
     camera = make_shared<Camera>();
+    camera->setPosition({0.0, 2.0, 2.0});
     addChild(camera);
 /*
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {

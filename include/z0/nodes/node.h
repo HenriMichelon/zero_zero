@@ -46,6 +46,10 @@ namespace z0 {
         float getRotationY() const { return getRotation().y; }
         float getRotationZ() const { return getRotation().z; }
 
+        virtual void setScale(vec3 scale);
+        void setScale(float scale);
+        vec3 getScale() const;
+
         ProcessMode getProcessMode() const { return processMode; }
         void setProcessMode(ProcessMode mode) { processMode = mode; }
         bool isProcessed() const;

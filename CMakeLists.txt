@@ -184,6 +184,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/topbar.cpp
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
+		${Z0_EXAMPLES_DIR}//layers.h
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

@@ -189,7 +189,6 @@ namespace z0 {
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
-        if (currentCamera == nullptr) return;
         if (models.empty()) return;
         descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)

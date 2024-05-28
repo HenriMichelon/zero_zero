@@ -2,17 +2,12 @@
 #include <z0/application.h>
 #include <z0/loader.h>
 #include <z0/nodes/static_body.h>
+#include <glm/gtc/quaternion.hpp>
 
 #include "physics.h"
 #include "topbar.h"
 #include "player.h"
-
-#include <glm/gtc/quaternion.hpp>
-
-enum Layers {
-    WORLD       = 0b0001,
-    BODIES      = 0b0010,
-};
+#include "layers.h"
 
 Crate::Crate(const shared_ptr<Node>& model):
     RigidBody{make_shared<BoxShape>(vec3{2.0f,2.0f, 2.0f}),
@@ -31,7 +26,9 @@ void Crate::onReady() {
 void PhysicsMainScene::onReady() {
     auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
     addChild(skybox);
-    addChild(make_shared<Player>());
+    auto player = make_shared<Player>();
+    addChild(player);
+    player->setPosition({0.0, 2.0, 2.0});
 
     auto crateModel = Loader::loadModelFromFile("examples/models/crate.glb", true);
     for (int x = 0; x < 10; x++) {
