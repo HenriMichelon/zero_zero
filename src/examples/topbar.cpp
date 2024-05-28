@@ -22,7 +22,6 @@ void TopBar::onReady() {
     setY(1000 - getHeight());
 }
 
-
 void TopBar::onQuit(GWidget &, GEvent *) {
     Application::get().quit();
 }

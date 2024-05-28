@@ -9,11 +9,13 @@ bool Player::onInput(InputEvent& event) {
         rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
         camera->rotateX(eventMouseMotion.getRelativeY() * mouseSensitivity * mouseInvertedAxisY);
         camera->setRotationX(std::clamp(camera->getRotationX(), maxCameraAngleDown, maxCameraAngleUp));
+        return true;
     }
     if ((event.getType() == INPUT_EVENT_MOUSE_BUTTON) && (!mouseCaptured)) {
         auto& eventMouseButton = dynamic_cast<InputEventMouseButton&>(event);
         if (!eventMouseButton.isPressed()) {
             captureMouse();
+            return true;
         }
     }
     if ((event.getType() == INPUT_EVENT_KEY) && mouseCaptured) {
@@ -48,7 +50,9 @@ void Player::onPhysicsProcess(float delta) {
     } else if (Input::isKeyPressed(KEY_Z)) {
         currentState.velocity.y -= translationSpeed / 2;
     }
-    if (currentState.velocity != VEC3ZERO) currentState.velocity *= delta;
+    if (currentState.velocity != VEC3ZERO) {
+        currentState.velocity *= delta;
+    }
 
     if (mouseCaptured) {
         vec2 inputDir;
@@ -79,9 +83,9 @@ void Player::onProcess(float alpha) {
 
 void Player::onReady() {
     captureMouse();
-    setPosition({0.0, 1.5, 10.0});
+    setPosition({0.0, 1.0, 2.0});
 
-    camera = std::make_shared<Camera>();
+    camera = make_shared<Camera>();
     addChild(camera);
 /*
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {
