@@ -180,7 +180,10 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/physics.cpp
 		${Z0_EXAMPLES_DIR}/ui.h
 		${Z0_EXAMPLES_DIR}/ui.cpp
-
+		${Z0_EXAMPLES_DIR}/topbar.h
+		${Z0_EXAMPLES_DIR}/topbar.cpp
+		${Z0_EXAMPLES_DIR}/player.h
+		${Z0_EXAMPLES_DIR}/player.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

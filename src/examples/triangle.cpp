@@ -1,7 +1,8 @@
-#include "triangle.h"
-#include "z0/nodes/skybox.h"
+#include <z0/nodes/skybox.h>
 #include <z0/application.h>
 #include <z0/input.h>
+
+#include "triangle.h"
 
 void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();

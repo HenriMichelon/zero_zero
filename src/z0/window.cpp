@@ -165,6 +165,25 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             lastMouseY = yPos;
             break;
         }
+        // for Input::getKeyboardVector
+        case WM_INPUT: {
+            RAWINPUT raw;
+            UINT dataSize = sizeof(raw);
+            GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam),
+                            RID_INPUT,
+                            &raw,
+                            &dataSize,
+                            sizeof(RAWINPUTHEADER));
+            if (raw.header.dwType == RIM_TYPEKEYBOARD) {
+                const RAWKEYBOARD& rawKB = raw.data.keyboard;
+                bool keyDown = !(rawKB.Flags & RI_KEY_BREAK);
+                UINT key = rawKB.MakeCode;
+                if (key < 256) {
+                    z0::Input::_keys[key] = keyDown;
+                }
+            }
+            break;
+        }
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
     }
@@ -293,6 +312,15 @@ namespace z0 {
                 this
         );
         if (hwnd == nullptr) die("Cannot create Window", std::to_string(GetLastError()));
+
+        RAWINPUTDEVICE rid;
+        rid.usUsagePage = 1;       // Generic desktop controls
+        rid.usUsage = 6;           // Keyboard
+        rid.dwFlags = 0;
+        rid.hwndTarget = hwnd;
+        if (!RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
+            die("Failed to register raw input device.");
+        }
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);

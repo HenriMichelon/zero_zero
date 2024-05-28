@@ -28,12 +28,18 @@ namespace z0 {
         processMode = orig.processMode;
     }
 
+    void Node::translate(vec3 localOffset) {
+        quat currentOrientation = toQuat(mat3(localTransform));
+        vec3 worldTranslation = currentOrientation * localOffset;
+        setPosition(getPosition() + worldTranslation);
+    }
+
     void Node::setPosition(vec3 pos) {
         localTransform[3] = vec4(pos, 1.0f);
         updateTransform(mat4{1.0f});
     }
 
-    void Node::setPositionGlobal(glm::vec3 pos) {
+    void Node::setPositionGlobal(vec3 pos) {
         if (parent == nullptr) {
             setPosition(pos);
             return;
@@ -84,7 +90,7 @@ namespace z0 {
         // Create a rotation matrix from the new quaternion
         mat4 rotationMatrix = toMat4(quater);
         // Reconstruct the transformation matrix with the new rotation, preserving the original translation and scale
-        localTransform = translate(mat4(1.0f), translation)
+        localTransform = glm::translate(mat4(1.0f), translation)
                          * rotationMatrix
                          * glm::scale(mat4(1.0f), scale);
         updateTransform();

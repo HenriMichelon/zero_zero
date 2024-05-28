@@ -12,7 +12,7 @@ const ApplicationConfig applicationConfig {
     .windowMode = WINDOW_MODE_WINDOWED,
     .windowWidth = 1024,
     .windowHeight = 768,
-    .defaultFontName = "examples/LeagueSpartan-Bold.otf",
+    .defaultFontName = "examples/Signwood.ttf",
     .defaultFontSize = 12
 };
 Application application(applicationConfig,make_shared<PhysicsMainScene>());

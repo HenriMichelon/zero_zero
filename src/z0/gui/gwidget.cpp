@@ -181,7 +181,7 @@ namespace z0 {
                           const GEventFunction FUNC) {
         //PRE(OBJ, "Invalid object for event slot connection");
         //PRE(FUNC, "Invalid method for event slot connection");
-        slots[TYP].obj = static_cast<GWidget *>(OBJ); // TODO cast to Object ??
+        slots[TYP].obj = static_cast<Object *>(OBJ);
         slots[TYP].func = FUNC;
     }
 

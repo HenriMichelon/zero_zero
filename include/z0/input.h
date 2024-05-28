@@ -11,7 +11,7 @@ namespace z0 {
         static bool isKeyPressed(Key key);
         static bool isKeyJustPressed(Key key);
         static bool isKeyJustReleased(Key key);
-        //static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
+        static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
 
         static bool isMouseButtonPressed(MouseButton mouseButton);
         static bool isMouseButtonJustPressed(MouseButton mouseButton);
@@ -40,6 +40,10 @@ namespace z0 {
 
         static OsKey keyToOsKey(Key key);
         static Key osKeyToKey(OsKey key);
+
+#ifdef _WIN32
+        static bool _keys[256];
+#endif
     };
 
 

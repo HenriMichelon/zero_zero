@@ -75,7 +75,7 @@ namespace z0 {
             { KEY_9           , OS_KEY_9 },
             { KEY_SEMICOLON   , OS_KEY_SEMICOLON },
             { KEY_EQUAL       , OS_KEY_EQUAL },
-            { KEY_A           , OS_KEY_1 },
+            { KEY_A           , OS_KEY_A },
             { KEY_B           , OS_KEY_B },
             { KEY_C           , OS_KEY_C },
             { KEY_D           , OS_KEY_D },
@@ -179,6 +179,16 @@ namespace z0 {
     }
 
 #ifdef _WIN32
+    bool Input::_keys[256] = {false};
+
+    vec2 Input::getKeyboardVector(Key keyNegX, Key keyPosX, Key keyNegY, Key keyPosY) {
+        auto x = _keys[keyToOsKey(keyNegX)] ? -1 : _keys[keyToOsKey(keyPosX)] ? 1 : 0;
+        auto y = _keys[keyToOsKey(keyNegY)] ? -1 : _keys[keyToOsKey(keyPosY)] ? 1 : 0;
+        vec2 vector{ x, y };
+        float length = glm::length(vector);
+        return (length > 1.0f) ? vector / length : vector;
+    }
+
     void Input::setMouseMode(MouseMode mode) {
         auto& wnd = Application::get().getWindow();
         MSG msg;
@@ -186,24 +196,26 @@ namespace z0 {
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
-        SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
-                     wnd._getRect().top + wnd.getHeight() / 2);
         switch (mode) {
             case MOUSE_MODE_VISIBLE:
                 ReleaseCapture();
-                ShowCursor(TRUE);
                 ClipCursor(nullptr);
+                ShowCursor(TRUE);
+                SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
+                             wnd._getRect().top + wnd.getHeight() / 2);
                 break;
             case MOUSE_MODE_HIDDEN:
                 ReleaseCapture();
-                ShowCursor(FALSE);
                 ClipCursor(nullptr);
+                ShowCursor(FALSE);
                 break;
             case MOUSE_MODE_VISIBLE_CAPTURED: {
                 auto rect = wnd._getRect();
                 SetCapture(wnd._getHandle());
                 ClipCursor(&rect);
                 ShowCursor(TRUE);
+                SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
+                             wnd._getRect().top + wnd.getHeight() / 2);
                 break;
             }
             case MOUSE_MODE_HIDDEN_CAPTURED: {

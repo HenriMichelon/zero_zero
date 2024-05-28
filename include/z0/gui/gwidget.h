@@ -8,7 +8,7 @@ namespace z0 {
     class GWindow;
 
     // Super class for all widgets
-    class GWidget: public Object {
+    class GWidget {
     public:
         enum Type {
             WIDGET,				// transparent widget

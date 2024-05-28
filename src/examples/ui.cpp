@@ -1,14 +1,14 @@
 #include <z0/nodes/camera.h>
-#include "z0/nodes/skybox.h"
-#include "z0/loader.h"
-#include "z0/application.h"
-#include "z0/gui/gwidget.h"
-#include "z0/gui/gbutton.h"
-#include "z0/gui/gtoggle_button.h"
-#include "z0/gui/gtext.h"
-#include "z0/gui/gframe.h"
+#include <z0/nodes/skybox.h>
+#include <z0/loader.h>
+#include <z0/application.h>
+#include <z0/gui/gwidget.h>
+#include <z0/gui/gbutton.h>
+#include <z0/gui/gtext.h>
+#include <z0/gui/gframe.h>
 
 #include "ui.h"
+#include "topbar.h"
 
 void Window2::onCreate() {
     setTransparency(0.8f);
@@ -54,28 +54,9 @@ void UIMainScene::onReady() {
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);
 
-    topBar = make_shared<GWindow>(Rect{0, 945, 1000, 55});
+    auto topBar = make_shared<TopBar>();
     Application::add(topBar);
-
-    auto rightPadding = make_shared<GPanel>();
-    rightPadding->setDrawBackground(false);
-    topBar->getWidget().add(rightPadding, GWidget::RIGHT, "5,5");
-    topBar->getWidget().setDrawBackground(false);
-
-    textFPS = make_shared<GText>("9999");
-    topBar->getWidget().add(textFPS, GWidget::RIGHTCENTER);
-    textFPS->setTextColor(Color{1.0, 1.0, 0.2});
-
-    auto buttonQuit = make_shared<GButton>();
-    buttonQuit->connect(GEvent::OnClick, this, GEventFunction(&UIMainScene::onQuit));
-    topBar->getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
-
-    auto textQuit = make_shared<GText>("Quit");
-    buttonQuit->add(textQuit, GWidget::CENTER);
-    buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
-
-    topBar->setHeight(buttonQuit->getHeight());
-    topBar->setY(1000 - topBar->getHeight());
+    addChild(topBar);
 
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
     Application::add(window2);
@@ -86,14 +67,3 @@ void UIMainScene::onPhysicsProcess(float delta) {
     sphere->rotateY(angle);
 }
 
-void UIMainScene::onProcess(float alpha) {
-    auto newFPS = Application::get().getFPS();
-    if (newFPS != fps) {
-        fps = newFPS;
-        textFPS->setText(to_string(fps));
-    }
-}
-
-void UIMainScene::onQuit(GWidget &, GEvent *) {
-    Application::get().quit();
-}

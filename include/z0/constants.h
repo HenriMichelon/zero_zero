@@ -22,14 +22,14 @@ namespace z0 {
 
     constexpr string ENGINE_NAME = "ZeroZero";
     constexpr int WINDOW_CLEAR_COLOR[] { 0, 0, 0 };
-
-    const vec3 AXIS_X { 1.0, 0.0f, 0.0f };
-    const vec3 AXIS_Y { 0.0, 1.0f, 0.0f };
-    const vec3 AXIS_Z { 0.0, 0.0f, 1.0f };
-    const vec3 AXIS_UP = AXIS_Y;
-    const vec3 AXIS_FRONT = -AXIS_Z;
-    const vec2 VEC2ZERO{0.0};
-    const vec3 VEC3ZERO{0.0};
+    constexpr vec3 AXIS_X { 1.0, 0.0f, 0.0f };
+    constexpr vec3 AXIS_Y { 0.0, 1.0f, 0.0f };
+    constexpr vec3 AXIS_Z { 0.0, 0.0f, 1.0f };
+    constexpr vec3 AXIS_UP = AXIS_Y;
+    constexpr vec3 AXIS_FRONT = -AXIS_Z;
+    constexpr vec2 VEC2ZERO{0.0};
+    constexpr vec3 VEC3ZERO{0.0};
+    constexpr mat3 TRANSFORM_BASIS{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
     enum ProcessMode {
         PROCESS_MODE_INHERIT    = 0,
@@ -243,21 +243,21 @@ namespace z0 {
         OS_KEY_ENTER          = 0x001C,
         OS_KEY_TAB            = 0x000F,
         OS_KEY_BACKSPACE      = 0x000E,
-        OS_KEY_INSERT         = 0xE052,
-        OS_KEY_DELETE         = 0xE053,
-        OS_KEY_RIGHT          = 0xE04D,
-        OS_KEY_LEFT           = 0xE04B,
-        OS_KEY_DOWN           = 0xE050,
-        OS_KEY_UP             = 0xE048,
-        OS_KEY_PAGE_UP        = 0xE049,
-        OS_KEY_PAGE_DOWN      = 0xE051,
-        OS_KEY_HOME           = 0xE047,
-        OS_KEY_END            = 0xE04F,
+        OS_KEY_INSERT         = 0x52,
+        OS_KEY_DELETE         = 0x53,
+        OS_KEY_RIGHT          = 0x4D,
+        OS_KEY_LEFT           = 0x4B,
+        OS_KEY_DOWN           = 0x50,
+        OS_KEY_UP             = 0x48,
+        OS_KEY_PAGE_UP        = 0x49,
+        OS_KEY_PAGE_DOWN      = 0x51,
+        OS_KEY_HOME           = 0x47,
+        OS_KEY_END            = 0x4F,
         OS_KEY_CAPS_LOCK      = 0x003A,
         OS_KEY_SCROLL_LOCK    = 0x0046,
         OS_KEY_NUM_LOCK       = 0x0045,
-        OS_KEY_PRINT_SCREEN   = 0xE037,
-        OS_KEY_PAUSE          = 0x0045,
+        OS_KEY_PRINT_SCREEN   = 0x54,
+        OS_KEY_PAUSE          = 0x46,
         OS_KEY_F1             = 0x003B,
         OS_KEY_F2             = 0x003C,
         OS_KEY_F3             = 0x003D,
@@ -281,20 +281,20 @@ namespace z0 {
         OS_KEY_KP_8           = 0x0048,
         OS_KEY_KP_9           = 0x0049,
         OS_KEY_KP_PERIOD      = 0x0053,
-        OS_KEY_KP_DIVIDE      = 0xE035,
+        OS_KEY_KP_DIVIDE      = 0x35,
         OS_KEY_KP_MULTIPLY    = 0x0037,
         OS_KEY_KP_SUBTRACT    = 0x004A,
         OS_KEY_KP_ADD         = 0x004E,
-        OS_KEY_KP_ENTER       = 0xE01C,
+        OS_KEY_KP_ENTER       = 0x1C,
         OS_KEY_KP_EQUAL       = 0x0059,
         OS_KEY_LEFT_SHIFT     = 0x002A,
         OS_KEY_LEFT_CONTROL   = 0x001D,
         OS_KEY_LEFT_ALT       = 0x0038,
-        OS_KEY_LEFT_SUPER     = 0xE05B,
+        OS_KEY_LEFT_SUPER     = 0x5B,
         OS_KEY_RIGHT_SHIFT    = 0x0036,
-        OS_KEY_RIGHT_CONTROL  = 0xE01D,
-        OS_KEY_RIGHT_ALT      = 0xE038,
-        OS_KEY_RIGHT_SUPER    = 0xE05C,
+        OS_KEY_RIGHT_CONTROL  = 0x1D,
+        OS_KEY_RIGHT_ALT      = 0x38,
+        OS_KEY_RIGHT_SUPER    = 0x5C,
     };
 #endif
 

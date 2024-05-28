@@ -8,7 +8,7 @@ namespace z0 {
     class GManager;
 
     // An UI window (inside the application window)
-    class GWindow: public Object {
+    class GWindow {
     public:
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;

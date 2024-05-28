@@ -27,6 +27,7 @@ namespace z0 {
         // parent relative position
         virtual void setPosition(vec3 position);
         vec3 getPosition() const { return localTransform[3]; };
+        void translate(vec3 localOffset);
 
         // world relative position
         virtual void setPositionGlobal(vec3 position);
