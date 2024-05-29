@@ -89,6 +89,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/nodes/physics_node.h
 		${Z0_INCLUDE_DIR}/nodes/character.h
 		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
+		${Z0_INCLUDE_DIR}/nodes/raycast.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -126,6 +127,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/input_event.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/rect.cpp
+		${Z0_ENGINE_DIR}/physics.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
@@ -148,6 +150,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
 		${Z0_ENGINE_DIR}/nodes/physics_node.cpp
+		${Z0_ENGINE_DIR}/nodes/raycast.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
@@ -191,7 +194,6 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
 		${Z0_EXAMPLES_DIR}/layers.h
-		src/z0/physics.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
