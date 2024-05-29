@@ -5,17 +5,17 @@
 #include "player.h"
 #include "layers.h"
 
-Player::Player(): RigidBody{make_shared<BoxShape>(vec3{1.0f,2.0f, 1.0f}),
-                            Layers::PLAYER,
-                            Layers::WORLD | Layers::BODIES} {
+Player::Player(): Character{make_shared<BoxShape>(vec3{1.0f,2.0f, 1.0f}),
+                                Layers::PLAYER,
+                                Layers::WORLD | Layers::BODIES} {
 }
 
 bool Player::onInput(InputEvent& event) {
     if ((event.getType() == INPUT_EVENT_MOUSE_MOTION) && mouseCaptured) {
         auto& eventMouseMotion = dynamic_cast<InputEventMouseMotion&>(event);
-        //rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
-        camera->rotateX(eventMouseMotion.getRelativeY() * mouseSensitivity * mouseInvertedAxisY);
-        camera->setRotationX(std::clamp(camera->getRotationX(), maxCameraAngleDown, maxCameraAngleUp));
+        rotateY(-eventMouseMotion.getRelativeX() * mouseSensitivity);
+        cameraPivot->rotateX(eventMouseMotion.getRelativeY() * mouseSensitivity * mouseInvertedAxisY);
+        cameraPivot->setRotationX(std::clamp(cameraPivot->getRotationX(), maxCameraAngleDown, maxCameraAngleUp));
         return true;
     }
     if ((event.getType() == INPUT_EVENT_MOUSE_BUTTON) && (!mouseCaptured)) {
@@ -58,7 +58,8 @@ void Player::onPhysicsProcess(float delta) {
         currentState.velocity.y -= translationSpeed / 2;
     }
     if (currentState.velocity != VEC3ZERO) {
-        currentState.velocity *= delta;
+        //currentState.velocity *= delta;
+        setVelocity(currentState.velocity);
     }
 
     if (mouseCaptured) {
@@ -78,26 +79,31 @@ void Player::onPhysicsProcess(float delta) {
 void Player::onProcess(float alpha) {
     if (currentState.velocity != VEC3ZERO) {
         auto interpolatedVelocity = previousState.velocity * (1.0f-alpha) + currentState.velocity * alpha;
-        translate(interpolatedVelocity);
+        //translate(interpolatedVelocity);
+        //setVelocity(currentState.velocity);
     }
     if (currentState.lookDir != VEC2ZERO) {
         auto interpolatedLookDir = previousState.lookDir * (1.0f-alpha) + currentState.lookDir * alpha;
         rotateY(-interpolatedLookDir.x * 2.0f);
-        camera->rotateX(interpolatedLookDir.y * keyboardInvertedAxisY);
-        camera->setRotationX(std::clamp(camera->getRotationX() , maxCameraAngleDown, maxCameraAngleUp));
+        cameraPivot->rotateX(interpolatedLookDir.y * keyboardInvertedAxisY);
+        cameraPivot->setRotationX(std::clamp(cameraPivot->getRotationX() , maxCameraAngleDown, maxCameraAngleUp));
     }
 }
 
 void Player::onReady() {
-    model = Loader::loadModelFromFile("examples/models/capsule.glb", true);
-    model->setScale(0.5);
-    addChild(model);
-
     captureMouse();
 
+    model = Loader::loadModelFromFile("examples/models/capsule.glb", true);
+    model->setPosition({0.0, -1.8/2, 0.0});
+    addChild(model);
+
+    cameraPivot = make_shared<Node>("CameraPivot");
+    cameraPivot->setPosition({0.0, 2.0, 2.0});
+    cameraPivot->rotateX(radians(-20.0));
+    addChild(cameraPivot);
+
     camera = make_shared<Camera>();
-    camera->setPosition({0.0, 2.0, 2.0});
-    addChild(camera);
+    cameraPivot->addChild(camera);
 /*
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {
         if (Input::isGamepad(i)) {

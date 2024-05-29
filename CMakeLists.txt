@@ -86,6 +86,9 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/nodes/rigid_body.h
 		${Z0_INCLUDE_DIR}/nodes/static_body.h
 		${Z0_INCLUDE_DIR}/nodes/skybox.h
+		${Z0_INCLUDE_DIR}/nodes/physics_node.h
+		${Z0_INCLUDE_DIR}/nodes/character.h
+		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -142,6 +145,9 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/nodes/rigid_body.cpp
 		${Z0_ENGINE_DIR}/nodes/static_body.cpp
 		${Z0_ENGINE_DIR}/nodes/skybox.cpp
+		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
+		${Z0_ENGINE_DIR}/nodes/character.cpp
+		${Z0_ENGINE_DIR}/nodes/physics_node.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
@@ -184,7 +190,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/topbar.cpp
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
-		${Z0_EXAMPLES_DIR}//layers.h
+		${Z0_EXAMPLES_DIR}/layers.h
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

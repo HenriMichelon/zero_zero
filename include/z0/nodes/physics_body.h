@@ -1,6 +1,6 @@
 #pragma once
 
-#include "z0/nodes/node.h"
+#include "z0/nodes/physics_node.h"
 #include "z0/resources/shape.h"
 
 #include <Jolt/Jolt.h>
@@ -11,25 +11,13 @@
 
 namespace z0 {
 
-    class PhysicsBody: public Node {
+    class PhysicsBody: public PhysicsNode {
     public:
         ~PhysicsBody() override;
 
-        uint32_t getCollisionLayer() const { return collisionLayer; }
-        uint32_t getCollistionMask() const { return collisionMask; }
-        bool haveCollisionLayer(uint32_t layer) const;
-        bool haveCollisionMask(uint32_t layer) const;
-        void setCollistionLayer(uint32_t layer, bool value);
-        void setCollistionMask(uint32_t layer, bool value);
-
-        void updateTransform() override;
-        void updateTransform(const mat4& parentMatrix) override;
+        void setGravityScale(float value);
 
     protected:
-        JPH::BodyID bodyId;
-        JPH::BodyInterface& bodyInterface;
-        std::shared_ptr<Shape> shape;
-
         PhysicsBody(shared_ptr<Shape>& shape,
                     uint32_t layer,
                     uint32_t mask,
@@ -38,18 +26,7 @@ namespace z0 {
                     const string& name);
 
     private:
-        JPH::EActivation activationMode;
         JPH::EMotionType motionType;
-        uint32_t collisionLayer;
-        uint32_t collisionMask;
-        bool updating{false};
-
-        void setPositionAndRotation();
-
-    public:
-        void _physicsUpdate() override;
-        void _onEnterScene() override;
-        void _onExitScene() override;
     };
 
 }

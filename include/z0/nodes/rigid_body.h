@@ -13,7 +13,7 @@ namespace z0 {
         ~RigidBody() override = default;
 
         void setBounce(float value);
-        void setGravityScale(float value);
+
     };
 
 }

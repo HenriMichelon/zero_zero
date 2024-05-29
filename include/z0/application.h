@@ -89,6 +89,7 @@ namespace z0 {
 #endif
         void _stop(bool stop) { stopped = stop; };
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
+        JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
 
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <z0/nodes/camera.h>
-#include <z0/nodes/rigid_body.h>
+#include <z0/nodes/character.h>
 using namespace z0;
 
-class Player: public RigidBody {
+class Player: public Character {
 public:
     const float translationSpeed = 2;
     const float mouseSensitivity = 0.008;
@@ -32,6 +32,7 @@ private:
     State previousState;
     State currentState;
     shared_ptr<Camera> camera;
+    shared_ptr<Node> cameraPivot;
 
     void captureMouse();
     void releaseMouse();

@@ -17,8 +17,5 @@ namespace z0 {
         bodyInterface.SetRestitution(bodyId, value);
     }
 
-    void RigidBody::setGravityScale(float value) {
-        bodyInterface.SetGravityFactor(bodyId, value);
-    }
 
 }
