@@ -26,7 +26,7 @@ namespace z0 {
                                                 0,
                                                 &Application::get()._getPhysicsSystem());
         character->AddToPhysicsSystem();
-        bodyId = character->GetBodyID();
+        setBodyId(character->GetBodyID());
     }
 
     Character::~Character() {
@@ -35,6 +35,10 @@ namespace z0 {
 
     bool Character::isOnGround() {
         return character->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
+    }
+
+    bool Character::isGround(PhysicsNode *node) {
+        return node->_getBodyId() == character->GetGroundBodyID();
     }
 
     static const float GROUND_COLLISION_TOLERANCE = 0.05f;

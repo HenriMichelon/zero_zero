@@ -10,9 +10,11 @@
 #include "layers.h"
 
 Crate::Crate(const shared_ptr<Node>& model):
-    RigidBody{make_shared<BoxShape>(vec3{2.0f,2.0f, 2.0f}),
-    Layers::BODIES,
-    Layers::WORLD | Layers::BODIES | Layers::PLAYER} {
+    RigidBody{
+        make_shared<BoxShape>(vec3{2.0f,2.0f, 2.0f}),
+        Layers::BODIES,
+        Layers::WORLD | Layers::BODIES | Layers::PLAYER,
+        "Crate" } {
     addChild(model);
     setBounce(0.8);
     setGravityScale(0.5);
@@ -42,7 +44,8 @@ void PhysicsMainScene::onReady() {
     auto floor = make_shared<StaticBody>(
             make_shared<BoxShape>(vec3{200.0f, 0.2f, 200.0f}),
             Layers::WORLD,
-            0);
+            0,
+            "Floor");
     floor->addChild(Loader::loadModelFromFile("examples/models/floor.glb", true));
     floor->setPosition({0.0, -2.0, 0.0});
     addChild(floor);

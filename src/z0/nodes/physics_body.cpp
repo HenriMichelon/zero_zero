@@ -25,15 +25,16 @@ namespace z0 {
                 motionType,
                 collisionLayer << 4 | collisionMask
         };
-        bodyId = bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate);
+        setBodyId(bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate));
     }
 
     PhysicsBody::~PhysicsBody() {
-        //bodyInterface.DestroyBody(bodyId);
+        bodyInterface.RemoveBody(_getBodyId());
+        bodyInterface.DestroyBody(_getBodyId());
     }
 
     void PhysicsBody::setGravityScale(float value) {
-        bodyInterface.SetGravityFactor(bodyId, value);
+        bodyInterface.SetGravityFactor(_getBodyId(), value);
     }
 
 }

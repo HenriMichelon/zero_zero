@@ -15,6 +15,7 @@ namespace z0 {
         ~Character() override;
 
         bool isOnGround();
+        bool isGround(PhysicsNode*);
 
     private:
         // Check for CharacterVirtual use for better walls & slopes interactions

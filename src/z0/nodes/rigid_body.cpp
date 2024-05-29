@@ -14,7 +14,7 @@ namespace z0 {
     }
 
     void RigidBody::setBounce(float value) {
-        bodyInterface.SetRestitution(bodyId, value);
+        bodyInterface.SetRestitution(_getBodyId(), value);
     }
 
 

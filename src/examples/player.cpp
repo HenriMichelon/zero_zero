@@ -86,6 +86,12 @@ void Player::onProcess(float alpha) {
     }
 }
 
+void Player::onCollisionStarts(PhysicsNode *node) {
+    if (!isGround(node)) {
+        cout << "Start Collide with " << *node << " (" << node->getId() << ")" << endl;
+    }
+}
+
 void Player::onReady() {
     captureMouse();
 

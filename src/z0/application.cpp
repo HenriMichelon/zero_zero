@@ -108,6 +108,8 @@ namespace z0 {
                            object_vs_broadphase_layer_filter,
                            object_vs_object_layer_filter);
 
+        physicsSystem.SetContactListener(&contactListener);
+
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
         vectorRenderer = make_shared<VectorRenderer>(*device,

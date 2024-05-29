@@ -4,8 +4,9 @@
 #include "z0/resources/shape.h"
 
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
 
@@ -22,6 +23,8 @@ namespace z0 {
         virtual void setCollistionLayer(uint32_t layer, bool value);
         virtual void setCollistionMask(uint32_t layer, bool value);
 
+        virtual void onCollisionStarts(PhysicsNode* node) {};
+
         void setVelocity(vec3 velocity);
         vec3 getVelocity() const;
 
@@ -33,7 +36,6 @@ namespace z0 {
         uint32_t collisionLayer;
         uint32_t collisionMask;
         std::shared_ptr<Shape> shape;
-        JPH::BodyID bodyId;
         JPH::BodyInterface& bodyInterface;
         JPH::EActivation activationMode;
 
@@ -43,11 +45,19 @@ namespace z0 {
                     const string& name);
 
         void setPositionAndRotation();
+        void setBodyId(JPH::BodyID id);
+
+    private:
+        JPH::BodyID bodyId;
 
     public:
         void _physicsUpdate() override;
         void _onEnterScene() override;
         void _onExitScene() override;
+
+        JPH::BodyID _getBodyId() const { return bodyId; }
+
     };
+
 
 }

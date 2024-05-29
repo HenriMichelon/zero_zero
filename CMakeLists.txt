@@ -191,6 +191,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
 		${Z0_EXAMPLES_DIR}/layers.h
+		src/z0/physics.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

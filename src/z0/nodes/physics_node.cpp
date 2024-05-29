@@ -65,6 +65,11 @@ namespace z0 {
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
+    void PhysicsNode::setBodyId(JPH::BodyID id) {
+        bodyId = id;
+        bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
+    }
+
     void PhysicsNode::setPositionAndRotation() {
         if (updating || (parent == nullptr)) return;
         auto position = getPositionGlobal();
@@ -76,10 +81,9 @@ namespace z0 {
                 activationMode);
     }
 
-
     void PhysicsNode::_onEnterScene() {
-        Node::_onEnterScene();
         bodyInterface.ActivateBody(bodyId);
+        Node::_onEnterScene();
     }
 
     void PhysicsNode::_onExitScene() {
