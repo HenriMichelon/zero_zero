@@ -54,6 +54,17 @@ namespace z0 {
         bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
     }
 
+    void PhysicsNode::setVelocity(vec3 velocity) {
+        // current orientation * velocity
+        velocity = toQuat(mat3(localTransform)) * velocity;
+        bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{velocity.x, velocity.y, velocity.z});
+    }
+
+    vec3 PhysicsNode::getVelocity() const {
+        auto velocity = bodyInterface.GetLinearVelocity(bodyId);
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
     void PhysicsNode::setPositionAndRotation() {
         if (updating || (parent == nullptr)) return;
         auto position = getPositionGlobal();

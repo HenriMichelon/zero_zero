@@ -33,10 +33,5 @@ namespace z0 {
         character->RemoveFromPhysicsSystem();
     }
 
-    void Character::setVelocity(vec3 velocity) {
-        // current orientation * velocity
-        velocity = toQuat(mat3(localTransform)) * velocity;
-        character->SetLinearVelocity(JPH::Vec3{velocity.x, velocity.y, velocity.z});
-    }
 
 }

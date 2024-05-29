@@ -14,8 +14,6 @@ namespace z0 {
                            const string& name = "Character");
         ~Character() override;
 
-        void setVelocity(vec3 velocity);
-
     private:
         unique_ptr<JPH::Character> character;
     };

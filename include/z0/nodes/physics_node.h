@@ -22,6 +22,9 @@ namespace z0 {
         virtual void setCollistionLayer(uint32_t layer, bool value);
         virtual void setCollistionMask(uint32_t layer, bool value);
 
+        void setVelocity(vec3 velocity);
+        vec3 getVelocity() const;
+
         void updateTransform() override;
         void updateTransform(const mat4& parentMatrix) override;
 

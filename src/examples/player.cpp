@@ -58,10 +58,6 @@ void Player::onPhysicsProcess(float delta) {
     } else if (Input::isKeyPressed(KEY_Z)) {
         currentState.velocity.y -= translationSpeed / 2;
     }*/
-    if (currentState.velocity != VEC3ZERO) {
-        //currentState.velocity *= delta;
-        setVelocity(currentState.velocity);
-    }
 
     if (mouseCaptured) {
         vec2 inputDir;
@@ -78,10 +74,12 @@ void Player::onPhysicsProcess(float delta) {
 }
 
 void Player::onProcess(float alpha) {
+    auto velocity = getVelocity();
     if (currentState.velocity != VEC3ZERO) {
         auto interpolatedVelocity = previousState.velocity * (1.0f-alpha) + currentState.velocity * alpha;
-        //translate(interpolatedVelocity);
-        //setVelocity(currentState.velocity);
+        setVelocity({interpolatedVelocity.x, velocity.y, interpolatedVelocity.z});
+    } else {
+        setVelocity({0.0, velocity.y, 0.0});
     }
     if (currentState.lookDir != VEC2ZERO) {
         auto interpolatedLookDir = previousState.lookDir * (1.0f-alpha) + currentState.lookDir * alpha;
