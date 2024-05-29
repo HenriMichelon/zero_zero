@@ -34,8 +34,8 @@ namespace z0 {
     }
 
     void Character::setVelocity(vec3 velocity) {
-        auto quat = normalize(toQuat(mat3(worldTransform)));
-        character->SetRotation(JPH::Quat(quat.x, quat.y, quat.z, quat.w));
+        // current orientation * velocity
+        velocity = toQuat(mat3(localTransform)) * velocity;
         character->SetLinearVelocity(JPH::Vec3{velocity.x, velocity.y, velocity.z});
     }
 

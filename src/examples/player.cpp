@@ -4,6 +4,7 @@
 
 #include "player.h"
 #include "layers.h"
+#include <glm/gtx/quaternion.hpp>
 
 Player::Player(): Character{make_shared<BoxShape>(vec3{1.0f,2.0f, 1.0f}),
                                 Layers::PLAYER,
@@ -52,11 +53,11 @@ void Player::onPhysicsProcess(float delta) {
         currentState.velocity.x = direction.x * translationSpeed;
         currentState.velocity.z = direction.z * translationSpeed;
     }
-    if (Input::isKeyPressed(KEY_Q)) {
+    /*if (Input::isKeyPressed(KEY_Q)) {
         currentState.velocity.y += translationSpeed / 2;
     } else if (Input::isKeyPressed(KEY_Z)) {
         currentState.velocity.y -= translationSpeed / 2;
-    }
+    }*/
     if (currentState.velocity != VEC3ZERO) {
         //currentState.velocity *= delta;
         setVelocity(currentState.velocity);

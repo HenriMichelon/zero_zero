@@ -6,7 +6,7 @@ using namespace z0;
 
 class Player: public Character {
 public:
-    const float translationSpeed = 2;
+    const float translationSpeed = 4;
     const float mouseSensitivity = 0.008;
     const float viewSensitivity = 0.2;
     const float maxCameraAngleUp = radians(60.0);

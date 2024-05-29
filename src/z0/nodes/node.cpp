@@ -29,8 +29,8 @@ namespace z0 {
     }
 
     void Node::translate(vec3 localOffset) {
-        quat currentOrientation = toQuat(mat3(localTransform));
-        vec3 worldTranslation = currentOrientation * localOffset;
+        // current orientation * velocity
+        vec3 worldTranslation =  toQuat(mat3(localTransform)) * localOffset;
         setPosition(getPosition() + worldTranslation);
     }
 
