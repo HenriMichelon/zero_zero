@@ -173,8 +173,8 @@ namespace z0 {
         currentTime = newTime;
         accumulator += frameTime;
         while (accumulator >= dt) {
-            physicsProcess(rootNode, dt);
             physicsSystem.Update(dt, 1, temp_allocator.get(), job_system.get());
+            physicsProcess(rootNode, dt);
             t += dt;
             accumulator -= dt;
         }

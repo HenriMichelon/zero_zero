@@ -33,5 +33,15 @@ namespace z0 {
         character->RemoveFromPhysicsSystem();
     }
 
+    bool Character::isOnGround() {
+        return character->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
+    }
+
+    static const float GROUND_COLLISION_TOLERANCE = 0.05f;
+
+    void Character::_physicsUpdate() {
+        character->PostSimulation(GROUND_COLLISION_TOLERANCE);
+        PhysicsNode::_physicsUpdate();
+    }
 
 }

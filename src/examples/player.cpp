@@ -46,18 +46,18 @@ void Player::onPhysicsProcess(float delta) {
         input = Input::getKeyboardVector(KEY_A, KEY_D, KEY_W, KEY_S);
     }
 
-    currentState = State{};
+    currentState = State{
+        .velocity = getVelocity()
+    };
     if (input != VEC2ZERO) {
         captureMouse();
         auto direction = TRANSFORM_BASIS * vec3{input.x, 0, input.y};
-        currentState.velocity.x = direction.x * translationSpeed;
-        currentState.velocity.z = direction.z * translationSpeed;
+        currentState.velocity.x = direction.x * movementsSpeed;
+        currentState.velocity.z = direction.z * movementsSpeed;
     }
-    /*if (Input::isKeyPressed(KEY_Q)) {
-        currentState.velocity.y += translationSpeed / 2;
-    } else if (Input::isKeyPressed(KEY_Z)) {
-        currentState.velocity.y -= translationSpeed / 2;
-    }*/
+    if (Input::isKeyPressed(KEY_SPACE) && isOnGround()) {
+        currentState.velocity.y = jumpHeight;
+    }
 
     if (mouseCaptured) {
         vec2 inputDir;
@@ -74,12 +74,9 @@ void Player::onPhysicsProcess(float delta) {
 }
 
 void Player::onProcess(float alpha) {
-    auto velocity = getVelocity();
-    if (currentState.velocity != VEC3ZERO) {
+    if ((currentState.velocity != VEC3ZERO) && isOnGround()) {
         auto interpolatedVelocity = previousState.velocity * (1.0f-alpha) + currentState.velocity * alpha;
-        setVelocity({interpolatedVelocity.x, velocity.y, interpolatedVelocity.z});
-    } else {
-        setVelocity({0.0, velocity.y, 0.0});
+        setVelocity({interpolatedVelocity.x, interpolatedVelocity.y, interpolatedVelocity.z});
     }
     if (currentState.lookDir != VEC2ZERO) {
         auto interpolatedLookDir = previousState.lookDir * (1.0f-alpha) + currentState.lookDir * alpha;
@@ -100,9 +97,7 @@ void Player::onReady() {
     cameraPivot->setPosition({0.0, 2.0, 2.0});
     cameraPivot->rotateX(radians(-20.0));
     addChild(cameraPivot);
-
-    camera = make_shared<Camera>();
-    cameraPivot->addChild(camera);
+    cameraPivot->addChild(make_shared<Camera>());
 /*
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {
         if (Input::isGamepad(i)) {

@@ -14,8 +14,15 @@ namespace z0 {
                            const string& name = "Character");
         ~Character() override;
 
+        bool isOnGround();
+
     private:
+        // Check for CharacterVirtual use for better walls & slopes interactions
+        // https://jrouwe.github.io/JoltPhysics/index.html#character-controllers
         unique_ptr<JPH::Character> character;
+
+    public:
+        void _physicsUpdate() override;
     };
 
 }

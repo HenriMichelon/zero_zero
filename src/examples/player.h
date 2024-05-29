@@ -6,7 +6,8 @@ using namespace z0;
 
 class Player: public Character {
 public:
-    const float translationSpeed = 4;
+    const float movementsSpeed = 4;
+    const float jumpHeight = 8;
     const float mouseSensitivity = 0.008;
     const float viewSensitivity = 0.2;
     const float maxCameraAngleUp = radians(60.0);
@@ -31,7 +32,6 @@ private:
     float keyboardInvertedAxisY{1.0};
     State previousState;
     State currentState;
-    shared_ptr<Camera> camera;
     shared_ptr<Node> cameraPivot;
 
     void captureMouse();
