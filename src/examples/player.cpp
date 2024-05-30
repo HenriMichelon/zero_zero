@@ -55,7 +55,8 @@ void Player::onPhysicsProcess(float delta) {
         currentState.velocity.x = direction.x * movementsSpeed;
         currentState.velocity.z = direction.z * movementsSpeed;
     }
-    if (Input::isKeyPressed(KEY_SPACE) && isOnGround()) {
+    if ((Input::isKeyPressed(KEY_SPACE) || (Input::isGamepadButtonPressed(gamepad, GAMEPAD_BUTTON_A)))
+        && isOnGround()) {
         currentState.velocity.y = jumpHeight;
     }
 

@@ -192,11 +192,12 @@ namespace z0 {
         LPDIRECTINPUTDEVICE8 device;
         string               name;
         float                axes[6];
-        bool                 buttons[15];
+        bool                 buttons[GAMEPAD_BUTTON_LAST+1];
         int                  indexAxisLeftX{0};
         int                  indexAxisLeftY{0};
         int                  indexAxisRightX{0};
         int                  indexAxisRightY{0};
+        int                  indexButtons[GAMEPAD_BUTTON_LAST+1];
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
@@ -289,11 +290,22 @@ namespace z0 {
                         if ((parts.size() > 1) && (parts[1].size() > 1)){
                             try {
                                 auto index = stoi(string{parts[1].substr(1)});
-                                //cout << parts[0] << "/" << parts[1] << endl;
+                                cout << parts[0] << "/" << parts[1] << endl;
                                 if (parts[0] == "leftx") state.indexAxisLeftX = index;
                                 if (parts[0] == "lefty") state.indexAxisLeftY = index;
                                 if (parts[0] == "rightx") state.indexAxisRightX = index;
                                 if (parts[0] == "righty") state.indexAxisRightY = index;
+                                if (parts[0] == "a") state.indexButtons[GAMEPAD_BUTTON_A] = index;
+                                if (parts[0] == "b") state.indexButtons[GAMEPAD_BUTTON_B] = index;
+                                if (parts[0] == "x") state.indexButtons[GAMEPAD_BUTTON_X] = index;
+                                if (parts[0] == "y") state.indexButtons[GAMEPAD_BUTTON_Y] = index;
+                                if (parts[0] == "leftshoulder") state.indexButtons[GAMEPAD_BUTTON_LB] = index;
+                                if (parts[0] == "rightshoulder") state.indexButtons[GAMEPAD_BUTTON_RB] = index;
+                                if (parts[0] == "leftstick") state.indexButtons[GAMEPAD_BUTTON_LT] = index;
+                                if (parts[0] == "rightstick") state.indexButtons[GAMEPAD_BUTTON_RT] = index;
+                                if (parts[0] == "back") state.indexButtons[GAMEPAD_BUTTON_BACK] = index;
+                                if (parts[0] == "start") state.indexButtons[GAMEPAD_BUTTON_START] = index;
+                                if (parts[0] == "guide") state.indexButtons[GAMEPAD_BUTTON_GUIDE] = index;
                             } catch (const std::invalid_argument& e) {
                             }
                         }
@@ -386,7 +398,18 @@ namespace z0 {
            gamepad.axes[3] = (static_cast<float>(state.lRx)+ 0.5f) / (AXIS_RANGE + 0.5f);
            gamepad.axes[4] = (static_cast<float>(state.lRy)+ 0.5f) / (AXIS_RANGE + 0.5f);
            gamepad.axes[5] = (static_cast<float>(state.lRz)+ 0.5f) / (AXIS_RANGE + 0.5f);
+           for (int i = 0; i < (sizeof(state.rgbButtons)/sizeof(BYTE)); i++) {
+               gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
+           }
        }
+    }
+
+    bool Input::isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton) {
+        if (_directInputStates.contains(index)) {
+            const auto& gamepad = _directInputStates[index];
+            return gamepad.buttons[gamepad.indexButtons[gamepadButton]];
+        }
+        return false;
     }
 
     vec2 Input::getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick) {
