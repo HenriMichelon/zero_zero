@@ -181,25 +181,26 @@ namespace z0 {
     }
 
 #ifdef _WIN32
-#include <Xinput.h>
+//#include <Xinput.h>
 #include <dinput.h>
 
     bool Input::_keys[256]{false};
     bool Input::_useXInput{false};
+    const int AXIS_RANGE = 1000;
 
     struct _DirectInputState {
         LPDIRECTINPUTDEVICE8 device;
         string               name;
         float                axes[6];
         bool                 buttons[15];
-        int                  indexAxisLeftX{-1};
-        int                  indexAxisLeftY{-1};
-        int                  indexAxisRightX{-1};
-        int                  indexAxisRightY{-1};
+        int                  indexAxisLeftX{0};
+        int                  indexAxisLeftY{0};
+        int                  indexAxisRightX{0};
+        int                  indexAxisRightY{0};
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
-    static map<uint32_t, XINPUT_STATE> _xinputStates{};
+    //static map<uint32_t, XINPUT_STATE> _xinputStates{};
     static LPDIRECTINPUT8 _directInput = nullptr;
 
     static BOOL CALLBACK _deviceObjectCallback(const DIDEVICEOBJECTINSTANCEA* doi,
@@ -212,8 +213,8 @@ namespace z0 {
             dipr.diph.dwHeaderSize = sizeof(dipr.diph);
             dipr.diph.dwObj = doi->dwType;
             dipr.diph.dwHow = DIPH_BYID;
-            dipr.lMin = -1000;
-            dipr.lMax =  1000;
+            dipr.lMin = -AXIS_RANGE;
+            dipr.lMax =  AXIS_RANGE;
             if (FAILED(data->device->SetProperty(DIPROP_RANGE, &dipr.diph))) {
                 return DIENUM_CONTINUE;
             }
@@ -241,17 +242,6 @@ namespace z0 {
             if (FAILED(state.device->Acquire())) {
                 return DIENUM_CONTINUE;
             }
-
-            /*DIPROPDWORD dipd;
-            ZeroMemory(&dipd, sizeof(dipd));
-            dipd.diph.dwSize = sizeof(dipd);
-            dipd.diph.dwHeaderSize = sizeof(dipd.diph);
-            dipd.diph.dwHow = DIPH_DEVICE;
-            dipd.dwData = DIPROPAXISMODE_ABS;
-            if (FAILED(state.device->SetProperty(DIPROP_AXISMODE,&dipd.diph))) {
-                state.device->Release();
-                return DIENUM_CONTINUE;
-            }*/
 
             if (FAILED(state.device->EnumObjects(_deviceObjectCallback,
                                                  &state,
@@ -344,9 +334,7 @@ namespace z0 {
         /*if (_useXInput) {
             count += _xinputStates.size();
         } */
-        if (_directInput) {
-            count += _directInputStates.size();
-        }
+        count += _directInputStates.size();
         return count;
     }
 
@@ -360,10 +348,7 @@ namespace z0 {
                 }
             }
         } */
-        if (_directInput) {
-            return _directInputStates.contains(index);
-        }
-        return false;
+        return _directInputStates.contains(index);
     }
 
     void Input::_updateInputStates() {
@@ -395,12 +380,12 @@ namespace z0 {
            if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
                continue;
            }
-           gamepad.axes[0] = (static_cast<float>(state.lX)+ 0.5f) / 1000.5f;
-           gamepad.axes[1] = (static_cast<float>(state.lY)+ 0.5f) / 1000.5f;
-           gamepad.axes[2] = (static_cast<float>(state.lZ)+ 0.5f) / 1000.5f;
-           gamepad.axes[3] = (static_cast<float>(state.lRx)+ 0.5f) / 1000.5f;
-           gamepad.axes[4] = (static_cast<float>(state.lRy)+ 0.5f) / 1000.5f;
-           gamepad.axes[5] = (static_cast<float>(state.lRz)+ 0.5f) / 1000.5f;
+           gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / (AXIS_RANGE + 0.5f);
+           gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / (AXIS_RANGE + 0.5f);
+           gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / (AXIS_RANGE + 0.5f);
+           gamepad.axes[3] = (static_cast<float>(state.lRx)+ 0.5f) / (AXIS_RANGE + 0.5f);
+           gamepad.axes[4] = (static_cast<float>(state.lRy)+ 0.5f) / (AXIS_RANGE + 0.5f);
+           gamepad.axes[5] = (static_cast<float>(state.lRz)+ 0.5f) / (AXIS_RANGE + 0.5f);
        }
     }
 
