@@ -128,6 +128,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/rect.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
+		${Z0_ENGINE_DIR}/mappings.h
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp

@@ -22,9 +22,9 @@ namespace z0 {
         static uint32_t getConnectedJoypads();
         static bool isGamepad(uint32_t index);
         static string getGamepadName(uint32_t index);
+        static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);
 /*        static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
-        static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
-        static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);*/
+        static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);*/
 
         static bool haveInputEvent() { return !_inputQueue.empty(); }
         static shared_ptr<InputEvent> consumeInputEvent();

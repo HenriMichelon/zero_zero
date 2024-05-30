@@ -1,6 +1,8 @@
 #include "z0/application.h"
 #include "z0/input.h"
 
+#include "mappings.h"
+
 #include <unordered_map>
 
 namespace z0 {
@@ -187,13 +189,37 @@ namespace z0 {
 
     struct _DirectInputState {
         LPDIRECTINPUTDEVICE8 device;
-        DIJOYSTATE           state;
         string               name;
+        float                axes[6];
+        bool                 buttons[15];
+        int                  indexAxisLeftX{-1};
+        int                  indexAxisLeftY{-1};
+        int                  indexAxisRightX{-1};
+        int                  indexAxisRightY{-1};
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
     static map<uint32_t, XINPUT_STATE> _xinputStates{};
     static LPDIRECTINPUT8 _directInput = nullptr;
+
+    static BOOL CALLBACK _deviceObjectCallback(const DIDEVICEOBJECTINSTANCEA* doi,
+                                              void* user) {
+        auto* data = reinterpret_cast<_DirectInputState*>(user);
+        if (DIDFT_GETTYPE(doi->dwType) & DIDFT_AXIS) {
+            DIPROPRANGE dipr;
+            ZeroMemory(&dipr, sizeof(dipr));
+            dipr.diph.dwSize = sizeof(dipr);
+            dipr.diph.dwHeaderSize = sizeof(dipr.diph);
+            dipr.diph.dwObj = doi->dwType;
+            dipr.diph.dwHow = DIPH_BYID;
+            dipr.lMin = -1000;
+            dipr.lMax =  1000;
+            if (FAILED(data->device->SetProperty(DIPROP_RANGE, &dipr.diph))) {
+                return DIENUM_CONTINUE;
+            }
+        }
+        return DIENUM_CONTINUE;
+    }
 
     BOOL CALLBACK _enumGamepadsCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) {
         if (_directInput) {
@@ -215,7 +241,76 @@ namespace z0 {
             if (FAILED(state.device->Acquire())) {
                 return DIENUM_CONTINUE;
             }
-            _directInputStates[_directInputStates.size()] = state;
+
+            /*DIPROPDWORD dipd;
+            ZeroMemory(&dipd, sizeof(dipd));
+            dipd.diph.dwSize = sizeof(dipd);
+            dipd.diph.dwHeaderSize = sizeof(dipd.diph);
+            dipd.diph.dwHow = DIPH_DEVICE;
+            dipd.dwData = DIPROPAXISMODE_ABS;
+            if (FAILED(state.device->SetProperty(DIPROP_AXISMODE,&dipd.diph))) {
+                state.device->Release();
+                return DIENUM_CONTINUE;
+            }*/
+
+            if (FAILED(state.device->EnumObjects(_deviceObjectCallback,
+                                                 &state,
+                                                 DIDFT_AXIS | DIDFT_BUTTON | DIDFT_POV))) {
+                state.device->Release();
+                return DIENUM_CONTINUE;
+            }
+
+            // Generate a joystick GUID that matches the SDL 2.0.5+ one
+            // https://github.com/glfw/glfw/blob/master/src/win32_joystick.c#L452
+            char guid[33];
+            char name[256];
+            if (!WideCharToMultiByte(CP_UTF8,
+                                     0,
+                                     reinterpret_cast<LPCWCH>(pdidInstance->tszInstanceName),
+                                     -1,
+                                     name,
+                                     sizeof(name),
+                                     nullptr,
+                                     nullptr)) {
+                state.device->Release();
+                return DIENUM_CONTINUE;
+            }
+            if (memcmp(&pdidInstance->guidProduct.Data4[2], "PIDVID", 6) == 0) {
+                sprintf(guid, "03000000%02x%02x0000%02x%02x000000000000",
+                        (uint8_t) pdidInstance->guidProduct.Data1,
+                        (uint8_t) (pdidInstance->guidProduct.Data1 >> 8),
+                        (uint8_t) (pdidInstance->guidProduct.Data1 >> 16),
+                        (uint8_t) (pdidInstance->guidProduct.Data1 >> 24));
+            }
+            else {
+                sprintf(guid, "05000000%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x00",
+                        name[0], name[1], name[2], name[3],
+                        name[4], name[5], name[6], name[7],
+                        name[8], name[9], name[10]);
+            }
+
+            auto sguid = string{guid};
+            for (auto & _inputDefaultMapping : _inputDefaultMappings) {
+                auto mapping = split(_inputDefaultMapping, ',');
+                if (mapping[0] == sguid) {
+                    //cout << mapping[0] << ":" << mapping[1] << endl;
+                    for (int i = 2; i < mapping.size(); i++) {
+                        auto parts = split(mapping[i], ':');
+                        if ((parts.size() > 1) && (parts[1].size() > 1)){
+                            try {
+                                auto index = stoi(string{parts[1].substr(1)});
+                                //cout << parts[0] << "/" << parts[1] << endl;
+                                if (parts[0] == "leftx") state.indexAxisLeftX = index;
+                                if (parts[0] == "lefty") state.indexAxisLeftY = index;
+                                if (parts[0] == "rightx") state.indexAxisRightX = index;
+                                if (parts[0] == "righty") state.indexAxisRightY = index;
+                            } catch (const std::invalid_argument& e) {
+                            }
+                        }
+                    }
+                    _directInputStates[_directInputStates.size()] = state;
+                }
+            }
         }
         return DIENUM_CONTINUE;
     }
@@ -282,22 +377,46 @@ namespace z0 {
                 }
             }
         } */
-       for (auto entry : _directInputStates) {
-           if (FAILED(entry.second.device->GetDeviceState(sizeof(DIJOYSTATE), &entry.second.state))) {
-               // remove from map
-           }
-           printf("X-axis: %ld\n", entry.second.state.lX);
-           printf("Y-axis: %ld\n", entry.second.state.lY);
-           printf("Buttons: ");
-           for (int i = 0; i < 32; i++)
-           {
-               if (entry.second.state.rgbButtons[i] & 0x80)
-               {
-                   printf("%d ", i);
+       for (auto& entry : _directInputStates) {
+           auto& gamepad = entry.second;
+           HRESULT hr = gamepad.device->Poll();
+           if (FAILED(hr)) {
+               hr = gamepad.device->Acquire();
+               while (hr == DIERR_INPUTLOST) {
+                   hr = gamepad.device->Acquire();
+               }
+               if (FAILED(hr)) {
+                   _directInputStates.erase(entry.first);
+                   continue;
                }
            }
-           printf("\n");
+
+           DIJOYSTATE state{0};
+           if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
+               continue;
+           }
+           gamepad.axes[0] = (static_cast<float>(state.lX)+ 0.5f) / 1000.5f;
+           gamepad.axes[1] = (static_cast<float>(state.lY)+ 0.5f) / 1000.5f;
+           gamepad.axes[2] = (static_cast<float>(state.lZ)+ 0.5f) / 1000.5f;
+           gamepad.axes[3] = (static_cast<float>(state.lRx)+ 0.5f) / 1000.5f;
+           gamepad.axes[4] = (static_cast<float>(state.lRy)+ 0.5f) / 1000.5f;
+           gamepad.axes[5] = (static_cast<float>(state.lRz)+ 0.5f) / 1000.5f;
        }
+    }
+
+    vec2 Input::getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick) {
+        if (_directInputStates.contains(index)) {
+            const auto& gamepad = _directInputStates[index];
+            auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
+            auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
+            vec2 vector{
+                std::min(std::max(gamepad.axes[xAxis], -1.0f), 1.0f),
+                std::min(std::max(gamepad.axes[yAxis], -1.0f), 1.0f)
+            };
+            float length = glm::length(vector);
+            return (length > 1.0f) ? vector / length : vector;
+        }
+        return VEC2ZERO;
     }
 
     string Input::getGamepadName(uint32_t index) {

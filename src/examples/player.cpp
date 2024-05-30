@@ -40,7 +40,7 @@ void Player::onPhysicsProcess(float delta) {
     previousState = currentState;
     vec2 input;
     if (gamepad != -1) {
-        //input = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_LEFT);
+        input = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_LEFT);
         if (input == VEC2ZERO) input = Input::getKeyboardVector(KEY_A, KEY_D, KEY_W, KEY_S);
     } else {
         input = Input::getKeyboardVector(KEY_A, KEY_D, KEY_W, KEY_S);
@@ -62,7 +62,7 @@ void Player::onPhysicsProcess(float delta) {
     if (mouseCaptured) {
         vec2 inputDir;
         if (gamepad != -1) {
-            //inputDir = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_RIGHT);
+            inputDir = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_RIGHT);
             if (inputDir == VEC2ZERO) inputDir = Input::getKeyboardVector(KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN);
         } else {
             inputDir = Input::getKeyboardVector(KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN);

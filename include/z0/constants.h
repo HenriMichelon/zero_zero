@@ -304,7 +304,7 @@ namespace z0 {
         MOUSE_BUTTON_RIGHT     = 2,
         MOUSE_BUTTON_MIDDLE    = 3,
     };
-/*
+
     enum GamepadButton {
         GAMEPAD_BUTTON_A            = 0,
         GAMEPAD_BUTTON_B            = 1,
@@ -337,8 +337,11 @@ namespace z0 {
         GAMEPAD_AXIS_LEFT_Y         = 1,
         GAMEPAD_AXIS_RIGHT_X        = 2,
         GAMEPAD_AXIS_RIGHT_Y        = 3,
+        GAMEPAD_AXIS_LEFT_TRIGGER   = 4,
+        GAMEPAD_AXIS_RIGHT_TRIGGER  = 5,
+        GAMEPAD_AXIS_LAST           = GAMEPAD_AXIS_RIGHT_TRIGGER,
     };
-*/
+
 
     enum MouseMode {
         MOUSE_MODE_VISIBLE          = 0,
