@@ -2,6 +2,7 @@
 
 #include "z0/input_event.h"
 
+#include <map>
 #include <unordered_map>
 
 namespace z0 {
@@ -17,13 +18,13 @@ namespace z0 {
         static bool isMouseButtonJustPressed(MouseButton mouseButton);
         static bool isMouseButtonJustReleased(MouseButton mouseButton);
         static void setMouseMode(MouseMode mode);
-/*
-        static int getConnectedJoypads();
-        static bool isGamepad(int index);
-        static string getGamepadName(int index);
-        static bool isGamepadButtonPressed(int index, GamepadButton gamepadButton);
-        static float getGamepadAxisValue(int index, GamepadAxis gamepadAxis);
-        static vec2 getGamepadVector(int index, GamepadAxisJoystick axisJoystick);*/
+
+        static uint32_t getConnectedJoypads();
+        static bool isGamepad(uint32_t index);
+        static string getGamepadName(uint32_t index);
+/*        static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
+        static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
+        static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);*/
 
         static bool haveInputEvent() { return !_inputQueue.empty(); }
         static shared_ptr<InputEvent> consumeInputEvent();
@@ -43,6 +44,10 @@ namespace z0 {
 
 #ifdef _WIN32
         static bool _keys[256];
+        static bool _useXInput;
+        static void _initInput();
+        static void _closeInput();
+        static void _updateInputStates();
 #endif
     };
 

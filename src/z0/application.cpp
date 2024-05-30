@@ -266,8 +266,10 @@ namespace z0 {
     }
 
     void Application::_mainLoop() {
+        Input::_initInput();
         start();
         while (!window->shouldClose()) {
+            Input::_updateInputStates();
             MSG _messages;
             if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&_messages);
@@ -278,6 +280,7 @@ namespace z0 {
         device->wait();
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);
+        Input::_closeInput();
         end();
     }
 #endif

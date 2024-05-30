@@ -104,7 +104,8 @@ void Player::onReady() {
     cameraPivot->rotateX(radians(-20.0));
     addChild(cameraPivot);
     cameraPivot->addChild(make_shared<Camera>());
-/*
+
+    cout << Input::getConnectedJoypads() << " connected gamepads" << endl;
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {
         if (Input::isGamepad(i)) {
             gamepad = i;
@@ -112,8 +113,8 @@ void Player::onReady() {
         }
     }
     if (gamepad != -1) {
-        std::cout << "Using Gamepad " << Input::getGamepadName(gamepad) << std::endl;
-    }*/
+        cout << "Using Gamepad " << Input::getGamepadName(gamepad) << endl;
+    }
 }
 
 void Player::captureMouse() {

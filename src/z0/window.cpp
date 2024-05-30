@@ -6,8 +6,14 @@
 #include <vulkan/vulkan.hpp>
 
 #ifdef _WIN32
-#include <Windowsx.h> // for GET_X_LPARAM and GET_Y_LPARAM
 char szClassName[ ] = "WindowsApp";
+
+#include <windows.h>
+#include <Windowsx.h> // for GET_X_LPARAM and GET_Y_LPARAM
+#include <hidsdi.h>
+
+#include <vector>
+#include <iostream>
 
 int _getKeyboardModifiers() {
     int modifiers = 0;
@@ -165,23 +171,33 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             lastMouseY = yPos;
             break;
         }
-        // for Input::getKeyboardVector
         case WM_INPUT: {
-            RAWINPUT raw;
-            UINT dataSize = sizeof(raw);
+            UINT dwSize;
             GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam),
                             RID_INPUT,
-                            &raw,
-                            &dataSize,
+                            nullptr,
+                            &dwSize,
                             sizeof(RAWINPUTHEADER));
-            if (raw.header.dwType == RIM_TYPEKEYBOARD) {
-                const RAWKEYBOARD& rawKB = raw.data.keyboard;
+            auto lpb = new BYTE[dwSize];
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam),
+                                RID_INPUT,
+                                lpb,
+                                &dwSize,
+                                sizeof(RAWINPUTHEADER)) != dwSize) {
+                z0::die("GetRawInputData does not return correct size");
+            }
+
+            auto* raw = reinterpret_cast<RAWINPUT*>(lpb);
+            if (raw->header.dwType == RIM_TYPEKEYBOARD) {
+                // for Input::getKeyboardVector
+                const RAWKEYBOARD& rawKB = raw->data.keyboard;
                 bool keyDown = !(rawKB.Flags & RI_KEY_BREAK);
                 UINT key = rawKB.MakeCode;
                 if (key < 256) {
                     z0::Input::_keys[key] = keyDown;
                 }
             }
+            delete[] lpb;
             break;
         }
         default:
@@ -311,15 +327,15 @@ namespace z0 {
                 hInstance,
                 this
         );
-        if (hwnd == nullptr) die("Cannot create Window", std::to_string(GetLastError()));
+        if (hwnd == nullptr) die("Cannot create Window", to_string(GetLastError()));
 
-        RAWINPUTDEVICE rid;
-        rid.usUsagePage = 1;       // Generic desktop controls
-        rid.usUsage = 6;           // Keyboard
-        rid.dwFlags = 0;
-        rid.hwndTarget = hwnd;
-        if (!RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
-            die("Failed to register raw input device.");
+        RAWINPUTDEVICE rid[1];
+        rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+        rid[0].usUsage = HID_USAGE_GENERIC_KEYBOARD;
+        rid[0].dwFlags = 0;
+        rid[0].hwndTarget = 0;
+        if (!RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE))) {
+            die("Failed to register raw input devices.", to_string(GetLastError()));
         }
 
         ShowWindow(hwnd, SW_SHOW);

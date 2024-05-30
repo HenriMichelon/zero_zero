@@ -199,5 +199,9 @@ add_executable(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 
+if(WIN32)
+	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)
+endif()
+
 include(cmake/jolt.cmake)
 include(cmake/libraries.cmake)

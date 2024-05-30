@@ -179,7 +179,136 @@ namespace z0 {
     }
 
 #ifdef _WIN32
-    bool Input::_keys[256] = {false};
+#include <Xinput.h>
+#include <dinput.h>
+
+    bool Input::_keys[256]{false};
+    bool Input::_useXInput{false};
+
+    struct _DirectInputState {
+        LPDIRECTINPUTDEVICE8 device;
+        DIJOYSTATE           state;
+        string               name;
+    };
+
+    static map<uint32_t, _DirectInputState> _directInputStates{};
+    static map<uint32_t, XINPUT_STATE> _xinputStates{};
+    static LPDIRECTINPUT8 _directInput = nullptr;
+
+    BOOL CALLBACK _enumGamepadsCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) {
+        if (_directInput) {
+            _DirectInputState state {
+                .device = nullptr,
+                .name = string{pdidInstance->tszProductName}
+            };
+            if (FAILED(_directInput->CreateDevice(pdidInstance->guidInstance,
+                                       &state.device,
+                                       nullptr))) {
+                return DIENUM_CONTINUE;
+            }
+            if (FAILED(state.device->SetDataFormat(&c_dfDIJoystick))) {
+                return DIENUM_CONTINUE;
+            }
+            if (FAILED(state.device->SetCooperativeLevel(nullptr, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE))) {
+                return DIENUM_CONTINUE;
+            }
+            if (FAILED(state.device->Acquire())) {
+                return DIENUM_CONTINUE;
+            }
+            _directInputStates[_directInputStates.size()] = state;
+        }
+        return DIENUM_CONTINUE;
+    }
+
+    void Input::_initInput() {
+        if (FAILED(DirectInput8Create(GetModuleHandle(nullptr),
+                                      DIRECTINPUT_VERSION,
+                                      IID_IDirectInput8,
+                                      (void**)&_directInput, nullptr))) {
+            die("DirectInput8Create failed");
+        }
+        _directInput->EnumDevices(DI8DEVCLASS_GAMECTRL,
+                                  _enumGamepadsCallback,
+                                  nullptr,
+                                  DIEDFL_ATTACHEDONLY);
+    }
+
+    void Input::_closeInput() {
+        if (_directInput) {
+            for (auto entry : _directInputStates) {
+                entry.second.device->Release();
+            }
+            _directInputStates.clear();
+            _directInput->Release();
+            _directInput = nullptr;
+        }
+    }
+
+    uint32_t Input::getConnectedJoypads() {
+        uint32_t count = 0;
+        /*if (_useXInput) {
+            count += _xinputStates.size();
+        } */
+        if (_directInput) {
+            count += _directInputStates.size();
+        }
+        return count;
+    }
+
+    bool Input::isGamepad(uint32_t index) {
+        /*if (_useXInput) {
+            if (_xinputStates.contains(index)) {
+                XINPUT_CAPABILITIES xinputCapabilities;
+                ZeroMemory(&xinputCapabilities, sizeof(XINPUT_CAPABILITIES));
+                if (XInputGetCapabilities(index, 0, &xinputCapabilities) == ERROR_SUCCESS) {
+                    return xinputCapabilities.SubType == XINPUT_DEVSUBTYPE_GAMEPAD;
+                }
+            }
+        } */
+        if (_directInput) {
+            return _directInputStates.contains(index);
+        }
+        return false;
+    }
+
+    void Input::_updateInputStates() {
+       /* if (_useXInput) {
+            _xinputStates.clear();
+            for (uint32_t i = 0; i < XUSER_MAX_COUNT; ++i) {
+                XINPUT_STATE state;
+                ZeroMemory(&state, sizeof(XINPUT_STATE));
+                if (XInputGetState(i, &state) == ERROR_SUCCESS) {
+                    _xinputStates[i] = state;
+                }
+            }
+        } */
+       for (auto entry : _directInputStates) {
+           if (FAILED(entry.second.device->GetDeviceState(sizeof(DIJOYSTATE), &entry.second.state))) {
+               // remove from map
+           }
+           printf("X-axis: %ld\n", entry.second.state.lX);
+           printf("Y-axis: %ld\n", entry.second.state.lY);
+           printf("Buttons: ");
+           for (int i = 0; i < 32; i++)
+           {
+               if (entry.second.state.rgbButtons[i] & 0x80)
+               {
+                   printf("%d ", i);
+               }
+           }
+           printf("\n");
+       }
+    }
+
+    string Input::getGamepadName(uint32_t index) {
+        /*if (_useXInput) {
+            return "XInput";
+        }*/
+        if (_directInputStates.contains(index)){
+            return _directInputStates[index].name;
+        }
+        return "??";
+    }
 
     vec2 Input::getKeyboardVector(Key keyNegX, Key keyPosX, Key keyNegY, Key keyPosY) {
         auto x = _keys[keyToOsKey(keyNegX)] ? -1 : _keys[keyToOsKey(keyPosX)] ? 1 : 0;
