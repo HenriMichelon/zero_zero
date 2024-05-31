@@ -23,7 +23,10 @@ private:
     }
 };
 
+Menu* Menu::menu{nullptr};
+
 Menu::Menu(): GWindow{Rect{250, 250, 500, 500}}{
+    menu = this;
 }
 
 void Menu::onMenuQuit(z0::GWidget &, z0::GEvent *) {
@@ -31,12 +34,12 @@ void Menu::onMenuQuit(z0::GWidget &, z0::GEvent *) {
 }
 
 void Menu::onMenuTriangle(z0::GWidget &, z0::GEvent *) {
-    //hide();
+    hide();
     Application::get().setRootNode(make_shared<TriangleMainScene>());
 }
 
 void Menu::onMenuAddRemoveChild(z0::GWidget &, z0::GEvent *) {
-    //hide();
+    hide();
     Application::get().setRootNode(make_shared<AddRemoveChildMainScene>());
 }
 

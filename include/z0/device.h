@@ -20,7 +20,7 @@ namespace z0 {
         float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
 
         void drawFrame();
-        void wait();
+        void wait() const;
         void registerRenderer(const shared_ptr<BaseRenderer>& renderer);
 
         VkImageView createImageView(VkImage image,

@@ -1,7 +1,6 @@
 #include "z0/z0.h"
 using namespace z0;
 
-#include "topbar.h"
 #include "menu.h"
 
 const ApplicationConfig applicationConfig {
@@ -17,8 +16,7 @@ const ApplicationConfig applicationConfig {
 class ExampleMainScene: public Node {
 public:
     void onReady() override {
-        auto menu = make_shared<Menu>();
-        Application::addWindow(menu);
+        Application::addWindow(make_shared<Menu>());
     }
 };
 

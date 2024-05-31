@@ -227,7 +227,7 @@ namespace z0 {
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
     }
 
-    void Device::wait() {
+    void Device::wait() const {
         vkDeviceWaitIdle(device);
     }
 

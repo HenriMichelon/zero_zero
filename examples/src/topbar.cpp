@@ -2,6 +2,7 @@
 using namespace z0;
 
 #include "topbar.h"
+#include "menu.h"
 
 TopBar::TopBar(): GWindow(Rect{0, 945, 1000, 55}) {}
 
@@ -24,7 +25,7 @@ void TopBar::onCreate() {
 }
 
 void TopBar::onQuit(GWidget &, GEvent *) {
-    Application::quit();
+    Menu::menu->show();
 }
 
 void TopBar::onProcess(float alpha) {
