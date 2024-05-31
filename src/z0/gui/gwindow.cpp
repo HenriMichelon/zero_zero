@@ -4,9 +4,7 @@
 
 namespace z0 {
 
-    GWindow::GWindow(Rect r): rect{r} {
-        eventCreate();
-    }
+    GWindow::GWindow(Rect r): rect{r} {}
 
     void GWindow::draw() const {
         if (!isVisible()) return;
@@ -78,8 +76,8 @@ namespace z0 {
     }
 
     void GWindow::eventCreate() {
-        onCreate();
         if (widget == nullptr) { setWidget(); }
+        onCreate();
         if (widget != nullptr ) { widget->resizeChildren(); }
     }
 

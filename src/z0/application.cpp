@@ -122,18 +122,18 @@ namespace z0 {
         vkDestroyInstance(vkInstance, nullptr);
     }
 
-    void Application::addNode(const shared_ptr<Node>& node) {
+    void Application::_addNode(const shared_ptr<Node>& node) {
         addedNodes.push_back(node);
         node->_setAddedToScene(true);
         node->_onEnterScene();
         for(const auto& child: node->getChildren()) {
-            addNode(child);
+            _addNode(child);
         }
     }
 
-    void Application::removeNode(const shared_ptr<z0::Node> &node) {
+    void Application::_removeNode(const shared_ptr<z0::Node> &node) {
         for(auto& child: node->getChildren()) {
-            removeNode(child);
+            _removeNode(child);
         }
         removedNodes.push_back(node);
         node->_setAddedToScene(false);
@@ -197,9 +197,16 @@ namespace z0 {
         input(rootNode, inputEvent);
     }
 
+    void Application::setRootNode(const shared_ptr<Node>& node) {
+        device->wait();
+        _removeNode(rootNode);
+        rootNode = node;
+        start();
+    }
+
     void Application::start() {
         ready(rootNode);
-        addNode(rootNode);
+        _addNode(rootNode);
     }
 
     void Application::end() {
@@ -259,7 +266,6 @@ namespace z0 {
     }
 
 #ifdef _WIN32
-
     void Application::_mainLoop() {
         Input::_initInput();
         start();

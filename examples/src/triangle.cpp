@@ -1,17 +1,20 @@
 #include "z0/z0.h"
 using namespace z0;
 
+#include "topbar.h"
 #include "triangle.h"
 
 void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 2.0f});
     addChild(camera);
-
     auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
     addChild(skybox);
-
     addChild(make_shared<Triangle>());
+
+    auto topbar = make_shared<TopBar>();
+    Application::addWindow(topbar);
+    addChild(topbar);
 
     printTree(cout);
 }

@@ -16,7 +16,7 @@ void TopBar::onCreate() {
     auto buttonQuit = make_shared<GButton>();
     buttonQuit->connect(GEvent::OnClick, this, GEventFunction(&TopBar::onQuit));
     getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
-    auto textQuit = make_shared<GText>("Quit");
+    auto textQuit = make_shared<GText>("Menu");
     buttonQuit->add(textQuit, GWidget::CENTER);
     buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
     setHeight(buttonQuit->getHeight());
@@ -24,7 +24,7 @@ void TopBar::onCreate() {
 }
 
 void TopBar::onQuit(GWidget &, GEvent *) {
-    Application::get().quit();
+    Application::quit();
 }
 
 void TopBar::onProcess(float alpha) {

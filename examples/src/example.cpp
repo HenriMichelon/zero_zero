@@ -8,19 +8,15 @@ const ApplicationConfig applicationConfig {
     .appName = "Example App",
     .appDir = "..",
     .windowMode = WINDOW_MODE_WINDOWED,
-    .windowWidth = 800,
-    .windowHeight = 600,
+    .windowWidth = 1024,
+    .windowHeight = 768,
     .defaultFontName = "examples/Signwood.ttf",
-    .defaultFontSize = 12
+    .defaultFontSize = 16
 };
 
 class ExampleMainScene: public Node {
 public:
     void onReady() override {
-        auto topbar = make_shared<TopBar>();
-        Application::addWindow(topbar);
-        addChild(topbar);
-
         auto menu = make_shared<Menu>();
         Application::addWindow(menu);
     }

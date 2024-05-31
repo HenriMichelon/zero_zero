@@ -156,7 +156,7 @@ namespace z0 {
         child->parent = this;
         child->updateTransform(worldTransform);
         if (inReady) child->_onReady();
-        if (addedToScene) Application::get().addNode(child);
+        if (addedToScene) Application::get()._addNode(child);
         return true;
     }
 
@@ -164,7 +164,7 @@ namespace z0 {
         if (!haveChild(node)) return false;
         children.remove(node);
         node->parent = nullptr;
-        Application::get().removeNode(node);
+        Application::get()._removeNode(node);
         return true;
     }
 

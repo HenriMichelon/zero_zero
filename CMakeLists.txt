@@ -206,7 +206,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/base.h
-		${Z0_INCLUDE_DIR}/z0.h
+		#${Z0_INCLUDE_DIR}/z0.h
 )
 
 if(WIN32)

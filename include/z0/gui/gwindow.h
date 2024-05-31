@@ -5,7 +5,7 @@ namespace z0 {
     class GManager;
 
     // An UI window (inside the application window)
-    class GWindow {
+    class GWindow: public GEventHandler {
     public:
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;

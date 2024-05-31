@@ -117,6 +117,7 @@ namespace z0 {
         virtual ~GEventItem() = default;
     };
 
-    typedef void (Object::*GEventFunction)(GWidget&, GEvent*);
+    class GEventHandler {};
+    typedef void (GEventHandler::*GEventFunction)(GWidget&, GEvent*);
 
 }

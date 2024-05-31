@@ -2,6 +2,7 @@
 using namespace z0;
 
 #include "ui.h"
+#include "topbar.h"
 
 void Window2::onCreate() {
     setTransparency(0.8f);

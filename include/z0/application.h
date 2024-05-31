@@ -20,9 +20,7 @@ namespace z0 {
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }
         void onInput(InputEvent& inputEvent);
-
-        void addNode(const shared_ptr<Node>& node);
-        void removeNode(const shared_ptr<Node>& node);
+        void setRootNode(const shared_ptr<Node>& node);
         void activateCamera(const shared_ptr<Camera>& camera);
 
     private:
@@ -79,6 +77,10 @@ namespace z0 {
         void _mainLoop();
 #endif
         void _stop(bool stop) { stopped = stop; };
+
+        void _addNode(const shared_ptr<Node>& node);
+        void _removeNode(const shared_ptr<Node>& node);
+
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
         JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
 

@@ -175,11 +175,12 @@ namespace z0 {
         return WND;
     }
 
-    void GWidget::connect(GEvent::Type TYP, void* OBJ,
+    void GWidget::connect(GEvent::Type TYP,
+                          GEventHandler* OBJ,
                           const GEventFunction FUNC) {
-        //PRE(OBJ, "Invalid object for event slot connection");
+        //cassert(OBJ, "Invalid object for event slot connection");
         //PRE(FUNC, "Invalid method for event slot connection");
-        slots[TYP].obj = static_cast<Object *>(OBJ);
+        slots[TYP].obj = OBJ;
         slots[TYP].func = FUNC;
     }
 
@@ -196,7 +197,7 @@ namespace z0 {
     }
 
     bool GWidget::call(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
-        const GWidget::GEventSlot &slot = slots[TYP];
+        const GEventSlot &slot = slots[TYP];
         if (slot.func) {
             (slot.obj->*slot.func)(*this, EVT.get());
             return true;

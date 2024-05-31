@@ -5,7 +5,7 @@ namespace z0 {
     class GWindow;
 
     // Super class for all widgets
-    class GWidget {
+    class GWidget: public GEventHandler {
     public:
         enum Type {
             WIDGET,				// transparent widget
@@ -200,7 +200,7 @@ namespace z0 {
           	_PTR		: object address
           	GEventFunction	: method offset 
         */
-        void connect(GEvent::Type, void*, GEventFunction);
+        void connect(GEvent::Type, GEventHandler*, GEventFunction);
 
         /* Call the object method connected to an event, if any.
           	EventType	: event to simulate
@@ -281,8 +281,8 @@ namespace z0 {
 
     private:
         struct GEventSlot {
-            Object*         obj{nullptr};
-            GEventFunction	func{nullptr};
+            GEventHandler* obj{nullptr};
+            GEventFunction func{nullptr};
         };
 
         bool		     pushed{false};
