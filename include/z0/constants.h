@@ -70,6 +70,7 @@ namespace z0 {
         INPUT_EVENT_KEY             = 0,
         INPUT_EVENT_MOUSE_MOTION    = 1,
         INPUT_EVENT_MOUSE_BUTTON    = 2,
+        INPUT_EVENT_GAMEPAD_BUTTON  = 3,
     };
 
     enum KeyModifier {
@@ -329,8 +330,8 @@ namespace z0 {
     };
 
     enum GamepadAxisJoystick {
-        GAMEPAD_AXIS_LEFT         = 0,
-        GAMEPAD_AXIS_RIGHT        = 1,
+        GAMEPAD_AXIS_LEFT           = 0,
+        GAMEPAD_AXIS_RIGHT          = 1,
     };
 
     enum GamepadAxis {
@@ -342,7 +343,6 @@ namespace z0 {
         GAMEPAD_AXIS_RIGHT_TRIGGER  = 5,
         GAMEPAD_AXIS_LAST           = GAMEPAD_AXIS_RIGHT_TRIGGER,
     };
-
 
     enum MouseMode {
         MOUSE_MODE_VISIBLE          = 0,

@@ -33,6 +33,13 @@ bool Player::onInput(InputEvent& event) {
             return true;
         }
     }
+    if ((event.getType() == INPUT_EVENT_GAMEPAD_BUTTON) && mouseCaptured) {
+        auto& eventGamepadButton = dynamic_cast<InputEventGamepadButton&>(event);
+        if ((eventGamepadButton.getGamepadButton() == GAMEPAD_BUTTON_START) && !eventGamepadButton.isPressed()) {
+            releaseMouse();
+            return true;
+        }
+    }
     return false;
 }
 
@@ -41,8 +48,8 @@ void Player::onPhysicsProcess(float delta) {
     vec2 input;
     if (gamepad != -1) {
         input = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_LEFT);
-        if (input == VEC2ZERO) input = Input::getKeyboardVector(KEY_A, KEY_D, KEY_W, KEY_S);
-    } else {
+    }
+    if (input == VEC2ZERO) {
         input = Input::getKeyboardVector(KEY_A, KEY_D, KEY_W, KEY_S);
     }
 
@@ -64,8 +71,8 @@ void Player::onPhysicsProcess(float delta) {
         vec2 inputDir;
         if (gamepad != -1) {
             inputDir = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_RIGHT);
-            if (inputDir == VEC2ZERO) inputDir = Input::getKeyboardVector(KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN);
-        } else {
+        }
+        if (inputDir == VEC2ZERO) {
             inputDir = Input::getKeyboardVector(KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN);
         }
         if (inputDir != VEC2ZERO) {
@@ -106,7 +113,10 @@ void Player::onReady() {
     addChild(cameraPivot);
     cameraPivot->addChild(make_shared<Camera>());
 
-    cout << Input::getConnectedJoypads() << " connected gamepads" << endl;
+    cout << Input::getConnectedJoypads() << " connected gamepad(s)" << endl;
+    for (int i = 0; i < Input::getConnectedJoypads(); i++) {
+        cout << Input::getGamepadName(i) << endl;
+    }
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {
         if (Input::isGamepad(i)) {
             gamepad = i;
@@ -114,7 +124,7 @@ void Player::onReady() {
         }
     }
     if (gamepad != -1) {
-        cout << "Using Gamepad " << Input::getGamepadName(gamepad) << endl;
+        cout << "Using gamepad " << Input::getGamepadName(gamepad) << endl;
     }
 }
 

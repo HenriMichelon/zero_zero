@@ -31,6 +31,34 @@ namespace z0 {
         int modifiers;
     };
 
+    class InputEventGamepadButton: public InputEvent {
+    public:
+        InputEventGamepadButton(GamepadButton button, bool pressed);
+
+        GamepadButton getGamepadButton() const { return button; }
+        bool isPressed() const { return pressed; }
+
+    private:
+        GamepadButton button;
+        bool pressed;
+    };
+
+    class InputEventMouseMotion: public InputEvent {
+    public:
+        InputEventMouseMotion(float posX, float posY, float relativeX, float relativeY);
+
+        vec2 getPosition() const { return vec2{x, y}; }
+        float getX() const { return x; }
+        float getY() const { return y; }
+        float getRelativeX() const { return relativeX; }
+        float getRelativeY() const { return relativeY; }
+
+    private:
+        float x, y;
+        float relativeX, relativeY;
+    };
+
+
     class InputEventMouseButton: public InputEvent {
     public:
         InputEventMouseButton(MouseButton button, bool pressed, int modifiers, float posX, float posY);
@@ -47,21 +75,6 @@ namespace z0 {
         MouseButton button;
         bool pressed;
         int modifiers;
-    };
-
-    class InputEventMouseMotion: public InputEvent {
-    public:
-        InputEventMouseMotion(float posX, float posY, float relativeX, float relativeY);
-
-        vec2 getPosition() const { return vec2{x, y}; }
-        float getX() const { return x; }
-        float getY() const { return y; }
-        float getRelativeX() const { return relativeX; }
-        float getRelativeY() const { return relativeY; }
-
-    private:
-        float x, y;
-        float relativeX, relativeY;
     };
 
 }

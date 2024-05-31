@@ -9,6 +9,11 @@ namespace z0 {
             pressed{_pressed},
             modifiers{_modifiers} {}
 
+    InputEventGamepadButton::InputEventGamepadButton(GamepadButton _button, bool _pressed):
+            InputEvent{INPUT_EVENT_GAMEPAD_BUTTON},
+            button{_button},
+            pressed{_pressed} {}
+
     InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, float posX, float posY):
             InputEvent{INPUT_EVENT_MOUSE_BUTTON},
             button{_button},

@@ -7,15 +7,18 @@
 
 namespace z0 {
 
-    list<shared_ptr<InputEvent>> Input::_inputQueue;
+    const float Input::DEADZONE_PERCENT = 0.05f; // 5% deadzone
+
+    //list<shared_ptr<InputEvent>> Input::_inputQueue;
     unordered_map<Key, bool> Input::_keyPressedStates;
     unordered_map<Key, bool> Input::_keyJustPressedStates;
     unordered_map<Key, bool> Input::_keyJustReleasedStates;
     unordered_map<MouseButton, bool> Input::_mouseButtonPressedStates;
     unordered_map<MouseButton, bool> Input::_mouseButtonJustPressedStates;
     unordered_map<MouseButton, bool> Input::_mouseButtonJustReleasedStates;
+    unordered_map<GamepadButton, bool> Input::_gamepadButtonPressedStates;
 
-    void Input::injectInputEvent(const shared_ptr<InputEvent>& event) {
+    /*void Input::injectInputEvent(const shared_ptr<InputEvent>& event) {
         _inputQueue.push_back(event);
     }
 
@@ -23,7 +26,7 @@ namespace z0 {
         const auto& event = _inputQueue.front();
         _inputQueue.pop_front();
         return event;
-    }
+    }*/
 
     bool Input::isMouseButtonPressed(MouseButton mouseButton) {
         return _mouseButtonPressedStates[mouseButton];
@@ -180,24 +183,32 @@ namespace z0 {
         return KEY_NONE;
     }
 
+    float Input::applyDeadzone(float value) {
+        if (abs(value) < DEADZONE_PERCENT) {
+            return 0.0f;
+        } else {
+            return std::min(std::max(value < 0.0f ? value + DEADZONE_PERCENT : value - DEADZONE_PERCENT, -1.0f), 1.0f);
+        }
+    }
 #ifdef _WIN32
 //#include <Xinput.h>
 #include <dinput.h>
 
     bool Input::_keys[256]{false};
     bool Input::_useXInput{false};
-    const int AXIS_RANGE = 1000;
+    const int Input::DI_AXIS_RANGE = 1000;
+    const float Input::DI_AXIS_RANGE_DIV = 1000.5f;
 
     struct _DirectInputState {
         LPDIRECTINPUTDEVICE8 device;
         string               name;
-        float                axes[6];
-        bool                 buttons[GAMEPAD_BUTTON_LAST+1];
+        array<float,6>       axes; // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
+        array<bool,32>       buttons;  // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
         int                  indexAxisLeftX{0};
         int                  indexAxisLeftY{0};
         int                  indexAxisRightX{0};
         int                  indexAxisRightY{0};
-        int                  indexButtons[GAMEPAD_BUTTON_LAST+1];
+        array<int,GAMEPAD_BUTTON_LAST+1>  indexButtons;
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
@@ -214,8 +225,8 @@ namespace z0 {
             dipr.diph.dwHeaderSize = sizeof(dipr.diph);
             dipr.diph.dwObj = doi->dwType;
             dipr.diph.dwHow = DIPH_BYID;
-            dipr.lMin = -AXIS_RANGE;
-            dipr.lMax =  AXIS_RANGE;
+            dipr.lMin = -Input::DI_AXIS_RANGE;
+            dipr.lMax =  Input::DI_AXIS_RANGE;
             if (FAILED(data->device->SetProperty(DIPROP_RANGE, &dipr.diph))) {
                 return DIENUM_CONTINUE;
             }
@@ -392,14 +403,27 @@ namespace z0 {
            if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
                continue;
            }
-           gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / (AXIS_RANGE + 0.5f);
-           gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / (AXIS_RANGE + 0.5f);
-           gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / (AXIS_RANGE + 0.5f);
-           gamepad.axes[3] = (static_cast<float>(state.lRx)+ 0.5f) / (AXIS_RANGE + 0.5f);
-           gamepad.axes[4] = (static_cast<float>(state.lRy)+ 0.5f) / (AXIS_RANGE + 0.5f);
-           gamepad.axes[5] = (static_cast<float>(state.lRz)+ 0.5f) / (AXIS_RANGE + 0.5f);
-           for (int i = 0; i < (sizeof(state.rgbButtons)/sizeof(BYTE)); i++) {
+           gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / DI_AXIS_RANGE_DIV;
+           gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / DI_AXIS_RANGE_DIV;
+           gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / DI_AXIS_RANGE_DIV;
+           gamepad.axes[3] = (static_cast<float>(state.lRx) + 0.5f) / DI_AXIS_RANGE_DIV;
+           gamepad.axes[4] = (static_cast<float>(state.lRy) + 0.5f) / DI_AXIS_RANGE_DIV;
+           gamepad.axes[5] = (static_cast<float>(state.lRz) + 0.5f) / DI_AXIS_RANGE_DIV;
+           for (int i = 0; i < 32; i++) { // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
                gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
+           }
+           for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+               auto button = static_cast<GamepadButton>(i);
+               auto pressed = gamepad.buttons[gamepad.indexButtons[button]];
+               if (pressed && (!_gamepadButtonPressedStates[button])) {
+                   auto event = InputEventGamepadButton(button, pressed);
+                   Application::get().onInput(event);
+               }
+               if ((!pressed) && (_gamepadButtonPressedStates[button])) {
+                   auto event = InputEventGamepadButton(button, pressed);
+                   Application::get().onInput(event);
+               }
+               _gamepadButtonPressedStates[button] = pressed;
            }
        }
     }
@@ -418,8 +442,8 @@ namespace z0 {
             auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
             auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
             vec2 vector{
-                std::min(std::max(gamepad.axes[xAxis], -1.0f), 1.0f),
-                std::min(std::max(gamepad.axes[yAxis], -1.0f), 1.0f)
+                applyDeadzone(gamepad.axes[xAxis]),
+                applyDeadzone(gamepad.axes[yAxis])
             };
             float length = glm::length(vector);
             return (length > 1.0f) ? vector / length : vector;
