@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/nodes/node.h"
-
 namespace z0 {
 
     class RayCast : public Node {

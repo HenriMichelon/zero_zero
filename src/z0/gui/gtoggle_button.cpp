@@ -1,3 +1,5 @@
+#include "z0/base.h"
+#include "z0/gui/gcheck_widget.h"
 #include "z0/gui/gtoggle_button.h"
 
 namespace z0 {

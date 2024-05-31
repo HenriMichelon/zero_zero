@@ -1,3 +1,4 @@
+#include "z0/base.h"
 #include "z0/resources/texture.h"
 
 namespace z0 {

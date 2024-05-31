@@ -1,9 +1,5 @@
 #pragma once
 
-#include "z0/nodes/node.h"
-
-#include <filesystem>
-
 namespace z0 {
 
     class Loader {

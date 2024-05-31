@@ -1,16 +1,6 @@
+#include "z0/base.h"
 #include "z0/nodes/mesh_instance.h"
 #include "z0/loader.h"
-#include "z0/application.h"
-
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-#include <fastgltf/glm_element_traits.hpp>
-#include <fastgltf/core.hpp>
-#include <fastgltf/tools.hpp>
-#include <fastgltf/util.hpp>
-
-#include <stb_image.h>
 
 namespace z0 {
 

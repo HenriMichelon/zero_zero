@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-using namespace std;
-
 namespace z0 {
 
 #ifdef VULKAN_STATS

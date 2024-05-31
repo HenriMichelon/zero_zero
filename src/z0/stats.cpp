@@ -1,7 +1,5 @@
 #include "z0/stats.h"
 
-#include <iostream>
-
 namespace z0 {
 
 #ifdef VULKAN_STATS

@@ -1,3 +1,4 @@
+#include "z0/application.h"
 #include "z0/renderers/skybox_renderer.h"
 
 namespace z0 {

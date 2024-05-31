@@ -1,7 +1,6 @@
+#include "z0/base.h"
+#include "z0/resources/shape.h"
 #include "z0/nodes/physics_node.h"
-#include "z0/application.h"
-
-#include <glm/gtx/quaternion.hpp>
 
 namespace z0 {
 

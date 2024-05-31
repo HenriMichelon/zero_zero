@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/object.h"
-#include "z0/input_event.h"
-
 namespace z0 {
 
     class Node: public Object {

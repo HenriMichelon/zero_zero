@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/device.h"
-#include "z0/resources/resource.h"
-
 namespace z0 {
 
     class Image: public Resource {

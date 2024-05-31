@@ -2,9 +2,8 @@
  * Derived from
  * https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
  */
+#include "z0/base.h"
 #include "z0/shader.h"
-
-#include <utility>
 
 namespace z0 {
 

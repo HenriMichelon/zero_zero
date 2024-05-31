@@ -1,32 +1,16 @@
 #pragma once
 
-#ifdef _WIN32
-    #define VK_USE_PLATFORM_WIN32_KHR
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-#endif
-#include <volk.h>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#define GLM_GTC_constants
-#include <glm/glm.hpp>
-using namespace glm;
-
-#include <string>
-#include <memory>
-using namespace std;
-
 namespace z0 {
 
     constexpr string ENGINE_NAME = "ZeroZero";
     constexpr int WINDOW_CLEAR_COLOR[] { 0, 0, 0 };
+
     constexpr vec3 AXIS_X { 1.0, 0.0f, 0.0f };
     constexpr vec3 AXIS_Y { 0.0, 1.0f, 0.0f };
     constexpr vec3 AXIS_Z { 0.0, 0.0f, 1.0f };
     constexpr vec3 AXIS_UP = AXIS_Y;
     constexpr vec3 AXIS_FRONT = -AXIS_Z;
+
     constexpr vec2 VEC2ZERO{0.0};
     constexpr vec3 VEC3ZERO{0.0};
     constexpr mat3 TRANSFORM_BASIS{1, 0, 0, 0, 1, 0, 0, 0, 1};

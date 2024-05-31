@@ -1,6 +1,5 @@
-#include <z0/nodes/skybox.h>
-#include <z0/application.h>
-#include <z0/input.h>
+#include <z0/z0.h>
+using namespace z0;
 
 #include "triangle.h"
 

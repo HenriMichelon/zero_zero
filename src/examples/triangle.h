@@ -1,5 +1,4 @@
-#include <z0/nodes/mesh_instance.h>
-using namespace z0;
+#pragma once
 
 class Triangle: public Node {
 public:

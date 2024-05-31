@@ -1,5 +1,5 @@
-#include <utility>
-
+#include "z0/base.h"
+#include "z0/gui/gpanel.h"
 #include "z0/gui/gtext.h"
 
 namespace z0 {

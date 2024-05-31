@@ -1,9 +1,5 @@
 #pragma once
 
-#include "z0/renderers/base_renderpass.h"
-#include "z0/resources/cubemap.h"
-#include "z0/nodes/camera.h"
-
 namespace z0 {
 
     class SkyboxRenderer: public BaseRenderpass {

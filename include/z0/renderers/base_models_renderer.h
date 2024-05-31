@@ -1,11 +1,5 @@
 #pragma once
 
-#include "z0/framebuffers/depth_frame_buffer.h"
-#include "z0/renderers/base_renderpass.h"
-#include "z0/renderers/base_renderer.h"
-#include "z0/nodes/mesh_instance.h"
-#include "z0/nodes/camera.h"
-
 namespace z0 {
 
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {

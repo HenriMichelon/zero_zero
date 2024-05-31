@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/nodes/node.h"
-#include "z0/resources/mesh.h"
-
 namespace z0 {
 
     class MeshInstance: public Node {

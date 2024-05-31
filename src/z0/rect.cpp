@@ -1,15 +1,13 @@
-#include <algorithm>
+#include "z0/base.h"
 #include "z0/rect.h"
-
-using namespace std;
 
 namespace z0 {
 
     void Rect ::intersect(const Rect&A, const Rect&B) {
-        x = max(A.x, B.x);
-        y = max(A.y, B.y);
-        width = min(A.x + A.width, B.x + B.width) - x;
-        height = min(A.y + A.height, B.y + B.height) - y;
+        x = std::max(A.x, B.x);
+        y = std::max(A.y, B.y);
+        width = std::min(A.x + A.width, B.x + B.width) - x;
+        height = std::min(A.y + A.height, B.y + B.height) - y;
     }
 
     Rect& Rect :: operator = (const Rect&R) = default;

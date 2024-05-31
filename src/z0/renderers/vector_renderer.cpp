@@ -1,10 +1,5 @@
+#include "z0/base.h"
 #include "z0/renderers/vector_renderer.h"
-
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <algorithm>
 
 namespace z0 {
 

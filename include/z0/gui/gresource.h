@@ -1,9 +1,5 @@
 #pragma once
 
-#include <utility>
-
-#include "z0/object.h"
-
 namespace z0 {
 
     // Super class for style resources descriptions

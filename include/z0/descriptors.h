@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/device.h"
-
-#include <memory>
-#include <unordered_map>
-
 namespace z0 {
 
     class DescriptorSetLayout {

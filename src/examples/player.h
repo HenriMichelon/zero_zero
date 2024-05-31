@@ -1,9 +1,5 @@
 #pragma once
 
-#include <z0/nodes/camera.h>
-#include <z0/nodes/character.h>
-using namespace z0;
-
 class Player: public Character {
 public:
     const float movementsSpeed = 4;

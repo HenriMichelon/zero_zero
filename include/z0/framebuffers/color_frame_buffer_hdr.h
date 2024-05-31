@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/framebuffers/base_frame_buffer.h"
-
 namespace z0 {
 
     // Resolved HDR offscreen framebuffer

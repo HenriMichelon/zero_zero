@@ -1,11 +1,5 @@
-#include <z0/nodes/camera.h>
-#include <z0/nodes/skybox.h>
-#include <z0/loader.h>
-#include <z0/application.h>
-#include <z0/gui/gwidget.h>
-#include <z0/gui/gbutton.h>
-#include <z0/gui/gtext.h>
-#include <z0/gui/gframe.h>
+#include <z0/z0.h>
+using namespace z0;
 
 #include "ui.h"
 #include "topbar.h"

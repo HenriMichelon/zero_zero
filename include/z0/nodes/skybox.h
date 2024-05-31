@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/nodes/node.h"
-#include "z0/resources/cubemap.h"
-
 namespace z0 {
 
     class Skybox: public Node {

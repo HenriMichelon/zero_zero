@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/resources/material.h"
-#include "z0/buffer.h"
-
-#include <unordered_set>
-
 namespace z0 {
 
     struct Vertex {

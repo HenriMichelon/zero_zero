@@ -1,7 +1,5 @@
 #pragma once
 
-#include <volk.h>
-
 namespace z0 {
 
     class BaseRenderer {

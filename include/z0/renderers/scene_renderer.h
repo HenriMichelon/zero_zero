@@ -1,14 +1,5 @@
 #pragma once
 
-#include "z0/renderers/base_models_renderer.h"
-#include "z0/framebuffers/color_frame_buffer.h"
-#include "z0/framebuffers/color_frame_buffer_hdr.h"
-#include "z0/nodes/camera.h"
-#include "skybox_renderer.h"
-
-#include <map>
-#include <array>
-
 namespace z0 {
 
     class SceneRenderer: public BaseModelsRenderer {

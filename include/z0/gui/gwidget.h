@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/gui/gevent.h"
-#include "z0/gui/gstyle.h"
-
 namespace z0 {
 
     class GWindow;

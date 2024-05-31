@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/device.h"
-
 namespace z0 {
 
     // Base class for all offscreen fame buffers & rendering attachements

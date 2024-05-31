@@ -1,9 +1,5 @@
 #pragma once
 
-#include "z0/gui/gresource.h"
-
-#include <cstdint>
-
 namespace z0 {
 
     class GStyleClassicResource: public GResource {

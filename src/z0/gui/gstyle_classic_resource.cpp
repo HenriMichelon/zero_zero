@@ -1,4 +1,4 @@
-#include "z0/tools.h"
+#include "z0/base.h"
 #include "gstyle_classic_resource.h"
 
 namespace z0 {

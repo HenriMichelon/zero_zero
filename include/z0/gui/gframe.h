@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/gui/gpanel.h"
-
 namespace z0 {
 
     // A rectangular frame with an optional title

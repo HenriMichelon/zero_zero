@@ -1,13 +1,8 @@
-#include "z0/application.h"
-#include "z0/window.h"
+#include "z0/base.h"
 #include "z0/stats.h"
 #include "z0/input.h"
 
-#include <vulkan/vulkan.hpp>
-
 #include <Jolt/RegisterTypes.h>
-
-#include <cassert>
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {

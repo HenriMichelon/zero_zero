@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/object.h"
-#include "z0/application_config.h"
-
 namespace z0 {
 
     class Window: public Object {

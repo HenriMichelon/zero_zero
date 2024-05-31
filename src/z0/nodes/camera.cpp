@@ -1,11 +1,6 @@
 #include "z0/application.h"
 #include "z0/nodes/camera.h"
 
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-#include <cassert>
-#include <limits>
 
 namespace z0 {
 

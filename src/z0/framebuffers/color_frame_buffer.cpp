@@ -1,5 +1,4 @@
-#include "z0/framebuffers/color_frame_buffer.h"
-#include "z0/framebuffers/color_frame_buffer_hdr.h"
+#include "z0/base.h"
 
 namespace z0 {
 

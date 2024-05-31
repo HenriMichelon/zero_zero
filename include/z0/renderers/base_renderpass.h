@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/shader.h"
-#include "z0/descriptors.h"
-#include "z0/resources/mesh.h"
-#include "z0/resources/image.h"
-
 namespace z0 {
 
     class BaseRenderpass {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/gui/gcheck_widget.h"
-
 namespace z0 {
 
     // Two states button

@@ -1,13 +1,5 @@
 #pragma once
 
-#include "z0/framebuffers/color_frame_buffer_hdr.h"
-#include "z0/renderers/base_renderpass.h"
-#include "z0/resources/font.h"
-#include "z0/nodes/camera.h"
-#include "z0/rect.h"
-
-#include <map>
-
 namespace z0 {
 
     /*

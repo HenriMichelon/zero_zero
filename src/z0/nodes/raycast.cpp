@@ -1,3 +1,4 @@
+#include "z0/base.h"
 #include "z0/nodes/raycast.h"
 
 namespace z0 {

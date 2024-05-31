@@ -1,14 +1,5 @@
 #pragma once
 
-#include "z0/color.h"
-#include "gstyle_classic_resource.h"
-#include "z0/gui/gpanel.h"
-#include "z0/gui/gline.h"
-#include "z0/gui/gbutton.h"
-#include "z0/gui/gtoggle_button.h"
-#include "z0/gui/gtext.h"
-#include "z0/gui/gframe.h"
-
 namespace z0 {
 
     class Glayout;

@@ -1,7 +1,5 @@
+#include "z0/base.h"
 #include "z0/resources/resource.h"
-
-#include <algorithm>
-#include <utility>
 
 namespace z0 {
 

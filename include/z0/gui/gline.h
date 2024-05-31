@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/gui/gwidget.h"
-
 namespace z0 {
 
     // An horizontal or vertical line

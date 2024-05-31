@@ -1,13 +1,5 @@
 #pragma once
 
-#include "z0/color.h"
-#include "z0/resources/image.h"
-
-#include <map>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 namespace z0 {
 
 

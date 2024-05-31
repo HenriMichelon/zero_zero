@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/input_event.h"
-
-#include <map>
-#include <unordered_map>
-
 namespace z0 {
 
     class Input {

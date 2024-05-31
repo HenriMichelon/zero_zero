@@ -1,19 +1,9 @@
-#include "z0/application.h"
-#include "z0/window.h"
+#include "z0/base.h"
 #include "z0/input.h"
 #include "z0/input_event.h"
 
-#include <vulkan/vulkan.hpp>
-
 #ifdef _WIN32
 char szClassName[ ] = "WindowsApp";
-
-#include <windows.h>
-#include <Windowsx.h> // for GET_X_LPARAM and GET_Y_LPARAM
-#include <hidsdi.h>
-
-#include <vector>
-#include <iostream>
 
 int _getKeyboardModifiers() {
     int modifiers = 0;

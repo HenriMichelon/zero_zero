@@ -1,9 +1,6 @@
+#include "z0/base.h"
 #include "z0/resources/cubemap.h"
-#include "z0/application.h"
 #include "z0/stats.h"
-
-#include <stb_image.h>
-#include <array>
 
 namespace z0 {
 

@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/resources/resource.h"
-
-#include "Jolt/Jolt.h"
-#include "Jolt/Physics/Collision/Shape/Shape.h"
-
 namespace z0 {
 
     class Shape : public Resource {

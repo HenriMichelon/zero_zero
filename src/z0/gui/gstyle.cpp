@@ -1,18 +1,21 @@
+#include "z0/base.h"
 #include "z0/gui/gstyle.h"
+#include "z0/gui/gline.h"
+#include "z0/gui/gbutton.h"
+#include "z0/gui/gcheck_widget.h"
+#include "z0/gui/gtoggle_button.h"
+#include "z0/gui/gtext.h"
+#include "z0/gui/gframe.h"
+#include "gstyle_classic_resource.h"
 #include "gstyle_classic.h"
 
 namespace z0 {
 
-//----------------------------------------------
-    GStyle::GStyle()
-    {
+    GStyle::GStyle() {
         font = nullptr;
     }
 
-
-//----------------------------------------------
-    shared_ptr<GStyle> GStyle::create(const string&NAME)
-    {
+    shared_ptr<GStyle> GStyle::create(const string&NAME) {
         shared_ptr<GStyle> tmp;
         if (NAME == "vector") {
             tmp = make_shared<GStyleClassic>();
@@ -28,10 +31,7 @@ namespace z0 {
         return tmp;
     }
 
-
-//----------------------------------------------
-    void GStyle :: setOption(const string&NAME, const string&VAL)
-    {
+    void GStyle :: setOption(const string&NAME, const string&VAL) {
         shared_ptr<GLayoutOption> option;
         for(auto& opt: options) {
             if (opt->name == NAME) {
@@ -47,10 +47,7 @@ namespace z0 {
         updateOptions();
     }
 
-
-//----------------------------------------------
-    string GStyle :: getOption(const string&NAME)
-    {
+    string GStyle :: getOption(const string&NAME) {
         shared_ptr<GLayoutOption> option;
         for(auto& opt: options) {
             if (opt->name == NAME) {

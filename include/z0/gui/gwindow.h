@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/color.h"
-#include "z0/gui/gstyle.h"
-
 namespace z0 {
 
     class GManager;

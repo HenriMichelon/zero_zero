@@ -1,7 +1,4 @@
-#include <z0/nodes/node.h>
-#include <z0/gui/gwindow.h>
-#include <z0/gui/gevent.h>
-using namespace z0;
+#pragma once
 
 class Window2 : public GWindow {
 public:

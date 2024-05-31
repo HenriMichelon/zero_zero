@@ -1,8 +1,5 @@
 #pragma once
 
-#include "z0/constants.h"
-#include <filesystem>
-
 namespace z0 {
 
     struct ApplicationConfig {

@@ -1,5 +1,13 @@
+#include "z0/base.h"
+#include "z0/gui/gpanel.h"
+#include "z0/gui/gtext.h"
+#include "z0/gui/gline.h"
+#include "z0/gui/gbutton.h"
+#include "z0/gui/gframe.h"
+#include "z0/gui/gcheck_widget.h"
+#include "z0/gui/gtoggle_button.h"
+#include "gstyle_classic_resource.h"
 #include "gstyle_classic.h"
-#include "z0/application.h"
 
 namespace z0 {
 

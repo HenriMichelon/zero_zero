@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/color.h"
-#include "z0/resources/texture.h"
-
-#include <array>
-
 namespace z0 {
 
     class Material: public Resource {

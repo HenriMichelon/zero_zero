@@ -1,3 +1,4 @@
+#include "z0/base.h"
 #include "z0/nodes/skybox.h"
 
 namespace z0 {

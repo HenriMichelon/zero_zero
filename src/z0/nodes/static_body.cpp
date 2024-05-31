@@ -1,3 +1,7 @@
+#include "z0/base.h"
+#include "z0/resources/shape.h"
+#include "z0/nodes/physics_node.h"
+#include "z0/nodes/physics_body.h"
 #include "z0/nodes/static_body.h"
 
 namespace z0 {

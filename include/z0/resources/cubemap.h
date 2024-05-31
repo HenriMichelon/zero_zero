@@ -1,10 +1,5 @@
 #pragma once
 
-#include "z0/resources/resource.h"
-#include "z0/device.h"
-
-#include <filesystem>
-
 namespace z0 {
 
     class Cubemap: public Resource {

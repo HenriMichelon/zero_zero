@@ -1,5 +1,3 @@
-#include <z0/nodes/mesh_instance.h>
-#include <z0/nodes/camera.h>
 using namespace z0;
 
 class AddRemoveChildMainScene: public Node {

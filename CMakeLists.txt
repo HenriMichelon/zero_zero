@@ -66,6 +66,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/input.h
 		${Z0_INCLUDE_DIR}/physics.h
 		${Z0_INCLUDE_DIR}/rect.h
+		${Z0_INCLUDE_DIR}/libraries.h
+		${Z0_INCLUDE_DIR}/base.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
@@ -129,6 +131,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/rect.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/mappings.h
+		${Z0_ENGINE_DIR}/libraries.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
@@ -179,8 +182,6 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.h
 		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
 
-		${SRC_DIR}/libraries.cpp
-
 		${Z0_EXAMPLES_DIR}/example.cpp
 		${Z0_EXAMPLES_DIR}/triangle.h
 		${Z0_EXAMPLES_DIR}/triangle.cpp
@@ -195,10 +196,16 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
 		${Z0_EXAMPLES_DIR}/layers.h
+		include/z0/z0.h
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+		${Z0_INCLUDE_DIR}/libraries.h
+		${Z0_INCLUDE_DIR}/base.h
+		${Z0_INCLUDE_DIR}/z0.h
+)
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)

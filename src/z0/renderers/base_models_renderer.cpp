@@ -1,8 +1,7 @@
+#include "z0/base.h"
 #include "z0/renderers/base_models_renderer.h"
 #include "z0/resources/mesh.h"
 #include "z0/descriptors.h"
-
-#include <algorithm>
 
 namespace z0 {
 

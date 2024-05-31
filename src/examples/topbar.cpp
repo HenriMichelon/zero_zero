@@ -1,5 +1,6 @@
-#include <z0/application.h>
-#include <z0/gui/gbutton.h>
+#include <z0/z0.h>
+using namespace z0;
+
 #include "topbar.h"
 
 TopBar::TopBar(): GWindow(Rect{0, 945, 1000, 55}) {}

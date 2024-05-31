@@ -1,7 +1,6 @@
+#include "z0/base.h"
 #include "z0/gui/gpanel.h"
 #include "z0/gui/gmanager.h"
-
-#include <ranges>
 
 namespace z0 {
 

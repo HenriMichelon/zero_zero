@@ -1,9 +1,5 @@
 #pragma once
 
-#include "z0/nodes/physics_node.h"
-
-#include <Jolt/Physics/Character/Character.h>
-
 namespace z0 {
 
     class Character: public PhysicsNode {

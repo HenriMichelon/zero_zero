@@ -2,8 +2,6 @@
 
 #include "z0/object.h"
 
-#include <utility>
-
 namespace z0 {
 
     // List of widgets events

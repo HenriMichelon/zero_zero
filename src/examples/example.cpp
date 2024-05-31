@@ -1,10 +1,10 @@
-#include <z0/application.h>
-#include "triangle.h"
-#include "add_remove_child.h"
-#include "physics.h"
-#include "ui.h"
-
+#include <z0/z0.h>
 using namespace z0;
+
+#include "add_remove_child.h"
+#include "triangle.h"
+#include "ui.h"
+#include "physics.h"
 
 const ApplicationConfig applicationConfig {
     .appName = "Example App",

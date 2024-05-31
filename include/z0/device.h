@@ -1,14 +1,5 @@
 #pragma once
 
-#include "z0/window.h"
-#include "z0/application_config.h"
-#include "z0/renderers/base_renderer.h"
-
-#define VMA_VULKAN_VERSION 1003000
-#include "vk_mem_alloc.h"
-
-#include <optional>
-
 namespace z0 {
 
     constexpr int MAX_FRAMES_IN_FLIGHT = 2;

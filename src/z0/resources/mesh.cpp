@@ -5,15 +5,8 @@
  * https://vulkan-tutorial.com/Loading_models
 */
 
+#include "z0/base.h"
 #include "z0/resources/mesh.h"
-#include "z0/application.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
-
-#include <cassert>
-#include <unordered_map>
-#include <utility>
 
 namespace  z0 {
     // from: https://stackoverflow.com/a/57595105

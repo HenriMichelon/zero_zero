@@ -1,9 +1,7 @@
+#include "z0/base.h"
+#include "z0/resources/shape.h"
+#include "z0/nodes/physics_node.h"
 #include "z0/nodes/physics_body.h"
-#include "z0/application.h"
-
-#include <glm/gtx/quaternion.hpp>
-
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
 
 namespace z0 {
 

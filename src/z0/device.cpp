@@ -1,8 +1,5 @@
 #include "z0/device.h"
 
-#include <map>
-#include <set>
-
 namespace z0 {
 
     Device::Device(VkInstance instance, const vector<const char*>& requestedLayers,

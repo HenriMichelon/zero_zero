@@ -1,4 +1,4 @@
-#include "z0/framebuffers/base_frame_buffer.h"
+#include "z0/base.h"
 
 namespace z0 {
 

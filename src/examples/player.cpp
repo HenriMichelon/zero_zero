@@ -1,10 +1,8 @@
-#include <z0/input.h>
-#include <z0/loader.h>
-#include <algorithm>
+#include <z0/z0.h>
+using namespace z0;
 
 #include "player.h"
 #include "layers.h"
-#include <glm/gtx/quaternion.hpp>
 
 Player::Player(): Character{make_shared<BoxShape>(vec3{1.0f,2.0f, 1.0f}),
                                 Layers::PLAYER,
@@ -45,7 +43,7 @@ bool Player::onInput(InputEvent& event) {
 
 void Player::onPhysicsProcess(float delta) {
     previousState = currentState;
-    vec2 input;
+    vec2 input = VEC2ZERO;
     if (gamepad != -1) {
         input = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_LEFT);
     }
@@ -68,7 +66,7 @@ void Player::onPhysicsProcess(float delta) {
     }
 
     if (mouseCaptured) {
-        vec2 inputDir;
+        vec2 inputDir = VEC2ZERO;
         if (gamepad != -1) {
             inputDir = Input::getGamepadVector(gamepad, GAMEPAD_AXIS_RIGHT);
         }

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
-
 namespace z0 {
 
     // Class that determines if two nodes can collide

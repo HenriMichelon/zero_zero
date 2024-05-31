@@ -1,3 +1,4 @@
+#include "z0/gui/gpanel.h"
 #include "z0/gui/gframe.h"
 
 namespace z0 {

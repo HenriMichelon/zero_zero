@@ -1,14 +1,5 @@
 #pragma once
 
-#include "z0/constants.h"
-
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <string_view>
-using namespace std;
-
 namespace z0 {
 
     static constexpr auto& log = cout;

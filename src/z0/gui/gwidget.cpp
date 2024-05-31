@@ -1,8 +1,6 @@
+#include "z0/base.h"
 #include "z0/gui/gwindow.h"
 #include "z0/gui/gwidget.h"
-
-#include <algorithm>
-#include <utility>
 
 namespace z0 {
 

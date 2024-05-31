@@ -3,8 +3,6 @@
 
 #include "mappings.h"
 
-#include <unordered_map>
-
 namespace z0 {
 
     const float Input::DEADZONE_PERCENT = 0.05f; // 5% deadzone
@@ -191,8 +189,7 @@ namespace z0 {
         }
     }
 #ifdef _WIN32
-//#include <Xinput.h>
-#include <dinput.h>
+
 
     bool Input::_keys[256]{false};
     bool Input::_useXInput{false};

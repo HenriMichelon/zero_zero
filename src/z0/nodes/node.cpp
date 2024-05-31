@@ -1,12 +1,5 @@
+#include "z0/base.h"
 #include "z0/nodes/node.h"
-#include "z0/application.h"
-
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-
-#include <algorithm>
-#include <utility>
 
 namespace z0 {
 

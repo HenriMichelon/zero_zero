@@ -1,4 +1,5 @@
-#include "z0/application.h"
+#include "z0/base.h"
+#include "z0/resources/shape.h"
 #include "z0/nodes/physics_node.h"
 
 namespace z0 {

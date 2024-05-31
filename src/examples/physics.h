@@ -1,7 +1,4 @@
-#include <z0/nodes/mesh_instance.h>
-#include <z0/nodes/camera.h>
-#include <z0/nodes/rigid_body.h>
-using namespace z0;
+#pragma once
 
 class Crate: public RigidBody {
 public:

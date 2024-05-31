@@ -1,7 +1,7 @@
+#include <z0/z0.h>
+using namespace z0;
+
 #include "add_remove_child.h"
-#include <z0/application.h>
-#include <z0/input.h>
-#include <z0/loader.h>
 
 void AddRemoveChildMainScene::onReady() {
     camera1 = make_shared<Camera>("Camera 1");
@@ -12,8 +12,8 @@ void AddRemoveChildMainScene::onReady() {
     camera2->setPosition({0.0f, 10.0f, -10.0f});
     addChild(camera2);
 
-    sphereModel = Loader::loadModelFromFile("models/sphere.glb");
-    crateModel = Loader::loadModelFromFile("models/crate.glb");
+    sphereModel = Loader::loadModelFromFile("examples/models/sphere.glb");
+    crateModel = Loader::loadModelFromFile("examples/models/crate.glb");
 
     /*crateModel->setPosition({-5.0f, 0.0f, -10.0f});
     addChild(crateModel);
@@ -27,15 +27,15 @@ void AddRemoveChildMainScene::onReady() {
 }
 
 void AddRemoveChildMainScene::onProcess(float alpha) {
-    if (Input::isKeyJustPressed(KEY_KP_ADD)) {
+    if (Input::isKeyJustPressed(KEY_ENTER)) {
         auto newNode = (rand()%2 == 0) ? crateModel->duplicate() : sphereModel->duplicate();
         newNode->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
         if (addChild(newNode)) rotatingNodes.push_back(newNode);
     }
-    if (Input::isKeyJustPressed(KEY_KP_SUBTRACT)) {
+    if (Input::isKeyJustPressed(KEY_BACKSPACE)) {
         if (removeChild(rotatingNodes.back())) rotatingNodes.pop_back();
     }
-    if (Input::isKeyJustPressed(KEY_BACKSPACE)) {
+    if (Input::isKeyJustPressed(KEY_SPACE)) {
         if (camera1->isActive()) {
             Application::get().activateCamera(camera2);
         } else {

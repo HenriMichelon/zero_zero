@@ -1,9 +1,7 @@
+#include "z0/base.h"
 #include "z0/buffer.h"
 #include "z0/stats.h"
-#include "z0/application.h"
 #include "z0/resources/image.h"
-
-#include <stb_image.h>
 
 namespace z0 {
 

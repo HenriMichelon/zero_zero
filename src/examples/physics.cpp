@@ -1,8 +1,5 @@
-#include <z0/nodes/skybox.h>
-#include <z0/application.h>
-#include <z0/loader.h>
-#include <z0/nodes/static_body.h>
-#include <glm/gtc/quaternion.hpp>
+#include <z0/z0.h>
+using namespace z0;
 
 #include "physics.h"
 #include "topbar.h"

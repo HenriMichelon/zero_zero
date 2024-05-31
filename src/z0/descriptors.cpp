@@ -8,8 +8,6 @@
 #include "z0/descriptors.h"
 #include "z0/stats.h"
 
-#include <cassert>
-
 namespace z0 {
 
     DescriptorSetLayout::Builder &DescriptorSetLayout::Builder::addBinding(

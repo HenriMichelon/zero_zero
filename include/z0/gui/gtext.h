@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/gui/gpanel.h"
-
 namespace z0 {
 
     // A widget to display a line of text

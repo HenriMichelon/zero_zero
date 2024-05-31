@@ -1,11 +1,5 @@
+#include "z0/base.h"
 #include "z0/resources/font.h"
-
-#include <locale>
-#include <codecvt>
-#include <cstring>
-
-#include <stb_image.h>
-//#include <stb_image_write.h>
 
 namespace z0 {
 

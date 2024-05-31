@@ -1,9 +1,7 @@
+#include "z0/base.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/resources/mesh.h"
 #include "z0/descriptors.h"
-
-#include <fstream>
-#include <filesystem>
 
 namespace z0 {
 

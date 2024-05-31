@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/tools.h"
-
 namespace z0 {
 
     class Object {

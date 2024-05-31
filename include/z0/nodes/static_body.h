@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z0/nodes/physics_body.h"
-
 namespace z0 {
 
     class StaticBody: public PhysicsBody {

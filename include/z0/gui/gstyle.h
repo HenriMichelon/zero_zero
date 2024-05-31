@@ -1,13 +1,5 @@
 #pragma once
 
-#include <utility>
-
-#include "z0/resources/font.h"
-#include "z0/renderers/vector_renderer.h"
-#include "z0/rect.h"
-#include "z0/gui/gresource.h"
-
-
 namespace z0 {
 
     class GWidget;

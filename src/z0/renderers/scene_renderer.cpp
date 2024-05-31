@@ -2,12 +2,9 @@
  * Using one descriptor per scene with offsets
  * https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
  */
+#include "z0/base.h"
 #include "z0/renderers/scene_renderer.h"
 #include "z0/nodes/skybox.h"
-
-#include <stb_image_write.h>
-
-#include <algorithm>
 
 namespace z0 {
 

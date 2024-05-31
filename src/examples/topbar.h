@@ -1,10 +1,5 @@
 #pragma once
 
-#include <z0/nodes/node.h>
-#include <z0/gui/gwindow.h>
-#include <z0/gui/gtext.h>
-using namespace z0;
-
 class TopBar: public GWindow, public Node {
 public:
     TopBar();
