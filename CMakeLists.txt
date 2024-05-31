@@ -14,7 +14,7 @@ set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 make_directory(${Z0_SHADERS_BUILD_DIR})
 
 # Examples sources & build directories
-set(Z0_EXAMPLES_DIR ${SRC_DIR}/examples)
+set(Z0_EXAMPLES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples/src)
 set(Z0_EXAMPLES_SHADERS_DIR ${Z0_EXAMPLES_DIR}/shaders)
 set(Z0_EXAMPLES_SHADERS_BUILD_DIR ${Z0_SHADERS_BUILD_DIR}/examples)
 make_directory(${Z0_EXAMPLES_SHADERS_BUILD_DIR})
@@ -68,6 +68,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/rect.h
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/base.h
+		${Z0_INCLUDE_DIR}/z0.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
@@ -196,7 +197,8 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/player.h
 		${Z0_EXAMPLES_DIR}/player.cpp
 		${Z0_EXAMPLES_DIR}/layers.h
-		include/z0/z0.h
+		${Z0_EXAMPLES_DIR}/menu.h
+		${Z0_EXAMPLES_DIR}/menu.cpp
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)

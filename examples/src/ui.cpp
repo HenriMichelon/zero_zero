@@ -1,8 +1,7 @@
-#include <z0/z0.h>
+#include "z0/z0.h"
 using namespace z0;
 
 #include "ui.h"
-#include "topbar.h"
 
 void Window2::onCreate() {
     setTransparency(0.8f);
@@ -48,12 +47,8 @@ void UIMainScene::onReady() {
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);
 
-    auto topBar = make_shared<TopBar>();
-    Application::add(topBar);
-    addChild(topBar);
-
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
-    Application::add(window2);
+    Application::addWindow(window2);
 }
 
 void UIMainScene::onPhysicsProcess(float delta) {

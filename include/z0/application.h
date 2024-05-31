@@ -8,14 +8,14 @@ namespace z0 {
         virtual ~Application();
 
         static Application& get();
-        static void add(const shared_ptr<GWindow>&);
+        static void addWindow(const shared_ptr<GWindow>&);
+        static void quit();
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }
         const Window& getWindow() const;
         Device& getDevice() { return *device; }
         VkInstance getVkInstance() const { return vkInstance; }
         uint32_t getFPS() const { return fps; }
-        void quit();
 
         bool isPaused() const { return paused; }
         void setPaused(bool pause) { paused = pause; }

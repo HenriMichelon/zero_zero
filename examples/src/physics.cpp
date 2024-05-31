@@ -1,8 +1,7 @@
-#include <z0/z0.h>
+#include "z0/z0.h"
 using namespace z0;
 
 #include "physics.h"
-#include "topbar.h"
 #include "player.h"
 #include "layers.h"
 
@@ -46,9 +45,5 @@ void PhysicsMainScene::onReady() {
     floor->addChild(Loader::loadModelFromFile("examples/models/floor.glb", true));
     floor->setPosition({0.0, -2.0, 0.0});
     addChild(floor);
-
-    auto topBar = make_shared<TopBar>();
-    Application::add(topBar);
-    addChild(topBar);
 }
 

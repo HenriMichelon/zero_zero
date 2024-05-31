@@ -3,7 +3,7 @@
 class TopBar: public GWindow, public Node {
 public:
     TopBar();
-    void onReady() override;
+    void onCreate() override;
     void onProcess(float alpha) override;
 private:
     uint32_t fps{0};

@@ -210,7 +210,7 @@ namespace z0 {
 #endif
     }
 
-    void Application::add(const shared_ptr<GWindow>& window) {
+    void Application::addWindow(const shared_ptr<GWindow>& window) {
         _instance->windowManager->add(window);
     }
 
@@ -254,11 +254,11 @@ namespace z0 {
         node.reset();
     }
 
-#ifdef _WIN32
-
     void Application::quit() {
-        window->close();
+        get().window->close();
     }
+
+#ifdef _WIN32
 
     void Application::_mainLoop() {
         Input::_initInput();

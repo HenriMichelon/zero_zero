@@ -1,11 +1,11 @@
-#include <z0/z0.h>
+#include "z0/z0.h"
 using namespace z0;
 
 #include "topbar.h"
 
 TopBar::TopBar(): GWindow(Rect{0, 945, 1000, 55}) {}
 
-void TopBar::onReady() {
+void TopBar::onCreate() {
     auto rightPadding = make_shared<GPanel>();
     rightPadding->setDrawBackground(false);
     getWidget().add(rightPadding, GWidget::RIGHT, "5,5");
