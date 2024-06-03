@@ -1,5 +1,4 @@
 #include "includes.h"
-#include "topbar.h"
 #include "triangle.h"
 
 void TriangleMainScene::onReady() {
@@ -9,10 +8,6 @@ void TriangleMainScene::onReady() {
     auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
     addChild(skybox);
     addChild(make_shared<Triangle>());
-
-    /*auto topbar = make_shared<TopBar>();
-    Application::addWindow(topbar);
-    addChild(topbar);*/
 
     printTree(cout);
 }

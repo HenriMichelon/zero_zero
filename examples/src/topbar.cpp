@@ -1,9 +1,10 @@
 #include "includes.h"
-#include "menu.h"
-#include "example.h"
 #include "topbar.h"
 
-TopBar::TopBar(): GWindow(Rect{0, 945, 1000, 55}) {}
+TopBar::TopBar(GEventFunction handlerQuit):
+    GWindow(Rect{0, 945, 1000, 55}),
+    onQuit(handlerQuit)
+{}
 
 void TopBar::onCreate() {
     auto rightPadding = make_shared<GPanel>();
@@ -14,24 +15,22 @@ void TopBar::onCreate() {
     getWidget().add(textFPS, GWidget::RIGHTCENTER);
     textFPS->setTextColor(Color{1.0, 1.0, 0.2});
     auto buttonQuit = make_shared<GButton>();
-    buttonQuit->connect(GEvent::OnClick, this, GEventFunction(&TopBar::onQuit));
+    buttonQuit->connect(GEvent::OnClick, this, onQuit);
     getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
     auto textQuit = make_shared<GText>("Menu");
     buttonQuit->add(textQuit, GWidget::CENTER);
     buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
     setHeight(buttonQuit->getHeight());
     setY(1000 - getHeight());
+    hide();
 }
 
-void TopBar::onQuit(GWidget &, GEvent *) {
-    Menu::menu->show();
-    Application::get().setRootNode(make_shared<ExampleMainScene>());
-}
-
-void TopBar::onProcess(float alpha) {
-    auto newFPS = Application::get().getFPS();
-    if (newFPS != fps) {
-        fps = newFPS;
-        textFPS->setText(to_string(fps));
+void TopBar::updateFPS() {
+    if (isVisible()) {
+        auto newFPS = Application::get().getFPS();
+        if (newFPS != fps) {
+            fps = newFPS;
+            textFPS->setText(to_string(fps));
+        }
     }
 }

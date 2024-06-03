@@ -154,26 +154,34 @@ namespace z0 {
     }
 
     bool Node::addChild(const shared_ptr<Node>& child) {
-        if (haveChild(child)) return false;
+        if (haveChild(child, false)) return false;
         children.push_back(child);
         child->parent = this;
         child->updateTransform(worldTransform);
-        if (inReady) child->_onReady();
-        if (addedToScene) Application::get()._addNode(child);
+        if (inReady || (parent != nullptr)) { child->_onReady(); }
+        if (addedToScene) { Application::get()._addNode(child); }
         return true;
     }
 
     bool Node::removeChild(const shared_ptr<Node>& node) {
-        if (!haveChild(node)) return false;
-        children.remove(node);
+        if (!haveChild(node, false)) return false;
         node->parent = nullptr;
-        Application::get()._removeNode(node);
+        if (node->addedToScene) { Application::get()._removeNode(node); }
+        children.remove(node);
         return true;
+    }
+
+    void Node::removeAllChildren() {
+        for(const auto& node : children) {
+            node->parent = nullptr;
+            if (node->addedToScene) { Application::get()._removeNode(node); }
+        }
+        children.clear();
     }
 
     bool Node::haveChild(const shared_ptr<z0::Node> &child, bool recursive) {
         if (recursive) {
-            if (haveChild(child)) return true;
+            if (haveChild(child, false)) return true;
             for(const auto& node : children) {
                 if (node->haveChild(child, true)) return true;
             }

@@ -1,12 +1,13 @@
 #pragma once
 
-class TopBar: public GWindow, public Node {
+class TopBar: public GWindow {
 public:
-    TopBar();
+    TopBar(GEventFunction onQuit);
     void onCreate() override;
-    void onProcess(float alpha) override;
+    void updateFPS();
+
 private:
     uint32_t fps{0};
     shared_ptr<GText> textFPS;
-    void onQuit(GWidget&, GEvent*);
+    GEventFunction onQuit;
 };

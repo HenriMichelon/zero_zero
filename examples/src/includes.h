@@ -1,6 +1,7 @@
 #pragma once
 
 #include <z0/z0.h>
+
 #ifndef USE_PCH
 #include <z0/resources/image.h>
 #include <z0/resources/texture.h>
@@ -47,4 +48,5 @@
 #include <z0/gui/gline.h>
 #include <z0/gui/gframe.h>
 #endif
+
 using namespace z0;
