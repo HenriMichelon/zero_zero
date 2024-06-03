@@ -171,17 +171,17 @@ namespace z0 {
         if (stopped) return;
 
         windowManager->drawFrame();
-        if (!addedNodes.empty()) {
-            for (const auto &node: addedNodes) {
-                sceneRenderer->addNode(node);
-            }
-            addedNodes.clear();
-        }
         if (!removedNodes.empty()) {
             for (const auto &node: removedNodes) {
                 sceneRenderer->removeNode(node);
             }
             removedNodes.clear();
+        }
+        if (!addedNodes.empty()) {
+            for (const auto &node: addedNodes) {
+                sceneRenderer->addNode(node);
+            }
+            addedNodes.clear();
         }
 
         // https://gafferongames.com/post/fix_your_timestep/

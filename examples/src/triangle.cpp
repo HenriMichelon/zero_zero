@@ -10,9 +10,9 @@ void TriangleMainScene::onReady() {
     addChild(skybox);
     addChild(make_shared<Triangle>());
 
-    auto topbar = make_shared<TopBar>();
+    /*auto topbar = make_shared<TopBar>();
     Application::addWindow(topbar);
-    addChild(topbar);
+    addChild(topbar);*/
 
     printTree(cout);
 }
