@@ -15,6 +15,7 @@ namespace z0 {
 
         static Application& get();
         static void addWindow(const shared_ptr<GWindow>&);
+        static void removeWindow(const shared_ptr<GWindow>&);
         static void quit();
 
         const ApplicationConfig& getConfig() const { return applicationConfig; }

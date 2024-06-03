@@ -242,6 +242,10 @@ namespace z0 {
         _instance->windowManager->add(window);
     }
 
+    void Application::removeWindow(const shared_ptr<GWindow>& window) {
+        _instance->windowManager->remove(window);
+    }
+
     void Application::ready(const shared_ptr<Node>& node) {
         for(auto& child: node->getChildren()) {
             ready(child);

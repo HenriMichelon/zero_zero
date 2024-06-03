@@ -106,31 +106,33 @@ namespace z0 {
     void VectorRenderer::endDraw() {
         // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
         oldBuffers.clear();
-        // Resize the buffers only if needed by recreating them
-        if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
-            // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
-            // and can't be destroyed now
-            oldBuffers.push_back(stagingBuffer);
-            oldBuffers.push_back(vertexBuffer);
-            // Allocate new buffers to change size
-            vertexCount = vertices.size();
-            vertexBufferSize = vertexSize * vertexCount;
-            stagingBuffer = make_shared<Buffer>(
-                    device,
-                    vertexSize,
-                    vertexCount,
-                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-            );
-            vertexBuffer = make_shared<Buffer>(
-                    device,
-                    vertexSize,
-                    vertexCount,
-                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
-            );
+        if (!vertices.empty()) {
+            // Resize the buffers only if needed by recreating them
+            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+                // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
+                // and can't be destroyed now
+                oldBuffers.push_back(stagingBuffer);
+                oldBuffers.push_back(vertexBuffer);
+                // Allocate new buffers to change size
+                vertexCount = vertices.size();
+                vertexBufferSize = vertexSize * vertexCount;
+                stagingBuffer = make_shared<Buffer>(
+                        device,
+                        vertexSize,
+                        vertexCount,
+                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+                );
+                vertexBuffer = make_shared<Buffer>(
+                        device,
+                        vertexSize,
+                        vertexCount,
+                        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+                );
+            }
+            // Push new vertices data to GPU memory
+            stagingBuffer->writeToBuffer((void *) vertices.data());
+            stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
         }
-        // Push new vertices data to GPU memory
-        stagingBuffer->writeToBuffer((void*)vertices.data());
-        stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
         descriptorSetNeedUpdate = true;
         // Initialize or update pipeline layout & descriptos sets if needed
         createOrUpdateResources();

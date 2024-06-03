@@ -45,20 +45,19 @@ void ExampleMainScene::onReady() {
     entryQuit->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuQuit));
     menu->getWidget().add(entryQuit, GWidget::TOPCENTER);
 
-    topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
-    Application::addWindow(topbar);
+
 
     scene = make_shared<Node>();
     addChild(scene);
 }
 
 void ExampleMainScene::onProcess(float alpha) {
-    topbar->updateFPS();
+    //topbar->updateFPS();
 }
 
 void ExampleMainScene::onMenu(GWidget &, GEvent *) {
     scene->removeAllChildren();
-    topbar->hide();
+    Application::removeWindow(topbar);
     menu->show();
 }
 
@@ -68,7 +67,8 @@ void ExampleMainScene::onMenuQuit(GWidget &, GEvent *) {
 
 void ExampleMainScene::onMenuTriangle(GWidget &, GEvent *) {
     menu->hide();
-    topbar->show();
+    topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
+    Application::addWindow(topbar);
     scene->addChild(make_shared<TriangleMainScene>());
 }
 

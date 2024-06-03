@@ -28,6 +28,14 @@ namespace z0 {
     }
 
     void GManager::drawFrame() {
+        for(const auto&window : removedWindows) {
+            window->windowManager = nullptr;
+            if (window->isVisible()) { window->eventHide(); }
+            window->eventDestroy();
+            windows.remove(window);
+            needRedraw = true;
+        }
+        removedWindows.clear();
         if (!needRedraw) { return; }
         needRedraw = false;
         vectorRenderer->beginDraw();
@@ -43,6 +51,10 @@ namespace z0 {
         window->eventCreate();
         if (window->isVisible()) { window->eventShow(); }
         needRedraw = true;
+    }
+
+    void GManager::remove(const shared_ptr<GWindow>&window) {
+        removedWindows.push_back(window);
     }
 
     bool GManager::onInput(InputEvent &inputEvent) {

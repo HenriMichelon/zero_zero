@@ -12,6 +12,7 @@ namespace z0 {
         ~GManager();
 
         void add(const shared_ptr<GWindow>&);
+        void remove(const shared_ptr<GWindow>&);
         void refresh() { needRedraw = true; }
         VectorRenderer& getRenderer() { return *vectorRenderer; }
 
@@ -19,6 +20,7 @@ namespace z0 {
         shared_ptr<Font>            defaultFont;
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>>   windows;
+        vector<shared_ptr<GWindow>> removedWindows{};
         GWindow*                    focusedWindow{nullptr};
         bool                        needRedraw{false};
 

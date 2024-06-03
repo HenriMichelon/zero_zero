@@ -23,7 +23,7 @@ void TopBar::onCreate() {
     buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
     setHeight(buttonQuit->getHeight());
     setY(1000 - getHeight());
-    hide();
+    //hide();
 }
 
 void TopBar::updateFPS() {
