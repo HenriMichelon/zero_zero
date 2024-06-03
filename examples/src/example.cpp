@@ -3,7 +3,6 @@
 #include "example.h"
 #include "triangle.h"
 #include "add_remove_child.h"
-#include "ui.h"
 #include "physics.h"
 
 class GMenuEntry: public GButton {
@@ -45,19 +44,20 @@ void ExampleMainScene::onReady() {
     entryQuit->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuQuit));
     menu->getWidget().add(entryQuit, GWidget::TOPCENTER);
 
-
+    topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
+    Application::addWindow(topbar);
 
     scene = make_shared<Node>();
     addChild(scene);
 }
 
 void ExampleMainScene::onProcess(float alpha) {
-    //topbar->updateFPS();
+    topbar->updateFPS();
 }
 
 void ExampleMainScene::onMenu(GWidget &, GEvent *) {
     scene->removeAllChildren();
-    Application::removeWindow(topbar);
+    topbar->hide();
     menu->show();
 }
 
@@ -67,8 +67,7 @@ void ExampleMainScene::onMenuQuit(GWidget &, GEvent *) {
 
 void ExampleMainScene::onMenuTriangle(GWidget &, GEvent *) {
     menu->hide();
-    topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
-    Application::addWindow(topbar);
+    topbar->show();
     scene->addChild(make_shared<TriangleMainScene>());
 }
 
