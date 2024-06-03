@@ -1,9 +1,10 @@
 #include "includes.h"
 #include "topbar.h"
 
-TopBar::TopBar(GEventFunction handlerQuit):
+TopBar::TopBar(GEventHandler* handler, GEventFunction handlerQuit):
     GWindow(Rect{0, 945, 1000, 55}),
-    onQuit(handlerQuit)
+    onQuitHandler{handler},
+    onQuit{handlerQuit}
 {}
 
 void TopBar::onCreate() {
@@ -15,7 +16,7 @@ void TopBar::onCreate() {
     getWidget().add(textFPS, GWidget::RIGHTCENTER);
     textFPS->setTextColor(Color{1.0, 1.0, 0.2});
     auto buttonQuit = make_shared<GButton>();
-    buttonQuit->connect(GEvent::OnClick, this, onQuit);
+    buttonQuit->connect(GEvent::OnClick, onQuitHandler, onQuit);
     getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
     auto textQuit = make_shared<GText>("Menu");
     buttonQuit->add(textQuit, GWidget::CENTER);

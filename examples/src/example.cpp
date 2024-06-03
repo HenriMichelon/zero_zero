@@ -45,7 +45,7 @@ void ExampleMainScene::onReady() {
     entryQuit->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuQuit));
     menu->getWidget().add(entryQuit, GWidget::TOPCENTER);
 
-    topbar = make_shared<TopBar>(GEventFunction(&ExampleMainScene::onMenu));
+    topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
     Application::addWindow(topbar);
 
     scene = make_shared<Node>();
@@ -56,7 +56,8 @@ void ExampleMainScene::onProcess(float alpha) {
     topbar->updateFPS();
 }
 
-void ExampleMainScene::onMenu(z0::GWidget &, z0::GEvent *) {
+void ExampleMainScene::onMenu(GWidget &, GEvent *) {
+    scene->removeAllChildren();
     topbar->hide();
     menu->show();
 }
@@ -66,20 +67,20 @@ void ExampleMainScene::onMenuQuit(GWidget &, GEvent *) {
 }
 
 void ExampleMainScene::onMenuTriangle(GWidget &, GEvent *) {
-    //hide();
-    scene->removeAllChildren();
+    menu->hide();
+    topbar->show();
     scene->addChild(make_shared<TriangleMainScene>());
 }
 
 void ExampleMainScene::onMenuAddRemoveChild(GWidget &, GEvent *) {
-    //hide();
-    scene->removeAllChildren();
+    menu->hide();
+    topbar->show();
     scene->addChild(make_shared<AddRemoveChildMainScene>());
 }
 
 void ExampleMainScene::onMenuPhysics(GWidget &, GEvent *) {
-    //hide();
-    scene->removeAllChildren();
+    menu->hide();
+    topbar->show();
     scene->addChild(make_shared<PhysicsMainScene>());
 }
 
