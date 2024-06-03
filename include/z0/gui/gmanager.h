@@ -3,6 +3,7 @@
 namespace z0 {
 
     class Application;
+    class VectorRenderer;
 
     // Manage all the UI windows
     class GManager: public Object {

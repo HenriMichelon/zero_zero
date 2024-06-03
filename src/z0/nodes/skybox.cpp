@@ -1,5 +1,9 @@
-#include "z0/base.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
+#include "z0/nodes/node.h"
+#include "z0/resources/cubemap.h"
 #include "z0/nodes/skybox.h"
+#endif
 
 namespace z0 {
 

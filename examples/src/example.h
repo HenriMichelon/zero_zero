@@ -1,29 +1,7 @@
 #pragma once
 
-#include <z0/libraries.h>
-#include <z0/constants.h>
-#include <z0/tools.h>
-#include <z0/color.h>
-#include <z0/rect.h>
-#include <z0/object.h>
-#include <z0/application_config.h>
-#include <z0/input_event.h>
-#include <z0/physics.h>
-#include <z0/window.h>
-#include <z0/resources/resource.h>
-#include <z0/stats.h>
-
-#include <z0/renderers/base_renderer.h>
-#include <z0/device.h>
-#include <z0/framebuffers/base_frame_buffer.h>
-#include <z0/framebuffers/color_frame_buffer.h>
-#include <z0/framebuffers/color_frame_buffer_hdr.h>
-#include <z0/framebuffers/depth_frame_buffer.h>
-#include <z0/descriptors.h>
-#include <z0/buffer.h>
-#include <z0/shader.h>
-
-#ifdef USE_PCH
+#include <z0/z0.h>
+#ifndef USE_PCH
 #include <z0/resources/image.h>
 #include <z0/resources/texture.h>
 #include <z0/resources/material.h>
@@ -69,3 +47,4 @@
 #include <z0/gui/gline.h>
 #include <z0/gui/gframe.h>
 #endif
+using namespace z0;

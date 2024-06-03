@@ -2,9 +2,22 @@
  * Using one descriptor per scene with offsets
  * https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
  */
-#include "z0/base.h"
-#include "z0/renderers/scene_renderer.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
+#include "z0/resources/image.h"
+#include "z0/resources/texture.h"
+#include "z0/resources/cubemap.h"
+#include "z0/nodes/node.h"
+#include "z0/nodes/camera.h"
 #include "z0/nodes/skybox.h"
+#include "z0/resources/material.h"
+#include "z0/resources/mesh.h"
+#include "z0/nodes/mesh_instance.h"
+#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/base_models_renderer.h"
+#include "z0/renderers/skybox_renderer.h"
+#include "z0/renderers/scene_renderer.h"
+#endif
 
 namespace z0 {
 

@@ -2,6 +2,12 @@
 
 namespace z0 {
 
+    class GWindow;
+    class GManager;
+    class SceneRenderer;
+    class VectorRenderer;
+    class Camera;
+
     class Application: public Object {
     public:
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);

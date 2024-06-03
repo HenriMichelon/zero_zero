@@ -1,4 +1,4 @@
-#include "z0/base.h"
+#include "z0/z0.h"
 #include "z0/resources/shape.h"
 
 namespace z0 {

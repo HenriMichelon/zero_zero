@@ -1,4 +1,13 @@
-#include "z0/base.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
+#include "z0/resources/image.h"
+#include "z0/resources/font.h"
+#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/vector_renderer.h"
+#include "z0/gui/gresource.h"
+#include "z0/gui/gstyle.h"
+#include "z0/gui/gevent.h"
+#include "z0/gui/gwidget.h"
 #include "z0/gui/gpanel.h"
 #include "z0/gui/gtext.h"
 #include "z0/gui/gline.h"
@@ -6,6 +15,8 @@
 #include "z0/gui/gframe.h"
 #include "z0/gui/gcheck_widget.h"
 #include "z0/gui/gtoggle_button.h"
+#endif
+
 #include "gstyle_classic_resource.h"
 #include "gstyle_classic.h"
 

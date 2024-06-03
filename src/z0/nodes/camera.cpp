@@ -1,5 +1,9 @@
+#include "z0/z0.h"
+#ifndef USE_PCH
+#include "z0/nodes/node.h"
 #include "z0/application.h"
 #include "z0/nodes/camera.h"
+#endif
 
 
 namespace z0 {

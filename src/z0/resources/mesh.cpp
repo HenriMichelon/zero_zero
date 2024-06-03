@@ -5,8 +5,15 @@
  * https://vulkan-tutorial.com/Loading_models
 */
 
-#include "z0/base.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
+#include "z0/nodes/node.h"
+#include "z0/resources/image.h"
+#include "z0/resources/texture.h"
+#include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
+#include "z0/application.h"
+#endif
 
 namespace  z0 {
     // from: https://stackoverflow.com/a/57595105

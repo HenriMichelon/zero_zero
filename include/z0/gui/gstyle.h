@@ -3,6 +3,7 @@
 namespace z0 {
 
     class GWidget;
+    class VectorRenderer;
 
     // Widget drawing super class
     class GStyle: public Object

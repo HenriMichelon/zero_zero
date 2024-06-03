@@ -1,6 +1,27 @@
-#include "z0/base.h"
-#include "z0/stats.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
 #include "z0/input.h"
+#include "z0/resources/image.h"
+#include "z0/resources/texture.h"
+#include "z0/resources/material.h"
+#include "z0/resources/mesh.h"
+#include "z0/resources/font.h"
+#include "z0/resources/cubemap.h"
+#include "z0/nodes/node.h"
+#include "z0/nodes/camera.h"
+#include "z0/nodes/mesh_instance.h"
+#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/vector_renderer.h"
+#include "z0/renderers/skybox_renderer.h"
+#include "z0/renderers/base_models_renderer.h"
+#include "z0/renderers/scene_renderer.h"
+#include "z0/gui/gresource.h"
+#include "z0/gui/gstyle.h"
+#include "z0/gui/gevent.h"
+#include "z0/gui/gwindow.h"
+#include "z0/gui/gmanager.h"
+#include "z0/application.h"
+#endif
 
 #include <Jolt/RegisterTypes.h>
 

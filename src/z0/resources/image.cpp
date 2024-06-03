@@ -1,7 +1,9 @@
-#include "z0/base.h"
-#include "z0/buffer.h"
-#include "z0/stats.h"
+#include "z0/z0.h"
+#ifndef USE_PCH
 #include "z0/resources/image.h"
+#include "z0/nodes/node.h"
+#include "z0/application.h"
+#endif
 
 namespace z0 {
 

@@ -1,6 +1,4 @@
-#include "z0/z0.h"
-using namespace z0;
-
+#include "example.h"
 #include "add_remove_child.h"
 
 void AddRemoveChildMainScene::onReady() {

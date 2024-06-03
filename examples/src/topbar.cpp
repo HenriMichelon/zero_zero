@@ -1,6 +1,4 @@
-#include "z0/z0.h"
-using namespace z0;
-
+#include "example.h"
 #include "topbar.h"
 #include "menu.h"
 

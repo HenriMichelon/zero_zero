@@ -67,7 +67,6 @@ add_executable(${PROJECT_NAME}
 		${Z0_INCLUDE_DIR}/physics.h
 		${Z0_INCLUDE_DIR}/rect.h
 		${Z0_INCLUDE_DIR}/libraries.h
-		${Z0_INCLUDE_DIR}/base.h
 		${Z0_INCLUDE_DIR}/z0.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
@@ -199,14 +198,15 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/layers.h
 		${Z0_EXAMPLES_DIR}/menu.h
 		${Z0_EXAMPLES_DIR}/menu.cpp
+		${Z0_EXAMPLES_DIR}/example.h
 )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
+#add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
-		${Z0_INCLUDE_DIR}/base.h
-		#${Z0_INCLUDE_DIR}/z0.h
+		${Z0_INCLUDE_DIR}/z0.h
 )
 
 if(WIN32)
