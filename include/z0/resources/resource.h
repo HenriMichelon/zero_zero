@@ -17,7 +17,12 @@ namespace z0 {
 
     private:
         id_t id;
+        uint32_t refCount{0};
         static id_t currentId;
+
+    public:
+        void _incrementReferenceCounter();
+        bool _decrementReferenceCounter();
     };
 
 }

@@ -22,11 +22,16 @@ namespace z0 {
     private:
         const Device& device;
         string shaderName;
+        uint32_t refCount{0};
         vector<char> spirv;
         VkShaderStageFlagBits stage;
         VkShaderStageFlags stageFlags;
         VkShaderEXT shader{VK_NULL_HANDLE};
         VkShaderCreateInfoEXT shaderCreateInfo;
+
+    public:
+        void _incrementReferenceCounter();
+        bool _decrementReferenceCounter();
     };
 
 }

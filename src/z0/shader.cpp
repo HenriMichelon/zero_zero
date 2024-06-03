@@ -42,6 +42,13 @@ namespace z0 {
         }
     }
 
+    void Shader::_incrementReferenceCounter() {
+        refCount += 1;
+    }
 
+    bool Shader::_decrementReferenceCounter() {
+        refCount -= 1;
+        return refCount == 0;
+    }
 
 }

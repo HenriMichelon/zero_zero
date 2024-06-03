@@ -218,7 +218,6 @@ namespace z0 {
                 .build();
 
         // Create an in-memory default blank image
-        // and initialize the image info array with this image
         if (blankImage == nullptr) {
             auto data = new unsigned char[1 * 1 * 3];
             data[0] = 0;
@@ -227,9 +226,6 @@ namespace z0 {
             stbi_write_jpg_to_func(vr_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
             delete[] data;
             blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
-            for (auto &imageInfo: imagesInfo) {
-                imageInfo = blankImage->_getImageInfo();
-            }
         }
     }
 
@@ -246,6 +242,10 @@ namespace z0 {
         for(const auto& image : textures) {
             imagesInfo[imageIndex] = image->_getImageInfo();
             imageIndex += 1;
+        }
+        // initialize the rest of the image info array with the blank image
+        for (uint32_t i = imageIndex; i < imagesInfo.size(); i++) {
+            imagesInfo[i] = blankImage->_getImageInfo();
         }
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto commandBufferInfo = commandUniformBuffers[i]->descriptorInfo(commandUniformBufferSize);

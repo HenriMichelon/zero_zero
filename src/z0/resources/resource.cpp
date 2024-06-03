@@ -11,4 +11,13 @@ namespace z0 {
         replace(name.begin(), name.end(),  '/', '_');
     }
 
+    void Resource::_incrementReferenceCounter() {
+        refCount += 1;
+    }
+
+    bool Resource::_decrementReferenceCounter() {
+        refCount -= 1;
+        return refCount == 0;
+    }
+
 }

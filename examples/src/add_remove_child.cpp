@@ -1,4 +1,4 @@
-#include "example.h"
+#include "includes.h"
 #include "add_remove_child.h"
 
 void AddRemoveChildMainScene::onReady() {

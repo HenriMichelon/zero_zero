@@ -4,10 +4,10 @@ namespace z0 {
 
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        virtual // Add a model to the scene and update descriptor set
-        void addNode(const shared_ptr<Node>& node);
+        // Add a model to the scene and update descriptor set
+        virtual void addNode(const shared_ptr<Node>& node);
         // Remove a model to the scene and update descriptor set
-        void removeNode(const shared_ptr<Node>& node);
+        virtual void removeNode(const shared_ptr<Node>& node);
         // Change the active camera, disable the previous camera
         void activateCamera(const shared_ptr<Camera>& camera);
         // Cleanup all Vulkan ressources

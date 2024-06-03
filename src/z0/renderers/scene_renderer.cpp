@@ -51,6 +51,7 @@ namespace z0 {
             if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
+            material->_incrementReferenceCounter();
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture() != nullptr) addImage(standardMaterial->getAlbedoTexture()->getImage());
                 if (standardMaterial->getSpecularTexture() != nullptr) addImage(standardMaterial->getSpecularTexture()->getImage());
@@ -59,23 +60,31 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::addNode(const shared_ptr<z0::Node> &node) {
+    void SceneRenderer::addNode(const shared_ptr<Node> &node) {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
             skyboxRenderer->loadScene(skybox->getCubemap());
-
         } else {
             BaseModelsRenderer::addNode(node);
+        }
+    }
+
+    void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
+        if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
+            skyboxRenderer.reset();
+        } else {
+            BaseModelsRenderer::removeNode(node);
         }
     }
 
     void SceneRenderer::addedModel(z0::MeshInstance *meshInstance) {
         for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
             if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
-                if (materialShaders.count(shaderMaterial->getFileName()) == 0) {
+                if (!materialShaders.contains(shaderMaterial->getFileName())) {
                     materialShaders[shaderMaterial->getFileName()] = createShader(shaderMaterial->getFileName(),
                                                                                   VK_SHADER_STAGE_FRAGMENT_BIT,
                                                                                   0);
+                    materialShaders[shaderMaterial->getFileName()]->_incrementReferenceCounter();
                 }
             }
         }
@@ -86,9 +95,53 @@ namespace z0 {
         if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
         imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
         images.push_back(image.get());
+        image->_incrementReferenceCounter();
+    }
+
+    void SceneRenderer::removeImage(const shared_ptr<z0::Image> &image) {
+        if (find(images.begin(), images.end(), image.get()) != images.end()) {
+            if (image->_decrementReferenceCounter()) {
+                images.remove(image.get());
+                // Rebuild the image index
+                imagesIndices.clear();
+                uint32_t imageIndex = 0;
+                for(const auto& img : images) {
+                    imagesIndices[img->getId()] = static_cast<int32_t>(imageIndex);
+                    imageIndex += 1;
+                }
+            }
+        }
     }
 
     void SceneRenderer::removingModel(z0::MeshInstance *meshInstance) {
+        for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) {
+                if (material->_decrementReferenceCounter()) {
+                    if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
+                        if (standardMaterial->getAlbedoTexture() != nullptr)
+                            removeImage(standardMaterial->getAlbedoTexture()->getImage());
+                        if (standardMaterial->getSpecularTexture() != nullptr)
+                            removeImage(standardMaterial->getSpecularTexture()->getImage());
+                        if (standardMaterial->getNormalTexture() != nullptr)
+                            removeImage(standardMaterial->getNormalTexture()->getImage());
+                    } else if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
+                        const auto& shader = materialShaders[shaderMaterial->getFileName()];
+                        if (shader->_decrementReferenceCounter()) {
+                            materialShaders.erase(shaderMaterial->getFileName());
+                        }
+                    }
+                    materials.remove(material.get());
+                    // Rebuild the material index
+                    materialsIndices.clear();
+                    uint32_t materialIndex = 0;
+                    for (const auto &mat: materials) {
+                        materialsIndices[mat->getId()] = static_cast<int32_t>(materialIndex);
+                        materialIndex += 1;
+                    }
+                }
+            }
+        }
+
         auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
         if (it != opaquesModels.end()) {
             opaquesModels.erase(it);
@@ -234,9 +287,6 @@ namespace z0 {
             stbi_write_jpg_to_func(sc_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
             delete[] data;
             blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
-            for (auto &imageInfo: imagesInfo) {
-                imageInfo = blankImage->_getImageInfo();
-            }
         }
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
@@ -261,6 +311,10 @@ namespace z0 {
         for(const auto& image : images) {
             imagesInfo[imageIndex] = image->_getImageInfo();
             imageIndex += 1;
+        }
+        // initialize the rest of the image info array with the blank image
+        for (uint32_t i = imageIndex; i < imagesInfo.size(); i++) {
+            imagesInfo[i] = blankImage->_getImageInfo();
         }
 
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {

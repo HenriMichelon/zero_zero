@@ -12,6 +12,7 @@ namespace z0 {
 
         void cleanup() override;
         void addNode(const shared_ptr<Node>& node) override;
+        void removeNode(const shared_ptr<Node>& node) override;
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -91,6 +92,7 @@ namespace z0 {
         void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
 
         void addImage(const shared_ptr<Image>& image);
+        void removeImage(const shared_ptr<Image>& image);
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw);
 
     public:

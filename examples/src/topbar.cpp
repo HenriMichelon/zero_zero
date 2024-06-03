@@ -1,6 +1,7 @@
+#include "includes.h"
+#include "menu.h"
 #include "example.h"
 #include "topbar.h"
-#include "menu.h"
 
 TopBar::TopBar(): GWindow(Rect{0, 945, 1000, 55}) {}
 
@@ -24,6 +25,7 @@ void TopBar::onCreate() {
 
 void TopBar::onQuit(GWidget &, GEvent *) {
     Menu::menu->show();
+    Application::get().setRootNode(make_shared<ExampleMainScene>());
 }
 
 void TopBar::onProcess(float alpha) {

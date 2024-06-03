@@ -198,6 +198,7 @@ add_executable(${PROJECT_NAME}
 		${Z0_EXAMPLES_DIR}/layers.h
 		${Z0_EXAMPLES_DIR}/menu.h
 		${Z0_EXAMPLES_DIR}/menu.cpp
+		${Z0_EXAMPLES_DIR}/includes.h
 		${Z0_EXAMPLES_DIR}/example.h
 )
 
