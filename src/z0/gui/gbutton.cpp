@@ -18,9 +18,9 @@ namespace z0 {
         allowFocus = true;
     }
 
-    bool GButton::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
+    bool GButton::eventMouseUp(MouseButton B, float X, float Y) {
         const bool p = isPushed();
-        if (p && (!rect.contains(X, Y))) {
+        if (p && (!getRect().contains(X, Y))) {
             setPushed(false);
             resizeChildren();
             return GBox::eventMouseUp(B, X, Y);

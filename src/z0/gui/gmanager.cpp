@@ -2,6 +2,7 @@
 #ifndef USE_PCH
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
+#include "z0/nodes/node.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
@@ -9,6 +10,7 @@
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #include "z0/gui/gmanager.h"
+#include "z0/application.h"
 #endif
 
 namespace z0 {
@@ -80,10 +82,11 @@ namespace z0 {
             }
 #endif
             auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(inputEvent);
-            auto scaleX = vectorRenderer->SCALE.x / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().width);
-            auto scaleY = vectorRenderer->SCALE.y / static_cast<float>(vectorRenderer->getDevice().getSwapChainExtent().height);
-            auto x = static_cast<int32_t>(mouseInputEvent.getX() * scaleX);
-            auto y = static_cast<int32_t>(mouseInputEvent.getY() * scaleY);
+            const auto& wnd = Application::get().getWindow();
+            auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
+            auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
+            auto x = mouseInputEvent.getX() * scaleX;
+            auto y = mouseInputEvent.getY() * scaleY;
             for (auto& window: windows) {
                 auto consumed = false;
                 auto lx = x - window->getRect().x;

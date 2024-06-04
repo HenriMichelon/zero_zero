@@ -32,6 +32,7 @@ add_compile_definitions(VULKAN_STATS) # print some stats at the end of the execu
 if(MINGW)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
 endif()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 # compile GLSL shaders
 file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES

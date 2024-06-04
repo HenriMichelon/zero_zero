@@ -10,9 +10,6 @@ namespace z0 {
      */
     class VectorRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        // Default coordinates system scale [ 1000, 1000 ]
-        const vec2 SCALE{1000.0f };
-
         // Used when this renderer is the only renderer
         VectorRenderer(const Device& device,
                        const string& shaderDirectory);
@@ -21,14 +18,14 @@ namespace z0 {
                        const string& shaderDirectory,
                        shared_ptr<ColorFrameBufferHDR>& inputColorAttachmentHdr);
 
-        // Draw a single fragment point
-        void drawPoint(vec2 point);
         // Draw a 1-fragment width line
         void drawLine(vec2 start, vec2 end);
         // Draw a filled rectangle
         void drawFilledRect(const Rect& rect);
         // Draw a filled rectangle
-        void drawFilledRect(float x, float y, float w, float h, const shared_ptr<Image>& texture = nullptr);
+        void drawFilledRect(float x, float y,
+                            float w, float h,
+                            const shared_ptr<Image>& texture = nullptr);
         // Draw a rectangle filled with a text
         void drawText(const string&, shared_ptr<Font>& font,  const Rect& rect);
         void drawText(const string&, shared_ptr<Font>& font, float x, float y, float w, float h);
@@ -61,7 +58,6 @@ namespace z0 {
         // Drawind commands primitives
         enum Primitive {
             PRIMITIVE_NONE,
-            PRIMITIVE_POINT,
             PRIMITIVE_LINE,
             PRIMITIVE_RECT,
         };

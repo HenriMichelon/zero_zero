@@ -11,7 +11,8 @@ namespace z0 {
                        VkDeviceSize imageSize,
                        const void* data,
                        VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
-                       VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL);
+                       VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
+                       VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT);
         virtual ~Image();
 
         uint32_t getWidth() const { return width; }
@@ -31,7 +32,7 @@ namespace z0 {
         VkImageView     textureImageView;
         VkSampler       textureSampler;
 
-        void createTextureSampler();
+        void createTextureSampler(VkSamplerAddressMode);
         void generateMipmaps(VkFormat imageFormat);
 
     public:

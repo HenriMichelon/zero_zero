@@ -2,17 +2,18 @@
 #ifndef USE_PCH
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
+#include "z0/nodes/node.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
 #include "z0/gui/gwidget.h"
-#include "z0/gui/gpanel.h"
 #include "z0/gui/gtext.h"
+#include "z0/application.h"
 #endif
 
 namespace z0 {
 
-    GText::GText(string C): GPanel(TEXT), text(std::move(C)) {
+    GText::GText(string C): GWidget(TEXT), text(std::move(C)) {
         allowChildren = false;
         drawBackground = false;
     }
@@ -31,29 +32,17 @@ namespace z0 {
         call(GEvent::OnTextChange);
     }
 
-    void GText::setAutoSize(bool A) {
-        if (autoSize == A) return;
-        autoSize = A;
-        computeSize();
-    }
-
     void GText::eventCreate() {
         computeSize();
-        GPanel::eventCreate();
+        GWidget::eventCreate();
+    }
+
+    void GText::setSize(float w, float h) {
     }
 
     void GText::computeSize() {
         if (!text.empty()) {
-            uint32_t w, h;
-            getFont()->getSize(text, w, h);
-            if (autoSize) {
-                setSize(w, h);
-            } else {
-                setFreezed(true);
-                rect.height = h;
-                resizeChildren();
-                setFreezed(false);
-            }
+            getFont()->getSize(text,rect.width, rect.height);
         }
     }
 

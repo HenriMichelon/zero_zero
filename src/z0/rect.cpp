@@ -19,7 +19,7 @@ namespace z0 {
                 (height == R.height));
     }
 
-    bool Rect :: contains(int32_t X, int32_t Y) const {
+    bool Rect :: contains(float X, float Y) const {
         return ((X >= x) && (X < (x + width)) &&
                 (Y >= y) && (Y < (y + height)));
     }

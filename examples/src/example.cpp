@@ -16,8 +16,7 @@ private:
     void onCreate(GWidget&, GEvent*) {
         auto textLabel = make_shared<GText>(label);
         add(textLabel, CENTER);
-        setPadding(10);
-        setSize(500, textLabel->getHeight() + getPadding()*2);
+        setSize(500, textLabel->getHeight() + 20);
     }
 };
 
@@ -25,24 +24,31 @@ void ExampleMainScene::onReady() {
     menu = make_shared<GWindow>(Rect{250, 250, 500, 500});
     Application::addWindow(menu);
 
-    menu->getWidget().setDrawBackground(false);
-    menu->getWidget().setPadding(10);
+    float height = 50;
 
     auto entryTriangle = make_shared<GMenuEntry>("Triangles & shaders");
     entryTriangle->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuTriangle));
     menu->getWidget().add(entryTriangle, GWidget::TOPCENTER);
+    height += entryTriangle->getHeight();
 
     auto entryAddRemoveChild = make_shared<GMenuEntry>("Add & remove child");
     entryAddRemoveChild->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuAddRemoveChild));
     menu->getWidget().add(entryAddRemoveChild, GWidget::TOPCENTER);
+    height += entryAddRemoveChild->getHeight();
 
     auto entryPhysics = make_shared<GMenuEntry>("Physics");
     entryPhysics->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuPhysics));
     menu->getWidget().add(entryPhysics, GWidget::TOPCENTER);
+    height += entryPhysics->getHeight();
 
     auto entryQuit = make_shared<GMenuEntry>("Quit");
     entryQuit->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuQuit));
     menu->getWidget().add(entryQuit, GWidget::TOPCENTER);
+    height += entryQuit->getHeight();
+
+    menu->getWidget().setDrawBackground(true);
+    menu->getWidget().setPadding(10);
+    menu->setHeight(height);
 
     topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
     Application::addWindow(topbar);
@@ -90,7 +96,7 @@ const ApplicationConfig applicationConfig {
     .windowWidth = 800,
     .windowHeight = 600,
     .defaultFontName = "examples/Signwood.ttf",
-    .defaultFontSize = 16
+    .defaultFontSize = 30
 };
 
 Application application(applicationConfig,make_shared<ExampleMainScene>());

@@ -10,10 +10,10 @@ namespace z0 {
             LOWERED
         };
 
-        Style		style{FLAT};
-        uint32_t	width{0};
-        uint32_t	height{0};
-        bool		flat{false};
+        Style	style{FLAT};
+        float	width{0};
+        float	height{0};
+        bool	flat{false};
 
         explicit GStyleClassicResource(const string&);
 

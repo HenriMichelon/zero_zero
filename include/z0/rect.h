@@ -4,16 +4,16 @@ namespace z0 {
 
     struct Rect {
         /*! Bottom-Left corner */
-        int32_t	x{0};
+        float	x{0.0f};
         /*! Bottom-Left corner */
-        int32_t	y{0};
+        float	y{0.0f};
         /*! Width */
-        int32_t width{0};
+        float width{0.0f};
         /*! Height  */
-        int32_t height{0};
+        float height{0.0f};
 
         /*! Return true if the given point is inside the rect */
-        bool contains(int32_t X, int32_t Y) const;
+        bool contains(float X, float Y) const;
 
         /*! Return true if the given rect is inside the rect */
         bool contains(const Rect&) const;

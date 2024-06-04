@@ -54,12 +54,12 @@ namespace z0 {
         }
     }
 
-    void GWidget::setPos(int32_t x, int32_t y) {
+    void GWidget::setPos(float x, float y) {
         if ((x == rect.x) && (y == rect.y)) return;
         eventMove(x, y);
     }
 
-    void GWidget::setSize(int32_t W, int32_t H) {
+    void GWidget::setSize(float W, float H) {
         if (parent) { parent->refresh(); }
         rect.width = W;
         rect.height = H;
@@ -137,7 +137,7 @@ namespace z0 {
     }
 
     void GWidget::init(GWidget&WND, AlignmentType ALIGN,
-                       const string&RES, int32_t P) {
+                       const string&RES, float P) {
         WND.padding = P;
         WND.alignment = ALIGN;
         if (!WND.font) { WND.font = font; }
@@ -174,7 +174,7 @@ namespace z0 {
     shared_ptr<GWidget> GWidget::add(shared_ptr<GWidget>WND,
                                      AlignmentType ALIGN,
                                      const string RES,
-                                     int32_t P) {
+                                     float P) {
         assert(window && "GWidget must be added to a window before adding child");
         if (!allowChildren) return WND;
         children.push_back(WND);
@@ -189,18 +189,6 @@ namespace z0 {
         //PRE(FUNC, "Invalid method for event slot connection");
         slots[TYP].obj = OBJ;
         slots[TYP].func = FUNC;
-    }
-
-    void GWidget::simulate(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
-        switch (TYP) {
-            case GEvent::OnClick:
-                eventMouseDown(MouseButton::MOUSE_BUTTON_LEFT,getRect().x, getRect().y);
-                eventMouseUp(MouseButton::MOUSE_BUTTON_LEFT, getRect().x, getRect().y);
-                break;
-            default:
-                call(TYP, std::move(EVT));
-                break;
-        }
     }
 
     bool GWidget::call(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
@@ -260,9 +248,9 @@ namespace z0 {
         refresh();
     }
 
-    void GWidget::eventMove(int32_t X, int32_t Y) {
-        int32_t diffX = rect.x - X;
-        int32_t diffY = rect.y - Y;
+    void GWidget::eventMove(float X, float Y) {
+        float diffX = rect.x - X;
+        float diffY = rect.y - Y;
         rect.x = X;
         rect.y = Y;
         for (auto& w: children) {
@@ -281,7 +269,7 @@ namespace z0 {
         }
         resizeChildren();
         freeze = true;
-        if (rect.width && rect.height) {
+        if ((rect.width != 0.0f) && (rect.height != 0.0f)) {
             auto event = make_shared<GEventSize>(rect.width, rect.height);
             call(GEvent::OnResize, event);
         }
@@ -290,8 +278,8 @@ namespace z0 {
     }
 
     bool GWidget::clipRect(Rect&R, const Rect& R1, const Rect& R2) {
-        if ((!R1.width) || (!R1.height) ||
-            (!R2.width) || (!R2.height)) {
+        if ((R1.width == 0.0f) || (R1.height == 0.0f) ||
+            (R2.width == 0.0f) || (R2.height == 0.0f)) {
             return false;
         }
         if (R1.x > R2.x) {
@@ -314,17 +302,17 @@ namespace z0 {
     }
 
     void GWidget::maxRect(Rect&R, const Rect A, const Rect B) {
-        if ((!A.width) || (!A.height)) {
+        if ((A.width == 0.0f) || (A.height == 0.0f)) {
             R = B;
         }
-        else if ((!B.width) || (!B.height)) {
+        else if ((B.width == 0.0f) || (B.height == 0.0f)) {
             R = A;
         }
         else {
-            R.width = std::max(0, std::max(A.x + int32_t(A.width), B.x + int32_t(B.width)));
-            R.height = std::max(0, std::max(A.y + int32_t(A.height), B.y + int32_t(B.height)));
-            R.x = std::max(0, std::min(A.x, B.x));
-            R.y = std::max(0, std::min(A.y, B.y));
+            R.width = std::max(0.0f, std::max(A.x + A.width, B.x + B.width));
+            R.height = std::max(0.0f, std::max(A.y + A.height, B.y + B.height));
+            R.x = std::max(0.0f, std::min(A.x, B.x));
+            R.y = std::max(0.0f, std::min(A.y, B.y));
             R.width -= R.x;
             R.height -= R.y;
         }
@@ -354,8 +342,8 @@ namespace z0 {
         if (pushed && moveChildsOnPush) {
             clientRect.x += 1;
             clientRect.y -= 1;
-            clientRect.width -= 1;
-            clientRect.height -= 1;
+            //clientRect.width -= 1;
+            //clientRect.height -= 1;
         }
         auto it = children.begin();
         while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {
@@ -397,7 +385,7 @@ namespace z0 {
                     childRect.width = clientRect.width;
                     clientRect.y += (childRect.height) + padding;
                     //arect.y = min(rect.height, arect.y + wrect.height + padding);
-                    clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case LEFT:
                     childRect.x = clientRect.x;
@@ -405,19 +393,19 @@ namespace z0 {
                     childRect.height = clientRect.height;
                     clientRect.x += (childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case TOP:
                     childRect.x = clientRect.x;
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                    clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
                     childRect.width = clientRect.width;
                     break;
                 case RIGHT:
                     childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     childRect.y = clientRect.y;
                     childRect.height = clientRect.height;
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMCENTER:
                     childRect.y = clientRect.y;
@@ -430,19 +418,19 @@ namespace z0 {
                 case TOPCENTER:
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
-                    clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case LEFTCENTER:
                     childRect.x = clientRect.x;
                     childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                     clientRect.x +=(childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTCENTER:
                     childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case BOTTOMLEFT:
                     childRect.x = clientRect.x;
@@ -455,12 +443,12 @@ namespace z0 {
                 case TOPLEFT:
                     childRect.x = clientRect.x;
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                    clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case TOPRIGHT:
                     childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                    clientRect.height = std::max(0, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
                     break;
                 case BOTTOMRIGHT:
                     childRect.y = clientRect.y;
@@ -475,24 +463,24 @@ namespace z0 {
                     childRect.y = clientRect.y;
                     clientRect.x += (childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case LEFTTOP:
                     childRect.x = clientRect.x;
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
                     clientRect.x += (childRect.width) + padding;
                     //arect.x = min(rect.width, arect.x + wrect.width + padding);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTTOP:
                     childRect.x = clientRect.x + (clientRect.width - childRect.width);
                     childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case RIGHTBOTTOM:
                     childRect.y = clientRect.y;
                     childRect.x = clientRect.x + (clientRect.width - childRect.width);
-                    clientRect.width = std::max(0, (clientRect.width - (childRect.width + 2 * padding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding)));
                     break;
                 case CORNERBOTTOMLEFT:
                     childRect.x = clientRect.x;
@@ -515,8 +503,9 @@ namespace z0 {
                 default:
                     break;
             }
-            child->rect = childRect;
-            child->eventResize();
+            child->setRect(childRect);
+            //child->rect = childRect;
+            //child->eventResize();
             ++it;
         }
         freeze = false;
@@ -539,7 +528,7 @@ namespace z0 {
         return false;
     }
 
-    bool GWidget::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
+    bool GWidget::eventMouseDown(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
         bool consumed = false;
         pushed = true;
@@ -563,7 +552,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWidget::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
+    bool GWidget::eventMouseUp(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
         bool consumed = false;
         pushed = false;
@@ -582,7 +571,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWidget::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
+    bool GWidget::eventMouseMove(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
         bool consumed = false;
         bool p = rect.contains(X, Y);
@@ -619,7 +608,7 @@ namespace z0 {
         refresh();
     }
 
-    void GWidget::setPadding(int32_t P) {
+    void GWidget::setPadding(float P) {
         padding = P;
         eventResize();
     }
@@ -640,7 +629,7 @@ namespace z0 {
         }
     }
 
-    void GWidget::setFont(shared_ptr<Font>&F) {
+    void GWidget::setFont(const shared_ptr<Font>& F) {
         font = F;
         resizeChildren();
         refresh();
@@ -689,7 +678,7 @@ namespace z0 {
         return rect;
     }
 
-    void GWidget::setRect(int32_t L, int32_t T, uint32_t W, uint32_t H) {
+    void GWidget::setRect(float L, float T, float W, float H) {
         setPos(L, T);
         setSize(W, H);
     }
@@ -710,25 +699,25 @@ namespace z0 {
         return redrawOnMouseEvent;
     }
 
-    int32_t GWidget::getPadding() const {
+    float GWidget::getPadding() const {
         return padding;
     }
 
-    int32_t GWidget::getVBorder() const {
+    float GWidget::getVBorder() const {
         return vborder;
     }
 
-    int32_t GWidget::getHBorder() const {
+    float GWidget::getHBorder() const {
         return hborder;
     }
 
-    void GWidget::setVBorder(int32_t B) {
+    void GWidget::setVBorder(float B) {
         vborder = B;
         if (!freeze) { resizeChildren(); }
         refresh();
     }
 
-    void GWidget::setHBorder(int32_t B) {
+    void GWidget::setHBorder(float B) {
         hborder = B;
         if (!freeze) { resizeChildren(); }
         refresh();

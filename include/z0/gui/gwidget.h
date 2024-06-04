@@ -14,22 +14,22 @@ namespace z0 {
             SCROLLBOX,			// A box with scrollbars
             LINE,				// An horizontal or vertical line
             FRAME,				// A box with a title
-            ARROW,				// up, down, left or right directed arrows
+            //ARROW,				// up, down, left or right directed arrows
             BUTTON,				// rectangular button
             TOGGLEBUTTON,		// two states rectangular button
-            CHECKMARK,			// Cross or check mark drawing
-            CHECKBUTTON,		// Button with a checkmark inside
+            //CHECKMARK,			// Cross or check mark drawing
+            //CHECKBUTTON,		// Button with a checkmark inside
             //RADIOBUTTON,		// two states radio box
             TEXT,				// single line text
             TEXTEDIT,			// single line text edition field
             //MEMOEDIT,			// multi lines text edition field
-            UPDOWN,				// up & down (or left & right) buttons
-            SCROLLBAR,			// scroll bar. with min, max & pos
-            TRACKBAR,			// horizontal track bar. with min, max, pos & step
-            ROUNDBUTTON,		// round button. with min, max, pos & step
-            PROGRESSBAR,		// progression bar. with min, max & pos
-            PICTURE,			// Pixmap
-            LISTBOX,			// selection list with scrollbar
+            //UPDOWN,				// up & down (or left & right) buttons
+            //SCROLLBAR,			// scroll bar. with min, max & pos
+            //TRACKBAR,			// horizontal track bar. with min, max, pos & step
+            //ROUNDBUTTON,		// round button. with min, max, pos & step
+            //PROGRESSBAR,		// progression bar. with min, max & pos
+            //PICTURE,			// Pixmap
+            //LISTBOX,			// selection list with scrollbar
             //DROPLIST,			// drop down list
             //DROPEDITLIST, 	// drop down list with a TEXTENTRY
             //MENU,
@@ -39,11 +39,11 @@ namespace z0 {
             //TOOLTIPS,
             //STATUSPANEL,
             //SPLITTER,
-            GRID,
-            GRIDCELL,
-            TABBUTTON,			// button for TABPAGE
-            TABS,
-            SELECTION
+            //GRID,
+            //GRIDCELL,
+            //TABBUTTON,			// button for TABPAGE
+            //TABS,
+            //SELECTION
         };
 
 
@@ -97,33 +97,33 @@ namespace z0 {
         void enable(bool = true);
 
         /* Move the widget to a particular position.
-             int32_t	: Left position in pixels
-             int32_t	: top position in pixels
+             float	: Left position in pixels
+             float	: top position in pixels
          */
-        void setPos(int32_t, int32_t);
+        void setPos(float, float);
 
         //! Return the width of the widget, in pixels
-        int32_t getWidth() const { return rect.width; };
+        float getWidth() const { return rect.width; };
 
         //! Return the height of the widget, in pixels
-        int32_t getHeight() const { return rect.height; };
+        float getHeight() const { return rect.height; };
 
         /* Resize the widget
-             int32_t	: width in pixels
-             int32_t	: height in pixels
+             float	: width in pixels
+             float	: height in pixels
         */
-        void setSize(int32_t, int32_t);
+        virtual void setSize(float, float);
 
         /* Return size size & position of the widget */
         const Rect& getRect() const;
 
         /* Change the size & position of the widget
-          	int32_t	: left position in pixels
-          	int32_t	: bottom position in pixels
-          	uint32_t	: width in pixels
-          	uint32_t	: height in pixels
+          	float	: left position in pixels
+          	float	: bottom position in pixels
+          	float	: width in pixels
+          	float	: height in pixels
         */
-        void setRect(int32_t, int32_t, uint32_t, uint32_t);
+        void setRect(float, float, float, float);
 
         /* Change the size & position of the widget
           	GRect	: size & position, all in pixels
@@ -141,7 +141,7 @@ namespace z0 {
         shared_ptr<Font>& getFont();
 
         //! Set the current font of the widget
-        void setFont(shared_ptr<Font>&);
+        void setFont(const shared_ptr<Font>&);
 
         //! Return true if the widget have keyboard focus
         bool isFocused() const;
@@ -159,9 +159,9 @@ namespace z0 {
             	GWidget	: child widget to add
             	AlignementType	: placement
             	string	: resource string
-            	int32_t	: default padding
+            	float	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", int32_t = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", float = 0);
 
         /* Remove a child widget */
         virtual void remove(shared_ptr<GWidget>&);
@@ -170,15 +170,15 @@ namespace z0 {
         virtual void removeAll();
 
         /* Change children padding (space between children) */
-        void setPadding(int32_t);
+        void setPadding(float);
 
         /* Return current children padding (space between children) */
-        int32_t getPadding() const;
+        float getPadding() const;
 
-        int32_t getVBorder() const;
-        int32_t getHBorder() const;
-        void setVBorder(int32_t);
-        void setHBorder(int32_t);
+        float getVBorder() const;
+        float getHBorder() const;
+        void setVBorder(float);
+        void setHBorder(float);
 
         bool isDrawBackground() const;
         void setDrawBackground(bool);
@@ -208,11 +208,6 @@ namespace z0 {
         */
         bool call(GEvent::Type, shared_ptr<GEvent> = nullptr);
 
-        /* Simulate a user/system event
-          	EventType	: event to simulate
-        */
-        void simulate(GEvent::Type,  shared_ptr<GEvent> = nullptr);
-
         /* Change widget resources. Use with caution ! */
         void setResource(shared_ptr<GResource>);
 
@@ -237,9 +232,10 @@ namespace z0 {
         void setTransparency(float alpha);
 
     protected:
-        int32_t			          hborder{0};
-        int32_t			          vborder{0};
-        int32_t		              padding{0};
+        Rect			          rect;
+        float			          hborder{0};
+        float			          vborder{0};
+        float		              padding{0};
         bool			          focused{false};
         bool			          allowFocus{false};
         bool			          allowChildren{true};
@@ -249,7 +245,6 @@ namespace z0 {
         bool			          redrawOnMouseMove{false};
         bool			          mouseMoveOnFocus{false};
         float                     transparency{1.0f};
-        Rect			          rect;
         GWidget*		          parent{nullptr};
         GWindow*		          window{nullptr};
         Type		              type;
@@ -269,13 +264,13 @@ namespace z0 {
         virtual void eventHide();
         virtual void eventEnable();
         virtual void eventDisable();
-        virtual void eventMove(int32_t, int32_t);
+        virtual void eventMove(float, float);
         virtual void eventResize();
         virtual bool eventKeybDown(Key);
         virtual bool eventKeybUp(Key);
-        virtual bool eventMouseDown(MouseButton, int32_t, int32_t);
-        virtual bool eventMouseUp(MouseButton, int32_t, int32_t);
-        virtual bool eventMouseMove(MouseButton, int32_t, int32_t);
+        virtual bool eventMouseDown(MouseButton, float, float);
+        virtual bool eventMouseUp(MouseButton, float, float);
+        virtual bool eventMouseMove(MouseButton, float, float);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
 
@@ -299,7 +294,7 @@ namespace z0 {
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void init(GWidget&, AlignmentType, const string&, int32_t);
+        void init(GWidget&, AlignmentType, const string&, float);
     };
 
 }

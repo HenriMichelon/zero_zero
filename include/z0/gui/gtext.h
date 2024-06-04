@@ -3,7 +3,7 @@
 namespace z0 {
 
     // A widget to display a line of text
-    class GText: public GPanel {
+    class GText: public GWidget {
     public:
         explicit GText(string);
 
@@ -11,24 +11,15 @@ namespace z0 {
         void setText(const string&);
         void setTextColor(Color c);
         Color getTextColor() const { return textColor; }
+        void setSize(float, float) override;
 
-        // get automatic sizing flag
-        bool isAutoSize() const { return autoSize; };
-
-        // set automatic sizing flag
-        //	bool	: TRUE = auto size when text is changed
-        void setAutoSize(bool);
-
-        void computeSize();
-
-    protected:
+    private:
         string	text;
         Color   textColor;
 
+        void computeSize();
         void eventCreate() override;
 
-    private:
-        bool	autoSize{true};
     };
 
 }

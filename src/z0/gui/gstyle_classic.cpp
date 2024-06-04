@@ -115,7 +115,7 @@ namespace z0 {
         switch (W.getType()) {
             case GWidget::BOX:
             case GWidget::BUTTON:
-            case GWidget::TABBUTTON:
+            //case GWidget::TABBUTTON:
                 W.setVBorder(2);
                 W.setHBorder(2);
                 break;
@@ -230,10 +230,10 @@ namespace z0 {
 
     void GStyleClassic::drawBox(const GWidget&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
-        uint32_t l = W.getRect().x;
-        uint32_t b = W.getRect().y;
-        uint32_t w = W.getRect().width;
-        uint32_t h = W.getRect().height;
+        float l = W.getRect().x;
+        float b = W.getRect().y;
+        float w = W.getRect().width;
+        float h = W.getRect().height;
         auto fd = fgDown;
         auto fu = fgUp;
         fd.color.a = W.getTransparency();
@@ -346,32 +346,20 @@ namespace z0 {
     }
 
     void GStyleClassic::drawText(GText&W, GStyleClassicResource&RES, VectorRenderer&D) const {
-        if ((W.getWidth() == 0) && (!W.getText().empty())) {
-            W.computeSize();
-        }
-        drawPanel(W, RES, D);
         D.setPenColor(Color{W.getTextColor().color.r,
                             W.getTextColor().color.g,
                             W.getTextColor().color.b,
                             W.getTransparency()});
-        uint32_t w, h;
-        W.getFont()->getSize(W.getText(), w, h);
-        if (w > W.getRect().width) {
-            w = W.getRect().width;
-        }
-        if (h > W.getRect().height) {
-            h = W.getRect().height;
-        }
-        D.drawText(W.getText(), W.getFont(), W.getRect().x, W.getRect().y, w, h);
+        D.drawText(W.getText(), W.getFont(), W.getRect());
     }
 
     void GStyleClassic::drawFrame(GFrame&W, GStyleClassicResource&RES, VectorRenderer&D) const {
         if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
         const int32_t LEFTOFFSET = 8;
-        uint32_t l = W.getRect().x;
-        uint32_t b = W.getRect().y;
-        uint32_t w = W.getRect().width;
-        uint32_t h = W.getRect().height;
+        float l = W.getRect().x;
+        float b = W.getRect().y;
+        float w = W.getRect().width;
+        float h = W.getRect().height;
         Color c1;
         Color c2;
         auto sb = shadowBright;
@@ -392,7 +380,7 @@ namespace z0 {
                 c2 = sd;
                 break;
         }
-        uint32_t fh, fw;
+        float fh, fw;
         W.getFont()->getSize(W.getText(), fw, fh);
         D.setPenColor(c2);
         if ((!W.getText().empty()) && (W.getWidth() >= fw) && (W.getHeight() >= fh)) {

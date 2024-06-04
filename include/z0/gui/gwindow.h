@@ -24,27 +24,27 @@ namespace z0 {
 
         /* Set the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
-        GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", int32_t = 0);
+        GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", float = 0);
 
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
         /* Return the width of the client area */
-        int32_t getWidth() const { return rect.width; };
+        float getWidth() const { return rect.width; };
 
         /* Return the height of the client area */
-        int32_t getHeight() const { return rect.height; };
+        float getHeight() const { return rect.height; };
 
         /* Set the width of the client area */
-        void setWidth(int32_t w);
+        void setWidth(float w);
 
         /* Set the height of the client area */
-        void setHeight(int32_t h);
+        void setHeight(float h);
 
         /* Set the position of the window, bottom-left */
-        void setPos(int32_t x, int32_t y);
+        void setPos(float x, float y);
 
-        void setX(int32_t);
-        void setY(int32_t);
+        void setX(float);
+        void setY(float);
 
         /* Return the size & position of the widget */
         const Rect& getRect() const { return rect; };
@@ -88,13 +88,13 @@ namespace z0 {
         virtual bool onKeyUp(Key) { return false; };
 
         /* Event called when a mouse button was pressed inside the window */
-        virtual bool onMouseDown(MouseButton, uint32_t, uint32_t) { return false; };
+        virtual bool onMouseDown(MouseButton, float, float) { return false; };
 
         /* Event called when a mouse button was released inside the window */
-        virtual bool onMouseUp(MouseButton, uint32_t, uint32_t) { return false; };
+        virtual bool onMouseUp(MouseButton, float, float) { return false; };
 
         /* Event called when mouse is moved above the window client area */
-        virtual bool onMouseMove(MouseButton, uint32_t, uint32_t) { return false; };
+        virtual bool onMouseMove(MouseButton, float, float) { return false; };
 
         /* Event called when the window got the keyboard focus */
         virtual void onGotFocus() {};
@@ -109,7 +109,7 @@ namespace z0 {
         Rect                rect;
         GManager*           windowManager{nullptr};
         bool                visible{true};
-        shared_ptr<GStyle> layout{nullptr};
+        shared_ptr<GStyle>  layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};
         float               transparency{1.0};
@@ -127,9 +127,9 @@ namespace z0 {
         void eventHide();
         bool eventKeybDown(Key);
         bool eventKeybUp(Key);
-        bool eventMouseDown(MouseButton, int32_t, int32_t);
-        bool eventMouseUp(MouseButton, int32_t, int32_t);
-        bool eventMouseMove(MouseButton, int32_t, int32_t);
+        bool eventMouseDown(MouseButton, float, float);
+        bool eventMouseUp(MouseButton, float, float);
+        bool eventMouseMove(MouseButton, float, float);
         void eventGotFocus();
         void eventLostFocus();
     };

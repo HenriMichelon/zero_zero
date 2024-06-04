@@ -18,9 +18,9 @@ namespace z0 {
         allowFocus = true;
     }
 
-    bool GToggleButton::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
+    bool GToggleButton::eventMouseDown(MouseButton B, float X, float Y) {
         bool r = GCheckWidget::eventMouseDown(B, X, Y);
-        if (rect.contains(X, Y)) {
+        if (getRect().contains(X, Y)) {
             if (call(GEvent::OnClick)) { return true; }
         }
         return r;

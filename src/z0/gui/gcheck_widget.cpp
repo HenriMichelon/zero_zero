@@ -14,7 +14,7 @@ namespace z0 {
     GCheckWidget::GCheckWidget(Type T): GWidget{T} {}
 
     bool GCheckWidget::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
-        if (rect.contains(X, Y)) {
+        if (getRect().contains(X, Y)) {
             if (state == CHECK) {
                 setState(UNCHECK);
             } else {

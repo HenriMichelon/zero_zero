@@ -15,6 +15,9 @@ namespace z0 {
     constexpr vec3 VEC3ZERO{0.0};
     constexpr mat3 TRANSFORM_BASIS{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
+    // 2D default coordinates system scale [ 1000, 1000 ]
+    constexpr vec2 VECTOR_SCALE{1000.0f };
+
     enum ProcessMode {
         PROCESS_MODE_INHERIT    = 0,
         PROCESS_MODE_PAUSABLE   = 1,

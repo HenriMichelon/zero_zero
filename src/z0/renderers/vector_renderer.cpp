@@ -34,16 +34,9 @@ namespace z0 {
         if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
     }
 
-    void VectorRenderer::drawPoint(vec2 point) {
-        point = (point + translate) / SCALE;
-        vertices.emplace_back(point);
-        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
-        commands.emplace_back(PRIMITIVE_POINT, 1, color);
-    }
-
     void VectorRenderer::drawLine(vec2 start, vec2 end) {
-        start = (start + translate) / SCALE;
-        end = (end + translate) / SCALE;
+        start = (start + translate) / VECTOR_SCALE;
+        end = (end + translate) / VECTOR_SCALE;
         vertices.emplace_back(start );
         vertices.emplace_back(end);
         auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
@@ -57,9 +50,11 @@ namespace z0 {
                        static_cast<float>(rect.height));
     }
 
-    void VectorRenderer::drawFilledRect(float x, float y, float w, float h, const shared_ptr<Image>& texture) {
-        const auto pos = (vec2{x, y} + translate) / SCALE;
-        const auto size = vec2{w, h} / SCALE;
+    void VectorRenderer::drawFilledRect(float x, float y,
+                                        float w, float h,
+                                        const shared_ptr<Image>& texture) {
+        const auto pos = (vec2{x, y} + translate) / VECTOR_SCALE;
+        const auto size = vec2{w, h} / VECTOR_SCALE;
         /*
          * v1 ---- v3
          * |  \     |
@@ -85,11 +80,7 @@ namespace z0 {
     }
 
     void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect) {
-        drawText(text, font,
-                       static_cast<float>(rect.x),
-                       static_cast<float>(rect.y),
-                       static_cast<float>(rect.width),
-                       static_cast<float>(rect.height));
+        drawText(text, font,rect.x,rect.y,rect.width,rect.height);
     }
 
     void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, float x, float y, float w, float h) {
@@ -189,7 +180,6 @@ namespace z0 {
         uint32_t commandIndex = 0;
         for (const auto& command : commands) {
             vkCmdSetPrimitiveTopologyEXT(commandBuffer,
-                                         command.primitive == PRIMITIVE_POINT ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST :
                                          command.primitive == PRIMITIVE_LINE ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST :
                                          VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
             array<uint32_t, 1> offsets = {

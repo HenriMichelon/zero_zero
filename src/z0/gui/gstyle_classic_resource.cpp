@@ -14,10 +14,10 @@ namespace z0 {
     void GStyleClassicResource::splitResString(const string&RES) {
         auto res = split(RES, ',');
         if ((!res.empty()) && (!res[0].empty())) {
-            width = stoul(string{res[0]});
+            width = stof(string{res[0]});
         }
         if ((res.size() > 1) && (!res[1].empty())) {
-            height = stoul(string{res[1]});
+            height = stof(string{res[1]});
         }
         if ((res.size() > 2) && (!res[2].empty())) {
             if (res[2] == "RAISED") { style = RAISED; }

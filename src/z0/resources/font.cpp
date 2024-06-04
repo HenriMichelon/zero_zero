@@ -6,20 +6,18 @@
 
 namespace z0 {
 
-    void Font::getSize(const std::string &str, uint32_t&width, uint32_t&height) {
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        auto wideString= converter.from_bytes(str);
+    void Font::getSize(const std::string &str, float& width, float& height) {
         width = 0;
         uint32_t max_height = 0;
         uint32_t max_descender = 0;
-        for (wchar_t wc : wideString) {
+        for (auto wc : str) {
             auto& cchar = getFromCache(wc);
-            width += cchar.advance;
+            width += static_cast<float>(cchar.advance);
             auto descender = cchar.height - cchar.yBearing;
             max_height = std::max(max_height, cchar.height);
             max_descender = std::max(max_descender, descender);
         }
-        height = max_height + max_descender;
+        height = static_cast<float>(max_height + max_descender);
     }
 
     Font::CachedCharacter& Font::getFromCache(char CHAR) {
@@ -32,8 +30,8 @@ namespace z0 {
         }
     }
 
-    vector<uint32_t> Font::renderToBitmap(const std::string &str, uint32_t&width, uint32_t&height) {
-        width = 0;
+    vector<uint32_t> Font::renderToBitmap(const std::string &str, float&wwidth, float&hheight) {
+        uint32_t width = 0;
         uint32_t max_height = 0;
         uint32_t max_descender = 0;
         for (auto wc : str) {
@@ -43,7 +41,7 @@ namespace z0 {
             max_height = std::max(max_height, cchar.height);
             max_descender = std::max(max_descender, descender);
         }
-        height = max_height + max_descender;
+        uint32_t height = max_height + max_descender;
 
         auto bitmap = vector<uint32_t>(width * height, 0);
         int32_t x = 0;
@@ -60,18 +58,25 @@ namespace z0 {
             }
             x += cchar.advance;
         }
+        wwidth = static_cast<float>(width);
+        hheight = static_cast<float>(height);
         return bitmap;
     }
 
     shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
-        uint32_t width, height;
+        float width, height;
         auto bitmap = renderToBitmap(str, width, height);
+        //stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
         return make_shared<Image>(device,
                                   str,
                                   width,
                                   height,
-                                  width * height * STBI_rgb_alpha,
-                                  bitmap.data());
+                                  static_cast<int>(width * height) * STBI_rgb_alpha,
+                                  bitmap.data(),
+                                  VK_FORMAT_R8G8B8A8_SRGB,
+                                  VK_IMAGE_TILING_OPTIMAL,
+                                  VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER // don't repeat texture
+                                  );
     }
 
 #ifdef FT_FREETYPE_H
@@ -79,25 +84,24 @@ namespace z0 {
     FT_Library Font::library{nullptr};
     uint32_t Font::libraryRef{0};
 
-    Font::Font(const string&name, uint32_t size): Resource{name} {
+    Font::Font(const string&_name, uint32_t _size):
+        Resource{_name}, path{_name}, size{_size} {
         if (library == nullptr) {
             if (FT_Init_FreeType(&library)) {
                 die("Could not initialize FreeType library");
             }
         }
         libraryRef += 1;
+        FT_Library_SetLcdFilter(library, FT_LCD_FILTER_LIGHT);
         // Load a font face from a file
-        if (FT_New_Face(library, name.c_str(), 0, &face)) {
-            die("Could not load font ", name);
+        if (FT_New_Face(library, path.c_str(), 0, &face)) {
+            die("Could not load font ", path);
         }
-#ifdef _WIN32
-        HDC screen = GetDC(nullptr); // Get the device context of the entire screen
-        int dpiX = GetDeviceCaps(screen, LOGPIXELSX); // Horizontal DPI
-        int dpiY = GetDeviceCaps(screen, LOGPIXELSY); // Vertical DPI
-        ReleaseDC(nullptr, screen);
-#endif
         // Set the character size
-        FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size)*64, dpiX, dpiY);
+        // Use 96 DPI for the 2D virtual space
+        FT_Set_Char_Size(face,
+                         0, static_cast<FT_F26Dot6>(size)*64,
+                         96, 96);
     }
 
     Font::~Font() {
@@ -148,8 +152,10 @@ namespace z0 {
                 if (gray != 0) { dstBitmap[y * width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray; };
             }
         }
-        //__saveBitmapAsPGM("output.pgm", srcBitmap.buffer, width, height);
-        //STBI_rgb_alphastbi_write_png("glyph.png", width, height, STBI_rgb_alpha, dstBitmap, width * STBI_rgb_alpha);
+        /*string name(1,wchar);
+        name = name.append(".pgm");
+        __saveBitmapAsPGM(name.c_str(), srcBitmap.buffer, width, height);*/
+        //stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, dstBitmap, width * STBI_rgb_alpha);
     }
 
 #endif

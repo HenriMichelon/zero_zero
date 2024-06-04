@@ -14,7 +14,8 @@ namespace z0 {
                  VkDeviceSize imageSize,
                  const void* data,
                  VkFormat format,
-                 VkImageTiling tiling):
+                 VkImageTiling tiling,
+                 VkSamplerAddressMode samplerAddressMode):
             Resource(name),
             device{dev},
             width{w},
@@ -77,7 +78,7 @@ namespace z0 {
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
         generateMipmaps(format);
-        createTextureSampler();
+        createTextureSampler(samplerAddressMode);
 #ifdef VULKAN_STATS
         VulkanStats::get().imagesCount += 1;
 #endif
@@ -207,15 +208,15 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Samplers
-    void Image::createTextureSampler() {
+    void Image::createTextureSampler(VkSamplerAddressMode samplerAddressMode) {
         const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 .magFilter = VK_FILTER_LINEAR,
                 .minFilter = VK_FILTER_LINEAR,
                 .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-                .addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                .addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                .addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                .addressModeU = samplerAddressMode,
+                .addressModeV = samplerAddressMode,
+                .addressModeW = samplerAddressMode,
                 .mipLodBias = 0.0f, // Optional
                 .anisotropyEnable = VK_TRUE, // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Anisotropy-device-feature
                 .maxAnisotropy = device.getDeviceProperties().limits.maxSamplerAnisotropy,
@@ -223,7 +224,7 @@ namespace z0 {
                 .compareOp = VK_COMPARE_OP_ALWAYS,
                 .minLod =  0.0f,
                 .maxLod = static_cast<float>(mipLevels),
-                .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+                .borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK ,
                 .unnormalizedCoordinates = VK_FALSE,
         };
         if (vkCreateSampler(device.getDevice(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {

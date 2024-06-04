@@ -8,6 +8,8 @@ TopBar::TopBar(GEventHandler* handler, GEventFunction handlerQuit):
 {}
 
 void TopBar::onCreate() {
+    getWidget().setFont(make_shared<Font>(getWidget().getFont()->getFontName(),
+                                          getWidget().getFont()->getFontSize() / 1.5));
     auto rightPadding = make_shared<GPanel>();
     rightPadding->setDrawBackground(false);
     getWidget().add(rightPadding, GWidget::RIGHT, "5,5");
@@ -17,10 +19,10 @@ void TopBar::onCreate() {
     textFPS->setTextColor(Color{1.0, 1.0, 0.2});
     auto buttonQuit = make_shared<GButton>();
     buttonQuit->connect(GEvent::OnClick, onQuitHandler, onQuit);
-    getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10", 5);
+    getWidget().add(buttonQuit, GWidget::LEFTCENTER, "10,10");
     auto textQuit = make_shared<GText>("Menu");
-    buttonQuit->add(textQuit, GWidget::CENTER);
-    buttonQuit->setSize(textQuit->getWidth() + 10, textQuit->getHeight() + 10);
+    buttonQuit->add(textQuit, GWidget::CENTER, "");
+    buttonQuit->setSize(textQuit->getWidth() + 20, textQuit->getHeight() + 20);
     setHeight(buttonQuit->getHeight());
     setY(1000 - getHeight());
     hide();

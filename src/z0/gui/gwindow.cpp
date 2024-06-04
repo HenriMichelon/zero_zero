@@ -35,7 +35,7 @@ namespace z0 {
         return windowManager->defaultFont;
     }
 
-    GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, int32_t PADDING){
+    GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, float PADDING){
         if (layout == nullptr) { setLayout(nullptr); }
         if (WIDGET == nullptr) {
             widget = make_shared<GPanel>();
@@ -125,7 +125,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseDown(MouseButton B, int32_t X, int32_t Y) {
+    bool GWindow::eventMouseDown(MouseButton B, float X, float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
@@ -134,7 +134,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseUp(MouseButton B, int32_t X, int32_t Y) {
+    bool GWindow::eventMouseUp(MouseButton B, float X, float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
@@ -143,7 +143,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseMove(MouseButton B, int32_t X, int32_t Y) {
+    bool GWindow::eventMouseMove(MouseButton B, float X, float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
@@ -170,28 +170,28 @@ namespace z0 {
         return *widget;
     }
 
-    void GWindow::setHeight(int32_t h) {
+    void GWindow::setHeight(float h) {
         rect.height = h;
         eventResize();
     }
 
-    void GWindow::setWidth(int32_t w) {
+    void GWindow::setWidth(float w) {
         rect.width = w;
         eventResize();
     }
 
-    void GWindow::setPos(int32_t x, int32_t y) {
+    void GWindow::setPos(float x, float y) {
         rect.x = x;
         rect.y = y;
         eventMove();
     }
 
-    void GWindow::setX(int32_t x) {
+    void GWindow::setX(float x) {
         rect.x = x;
         eventMove();
     }
 
-    void GWindow::setY(int32_t y) {
+    void GWindow::setY(float y) {
         rect.y = y;
         eventMove();
     }

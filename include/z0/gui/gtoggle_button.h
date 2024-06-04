@@ -9,7 +9,7 @@ namespace z0 {
         virtual ~GToggleButton() {};
 
     protected:
-        virtual bool eventMouseDown(MouseButton, uint32_t, uint32_t);
+        virtual bool eventMouseDown(MouseButton, float, float);
     };
 
 
