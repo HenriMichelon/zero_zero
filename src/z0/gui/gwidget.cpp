@@ -136,8 +136,7 @@ namespace z0 {
         return (font == nullptr ? window->getDefaultFont() : font);
     }
 
-    void GWidget::init(GWidget&WND, AlignmentType ALIGN,
-                       const string&RES, float P) {
+    void GWidget::init(GWidget&WND, AlignmentType ALIGN, const string&RES, float P) {
         WND.padding = P;
         WND.alignment = ALIGN;
         if (!WND.font) { WND.font = font; }
@@ -146,8 +145,10 @@ namespace z0 {
         WND.parent = this;
         style->addResource(WND, RES);
         WND.eventCreate();
-        if (window->isVisible() && resource) { resizeChildren(); }
         WND.freeze = false;
+        if (window->isVisible() && (resource != nullptr)) {
+            resizeChildren();
+        }
     }
 
     void GWidget::remove(shared_ptr<GWidget>& W) {
@@ -342,8 +343,6 @@ namespace z0 {
         if (pushed && moveChildsOnPush) {
             clientRect.x += 1;
             clientRect.y -= 1;
-            //clientRect.width -= 1;
-            //clientRect.height -= 1;
         }
         auto it = children.begin();
         while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {

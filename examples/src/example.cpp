@@ -16,15 +16,18 @@ private:
     void onCreate(GWidget&, GEvent*) {
         auto textLabel = make_shared<GText>(label);
         add(textLabel, CENTER);
+        cout << label <<" " <<textLabel->getHeight() << endl;
         setSize(500, textLabel->getHeight() + 20);
     }
 };
 
 void ExampleMainScene::onReady() {
-    menu = make_shared<GWindow>(Rect{250, 250, 500, 500});
+    menu = make_shared<GWindow>(Rect{250, 0, 500, 1000});
     Application::addWindow(menu);
 
-    float height = 50;
+    menu->getWidget().setDrawBackground(false);
+    menu->getWidget().setPadding(10);
+    float height = menu->getWidget().getPadding() * 8;
 
     auto entryTriangle = make_shared<GMenuEntry>("Triangles & shaders");
     entryTriangle->connect(GEvent::OnClick, this, GEventFunction(&ExampleMainScene::onMenuTriangle));
@@ -46,9 +49,8 @@ void ExampleMainScene::onReady() {
     menu->getWidget().add(entryQuit, GWidget::TOPCENTER);
     height += entryQuit->getHeight();
 
-    menu->getWidget().setDrawBackground(true);
-    menu->getWidget().setPadding(10);
     menu->setHeight(height);
+    menu->setY((1000 - height)/2);
 
     topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
     Application::addWindow(topbar);
@@ -99,4 +101,4 @@ const ApplicationConfig applicationConfig {
     .defaultFontSize = 30
 };
 
-Application application(applicationConfig,make_shared<ExampleMainScene>());
+Application application(applicationConfig,make_shared<AddRemoveChildMainScene>());

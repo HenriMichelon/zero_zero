@@ -18,7 +18,11 @@ namespace z0 {
         throw runtime_error(stringstream.str());
     }
 
-
     vector<string_view> split(string_view str, char delimiter);
+
+    // returns a random value in the range [0, max]
+    uint32_t randomi(uint32_t max = 100);
+    // returns a random value in the range [0.0f, max]
+    float randomf(float max = 100.0f);
 
 }

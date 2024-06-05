@@ -13,10 +13,12 @@ namespace z0 {
 
     void Resource::_incrementReferenceCounter() {
         refCount += 1;
+        cout << *this << " + " << refCount << endl;
     }
 
     bool Resource::_decrementReferenceCounter() {
         refCount -= 1;
+        cout << *this << " - " << refCount << endl;
         return refCount == 0;
     }
 

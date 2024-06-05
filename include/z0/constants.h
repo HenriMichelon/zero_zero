@@ -224,7 +224,7 @@ namespace z0 {
         OS_KEY_Y          = 0x0015,
         OS_KEY_Z          = 0x002C,
         OS_KEY_LEFT_BRACKET   = 0x001A,
-        OS_KEY_BACKSLASH      = 0x000E,
+        OS_KEY_BACKSLASH      = 0x002B,
         OS_KEY_RIGHT_BRACKET  = 0x001B,
         OS_KEY_GRAVE_ACCENT   = 0x0029,
         OS_KEY_ESCAPE         = 0x0001,

@@ -24,14 +24,17 @@ void AddRemoveChildMainScene::onReady() {
     printTree(cout);
 }
 
-void AddRemoveChildMainScene::onProcess(float alpha) {
+bool AddRemoveChildMainScene::onInput(InputEvent& event) {
+    bool consumed = false;
     if (Input::isKeyJustPressed(KEY_ENTER)) {
-        auto newNode = (rand()%2 == 0) ? crateModel->duplicate() : sphereModel->duplicate();
-        newNode->setPosition({rand() % 10 - 5, rand() % 10 - 5, -10.0f});
+        auto newNode = (randomi(1) == 0) ? crateModel->duplicate() : sphereModel->duplicate();
+        newNode->setPosition({randomf(10.0f) - 5, randomf(10.0f) - 5, -10.0f});
         if (addChild(newNode)) rotatingNodes.push_back(newNode);
+        consumed = true;
     }
     if (Input::isKeyJustPressed(KEY_BACKSPACE)) {
         if (removeChild(rotatingNodes.back())) rotatingNodes.pop_back();
+        consumed = true;
     }
     if (Input::isKeyJustPressed(KEY_SPACE)) {
         if (camera1->isActive()) {
@@ -39,8 +42,9 @@ void AddRemoveChildMainScene::onProcess(float alpha) {
         } else {
             Application::get().activateCamera(camera1);
         }
-
+        consumed = true;
     }
+    return consumed;
 }
 
 void AddRemoveChildMainScene::onPhysicsProcess(float delta) {

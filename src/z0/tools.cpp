@@ -2,6 +2,22 @@
 
 namespace z0 {
 
+    uint32_t randomi(uint32_t max) {
+        static std::random_device rd;
+        static std::uniform_int_distribution<> distr(0, static_cast<int>(max));
+
+        std::mt19937 gen(rd());
+        return static_cast<uint32_t>(distr(gen));
+    }
+
+    float randomf(float max) {
+        static std::random_device rd;
+        static std::uniform_real_distribution<> distr(0, max);
+
+        std::mt19937 gen(rd());
+        return static_cast<float>(distr(gen));
+    }
+
     vector<string_view> split(string_view str, char delimiter) {
         vector<std::string_view> result;
         size_t start = 0;
