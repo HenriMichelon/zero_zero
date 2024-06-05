@@ -14,6 +14,7 @@ set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 make_directory(${Z0_SHADERS_BUILD_DIR})
 
 # Examples sources & build directories
+set(EXAMPLE_PROJECT examples)
 set(Z0_EXAMPLES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples/src)
 set(Z0_EXAMPLES_SHADERS_DIR ${Z0_EXAMPLES_DIR}/shaders)
 set(Z0_EXAMPLES_SHADERS_BUILD_DIR ${Z0_SHADERS_BUILD_DIR}/examples)
@@ -26,6 +27,7 @@ endif ()
 include(cmake/shaders.cmake)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF) # disabled due to fastgltf and VMA
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_definitions(VULKAN_STATS) # print some stats at the end of the execution
@@ -46,8 +48,8 @@ file(GLOB_RECURSE Z0_EXAMPLES_GLSL_SOURCE_FILES
 )
 add_shaders(${PROJECT_NAME}_z0_examples_shaders  ${Z0_EXAMPLES_SHADERS_BUILD_DIR} ${Z0_EXAMPLES_GLSL_SOURCE_FILES})
 
-# compile engine + examples
-add_executable(${PROJECT_NAME}
+# engine library
+add_library(${PROJECT_NAME} SHARED
 		${INCLUDE_DIR}/vk_mem_alloc.h
 
 		${Z0_INCLUDE_DIR}/constants.h
@@ -182,7 +184,9 @@ add_executable(${PROJECT_NAME}
 		${Z0_ENGINE_DIR}/gui/gframe.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.h
 		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
+)
 
+add_executable(${EXAMPLE_PROJECT}
 		${Z0_EXAMPLES_DIR}/example.cpp
 		${Z0_EXAMPLES_DIR}/triangle.h
 		${Z0_EXAMPLES_DIR}/triangle.cpp
@@ -203,14 +207,22 @@ add_executable(${PROJECT_NAME}
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
+target_include_directories(${EXAMPLE_PROJECT} PUBLIC ${INCLUDE_DIR})
+target_link_libraries(${EXAMPLE_PROJECT} PRIVATE ${PROJECT_NAME})
 #add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
 )
+target_precompile_headers(${EXAMPLE_PROJECT} PRIVATE
+		${Z0_INCLUDE_DIR}/z0.h
+)
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)
+	set_target_properties(${EXAMPLE_PROJECT} PROPERTIES
+			WIN32_EXECUTABLE TRUE
+	)
 endif()
 
 include(cmake/jolt.cmake)

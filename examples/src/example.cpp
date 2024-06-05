@@ -101,7 +101,7 @@ const ApplicationConfig applicationConfig {
     .windowWidth = 800,
     .windowHeight = 600,
     .defaultFontName = "examples/Signwood.ttf",
-    .defaultFontSize = 30
+    .defaultFontSize = 20
 };
 
-Application application(applicationConfig,make_shared<ExampleMainScene>());
+Z0_APP(applicationConfig, make_shared<ExampleMainScene>())

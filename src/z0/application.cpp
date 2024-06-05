@@ -25,15 +25,6 @@
 
 #include <Jolt/RegisterTypes.h>
 
-#ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
-    if (z0::Application::_instance == nullptr) z0::die("No Application object found");
-    z0::Application& application = z0::Application::get();
-    application._mainLoop();
-    return 0;
-}
-#endif
-
 namespace z0 {
 
     Application* Application::_instance = nullptr;

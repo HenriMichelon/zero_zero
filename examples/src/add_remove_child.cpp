@@ -21,8 +21,6 @@ void AddRemoveChildMainScene::onReady() {
     sphereModel->setPosition({5.0f, 0.0f, -10.0f});
     addChild(sphereModel);
     rotatingNodes.push_back(sphereModel);*/
-
-    printTree(cout);
 }
 
 bool AddRemoveChildMainScene::onInput(InputEvent& event) {

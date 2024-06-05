@@ -95,4 +95,14 @@ namespace z0 {
         Application& operator=(const Application&) = delete;
     };
 
+#ifdef _WIN32
+    #define Z0_APP(CONFIG, ROOTNODE) \
+        z0::Application _z0_app(CONFIG, ROOTNODE); \
+        int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
+            if (z0::Application::_instance == nullptr) z0::die("No Application object found"); \
+            z0::Application::get()._mainLoop(); \
+            return 0; \
+        }
+#endif
+
 }
