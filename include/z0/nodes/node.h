@@ -2,6 +2,8 @@
 
 namespace z0 {
 
+    class Application;
+
     class Node: public Object {
     public:
         using id_t = unsigned int;
@@ -87,6 +89,7 @@ namespace z0 {
 
         string toString() const override { return name; }
         virtual shared_ptr<Node> duplicateInstance();
+        Application& app();
 
     private:
         static id_t currentId;

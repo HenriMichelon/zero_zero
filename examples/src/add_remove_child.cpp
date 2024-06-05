@@ -9,7 +9,7 @@ void AddRemoveChildMainScene::onReady() {
     camera2->rotateX(radians(-40.0));
     camera2->setPosition({0.0f, 10.0f, 1.0f});
     addChild(camera2);
-    Application::get().activateCamera(camera1);
+    app().activateCamera(camera1);
 
     sphereModel = Loader::loadModelFromFile("examples/models/sphere.glb");
     crateModel = Loader::loadModelFromFile("examples/models/crate.glb");
@@ -39,9 +39,9 @@ bool AddRemoveChildMainScene::onInput(InputEvent& event) {
     }
     if (Input::isKeyJustPressed(KEY_SPACE)) {
         if (camera1->isActive()) {
-            Application::get().activateCamera(camera2);
+            app().activateCamera(camera2);
         } else {
-            Application::get().activateCamera(camera1);
+            app().activateCamera(camera1);
         }
         consumed = true;
     }

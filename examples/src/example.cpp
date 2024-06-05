@@ -16,7 +16,6 @@ private:
     void onCreate(GWidget&, GEvent*) {
         auto textLabel = make_shared<GText>(label);
         add(textLabel, CENTER);
-        cout << label <<" " <<textLabel->getHeight() << endl;
         setSize(500, textLabel->getHeight() + 20);
     }
 };
@@ -27,7 +26,7 @@ void ExampleMainScene::onReady() {
     addChild(skybox);
 
     menu = make_shared<GWindow>(Rect{250, 0, 500, 1000});
-    Application::addWindow(menu);
+    app().addWindow(menu);
 
     menu->getWidget().setDrawBackground(false);
     menu->getWidget().setPadding(10);
@@ -57,7 +56,7 @@ void ExampleMainScene::onReady() {
     menu->setY((1000 - height)/2);
 
     topbar = make_shared<TopBar>(this, GEventFunction(&ExampleMainScene::onMenu));
-    Application::addWindow(topbar);
+    app().addWindow(topbar);
 
     scene = make_shared<Node>();
     addChild(scene);
@@ -74,7 +73,7 @@ void ExampleMainScene::onMenu(GWidget &, GEvent *) {
 }
 
 void ExampleMainScene::onMenuQuit(GWidget &, GEvent *) {
-    Application::quit();
+    app().quit();
 }
 
 void ExampleMainScene::onMenuTriangle(GWidget &, GEvent *) {

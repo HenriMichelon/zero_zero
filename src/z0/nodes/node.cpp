@@ -10,7 +10,7 @@ namespace z0 {
 
     Node::Node(string nodeName):
         name{std::move(nodeName)},
-        id{currentId++}   {
+        id{currentId++}{
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};
         updateTransform(mat4{1.0f});
@@ -222,6 +222,10 @@ namespace z0 {
                (!paused && (mode == PROCESS_MODE_PAUSABLE)) ||
                (paused && (mode == PROCESS_MODE_WHEN_PAUSED)) ||
                (mode == PROCESS_MODE_ALWAYS);
+    }
+
+    Application& Node::app() {
+        return Application::get();
     }
 
 }

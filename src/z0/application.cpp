@@ -161,7 +161,7 @@ namespace z0 {
         node->_onExitScene();
     }
 
-    void Application::activateCamera(const shared_ptr<z0::Camera> &camera) {
+    void Application::activateCamera(const shared_ptr<Camera> &camera) {
         if (rootNode->haveChild(camera, true)) {
             sceneRenderer->activateCamera(camera);
         }
@@ -290,7 +290,7 @@ namespace z0 {
     }
 
     void Application::quit() {
-        get().window->close();
+        window->close();
     }
 
 #ifdef _WIN32

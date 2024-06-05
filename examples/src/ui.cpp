@@ -46,7 +46,7 @@ void UIMainScene::onReady() {
     addChild(sphere);
 
     window2 = make_shared<Window2>(Rect{250, 250, 500, 500});
-    Application::addWindow(window2);
+    app().addWindow(window2);
 }
 
 void UIMainScene::onPhysicsProcess(float delta) {

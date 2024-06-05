@@ -5,7 +5,7 @@ void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 2.0f});
     addChild(camera);
-    Application::get().activateCamera(camera);
+    app().activateCamera(camera);
     addChild(make_shared<Triangle>());
     printTree(cout);
 }
