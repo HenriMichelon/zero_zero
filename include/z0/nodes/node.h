@@ -55,15 +55,27 @@ namespace z0 {
         bool addChild(const shared_ptr<Node>& child);
         bool removeChild(const shared_ptr<Node>& child);
         void removeAllChildren();
-        bool haveChild(const shared_ptr<Node>& child, bool recursive);
+        bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
         list<shared_ptr<Node>>& getChildren() { return children; }
-        shared_ptr<Node> getChild(const string& name);
-        shared_ptr<Node> getNode(const string& path);
-        void printTree(ostream&, int tab = 0);
+        shared_ptr<Node> getChild(const string& name) const;
+        shared_ptr<Node> getNode(const string& path) const;
+        void printTree(ostream&, int tab = 0) const;
 
         id_t getId() const { return id; }
         bool operator == (const Node& other) const { return id == other.id;}
         shared_ptr<Node> duplicate();
+
+        template <typename T>
+        T* findFirstChild(bool recursive) const {
+            for(auto& node : children) {
+                if (auto* pnode = dynamic_cast<T*>(node.get())) {
+                    return pnode;
+                } else if (recursive) {
+                    return node->findFirstChild<T>(true);
+                }
+            }
+            return nullptr;
+        }
 
     protected:
         string name;

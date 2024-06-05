@@ -40,8 +40,7 @@ bool UIMainScene::onInput(InputEvent &inputEvent) {
 void UIMainScene::onReady() {
     auto camera = make_shared<Camera>();
     addChild(camera);
-    auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
-    addChild(skybox);
+    Application::get().activateCamera(camera);
     sphere = Loader::loadModelFromFile("examples/models/sphere.glb");
     sphere->setPosition({0.0f, 0.0f, -5.0f});
     addChild(sphere);

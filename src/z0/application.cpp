@@ -152,7 +152,7 @@ namespace z0 {
         }
     }
 
-    void Application::_removeNode(const shared_ptr<z0::Node> &node) {
+    void Application::_removeNode(const shared_ptr<Node> &node) {
         for(auto& child: node->getChildren()) {
             _removeNode(child);
         }
@@ -176,6 +176,9 @@ namespace z0 {
                 sceneRenderer->removeNode(node);
             }
             removedNodes.clear();
+            if (sceneRenderer->getCamera() == nullptr) {
+                sceneRenderer->activateCamera(rootNode->findFirstChild<Camera>(true));
+            }
         }
         if (!addedNodes.empty()) {
             for (const auto &node: addedNodes) {

@@ -128,7 +128,7 @@ namespace z0 {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties(device.getPhysicalDevice(), imageFormat, &formatProperties);
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-            die("texture image format does not support linear blitting!"); // See todo.txt
+            die("texture image format does not support linear blitting!"); // TODO
         }
 
         VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();

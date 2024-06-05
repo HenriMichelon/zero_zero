@@ -9,16 +9,16 @@ namespace z0 {
         name{std::move(resName)},
         id{currentId++} {
         replace(name.begin(), name.end(),  '/', '_');
+        replace(name.begin(), name.end(),  '\\', '_');
+        replace(name.begin(), name.end(),  ':', '_');
     }
 
     void Resource::_incrementReferenceCounter() {
         refCount += 1;
-        cout << *this << " + " << refCount << endl;
     }
 
     bool Resource::_decrementReferenceCounter() {
         refCount -= 1;
-        cout << *this << " - " << refCount << endl;
         return refCount == 0;
     }
 

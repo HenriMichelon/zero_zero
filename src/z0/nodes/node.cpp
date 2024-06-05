@@ -133,14 +133,14 @@ namespace z0 {
         inReady = false;
     }
 
-    shared_ptr<Node> Node::getChild(const string& name) {
+    shared_ptr<Node> Node::getChild(const string& name) const {
         auto it = std::find_if(children.begin(), children.end(), [name](std::shared_ptr<Node> elem) {
             return elem->name == name;
         });
         return it == children.end() ? nullptr : *it;
     }
 
-    shared_ptr<Node> Node::getNode(const string& path) {
+    shared_ptr<Node> Node::getNode(const string& path) const {
         size_t pos = path.find('/');
         if (pos != std::string::npos) {
             auto child = getChild(path.substr(0, pos));
@@ -179,7 +179,7 @@ namespace z0 {
         children.clear();
     }
 
-    bool Node::haveChild(const shared_ptr<z0::Node> &child, bool recursive) {
+    bool Node::haveChild(const shared_ptr<z0::Node> &child, bool recursive) const {
         if (recursive) {
             if (haveChild(child, false)) return true;
             for(const auto& node : children) {
@@ -206,7 +206,7 @@ namespace z0 {
         return make_shared<Node>(*this);
     }
 
-    void Node::printTree(ostream& out, int tab) {
+    void Node::printTree(ostream& out, int tab) const {
         for (int i = 0; i < (tab*2); i++) {
             out << " ";
         }

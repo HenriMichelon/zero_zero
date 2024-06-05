@@ -55,11 +55,16 @@ namespace z0 {
         }
     }
 
-    void BaseModelsRenderer::activateCamera(const shared_ptr<z0::Camera> &camera) {
+    void BaseModelsRenderer::activateCamera(Camera* camera) {
         if (currentCamera != nullptr) currentCamera->_setActive(false);
-        currentCamera = camera.get();
-        currentCamera->_setActive(true);
-        //log << "Using camera " << *currentCamera << endl;
+        if (camera == nullptr) {
+            currentCamera = nullptr;
+            log << "Disabling camera " << endl;
+        } else {
+            currentCamera = camera;
+            currentCamera->_setActive(true);
+            log << "Using camera " << *currentCamera << endl;
+        }
     }
 
     void BaseModelsRenderer::cleanup() {

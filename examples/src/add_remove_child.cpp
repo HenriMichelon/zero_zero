@@ -6,9 +6,10 @@ void AddRemoveChildMainScene::onReady() {
     camera1->setPosition({0.0f, 0.0f, 1.0f});
     addChild(camera1);
     camera2 = make_shared<Camera>("Camera 2");
-    camera2->rotateX(radians(-90.0));
-    camera2->setPosition({0.0f, 10.0f, -10.0f});
+    camera2->rotateX(radians(-40.0));
+    camera2->setPosition({0.0f, 10.0f, 1.0f});
     addChild(camera2);
+    Application::get().activateCamera(camera1);
 
     sphereModel = Loader::loadModelFromFile("examples/models/sphere.glb");
     crateModel = Loader::loadModelFromFile("examples/models/crate.glb");

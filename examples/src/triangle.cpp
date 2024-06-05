@@ -5,10 +5,8 @@ void TriangleMainScene::onReady() {
     auto camera = make_shared<Camera>();
     camera->setPosition({0.0f, 0.0f, 2.0f});
     addChild(camera);
-    auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
-    addChild(skybox);
+    Application::get().activateCamera(camera);
     addChild(make_shared<Triangle>());
-
     printTree(cout);
 }
 

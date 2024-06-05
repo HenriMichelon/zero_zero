@@ -9,9 +9,12 @@ namespace z0 {
         // Remove a model to the scene and update descriptor set
         virtual void removeNode(const shared_ptr<Node>& node);
         // Change the active camera, disable the previous camera
-        void activateCamera(const shared_ptr<Camera>& camera);
+        void activateCamera(Camera* camera);
+        void activateCamera(const shared_ptr<Camera>& camera) { activateCamera(camera.get()); }
         // Cleanup all Vulkan ressources
         void cleanup() override;
+        // Get the current scene camera
+        Camera* getCamera() const { return currentCamera; }
 
     protected:
         // Currently active camera, first camera added to the scene or the last activated

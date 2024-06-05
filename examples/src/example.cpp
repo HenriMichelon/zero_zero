@@ -22,6 +22,10 @@ private:
 };
 
 void ExampleMainScene::onReady() {
+    addChild(make_shared<Camera>());
+    auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
+    addChild(skybox);
+
     menu = make_shared<GWindow>(Rect{250, 0, 500, 1000});
     Application::addWindow(menu);
 
@@ -101,4 +105,4 @@ const ApplicationConfig applicationConfig {
     .defaultFontSize = 30
 };
 
-Application application(applicationConfig,make_shared<AddRemoveChildMainScene>());
+Application application(applicationConfig,make_shared<ExampleMainScene>());

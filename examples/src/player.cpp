@@ -107,7 +107,9 @@ void Player::onReady() {
     cameraPivot->setPosition({0.0, 2.0, 2.0});
     cameraPivot->rotateX(radians(-20.0));
     addChild(cameraPivot);
-    cameraPivot->addChild(make_shared<Camera>());
+    auto camera = make_shared<Camera>();
+    cameraPivot->addChild(camera);
+    Application::get().activateCamera(camera);
 
     cout << Input::getConnectedJoypads() << " connected gamepad(s)" << endl;
     for (int i = 0; i < Input::getConnectedJoypads(); i++) {

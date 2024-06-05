@@ -48,10 +48,10 @@ namespace z0 {
         opaquesModels.push_back(meshInstance);
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
+            material->_incrementReferenceCounter();
             if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
-            material->_incrementReferenceCounter();
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture() != nullptr) addImage(standardMaterial->getAlbedoTexture()->getImage());
                 if (standardMaterial->getSpecularTexture() != nullptr) addImage(standardMaterial->getSpecularTexture()->getImage());
@@ -70,7 +70,7 @@ namespace z0 {
     }
 
     void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
-        if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
+        if (dynamic_cast<Skybox *>(node.get())) {
             skyboxRenderer.reset();
         } else {
             BaseModelsRenderer::removeNode(node);
@@ -91,11 +91,11 @@ namespace z0 {
     }
 
     void SceneRenderer::addImage(const shared_ptr<Image>& image) {
+        image->_incrementReferenceCounter();
         if (find(images.begin(), images.end(), image.get()) != images.end()) return;
         if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
         imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
         images.push_back(image.get());
-        image->_incrementReferenceCounter();
     }
 
     void SceneRenderer::removeImage(const shared_ptr<z0::Image> &image) {

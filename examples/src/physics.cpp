@@ -20,8 +20,6 @@ void Crate::onReady() {
 }
 
 void PhysicsMainScene::onReady() {
-    auto skybox = make_shared<Skybox>("examples/textures/sky", ".jpg");
-    addChild(skybox);
     auto player = make_shared<Player>();
     addChild(player);
     player->setPosition({0.0, 2.0, 2.0});

@@ -6,5 +6,5 @@ layout (location = 0) out vec4 COLOR;
 
 void main() {
     COLOR = texture(skybox, vec3(UV.x, UV.y, -UV.z));
-    //COLOR = vec4(UV.x, UV.y, UV.z, 1.0);
+    //COLOR = vec4(UV.x, UV.y, -UV.z, 1.0);
 }
