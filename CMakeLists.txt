@@ -11,14 +11,7 @@ set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
 set(Z0_ENGINE_DIR ${SRC_DIR}/z0)
 set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
 set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
-make_directory(${Z0_SHADERS_BUILD_DIR})
-
-# Examples sources & build directories
-set(EXAMPLE_PROJECT examples)
-set(Z0_EXAMPLES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/examples/src)
-set(Z0_EXAMPLES_SHADERS_DIR ${Z0_EXAMPLES_DIR}/shaders)
-set(Z0_EXAMPLES_SHADERS_BUILD_DIR ${Z0_SHADERS_BUILD_DIR}/examples)
-make_directory(${Z0_EXAMPLES_SHADERS_BUILD_DIR})
+file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
 
 include(FetchContent)
 if(EXISTS .env.cmake)
@@ -41,15 +34,10 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 		"${Z0_SHADERS_DIR}/*.frag"
 		"${Z0_SHADERS_DIR}/*.vert"
 )
-add_shaders(${PROJECT_NAME}_z0_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_GLSL_SOURCE_FILES})
-file(GLOB_RECURSE Z0_EXAMPLES_GLSL_SOURCE_FILES
-		"${Z0_EXAMPLES_SHADERS_DIR}/*.frag"
-		"${Z0_EXAMPLES_SHADERS_DIR}/*.vert"
-)
-add_shaders(${PROJECT_NAME}_z0_examples_shaders  ${Z0_EXAMPLES_SHADERS_BUILD_DIR} ${Z0_EXAMPLES_GLSL_SOURCE_FILES})
+add_shaders(${PROJECT_NAME}_z0_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine library
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
 		${INCLUDE_DIR}/vk_mem_alloc.h
 
 		${Z0_INCLUDE_DIR}/constants.h
@@ -186,44 +174,13 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
 )
 
-add_executable(${EXAMPLE_PROJECT}
-		${Z0_EXAMPLES_DIR}/example.cpp
-		${Z0_EXAMPLES_DIR}/triangle.h
-		${Z0_EXAMPLES_DIR}/triangle.cpp
-		${Z0_EXAMPLES_DIR}/add_remove_child.h
-		${Z0_EXAMPLES_DIR}/add_remove_child.cpp
-		${Z0_EXAMPLES_DIR}/physics.h
-		${Z0_EXAMPLES_DIR}/physics.cpp
-		${Z0_EXAMPLES_DIR}/ui.h
-		${Z0_EXAMPLES_DIR}/ui.cpp
-		${Z0_EXAMPLES_DIR}/topbar.h
-		${Z0_EXAMPLES_DIR}/topbar.cpp
-		${Z0_EXAMPLES_DIR}/player.h
-		${Z0_EXAMPLES_DIR}/player.cpp
-		${Z0_EXAMPLES_DIR}/layers.h
-		${Z0_EXAMPLES_DIR}/includes.h
-		${Z0_EXAMPLES_DIR}/example.h
-)
-
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders  ${PROJECT_NAME}_z0_examples_shaders)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
-target_include_directories(${EXAMPLE_PROJECT} PUBLIC ${INCLUDE_DIR})
-target_link_libraries(${EXAMPLE_PROJECT} PRIVATE ${PROJECT_NAME})
 #add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
 )
-target_precompile_headers(${EXAMPLE_PROJECT} PRIVATE
-		${Z0_INCLUDE_DIR}/z0.h
-)
-
-if(WIN32)
-	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)
-	set_target_properties(${EXAMPLE_PROJECT} PROPERTIES
-			WIN32_EXECUTABLE TRUE
-	)
-endif()
 
 include(cmake/jolt.cmake)
 include(cmake/libraries.cmake)

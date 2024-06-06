@@ -1,5 +1,5 @@
 ##### compile GLSL sources files into SPIR-V
-function(add_shaders TARGET_NAME BUILD_DIR)
+function(add_shaders TARGET_NAME BUILD_DIR SHADER_INCLUDE_DIR)
     set(SHADER_SOURCE_FILES ${ARGN}) # the rest of arguments to this function will be assigned as shader source files
     set(SHADER_BINARIES ${BUILD_DIR})
 
@@ -19,6 +19,8 @@ function(add_shaders TARGET_NAME BUILD_DIR)
         # Build command
         list(APPEND SHADER_COMMANDS COMMAND)
         list(APPEND SHADER_COMMANDS Vulkan::glslc)
+        list(APPEND SHADER_COMMANDS "-I")
+        list(APPEND SHADER_COMMANDS "${SHADER_INCLUDE_DIR}")
         list(APPEND SHADER_COMMANDS "${SHADER_SOURCE}")
         list(APPEND SHADER_COMMANDS "-o")
         list(APPEND SHADER_COMMANDS "${SHADER_BINARIES}/${SHADER_NAME}.spv")
