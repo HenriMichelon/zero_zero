@@ -92,7 +92,7 @@ namespace z0 {
             }
         }
         libraryRef += 1;
-        FT_Library_SetLcdFilter(library, FT_LCD_FILTER_LIGHT);
+        FT_Library_SetLcdFilter(library, FT_LCD_FILTER_MAX);
         // Load a font face from a file
         if (FT_New_Face(library, path.c_str(), 0, &face)) {
             die("Could not load font ", path);

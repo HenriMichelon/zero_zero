@@ -136,11 +136,11 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node>& node) {
         addedNodes.push_back(node);
-        node->_setAddedToScene(true);
         node->_onEnterScene();
         for(const auto& child: node->getChildren()) {
             _addNode(child);
         }
+        node->_setAddedToScene(true);
     }
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
@@ -208,6 +208,7 @@ namespace z0 {
     }
 
     void Application::onInput(InputEvent &inputEvent) {
+        if (stopped) return;
         if (windowManager->onInput(inputEvent)) { return; }
         input(rootNode, inputEvent);
     }
@@ -222,9 +223,11 @@ namespace z0 {
     void Application::start() {
         ready(rootNode);
         _addNode(rootNode);
+        stopped = false;
     }
 
     void Application::end() {
+        stopped = true;
         windowManager.reset();
         cleanup(rootNode);
 #ifdef VULKAN_STATS
@@ -248,6 +251,7 @@ namespace z0 {
     }
 
     bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
+        if (!node->_isAddedToScene()) { return false; }
         for(auto& child: node->getChildren()) {
             if (input(child, inputEvent)) return true;
         }

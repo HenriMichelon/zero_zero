@@ -106,6 +106,7 @@ namespace z0 {
 
         bool _needPhysics() const { return needPhysics; }
         void _setAddedToScene(bool added) { addedToScene = added; }
+        bool _isAddedToScene() { return addedToScene; }
     };
 
 }

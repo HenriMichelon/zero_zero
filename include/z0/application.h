@@ -37,7 +37,7 @@ namespace z0 {
         unique_ptr<Device> device;
         VkInstance vkInstance;
         bool paused{false};
-        bool stopped{false};
+        bool stopped{true};
         uint32_t fps{0};
         shared_ptr<SceneRenderer> sceneRenderer;
         shared_ptr<VectorRenderer> vectorRenderer;
