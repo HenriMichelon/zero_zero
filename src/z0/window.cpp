@@ -7,7 +7,8 @@
 
 
 #ifdef _WIN32
-char szClassName[ ] = "WindowsApp";
+const char szClassName[ ] = "WindowsApp";
+const char szClassNameLog[ ] = "WindowsAppLog";
 
 int _getKeyboardModifiers() {
     int modifiers = 0;
@@ -22,8 +23,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
     static float lastMouseY = -1.0f;
     auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
     auto& app = z0::Application::get();
-    switch (message)
-    {
+    switch (message) {
         case WM_CREATE:
             // Save the Window pointer passed to CreateWindowEx
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
@@ -321,7 +321,7 @@ namespace z0 {
                 hInstance,
                 this
         );
-        if (hwnd == nullptr) die("Cannot create Window", to_string(GetLastError()));
+        if (hwnd == nullptr) { die("Cannot create Window", to_string(GetLastError())); };
 
         RAWINPUTDEVICE rid[1];
         rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
@@ -334,11 +334,74 @@ namespace z0 {
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
+        createLogWindow();
     }
 
     Window::~Window() {
         DeleteObject(background);
+        CloseWindow(hwndLog);
     }
+
+    LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        switch (message) {
+        case WM_CREATE: {
+            auto hInstance = GetModuleHandle(nullptr);
+            _hwndLogList = CreateWindow(
+                "LISTBOX",
+                NULL,
+                WS_CHILD | WS_VISIBLE | LBS_STANDARD,
+                0, 0, 200, 200,
+                hwnd,
+                NULL,
+                hInstance,
+                NULL
+            );
+            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)L"Log starting");
+            return 0;
+        }
+        default:
+            return DefWindowProc(hwnd, message, wParam, lParam);
+        }
+    }
+
+    void Window::createLogWindow() {
+        auto hInstance = GetModuleHandle(nullptr);
+        const WNDCLASSEX wincl{
+            .cbSize = sizeof(WNDCLASSEX),
+            .style = CS_DBLCLKS,
+            .lpfnWndProc = WindowProcedureLog,
+            .cbClsExtra = 0,
+            .cbWndExtra = 0,
+            .hInstance = hInstance,
+            .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
+            .hCursor = LoadCursor(nullptr, IDC_ARROW),
+            .hbrBackground = background,
+            .lpszMenuName = nullptr,
+            .lpszClassName = szClassNameLog,
+            .hIconSm = LoadIcon(nullptr, IDI_APPLICATION),
+        };
+        if (!RegisterClassEx(&wincl)) die("Cannot register Log Window class");
+
+        hwndLog = CreateWindowEx(
+                0,
+                szClassNameLog,
+                "Log",
+                WS_OVERLAPPEDWINDOW,
+                0,
+                0,
+                200,
+                200,
+                HWND_DESKTOP,
+                nullptr,
+                hInstance,
+                this
+        );
+        if (hwndLog == nullptr) { die("Cannot create Log Window", to_string(GetLastError())); };
+        ShowWindow(hwndLog, SW_SHOW);
+        UpdateWindow(hwndLog);
+    }
+
 
 #endif
 

@@ -59,11 +59,11 @@ namespace z0 {
         if (currentCamera != nullptr) currentCamera->_setActive(false);
         if (camera == nullptr) {
             currentCamera = nullptr;
-            log << "Disabling camera " << endl;
+            log("Disabling camera ");
         } else {
             currentCamera = camera;
             currentCamera->_setActive(true);
-            log << "Using camera " << *currentCamera << endl;
+            log("Using camera ", currentCamera->toString());
         }
     }
 

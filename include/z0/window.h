@@ -30,6 +30,9 @@ namespace z0 {
         HWND hwnd;
         HBRUSH background;
         RECT rect;
+
+        HWND hwndLog;
+        void createLogWindow();
 #endif
 
     public:

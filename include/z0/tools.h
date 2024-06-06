@@ -2,8 +2,6 @@
 
 namespace z0 {
 
-    static constexpr auto& log = cout;
-
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {
@@ -16,6 +14,21 @@ namespace z0 {
                    MB_OK | MB_ICONINFORMATION);
 #endif
         throw runtime_error(stringstream.str());
+    }
+
+#ifdef _WIN32
+    static HWND _hwndLogList{nullptr};
+#endif
+
+    void log(convertible_to<string_view> auto&& ...s) {
+        stringstream stringstream;
+        for (auto v : initializer_list<string_view>{ s... }) {
+            stringstream << v << " ";
+        }
+#ifdef _WIN32
+        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(stringstream.str().c_str()));
+        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)"Hello");
+#endif
     }
 
     vector<string_view> split(string_view str, char delimiter);

@@ -206,12 +206,14 @@ namespace z0 {
         return make_shared<Node>(*this);
     }
 
-    void Node::printTree(ostream& out, int tab) const {
+    void Node::printTree(int tab) const {
+        stringstream sstream;
         for (int i = 0; i < (tab*2); i++) {
-            out << " ";
+            sstream << " ";
         }
-        out << toString() << std::endl;
-        for (auto& child: children) child->printTree(out, tab+1);
+        sstream << " " << toString();
+        log(sstream.str());
+        for (auto& child: children) child->printTree(tab+1);
     }
 
     bool Node::isProcessed() const {

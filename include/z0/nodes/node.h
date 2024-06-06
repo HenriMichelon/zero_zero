@@ -61,7 +61,8 @@ namespace z0 {
         list<shared_ptr<Node>>& getChildren() { return children; }
         shared_ptr<Node> getChild(const string& name) const;
         shared_ptr<Node> getNode(const string& path) const;
-        void printTree(ostream&, int tab = 0) const;
+        void printTree(int tab = 0) const;
+        string toString() const override { return name; }
 
         id_t getId() const { return id; }
         bool operator == (const Node& other) const { return id == other.id;}
@@ -87,7 +88,6 @@ namespace z0 {
         mat4 worldTransform {};
         bool needPhysics{false};
 
-        string toString() const override { return name; }
         virtual shared_ptr<Node> duplicateInstance();
         Application& app();
 
