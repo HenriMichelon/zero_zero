@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.29)
 cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
