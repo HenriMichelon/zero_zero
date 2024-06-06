@@ -34,7 +34,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 		"${Z0_SHADERS_DIR}/*.frag"
 		"${Z0_SHADERS_DIR}/*.vert"
 )
-add_shaders(${PROJECT_NAME}_z0_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
+add_shaders(${PROJECT_NAME}_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine library
 add_library(${PROJECT_NAME} STATIC
@@ -174,7 +174,7 @@ add_library(${PROJECT_NAME} STATIC
 		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
 )
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_z0_shaders)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 #add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE

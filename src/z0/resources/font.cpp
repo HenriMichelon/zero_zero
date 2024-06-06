@@ -6,7 +6,7 @@
 
 namespace z0 {
 
-    void Font::getSize(const std::string &str, float& width, float& height) {
+    void Font::getSize(const string &str, float& width, float& height) {
         width = 0;
         uint32_t max_height = 0;
         uint32_t max_descender = 0;
@@ -30,7 +30,7 @@ namespace z0 {
         }
     }
 
-    vector<uint32_t> Font::renderToBitmap(const std::string &str, float&wwidth, float&hheight) {
+    vector<uint32_t> Font::renderToBitmap(const string &str, float&wwidth, float&hheight) {
         uint32_t width = 0;
         uint32_t max_height = 0;
         uint32_t max_descender = 0;

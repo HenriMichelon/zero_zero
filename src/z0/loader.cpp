@@ -293,7 +293,6 @@ namespace z0 {
             }
         }
 
-        //rootNode->rotateX(glm::radians(180.f));
         return rootNode;
     }
 
