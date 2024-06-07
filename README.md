@@ -7,15 +7,14 @@ ZeroZero is an experimental 3D engine based on Vulkan 1.3 and Jolt 5.x made for 
 - Shader object (VK_EXT_shader_object)
 - volk https://github.com/zeux/volk
 - VulkanMemoryAllocator https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-- GLM https://github.com/g-truc/glm
+- glm https://github.com/g-truc/glm
 - stb https://github.com/nothings/stb
 - fastgltf https://github.com/spnda/fastgltf
 - Jolt Physics https://github.com/jrouwe/JoltPhysics
 
 **Building tools needed**
 - GCC/MINGW 11+ (C++ 23)
-- CMake 3.22+
+- CMake 3.29+
 - Vulkan SDK 1.3+
-- Git
 
 Released under the [MIT license](https://raw.githubusercontent.com/HenriMichelon/zero_zero/main/LICENSE.txt).
