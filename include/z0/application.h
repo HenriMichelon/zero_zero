@@ -90,6 +90,7 @@ namespace z0 {
 
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
         JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
+        BPLayerInterfaceImpl& _getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
 
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
