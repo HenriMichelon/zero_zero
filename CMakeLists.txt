@@ -82,7 +82,6 @@ add_library(${PROJECT_NAME} STATIC
 		${Z0_INCLUDE_DIR}/nodes/physics_node.h
 		${Z0_INCLUDE_DIR}/nodes/character.h
 		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
-		${Z0_INCLUDE_DIR}/nodes/raycast.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -145,7 +144,6 @@ add_library(${PROJECT_NAME} STATIC
 		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
 		${Z0_ENGINE_DIR}/nodes/physics_node.cpp
-		${Z0_ENGINE_DIR}/nodes/raycast.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp
@@ -176,7 +174,7 @@ add_library(${PROJECT_NAME} STATIC
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
-#add_compile_definitions(USE_PCH)
+add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
