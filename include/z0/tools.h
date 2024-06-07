@@ -16,18 +16,13 @@ namespace z0 {
         throw runtime_error(stringstream.str());
     }
 
-#ifdef _WIN32
-    static HWND _hwndLogList{nullptr};
-#endif
-
     void log(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
 #ifdef _WIN32
-        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(stringstream.str().c_str()));
-        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)"Hello");
+       Window::_log(stringstream.str());
 #endif
     }
 
@@ -37,5 +32,7 @@ namespace z0 {
     uint32_t randomi(uint32_t max = 100);
     // returns a random value in the range [0.0f, max]
     float randomf(float max = 100.0f);
+
+    string getCurrentDateTime();
 
 }

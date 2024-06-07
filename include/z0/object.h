@@ -9,7 +9,6 @@ namespace z0 {
             return os;
         }
 
-    protected:
         virtual string toString() const { return "??"; };
     };
 

@@ -339,31 +339,61 @@ namespace z0 {
 
     Window::~Window() {
         DeleteObject(background);
-        CloseWindow(hwndLog);
+        CloseWindow(_hwndLog);
     }
 
     LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        static HFONT hFont;
         auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
         switch (message) {
         case WM_CREATE: {
-            auto hInstance = GetModuleHandle(nullptr);
-            _hwndLogList = CreateWindow(
+            z0::Window::_hwndLogList = CreateWindow(
                 "LISTBOX",
-                NULL,
-                WS_CHILD | WS_VISIBLE | LBS_STANDARD,
-                0, 0, 200, 200,
+                nullptr,
+                WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL,
+                 0, 0, 0, 0,
                 hwnd,
-                NULL,
-                hInstance,
-                NULL
+                nullptr,
+                GetModuleHandle(nullptr),
+                nullptr
             );
-            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)L"Log starting");
+            hFont =  CreateFont(
+                14,                        // Height of font
+                0,                         // Width of font
+                0,                         // Angle of escapement
+                0,                         // Orientation angle
+                FW_NORMAL,                 // Font weight
+                FALSE,                     // Italic attribute option
+                FALSE,                     // Underline attribute option
+                FALSE,                     // Strikeout attribute option
+                DEFAULT_CHARSET,           // Character set identifier
+                OUT_DEFAULT_PRECIS,        // Output precision
+                CLIP_DEFAULT_PRECIS,       // Clipping precision
+                DEFAULT_QUALITY,           // Output quality
+                DEFAULT_PITCH | FF_SWISS,  // Pitch and family
+                TEXT("Courrier New"));            // Typeface name
+            SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
+            log("Log starting");
             return 0;
+        }
+        case WM_SIZE: {
+            if (z0::Window::_hwndLogList) {
+                int width = LOWORD(lParam);
+                int height = HIWORD(lParam);
+                MoveWindow(z0::Window::_hwndLogList, 0, 0, width, height, TRUE);
+            }
+            return 0;
+        }
+        case WM_DESTROY: {
+            DeleteObject(hFont);
         }
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
         }
     }
+
+    HWND Window::_hwndLog{nullptr};
+    HWND Window::_hwndLogList{nullptr};
 
     void Window::createLogWindow() {
         auto hInstance = GetModuleHandle(nullptr);
@@ -383,23 +413,31 @@ namespace z0 {
         };
         if (!RegisterClassEx(&wincl)) die("Cannot register Log Window class");
 
-        hwndLog = CreateWindowEx(
-                0,
+        _hwndLog = CreateWindowEx(
+                WS_EX_OVERLAPPEDWINDOW,
                 szClassNameLog,
                 "Log",
                 WS_OVERLAPPEDWINDOW,
                 0,
                 0,
-                200,
-                200,
+                400,
+                400,
                 HWND_DESKTOP,
                 nullptr,
                 hInstance,
                 this
         );
-        if (hwndLog == nullptr) { die("Cannot create Log Window", to_string(GetLastError())); };
-        ShowWindow(hwndLog, SW_SHOW);
-        UpdateWindow(hwndLog);
+        if (_hwndLog == nullptr) { die("Cannot create Log Window", to_string(GetLastError())); };
+        ShowWindow(_hwndLog, SW_SHOW);
+        UpdateWindow(_hwndLog);
+    }
+
+    void Window::_log(string msg) {
+        string dateTime = getCurrentDateTime();
+        string itemWithDatTeime = dateTime + " : " + msg;
+        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(itemWithDatTeime.c_str()));
+        int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+        SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
     }
 
 

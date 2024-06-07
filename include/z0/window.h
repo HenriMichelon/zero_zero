@@ -16,7 +16,6 @@ namespace z0 {
         void close() { closing = true; }
         bool shouldClose() const { return closing; }
 
-    protected:
         string toString() const override;
 
     private:
@@ -31,7 +30,6 @@ namespace z0 {
         HBRUSH background;
         RECT rect;
 
-        HWND hwndLog;
         void createLogWindow();
 #endif
 
@@ -40,6 +38,10 @@ namespace z0 {
         Window& operator=(const Window&) = delete;
 
 #ifdef _WIN32
+        static HWND _hwndLogList;
+        static HWND _hwndLog;
+        static void _log(string);
+
         void _setSize(int width, int height);
         HWND _getHandle() const { return hwnd; };
         RECT _getRect() const { return rect; }

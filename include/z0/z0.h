@@ -2,14 +2,14 @@
 
 #include <z0/libraries.h>
 #include <z0/constants.h>
+#include <z0/application_config.h>
+#include <z0/object.h>
+#include <z0/window.h>
 #include <z0/tools.h>
 #include <z0/color.h>
 #include <z0/rect.h>
-#include <z0/object.h>
-#include <z0/application_config.h>
 #include <z0/input_event.h>
 #include <z0/physics.h>
-#include <z0/window.h>
 #include <z0/resources/resource.h>
 #include <z0/stats.h>
 
