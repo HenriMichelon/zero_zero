@@ -342,6 +342,17 @@ namespace z0 {
         CloseWindow(_hwndLog);
     }
 
+    BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+        static int monitorIndex = 0;
+        if (monitorIndex == 0) {
+            RECT* pRect = (RECT*)dwData;
+            *pRect = *lprcMonitor;
+            return FALSE;
+        }
+        monitorIndex++;
+        return TRUE; 
+    }
+
     LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static HFONT hFont;
         auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -371,7 +382,7 @@ namespace z0 {
                 CLIP_DEFAULT_PRECIS,       // Clipping precision
                 DEFAULT_QUALITY,           // Output quality
                 DEFAULT_PITCH | FF_SWISS,  // Pitch and family
-                TEXT("Courrier New"));            // Typeface name
+                TEXT("Consolas"));            // Typeface name
             SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
             log("Log starting");
             return 0;
@@ -397,6 +408,10 @@ namespace z0 {
 
     void Window::createLogWindow() {
         auto hInstance = GetModuleHandle(nullptr);
+
+        RECT secondMonitorRect = { 0 };
+        EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&secondMonitorRect);
+
         const WNDCLASSEX wincl{
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_DBLCLKS,
@@ -418,9 +433,9 @@ namespace z0 {
                 szClassNameLog,
                 "Log",
                 WS_OVERLAPPEDWINDOW,
-                0,
-                0,
-                400,
+                secondMonitorRect.left, 
+                secondMonitorRect.top,
+                300,
                 400,
                 HWND_DESKTOP,
                 nullptr,
@@ -433,8 +448,13 @@ namespace z0 {
     }
 
     void Window::_log(string msg) {
-        string dateTime = getCurrentDateTime();
-        string itemWithDatTeime = dateTime + " : " + msg;
+        using namespace chrono;
+        auto in_time_t = system_clock::to_time_t(system_clock::now());
+        tm tm;
+        localtime_s(&tm, &in_time_t);
+        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+        string dateTime = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
+        string itemWithDatTeime = dateTime + " " + msg;
         SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(itemWithDatTeime.c_str()));
         int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
         SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);

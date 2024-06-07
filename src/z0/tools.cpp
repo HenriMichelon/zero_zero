@@ -33,19 +33,4 @@ namespace z0 {
         return result;
     }
 
-    string getCurrentDateTime() {
-        using namespace std::chrono;
-        auto now = system_clock::now();
-        auto in_time_t = system_clock::to_time_t(now);
-
-        tm tm;
-        localtime_s(&tm, &in_time_t);
-
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        return converter.to_bytes(format(L"{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-                        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-                        tm.tm_hour, tm.tm_min, tm.tm_sec));
-    }
-
-
 }

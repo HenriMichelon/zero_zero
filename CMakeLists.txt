@@ -37,7 +37,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 add_shaders(${PROJECT_NAME}_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine library
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} SHARED
 		${INCLUDE_DIR}/vk_mem_alloc.h
 
 		${Z0_INCLUDE_DIR}/constants.h
@@ -174,11 +174,15 @@ add_library(${PROJECT_NAME} STATIC
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
-add_compile_definitions(USE_PCH)
+#add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PRIVATE
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
 )
+if(WIN32)
+	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)
+endif()
+
 
 include(cmake/jolt.cmake)
 include(cmake/libraries.cmake)

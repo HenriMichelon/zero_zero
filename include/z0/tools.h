@@ -33,6 +33,4 @@ namespace z0 {
     // returns a random value in the range [0.0f, max]
     float randomf(float max = 100.0f);
 
-    string getCurrentDateTime();
-
 }
