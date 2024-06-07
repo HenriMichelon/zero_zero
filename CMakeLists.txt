@@ -23,7 +23,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF) # disabled due to fastgltf and VMA
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_compile_definitions(VULKAN_STATS) # print some stats at the end of the execution
+#add_compile_definitions(VULKAN_STATS) # print some stats at the end of the execution
 if(MINGW)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
 endif()

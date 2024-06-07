@@ -293,6 +293,7 @@ namespace z0 {
         Input::_initInput();
         start();
         while (!window->shouldClose()) {
+            Window::_processDeferredLog();
             Input::_updateInputStates();
             MSG _messages;
             if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {

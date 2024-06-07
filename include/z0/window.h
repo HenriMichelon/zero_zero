@@ -29,8 +29,10 @@ namespace z0 {
         HWND hwnd;
         HBRUSH background;
         RECT rect;
-
-        void createLogWindow();
+        static HWND _hwndLog;
+        static DWORD _mainThreadId;
+        static list<string> _deferredLogMessages;
+        void createLogWindow(HMODULE);
 #endif
 
     public:
@@ -39,8 +41,8 @@ namespace z0 {
 
 #ifdef _WIN32
         static HWND _hwndLogList;
-        static HWND _hwndLog;
         static void _log(string);
+        static void _processDeferredLog();
 
         void _setSize(int width, int height);
         HWND _getHandle() const { return hwnd; };

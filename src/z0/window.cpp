@@ -5,10 +5,9 @@
 #include "z0/input.h"
 #endif
 
-
 #ifdef _WIN32
+
 const char szClassName[ ] = "WindowsApp";
-const char szClassNameLog[ ] = "WindowsAppLog";
 
 int _getKeyboardModifiers() {
     int modifiers = 0;
@@ -223,8 +222,9 @@ namespace z0 {
         width{0},
         height{0},
         background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
-
+        _mainThreadId = GetCurrentThreadId();
         auto hInstance = GetModuleHandle(nullptr);
+        createLogWindow(hInstance);
 
         const WNDCLASSEX wincl{
             .cbSize = sizeof(WNDCLASSEX),
@@ -334,7 +334,6 @@ namespace z0 {
 
         ShowWindow(hwnd, SW_SHOW);
         UpdateWindow(hwnd);
-        createLogWindow();
     }
 
     Window::~Window() {
@@ -405,10 +404,11 @@ namespace z0 {
 
     HWND Window::_hwndLog{nullptr};
     HWND Window::_hwndLogList{nullptr};
+    const char szClassNameLog[ ] = "WindowsAppLog";
+    list<string> Window::_deferredLogMessages;
+        DWORD Window::_mainThreadId;
 
-    void Window::createLogWindow() {
-        auto hInstance = GetModuleHandle(nullptr);
-
+    void Window::createLogWindow(HMODULE hInstance) {
         RECT secondMonitorRect = { 0 };
         EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&secondMonitorRect);
 
@@ -435,7 +435,7 @@ namespace z0 {
                 WS_OVERLAPPEDWINDOW,
                 secondMonitorRect.left, 
                 secondMonitorRect.top,
-                300,
+                400,
                 400,
                 HWND_DESKTOP,
                 nullptr,
@@ -453,11 +453,25 @@ namespace z0 {
         tm tm;
         localtime_s(&tm, &in_time_t);
         wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        string dateTime = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
-        string itemWithDatTeime = dateTime + " " + msg;
-        SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(itemWithDatTeime.c_str()));
-        int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
-        SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+        string item = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
+        item.append(" ");
+        item.append(msg);
+        if (GetCurrentThreadId() == _mainThreadId) {
+            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(item.c_str()));
+            int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+            SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+        } else {
+            _deferredLogMessages.push_back(item);
+        }
+    }
+
+    void Window::_processDeferredLog() {
+        for(const auto& msg: _deferredLogMessages) {
+            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(msg.c_str()));
+            int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+            SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+        }
+        _deferredLogMessages.clear();
     }
 
 

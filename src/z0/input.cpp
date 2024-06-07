@@ -296,13 +296,12 @@ namespace z0 {
             for (auto & _inputDefaultMapping : _inputDefaultMappings) {
                 auto mapping = split(_inputDefaultMapping, ',');
                 if (mapping[0] == sguid) {
-                    //cout << mapping[0] << ":" << mapping[1] << endl;
                     for (int i = 2; i < mapping.size(); i++) {
                         auto parts = split(mapping[i], ':');
                         if ((parts.size() > 1) && (parts[1].size() > 1)){
                             try {
                                 auto index = stoi(string{parts[1].substr(1)});
-                                cout << parts[0] << "/" << parts[1] << endl;
+                                log(parts[0], "/", parts[1]);
                                 if (parts[0] == "leftx") state.indexAxisLeftX = index;
                                 if (parts[0] == "lefty") state.indexAxisLeftY = index;
                                 if (parts[0] == "rightx") state.indexAxisRightX = index;

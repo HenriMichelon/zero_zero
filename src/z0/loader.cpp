@@ -89,7 +89,6 @@ namespace z0 {
                 },
             },
         image.data);
-        //std::cout << name << std::endl;
         return newImage;
     }
 
@@ -116,7 +115,6 @@ namespace z0 {
         for (fastgltf::Material& mat : gltf.materials) {
             shared_ptr<StandardMaterial> material = make_shared<StandardMaterial>(mat.name.data());
             if (mat.pbrData.baseColorTexture.has_value()) {
-                //std::cout << material->toString() << std::endl;
                 auto imageIndex = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
                 shared_ptr<Image> image =  loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
                 material->setAlbedoTexture(make_shared<ImageTexture>(image));
