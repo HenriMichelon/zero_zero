@@ -14,9 +14,6 @@ set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
 
 include(FetchContent)
-if(EXISTS .env.cmake)
-	include(.env.cmake)
-endif ()
 include(cmake/shaders.cmake)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -34,7 +31,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 		"${Z0_SHADERS_DIR}/*.frag"
 		"${Z0_SHADERS_DIR}/*.vert"
 )
-add_shaders(${PROJECT_NAME}_shaders  ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
+add_shaders(${PROJECT_NAME}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine library
 add_library(${PROJECT_NAME} SHARED
@@ -175,7 +172,7 @@ add_library(${PROJECT_NAME} SHARED
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 #add_compile_definitions(USE_PCH)
-target_precompile_headers(${PROJECT_NAME} PRIVATE
+target_precompile_headers(${PROJECT_NAME} PUBLIC
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
 )

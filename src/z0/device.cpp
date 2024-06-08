@@ -1,4 +1,4 @@
-#include "z0/device.h"
+#include "z0/z0.h"
 
 namespace z0 {
 

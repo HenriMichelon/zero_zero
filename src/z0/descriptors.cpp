@@ -4,9 +4,7 @@
  * and
  * https://vulkan-tutorial.com/Uniform_buffers/Descriptor_layout_and_buffer
 */
-#include "z0/tools.h"
-#include "z0/descriptors.h"
-#include "z0/stats.h"
+#include "z0/z0.h"
 
 namespace z0 {
 

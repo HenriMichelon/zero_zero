@@ -3,9 +3,7 @@
  * https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/
  *
  */
-#include "z0/tools.h"
-#include "z0/buffer.h"
-#include "z0/stats.h"
+#include "z0/z0.h"
 
 namespace z0 {
 

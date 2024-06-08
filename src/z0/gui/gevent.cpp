@@ -1,4 +1,4 @@
-#include "z0/gui/gevent.h"
+#include "z0/z0.h"
 
 namespace z0 {
 
