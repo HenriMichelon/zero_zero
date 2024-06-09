@@ -281,6 +281,23 @@ namespace z0 {
             physicsProcess(child, delta);
         }
     }
+    
+    void Application::pause(const shared_ptr<Node>& node) {
+        if (paused && (!node->isProcessed())) {
+            node->_onPause();
+        }
+        if ((!paused && (node->isProcessed()))) {
+            node->_onResume();
+        }
+        for(auto& child: node->getChildren()) {
+            pause(child);
+        }
+    }
+
+    void  Application::setPaused(bool state) { 
+        paused = state; 
+        pause(rootNode);
+    }
 
     void Application::cleanup(shared_ptr<z0::Node> &node) {
         for(auto& child: node->getChildren()) {

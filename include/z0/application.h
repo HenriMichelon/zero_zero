@@ -25,7 +25,7 @@ namespace z0 {
         uint32_t getFPS() const { return fps; }
 
         bool isPaused() const { return paused; }
-        void setPaused(bool pause) { paused = pause; }
+        void setPaused(bool pause);
         void onInput(InputEvent& inputEvent);
         void setRootNode(const shared_ptr<Node>& node);
         void activateCamera(const shared_ptr<Camera>& camera);
@@ -73,6 +73,7 @@ namespace z0 {
 
         void cleanup(shared_ptr<Node>& node);
         void ready(const shared_ptr<Node>& node);
+        void pause(const shared_ptr<Node>& node);
         void process(const shared_ptr<Node>& node, float alpha);
         void physicsProcess(const shared_ptr<Node>& node, float delta);
         bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);

@@ -88,7 +88,7 @@ namespace z0 {
         list<shared_ptr<Node>> children;
         mat4 localTransform {};
         mat4 worldTransform {};
-        bool needPhysics{false};
+        bool needPhysics {false};
 
         virtual shared_ptr<Node> duplicateInstance();
         Application& app();
@@ -102,6 +102,8 @@ namespace z0 {
 
     public:
         virtual void _onReady();
+        virtual void _onPause() {};
+        virtual void _onResume() {};
         virtual void _onEnterScene() {};
         virtual void _onExitScene() {};
         virtual void _physicsUpdate() {};

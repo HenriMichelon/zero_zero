@@ -36,6 +36,8 @@ namespace z0 {
         void _physicsUpdate() override;
         void _onEnterScene() override;
         void _onExitScene() override;
+        void _onPause() override;
+        void _onResume() override;
 
         JPH::BodyID _getBodyId() const { return bodyId; }
     };
