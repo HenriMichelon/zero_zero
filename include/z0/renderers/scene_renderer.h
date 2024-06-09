@@ -72,6 +72,9 @@ namespace z0 {
         unique_ptr<Image> blankImage{nullptr};
         // Default blank image raw datas
         vector<unsigned char> blankImageData;
+         // Material for outlining models
+        const uint32_t OUTLINE_MATERIAL_INDEX{0};
+        shared_ptr<ShaderMaterial> outlineMaterial;
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
 

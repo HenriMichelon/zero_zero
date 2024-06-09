@@ -8,11 +8,14 @@ namespace z0 {
 
         const shared_ptr<Mesh>& getMesh() const { return mesh; }
         bool isValid() const { return mesh != nullptr; }
+        void setOutlined(bool o) { outlined = o; }
+        bool isOutlined() const { return outlined; }
 
     protected:
         shared_ptr<Node> duplicateInstance() override;
 
     private:
+        bool outlined{false};
         shared_ptr<Mesh> mesh;
     };
 

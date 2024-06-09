@@ -47,14 +47,18 @@ namespace z0 {
 
     class ShaderMaterial: public Material {
     public:
-        explicit ShaderMaterial(string shaderFileName, const string& name = "ShaderMaterial"): Material(name), fileName{std::move(shaderFileName)} {}
+        explicit ShaderMaterial(string fragShaderFileName, 
+                                string vertShaderFileName = "",
+                                const string& name = "ShaderMaterial");
 
-        const string& getFileName() const { return fileName; }
-        array<float, 2>& getParameters() { return parameters; }
+        const string& getFragFileName() const { return fragFileName; }
+        const string& getVertFileName() const { return vertFileName; }
+        array<float, 3>& getParameters() { return parameters; }
 
     private:
-        const string fileName;
-        array<float, 2> parameters;
+        const string fragFileName;
+        const string vertFileName;
+        array<float, 3> parameters;
     };
 
 }

@@ -31,6 +31,12 @@ namespace z0 {
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
+         // Create a material for outlining models
+        outlineMaterial = make_shared<ShaderMaterial>("outline.frag");
+        outlineMaterial->_incrementReferenceCounter();
+        outlineMaterial->getParameters()[0] = 1.0f;
+        materialsIndices[outlineMaterial->getId()] = OUTLINE_MATERIAL_INDEX;
+        materials.push_back(outlineMaterial.get());
      }
 
     void SceneRenderer::cleanup() {
@@ -60,6 +66,19 @@ namespace z0 {
         }
     }
 
+    void SceneRenderer::addedModel(MeshInstance *meshInstance) {
+        for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
+            if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
+                if (!materialShaders.contains(shaderMaterial->getFragFileName())) {
+                    materialShaders[shaderMaterial->getFragFileName()] = createShader(shaderMaterial->getFragFileName(),
+                                                                                  VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                                                  0);
+                    materialShaders[shaderMaterial->getFragFileName()]->_incrementReferenceCounter();
+                }
+            }
+        }
+    }
+    
     void SceneRenderer::addNode(const shared_ptr<Node> &node) {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
@@ -74,19 +93,6 @@ namespace z0 {
             skyboxRenderer.reset();
         } else {
             BaseModelsRenderer::removeNode(node);
-        }
-    }
-
-    void SceneRenderer::addedModel(z0::MeshInstance *meshInstance) {
-        for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
-            if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
-                if (!materialShaders.contains(shaderMaterial->getFileName())) {
-                    materialShaders[shaderMaterial->getFileName()] = createShader(shaderMaterial->getFileName(),
-                                                                                  VK_SHADER_STAGE_FRAGMENT_BIT,
-                                                                                  0);
-                    materialShaders[shaderMaterial->getFileName()]->_incrementReferenceCounter();
-                }
-            }
         }
     }
 
@@ -125,9 +131,9 @@ namespace z0 {
                         if (standardMaterial->getNormalTexture() != nullptr)
                             removeImage(standardMaterial->getNormalTexture()->getImage());
                     } else if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
-                        const auto& shader = materialShaders[shaderMaterial->getFileName()];
+                        const auto& shader = materialShaders[shaderMaterial->getFragFileName()];
                         if (shader->_decrementReferenceCounter()) {
-                            materialShaders.erase(shaderMaterial->getFileName());
+                            materialShaders.erase(shaderMaterial->getFragFileName());
                         }
                     }
                     materials.remove(material.get());
@@ -153,6 +159,10 @@ namespace z0 {
         if (skyboxRenderer != nullptr) skyboxRenderer->loadShaders();
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        materialShaders["outline.vert"] = createShader("outline.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
+        materialShaders["outline.vert"]->_incrementReferenceCounter();
+        materialShaders["outline.frag"] = createShader("outline.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        materialShaders["outline.frag"]->_incrementReferenceCounter();
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
@@ -215,27 +225,39 @@ namespace z0 {
     }
 
     void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw) {
-        Shader* previousShader = fragShader.get();
+        Shader* previousFragShader = fragShader.get();
         auto previousCullMode = CULLMODE_DISABLED;
         for (const auto& meshInstance : modelsToDraw) {
             if (meshInstance->isValid()) {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
-                    if (surface->material->getCullMode() != previousCullMode) {
-                        previousCullMode = surface->material->getCullMode();
-                        vkCmdSetCullMode(commandBuffer,
-                                         previousCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                         previousCullMode == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
+                    if (meshInstance->isOutlined()) {
+                        array<uint32_t, 3> offsets2 = {
+                            0, // globalBuffers
+                            static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
+                            static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * OUTLINE_MATERIAL_INDEX),
+                        };
+                        bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
+                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders["outline.vert"]->getStage(), materialShaders["outline.vert"]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders["outline.frag"]->getStage(), materialShaders["outline.frag"]->getShader());
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                        model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, previousFragShader->getStage(), previousFragShader->getShader());
                     }
+
+                    vkCmdSetCullMode(commandBuffer,
+                                     surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
+                                     surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
                     if (auto shaderMaterial = dynamic_cast<ShaderMaterial*>(surface->material.get())) {
-                        Shader* materialShader = materialShaders[shaderMaterial->getFileName()].get();
-                        if (materialShader != previousShader) {
-                            previousShader = materialShader;
-                            vkCmdBindShadersEXT(commandBuffer, 1, materialShader->getStage(), materialShader->getShader());
+                        Shader* materialFragShader = materialShaders[shaderMaterial->getFragFileName()].get();
+                        if (materialFragShader != previousFragShader) {
+                            previousFragShader = materialFragShader;
+                            vkCmdBindShadersEXT(commandBuffer, 1, materialFragShader->getStage(), materialFragShader->getShader());
                         }
-                    } else if (fragShader.get() != previousShader) {
-                        previousShader = fragShader.get();
+                    } else if (fragShader.get() != previousFragShader) {
+                        previousFragShader = fragShader.get();
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
