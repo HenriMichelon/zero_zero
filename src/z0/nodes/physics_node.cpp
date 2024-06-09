@@ -2,6 +2,7 @@
 #ifndef USE_PCH
 #include "z0/nodes/node.h"
 #include "z0/resources/shape.h"
+#include "z0/nodes/collision_node.h"
 #include "z0/nodes/physics_node.h"
 #include "z0/application.h"
 #endif
@@ -12,11 +13,8 @@ namespace z0 {
                              uint32_t layer,
                              uint32_t mask,
                              const string& name):
-        Node{name},
-        collisionLayer{layer},
-        collisionMask{mask},
-        shape{_shape},
-        bodyInterface{Application::get()._getBodyInterface()} {
+        CollisionNode{layer, mask, name},
+        shape{_shape} {
         activationMode = JPH::EActivation::Activate;
         needPhysics = true;
     }
@@ -31,29 +29,13 @@ namespace z0 {
         setPositionAndRotation();
     }
 
-    bool PhysicsNode::haveCollisionLayer(uint32_t layer) const {
-        return collisionLayer & layer;
-    }
-
-    bool PhysicsNode::haveCollisionMask(uint32_t layer) const {
-        return collisionMask & layer;
-    }
-
     void PhysicsNode::setCollistionLayer(uint32_t layer, bool value) {
-        if (value) {
-            collisionLayer |= layer;
-        } else {
-            collisionLayer &= ~layer;
-        }
+        CollisionNode::setCollistionLayer(layer, value);
         bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
     }
 
     void PhysicsNode::setCollistionMask(uint32_t layer, bool value) {
-        if (value) {
-            collisionMask |= layer;
-        } else {
-            collisionMask &= ~layer;
-        }
+        CollisionNode::setCollistionMask(layer, value);
         bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
     }
 
@@ -71,6 +53,7 @@ namespace z0 {
     void PhysicsNode::setBodyId(JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
+        log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
     }
 
     void PhysicsNode::setPositionAndRotation() {

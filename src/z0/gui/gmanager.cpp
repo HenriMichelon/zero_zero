@@ -3,6 +3,7 @@
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
 #include "z0/nodes/node.h"
+#include "z0/application.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
@@ -10,7 +11,6 @@
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #include "z0/gui/gmanager.h"
-#include "z0/application.h"
 #endif
 
 namespace z0 {

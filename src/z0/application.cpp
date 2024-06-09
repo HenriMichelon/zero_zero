@@ -95,6 +95,7 @@ namespace z0 {
         window = make_unique<Window>(applicationConfig);
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
+        // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();
         JPH::Factory::sInstance = new JPH::Factory();
         JPH::RegisterTypes();
@@ -114,9 +115,9 @@ namespace z0 {
                            broad_phase_layer_interface,
                            object_vs_broadphase_layer_filter,
                            object_vs_object_layer_filter);
-
         physicsSystem.SetContactListener(&contactListener);
 
+        // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
         vectorRenderer = make_shared<VectorRenderer>(*device,
@@ -255,7 +256,11 @@ namespace z0 {
         for(auto& child: node->getChildren()) {
             if (input(child, inputEvent)) return true;
         }
-        return node->onInput(inputEvent);
+        if (node->isProcessed()) {
+            return node->onInput(inputEvent);
+        } else {
+            return false;
+        }
     }
 
     void Application::process(const shared_ptr<Node>& node, float delta) {
@@ -269,7 +274,7 @@ namespace z0 {
 
     void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
         if (node->isProcessed()) {
-            if (node->_needPhysics()) node->_physicsUpdate();
+            if (node->_needPhysics()) { node->_physicsUpdate(); }
             node->onPhysicsProcess(delta);
         }
         for(auto& child: node->getChildren()) {

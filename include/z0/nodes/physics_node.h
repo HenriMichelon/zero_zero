@@ -2,14 +2,10 @@
 
 namespace z0 {
 
-    class PhysicsNode: public Node {
+    class PhysicsNode: public CollisionNode {
     public:
         ~PhysicsNode() override = default;
 
-        uint32_t getCollisionLayer() const { return collisionLayer; }
-        uint32_t getCollistionMask() const { return collisionMask; }
-        bool haveCollisionLayer(uint32_t layer) const;
-        bool haveCollisionMask(uint32_t layer) const;
         virtual void setCollistionLayer(uint32_t layer, bool value);
         virtual void setCollistionMask(uint32_t layer, bool value);
 
@@ -23,17 +19,13 @@ namespace z0 {
 
     protected:
         bool updating{false};
-        uint32_t collisionLayer;
-        uint32_t collisionMask;
         std::shared_ptr<Shape> shape;
-        JPH::BodyInterface& bodyInterface;
         JPH::EActivation activationMode;
 
         PhysicsNode(shared_ptr<Shape>& shape,
                     uint32_t layer,
                     uint32_t mask,
                     const string& name);
-
         void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
 
@@ -46,7 +38,6 @@ namespace z0 {
         void _onExitScene() override;
 
         JPH::BodyID _getBodyId() const { return bodyId; }
-
     };
 
 

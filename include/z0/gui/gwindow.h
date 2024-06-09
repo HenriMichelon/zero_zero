@@ -105,6 +105,9 @@ namespace z0 {
         shared_ptr<Font>& getDefaultFont() const;
         void refresh();
 
+    protected:
+        Application& app();
+
     private:
         Rect                rect;
         GManager*           windowManager{nullptr};

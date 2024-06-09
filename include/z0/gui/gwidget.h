@@ -257,6 +257,7 @@ namespace z0 {
         static bool clipRect(Rect&, const Rect&, const Rect&) ;
         void allowingFocus(bool = true);
         void resizeChildren();
+        Application& app();
 
         virtual void eventCreate();
         virtual void eventDestroy();

@@ -22,6 +22,7 @@ namespace z0 {
         virtual void updateTransform(const mat4& parentMatrix);
         virtual void updateTransform();
         mat4 getTransformGlobal() const { return worldTransform; }
+        vec3 toGlobal(vec3 local) const;
 
         // parent relative position
         virtual void setPosition(vec3 position);
@@ -63,6 +64,7 @@ namespace z0 {
         shared_ptr<Node> getNode(const string& path) const;
         void printTree(int tab = 0) const;
         string toString() const override { return name; }
+        //bool isParent(const shared_ptr<Node>&) const;
 
         id_t getId() const { return id; }
         bool operator == (const Node& other) const { return id == other.id;}

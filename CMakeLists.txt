@@ -76,9 +76,11 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/nodes/rigid_body.h
 		${Z0_INCLUDE_DIR}/nodes/static_body.h
 		${Z0_INCLUDE_DIR}/nodes/skybox.h
+		${Z0_INCLUDE_DIR}/nodes/collision_node.h
 		${Z0_INCLUDE_DIR}/nodes/physics_node.h
 		${Z0_INCLUDE_DIR}/nodes/character.h
 		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
+		${Z0_INCLUDE_DIR}/nodes/raycast.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -140,7 +142,9 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/nodes/skybox.cpp
 		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
+		${Z0_ENGINE_DIR}/nodes/collision_node.cpp
 		${Z0_ENGINE_DIR}/nodes/physics_node.cpp
+		${Z0_ENGINE_DIR}/nodes/raycast.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp

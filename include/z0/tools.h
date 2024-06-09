@@ -26,6 +26,9 @@ namespace z0 {
 #endif
     }
 
+    string toString(vec3 vec);
+    //JPH::Mat44 glmToJolt(const mat4& glmMat);
+
     vector<string_view> split(string_view str, char delimiter);
 
     // returns a random value in the range [0, max]

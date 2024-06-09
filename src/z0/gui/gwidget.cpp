@@ -2,6 +2,8 @@
 #ifndef USE_PCH
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
+#include "z0/nodes/node.h"
+#include "z0/application.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
@@ -12,6 +14,10 @@
 namespace z0 {
 
     GWidget::GWidget(Type T): type{T} {
+    }
+
+        Application& GWidget::app() {
+        return Application::get();
     }
 
     void GWidget::draw(VectorRenderer &R) const {

@@ -40,11 +40,8 @@ namespace z0 {
             setPosition(pos);
             return;
         }
-        auto inverseParentTransform = inverse(parent->worldTransform);
-        auto newLocalPositionHomogeneous = inverseParentTransform * vec4(pos, 1.0);
-        auto newLocalPosition = vec3(newLocalPositionHomogeneous);
-        localTransform[3] = vec4(newLocalPosition, 1.0f);
-        updateTransform(mat4{1.0f});
+        localTransform[3] = inverse(parent->worldTransform) * vec4{pos, 1.0};
+        updateTransform();
     }
 
     void Node::updateTransform(const mat4& parentMatrix) {
@@ -133,6 +130,10 @@ namespace z0 {
         inReady = false;
     }
 
+    vec3 Node::toGlobal(vec3 local) const {
+        return vec3{worldTransform * vec4{local, 1.0f}};
+    }
+
     shared_ptr<Node> Node::getChild(const string& name) const {
         auto it = std::find_if(children.begin(), children.end(), [name](std::shared_ptr<Node> elem) {
             return elem->name == name;
@@ -152,6 +153,14 @@ namespace z0 {
             return getChild(path);
         }
     }
+
+    /*bool Node::isParent(const shared_ptr<Node>& node) const {
+        if (node.get() == parent) { return true; }
+        for(const auto& child : children) {
+            if (child->isParent(node)) { return true; }
+        }
+        return false;
+    }*/
 
     bool Node::addChild(const shared_ptr<Node>& child) {
         if (haveChild(child, false)) return false;

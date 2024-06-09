@@ -33,4 +33,18 @@ namespace z0 {
         return result;
     }
 
+    string toString(vec3 vec) {
+        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
+    }
+/*
+    JPH::Mat44 glmToJolt(const mat4& glmMat) {
+        JPH::Mat44 joltMat;
+        for (int row = 0; row < 4; ++row) {
+            for (int col = 0; col < 4; ++col) {
+                joltMat(row, col) = glmMat[col][row];  // Transpose the matrix
+            }
+        }
+        return joltMat;
+    }*/
+
 }
