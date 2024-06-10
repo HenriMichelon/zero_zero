@@ -8,7 +8,7 @@ layout (location = 2) in vec2 uv;
 layout (location = 3) in vec4 tangent;
 
 void main() {
-    vec3 scaledPosition = position * vec3(1.01f);
+    vec3 scaledPosition = position * vec3(1.02f);
     vec4 globalPosition = model.matrix * vec4(scaledPosition, 1.0);
     gl_Position = global.projection * global.view * globalPosition;
 }

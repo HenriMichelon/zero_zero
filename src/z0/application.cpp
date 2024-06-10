@@ -29,6 +29,31 @@ namespace z0 {
 
     Application* Application::_instance = nullptr;
 
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData) {
+        log("validation layer: ", pCallbackData->pMessage);
+        return VK_FALSE;
+    }
+
+    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        if (func != nullptr) {
+            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+        } else {
+            return VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
+    }
+
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+        if (func != nullptr) {
+            func(instance, debugMessenger, pAllocator);
+        }
+    }
+
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node>& node):
         applicationConfig{appConfig},
         rootNode{node} {
@@ -71,6 +96,9 @@ namespace z0 {
 #endif
         // for Vulkan Memory Allocator
         instanceExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+#ifndef NDEBUG
+        instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 
         // Use Vulkan 1.3.x
         const VkApplicationInfo applicationInfo{
@@ -94,6 +122,18 @@ namespace z0 {
 
         window = make_unique<Window>(applicationConfig);
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
+
+        const VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+            .pfnUserCallback = debugCallback,
+            .pUserData = nullptr,
+        };
+        if (CreateDebugUtilsMessengerEXT(vkInstance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+            die("failed to set up debug messenger!");
+        }   
+
 
         // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();
@@ -132,6 +172,9 @@ namespace z0 {
 
     Application::~Application() {
         device->cleanup();
+#ifndef NDEBUG
+        DestroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr);
+#endif
         vkDestroyInstance(vkInstance, nullptr);
     }
 

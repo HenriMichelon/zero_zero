@@ -36,6 +36,7 @@ namespace z0 {
         unique_ptr<Window> window;
         unique_ptr<Device> device;
         VkInstance vkInstance;
+        VkDebugUtilsMessengerEXT debugMessenger;
         bool paused{false};
         bool stopped{true};
         uint32_t fps{0};

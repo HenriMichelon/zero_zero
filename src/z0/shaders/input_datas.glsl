@@ -17,7 +17,7 @@ layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
     int normalIndex;
     vec4 albedoColor;
     float shininess;
-    float parameters[3];
+    float parameters[4];
 } material;
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer.MAX_IMAGES

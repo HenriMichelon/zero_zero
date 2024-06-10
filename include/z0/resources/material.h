@@ -53,12 +53,12 @@ namespace z0 {
 
         const string& getFragFileName() const { return fragFileName; }
         const string& getVertFileName() const { return vertFileName; }
-        array<float, 3>& getParameters() { return parameters; }
+        array<float, 4>& getParameters() { return parameters; }
 
     private:
         const string fragFileName;
         const string vertFileName;
-        array<float, 3> parameters;
+        array<float, 4> parameters;
     };
 
 }
