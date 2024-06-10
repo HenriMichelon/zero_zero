@@ -34,7 +34,7 @@ namespace z0 {
          // Create a material for outlining models
         outlineMaterial = make_shared<ShaderMaterial>("outline.frag");
         outlineMaterial->_incrementReferenceCounter();
-        outlineMaterial->getParameters()[0] = 1.0f;
+        outlineMaterial->setParameter(0, {1.0f, 0.9f, 0.2f, 1.0f});
         materialsIndices[outlineMaterial->getId()] = OUTLINE_MATERIAL_INDEX;
         materials.push_back(outlineMaterial.get());
      }
@@ -203,8 +203,8 @@ namespace z0 {
                     materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                 }
             } else if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material)) {
-                for (int i = 0; i < shaderMaterial->getParameters().size(); i++) {
-                    materialUbo.parameters[i] = shaderMaterial->getParameters()[i];
+                for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
+                    materialUbo.parameters[i] = shaderMaterial->getParameter(i);
                 }
             }
             writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);

@@ -47,18 +47,21 @@ namespace z0 {
 
     class ShaderMaterial: public Material {
     public:
+        static const int MAX_PARAMETERS = 4;
+        
         explicit ShaderMaterial(string fragShaderFileName, 
                                 string vertShaderFileName = "",
                                 const string& name = "ShaderMaterial");
 
         const string& getFragFileName() const { return fragFileName; }
         const string& getVertFileName() const { return vertFileName; }
-        array<float, 4>& getParameters() { return parameters; }
+        void setParameter(int index, vec4 value);
+        vec4 getParameter(int index);
 
     private:
         const string fragFileName;
         const string vertFileName;
-        array<float, 4> parameters;
+        vec4 parameters[MAX_PARAMETERS];
     };
 
 }

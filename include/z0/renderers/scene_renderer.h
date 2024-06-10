@@ -27,7 +27,8 @@ namespace z0 {
             alignas(16) vec3 cameraPosition;
         };
         struct ModelUniformBuffer {
-            mat4 matrix;
+            mat4  matrix;
+            float outlineScale{0.01f};
         };
         struct MaterialUniformBuffer {
             alignas(4) int transparency{TRANSPARENCY_DISABLED};
@@ -37,7 +38,7 @@ namespace z0 {
             alignas(4) int32_t normalIndex{-1};
             alignas(16) vec4 albedoColor{0.5,0.5,0.5,1.0};
             alignas(4) float shininess{32.0f};
-            alignas(16) float parameters[2];
+            alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
         // Indices of each models datas in the models uniform buffer

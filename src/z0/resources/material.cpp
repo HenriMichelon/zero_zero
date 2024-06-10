@@ -15,4 +15,12 @@ namespace z0 {
         vertFileName{std::move(vertShaderFileName)}
         {}
 
+    void ShaderMaterial::setParameter(int index, vec4 value) {
+        parameters[index] = value;
+    }
+
+    vec4 ShaderMaterial::getParameter(int index) {
+        return parameters[index];
+    }
+
 }
