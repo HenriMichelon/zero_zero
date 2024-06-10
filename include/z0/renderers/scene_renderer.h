@@ -19,6 +19,7 @@ namespace z0 {
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
         void addedModel(MeshInstance* meshInstance) override;
         void removingModel(MeshInstance* meshInstance) override;
+        void loadShadersMaterials(ShaderMaterial* material);
 
     private:
         struct GobalUniformBuffer {

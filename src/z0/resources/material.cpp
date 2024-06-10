@@ -46,7 +46,7 @@ namespace z0 {
 
     OutlineMaterials::OutlineMaterials() {
         if (instance != nullptr) die("OutlineMaterial singleton already exists");
-        auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag");
+        auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag", "outline.vert");
         outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});        
         outlineMaterial->setParameter(1, vec4{0.01f});
         add(outlineMaterial);

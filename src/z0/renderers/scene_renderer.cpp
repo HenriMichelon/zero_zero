@@ -64,16 +64,28 @@ namespace z0 {
     void SceneRenderer::addedModel(MeshInstance *meshInstance) {
         for (const auto &material: meshInstance->getMesh()->_getMaterials()) {
             if (auto* shaderMaterial = dynamic_cast<ShaderMaterial*>(material.get())) {
-                if (!materialShaders.contains(shaderMaterial->getFragFileName())) {
-                    materialShaders[shaderMaterial->getFragFileName()] = createShader(shaderMaterial->getFragFileName(),
-                                                                                  VK_SHADER_STAGE_FRAGMENT_BIT,
-                                                                                  0);
-                    materialShaders[shaderMaterial->getFragFileName()]->_incrementReferenceCounter();
-                }
+               loadShadersMaterials(shaderMaterial);
             }
         }
     }
-    
+
+    void SceneRenderer::loadShadersMaterials(ShaderMaterial* material) {
+        if (!materialShaders.contains(material->getFragFileName())) {
+            if (!material->getVertFileName().empty()) {
+                materialShaders[material->getVertFileName()] = createShader(material->getVertFileName(),
+                                                                            VK_SHADER_STAGE_VERTEX_BIT, 
+                                                                            VK_SHADER_STAGE_FRAGMENT_BIT);
+                materialShaders[material->getVertFileName()]->_incrementReferenceCounter();
+            }
+            if (!material->getFragFileName().empty()) {
+                materialShaders[material->getFragFileName()] = createShader(material->getFragFileName(),
+                                                                            VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                                            0);
+                materialShaders[material->getFragFileName()]->_incrementReferenceCounter();
+            }
+        }
+    }
+
     void SceneRenderer::addNode(const shared_ptr<Node> &node) {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
@@ -153,11 +165,7 @@ namespace z0 {
     void SceneRenderer::loadShaders() {
         if (skyboxRenderer != nullptr) skyboxRenderer->loadShaders();
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-        fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-        materialShaders["outline.vert"] = createShader("outline.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-        materialShaders["outline.vert"]->_incrementReferenceCounter();
-        materialShaders["outline.frag"] = createShader("outline.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-        materialShaders["outline.frag"]->_incrementReferenceCounter();
+        fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);    
     }
 
     void SceneRenderer::updateMaterials() {
@@ -166,6 +174,11 @@ namespace z0 {
             material->_incrementReferenceCounter();
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
+            descriptorSetNeedUpdate = true;
+        }
+        createOrUpdateResources();
+        for(const auto& material : OutlineMaterials::get().all()) {
+            loadShadersMaterials(material.get());
         }
     }
 
@@ -240,15 +253,16 @@ namespace z0 {
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
-                        const auto& materialIndex = materialsIndices[meshInstance->getOutlineMaterial()->getId()];
+                        const auto& material = meshInstance->getOutlineMaterial();
+                        const auto& materialIndex = materialsIndices[material->getId()];
                         array<uint32_t, 3> offsets2 = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
-                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders["outline.vert"]->getStage(), materialShaders["outline.vert"]->getShader());
-                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders["outline.frag"]->getStage(), materialShaders["outline.frag"]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders[material->getVertFileName()]->getStage(), materialShaders["outline.vert"]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, materialShaders[material->getFragFileName()]->getStage(), materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
@@ -282,7 +296,6 @@ namespace z0 {
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
-        if (models.empty()) return;
         descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
@@ -326,6 +339,10 @@ namespace z0 {
     void SceneRenderer::createOrUpdateDescriptorSet(bool create) {
         if (modelUniformBufferCount != models.size()) {
             modelUniformBufferCount = models.size();
+            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
+        }
+        if (modelUniformBufferCount == 0) {
+            modelUniformBufferCount = 1;
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
         }
         if ((!materials.empty()) && (materialUniformBufferCount != materials.size())) {
