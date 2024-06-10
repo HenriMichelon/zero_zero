@@ -341,7 +341,7 @@ namespace z0 {
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(bool create) {
-        if (modelUniformBufferCount != models.size()) {
+        if (!models.empty() && (modelUniformBufferCount != models.size())) {
             modelUniformBufferCount = models.size();
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
         }
