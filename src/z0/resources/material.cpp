@@ -7,6 +7,15 @@
 
 namespace z0 {
 
+    ShaderMaterial::ShaderMaterial(const shared_ptr<ShaderMaterial>&orig):
+        Material{orig->name},
+        fragFileName{orig->fragFileName},
+        vertFileName{orig->vertFileName} {
+        for(int i = 0; i < MAX_PARAMETERS; i++) {
+            parameters[i] = orig->parameters[i];
+        }
+    }
+
     ShaderMaterial::ShaderMaterial(string fragShaderFileName,
                                    string vertShaderFileName,
                                    const string& name): 
@@ -18,6 +27,7 @@ namespace z0 {
     void ShaderMaterial::setParameter(int index, vec4 value) {
         parameters[index] = value;
     }
+    
 
     vec4 ShaderMaterial::getParameter(int index) {
         return parameters[index];
@@ -37,8 +47,8 @@ namespace z0 {
     OutlineMaterials::OutlineMaterials() {
         if (instance != nullptr) die("OutlineMaterial singleton already exists");
         auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag");
-        outlineMaterial->setParameter(0, {1.0f, 0.9f, 0.2f, 1.0f});        
-        outlineMaterial->setParameter(1, vec4{0.1f});
+        outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});        
+        outlineMaterial->setParameter(1, vec4{0.01f});
         add(outlineMaterial);
     }
 

@@ -205,6 +205,7 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) return;
 
+        sceneRenderer->updateMaterials();
         windowManager->drawFrame();
         if (!removedNodes.empty()) {
             for (const auto &node: removedNodes) {
@@ -221,7 +222,6 @@ namespace z0 {
             }
             addedNodes.clear();
         }
-        sceneRenderer->updateMaterials();
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();

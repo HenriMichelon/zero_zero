@@ -351,55 +351,88 @@ namespace z0 {
         monitorIndex++;
         return TRUE; 
     }
+    
+    void CopyTextToClipboard(const string& text) {
+        if (OpenClipboard(NULL)) {
+            EmptyClipboard();
+
+            size_t size = (text.size() + 1) * sizeof(wchar_t);
+            HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size);
+            if (hMem) {
+                memcpy(GlobalLock(hMem), text.c_str(), size);
+                GlobalUnlock(hMem);
+                SetClipboardData(CF_TEXT, hMem);
+            }
+            CloseClipboard();
+            if (hMem) {
+                GlobalFree(hMem);
+            }
+        }
+    }
 
     LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static HFONT hFont;
         auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
         switch (message) {
-        case WM_CREATE: {
-            z0::Window::_hwndLogList = CreateWindow(
-                "LISTBOX",
-                nullptr,
-                WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL,
-                 0, 0, 0, 0,
-                hwnd,
-                nullptr,
-                GetModuleHandle(nullptr),
-                nullptr
-            );
-            hFont =  CreateFont(
-                14,                        // Height of font
-                0,                         // Width of font
-                0,                         // Angle of escapement
-                0,                         // Orientation angle
-                FW_NORMAL,                 // Font weight
-                FALSE,                     // Italic attribute option
-                FALSE,                     // Underline attribute option
-                FALSE,                     // Strikeout attribute option
-                DEFAULT_CHARSET,           // Character set identifier
-                OUT_DEFAULT_PRECIS,        // Output precision
-                CLIP_DEFAULT_PRECIS,       // Clipping precision
-                DEFAULT_QUALITY,           // Output quality
-                DEFAULT_PITCH | FF_SWISS,  // Pitch and family
-                TEXT("Consolas"));            // Typeface name
-            SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
-            log("Log starting");
-            return 0;
-        }
-        case WM_SIZE: {
-            if (z0::Window::_hwndLogList) {
-                int width = LOWORD(lParam);
-                int height = HIWORD(lParam);
-                MoveWindow(z0::Window::_hwndLogList, 0, 0, width, height, TRUE);
+            case WM_CREATE: {
+                z0::Window::_hwndLogList = CreateWindow(
+                    "LISTBOX",
+                    nullptr,
+                    WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL |LBS_STANDARD,
+                    0, 0, 0, 0,
+                    hwnd,
+                    nullptr,
+                    GetModuleHandle(nullptr),
+                    nullptr
+                );
+                hFont =  CreateFont(
+                    14,                        // Height of font
+                    0,                         // Width of font
+                    0,                         // Angle of escapement
+                    0,                         // Orientation angle
+                    FW_NORMAL,                 // Font weight
+                    FALSE,                     // Italic attribute option
+                    FALSE,                     // Underline attribute option
+                    FALSE,                     // Strikeout attribute option
+                    DEFAULT_CHARSET,           // Character set identifier
+                    OUT_DEFAULT_PRECIS,        // Output precision
+                    CLIP_DEFAULT_PRECIS,       // Clipping precision
+                    DEFAULT_QUALITY,           // Output quality
+                    DEFAULT_PITCH | FF_SWISS,  // Pitch and family
+                    TEXT("Consolas"));            // Typeface name
+                SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
+                log("Log starting");
+                return 0;
             }
-            return 0;
+            case WM_COMMAND: 
+            {
+                auto subcommande = HIWORD(wParam);
+                if (subcommande == LBN_SELCHANGE) {
+                    int index = SendMessage(z0::Window::_hwndLogList, LB_GETCURSEL, 0, 0);
+                    if (index != LB_ERR) {
+                        auto length = SendMessage(z0::Window::_hwndLogList, LB_GETTEXTLEN, index, 0);
+                        TCHAR* buffer = new TCHAR[length+1];
+                        SendMessage(z0::Window::_hwndLogList, LB_GETTEXT, index, (LPARAM)buffer);
+                        buffer[length] = 0;
+                        CopyTextToClipboard(buffer);
+                        delete[] buffer;
+                    }
+                }
+                break;
+            }
+            case WM_SIZE: {
+                if (z0::Window::_hwndLogList) {
+                    int width = LOWORD(lParam);
+                    int height = HIWORD(lParam);
+                    MoveWindow(z0::Window::_hwndLogList, 0, 0, width, height, TRUE);
+                }
+                return 0;
+            }
+            case WM_DESTROY: {
+                DeleteObject(hFont);
+            }
         }
-        case WM_DESTROY: {
-            DeleteObject(hFont);
-        }
-        default:
-            return DefWindowProc(hwnd, message, wParam, lParam);
-        }
+        return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
     HWND Window::_hwndLog{nullptr};

@@ -49,6 +49,7 @@ namespace z0 {
     public:
         static const int MAX_PARAMETERS = 4;
         
+        explicit ShaderMaterial(const shared_ptr<ShaderMaterial>&);
         explicit ShaderMaterial(string fragShaderFileName, 
                                 string vertShaderFileName = "",
                                 const string& name = "ShaderMaterial");
