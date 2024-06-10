@@ -30,7 +30,6 @@ namespace z0 {
         };
         struct ModelUniformBuffer {
             mat4  matrix;
-            float outlineScale{0.01f};
         };
         struct MaterialUniformBuffer {
             alignas(4) int transparency{TRANSPARENCY_DISABLED};

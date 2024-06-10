@@ -7,7 +7,6 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
     mat4 matrix;
-    float outlineScale;
 } model;
 
 layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
