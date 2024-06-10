@@ -242,8 +242,8 @@ namespace z0 {
     }
 
     void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw) {
-        Shader* previousFragShader = fragShader.get();
-        auto previousCullMode = CULLMODE_DISABLED;
+        auto previousCullMode{CULLMODE_DISABLED};
+        bool shadersChanged{false};
         for (const auto& meshInstance : modelsToDraw) {
             if (meshInstance->isValid()) {
                 const auto& modelIndex = modelsIndices[meshInstance->getId()];
@@ -263,21 +263,23 @@ namespace z0 {
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                        vkCmdBindShadersEXT(commandBuffer, 1, previousFragShader->getStage(), previousFragShader->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
 
                     vkCmdSetCullMode(commandBuffer,
                                      surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
                                      surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
                     if (auto shaderMaterial = dynamic_cast<ShaderMaterial*>(surface->material.get())) {
-                        Shader* materialFragShader = materialShaders[shaderMaterial->getFragFileName()].get();
-                        if (materialFragShader != previousFragShader) {
-                            previousFragShader = materialFragShader;
-                            vkCmdBindShadersEXT(commandBuffer, 1, materialFragShader->getStage(), materialFragShader->getShader());
+                        if (!shaderMaterial->getFragFileName().empty()) {
+                            Shader* material = materialShaders[shaderMaterial->getFragFileName()].get();
+                            vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
+                            shadersChanged = true;
                         }
-                    } else if (fragShader.get() != previousFragShader) {
-                        previousFragShader = fragShader.get();
-                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                        if (!shaderMaterial->getVertFileName().empty()) {
+                            Shader* material = materialShaders[shaderMaterial->getVertFileName()].get();
+                            vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
+                            shadersChanged = true;
+                        }
                     }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
                     array<uint32_t, 3> offsets = {
@@ -287,6 +289,11 @@ namespace z0 {
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    if (shadersChanged) {
+                        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                        shadersChanged = false;
+                    }
                 }
             }
         }
