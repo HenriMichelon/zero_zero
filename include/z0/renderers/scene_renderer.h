@@ -13,6 +13,7 @@ namespace z0 {
         void cleanup() override;
         void addNode(const shared_ptr<Node>& node) override;
         void removeNode(const shared_ptr<Node>& node) override;
+        void updateMaterials();
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -73,9 +74,6 @@ namespace z0 {
         unique_ptr<Image> blankImage{nullptr};
         // Default blank image raw datas
         vector<unsigned char> blankImageData;
-         // Material for outlining models
-        const uint32_t OUTLINE_MATERIAL_INDEX{0};
-        shared_ptr<ShaderMaterial> outlineMaterial;
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
 

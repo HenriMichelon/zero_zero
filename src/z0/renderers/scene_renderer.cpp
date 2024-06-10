@@ -31,12 +31,7 @@ namespace z0 {
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
-         // Create a material for outlining models
-        outlineMaterial = make_shared<ShaderMaterial>("outline.frag");
-        outlineMaterial->_incrementReferenceCounter();
-        outlineMaterial->setParameter(0, {1.0f, 0.9f, 0.2f, 1.0f});
-        materialsIndices[outlineMaterial->getId()] = OUTLINE_MATERIAL_INDEX;
-        materials.push_back(outlineMaterial.get());
+        OutlineMaterials::create();
      }
 
     void SceneRenderer::cleanup() {
@@ -165,6 +160,15 @@ namespace z0 {
         materialShaders["outline.frag"]->_incrementReferenceCounter();
     }
 
+    void SceneRenderer::updateMaterials() {
+        for(const auto& material : OutlineMaterials::get().all()) {
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
+            material->_incrementReferenceCounter();
+            materialsIndices[material->getId()] = materials.size();
+            materials.push_back(material.get());
+        }
+    }
+
     void SceneRenderer::update(uint32_t currentFrame) {
         if (currentCamera == nullptr) return;
         if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentFrame);
@@ -182,6 +186,9 @@ namespace z0 {
             ModelUniformBuffer modelUbo {
                 .matrix = meshInstance->getTransformGlobal(),
             };
+            if (meshInstance->isOutlined()) {
+                modelUbo.outlineScale = meshInstance->getOutlineMaterial()->getParameter(1).x;
+            }
             writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
             modelIndex += 1;
         }
@@ -233,10 +240,11 @@ namespace z0 {
                 const auto& model = meshInstance->getMesh();
                 for (const auto& surface: model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
+                        const auto& materialIndex = materialsIndices[meshInstance->getOutlineMaterial()->getId()];
                         array<uint32_t, 3> offsets2 = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
-                            static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * OUTLINE_MATERIAL_INDEX),
+                            static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
                         vkCmdBindShadersEXT(commandBuffer, 1, materialShaders["outline.vert"]->getStage(), materialShaders["outline.vert"]->getShader());

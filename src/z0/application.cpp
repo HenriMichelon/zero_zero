@@ -167,7 +167,7 @@ namespace z0 {
         device->registerRenderer(sceneRenderer);
         windowManager = make_unique<GManager>(vectorRenderer,
                                               (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
-                                              applicationConfig.defaultFontSize);
+                                              applicationConfig.defaultFontSize);    
     }
 
     Application::~Application() {
@@ -221,6 +221,7 @@ namespace z0 {
             }
             addedNodes.clear();
         }
+        sceneRenderer->updateMaterials();
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();

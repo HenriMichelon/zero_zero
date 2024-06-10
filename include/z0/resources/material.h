@@ -64,4 +64,20 @@ namespace z0 {
         vec4 parameters[MAX_PARAMETERS];
     };
 
+    class OutlineMaterials {
+    public:
+        OutlineMaterials();
+
+        static void create();
+        static OutlineMaterials& get();
+        int count();
+        shared_ptr<ShaderMaterial>& get(int index);
+        void add(const shared_ptr<ShaderMaterial>&);
+        vector<shared_ptr<ShaderMaterial>>& all() { return materials; }
+        
+    private:
+        static unique_ptr<OutlineMaterials> instance;
+        vector<shared_ptr<ShaderMaterial>> materials;
+    };
+
 }
