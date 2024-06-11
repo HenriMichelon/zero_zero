@@ -43,6 +43,10 @@ namespace z0 {
         excludeParent = exclude;
     }
 
+    void RayCast::setTarget(vec3 t) {
+        target = t;
+    }
+
     void RayCast::forceRaycastUpdate() {
         _physicsUpdate();
     }

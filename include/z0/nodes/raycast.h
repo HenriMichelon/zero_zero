@@ -11,6 +11,7 @@ namespace z0 {
         vec3 getCollisionPoint() const;
         void setExcludeParent(bool);
         void forceRaycastUpdate();
+        void setTarget(vec3);
 
     private:
         vec3 target;
