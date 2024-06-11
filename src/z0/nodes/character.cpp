@@ -24,7 +24,7 @@ namespace z0 {
                         name) {
         JPH::CharacterSettings settings;
         settings.mLayer = collisionLayer << 4 | collisionMask;
-        settings.mShape = shape->_getShape();
+        settings.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
         settings.mMaxSlopeAngle = radians(45.0);
         settings.mUp = JPH::Vec3{AXIS_UP.x, AXIS_UP.y, AXIS_UP.z};
         auto position = getPositionGlobal();

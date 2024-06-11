@@ -4,14 +4,13 @@ namespace z0 {
 
     class Shape : public Resource {
     protected:
-        explicit Shape(JPH::Shape* _shape, const string& resName): Resource{resName}, shape{_shape} {};
-        explicit Shape(const string& resName): Resource{resName}, shape{nullptr} {};
+        explicit Shape(const string& resName): Resource{resName}, shapeSettings{nullptr} {};
 
-    private:
-        JPH::Shape* shape;
+    protected:
+        JPH::ShapeSettings* shapeSettings{nullptr};
 
     public:
-        JPH::Shape* _getShape() { return shape; }
+        JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
     };
 
     class BoxShape : public Shape {
@@ -22,9 +21,6 @@ namespace z0 {
     class ConvexHullShape : public Shape {
     public:
         explicit ConvexHullShape(const vector<Vertex>&, const string& resName = "BoxShape");
-    private:
-        vector<vec3> findConvexHull(const vector<Vertex>&);
-        void quickHull(const vector<vec3>& points, vector<vec3>& hull, const vec3& P, const vec3& Q);
     };
 
 }

@@ -494,7 +494,7 @@ namespace z0 {
             int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
             SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
         } else {
-            _deferredLogMessages.insert(_deferredLogMessages.end(), item);
+            _deferredLogMessages.insert(_deferredLogMessages.begin(), item);
         }
     }
 

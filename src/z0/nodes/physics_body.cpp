@@ -24,8 +24,20 @@ namespace z0 {
         activationMode = _activationMode;
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
+        /*JPH::Array<JPH::Vec3> box;
+        box.push_back(JPH::Vec3(5, 5, 5));
+        box.push_back(JPH::Vec3(-5, 5, 5));
+        box.push_back(JPH::Vec3(5, -5, 5));
+        box.push_back(JPH::Vec3(-5, -5, 5));
+        box.push_back(JPH::Vec3(5, 5, -5));
+        box.push_back(JPH::Vec3(-5, 5, -5));
+        box.push_back(JPH::Vec3(5, -5, -5));
+        box.push_back(JPH::Vec3(-5, -5, -5));
+        auto st = new JPH::ConvexHullShapeSettings(box);
+        JPH::Shape::ShapeResult result;
+        auto shape = new JPH::ConvexHullShape(*st, result);*/
         const JPH::BodyCreationSettings settings{
-                shape->_getShape(),
+                _shape->_getShapeSettings(),
                 JPH::RVec3(position.x, position.y, position.z),
                 JPH::Quat(quat.x, quat.y, quat.z, quat.w),
                 motionType,
