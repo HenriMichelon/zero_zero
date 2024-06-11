@@ -47,6 +47,7 @@ using namespace glm;
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

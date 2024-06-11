@@ -71,7 +71,7 @@ namespace z0 {
         shared_ptr<Node> duplicate();
 
         template <typename T>
-        T* findFirstChild(bool recursive) const {
+        T* findFirstChild(bool recursive=true) const {
             for(auto& node : children) {
                 if (auto* pnode = dynamic_cast<T*>(node.get())) {
                     return pnode;
