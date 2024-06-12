@@ -490,17 +490,17 @@ namespace z0 {
         item.append(" ");
         item.append(msg);
         if (GetCurrentThreadId() == _mainThreadId) {
-            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(item.c_str()));
+            SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
             int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
             SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
         } else {
-            _deferredLogMessages.insert(_deferredLogMessages.begin(), item);
+            _deferredLogMessages.push_back(item);
         }
     }
 
     void Window::_processDeferredLog() {
         for(const auto& msg: _deferredLogMessages) {
-            SendMessage(_hwndLogList, LB_ADDSTRING, 0, (LPARAM)(msg.c_str()));
+            SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(msg.c_str()));
             int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
             SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
         }

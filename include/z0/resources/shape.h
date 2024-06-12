@@ -20,7 +20,7 @@ namespace z0 {
 
     class ConvexHullShape : public Shape {
     public:
-        explicit ConvexHullShape(const vector<Vertex>&, const string& resName = "BoxShape");
+        explicit ConvexHullShape(Node&, const string& resName = "ConvexHullShape");
     };
 
 }

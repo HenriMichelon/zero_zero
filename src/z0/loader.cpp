@@ -253,7 +253,7 @@ namespace z0 {
             }
 
             visit(fastgltf::visitor { [&](fastgltf::Node::TransformMatrix matrix) {
-                           memcpy(&newNode->getTransform(), matrix.data(), sizeof(matrix));
+                           memcpy(&newNode->_getTransformLocal(), matrix.data(), sizeof(matrix));
                        },
                                            [&](fastgltf::TRS transform) {
                                                vec3 tl(transform.translation[0], transform.translation[1],

@@ -17,7 +17,7 @@ namespace z0 {
         virtual void onPhysicsProcess(float delta) {}
         virtual bool onInput(InputEvent& inputEvent) { return false; }
 
-        mat4& getTransform() { return localTransform; }
+        const mat4& getTransformLocal() const { return localTransform; }
         virtual void setTransform(mat4 transform) { localTransform = transform; }
         virtual void updateTransform(const mat4& parentMatrix);
         virtual void updateTransform();
@@ -111,6 +111,8 @@ namespace z0 {
         bool _needPhysics() const { return needPhysics; }
         void _setAddedToScene(bool added) { addedToScene = added; }
         bool _isAddedToScene() { return addedToScene; }
+        mat4& _getTransformLocal() { return localTransform; }
+
     };
 
 }

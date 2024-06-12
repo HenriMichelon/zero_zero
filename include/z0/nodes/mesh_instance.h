@@ -20,7 +20,6 @@ namespace z0 {
         bool outlined{false};
         shared_ptr<Mesh> mesh;
         shared_ptr<ShaderMaterial> outlineMaterial;
-
     };
 
 }
