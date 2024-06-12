@@ -87,7 +87,9 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/resources/material.h
 		${Z0_INCLUDE_DIR}/resources/mesh.h
 		${Z0_INCLUDE_DIR}/resources/shape.h
+		${Z0_INCLUDE_DIR}/resources/sub_shape.h
 		${Z0_INCLUDE_DIR}/resources/convex_hull_shape.h
+		${Z0_INCLUDE_DIR}/resources/static_compound_shape.h
 		${Z0_INCLUDE_DIR}/resources/cubemap.h
 		${Z0_INCLUDE_DIR}/resources/font.h
 
@@ -152,6 +154,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/resources/material.cpp
 		${Z0_ENGINE_DIR}/resources/shape.cpp
 		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cpp
+		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/resources/font.cpp
 

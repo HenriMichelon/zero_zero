@@ -26,8 +26,8 @@ namespace z0 {
         shape->setAttachedToNode();
         const JPH::BodyCreationSettings settings{
                 shape->_getShapeSettings(),
-                JPH::RVec3(position.x, position.y, position.z),
-                JPH::Quat(quat.x, quat.y, quat.z, quat.w),
+                JPH::RVec3{position.x, position.y, position.z},
+                JPH::Quat{quat.x, quat.y, quat.z, quat.w},
                 motionType,
                 collisionLayer << 4 | collisionMask
         };

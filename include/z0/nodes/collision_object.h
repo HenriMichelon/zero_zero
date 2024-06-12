@@ -26,9 +26,9 @@ namespace z0 {
         bool updating{false};
         uint32_t collisionLayer;
         uint32_t collisionMask;
-        JPH::BodyInterface& bodyInterface;
-        std::shared_ptr<Shape> shape;
+        shared_ptr<Shape> shape;
         JPH::EActivation activationMode;
+        JPH::BodyInterface& bodyInterface;
 
         CollisionObject(shared_ptr<Shape>& shape,
                     uint32_t layer,

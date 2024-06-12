@@ -7,10 +7,8 @@ namespace z0 {
         void setAttachedToNode();
 
     protected:
-        explicit Shape(const string& resName): Resource{resName}, shapeSettings{nullptr} {};
-
-    protected:
         JPH::ShapeSettings* shapeSettings{nullptr};
+        explicit Shape(const string& resName): Resource{resName}, shapeSettings{nullptr} {};
 
     private:
         bool isAttachedToNode{false};

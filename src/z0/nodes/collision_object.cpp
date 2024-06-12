@@ -19,9 +19,9 @@ namespace z0 {
         Node{name},
         collisionLayer{layer},
         collisionMask{mask},
-        bodyInterface{app()._getBodyInterface()},
-        shape{_shape} {
-        activationMode = JPH::EActivation::Activate;
+        shape{_shape},
+        activationMode{JPH::EActivation::Activate},
+        bodyInterface{app()._getBodyInterface()} {
         needPhysics = true;
     }
 
