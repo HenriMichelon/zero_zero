@@ -24,6 +24,7 @@
 #include <z0/shader.h>
 
 #ifdef USE_PCH
+#include <z0/nodes/node.h>
 #include <z0/resources/image.h>
 #include <z0/resources/texture.h>
 #include <z0/resources/material.h>
@@ -31,8 +32,9 @@
 #include <z0/resources/cubemap.h>
 #include <z0/resources/font.h>
 #include <z0/resources/shape.h>
+#include <z0/nodes/mesh_instance.h>
+#include <z0/resources/convex_hull_shape.h>
 
-#include <z0/nodes/node.h>
 #include <z0/application.h>
 #include <z0/input.h>
 #include <z0/loader.h>
