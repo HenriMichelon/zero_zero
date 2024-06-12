@@ -243,7 +243,7 @@ namespace z0 {
         for (fastgltf::Node& node : gltf.nodes) {
             shared_ptr<Node> newNode;
             string name{node.name.data()};
-            // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the meshnode class
+            // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
                 mesh->_buildModel();
@@ -273,12 +273,13 @@ namespace z0 {
             nodes.push_back(newNode);
         }
 
+        // Build node tree
         for (uint32_t i = 0; i < gltf.nodes.size(); i++) {
             fastgltf::Node& node = gltf.nodes[i];
             shared_ptr<Node>& sceneNode = nodes[i];
-            for (auto& c : node.children) {
+            for (auto& child : node.children) {
                 sceneNode->setProcessMode(PROCESS_MODE_DISABLED);
-                sceneNode->addChild(nodes[c]);
+                sceneNode->addChild(nodes[child]);
             }
         }
 
