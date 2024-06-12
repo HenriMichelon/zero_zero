@@ -6,8 +6,7 @@
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/resources/shape.h"
-#include "z0/nodes/collision_node.h"
-#include "z0/nodes/physics_node.h"
+#include "z0/nodes/collision_object.h"
 #include "z0/nodes/character.h"
 #include "z0/application.h"
 #endif
@@ -18,7 +17,7 @@ namespace z0 {
                          uint32_t layer,
                          uint32_t mask,
                          const string& name):
-            PhysicsNode(shape,
+            CollisionObject(shape,
                         layer,
                         mask,
                         name) {
@@ -46,7 +45,7 @@ namespace z0 {
         return character->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
     }
 
-    bool Character::isGround(PhysicsNode *node) {
+    bool Character::isGround(CollisionObject *node) {
         return node->_getBodyId() == character->GetGroundBodyID();
     }
 
@@ -54,7 +53,7 @@ namespace z0 {
 
     void Character::_physicsUpdate() {
         character->PostSimulation(GROUND_COLLISION_TOLERANCE);
-        PhysicsNode::_physicsUpdate();
+        CollisionObject::_physicsUpdate();
     }
 
 }

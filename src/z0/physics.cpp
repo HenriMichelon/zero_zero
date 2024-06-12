@@ -6,8 +6,7 @@
 #include "z0/resources/material.h"
 #include "z0/resources/shape.h"
 #include "z0/resources/mesh.h"
-#include "z0/nodes/collision_node.h"
-#include "z0/nodes/physics_node.h"
+#include "z0/nodes/collision_object.h"
 #endif
 
 namespace z0 {
@@ -15,8 +14,8 @@ namespace z0 {
                                          const JPH::Body &inBody2,
                                          const JPH::ContactManifold &inManifold,
                                          JPH::ContactSettings &ioSettings) {
-        auto node1 = reinterpret_cast<PhysicsNode*>(inBody1.GetUserData());
-        auto node2 = reinterpret_cast<PhysicsNode*>(inBody2.GetUserData());
+        auto node1 = reinterpret_cast<CollisionObject*>(inBody1.GetUserData());
+        auto node2 = reinterpret_cast<CollisionObject*>(inBody2.GetUserData());
         node1->onCollisionStarts(node2);
     }
 

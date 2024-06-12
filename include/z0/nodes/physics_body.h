@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    class PhysicsBody: public PhysicsNode {
+    class PhysicsBody: public CollisionObject {
     public:
         ~PhysicsBody() override;
 

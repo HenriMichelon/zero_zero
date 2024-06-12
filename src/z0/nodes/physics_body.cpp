@@ -6,8 +6,7 @@
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/resources/shape.h"
-#include "z0/nodes/collision_node.h"
-#include "z0/nodes/physics_node.h"
+#include "z0/nodes/collision_object.h"
 #include "z0/nodes/physics_body.h"
 #endif
 
@@ -19,7 +18,7 @@ namespace z0 {
                              JPH::EActivation _activationMode,
                              JPH::EMotionType _motionType,
                              const string& name):
-            PhysicsNode{_shape, layer, mask, name},
+            CollisionObject{_shape, layer, mask, name},
         motionType{_motionType} {
         activationMode = _activationMode;
         auto position = getPositionGlobal();

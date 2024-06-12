@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    class Character: public PhysicsNode {
+    class Character: public CollisionObject {
     public:
         explicit Character(shared_ptr<Shape> shape,
                            uint32_t layer=1,
@@ -11,7 +11,7 @@ namespace z0 {
         ~Character() override;
 
         bool isOnGround();
-        bool isGround(PhysicsNode*);
+        bool isGround(CollisionObject*);
 
     private:
         // Check for CharacterVirtual use for better walls & slopes interactions

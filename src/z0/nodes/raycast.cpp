@@ -1,7 +1,12 @@
 #include "z0/z0.h"
 #ifndef USE_PCH
 #include "z0/nodes/node.h"
-#include "z0/nodes/collision_node.h"
+#include "z0/resources/image.h"
+#include "z0/resources/texture.h"
+#include "z0/resources/material.h"
+#include "z0/resources/mesh.h"
+#include "z0/resources/shape.h"
+#include "z0/nodes/collision_object.h"
 #include "z0/application.h"
 #include "z0/nodes/raycast.h"
 #endif
@@ -21,7 +26,7 @@ namespace z0 {
         return collider != nullptr;
     }
 
-    CollisionNode* RayCast::getCollider() const {
+    CollisionObject* RayCast::getCollider() const {
         return collider;
     }
 
@@ -35,7 +40,7 @@ namespace z0 {
     }
 
     bool RayCast::ShouldCollideLocked (const JPH::Body &inBody) const {
-        auto* node = reinterpret_cast<CollisionNode*>(inBody.GetUserData());
+        auto* node = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
         return (node != nullptr) && (!(excludeParent && (node == parent)));
     }
 
@@ -60,7 +65,7 @@ namespace z0 {
         };
         JPH::RayCastResult result;
         if (app()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(ray, result, broadPhaseLayerFilter, *this, *this)) {
-            collider = reinterpret_cast<CollisionNode*>(app()._getBodyInterface().GetUserData(result.mBodyID));
+            collider = reinterpret_cast<CollisionObject*>(app()._getBodyInterface().GetUserData(result.mBodyID));
             auto posInRay = ray.GetPointOnRay(result.mFraction);
             hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
         } else {

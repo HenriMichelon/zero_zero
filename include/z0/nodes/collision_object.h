@@ -2,14 +2,19 @@
 
 namespace z0 {
 
-    class PhysicsNode: public CollisionNode {
+    class CollisionObject: public Node {
     public:
-        ~PhysicsNode() override = default;
+        ~CollisionObject() override = default;
 
+        uint32_t getCollisionLayer() const { return collisionLayer; }
+        uint32_t getCollistionMask() const { return collisionMask; }
+        bool haveCollisionLayer(uint32_t layer) const;
+        bool haveCollisionMask(uint32_t layer) const;
         virtual void setCollistionLayer(uint32_t layer, bool value);
         virtual void setCollistionMask(uint32_t layer, bool value);
+        bool shouldCollide(uint32_t layer) const;
 
-        virtual void onCollisionStarts(PhysicsNode* node) {};
+        virtual void onCollisionStarts(CollisionObject* node) {};
 
         void setVelocity(vec3 velocity);
         vec3 getVelocity() const;
@@ -19,15 +24,19 @@ namespace z0 {
 
     protected:
         bool updating{false};
+        uint32_t collisionLayer;
+        uint32_t collisionMask;
+        JPH::BodyInterface& bodyInterface;
         std::shared_ptr<Shape> shape;
         JPH::EActivation activationMode;
 
-        PhysicsNode(shared_ptr<Shape>& shape,
+        CollisionObject(shared_ptr<Shape>& shape,
                     uint32_t layer,
                     uint32_t mask,
                     const string& name);
         void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
+        CollisionObject* _getByBodyId(JPH::BodyID id);
 
     private:
         JPH::BodyID bodyId;

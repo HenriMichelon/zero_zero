@@ -7,7 +7,7 @@ namespace z0 {
         RayCast(vec3 target, uint32_t mask, const string& name = "RayCast");
 
         bool isColliding() const;
-        CollisionNode* getCollider() const;
+        CollisionObject* getCollider() const;
         vec3 getCollisionPoint() const;
         void setExcludeParent(bool);
         void forceRaycastUpdate();
@@ -18,7 +18,7 @@ namespace z0 {
         vec3 hitPoint;
         uint32_t collisionMask;
         bool excludeParent{true};
-        CollisionNode* collider{nullptr};
+        CollisionObject* collider{nullptr};
         JPH::BroadPhaseLayerFilter broadPhaseLayerFilter{};
 
     public:
