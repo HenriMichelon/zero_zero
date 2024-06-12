@@ -84,7 +84,7 @@ namespace z0 {
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
         // One and only one directional light per scene
-        //DirectionalLight* directionalLight{nullptr};
+        DirectionalLight* directionalLight{nullptr};
         // Evironement parameters for the current scene
         Environment* currentEnvironment{nullptr};
 

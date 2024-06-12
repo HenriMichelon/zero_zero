@@ -57,7 +57,7 @@ vec4 fragmentColor(vec4 color, vec3 normal, bool useColor) {
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
         discard;
     }
-     if (material.normalIndex != -1) {
+    if (material.normalIndex != -1) {
         normal = texture(texSampler[material.normalIndex], fs_in.UV).rgb * 2.0 - 1.0;
         normal = normalize(fs_in.TBN * normal);
     } else {

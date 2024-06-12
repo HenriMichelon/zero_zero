@@ -451,7 +451,7 @@ namespace z0 {
         return VEC2ZERO;
     }
 
-    string Input::getGamepadName(uint32_t index) {
+    string Input::getJoypadName(uint32_t index) {
         /*if (_useXInput) {
             return "XInput";
         }*/

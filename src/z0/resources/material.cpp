@@ -33,27 +33,17 @@ namespace z0 {
         return parameters[index];
     }
 
-    unique_ptr<OutlineMaterials> OutlineMaterials::instance;
+    vector<shared_ptr<ShaderMaterial>> OutlineMaterials::materials;
 
-    void OutlineMaterials::create() {
-        instance = make_unique<OutlineMaterials>();
-    }
-    
-    OutlineMaterials& OutlineMaterials::get() {
-        if (instance == nullptr) die("OutlineMaterial singleton not created");
-        return *instance;
-    }
-
-    OutlineMaterials::OutlineMaterials() {
-        if (instance != nullptr) die("OutlineMaterial singleton already exists");
+    void OutlineMaterials::_initialize() {
         auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag", "outline.vert");
         outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});        
         outlineMaterial->setParameter(1, vec4{0.01f});
         add(outlineMaterial);
     }
 
-    int OutlineMaterials::count() {
-        return materials.size();
+    vector<shared_ptr<ShaderMaterial>>&  OutlineMaterials::_all() { 
+        return materials; 
     }
 
     shared_ptr<ShaderMaterial>& OutlineMaterials::get(int index) {

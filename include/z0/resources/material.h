@@ -67,18 +67,15 @@ namespace z0 {
 
     class OutlineMaterials {
     public:
-        OutlineMaterials();
-
-        static void create();
-        static OutlineMaterials& get();
-        int count();
-        shared_ptr<ShaderMaterial>& get(int index);
-        void add(const shared_ptr<ShaderMaterial>&);
-        vector<shared_ptr<ShaderMaterial>>& all() { return materials; }
+        static shared_ptr<ShaderMaterial>& get(int index);
+        static void add(const shared_ptr<ShaderMaterial>&);
         
     private:
-        static unique_ptr<OutlineMaterials> instance;
-        vector<shared_ptr<ShaderMaterial>> materials;
+        static vector<shared_ptr<ShaderMaterial>> materials;
+
+    public:
+        static vector<shared_ptr<ShaderMaterial>>& _all();
+        static void _initialize();
     };
 
 }

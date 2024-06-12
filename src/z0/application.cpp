@@ -11,6 +11,8 @@
 #include "z0/nodes/camera.h"
 #include "z0/nodes/environment.h"
 #include "z0/nodes/mesh_instance.h"
+#include "z0/nodes/light.h"
+#include "z0/nodes/directional_light.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #include "z0/renderers/skybox_renderer.h"

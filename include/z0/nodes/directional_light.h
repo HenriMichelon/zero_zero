@@ -8,7 +8,7 @@ namespace z0 {
         explicit DirectionalLight(vec3 lightDirection,
                                   vec4 color = {1.0f, 1.0f, 1.0f, 1.0f},
                                   float specular = 1.0f,
-                                  const std::string nodeName = "DirectionalLight");
+                                  const string nodeName = "DirectionalLight");
         virtual ~DirectionalLight() {};
 
         const vec3& getDirection() const { return direction; }

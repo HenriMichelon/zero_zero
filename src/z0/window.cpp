@@ -489,7 +489,7 @@ namespace z0 {
         string item = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
         item.append(" ");
         item.append(msg);
-        if (GetCurrentThreadId() == _mainThreadId) {
+        if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
             SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
             int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
             SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);

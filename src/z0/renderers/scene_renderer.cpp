@@ -11,6 +11,8 @@
 #include "z0/nodes/camera.h"
 #include "z0/nodes/skybox.h"
 #include "z0/nodes/environment.h"
+#include "z0/nodes/light.h"
+#include "z0/nodes/directional_light.h"
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"
@@ -32,7 +34,7 @@ namespace z0 {
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
-        OutlineMaterials::create();
+        OutlineMaterials::_initialize();
      }
 
     void SceneRenderer::cleanup() {
@@ -91,14 +93,23 @@ namespace z0 {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
             skyboxRenderer->loadScene(skybox->getCubemap());
-        } else if (auto* environment = dynamic_cast<Environment*>(node.get())) {
-            if (currentEnvironment == nullptr) {
+            return;
+        }
+        if (currentEnvironment == nullptr) {
+            if (auto* environment = dynamic_cast<Environment*>(node.get())) {
                 currentEnvironment = environment;
                 log("Using environment", environment->toString());
+                return;
             }
-        } else {
-            BaseModelsRenderer::addNode(node);
         }
+        if (directionalLight == nullptr) {
+            if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
+                directionalLight = light;
+                log("Using directional light", directionalLight->toString());
+                return;
+            }
+        }
+        BaseModelsRenderer::addNode(node);
     }
 
     void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
@@ -179,7 +190,7 @@ namespace z0 {
     }
 
     void SceneRenderer::updateMaterials() {
-        for(const auto& material : OutlineMaterials::get().all()) {
+        for(const auto& material : OutlineMaterials::_all()) {
             if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             material->_incrementReferenceCounter();
             materialsIndices[material->getId()] = materials.size();
@@ -187,7 +198,7 @@ namespace z0 {
             descriptorSetNeedUpdate = true;
         }
         createOrUpdateResources();
-        for(const auto& material : OutlineMaterials::get().all()) {
+        for(const auto& material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get());
         }
     }
@@ -202,6 +213,14 @@ namespace z0 {
             .view = currentCamera->getView(),
             .cameraPosition = currentCamera->getPosition(),
         };
+        if (directionalLight != nullptr) {
+            globalUbo.directionalLight = {
+                .direction = directionalLight->getDirection(),
+                .color = directionalLight->getColorAndIntensity(),
+                .specular = directionalLight->getSpecularIntensity(),
+            };
+            globalUbo.haveDirectionalLight = true;
+        }
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
