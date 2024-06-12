@@ -417,11 +417,11 @@ namespace z0 {
                auto pressed = gamepad.buttons[gamepad.indexButtons[button]];
                if (pressed && (!_gamepadButtonPressedStates[button])) {
                    auto event = InputEventGamepadButton(button, pressed);
-                   Application::get().onInput(event);
+                   Application::get()._onInput(event);
                }
                if ((!pressed) && (_gamepadButtonPressedStates[button])) {
                    auto event = InputEventGamepadButton(button, pressed);
-                   Application::get().onInput(event);
+                   Application::get()._onInput(event);
                }
                _gamepadButtonPressedStates[button] = pressed;
            }

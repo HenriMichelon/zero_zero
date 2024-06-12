@@ -97,7 +97,7 @@ namespace z0 {
             data.push_back(pixels);
         }
         VkDeviceSize imageSize = texWidth * texHeight * STBI_rgb_alpha;
-        auto cubemap =  make_shared<Cubemap>(Application::get().getDevice(), texWidth, texHeight, imageSize, data);
+        auto cubemap =  make_shared<Cubemap>(Application::get()._getDevice(), texWidth, texHeight, imageSize, data);
         for (int i = 0; i < 6; i++) {
             stbi_image_free(data[i]);
         }

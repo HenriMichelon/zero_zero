@@ -15,7 +15,7 @@ namespace z0 {
     // https://fastgltf.readthedocs.io/v0.7.x/tools.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Image> loadImage(fastgltf::Asset& asset, fastgltf::Image& image, VkFormat format) {
-        const auto& device = Application::get().getDevice();
+        const auto& device = Application::get()._getDevice();
         shared_ptr<Image> newImage;
         int width, height, nrChannels;
         string name{image.name};

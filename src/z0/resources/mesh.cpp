@@ -64,7 +64,7 @@ namespace z0 {
     }
 
     void Mesh::_buildModel() {
-        const auto& device = Application::get().getDevice();
+        const auto& device = Application::get()._getDevice();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at leat 3");

@@ -48,6 +48,7 @@ namespace z0 {
     }
 
     void GManager::add(const shared_ptr<GWindow> &window) {
+        assert(window->windowManager == nullptr);
         windows.push_back(window);
         window->windowManager = this;
         window->eventCreate();
@@ -56,6 +57,7 @@ namespace z0 {
     }
 
     void GManager::remove(const shared_ptr<GWindow>&window) {
+        assert(window->windowManager != nullptr);
         removedWindows.push_back(window);
     }
 

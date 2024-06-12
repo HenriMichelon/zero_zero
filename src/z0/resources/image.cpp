@@ -96,7 +96,7 @@ namespace z0 {
                                     STBI_rgb_alpha);
         VkDeviceSize imageSize = texWidth * texHeight * STBI_rgb_alpha;
         if (!pixels) die("failed to load texture image!");
-        auto image= make_shared<Image>(Application::get().getDevice(),
+        auto image= make_shared<Image>(Application::get()._getDevice(),
                                        filepath,
                                        static_cast<uint32_t>(texWidth),
                                        static_cast<uint32_t>(texHeight),

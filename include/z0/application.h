@@ -8,26 +8,77 @@ namespace z0 {
     class VectorRenderer;
     class Camera;
 
-    class Application: public Object {
+    /**
+     * Global application.
+     * Automaticaly instanciated by the Z0_APP macro
+     */
+    class Application final: public Object {
     public:
-        explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
-        virtual ~Application();
-
+        /**
+         * Get the application singleton
+         * @return the global application object
+         */
         static Application& get();
-        void addWindow(const shared_ptr<GWindow>&);
-        void removeWindow(const shared_ptr<GWindow>&);
+
+        /**
+         * Add a GUI window to the window manager for display
+         * @param window    The window to display, must not be already added to the window manager
+         */
+        void addWindow(const shared_ptr<GWindow>&window);
+
+        /**
+         * Remove the window from the window manager
+         * @param window    The window to remove, must be added to the window manager before
+         */
+        void removeWindow(const shared_ptr<GWindow>&window);
+
+        /**
+         * Exit the application by closing the window (will wait for the current frame to be terminated)
+         */
         void quit();
 
-        const ApplicationConfig& getConfig() const { return applicationConfig; }
+        /**
+         * Get the startup configuration
+         * @return the global configuration given when the application was instancied
+         */
+        const ApplicationConfig& getConfig() const;
+
+        /**
+         * Get the current display window
+         * @return The main window
+         */
         const Window& getWindow() const;
-        Device& getDevice() { return *device; }
-        VkInstance getVkInstance() const { return vkInstance; }
+
+        /**
+         * Get the frames per seconds
+         * @return The average FPS
+         */
         uint32_t getFPS() const { return fps; }
 
+        /**
+         * Check if the scene is paused, in respect for \ProcessMode
+         * @return  \true if the current scene is paused
+         */
         bool isPaused() const { return paused; }
+
+        /**
+         * Pause or resume the current scene
+         * @param pause the new state
+         *  - \true pause the scene
+         *  - \false resume the scene
+         */
         void setPaused(bool pause);
-        void onInput(InputEvent& inputEvent);
+
+        /** 
+         * Change the current scene
+         * @param node The new scene, must not have a parent
+         */
         void setRootNode(const shared_ptr<Node>& node);
+
+        /**
+         * Change the current camera
+         * @param camera the camera to activate, must be in a scene
+         */
         void activateCamera(const shared_ptr<Camera>& camera);
 
     private:
@@ -87,8 +138,12 @@ namespace z0 {
 #endif
         void _stop(bool stop) { stopped = stop; };
 
+        Device& _getDevice() { return *device; }
+        VkInstance _getVkInstance() const { return vkInstance; }
+
         void _addNode(const shared_ptr<Node>& node);
         void _removeNode(const shared_ptr<Node>& node);
+        void _onInput(InputEvent& inputEvent);
 
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
         JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
@@ -96,7 +151,9 @@ namespace z0 {
 
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
-    };
+        explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
+        virtual ~Application();
+   };
 
 #ifdef _WIN32
     #define Z0_APP(CONFIG, ROOTNODE) \

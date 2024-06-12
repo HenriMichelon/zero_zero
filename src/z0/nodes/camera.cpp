@@ -29,7 +29,7 @@ namespace z0 {
         nearDistance = _near;
         farDistance = _far;
         usePerspectiveProjection = true;
-        const auto aspect = Application::get().getDevice().getAspectRatio();
+        const auto aspect = Application::get()._getDevice().getAspectRatio();
         assert(glm::abs(aspect - numeric_limits<float>::epsilon()) > 0.0f);
         const auto tanHalfFovy = tan(radians(fov) / 2.f);
         projectionMatrix = mat4{0.0f};

@@ -200,6 +200,7 @@ namespace z0 {
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
+        assert(camera->_isAddedToScene() && camera->getParent() != nullptr);
         if (rootNode->haveChild(camera, true)) {
             sceneRenderer->activateCamera(camera);
         }
@@ -255,13 +256,14 @@ namespace z0 {
         }
     }
 
-    void Application::onInput(InputEvent &inputEvent) {
+    void Application::_onInput(InputEvent &inputEvent) {
         if (stopped) return;
         if (windowManager->onInput(inputEvent)) { return; }
         input(rootNode, inputEvent);
     }
 
     void Application::setRootNode(const shared_ptr<Node>& node) {
+        assert(node->getParent() == nullptr);
         device->wait();
         _removeNode(rootNode);
         rootNode = node;
@@ -386,6 +388,10 @@ namespace z0 {
     Application &Application::get() {
         assert(_instance != nullptr);
         return *_instance;
+    }
+    
+    const ApplicationConfig& Application::getConfig() const { 
+        return applicationConfig; 
     }
 
 }

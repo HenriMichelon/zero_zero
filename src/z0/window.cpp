@@ -57,7 +57,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyPressedStates[key] = true;
             z0::Input::_keyJustReleasedStates[key] = false;
             auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_KEYUP: {
@@ -67,7 +67,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             z0::Input::_keyJustPressedStates[key] = false;
             z0::Input::_keyJustReleasedStates[key] = true;
             auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_LBUTTONDOWN: {
@@ -79,7 +79,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_LBUTTONUP: {
@@ -91,7 +91,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_RBUTTONDOWN: {
@@ -103,7 +103,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_RBUTTONUP: {
@@ -115,7 +115,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_MBUTTONDOWN: {
@@ -127,7 +127,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_MBUTTONUP: {
@@ -139,7 +139,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    _getKeyboardModifiers(),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
-            app.onInput(event);
+            app._onInput(event);
             break;
         }
         case WM_MOUSEMOVE: {
@@ -155,10 +155,10 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                 auto dx = xPos - lastMouseX;
                 auto dy = yPos - lastMouseY;
                 auto event = z0::InputEventMouseMotion(xPos, yPos, dx, dy);
-                app.onInput(event);
+                app._onInput(event);
             } else {
                 auto event = z0::InputEventMouseMotion(xPos, yPos, 0, 0);
-                app.onInput(event);
+                app._onInput(event);
             }
             lastMouseX = xPos;
             lastMouseY = yPos;
