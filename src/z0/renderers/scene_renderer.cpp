@@ -10,6 +10,7 @@
 #include "z0/nodes/node.h"
 #include "z0/nodes/camera.h"
 #include "z0/nodes/skybox.h"
+#include "z0/nodes/environment.h"
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"
@@ -90,6 +91,11 @@ namespace z0 {
         if (auto* skybox = dynamic_cast<Skybox*>(node.get())) {
             skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory);
             skyboxRenderer->loadScene(skybox->getCubemap());
+        } else if (auto* environment = dynamic_cast<Environment*>(node.get())) {
+            if (currentEnvironment == nullptr) {
+                currentEnvironment = environment;
+                log("Using environment", environment->toString());
+            }
         } else {
             BaseModelsRenderer::addNode(node);
         }
@@ -98,6 +104,10 @@ namespace z0 {
     void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
         if (dynamic_cast<Skybox *>(node.get())) {
             skyboxRenderer.reset();
+        } else if (auto* environment = dynamic_cast<Environment*>(node.get())) {
+            if (currentEnvironment == environment) {
+                currentEnvironment = nullptr;
+            }
         } else {
             BaseModelsRenderer::removeNode(node);
         }
@@ -184,7 +194,7 @@ namespace z0 {
 
     void SceneRenderer::update(uint32_t currentFrame) {
         if (currentCamera == nullptr) return;
-        if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentFrame);
+        if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
         if (models.empty()) return;
 
         GobalUniformBuffer globalUbo{
@@ -192,6 +202,9 @@ namespace z0 {
             .view = currentCamera->getView(),
             .cameraPosition = currentCamera->getPosition(),
         };
+        if (currentEnvironment != nullptr) {
+            globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
+        }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         uint32_t modelIndex = 0;

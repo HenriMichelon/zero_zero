@@ -80,6 +80,8 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/nodes/character.h
 		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
 		${Z0_INCLUDE_DIR}/nodes/raycast.h
+		${Z0_INCLUDE_DIR}/nodes/light.h
+		${Z0_INCLUDE_DIR}/nodes/directional_light.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -146,6 +148,8 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/nodes/character.cpp
 		${Z0_ENGINE_DIR}/nodes/collision_object.cpp
 		${Z0_ENGINE_DIR}/nodes/raycast.cpp
+		${Z0_ENGINE_DIR}/nodes/light.cpp
+		${Z0_ENGINE_DIR}/nodes/directional_light.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp

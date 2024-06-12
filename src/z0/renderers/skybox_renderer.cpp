@@ -2,6 +2,7 @@
 #ifndef USE_PCH
 #include "z0/nodes/node.h"
 #include "z0/nodes/camera.h"
+#include "z0/nodes/environment.h"
 #include "z0/resources/cubemap.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/skybox_renderer.h"
@@ -90,11 +91,14 @@ namespace z0 {
         fragShader = createShader("skybox.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
-    void SkyboxRenderer::update(Camera* currentCamera, uint32_t currentFrame) {
+    void SkyboxRenderer::update(Camera* currentCamera, Environment* currentEnvironment, uint32_t currentFrame) {
         GobalUniformBuffer globalUbo{
                 .projection = currentCamera->getProjection(),
                 .view = mat4(mat3(currentCamera->getView()))
         };
+        if (currentEnvironment != nullptr) {
+            globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
+        }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
     }
 

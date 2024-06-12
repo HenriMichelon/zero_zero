@@ -1,8 +1,29 @@
+struct DirectionalLight {
+    vec3 direction;
+    vec4 color;
+    float specular;
+};
+
+struct PointLight {
+    vec3 position;
+    vec4 color;
+    float specular;
+    float constant;
+    float linear;
+    float quadratic;
+    bool isSpot;
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
+};
+
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     mat4 projection;
     mat4 view;
     vec4 ambient;
     vec3 cameraPosition;
+    DirectionalLight directionalLight;
+    bool haveDirectionalLight;
 } global;
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {

@@ -4,5 +4,5 @@
 
 void main() {
     vec4 color;
-    COLOR = fragmentColor(color, false);
+    COLOR = fragmentColor(color, fs_in.NORMAL, false);
 }

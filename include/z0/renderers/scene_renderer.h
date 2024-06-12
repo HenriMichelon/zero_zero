@@ -22,11 +22,18 @@ namespace z0 {
         void loadShadersMaterials(ShaderMaterial* material);
 
     private:
+        struct DirectionalLightUniform {
+            alignas(16) glm::vec3 direction{ 0.0f, 0.0f, 0.0f };
+            alignas(16) glm::vec4 color{ 0.0f, 0.0f, 0.0f, 0.0f }; // RGB + Intensity;
+            alignas(4) float specular{ 1.0f };
+        };
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
-            vec4 ambient{ 1.0f, 1.0f, 1.0f, 1.0f }; // RGB + Intensity;
+            vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(16) vec3 cameraPosition;
+            alignas(16) DirectionalLightUniform directionalLight;
+            alignas(4) bool haveDirectionalLight{false};
         };
         struct ModelUniformBuffer {
             mat4  matrix;
@@ -76,6 +83,11 @@ namespace z0 {
         vector<unsigned char> blankImageData;
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
+        // One and only one directional light per scene
+        //DirectionalLight* directionalLight{nullptr};
+        // Evironement parameters for the current scene
+        Environment* currentEnvironment{nullptr};
+
 
         // Offscreen frame buffers attachements
         ColorFrameBuffer                colorFrameBufferMultisampled;

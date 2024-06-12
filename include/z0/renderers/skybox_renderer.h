@@ -9,7 +9,7 @@ namespace z0 {
         void loadScene(shared_ptr<Cubemap>& cubemap);
 
         void cleanup() override;
-        void update(Camera* currentCamera, uint32_t currentFrame);
+        void update(Camera* currentCamera, Environment* currentEnvironment, uint32_t currentFrame);
         void loadShaders() override;
         void createDescriptorSetLayout() override;
         void createOrUpdateDescriptorSet(bool create) override;
@@ -19,6 +19,7 @@ namespace z0 {
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
+            vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
         };
 
         uint32_t vertexCount;

@@ -51,6 +51,9 @@
 #include <z0/nodes/character.h>
 #include <z0/nodes/skybox.h>
 #include <z0/nodes/raycast.h>
+#include <z0/nodes/light.h>
+#include <z0/nodes/directional_light.h>
+#include <z0/nodes/environment.h>
 
 #include <z0/renderers/base_renderpass.h>
 #include <z0/renderers/skybox_renderer.h>
