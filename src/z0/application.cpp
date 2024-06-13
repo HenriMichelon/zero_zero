@@ -32,6 +32,7 @@ namespace z0 {
 
     Application* Application::_instance = nullptr;
 
+    // Redirect the Vulkan validation layers to the logging system
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -41,6 +42,7 @@ namespace z0 {
         return VK_FALSE;
     }
 
+    // vkCreateDebugUtilsMessengerEXT linker
     VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr) {
@@ -50,6 +52,7 @@ namespace z0 {
         }
     }
 
+    // vkDestroyDebugUtilsMessengerEXT linker
     void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
@@ -120,12 +123,14 @@ namespace z0 {
                 instanceExtensions.data()
         };
         if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)die("Failed to create Vulkan instance");
-
         volkLoadInstance(vkInstance);
 
+        // The global display window
         window = make_unique<Window>(applicationConfig);
+        // The global Vulkan device helper
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
+        // Initialize validating layer loggin
         const VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
             .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
@@ -137,12 +142,10 @@ namespace z0 {
             die("failed to set up debug messenger!");
         }   
 
-
         // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();
         JPH::Factory::sInstance = new JPH::Factory();
         JPH::RegisterTypes();
-
         temp_allocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
         job_system = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs,
                                                                 JPH::cMaxPhysicsBarriers,
@@ -168,6 +171,8 @@ namespace z0 {
                                                      sceneRenderer->getColorAttachement());
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
+
+        // The global UI window manager
         windowManager = make_unique<GManager>(vectorRenderer,
                                               (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
                                               applicationConfig.defaultFontSize);    
@@ -182,6 +187,7 @@ namespace z0 {
     }
 
     void Application::_addNode(const shared_ptr<Node>& node) {
+        assert(node != nullptr);
         addedNodes.push_back(node);
         node->_onEnterScene();
         for(const auto& child: node->getChildren()) {
@@ -191,6 +197,7 @@ namespace z0 {
     }
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
+        assert(node != nullptr && node->_isAddedToScene() && node->getParent() != nullptr);
         for(auto& child: node->getChildren()) {
             _removeNode(child);
         }
@@ -200,7 +207,7 @@ namespace z0 {
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
-        assert(camera->_isAddedToScene() && camera->getParent() != nullptr);
+        assert(camera != nullptr);
         if (rootNode->haveChild(camera, true)) {
             sceneRenderer->activateCamera(camera);
         }
@@ -209,6 +216,7 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) return;
 
+        // Process the deferred scene tree modification
         sceneRenderer->updateMaterials();
         windowManager->drawFrame();
         if (!removedNodes.empty()) {
@@ -239,11 +247,9 @@ namespace z0 {
             t += dt;
             accumulator -= dt;
         }
-
         const double alpha = accumulator / dt;
         process(rootNode, static_cast<float>(alpha));
         device->drawFrame();
-
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
         if (elapsedSeconds >= 1.0) {
@@ -263,7 +269,7 @@ namespace z0 {
     }
 
     void Application::setRootNode(const shared_ptr<Node>& node) {
-        assert(node->getParent() == nullptr);
+        assert(node != nullptr && node->getParent() == nullptr && !node->_isAddedToScene());
         device->wait();
         _removeNode(rootNode);
         rootNode = node;
@@ -276,24 +282,18 @@ namespace z0 {
         stopped = false;
     }
 
-    void Application::end() {
-        stopped = true;
-        windowManager.reset();
-        cleanup(rootNode);
-#ifdef VULKAN_STATS
-        VulkanStats::get().display();
-#endif
-    }
-
     void Application::addWindow(const shared_ptr<GWindow>& window) {
+        assert(window != nullptr);
         _instance->windowManager->add(window);
     }
 
     void Application::removeWindow(const shared_ptr<GWindow>& window) {
+        assert(window != nullptr);
         _instance->windowManager->remove(window);
     }
 
     void Application::ready(const shared_ptr<Node>& node) {
+        assert(node != nullptr);
         for(auto& child: node->getChildren()) {
             ready(child);
         }
@@ -301,6 +301,7 @@ namespace z0 {
     }
 
     bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
+        assert(node != nullptr);
         if (!node->_isAddedToScene()) { return false; }
         for(auto& child: node->getChildren()) {
             if (input(child, inputEvent)) return true;
@@ -313,6 +314,7 @@ namespace z0 {
     }
 
     void Application::process(const shared_ptr<Node>& node, float delta) {
+        assert(node != nullptr);
         if (node->isProcessed()) {
             node->onProcess(delta);
         }
@@ -322,6 +324,7 @@ namespace z0 {
     }
 
     void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
+        assert(node != nullptr);
         if (node->isProcessed()) {
             if (node->_needPhysics()) { node->_physicsUpdate(); }
             node->onPhysicsProcess(delta);
@@ -332,6 +335,7 @@ namespace z0 {
     }
     
     void Application::pause(const shared_ptr<Node>& node) {
+        assert(node != nullptr);
         if (paused && (!node->isProcessed())) {
             node->_onPause();
         }
@@ -349,6 +353,7 @@ namespace z0 {
     }
 
     void Application::cleanup(shared_ptr<z0::Node> &node) {
+        assert(node != nullptr);
         for(auto& child: node->getChildren()) {
             cleanup(child);
         }
@@ -359,27 +364,34 @@ namespace z0 {
         window->close();
     }
 
-#ifdef _WIN32
     void Application::_mainLoop() {
         Input::_initInput();
         start();
         while (!window->shouldClose()) {
             Window::_processDeferredLog();
             Input::_updateInputStates();
+#ifdef _WIN32
             MSG _messages;
             if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&_messages);
                 DispatchMessage(&_messages);
             }
+#endif
             drawFrame();
         }
+        stopped = true;
+        Input::_closeInput();
         device->wait();
+        windowManager.reset();
+        cleanup(rootNode);
+#ifdef _WIN32
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);
-        Input::_closeInput();
-        end();
-    }
 #endif
+#ifdef VULKAN_STATS
+        VulkanStats::get().display();
+#endif
+    }
 
     const Window &Application::getWindow() const {
         return *window;

@@ -82,20 +82,34 @@ namespace z0 {
         void activateCamera(const shared_ptr<Camera>& camera);
 
     private:
+        // The global startup configuration parameters
         const ApplicationConfig& applicationConfig;
+        // The current scene
         shared_ptr<Node> rootNode;
+        // The global display window
         unique_ptr<Window> window;
-        unique_ptr<Device> device;
-        VkInstance vkInstance;
-        VkDebugUtilsMessengerEXT debugMessenger;
-        bool paused{false};
-        bool stopped{true};
-        uint32_t fps{0};
-        shared_ptr<SceneRenderer> sceneRenderer;
-        shared_ptr<VectorRenderer> vectorRenderer;
-        vector<shared_ptr<Node>> addedNodes{};
-        vector<shared_ptr<Node>> removedNodes{};
+        // The global UI Window manager
         unique_ptr<GManager> windowManager;
+        // The Vulkan device helper object
+        unique_ptr<Device> device;
+        // The Vulkan global instance
+        VkInstance vkInstance;
+        // Used to redirect validation layers to the logging system
+        VkDebugUtilsMessengerEXT debugMessenger;
+        // State of the current scene
+        bool paused{false};
+        // State of the main loop
+        bool stopped{true};
+        // Average FPS,
+        uint32_t fps{0};
+        // The Main renderer
+        shared_ptr<SceneRenderer> sceneRenderer;
+        // The 2D vector renderer used for the UI
+        shared_ptr<VectorRenderer> vectorRenderer;
+        // Defered list of nodes added to the current scene, processed before each frame
+        vector<shared_ptr<Node>> addedNodes{};
+        // Defered list of nodes removed from the current scene, processed before each frame
+        vector<shared_ptr<Node>> removedNodes{};
 
         /*
          * Main loop members
@@ -119,35 +133,47 @@ namespace z0 {
         unique_ptr<JPH::TempAllocatorImpl> temp_allocator;
         unique_ptr<JPH::JobSystemThreadPool> job_system;
 
+        // Called on startup and after each root node change
         void start();
+        // Prepare and draw a frame
         void drawFrame();
-        void end();
-
+        // Reset the allocated nodes of the tree node
         void cleanup(shared_ptr<Node>& node);
+        // Recusively reset the allocated nodes of the tree node
         void ready(const shared_ptr<Node>& node);
+        // Recusively call _onReady() on a tree node
         void pause(const shared_ptr<Node>& node);
+        // Recusively call onProcess() on a tree node
         void process(const shared_ptr<Node>& node, float alpha);
+        // Recusively call onPhysicsProcess() on a tree node
         void physicsProcess(const shared_ptr<Node>& node, float delta);
+        // Recusively call onInput() on a tree node
         bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
 
     public:
         // The following members are accessed by global function WinMain
+        // Application singleton
         static Application* _instance;
 #ifdef _WIN32
+        // The Main Loop, process Windows message and draw a frame
         void _mainLoop();
 #endif
+        // Pause/resume the main loop
         void _stop(bool stop) { stopped = stop; };
 
+        // Internal accessor/modifiers
         Device& _getDevice() { return *device; }
         VkInstance _getVkInstance() const { return vkInstance; }
-
-        void _addNode(const shared_ptr<Node>& node);
-        void _removeNode(const shared_ptr<Node>& node);
-        void _onInput(InputEvent& inputEvent);
-
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
         JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
         BPLayerInterfaceImpl& _getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
+
+        // Add a node to the current scene
+        void _addNode(const shared_ptr<Node>& node);
+        // Remove a node from the current scene
+        void _removeNode(const shared_ptr<Node>& node);
+        // Propagate input event to the UI Window manager and to the current scene tree
+        void _onInput(InputEvent& inputEvent);
 
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
@@ -156,6 +182,9 @@ namespace z0 {
    };
 
 #ifdef _WIN32
+    /**
+     * Application startup macro
+     */
     #define Z0_APP(CONFIG, ROOTNODE) \
         z0::Application _z0_app(CONFIG, ROOTNODE); \
         int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
