@@ -13,9 +13,6 @@
 
 namespace z0 {
 
- 
-
-
     Character::Character(shared_ptr<Shape> shape,
                          uint32_t layer,
                          uint32_t mask,
@@ -35,7 +32,7 @@ namespace z0 {
                                                 JPH::Quat(quat.x, quat.y, quat.z, quat.w),
                                                 0,
                                                 &Application::get()._getPhysicsSystem());
-    	character->SetUp(JPH::Vec3{AXIS_UP.x, AXIS_UP.y, AXIS_UP.z});
+    	character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
 
         /*JPH::CharacterSettings settings;
         settings.mLayer = collisionLayer << 4 | collisionMask;
@@ -51,6 +48,11 @@ namespace z0 {
 
     Character::~Character() {
         //subCharacter->RemoveFromPhysicsSystem();
+    }
+
+    void Character::setUp(vec3 v) {
+        upVector = v;
+        character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
     }
 
     bool Character::isOnGround() {
@@ -80,6 +82,11 @@ namespace z0 {
     }
 
     vec3 Character::getVelocity() const {
+        auto velocity = character->GetLinearVelocity();
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    vec3 Character::getGroundVelocity() const {
         auto velocity = character->GetGroundVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
@@ -90,11 +97,11 @@ namespace z0 {
         //character->UpdateGroundVelocity();
         character->Update(delta, 
                           character->GetUp() * app()._getPhysicsSystem().GetGravity().Length(), 
-                          *this, 
-                          *this, 
-                          *this, 
+                          *this,
+                          *this,
+                          *this,
                           {}, 
-                          *Application::get()._getTempAllocator().get());
+                          *app()._getTempAllocator().get());
         auto pos = character->GetPosition();
         auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {

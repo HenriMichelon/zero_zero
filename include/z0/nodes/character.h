@@ -8,8 +8,8 @@ namespace z0 {
                      public JPH::BodyFilter {
     public:
         explicit Character(shared_ptr<Shape> shape,
-                           uint32_t layer=1,
-                           uint32_t mask=1,
+                           uint32_t layer,
+                           uint32_t mask,
                            const string& name = "Character");
         ~Character() override;
 
@@ -17,11 +17,16 @@ namespace z0 {
         bool isGround(CollisionObject*);
         void setVelocity(vec3 velocity) override;
         vec3 getVelocity() const override;
+        vec3 getGroundVelocity() const;
+
+        const vec3& getUp() const { return upVector; }
+        void setUp(vec3 v);
 
     protected:
         void setPositionAndRotation();
 
     private:
+        vec3 upVector{AXIS_UP};
         unique_ptr<JPH::CharacterVirtual> character;
         //unique_ptr<JPH::Character> subCharacter;
         
