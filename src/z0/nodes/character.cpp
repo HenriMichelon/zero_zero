@@ -52,7 +52,7 @@ namespace z0 {
     static const float GROUND_COLLISION_TOLERANCE = 0.05f;
 
     void Character::_physicsUpdate() {
-        character->PostSimulation(GROUND_COLLISION_TOLERANCE);
+        //character->PostSimulation(GROUND_COLLISION_TOLERANCE);
         CollisionObject::_physicsUpdate();
     }
 

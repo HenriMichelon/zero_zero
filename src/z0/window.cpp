@@ -9,6 +9,7 @@
 
 const char szClassName[ ] = "WindowsApp";
 
+// Helper to translate Windows get state to z0 key modifiers
 int _getKeyboardModifiers() {
     int modifiers = 0;
     if (GetKeyState(VK_SHIFT) & 0x8000) modifiers |= z0::KEY_MODIFIER_SHIFT;
@@ -17,6 +18,7 @@ int _getKeyboardModifiers() {
     return modifiers;
 }
 
+// Rendering window proc
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     static float lastMouseX = -1.0f;
     static float lastMouseY = -1.0f;
@@ -38,9 +40,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         }
         case WM_SYSCOMMAND:
             if (wParam == SC_CLOSE) {
-                // Mark the window for closing
                 window->close();
-                // cancel the default close operation
                 return 0;
             } else if (wParam == SC_MINIMIZE) {
                 app._stop(true);
@@ -202,9 +202,6 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 namespace z0 {
 
-    uint32_t Window::screenWidth = 0;
-    uint32_t Window::screenHeight = 0;
-
     string Window::toString() const {
         stringstream s;
         s << "Window " << width << "x" << height;
@@ -240,14 +237,13 @@ namespace z0 {
             .lpszClassName = szClassName,
             .hIconSm = LoadIcon(nullptr, IDI_APPLICATION),
         };
-
         if (!RegisterClassEx(&wincl)) die("Cannot register Window class");
 
         // Getting the dimensions of the primary monitor
         RECT workArea = {};
         SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-        screenWidth = workArea.right - workArea.left;
-        screenHeight = workArea.bottom - workArea.top;
+        auto screenWidth = workArea.right - workArea.left;
+        auto screenHeight = workArea.bottom - workArea.top;
 
         int x = CW_USEDEFAULT;
         int y = CW_USEDEFAULT;
@@ -404,8 +400,7 @@ namespace z0 {
                 log("Log starting");
                 return 0;
             }
-            case WM_COMMAND: 
-            {
+            case WM_COMMAND: {
                 auto subcommande = HIWORD(wParam);
                 if (subcommande == LBN_SELCHANGE) {
                     int index = SendMessage(z0::Window::_hwndLogList, LB_GETCURSEL, 0, 0);
@@ -439,7 +434,7 @@ namespace z0 {
     HWND Window::_hwndLogList{nullptr};
     const char szClassNameLog[ ] = "WindowsAppLog";
     list<string> Window::_deferredLogMessages;
-        DWORD Window::_mainThreadId;
+    DWORD Window::_mainThreadId;
 
     void Window::createLogWindow(HMODULE hInstance) {
         RECT secondMonitorRect = { 0 };
@@ -489,6 +484,8 @@ namespace z0 {
         string item = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
         item.append(" ");
         item.append(msg);
+        // Store the log message in the deferred log queue if we log from another thread
+        // because the log window proc run on the main thread
         if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
             SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
             int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);

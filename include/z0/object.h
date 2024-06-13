@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for anything
+     */
     class Object {
     public:
         friend ostream& operator<<(ostream& os, const Object& obj) {
@@ -9,6 +12,9 @@ namespace z0 {
             return os;
         }
 
+        /**
+         * Convert the objet to a readable text
+         */
         virtual string toString() const { return "??"; };
     };
 

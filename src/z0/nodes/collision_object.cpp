@@ -51,7 +51,6 @@ namespace z0 {
         return collisionMask & layer;
     }
 
-
     void CollisionObject::setCollistionLayer(uint32_t layer, bool value) {
           if (value) {
             collisionLayer |= layer;
@@ -121,7 +120,11 @@ namespace z0 {
         JPH::Vec3 position;
         JPH::Quat rotation;
         bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
-        setPositionGlobal(vec3{position.GetX(), position.GetY(), position.GetZ()});
+        auto pos = vec3{position.GetX(), position.GetY(), position.GetZ()};
+        if (pos != getPositionGlobal()) {
+            //log(z0::toString(pos));
+            setPositionGlobal(pos);
+        }
         setRotation(quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()});
         updating = false;
     }

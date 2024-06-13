@@ -2,25 +2,34 @@
 
 namespace z0 {
 
+    /**
+     * Rendering target window, one per application
+     */
     class Window: public Object {
     public:
-        explicit Window(const ApplicationConfig& applicationConfig);
-        virtual ~Window();
-
-        static uint32_t getScreenWidth() { return screenWidth; }
-        static uint32_t getScreenHeight() { return screenHeight; }
-
+        /**
+         * Get the width of the client area of the window, in pixels
+         */
         uint32_t getWidth() const { return width; }
+
+        /**
+         * Get the height of the client area of the window, in pixels
+         */
         uint32_t getHeight() const { return height; }
 
-        void close() { closing = true; }
+        /**
+         * Close the window, effectively quitting the application
+         */
+            void close() { closing = true; }
+
+        /*
+        * Returns true if we need to stop the Application main loop and quit the application
+        */
         bool shouldClose() const { return closing; }
 
         string toString() const override;
 
     private:
-        static uint32_t screenWidth;
-        static uint32_t screenHeight;
         uint32_t width;
         uint32_t height;
         bool closing{false};
@@ -48,6 +57,8 @@ namespace z0 {
         HWND _getHandle() const { return hwnd; };
         RECT _getRect() const { return rect; }
 #endif
-    };
+        explicit Window(const ApplicationConfig& applicationConfig);
+        virtual ~Window();
+   };
 
 }
