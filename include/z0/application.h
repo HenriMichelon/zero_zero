@@ -56,16 +56,16 @@ namespace z0 {
         uint32_t getFPS() const { return fps; }
 
         /**
-         * Check if the scene is paused, in respect for \ProcessMode
-         * @return  \true if the current scene is paused
+         * Check if the scene is paused, in respect for z0::ProcessMode
+         * @return  true if the current scene is paused
          */
         bool isPaused() const { return paused; }
 
         /**
          * Pause or resume the current scene
          * @param pause the new state
-         *  - \true pause the scene
-         *  - \false resume the scene
+         *  - true pause the scene
+         *  - false resume the scene
          */
         void setPaused(bool pause);
 

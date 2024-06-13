@@ -372,3 +372,5 @@ _deps
 .env.cmake
 # Blender backup files
 *.blend1
+# doxygen theme
+docs/doxygen-awesome-css

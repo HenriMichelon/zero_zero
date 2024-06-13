@@ -2,27 +2,81 @@
 
 namespace z0 {
 
+    /**
+    * @file constants.h
+    * @brief Header file defining global constants.
+    */
+
+    /**
+    * Useless engine name
+    */
     constexpr string ENGINE_NAME = "ZeroZero";
+
+    /**
+     * Defaul background color for the display window
+     */
     constexpr int WINDOW_CLEAR_COLOR[] { 0, 0, 0 };
 
+    /**
+     * X Axis
+     */
     constexpr vec3 AXIS_X { 1.0, 0.0f, 0.0f };
+
+    /**
+     * Y Axis
+     */
     constexpr vec3 AXIS_Y { 0.0, 1.0f, 0.0f };
+
+    /**
+     * Z Axis
+     */
     constexpr vec3 AXIS_Z { 0.0, 0.0f, 1.0f };
+    
+    /**
+     * UP Axis
+     */
     constexpr vec3 AXIS_UP = AXIS_Y;
+
+    /**
+     * FRONT Axis
+     */
     constexpr vec3 AXIS_FRONT = -AXIS_Z;
 
+    /**
+     * 2D zero initialized vector
+     */
     constexpr vec2 VEC2ZERO{0.0};
+
+    /**
+     * 3D zero initialized vector
+     */
     constexpr vec3 VEC3ZERO{0.0};
+
+    /**
+     * The Basis of 3D transform. 
+     * It is composed by 3 axes (Basis.x, Basis.y, and Basis.z). 
+     * Together, these represent the transform's rotation, scale, and shear.
+     */
     constexpr mat3 TRANSFORM_BASIS{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-    // 2D default coordinates system scale [ 1000, 1000 ]
-    constexpr vec2 VECTOR_SCALE{1000.0f };
+    /**
+    * 2D vector drawing default coordinates system scale [ 1000, 1000 ]
+    */
+    constexpr vec2 VECTOR_SCALE{1000.0f};
 
+    /**
+     * Nodes state when the scene is paused or running
+     */
     enum ProcessMode {
+        //! Inherits mode from the node's parent. This is the default for any newly created node
         PROCESS_MODE_INHERIT    = 0,
+        //! Stops processing when Application::isPaused() is true. This is the inverse of PROCESS_MODE_WHEN_PAUSED
         PROCESS_MODE_PAUSABLE   = 1,
+        //! Process only when Application::isPaused() is true. This is the inverse of PROCESS_MODE_PAUSABLE
         PROCESS_MODE_WHEN_PAUSED= 2,
+        //! Always process. Keeps processing, ignoring Application::isPaused(). This is the inverse of PROCESS_MODE_DISABLED
         PROCESS_MODE_ALWAYS     = 3,
+        //! Never process. Completely disables processing, ignoring Application::isPaused(). This is the inverse of PROCESS_MODE_ALWAYS
         PROCESS_MODE_DISABLED   = 4,
     };
 
