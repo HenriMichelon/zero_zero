@@ -106,7 +106,7 @@ namespace z0 {
         virtual void _onResume() {};
         virtual void _onEnterScene() {};
         virtual void _onExitScene() {};
-        virtual void _physicsUpdate() {};
+        virtual void _physicsUpdate(float delta) {};
 
         bool _needPhysics() const { return needPhysics; }
         void _setAddedToScene(bool added) { addedToScene = added; }

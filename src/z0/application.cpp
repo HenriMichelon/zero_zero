@@ -326,7 +326,7 @@ namespace z0 {
     void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
         assert(node != nullptr);
         if (node->isProcessed()) {
-            if (node->_needPhysics()) { node->_physicsUpdate(); }
+            if (node->_needPhysics()) { node->_physicsUpdate(delta); }
             node->onPhysicsProcess(delta);
         }
         for(auto& child: node->getChildren()) {
@@ -404,6 +404,11 @@ namespace z0 {
     
     const ApplicationConfig& Application::getConfig() const { 
         return applicationConfig; 
+    }
+
+    vec3 Application::getGravity() const {
+        auto gravity = physicsSystem.GetGravity();
+        return vec3{gravity.GetX(), gravity.GetY(), gravity.GetZ()};
     }
 
 }

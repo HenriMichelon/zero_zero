@@ -16,8 +16,8 @@ namespace z0 {
 
         virtual void onCollisionStarts(CollisionObject* node) {};
 
-        void setVelocity(vec3 velocity);
-        vec3 getVelocity() const;
+        virtual void setVelocity(vec3 velocity);
+        virtual vec3 getVelocity() const;
 
         void updateTransform() override;
         void updateTransform(const mat4& parentMatrix) override;
@@ -42,7 +42,7 @@ namespace z0 {
         JPH::BodyID bodyId;
 
     public:
-        void _physicsUpdate() override;
+        void _physicsUpdate(float delta) override;
         void _onEnterScene() override;
         void _onExitScene() override;
         void _onPause() override;

@@ -70,9 +70,13 @@ namespace z0 {
     }
 
     void CollisionObject::setVelocity(vec3 velocity) {
-        // current orientation * velocity
-        velocity = toQuat(mat3(localTransform)) * velocity;
-        bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{velocity.x, velocity.y, velocity.z});
+        if (velocity == VEC3ZERO) {
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
+        } else {
+            // current orientation * velocity
+            velocity = toQuat(mat3(localTransform)) * velocity;
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{velocity.x, velocity.y, velocity.z});
+        }
     }
 
     vec3 CollisionObject::getVelocity() const {
@@ -115,7 +119,7 @@ namespace z0 {
         Node::_onExitScene();
     }
 
-    void CollisionObject::_physicsUpdate() {
+    void CollisionObject::_physicsUpdate(float delta) {
         updating = true;
         JPH::Vec3 position;
         JPH::Quat rotation;

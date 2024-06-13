@@ -13,6 +13,9 @@
 
 namespace z0 {
 
+ 
+
+
     Character::Character(shared_ptr<Shape> shape,
                          uint32_t layer,
                          uint32_t mask,
@@ -21,24 +24,33 @@ namespace z0 {
                         layer,
                         mask,
                         name) {
-        JPH::CharacterSettings settings;
-        settings.mLayer = collisionLayer << 4 | collisionMask;
-        settings.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
-        settings.mMaxSlopeAngle = radians(45.0);
-        settings.mUp = JPH::Vec3{AXIS_UP.x, AXIS_UP.y, AXIS_UP.z};
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
-        character = make_unique<JPH::Character>(&settings,
+
+        JPH::CharacterVirtualSettings settingsVirtual;
+        settingsVirtual.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
+        settingsVirtual.mMaxSlopeAngle = radians(45.0);
+        character = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                 JPH::RVec3(position.x, position.y, position.z),
                                                 JPH::Quat(quat.x, quat.y, quat.z, quat.w),
                                                 0,
                                                 &Application::get()._getPhysicsSystem());
-        character->AddToPhysicsSystem();
-        setBodyId(character->GetBodyID());
+    	character->SetUp(JPH::Vec3{AXIS_UP.x, AXIS_UP.y, AXIS_UP.z});
+
+        /*JPH::CharacterSettings settings;
+        settings.mLayer = collisionLayer << 4 | collisionMask;
+        settings.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
+        subCharacter = make_unique<JPH::Character>(&settings,
+                                                JPH::RVec3(position.x, position.y, position.z),
+                                                JPH::Quat(quat.x, quat.y, quat.z, quat.w),
+                                                0,
+                                                &Application::get()._getPhysicsSystem());
+        subCharacter->AddToPhysicsSystem();
+        setBodyId(subCharacter->GetBodyID());*/
     }
 
     Character::~Character() {
-        character->RemoveFromPhysicsSystem();
+        //subCharacter->RemoveFromPhysicsSystem();
     }
 
     bool Character::isOnGround() {
@@ -49,11 +61,61 @@ namespace z0 {
         return node->_getBodyId() == character->GetGroundBodyID();
     }
 
-    static const float GROUND_COLLISION_TOLERANCE = 0.05f;
+    void Character::setPositionAndRotation() {
+        if (updating || (parent == nullptr)) return;
+        auto position = getPositionGlobal();
+        character->SetPosition(JPH::RVec3(position.x, position.y, position.z));
+        auto quat = normalize(toQuat(mat3(worldTransform)));
+        character->SetRotation(JPH::Quat(quat.x, quat.y, quat.z, quat.w));
+    }
 
-    void Character::_physicsUpdate() {
+    void Character::setVelocity(vec3 velocity) {
+        if (velocity == VEC3ZERO) {
+            character->SetLinearVelocity(JPH::Vec3::sZero());
+        } else {
+            // current orientation * velocity
+            velocity = toQuat(mat3(localTransform)) * velocity;
+            character->SetLinearVelocity(JPH::Vec3{velocity.x, velocity.y, velocity.z});
+        }
+    }
+
+    vec3 Character::getVelocity() const {
+        auto velocity = character->GetGroundVelocity();
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    void Character::_physicsUpdate(float delta) {
         //character->PostSimulation(GROUND_COLLISION_TOLERANCE);
-        CollisionObject::_physicsUpdate();
+        updating = true;
+        //character->UpdateGroundVelocity();
+        character->Update(delta, 
+                          character->GetUp() * app()._getPhysicsSystem().GetGravity().Length(), 
+                          *this, 
+                          *this, 
+                          *this, 
+                          {}, 
+                          *Application::get()._getTempAllocator().get());
+        auto pos = character->GetPosition();
+        auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
+        if (newPos != getPositionGlobal()) {
+            setPositionGlobal(newPos);
+        }
+        updating = false;
+    }
+
+    bool Character::ShouldCollide (JPH::ObjectLayer inLayer) const {
+        auto targetLayer = (inLayer >> 4) & 0b1111;
+        return (targetLayer & collisionMask) != 0;
+    }
+
+    bool Character::ShouldCollide (const JPH::BodyID &inBodyID) const {
+        auto node1 = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID));
+        return (node1->getCollisionLayer() & collisionMask) != 0;
+    }
+
+    bool Character::ShouldCollideLocked (const JPH::Body &inBody) const {
+        auto node1 = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
+        return (node1->getCollisionLayer() & collisionMask) != 0;
     }
 
 }

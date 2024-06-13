@@ -81,6 +81,11 @@ namespace z0 {
          */
         void activateCamera(const shared_ptr<Camera>& camera);
 
+        /**
+         * Get the physics system gravity
+         */
+        vec3 getGravity() const;
+
     private:
         // The global startup configuration parameters
         const ApplicationConfig& applicationConfig;
@@ -167,6 +172,7 @@ namespace z0 {
         JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
         JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
         BPLayerInterfaceImpl& _getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
+        unique_ptr<JPH::TempAllocatorImpl>& _getTempAllocator() { return temp_allocator; }
 
         // Add a node to the current scene
         void _addNode(const shared_ptr<Node>& node);

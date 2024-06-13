@@ -29,5 +29,4 @@ namespace z0 {
                             JPH::ContactSettings &ioSettings) override;
     };
 
-
 }

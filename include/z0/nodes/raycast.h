@@ -22,7 +22,7 @@ namespace z0 {
         JPH::BroadPhaseLayerFilter broadPhaseLayerFilter{};
 
     public:
-        void _physicsUpdate() override;
+        void _physicsUpdate(float delta) override;
         bool ShouldCollide (JPH::ObjectLayer inLayer) const override;
         bool ShouldCollideLocked (const JPH::Body &inBody) const override;
     };

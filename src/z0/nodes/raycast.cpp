@@ -53,10 +53,10 @@ namespace z0 {
     }
 
     void RayCast::forceRaycastUpdate() {
-        _physicsUpdate();
+        _physicsUpdate(0.0f);
     }
 
-    void RayCast::_physicsUpdate() {
+    void RayCast::_physicsUpdate(float delta) {
         const auto position = getPositionGlobal();
         const auto worldTarget = toGlobal(target);
         const JPH::RRayCast ray{

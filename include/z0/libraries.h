@@ -35,6 +35,7 @@ using namespace glm;
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/Character/Character.h>
+#include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/EActivation.h>
 #include <Jolt/Physics/Body/MotionType.h>
