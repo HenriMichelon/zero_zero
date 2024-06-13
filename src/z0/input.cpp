@@ -192,8 +192,8 @@ namespace z0 {
             return std::min(std::max(value < 0.0f ? value + DEADZONE_PERCENT : value - DEADZONE_PERCENT, -1.0f), 1.0f);
         }
     }
-#ifdef _WIN32
 
+#ifdef _WIN32
 
     bool Input::_keys[256]{false};
     bool Input::_useXInput{false};
@@ -213,8 +213,26 @@ namespace z0 {
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
-    //static map<uint32_t, XINPUT_STATE> _xinputStates{};
+    static map<uint32_t, XINPUT_STATE> _xinputStates{};
     static LPDIRECTINPUT8 _directInput = nullptr;
+
+    static map<GamepadButton, int> GAMEPABUTTON2XINPUT {
+        { GAMEPAD_BUTTON_A, XINPUT_GAMEPAD_A },
+        { GAMEPAD_BUTTON_B, XINPUT_GAMEPAD_B },
+        { GAMEPAD_BUTTON_X, XINPUT_GAMEPAD_X },
+        { GAMEPAD_BUTTON_Y, XINPUT_GAMEPAD_Y },
+        { GAMEPAD_BUTTON_LB, XINPUT_GAMEPAD_LEFT_SHOULDER },
+        { GAMEPAD_BUTTON_RB, XINPUT_GAMEPAD_RIGHT_SHOULDER },
+        { GAMEPAD_BUTTON_LT, XINPUT_GAMEPAD_LEFT_THUMB },
+        { GAMEPAD_BUTTON_RT, XINPUT_GAMEPAD_RIGHT_THUMB },
+        { GAMEPAD_BUTTON_BACK, XINPUT_GAMEPAD_BACK },
+        { GAMEPAD_BUTTON_START, XINPUT_GAMEPAD_START },
+        { GAMEPAD_BUTTON_DPAD_DOWN, XINPUT_GAMEPAD_DPAD_DOWN },
+        { GAMEPAD_BUTTON_DPAD_UP, XINPUT_GAMEPAD_DPAD_UP },
+        { GAMEPAD_BUTTON_DPAD_LEFT, XINPUT_GAMEPAD_DPAD_LEFT },
+        { GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT },
+        { GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT },
+    };
 
     static BOOL CALLBACK _deviceObjectCallback(const DIDEVICEOBJECTINSTANCEA* doi,
                                               void* user) {
@@ -316,7 +334,6 @@ namespace z0 {
                                 if (parts[0] == "rightstick") state.indexButtons[GAMEPAD_BUTTON_RT] = index;
                                 if (parts[0] == "back") state.indexButtons[GAMEPAD_BUTTON_BACK] = index;
                                 if (parts[0] == "start") state.indexButtons[GAMEPAD_BUTTON_START] = index;
-                                if (parts[0] == "guide") state.indexButtons[GAMEPAD_BUTTON_GUIDE] = index;
                             } catch (const std::invalid_argument& e) {
                             }
                         }
@@ -329,16 +346,26 @@ namespace z0 {
     }
 
     void Input::_initInput() {
-        if (FAILED(DirectInput8Create(GetModuleHandle(nullptr),
-                                      DIRECTINPUT_VERSION,
-                                      IID_IDirectInput8,
-                                      (void**)&_directInput, nullptr))) {
-            die("DirectInput8Create failed");
+        for (uint32_t i = 0; i < XUSER_MAX_COUNT; ++i) {
+            XINPUT_STATE state;
+            ZeroMemory(&state, sizeof(XINPUT_STATE));
+            if (XInputGetState(i, &state) == ERROR_SUCCESS) {
+                _xinputStates[i] = state;
+            }
         }
-        _directInput->EnumDevices(DI8DEVCLASS_GAMECTRL,
-                                  _enumGamepadsCallback,
-                                  nullptr,
-                                  DIEDFL_ATTACHEDONLY);
+        _useXInput = !_xinputStates.empty();
+        if (!_useXInput) {
+            if (FAILED(DirectInput8Create(GetModuleHandle(nullptr),
+                                        DIRECTINPUT_VERSION,
+                                        IID_IDirectInput8,
+                                        (void**)&_directInput, nullptr))) {
+                die("DirectInput8Create failed");
+            }
+            _directInput->EnumDevices(DI8DEVCLASS_GAMECTRL,
+                                    _enumGamepadsCallback,
+                                    nullptr,
+                                    DIEDFL_ATTACHEDONLY);
+        }
     }
 
     void Input::_closeInput() {
@@ -354,15 +381,16 @@ namespace z0 {
 
     uint32_t Input::getConnectedJoypads() {
         uint32_t count = 0;
-        /*if (_useXInput) {
-            count += _xinputStates.size();
-        } */
-        count += _directInputStates.size();
+        if (_useXInput) {
+            count = _xinputStates.size();
+        } else {
+            count = _directInputStates.size();
+        }
         return count;
     }
 
     bool Input::isGamepad(uint32_t index) {
-        /*if (_useXInput) {
+        if (_useXInput) {
             if (_xinputStates.contains(index)) {
                 XINPUT_CAPABILITIES xinputCapabilities;
                 ZeroMemory(&xinputCapabilities, sizeof(XINPUT_CAPABILITIES));
@@ -370,12 +398,14 @@ namespace z0 {
                     return xinputCapabilities.SubType == XINPUT_DEVSUBTYPE_GAMEPAD;
                 }
             }
-        } */
-        return _directInputStates.contains(index);
+            return false;
+        } else {
+            return _directInputStates.contains(index);
+        }
     }
 
     void Input::_updateInputStates() {
-       /* if (_useXInput) {
+        if (_useXInput) {
             _xinputStates.clear();
             for (uint32_t i = 0; i < XUSER_MAX_COUNT; ++i) {
                 XINPUT_STATE state;
@@ -384,60 +414,90 @@ namespace z0 {
                     _xinputStates[i] = state;
                 }
             }
-        } */
-       for (auto& entry : _directInputStates) {
-           auto& gamepad = entry.second;
-           HRESULT hr = gamepad.device->Poll();
-           if (FAILED(hr)) {
-               hr = gamepad.device->Acquire();
-               while (hr == DIERR_INPUTLOST) {
-                   hr = gamepad.device->Acquire();
-               }
-               if (FAILED(hr)) {
-                   _directInputStates.erase(entry.first);
-                   continue;
-               }
-           }
+        } else {
+            for (auto& entry : _directInputStates) {
+            auto& gamepad = entry.second;
+            HRESULT hr = gamepad.device->Poll();
+            if (FAILED(hr)) {
+                hr = gamepad.device->Acquire();
+                while (hr == DIERR_INPUTLOST) {
+                    hr = gamepad.device->Acquire();
+                }
+                if (FAILED(hr)) {
+                    _directInputStates.erase(entry.first);
+                    continue;
+                }
+            }
 
-           DIJOYSTATE state{0};
-           if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
-               continue;
-           }
-           gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / DI_AXIS_RANGE_DIV;
-           gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / DI_AXIS_RANGE_DIV;
-           gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / DI_AXIS_RANGE_DIV;
-           gamepad.axes[3] = (static_cast<float>(state.lRx) + 0.5f) / DI_AXIS_RANGE_DIV;
-           gamepad.axes[4] = (static_cast<float>(state.lRy) + 0.5f) / DI_AXIS_RANGE_DIV;
-           gamepad.axes[5] = (static_cast<float>(state.lRz) + 0.5f) / DI_AXIS_RANGE_DIV;
-           for (int i = 0; i < 32; i++) { // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
-               gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
-           }
-           for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
-               auto button = static_cast<GamepadButton>(i);
-               auto pressed = gamepad.buttons[gamepad.indexButtons[button]];
-               if (pressed && (!_gamepadButtonPressedStates[button])) {
-                   auto event = InputEventGamepadButton(button, pressed);
-                   Application::get()._onInput(event);
-               }
-               if ((!pressed) && (_gamepadButtonPressedStates[button])) {
-                   auto event = InputEventGamepadButton(button, pressed);
-                   Application::get()._onInput(event);
-               }
-               _gamepadButtonPressedStates[button] = pressed;
-           }
-       }
+            DIJOYSTATE state{0};
+            if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
+                continue;
+            }
+            gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / DI_AXIS_RANGE_DIV;
+            gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / DI_AXIS_RANGE_DIV;
+            gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / DI_AXIS_RANGE_DIV;
+            gamepad.axes[3] = (static_cast<float>(state.lRx) + 0.5f) / DI_AXIS_RANGE_DIV;
+            gamepad.axes[4] = (static_cast<float>(state.lRy) + 0.5f) / DI_AXIS_RANGE_DIV;
+            gamepad.axes[5] = (static_cast<float>(state.lRz) + 0.5f) / DI_AXIS_RANGE_DIV;
+            for (int i = 0; i < 32; i++) { // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
+                gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
+            }
+            for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+                auto button = static_cast<GamepadButton>(i);
+                auto pressed = gamepad.buttons[gamepad.indexButtons[button]];
+                if (pressed && (!_gamepadButtonPressedStates[button])) {
+                    auto event = InputEventGamepadButton(button, pressed);
+                    Application::get()._onInput(event);
+                }
+                if ((!pressed) && (_gamepadButtonPressedStates[button])) {
+                    auto event = InputEventGamepadButton(button, pressed);
+                    Application::get()._onInput(event);
+                }
+                _gamepadButtonPressedStates[button] = pressed;
+            }
+            }
+        }
     }
 
     bool Input::isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton) {
-        if (_directInputStates.contains(index)) {
+        if (_useXInput && _xinputStates.contains(index)) {
+            return _xinputStates[index].Gamepad.wButtons & GAMEPABUTTON2XINPUT[gamepadButton];
+        } else if (_directInputStates.contains(index)) {
             const auto& gamepad = _directInputStates[index];
             return gamepad.buttons[gamepad.indexButtons[gamepadButton]];
         }
         return false;
     }
 
+    float _normalizeThumbstickValue(SHORT value, SHORT deadzone) {
+        if (value > deadzone || value < -deadzone) {
+            // Max value for a SHORT is 32767, normalize to -1.0f to 1.0f
+            return (value < 0 ? (value + deadzone) : (value - deadzone)) / (32767.0f - deadzone);
+        } else {
+            return 0.0f;
+        }
+    }
+    
+
     vec2 Input::getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick) {
-        if (_directInputStates.contains(index)) {
+         if (_useXInput && _xinputStates.contains(index)) {
+            auto gamepad = _xinputStates[index].Gamepad;
+            auto xAxis = 0;
+            auto yAxis = 0;
+            if (axisJoystick == GAMEPAD_AXIS_LEFT) {
+                xAxis = _normalizeThumbstickValue(gamepad.sThumbLX, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+                yAxis = _normalizeThumbstickValue(gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+            } else {
+                xAxis = _normalizeThumbstickValue(gamepad.sThumbRX, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+                yAxis = _normalizeThumbstickValue(gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+            }
+            vec2 vector{
+                xAxis,
+                -yAxis
+            };
+            float length = glm::length(vector);
+            return (length > 1.0f) ? vector / length : vector;
+        } else if (_directInputStates.contains(index)) {
             const auto& gamepad = _directInputStates[index];
             auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
             auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
@@ -452,9 +512,9 @@ namespace z0 {
     }
 
     string Input::getJoypadName(uint32_t index) {
-        /*if (_useXInput) {
+        if (_useXInput) {
             return "XInput";
-        }*/
+        }
         if (_directInputStates.contains(index)){
             return _directInputStates[index].name;
         }

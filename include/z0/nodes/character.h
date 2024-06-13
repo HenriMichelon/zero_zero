@@ -19,7 +19,7 @@ namespace z0 {
         vec3 getVelocity() const override;
         vec3 getGroundVelocity() const;
 
-        const vec3& getUp() const { return upVector; }
+        inline const vec3& getUp() const { return upVector; }
         void setUp(vec3 v);
 
     protected:

@@ -31,7 +31,7 @@ namespace z0 {
 
         // world relative position
         virtual void setPositionGlobal(vec3 position);
-        vec3 getPositionGlobal() const { return worldTransform[3]; }
+        inline vec3 getPositionGlobal() const { return worldTransform[3]; }
 
         // rotations around own center
         void rotateX(float angle);

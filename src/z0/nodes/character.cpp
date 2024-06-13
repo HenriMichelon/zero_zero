@@ -92,9 +92,7 @@ namespace z0 {
     }
 
     void Character::_physicsUpdate(float delta) {
-        //character->PostSimulation(GROUND_COLLISION_TOLERANCE);
         updating = true;
-        //character->UpdateGroundVelocity();
         character->Update(delta, 
                           character->GetUp() * app()._getPhysicsSystem().GetGravity().Length(), 
                           *this,
