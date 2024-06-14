@@ -10,7 +10,7 @@
 
 namespace z0 {
 
-    SkyboxRenderer::SkyboxRenderer(const Device &dev, const string& shaderDirectory):
+    SkyboxRenderer::SkyboxRenderer(Device &dev, const string& shaderDirectory):
         BaseRenderpass{dev, shaderDirectory} {
         static const float skyboxVertices[] = {
                 // positions

@@ -27,7 +27,7 @@ namespace z0 {
         // Depth testing multisampled off screen buffer
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
 
-        BaseModelsRenderer(const Device& device, const string& shaderDirectory);
+        BaseModelsRenderer(Device& device, const string& shaderDirectory);
 
         // A model is currently been added to the scene, called before updating the descriptor set
         virtual void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) {};

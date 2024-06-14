@@ -13,10 +13,12 @@
 #include "z0/nodes/mesh_instance.h"
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
+#include "z0/framebuffers/shadow_map_frame_buffer.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #include "z0/renderers/skybox_renderer.h"
 #include "z0/renderers/base_models_renderer.h"
+#include "z0/renderers/shadowmap_renderer.h"
 #include "z0/renderers/scene_renderer.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
@@ -217,7 +219,7 @@ namespace z0 {
         if (stopped) return;
 
         // Process the deferred scene tree modification
-        sceneRenderer->updateMaterials();
+        sceneRenderer->preUpdateScene();
         windowManager->drawFrame();
         if (!removedNodes.empty()) {
             for (const auto &node: removedNodes) {
@@ -234,6 +236,7 @@ namespace z0 {
             }
             addedNodes.clear();
         }
+        sceneRenderer->postUpdateScene();
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();

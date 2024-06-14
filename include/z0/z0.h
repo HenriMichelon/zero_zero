@@ -55,9 +55,11 @@
 #include <z0/nodes/directional_light.h>
 #include <z0/nodes/environment.h>
 
+#include <z0/framebuffers/shadow_map_frame_buffer.h>
 #include <z0/renderers/base_renderpass.h>
 #include <z0/renderers/skybox_renderer.h>
 #include <z0/renderers/base_models_renderer.h>
+#include <z0/renderers/shadowmap_renderer.h>
 #include <z0/renderers/scene_renderer.h>
 #include <z0/renderers/vector_renderer.h>
 

@@ -231,8 +231,12 @@ namespace z0 {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::registerRenderer(const std::shared_ptr<BaseRenderer>& renderer) {
+    void Device::registerRenderer(const shared_ptr<BaseRenderer>& renderer) {
         renderers.insert(renderers.begin(), renderer);
+    }
+
+    void Device::unRegisterRenderer(const shared_ptr<BaseRenderer>& renderer) {
+        renderers.erase(remove(renderers.begin(), renderers.end(), renderer), renderers.end());
     }
 
     // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation

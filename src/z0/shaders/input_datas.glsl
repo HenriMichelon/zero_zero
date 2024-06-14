@@ -17,6 +17,11 @@ struct PointLight {
     float outerCutOff;
 };
 
+struct ShadowMap {
+    mat4 lightSpace;
+    vec3 lightPos;
+};
+
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     mat4 projection;
     mat4 view;
@@ -24,6 +29,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     vec3 cameraPosition;
     DirectionalLight directionalLight;
     bool haveDirectionalLight;
+    int shadowMapsCount;
 } global;
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
@@ -42,6 +48,12 @@ layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
 } material;
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
+
+layout(set = 0, binding = 4) uniform ShadowMapArray {
+    ShadowMap shadowMaps[1];
+} shadowMapsInfos;
+
+layout (set = 0, binding = 5) uniform sampler2D shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
 
 struct VertexOut {
     vec2 UV;

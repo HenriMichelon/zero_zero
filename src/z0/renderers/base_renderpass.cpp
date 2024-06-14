@@ -9,7 +9,7 @@
 
 namespace z0 {
 
-    BaseRenderpass::BaseRenderpass(const Device &dev, const string& sDir) :
+    BaseRenderpass::BaseRenderpass(Device &dev, const string& sDir) :
             device{dev},
             vkDevice{dev.getDevice()},
             shaderDirectory(sDir) {}

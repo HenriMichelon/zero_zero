@@ -9,7 +9,7 @@ namespace z0 {
         const Device& getDevice() const { return device; }
 
     protected:
-        const Device& device;
+        Device& device;
         VkDevice vkDevice;
         string shaderDirectory; // SPIR-V Compiled shaders directory
         VkPipelineLayout pipelineLayout { VK_NULL_HANDLE };
@@ -29,7 +29,7 @@ namespace z0 {
                     1.0f}}};
         const VkClearValue depthClearValue { .depthStencil = {1.0f, 0} };
 
-        BaseRenderpass(const Device& device, const string& shaderDirectory);
+        BaseRenderpass(Device& device, const string& shaderDirectory);
 
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);

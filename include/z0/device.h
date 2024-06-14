@@ -22,6 +22,7 @@ namespace z0 {
         void drawFrame();
         void wait() const;
         void registerRenderer(const shared_ptr<BaseRenderer>& renderer);
+        void unRegisterRenderer(const shared_ptr<BaseRenderer>& renderer);
 
         VkImageView createImageView(VkImage image,
                                     VkFormat format,

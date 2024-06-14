@@ -16,9 +16,11 @@
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"
+#include "z0/framebuffers/shadow_map_frame_buffer.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/base_models_renderer.h"
 #include "z0/renderers/skybox_renderer.h"
+#include "z0/renderers/shadowmap_renderer.h"
 #include "z0/renderers/scene_renderer.h"
 #endif
 
@@ -30,7 +32,7 @@ namespace z0 {
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
 
-    SceneRenderer::SceneRenderer(const Device &dev, const string& sDir) :
+    SceneRenderer::SceneRenderer(Device &dev, const string& sDir) :
             BaseModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
@@ -43,6 +45,11 @@ namespace z0 {
             blankImageData.clear();
         }
         if (skyboxRenderer != nullptr) skyboxRenderer->cleanup();
+        for (const auto& shadowMapRenderer : shadowMapRenderers) {
+            shadowMapRenderer->cleanup();
+        }
+        shadowMapRenderers.clear();
+        shadowMaps.clear();
         opaquesModels.clear();
         BaseModelsRenderer::cleanup();
     }
@@ -106,6 +113,10 @@ namespace z0 {
             if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
                 directionalLight = light;
                 log("Using directional light", directionalLight->toString());
+                if (directionalLight->getCastShadows()) {
+                    shadowMaps.push_back(make_shared<ShadowMapFrameBuffer>(device, directionalLight));
+                    shadowMapsNeedUpdate = true;
+                }
                 return;
             }
         }
@@ -189,7 +200,7 @@ namespace z0 {
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);    
     }
 
-    void SceneRenderer::updateMaterials() {
+    void SceneRenderer::preUpdateScene() {
         for(const auto& material : OutlineMaterials::_all()) {
             if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             material->_incrementReferenceCounter();
@@ -197,9 +208,27 @@ namespace z0 {
             materials.push_back(material.get());
             descriptorSetNeedUpdate = true;
         }
+    }
+
+    void SceneRenderer::postUpdateScene() {
         createOrUpdateResources();
         for(const auto& material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get());
+        }
+        if (shadowMapsNeedUpdate) {
+            // We need a more optimized method that does not destroy and recreate everything
+            for (const auto& shadowMapRenderer : shadowMapRenderers) {
+                device.unRegisterRenderer(shadowMapRenderer);
+                shadowMapRenderer->cleanup();
+            }
+            shadowMapRenderers.clear();
+            for (auto& shadowMap : shadowMaps) {
+                auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory);
+                shadowMapRenderer->loadScene(shadowMap, models);
+                shadowMapRenderers.push_back(shadowMapRenderer);
+                device.registerRenderer(shadowMapRenderer);
+            }
+            shadowMapsNeedUpdate = false;
         }
     }
 
@@ -212,6 +241,7 @@ namespace z0 {
             .projection = currentCamera->getProjection(),
             .view = currentCamera->getView(),
             .cameraPosition = currentCamera->getPosition(),
+            .shadowMapsCount = static_cast<uint32_t>(shadowMaps.size()),
         };
         if (directionalLight != nullptr) {
             globalUbo.directionalLight = {
@@ -225,6 +255,13 @@ namespace z0 {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
+
+        auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
+        for(uint32_t i=0; i < globalUbo.shadowMapsCount; i++) {
+            shadowMapArray[i].lightSpace = shadowMaps[i]->getLightSpace();
+            shadowMapArray[i].lightPos = shadowMaps[i]->getLightPosition();
+        }
+        writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
 
         uint32_t modelIndex = 0;
         for (const auto& meshInstance: models) {
@@ -284,10 +321,11 @@ namespace z0 {
                     if (meshInstance->isOutlined()) {
                         const auto& material = meshInstance->getOutlineMaterial();
                         const auto& materialIndex = materialsIndices[material->getId()];
-                        array<uint32_t, 3> offsets2 = {
+                        array<uint32_t, 4> offsets2 = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
+                            0, // shadowMapsBuffers
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
                         vkCmdBindShadersEXT(commandBuffer, 1, materialShaders[material->getVertFileName()]->getStage(), materialShaders["outline.vert"]->getShader());
@@ -314,10 +352,11 @@ namespace z0 {
                         }
                     }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
-                    array<uint32_t, 3> offsets = {
+                    array<uint32_t, 4> offsets = {
                         0, // globalBuffers
                         static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                         static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
+                        0, // shadowMapsBuffers
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
@@ -338,6 +377,8 @@ namespace z0 {
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // models UBO
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // materials UBO
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // images textures
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // shadow maps UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // shadow maps
                 .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -354,6 +395,13 @@ namespace z0 {
                             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                             VK_SHADER_STAGE_FRAGMENT_BIT,
                             MAX_IMAGES)
+                .addBinding(4, // shadow maps infos
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_FRAGMENT_BIT)
+                .addBinding(5, // shadow maps
+                            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            VK_SHADER_STAGE_FRAGMENT_BIT,
+                            MAX_SHADOW_MAPS)
                 .build();
 
         // Create an in-memory default blank image
@@ -389,6 +437,14 @@ namespace z0 {
             materialUniformBufferCount = 1;
             createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
         }
+        if ((!shadowMaps.empty()) && (shadowMapUniformBufferCount != shadowMaps.size())) {
+            shadowMapUniformBufferCount = shadowMaps.size();
+            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize, shadowMapUniformBufferCount);
+        }
+        if (shadowMapUniformBufferCount == 0) {
+            shadowMapUniformBufferCount = 1;
+            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize, shadowMapUniformBufferCount);
+        }
 
         uint32_t imageIndex = 0;
         for(const auto& image : images) {
@@ -400,15 +456,32 @@ namespace z0 {
             imagesInfo[i] = blankImage->_getImageInfo();
         }
 
+        imageIndex = 0;
+        for(const auto& shadowMap : shadowMaps) {
+            shadowMapsInfo[imageIndex] = VkDescriptorImageInfo {
+                        .sampler = shadowMap->getSampler(),
+                        .imageView = shadowMap->getImageView(),
+                        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+            };
+            imageIndex += 1;
+        }
+        // initialize the rest of the shadow map info array with the blank image
+        for (uint32_t i = imageIndex; i < shadowMapsInfo.size(); i++) {
+            shadowMapsInfo[i] = blankImage->_getImageInfo();
+        }
+
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
             auto materialBufferInfo = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize);
+            auto shadowMapBufferInfo = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeBuffer(1, &modelBufferInfo)
                 .writeBuffer(2, &materialBufferInfo)
-                .writeImage(3, imagesInfo.data());
+                .writeImage(3, imagesInfo.data())
+                .writeBuffer(4, &shadowMapBufferInfo)
+                .writeImage(5, shadowMapsInfo.data());
             if (create) {
                 if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
             } else {

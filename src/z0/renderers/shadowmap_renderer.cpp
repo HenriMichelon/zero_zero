@@ -21,7 +21,7 @@
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(const Device &dev, const string& sDir): 
+    ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir): 
         BaseRenderpass{dev, sDir} {}
 
     void ShadowMapRenderer::cleanup() {
@@ -187,7 +187,9 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        if (shadowMap != nullptr) shadowMap->cleanupImagesResources();
+        if (shadowMap != nullptr) {
+            shadowMap->cleanupImagesResources();
+        }
     }
 
     void ShadowMapRenderer::recreateImagesResources() {

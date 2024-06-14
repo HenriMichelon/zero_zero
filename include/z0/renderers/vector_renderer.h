@@ -11,10 +11,10 @@ namespace z0 {
     class VectorRenderer: public BaseRenderpass, public BaseRenderer {
     public:
         // Used when this renderer is the only renderer
-        VectorRenderer(const Device& device,
+        VectorRenderer(Device& device,
                        const string& shaderDirectory);
         // USed when this renderer is in a renderer chain
-        VectorRenderer(const Device& device,
+        VectorRenderer(Device& device,
                        const string& shaderDirectory,
                        shared_ptr<ColorFrameBufferHDR>& inputColorAttachmentHdr);
 

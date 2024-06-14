@@ -14,14 +14,14 @@ namespace z0 {
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
 
-    VectorRenderer::VectorRenderer(const Device &dev,
+    VectorRenderer::VectorRenderer(Device &dev,
                                    const string& sDir) :
             BaseRenderpass{dev, sDir},
             internalColorFrameBuffer{true} {
         init();
     }
 
-    VectorRenderer::VectorRenderer(const Device &dev,
+    VectorRenderer::VectorRenderer(Device &dev,
                                    const string& sDir,
                                    shared_ptr<ColorFrameBufferHDR>& inputColorAttachment) :
             BaseRenderpass{dev, sDir},

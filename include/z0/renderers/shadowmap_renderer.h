@@ -4,14 +4,7 @@ namespace z0 {
 
     class ShadowMapRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        struct GobalUniformBuffer {
-            mat4 lightSpace;
-        };
-        struct ModelUniformBuffer {
-            mat4 matrix;
-        };
-
-        ShadowMapRenderer(const Device& device, const string& shaderDirectory);
+        ShadowMapRenderer(Device& device, const string& shaderDirectory);
 
         void loadScene(shared_ptr<ShadowMapFrameBuffer>& shadowMap, list<MeshInstance*>& meshes);
         void cleanup() override;
@@ -23,6 +16,13 @@ namespace z0 {
         const float depthBiasSlope = 1.75f;
 
     private:
+        struct GobalUniformBuffer {
+            mat4 lightSpace;
+        };
+        struct ModelUniformBuffer {
+            mat4 matrix;
+        };
+
         // All the models of the scene
         list<MeshInstance*> models {};
         // Datas for all the models of the scene, one buffer for all the models

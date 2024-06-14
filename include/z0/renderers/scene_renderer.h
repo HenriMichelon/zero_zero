@@ -4,7 +4,7 @@ namespace z0 {
 
     class SceneRenderer: public BaseModelsRenderer {
     public:
-        SceneRenderer(const Device& device, const string& shaderDirectory);
+        SceneRenderer(Device& device, const string& shaderDirectory);
 
         shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
         VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
@@ -13,7 +13,8 @@ namespace z0 {
         void cleanup() override;
         void addNode(const shared_ptr<Node>& node) override;
         void removeNode(const shared_ptr<Node>& node) override;
-        void updateMaterials();
+        void preUpdateScene();
+        void postUpdateScene();
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -34,6 +35,11 @@ namespace z0 {
             alignas(16) vec3 cameraPosition;
             alignas(16) DirectionalLightUniform directionalLight;
             alignas(4) bool haveDirectionalLight{false};
+            alignas(4) uint32_t shadowMapsCount{0};
+        };
+        struct ShadowMapUniformBuffer {
+            mat4 lightSpace;
+            alignas(16) vec3 lightPos;
         };
         struct ModelUniformBuffer {
             mat4  matrix;
@@ -67,6 +73,24 @@ namespace z0 {
         static constexpr VkDeviceSize materialUniformBufferSize {  sizeof(MaterialUniformBuffer) };
         // Currently allocated material uniform buffer count
         uint32_t materialUniformBufferCount {0};
+
+        // All shadow maps
+        vector<shared_ptr<ShadowMapFrameBuffer>> shadowMaps;
+        // True if we need to rebuild the shadow maps & associated renderers
+        bool shadowMapsNeedUpdate{true};
+        // One renderer per shadow map
+        vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
+        // One buffer per shadow map with light information
+        vector<unique_ptr<Buffer>> shadowMapsUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        // Size of the above uniform buffers
+        static constexpr VkDeviceSize shadowMapUniformBufferSize {  sizeof(ShadowMapUniformBuffer) };
+        // Currently allocated material uniform buffer count
+        uint32_t shadowMapUniformBufferCount {0};
+        // Maximum number of shadow maps supported by this renderer
+        static constexpr uint32_t MAX_SHADOW_MAPS = 100;
+        // Images infos for descriptor sets, pre-filled with blank images
+        array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;
+
         // All material shaders
         map<string, unique_ptr<Shader>> materialShaders;
         // All the images used in the scene

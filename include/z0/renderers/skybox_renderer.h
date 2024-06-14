@@ -4,7 +4,7 @@ namespace z0 {
 
     class SkyboxRenderer: public BaseRenderpass {
     public:
-        SkyboxRenderer(const Device& device, const string& shaderDirectory);
+        SkyboxRenderer(Device& device, const string& shaderDirectory);
 
         void loadScene(shared_ptr<Cubemap>& cubemap);
 

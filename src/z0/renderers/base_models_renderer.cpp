@@ -15,7 +15,7 @@
 
 namespace z0 {
 
-    BaseModelsRenderer::BaseModelsRenderer(const Device &dev, const string& sDir):
+    BaseModelsRenderer::BaseModelsRenderer(Device &dev, const string& sDir):
         BaseRenderpass(dev, sDir) {}
 
     void BaseModelsRenderer::addNode(const shared_ptr<Node>& node) {
