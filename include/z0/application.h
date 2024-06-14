@@ -192,6 +192,8 @@ namespace z0 {
 #ifdef _WIN32
     /**
      * Application startup macro
+     * @param CONFIG An ApplicationConfig object
+     * @param ROOTNODE The root Node of the startup scene
      */
     #define Z0_APP(CONFIG, ROOTNODE) \
         z0::Application _z0_app(CONFIG, ROOTNODE); \

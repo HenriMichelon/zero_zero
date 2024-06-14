@@ -4,7 +4,6 @@
  * ZeroZero is an experimental 3D engine based on Vulkan 1.3 and Jolt 5.x made for learning purpose.
  *
  * - [GitHub repository](https://github.com/HenriMichelon/zero_zero) 
- * - [Examples repository](https://github.com/HenriMichelon/zero_zero_examples)
  *
  * **Vulkan extensions and third parties dependencies**
  * - Dynamic rendering (VK_KHR_dynamic_rendering)
@@ -28,10 +27,11 @@
  *
  *
  * \section usage_sec Usage
- *
+ *  
  *
  * \section example_sec Examples
  *
+ * - [Examples repository](https://github.com/HenriMichelon/zero_zero_examples)
  *
  * \section contact_sec Contact
  *
