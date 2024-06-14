@@ -18,7 +18,6 @@ namespace z0 {
         vec3 lightPosition;
         vec3 sceneCenter;
         mat4 lightProjection;
-
         if (const auto* directionalLight = dynamic_cast<DirectionalLight*>(light)) {
             auto lightDirection = normalize(directionalLight->getDirection());
             // Scene bounds
@@ -30,9 +29,12 @@ namespace z0 {
             auto orthoDepth = distance(sceneMin.z, sceneMax.z);
             sceneCenter = (sceneMin + sceneMax) / 2.0f;
             lightPosition = sceneCenter - lightDirection * (orthoDepth / 2.0f); // Position is scene center offset by light direction
-            lightProjection = ortho(-orthoWidth / 2, orthoWidth / 2,
-                                         -orthoHeight / 2, orthoHeight / 2,
-                                         zNear, orthoDepth);
+            lightProjection = ortho(-orthoWidth / 2, 
+                                    orthoWidth / 2,
+                                    -orthoHeight / 2, 
+                                    orthoHeight / 2,
+                                    zNear, 
+                                    orthoDepth);
         /*} else if (auto* spotLight = dynamic_cast<SpotLight*>(light)) {
             auto lightDirection = normalize(spotLight->getDirection());
             lightPosition = light->getPositionGlobal();

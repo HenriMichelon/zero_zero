@@ -170,15 +170,15 @@ namespace z0 {
         // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
-        postprocessingRenderer = make_shared<SimplePostprocessingRenderer>(*device, 
+        /*postprocessingRenderer = make_shared<SimplePostprocessingRenderer>(*device, 
                                                     shaderDir,
-                                                    "pass-through",
-                                                    sceneRenderer->getColorAttachment().get());
+                                                    "depth_test",
+                                                    sceneRenderer->getColorAttachment().get());*/
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,
-                                                     postprocessingRenderer->getColorAttachment());
+                                                     sceneRenderer->getColorAttachment());
         device->registerRenderer(vectorRenderer);
-        device->registerRenderer(postprocessingRenderer);
+        //device->registerRenderer(postprocessingRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager
@@ -244,7 +244,7 @@ namespace z0 {
             addedNodes.clear();
         }
         sceneRenderer->postUpdateScene();
-        postprocessingRenderer->setInputColorAttachmentHdr(sceneRenderer->shadowMaps[0].get());
+        //postprocessingRenderer->setInputColorAttachmentHdr(sceneRenderer->shadowMaps[0].get());
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();

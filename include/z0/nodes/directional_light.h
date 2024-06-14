@@ -13,6 +13,7 @@ namespace z0 {
 
         const vec3& getDirection() const { return direction; }
         void setDirection(vec3 lightDirection) { direction = lightDirection; }
+        void setPosition(vec3 position) override;
 
     private:
         vec3 direction{0.0f, .5f, 1.0f};
