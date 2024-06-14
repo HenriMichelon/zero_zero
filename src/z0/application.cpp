@@ -13,6 +13,7 @@
 #include "z0/nodes/mesh_instance.h"
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
+#include "z0/nodes/omni_light.h"
 #include "z0/framebuffers/shadow_map_frame_buffer.h"
 #include "z0/renderers/base_renderpass.h"
 #include "z0/renderers/vector_renderer.h"

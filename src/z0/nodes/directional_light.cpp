@@ -13,9 +13,4 @@ namespace z0 {
         Light{color, specular, nodeName},
         direction{normalize(lightDirection)}  {}
 
-    void DirectionalLight::setPosition(vec3 pos) {
-       die("DirectionalLight can't be moved");
-    }
-
-
 }

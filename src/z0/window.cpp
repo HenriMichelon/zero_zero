@@ -329,6 +329,7 @@ namespace z0 {
         }
 
         ShowWindow(hwnd, SW_SHOW);
+        SetForegroundWindow(hwnd);
         UpdateWindow(hwnd);
     }
 

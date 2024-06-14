@@ -26,8 +26,8 @@ namespace z0 {
 
     private:
         struct DirectionalLightUniform {
-            alignas(16) glm::vec3 direction{ 0.0f, 0.0f, 0.0f };
-            alignas(16) glm::vec4 color{ 0.0f, 0.0f, 0.0f, 0.0f }; // RGB + Intensity;
+            alignas(16) vec3 direction{ 0.0f, 0.0f, 0.0f };
+            alignas(16) vec4 color{ 0.0f, 0.0f, 0.0f, 0.0f }; // RGB + Intensity;
             alignas(4) float specular{ 1.0f };
         };
         struct GobalUniformBuffer {
@@ -37,6 +37,7 @@ namespace z0 {
             alignas(16) vec3 cameraPosition;
             alignas(16) DirectionalLightUniform directionalLight;
             alignas(4) bool haveDirectionalLight{false};
+            alignas(4) uint32_t pointLightsCount{0};
             alignas(4) uint32_t shadowMapsCount{0};
         };
         struct ShadowMapUniformBuffer {
@@ -55,6 +56,18 @@ namespace z0 {
             alignas(16) vec4 albedoColor{0.5,0.5,0.5,1.0};
             alignas(4) float shininess{32.0f};
             alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
+        };
+         struct PointLightUniformBuffer {
+            alignas(16) vec3 position{0.0f, 0.0f, 0.0f};
+            alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
+            alignas(4) float specular{1.0f};
+            alignas(4) float constant{1.0f};
+            alignas(4) float linear{0.0};
+            alignas(4) float quadratic{0.00};
+            alignas(4) bool isSpot{false};
+            alignas(16) vec3 direction{vec3{0.f, .0f, .0f}};
+            alignas(4) float cutOff{cos(radians(10.0f))};
+            alignas(4) float outerCutOff{cos(radians(15.0f))};
         };
 
         // Indices of each models datas in the models uniform buffer
@@ -107,11 +120,19 @@ namespace z0 {
         vector<unsigned char> blankImageData;
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
-        // One and only one directional light per scene
-        DirectionalLight* directionalLight{nullptr};
         // Evironement parameters for the current scene
         Environment* currentEnvironment{nullptr};
-
+        
+        // One and only one directional light per scene
+        DirectionalLight* directionalLight{nullptr};
+        // Omni and Spot lights
+        vector<OmniLight*> omniLights;
+        // Omni and Spot lights UBOs
+        vector<unique_ptr<Buffer>> pointLightUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        // Size of the above uniform buffers
+        static constexpr VkDeviceSize pointLightUniformBufferSize {  sizeof(PointLightUniformBuffer) };
+        // Currently allocated point light uniform buffer count
+        uint32_t pointLightUniformBufferCount{0};
 
         // Offscreen frame buffers attachements
         ColorFrameBuffer                colorFrameBufferMultisampled;

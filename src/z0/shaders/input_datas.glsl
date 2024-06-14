@@ -29,6 +29,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     vec3 cameraPosition;
     DirectionalLight directionalLight;
     bool haveDirectionalLight;
+    int pointLightsCount;
     int shadowMapsCount;
 } global;
 
@@ -53,7 +54,12 @@ layout(set = 0, binding = 4) uniform ShadowMapArray {
     ShadowMap shadowMaps[1];
 } shadowMapsInfos;
 
-layout (set = 0, binding = 5) uniform sampler2D shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = 0, binding = 5) uniform sampler2D shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
+
+layout(set = 0, binding = 6) uniform PointLightArray {
+    PointLight lights[10];
+} pointLights;
+
 
 struct VertexOut {
     vec2 UV;

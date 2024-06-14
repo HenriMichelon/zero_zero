@@ -98,6 +98,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     if (global.haveDirectionalLight) {
         diffuse = calcDirectionalLight(global.directionalLight, color, normal);
     }
+    for(int i = 0; i < global.pointLightsCount; i++) {
+        diffuse += calcPointLight(pointLights.lights[i], color, normal);
+    }
     vec3 result = ambient + diffuse;
 
     for (int i = 0; i < global.shadowMapsCount; i++) {

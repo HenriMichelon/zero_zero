@@ -13,6 +13,8 @@
 #include "z0/nodes/environment.h"
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
+#include "z0/nodes/omni_light.h"
+#include "z0/nodes/spot_light.h"
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"
@@ -51,6 +53,7 @@ namespace z0 {
         shadowMapRenderers.clear();
         shadowMaps.clear();
         opaquesModels.clear();
+        omniLights.clear();
         BaseModelsRenderer::cleanup();
     }
 
@@ -113,11 +116,20 @@ namespace z0 {
             if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
                 directionalLight = light;
                 log("Using directional light", directionalLight->toString());
-                if (directionalLight->getCastShadows()) {
+                if (directionalLight->getCastShadows() && (shadowMaps.size() < MAX_SHADOW_MAPS)) {
                     shadowMaps.push_back(make_shared<ShadowMapFrameBuffer>(device, directionalLight));
                     shadowMapsNeedUpdate = true;
                 }
                 return;
+            }
+        }
+        if (auto* omniLight = dynamic_cast<OmniLight*>(node.get())) {
+            omniLights.push_back(omniLight);
+            if (omniLight->getCastShadows() && (shadowMaps.size() < MAX_SHADOW_MAPS)) {
+                if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
+                    shadowMaps.push_back(std::make_shared<ShadowMapFrameBuffer>(device, spotLight));
+                    shadowMapsNeedUpdate = true;
+                }
             }
         }
         BaseModelsRenderer::addNode(node);
@@ -241,27 +253,50 @@ namespace z0 {
             .projection = currentCamera->getProjection(),
             .view = currentCamera->getView(),
             .cameraPosition = currentCamera->getPosition(),
+            .haveDirectionalLight = directionalLight != nullptr,
+            .pointLightsCount = static_cast<uint32_t>(omniLights.size()),
             .shadowMapsCount = static_cast<uint32_t>(shadowMaps.size()),
         };
-        if (directionalLight != nullptr) {
+        if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
                 .direction = directionalLight->getDirection(),
                 .color = directionalLight->getColorAndIntensity(),
                 .specular = directionalLight->getSpecularIntensity(),
             };
-            globalUbo.haveDirectionalLight = true;
         }
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
-        auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
-        for(uint32_t i=0; i < globalUbo.shadowMapsCount; i++) {
-            shadowMapArray[i].lightSpace = shadowMaps[i]->getLightSpace();
-            shadowMapArray[i].lightPos = shadowMaps[i]->getLightPosition();
+        if (globalUbo.shadowMapsCount > 0) {
+            auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
+            for(uint32_t i=0; i < globalUbo.shadowMapsCount; i++) {
+                shadowMapArray[i].lightSpace = shadowMaps[i]->getLightSpace();
+                shadowMapArray[i].lightPos = shadowMaps[i]->getLightPosition();
+            }
+            writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
-        writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
+
+        if (globalUbo.pointLightsCount > 0) {
+            auto pointLightsArray = make_unique<PointLightUniformBuffer[]>(globalUbo.pointLightsCount);
+            for(uint32_t i=0; i < globalUbo.pointLightsCount; i++) {
+                auto* omniLight = omniLights[i];
+                pointLightsArray[i].position = omniLight->getPosition();
+                pointLightsArray[i].color = omniLight->getColorAndIntensity();
+                pointLightsArray[i].specular = omniLight->getSpecularIntensity();
+                pointLightsArray[i].constant = omniLight->getAttenuation();
+                pointLightsArray[i].linear = omniLight->getLinear();
+                pointLightsArray[i].quadratic = omniLight->getQuadratic();
+                if (auto* spot = dynamic_cast<SpotLight*>(omniLight)) {
+                    pointLightsArray[i].isSpot = true;
+                    pointLightsArray[i].direction = spot->getDirection();
+                    pointLightsArray[i].cutOff = spot->getCutOff();
+                    pointLightsArray[i].outerCutOff =spot->getOuterCutOff();
+                }
+            }
+            writeUniformBuffer(pointLightUniformBuffers, currentFrame, pointLightsArray.get());
+        }
 
         uint32_t modelIndex = 0;
         for (const auto& meshInstance: models) {
@@ -321,11 +356,12 @@ namespace z0 {
                     if (meshInstance->isOutlined()) {
                         const auto& material = meshInstance->getOutlineMaterial();
                         const auto& materialIndex = materialsIndices[material->getId()];
-                        array<uint32_t, 4> offsets2 = {
+                        array<uint32_t, 5> offsets2 = {
                             0, // globalBuffers
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                             0, // shadowMapsBuffers
+                            0, // pointLightBuffers
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
                         vkCmdBindShadersEXT(commandBuffer, 1, materialShaders[material->getVertFileName()]->getStage(), materialShaders["outline.vert"]->getShader());
@@ -352,11 +388,12 @@ namespace z0 {
                         }
                     }
                     const auto& materialIndex = materialsIndices[surface->material->getId()];
-                    array<uint32_t, 4> offsets = {
+                    array<uint32_t, 5> offsets = {
                         0, // globalBuffers
                         static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                         static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() * materialIndex),
                         0, // shadowMapsBuffers
+                        0, // pointLightBuffers
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
@@ -379,6 +416,7 @@ namespace z0 {
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // images textures
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // shadow maps UBO
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // shadow maps
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // pointlightarray UBO
                 .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -395,13 +433,16 @@ namespace z0 {
                             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                             VK_SHADER_STAGE_FRAGMENT_BIT,
                             MAX_IMAGES)
-                .addBinding(4, // shadow maps infos
+                .addBinding(4, // shadow maps array UBO
                             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
                             VK_SHADER_STAGE_FRAGMENT_BIT)
                 .addBinding(5, // shadow maps
                             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                             VK_SHADER_STAGE_FRAGMENT_BIT,
                             MAX_SHADOW_MAPS)
+                .addBinding(6, // PointLight array UBO
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                            VK_SHADER_STAGE_FRAGMENT_BIT)
                 .build();
 
         // Create an in-memory default blank image
@@ -445,6 +486,14 @@ namespace z0 {
             shadowMapUniformBufferCount = 1;
             createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize, shadowMapUniformBufferCount);
         }
+        if ((!omniLights.empty()) && (pointLightUniformBufferCount != omniLights.size())) {
+            pointLightUniformBufferCount = omniLights.size();
+            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize, pointLightUniformBufferCount);
+        }
+        if (pointLightUniformBufferCount == 0) {
+            pointLightUniformBufferCount = 1;
+            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize, pointLightUniformBufferCount);
+        }
 
         uint32_t imageIndex = 0;
         for(const auto& image : images) {
@@ -475,13 +524,15 @@ namespace z0 {
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
             auto materialBufferInfo = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize);
             auto shadowMapBufferInfo = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize);
+            auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeBuffer(1, &modelBufferInfo)
                 .writeBuffer(2, &materialBufferInfo)
                 .writeImage(3, imagesInfo.data())
                 .writeBuffer(4, &shadowMapBufferInfo)
-                .writeImage(5, shadowMapsInfo.data());
+                .writeImage(5, shadowMapsInfo.data())
+                .writeBuffer(6, &pointLightBufferInfo);
             if (create) {
                 if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
             } else {

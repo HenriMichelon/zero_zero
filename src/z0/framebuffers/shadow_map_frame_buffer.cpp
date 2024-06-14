@@ -3,6 +3,8 @@
 #include "z0/nodes/node.h"
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
+#include "z0/nodes/omni_light.h"
+#include "z0/nodes/spot_light.h"
 #include "z0/framebuffers/shadow_map_frame_buffer.h"
 #endif
 
@@ -35,11 +37,11 @@ namespace z0 {
                                     orthoHeight / 2,
                                     zNear, 
                                     orthoDepth);
-        /*} else if (auto* spotLight = dynamic_cast<SpotLight*>(light)) {
+        } else if (auto* spotLight = dynamic_cast<SpotLight*>(light)) {
             auto lightDirection = normalize(spotLight->getDirection());
             lightPosition = light->getPositionGlobal();
             sceneCenter = lightPosition + lightDirection;
-            lightProjection = perspective(spotLight->getFov(), vulkanDevice.getAspectRatio(), zNear, zFar);*/
+            lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), zNear, zFar);
         } else {
             return mat4{};
         }
