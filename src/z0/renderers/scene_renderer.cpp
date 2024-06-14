@@ -411,12 +411,12 @@ namespace z0 {
         descriptorPool = DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // models UBO
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // materials UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // models UBO, indexed
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // materials UBO, indexed
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // images textures
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // shadow maps UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // shadow maps UBO, one array
                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT) // shadow maps
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // pointlightarray UBO
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // pointlightarray UBO, one array
                 .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -468,7 +468,7 @@ namespace z0 {
         }
         if (modelUniformBufferCount == 0) {
             modelUniformBufferCount = 1;
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
+            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize);
         }
         if ((!materials.empty()) && (materialUniformBufferCount != materials.size())) {
             materialUniformBufferCount = materials.size();
@@ -476,23 +476,23 @@ namespace z0 {
         }
         if (materialUniformBufferCount == 0) {
             materialUniformBufferCount = 1;
-            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
+            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize);
         }
         if ((!shadowMaps.empty()) && (shadowMapUniformBufferCount != shadowMaps.size())) {
             shadowMapUniformBufferCount = shadowMaps.size();
-            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize, shadowMapUniformBufferCount);
+            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize * shadowMapUniformBufferCount);
         }
         if (shadowMapUniformBufferCount == 0) {
             shadowMapUniformBufferCount = 1;
-            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize, shadowMapUniformBufferCount);
+            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize);
         }
         if ((!omniLights.empty()) && (pointLightUniformBufferCount != omniLights.size())) {
             pointLightUniformBufferCount = omniLights.size();
-            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize, pointLightUniformBufferCount);
+            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize * pointLightUniformBufferCount);
         }
         if (pointLightUniformBufferCount == 0) {
             pointLightUniformBufferCount = 1;
-            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize, pointLightUniformBufferCount);
+            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize);
         }
 
         uint32_t imageIndex = 0;
@@ -523,8 +523,8 @@ namespace z0 {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
             auto materialBufferInfo = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize);
-            auto shadowMapBufferInfo = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize);
-            auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize);
+            auto shadowMapBufferInfo = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize * shadowMapUniformBufferCount);
+            auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize * pointLightUniformBufferCount);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeBuffer(1, &modelBufferInfo)

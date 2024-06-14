@@ -57,7 +57,7 @@ layout(set = 0, binding = 4) uniform ShadowMapArray {
 layout(set = 0, binding = 5) uniform sampler2D shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(set = 0, binding = 6) uniform PointLightArray {
-    PointLight lights[10];
+    PointLight lights[1];
 } pointLights;
 
 

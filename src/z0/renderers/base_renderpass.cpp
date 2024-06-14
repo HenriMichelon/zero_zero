@@ -46,6 +46,10 @@ namespace z0 {
         buffers[currentFrame]->writeToBuffer(data, size, size * index);
     }
 
+    void BaseRenderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data) {
+        buffers[currentFrame]->writeToBuffer(data);
+    }
+
     void BaseRenderpass::createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count) {
         for (auto &buffer: buffers) {
             buffer = make_unique<Buffer>(

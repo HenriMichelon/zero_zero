@@ -33,7 +33,8 @@ namespace z0 {
 
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
-        static void writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index = 0);
+        static void writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index);
+        static void writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data);
 
         void createOrUpdateResources();
         void createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count = 1);
