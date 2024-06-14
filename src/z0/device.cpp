@@ -749,6 +749,16 @@ namespace z0 {
         return 0;
     }
 
+     VkBool32 Device::formatIsFilterable(VkFormat format, VkImageTiling tiling) const {
+        VkFormatProperties formatProps;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
+        if (tiling == VK_IMAGE_TILING_OPTIMAL)
+            return formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+        if (tiling == VK_IMAGE_TILING_LINEAR)
+            return formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+        return false;
+    }
+
     // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
     VkFormat Device::findImageTilingSupportedFormat(const std::vector<VkFormat> &candidates,
                                                     VkImageTiling tiling,

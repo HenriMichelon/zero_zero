@@ -51,6 +51,8 @@ namespace z0 {
                                    VkPipelineStageFlags dstStageMask,
                                    VkImageAspectFlags aspectMask,
                                    uint32_t mipLevels = 1) ;
+        // Returns true if a given format support LINEAR filtering
+        VkBool32 formatIsFilterable(VkFormat format, VkImageTiling tiling) const;
         // Find a suitable IMAGE_TILING format (for the Depth buffering image)
         VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
                                                 VkImageTiling tiling,
