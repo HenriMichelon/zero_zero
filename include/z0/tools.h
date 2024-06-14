@@ -2,6 +2,15 @@
 
 namespace z0 {
 
+    /**
+    * @file tools.h
+    * @brief Some useful global functions
+    */
+
+
+    /**
+     * Violently stop the application is something goes wrong
+     */
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {
@@ -16,6 +25,10 @@ namespace z0 {
         throw runtime_error(stringstream.str());
     }
 
+    /**
+     * Log a message into the logging system. 
+     * Log messages can be deferred when displayed inside a separate window if emited from a thread different from the main thread.
+     */
     void log(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {
@@ -26,14 +39,25 @@ namespace z0 {
 #endif
     }
 
+    /**
+     * Helper to log a vec3
+     */
     string toString(vec3 vec);
     //JPH::Mat44 glmToJolt(const mat4& glmMat);
 
+    /**
+     * Split a string
+     */
     vector<string_view> split(string_view str, char delimiter);
 
-    // returns a random value in the range [0, max]
+    /**
+     * Returns a random value in the range [0, max]
+     */
     uint32_t randomi(uint32_t max = 100);
-    // returns a random value in the range [0.0f, max]
+
+    /**
+     * Returns a random value in the range [0.0f, max]
+     */
     float randomf(float max = 100.0f);
 
 }

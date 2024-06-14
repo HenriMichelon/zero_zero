@@ -18,9 +18,9 @@ namespace z0 {
         uint32_t getHeight() const { return height; }
 
         /**
-         * Close the window, effectively quitting the application
+         * Close the window, effectively quitting the application, at the end of the current frame
          */
-            void close() { closing = true; }
+        void close() { closing = true; }
 
         /*
         * Returns true if we need to stop the Application main loop and quit the application
@@ -30,14 +30,17 @@ namespace z0 {
         string toString() const override;
 
     private:
+        // width of the client area
         uint32_t width;
+        // height of the client area
         uint32_t height;
+        // If true close the window and quit the application at the end of the current frame
         bool closing{false};
 
 #ifdef _WIN32
         HWND hwnd;
-        HBRUSH background;
         RECT rect;
+        HBRUSH background;
         static HWND _hwndLog;
         static DWORD _mainThreadId;
         static list<string> _deferredLogMessages;

@@ -84,9 +84,13 @@ namespace z0 {
      * Rendering window mode
      */
     enum WindowMode {
+        //! A window with a border and a title that can be minimized
         WINDOW_MODE_WINDOWED            = 0,
+        //! A maximized window with a border and a title that can be minimized
         WINDOW_MODE_WINDOWED_MAXIMIZED  = 1,
+        //! A maximized window without a border and without a title
         WINDOW_MODE_WINDOWED_FULLSCREEN = 2,
+        //! A full screen window. The screen resolution will be changed
         WINDOW_MODE_FULLSCREEN          = 3,
     };
 
@@ -94,9 +98,13 @@ namespace z0 {
      * MSAA samples
      */
     enum MSAA {
+        //! Select the best MSAA sample count
         MSAA_AUTO       = 0,
+        //! 2x MSAA
         MSAA_2X         = VK_SAMPLE_COUNT_2_BIT,
+        //! 4x MSAA
         MSAA_4X         = VK_SAMPLE_COUNT_4_BIT,
+        //! 8x MSAA
         MSAA_8X         = VK_SAMPLE_COUNT_8_BIT,
     };
 
@@ -104,8 +112,11 @@ namespace z0 {
      * Cull mode for mesh surfaces
      */
     enum CullMode {
+        //! No face culling is performed; both the front face and back face will be visible.
         CULLMODE_DISABLED   = 0,
+        //! Default cull mode. The back of the object is culled when not visible. Back face triangles will be culled when facing the camera. This results in only the front side of triangles being drawn. For closed-surface meshes, this means that only the exterior of the mesh will be visible.
         CULLMODE_BACK       = 1,
+        //! Front face triangles will be culled when facing the camera. This results in only the back side of triangles being drawn. For closed-surface meshes, this means that the interior of the mesh will be drawn instead of the exterior.
         CULLMODE_FRONT      = 2,
     };
 
@@ -127,9 +138,13 @@ namespace z0 {
      * Source of an input event
      */
     enum InputEventType {
+        //! A key have been pressed or released
         INPUT_EVENT_KEY             = 0,
+        //! The mouse cursor moved
         INPUT_EVENT_MOUSE_MOTION    = 1,
+        //! A mouse button have been pressed or released
         INPUT_EVENT_MOUSE_BUTTON    = 2,
+        //! A gamepad button have been pressed or released
         INPUT_EVENT_GAMEPAD_BUTTON  = 3,
     };
 
@@ -137,8 +152,11 @@ namespace z0 {
      * Keyboard modifier keys
      */
     enum KeyModifier {
+        //! Left & right shift keys
         KEY_MODIFIER_SHIFT      = 0x0001,
+        //! Left & right control keys
         KEY_MODIFIER_CONTROL    = 0x0002,
+        //! Left & right alt keys
         KEY_MODIFIER_ALT        = 0x0004,
     };
 
