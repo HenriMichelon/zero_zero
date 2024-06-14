@@ -85,14 +85,15 @@ namespace z0 {
             if (meshInstance->isValid()) {
                 auto mesh = meshInstance->getMesh();
                 for (const auto& surface: mesh->getSurfaces()) {
-                    if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
+                    /*if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
                          vkCmdSetCullMode(commandBuffer,
                                      surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
                                      surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
                     } else {
                         //vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
-                    }
+                    }*/
+                    vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
                     array<uint32_t, 2> offsets = {
                         0, // globalBuffers
                         static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),

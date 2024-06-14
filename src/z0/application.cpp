@@ -172,7 +172,7 @@ namespace z0 {
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir);
         /*postprocessingRenderer = make_shared<SimplePostprocessingRenderer>(*device, 
                                                     shaderDir,
-                                                    "depth_test",
+                                                    "depthtest",
                                                     sceneRenderer->getColorAttachment().get());*/
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,

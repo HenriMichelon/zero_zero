@@ -21,8 +21,8 @@ namespace z0 {
         if (const auto* directionalLight = dynamic_cast<DirectionalLight*>(light)) {
             auto lightDirection = normalize(directionalLight->getDirection());
             // Scene bounds
-            auto sceneMin = vec3(-10.0f, -10.0f, -10.0f);
-            auto sceneMax = vec3(10.0f, 10.0f, 10.0f);
+            auto sceneMin = vec3{-50.0f, -50.0f, -50.0f};
+            auto sceneMax = vec3{50.0f, 50.0f, 50.0f};
             // Set up the orthographic projection matrix
             auto orthoWidth = distance(sceneMin.x, sceneMax.x);
             auto orthoHeight = distance(sceneMin.y, sceneMax.y);
