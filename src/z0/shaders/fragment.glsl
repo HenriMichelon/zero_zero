@@ -73,7 +73,7 @@ float shadowFactor(int shadowMapIndex) {
     return 1.0 - shadow;
 }
 
-vec4 fragmentColor(vec4 color, vec3 normal, bool useColor) {
+vec4 fragmentColor(vec4 color, bool useColor) {
     if (!useColor) {
         if (material.diffuseIndex != -1) {
             color = texture(texSampler[material.diffuseIndex], fs_in.UV);
@@ -84,14 +84,15 @@ vec4 fragmentColor(vec4 color, vec3 normal, bool useColor) {
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
         discard;
     }
+    vec3 normal;
     if (material.normalIndex != -1) {
         normal = texture(texSampler[material.normalIndex], fs_in.UV).rgb * 2.0 - 1.0;
         normal = normalize(fs_in.TBN * normal);
     } else {
         normal = fs_in.NORMAL;
     }
-    return  vec4(normal, 1.0);
-/*
+    //return  vec4(normal, 1.0);
+
     vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb;
     vec3 diffuse = vec3(0, 0, 0);
     if (global.haveDirectionalLight) {
@@ -99,10 +100,10 @@ vec4 fragmentColor(vec4 color, vec3 normal, bool useColor) {
     }
     vec3 result = ambient + diffuse;
 
-    for (int i = 0; i < global.shadowMapsCount; i++) {
-        float shadows = shadowFactor(i);
+    /*for (int i = 0; i < global.shadowMapsCount; i++) {
+        float shadows = shadowFactor(0);
         result = (ambient + shadows) * result;
-    }
+    }*/
 
-    return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);*/
+    return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

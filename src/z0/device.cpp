@@ -376,7 +376,6 @@ namespace z0 {
         // Set the topology to triangles, don't restart primitives
         vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         vkCmdSetPrimitiveRestartEnableEXT(commandBuffer, VK_FALSE);
-        vkCmdSetRasterizationSamplesEXT(commandBuffer, samples);
 
         const VkSampleMask sample_mask = 0xffffffff;
         vkCmdSetSampleMaskEXT(commandBuffer, samples, &sample_mask);

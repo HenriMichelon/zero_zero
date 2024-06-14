@@ -50,6 +50,7 @@ namespace z0 {
 
 #ifdef _WIN32
         static HWND _hwndLogList;
+        static ofstream _logFile;
         static void _log(string);
         static void _processDeferredLog();
 

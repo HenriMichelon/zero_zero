@@ -60,6 +60,10 @@ namespace z0 {
     void ShadowMapRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
         bindShaders(commandBuffer);
 
+         VkBool32 color_blend_enables[] = {VK_FALSE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
+
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
         vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
         vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);

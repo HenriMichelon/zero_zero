@@ -424,6 +424,7 @@ namespace z0 {
                 return 0;
             }
             case WM_DESTROY: {
+                Window::_logFile.close();
                 DeleteObject(hFont);
             }
         }
@@ -435,8 +436,14 @@ namespace z0 {
     const char szClassNameLog[ ] = "WindowsAppLog";
     list<string> Window::_deferredLogMessages;
     DWORD Window::_mainThreadId;
+    ofstream Window::_logFile{"log.txt"};
 
     void Window::createLogWindow(HMODULE hInstance) {
+        if(!_logFile.is_open()) {
+            die("Error opening log file");
+        }
+
+
         RECT secondMonitorRect = { 0 };
         EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&secondMonitorRect);
 
@@ -493,6 +500,7 @@ namespace z0 {
         } else {
             _deferredLogMessages.push_back(item);
         }
+        _logFile << item << endl;
     }
 
     void Window::_processDeferredLog() {

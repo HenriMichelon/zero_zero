@@ -78,6 +78,8 @@ namespace z0 {
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
 
+        vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
+
         VkBool32 color_blend_enables[] = {VK_FALSE};
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
