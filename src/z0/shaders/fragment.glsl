@@ -46,7 +46,6 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
     return vec3(0, 0, 0);
 }
 
-
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 float shadowFactor(int shadowMapIndex) {
     vec4 ShadowCoord = shadowMapsInfos.shadowMaps[shadowMapIndex].lightSpace * fs_in.GLOBAL_POSITION;

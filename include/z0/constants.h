@@ -80,6 +80,9 @@ namespace z0 {
         PROCESS_MODE_DISABLED   = 4,
     };
 
+    /**
+     * Rendering window mode
+     */
     enum WindowMode {
         WINDOW_MODE_WINDOWED            = 0,
         WINDOW_MODE_WINDOWED_MAXIMIZED  = 1,
@@ -87,6 +90,9 @@ namespace z0 {
         WINDOW_MODE_FULLSCREEN          = 3,
     };
 
+    /**
+     * MSAA samples
+     */
     enum MSAA {
         MSAA_AUTO       = 0,
         MSAA_2X         = VK_SAMPLE_COUNT_2_BIT,
@@ -94,19 +100,32 @@ namespace z0 {
         MSAA_8X         = VK_SAMPLE_COUNT_8_BIT,
     };
 
+    /**
+     * Cull mode for mesh surfaces
+     */
     enum CullMode {
         CULLMODE_DISABLED   = 0,
         CULLMODE_BACK       = 1,
         CULLMODE_FRONT      = 2,
     };
 
+    /*
+    * Material transparency mode
+    */
     enum Transparency {
+        //! The material will not use transparency. This is the fastest to render.
         TRANSPARENCY_DISABLED         = 0,
-        TRANSPARENCY_ALPHA            = 1, // alpha only
-        TRANSPARENCY_SCISSOR          = 2, // scissor olmy
-        TRANSPARENCY_SCISSOR_ALPHA    = 3, // scissor then alpha
+        //! The material will use the texture's alpha values for transparency.
+        TRANSPARENCY_ALPHA            = 1,
+        //! The material will cut off all values below a threshold, the rest will remain opaque.
+        TRANSPARENCY_SCISSOR          = 2,
+        //! The material will cut off all values below a threshold, the rest will use the texture's alpha values for transparency.
+        TRANSPARENCY_SCISSOR_ALPHA    = 3, 
     };
 
+    /**
+     * Source of an input event
+     */
     enum InputEventType {
         INPUT_EVENT_KEY             = 0,
         INPUT_EVENT_MOUSE_MOTION    = 1,
@@ -114,12 +133,18 @@ namespace z0 {
         INPUT_EVENT_GAMEPAD_BUTTON  = 3,
     };
 
+    /**
+     * Keyboard modifier keys
+     */
     enum KeyModifier {
         KEY_MODIFIER_SHIFT      = 0x0001,
         KEY_MODIFIER_CONTROL    = 0x0002,
         KEY_MODIFIER_ALT        = 0x0004,
     };
 
+    /**
+     * Key codes, QWERTY layout to keep the WASD keys
+     */
     enum Key {
         KEY_NONE        = 0,
         KEY_SPACE       = 1,
@@ -340,6 +365,9 @@ namespace z0 {
     };
 #endif
 
+    /**
+     * Mouse buttons
+     */
     enum MouseButton {
         MOUSE_BUTTON_NONE      = 0,
         MOUSE_BUTTON_LEFT      = 1,
@@ -347,6 +375,9 @@ namespace z0 {
         MOUSE_BUTTON_MIDDLE    = 3,
     };
 
+    /**
+     * Gamepas buttons
+     */
     enum GamepadButton {
         GAMEPAD_BUTTON_A            = 0,
         GAMEPAD_BUTTON_B            = 1,
@@ -369,11 +400,17 @@ namespace z0 {
         GAMEPAD_BUTTON_TRIANGLE     = GAMEPAD_BUTTON_Y,
     };
 
+    /**
+     * Gamepad thumbs joysticks
+     */
     enum GamepadAxisJoystick {
         GAMEPAD_AXIS_LEFT           = 0,
         GAMEPAD_AXIS_RIGHT          = 1,
     };
 
+    /**
+     * Gamepad axis & triggers
+     */
     enum GamepadAxis {
         GAMEPAD_AXIS_LEFT_X         = 0,
         GAMEPAD_AXIS_LEFT_Y         = 1,
@@ -384,10 +421,17 @@ namespace z0 {
         GAMEPAD_AXIS_LAST           = GAMEPAD_AXIS_RIGHT_TRIGGER,
     };
 
+    /**
+     * Mouse visibility & capture mode
+     */
     enum MouseMode {
+        //! Makes the mouse cursor visible
         MOUSE_MODE_VISIBLE          = 0,
+        //! Confines the mouse cursor to the game window, and make it visible
         MOUSE_MODE_VISIBLE_CAPTURED = 1,
+        //! Makes the mouse cursor hidden
         MOUSE_MODE_HIDDEN           = 2,
+        //! Confines the mouse cursor to the game window, and make it hidden.
         MOUSE_MODE_HIDDEN_CAPTURED  = 3,
     };
 
