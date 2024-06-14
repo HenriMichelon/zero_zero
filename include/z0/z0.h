@@ -16,6 +16,7 @@
 #include <z0/renderers/base_renderer.h>
 #include <z0/device.h>
 #include <z0/framebuffers/base_frame_buffer.h>
+#include <z0/framebuffers/sampled_frame_buffer.h>
 #include <z0/framebuffers/color_frame_buffer.h>
 #include <z0/framebuffers/color_frame_buffer_hdr.h>
 #include <z0/framebuffers/depth_frame_buffer.h>
@@ -60,6 +61,8 @@
 #include <z0/renderers/skybox_renderer.h>
 #include <z0/renderers/base_models_renderer.h>
 #include <z0/renderers/shadowmap_renderer.h>
+#include <z0/renderers/base_postprocessing_renderer.h>
+#include <z0/renderers/simple_postprocessing_renderer.h>
 #include <z0/renderers/scene_renderer.h>
 #include <z0/renderers/vector_renderer.h>
 

@@ -9,7 +9,7 @@
 namespace z0 {
 
     ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, Light* spotLight) : 
-        BaseFrameBuffer{dev}, 
+        SampledFrameBuffer{dev}, 
         light(spotLight) {
         createImagesResources();
      }

@@ -179,8 +179,10 @@ namespace z0 {
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(
                 commandBuffer, shadowMap->getImage(),
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
-                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                VK_ACCESS_TRANSFER_WRITE_BIT, 
+                VK_ACCESS_SHADER_READ_BIT,
                 VK_PIPELINE_STAGE_TRANSFER_BIT, // After depth writes
                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, // Before depth reads in the shader
                 VK_IMAGE_ASPECT_DEPTH_BIT);

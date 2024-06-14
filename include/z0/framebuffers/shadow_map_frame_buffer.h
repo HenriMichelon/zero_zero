@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    class ShadowMapFrameBuffer: public BaseFrameBuffer {
+    class ShadowMapFrameBuffer: public SampledFrameBuffer {
     public:
         explicit ShadowMapFrameBuffer(const Device &dev, Light* light);
 
@@ -19,7 +19,6 @@ namespace z0 {
 
     private:
         Light* light;
-        VkSampler sampler{VK_NULL_HANDLE};
     };
 
 }

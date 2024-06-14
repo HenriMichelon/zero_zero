@@ -3,7 +3,7 @@
 namespace z0 {
 
     // Resolved HDR offscreen framebuffer
-    class ColorFrameBufferHDR: public BaseFrameBuffer {
+    class ColorFrameBufferHDR: public SampledFrameBuffer {
     public:
         // HDR tone mapping
         // Table 47. Mandatory format support : 16 - bit channels
@@ -13,10 +13,6 @@ namespace z0 {
         explicit ColorFrameBufferHDR(const Device &dev);
         void createImagesResources() override;
         void cleanupImagesResources() override;
-        VkDescriptorImageInfo imageInfo();
-
-    private:
-        VkSampler sampler{VK_NULL_HANDLE};
     };
 
 }

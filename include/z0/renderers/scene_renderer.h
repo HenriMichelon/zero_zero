@@ -6,7 +6,7 @@ namespace z0 {
     public:
         SceneRenderer(Device& device, const string& shaderDirectory);
 
-        shared_ptr<ColorFrameBufferHDR>& getColorAttachement() { return colorFrameBufferHdr; }
+        shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorFrameBufferHdr; }
         VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
         VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
 
@@ -15,6 +15,8 @@ namespace z0 {
         void removeNode(const shared_ptr<Node>& node) override;
         void preUpdateScene();
         void postUpdateScene();
+        // All shadow maps
+        vector<shared_ptr<ShadowMapFrameBuffer>> shadowMaps;
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -74,8 +76,6 @@ namespace z0 {
         // Currently allocated material uniform buffer count
         uint32_t materialUniformBufferCount {0};
 
-        // All shadow maps
-        vector<shared_ptr<ShadowMapFrameBuffer>> shadowMaps;
         // True if we need to rebuild the shadow maps & associated renderers
         bool shadowMapsNeedUpdate{true};
         // One renderer per shadow map

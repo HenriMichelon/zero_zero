@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    ColorFrameBufferHDR::ColorFrameBufferHDR(const Device &dev) : BaseFrameBuffer{dev } {
+    ColorFrameBufferHDR::ColorFrameBufferHDR(const Device &dev) : SampledFrameBuffer{dev } {
          createImagesResources();
      }
 
@@ -12,14 +12,6 @@ namespace z0 {
             sampler = VK_NULL_HANDLE;
         }
         BaseFrameBuffer::cleanupImagesResources();
-    }
-
-    VkDescriptorImageInfo ColorFrameBufferHDR::imageInfo() {
-        return VkDescriptorImageInfo {
-                .sampler = sampler,
-                .imageView = imageView,
-                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-        };
     }
 
     void ColorFrameBufferHDR::createImagesResources() {

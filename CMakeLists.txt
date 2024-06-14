@@ -58,6 +58,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/z0.h
 
 		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
+		${Z0_INCLUDE_DIR}/framebuffers/sampled_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer.h
 		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer_hdr.h
@@ -70,6 +71,8 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/renderers/skybox_renderer.h
 		${Z0_INCLUDE_DIR}/renderers/vector_renderer.h
 		${Z0_INCLUDE_DIR}/renderers/shadowmap_renderer.h
+		${Z0_INCLUDE_DIR}/renderers/base_postprocessing_renderer.h
+		${Z0_INCLUDE_DIR}/renderers/simple_postprocessing_renderer.h
 
 		${Z0_INCLUDE_DIR}/nodes/node.h
 		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
@@ -129,6 +132,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/libraries.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cpp
@@ -140,6 +144,8 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/base_postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp
 		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp

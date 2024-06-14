@@ -6,6 +6,7 @@ namespace z0 {
     class GManager;
     class SceneRenderer;
     class VectorRenderer;
+    class BasePostprocessingRenderer;
     class Camera;
 
     /**
@@ -111,6 +112,7 @@ namespace z0 {
         shared_ptr<SceneRenderer> sceneRenderer;
         // The 2D vector renderer used for the UI
         shared_ptr<VectorRenderer> vectorRenderer;
+        shared_ptr<BasePostprocessingRenderer> postprocessingRenderer;
         // Defered list of nodes added to the current scene, processed before each frame
         vector<shared_ptr<Node>> addedNodes{};
         // Defered list of nodes removed from the current scene, processed before each frame
