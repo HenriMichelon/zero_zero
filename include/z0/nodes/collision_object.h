@@ -4,7 +4,11 @@ namespace z0 {
 
     class CollisionObject: public Node {
     public:
-        ~CollisionObject() override = default;
+        struct Collision {
+            vec3             position;
+            vec3             normal;
+            CollisionObject* object;
+        };
 
         uint32_t getCollisionLayer() const { return collisionLayer; }
         uint32_t getCollistionMask() const { return collisionMask; }
@@ -13,14 +17,13 @@ namespace z0 {
         virtual void setCollistionLayer(uint32_t layer, bool value);
         virtual void setCollistionMask(uint32_t layer, bool value);
         bool shouldCollide(uint32_t layer) const;
-
-        virtual void onCollisionStarts(CollisionObject* node) {};
-
+        virtual void onCollisionStarts(const Collision collision) {};
         virtual void setVelocity(vec3 velocity);
         virtual vec3 getVelocity() const;
-
         void updateTransform() override;
         void updateTransform(const mat4& parentMatrix) override;
+        void applyForce(vec3 force);
+        void applyForce(vec3 force, vec3 point);
 
     protected:
         bool updating{false};
@@ -49,6 +52,7 @@ namespace z0 {
         void _onResume() override;
 
         JPH::BodyID _getBodyId() const { return bodyId; }
+        ~CollisionObject() override = default;
     };
 
 

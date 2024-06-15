@@ -38,10 +38,11 @@ namespace z0 {
                                                 &app()._getPhysicsSystem());
     	character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
         character->SetUserData(reinterpret_cast<uint64>(this));
+        character->SetListener(this);
 
         JPH::CharacterSettings settings;
         settings.mLayer = collisionLayer << 4 | collisionMask;
-        settings.mShape = new JPH::BoxShape(shapeHe);
+        settings.mShape = new JPH::BoxShape(shapeHe * 0.90);
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                 pos,
                                                 rot,
@@ -114,7 +115,42 @@ namespace z0 {
             setPositionGlobal(newPos);
             bodyInterface.MoveKinematic(physicsCharacter->GetBodyID(), pos,  character->GetRotation(), delta);
         }
+        /*for(const auto& contact : character->GetActiveContacts()) {
+            if (contact.mBodyB != character->GetGroundBodyID()) {
+                bodyInterface.AddForce(contact.mBodyB, JPH::Vec3{0.0, 0.0, -10000.0}, contact.mPosition);
+            }
+        }*/
         updating = false;
+    }
+
+    list<Character::Collision> Character::getCollisions() const {
+        list<Character::Collision> contacts;
+        for(const auto& contact : character->GetActiveContacts()) {
+            auto* node = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(contact.mBodyB));
+            assert(node && "physics body not associated with a node");
+            contacts.push_back({
+                vec3{contact.mPosition.GetX(), contact.mPosition.GetY(), contact.mPosition.GetZ()},
+                vec3{contact.mSurfaceNormal.GetX(), contact.mSurfaceNormal.GetY(), contact.mSurfaceNormal.GetZ()},
+                node
+                });
+        }
+        return contacts;
+    }
+
+    void Character::OnContactAdded(const JPH::CharacterVirtual *inCharacter, 
+                            const JPH::BodyID &inBodyID2, 
+                            const JPH::SubShapeID &inSubShapeID2, 
+                            JPH::RVec3Arg inContactPosition, 
+                            JPH::Vec3Arg inContactNormal, 
+                            JPH::CharacterContactSettings &ioSettings) {
+        auto* charac = reinterpret_cast<Character*>(inCharacter->GetUserData());
+        auto* node = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID2));
+        assert(charac && node && "physics body not associated with a node");
+        charac->onCollisionStarts({
+            vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
+            vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
+            node
+        });        
     }
 
     bool Character::ShouldCollide (JPH::ObjectLayer inLayer) const {

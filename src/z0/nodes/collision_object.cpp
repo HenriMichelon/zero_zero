@@ -133,4 +133,17 @@ namespace z0 {
         updating = false;
     }
 
+    void CollisionObject::applyForce(vec3 force) {
+        bodyInterface.AddForce(
+            bodyId, 
+            JPH::Vec3{force.x, force.y, force.z});
+    }
+
+    void CollisionObject::applyForce(vec3 force, vec3 position) {
+        bodyInterface.AddForce(
+            bodyId, 
+            JPH::Vec3{force.x, force.y, force.z}, 
+            JPH::Vec3{position.x, position.y, position.z});
+    }
+
 }

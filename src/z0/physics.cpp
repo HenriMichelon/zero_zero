@@ -17,7 +17,12 @@ namespace z0 {
         auto node1 = reinterpret_cast<CollisionObject*>(inBody1.GetUserData());
         auto node2 = reinterpret_cast<CollisionObject*>(inBody2.GetUserData());
         assert(node1 && node2 && "physics body not associated with a node");
-        node1->onCollisionStarts(node2);
+        auto pos = inManifold.GetWorldSpaceContactPointOn2(0);
+        node1->onCollisionStarts({
+            vec3{pos.GetX(), pos.GetY(), pos.GetZ()},
+            vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
+            node2
+        });
     }
 
     bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer layersAndMask1,

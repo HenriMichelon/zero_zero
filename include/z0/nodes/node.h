@@ -17,16 +17,16 @@ namespace z0 {
         virtual void onPhysicsProcess(float delta) {}
         virtual bool onInput(InputEvent& inputEvent) { return false; }
 
-        const mat4& getTransformLocal() const { return localTransform; }
+        inline const mat4& getTransformLocal() const { return localTransform; }
         virtual void setTransform(mat4 transform) { localTransform = transform; }
         virtual void updateTransform(const mat4& parentMatrix);
         virtual void updateTransform();
-        mat4 getTransformGlobal() const { return worldTransform; }
+        inline mat4 getTransformGlobal() const { return worldTransform; }
         vec3 toGlobal(vec3 local) const;
 
         // parent relative position
         virtual void setPosition(vec3 position);
-        vec3 getPosition() const { return localTransform[3]; };
+        inline vec3 getPosition() const { return localTransform[3]; };
         void translate(vec3 localOffset);
 
         // world relative position
@@ -50,24 +50,24 @@ namespace z0 {
         void setScale(float scale);
         vec3 getScale() const;
 
-        ProcessMode getProcessMode() const { return processMode; }
+        inline ProcessMode getProcessMode() const { return processMode; }
         void setProcessMode(ProcessMode mode) { processMode = mode; }
         bool isProcessed() const;
 
-        Node* getParent() const { return parent; }
+        inline Node* getParent() const { return parent; }
         bool addChild(const shared_ptr<Node>& child);
         bool removeChild(const shared_ptr<Node>& child);
         void removeAllChildren();
         bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
-        list<shared_ptr<Node>>& getChildren() { return children; }
+        inline list<shared_ptr<Node>>& getChildren() { return children; }
         shared_ptr<Node> getChild(const string& name) const;
         shared_ptr<Node> getNode(const string& path) const;
         void printTree(int tab = 0) const;
         string toString() const override { return name; }
         //bool isParent(const shared_ptr<Node>&) const;
 
-        id_t getId() const { return id; }
-        bool operator == (const Node& other) const { return id == other.id;}
+        inline id_t getId() const { return id; }
+        inline bool operator == (const Node& other) const { return id == other.id;}
         shared_ptr<Node> duplicate();
 
         template <typename T>

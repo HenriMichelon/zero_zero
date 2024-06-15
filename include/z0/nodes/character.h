@@ -5,7 +5,8 @@ namespace z0 {
     class Character: public CollisionObject, 
                      public JPH::BroadPhaseLayerFilter,
                      public JPH::ObjectLayerFilter,
-                     public JPH::BodyFilter {
+                     public JPH::BodyFilter,
+                     public JPH::CharacterContactListener {
     public:
         explicit Character(shared_ptr<Shape> shape,
                            uint32_t layer,
@@ -18,9 +19,9 @@ namespace z0 {
         void setVelocity(vec3 velocity) override;
         vec3 getVelocity() const override;
         vec3 getGroundVelocity() const;
-
         inline const vec3& getUpVector() const { return upVector; }
         void setUpVector(vec3 v);
+        list<Collision> getCollisions() const;
 
     protected:
         void setPositionAndRotation();
@@ -33,6 +34,12 @@ namespace z0 {
     public:
         void _physicsUpdate(float delta) override;
 
+        void OnContactAdded(const JPH::CharacterVirtual *inCharacter, 
+                            const JPH::BodyID &inBodyID2, 
+                            const JPH::SubShapeID &inSubShapeID2, 
+                            JPH::RVec3Arg inContactPosition, 
+                            JPH::Vec3Arg inContactNormal, 
+                            JPH::CharacterContactSettings &ioSettings) override;
         inline bool ShouldCollide (JPH::BroadPhaseLayer inLayer) const override {
             return true;
         };
