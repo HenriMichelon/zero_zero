@@ -16,6 +16,7 @@ namespace z0 {
                                          JPH::ContactSettings &ioSettings) {
         auto node1 = reinterpret_cast<CollisionObject*>(inBody1.GetUserData());
         auto node2 = reinterpret_cast<CollisionObject*>(inBody2.GetUserData());
+        assert(node1 && node2 && "physics body not associated with a node");
         node1->onCollisionStarts(node2);
     }
 

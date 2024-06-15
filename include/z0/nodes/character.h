@@ -19,8 +19,8 @@ namespace z0 {
         vec3 getVelocity() const override;
         vec3 getGroundVelocity() const;
 
-        inline const vec3& getUp() const { return upVector; }
-        void setUp(vec3 v);
+        inline const vec3& getUpVector() const { return upVector; }
+        void setUpVector(vec3 v);
 
     protected:
         void setPositionAndRotation();
@@ -28,12 +28,12 @@ namespace z0 {
     private:
         vec3 upVector{AXIS_UP};
         unique_ptr<JPH::CharacterVirtual> character;
-        //unique_ptr<JPH::Character> subCharacter;
+        unique_ptr<JPH::Character> physicsCharacter;
         
     public:
         void _physicsUpdate(float delta) override;
 
-         bool ShouldCollide (JPH::BroadPhaseLayer inLayer) const override {
+        inline bool ShouldCollide (JPH::BroadPhaseLayer inLayer) const override {
             return true;
         };
         bool ShouldCollide (JPH::ObjectLayer inLayer) const override;

@@ -23,34 +23,39 @@ namespace z0 {
                         name) {
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
+        // TODO : use a capsule shape
+        auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent;
+        auto pos = JPH::RVec3(position.x, position.y, position.z);
+        auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
 
         JPH::CharacterVirtualSettings settingsVirtual;
-        settingsVirtual.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
+        settingsVirtual.mShape = new JPH::BoxShape(shapeHe);
         settingsVirtual.mMaxSlopeAngle = radians(45.0);
         character = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
-                                                JPH::RVec3(position.x, position.y, position.z),
-                                                JPH::Quat(quat.x, quat.y, quat.z, quat.w),
+                                                pos,
+                                                rot,
                                                 0,
-                                                &Application::get()._getPhysicsSystem());
+                                                &app()._getPhysicsSystem());
     	character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
+        character->SetUserData(reinterpret_cast<uint64>(this));
 
-        /*JPH::CharacterSettings settings;
+        JPH::CharacterSettings settings;
         settings.mLayer = collisionLayer << 4 | collisionMask;
-        settings.mShape = new JPH::BoxShape(reinterpret_cast<JPH::BoxShapeSettings*>(shape->_getShapeSettings())->mHalfExtent);
-        subCharacter = make_unique<JPH::Character>(&settings,
-                                                JPH::RVec3(position.x, position.y, position.z),
-                                                JPH::Quat(quat.x, quat.y, quat.z, quat.w),
+        settings.mShape = new JPH::BoxShape(shapeHe);
+        physicsCharacter = make_unique<JPH::Character>(&settings,
+                                                pos,
+                                                rot,
                                                 0,
                                                 &Application::get()._getPhysicsSystem());
-        subCharacter->AddToPhysicsSystem();
-        setBodyId(subCharacter->GetBodyID());*/
+        bodyInterface.SetUserData(physicsCharacter->GetBodyID(), reinterpret_cast<uint64>(this));
+        physicsCharacter->AddToPhysicsSystem();
     }
 
     Character::~Character() {
-        //subCharacter->RemoveFromPhysicsSystem();
+        physicsCharacter->RemoveFromPhysicsSystem();
     }
 
-    void Character::setUp(vec3 v) {
+    void Character::setUpVector(vec3 v) {
         upVector = v;
         character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
     }
@@ -65,10 +70,13 @@ namespace z0 {
 
     void Character::setPositionAndRotation() {
         if (updating || (parent == nullptr)) return;
-        auto position = getPositionGlobal();
-        character->SetPosition(JPH::RVec3(position.x, position.y, position.z));
+        auto pos = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
-        character->SetRotation(JPH::Quat(quat.x, quat.y, quat.z, quat.w));
+        auto jpos = JPH::RVec3(pos.x, pos.y, pos.z);
+        auto jquat = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
+        character->SetPosition(jpos);
+        character->SetRotation(jquat);
+        physicsCharacter->SetPositionAndRotation(jpos, jquat);
     }
 
     void Character::setVelocity(vec3 velocity) {
@@ -104,6 +112,7 @@ namespace z0 {
         auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {
             setPositionGlobal(newPos);
+            bodyInterface.MoveKinematic(physicsCharacter->GetBodyID(), pos,  character->GetRotation(), delta);
         }
         updating = false;
     }
