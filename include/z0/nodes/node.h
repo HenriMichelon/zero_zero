@@ -13,6 +13,8 @@ namespace z0 {
         virtual ~Node() = default;
 
         virtual void onReady() {}
+        virtual void onEnterScene() {};
+        virtual void onExitScene() {};
         virtual void onProcess(float alpha) {}
         virtual void onPhysicsProcess(float delta) {}
         virtual bool onInput(InputEvent& inputEvent) { return false; }
@@ -104,8 +106,8 @@ namespace z0 {
         virtual void _onReady();
         virtual void _onPause() {};
         virtual void _onResume() {};
-        virtual void _onEnterScene() {};
-        virtual void _onExitScene() {};
+        inline virtual void _onEnterScene() { onEnterScene(); };
+        inline virtual void _onExitScene() { onExitScene(); };
         virtual void _physicsUpdate(float delta) {};
 
         bool _needPhysics() const { return needPhysics; }

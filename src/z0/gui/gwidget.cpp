@@ -201,7 +201,7 @@ namespace z0 {
     bool GWidget::call(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
         const GEventSlot &slot = slots[TYP];
         if (slot.func) {
-            (slot.obj->*slot.func)(*this, EVT.get());
+            (slot.obj->*slot.func)(this, EVT.get());
             return true;
         }
         return false;

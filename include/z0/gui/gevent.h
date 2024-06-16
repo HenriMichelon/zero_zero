@@ -118,6 +118,6 @@ namespace z0 {
     };
 
     class GEventHandler {};
-    typedef void (GEventHandler::*GEventFunction)(GWidget&, GEvent*);
+    typedef void (GEventHandler::*GEventFunction)(GWidget*, GEvent*);
 
 }

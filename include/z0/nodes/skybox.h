@@ -9,8 +9,6 @@ namespace z0 {
 
         shared_ptr<Cubemap>& getCubemap() { return cubemap; }
 
-        void _onEnterScene() override;
-
     private:
         shared_ptr<Cubemap> cubemap;
     };

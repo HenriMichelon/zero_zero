@@ -12,9 +12,4 @@ namespace z0 {
         cubemap = Cubemap::loadFromFile(filename, fileext);
     }
 
-    void Skybox::_onEnterScene() {
-        //Application::getViewport()._setSkyBox(*this);
-        Node::_onEnterScene();
-    }
-
 }
