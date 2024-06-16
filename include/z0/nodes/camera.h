@@ -15,10 +15,12 @@ namespace z0 {
                                       float near, float far);
 
         const mat4& getProjection();
-        const mat4& getView() const { return viewMatrix; }
+        inline const mat4& getView() const { return viewMatrix; }
 
         void updateTransform(const mat4& parentMatrix) override;
         void updateTransform() override;
+
+        vec2 unproject(vec3 worldCoords);
 
     private:
         float fov{75.0};

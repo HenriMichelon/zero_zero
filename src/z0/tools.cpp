@@ -48,13 +48,13 @@ namespace z0 {
 
 namespace std {
     
-    string to_tring(vec3 vec) {
+    string to_string(vec3 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
     }
-    string to_tring(vec2 vec) {
+    string to_string(vec2 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "]";
     }
-    string to_tring(vec4 vec) {
+    string to_string(vec4 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
     }
 }

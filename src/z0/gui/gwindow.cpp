@@ -37,11 +37,12 @@ namespace z0 {
         W->setFreezed(false);
     }
 
-    shared_ptr<Font> &GWindow::getDefaultFont() const {
-        return windowManager->defaultFont;
+    shared_ptr<Font> &GWindow::getDefaultFont() {
+        return windowManager->getDefaultFont();
     }
 
     GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, float PADDING){
+        assert(windowManager && "GWidow must be added to a window manager before setting the main widget");
         if (layout == nullptr) { setLayout(nullptr); }
         if (WIDGET == nullptr) {
             widget = make_shared<GPanel>();
@@ -75,12 +76,8 @@ namespace z0 {
 
     void GWindow::setVisible(bool isVisible) {
         if (visible != isVisible) {
-            visible = isVisible;
-            if (visible) {
-                eventShow();
-            } else {
-                eventHide();
-            }
+            visibilityChange = isVisible;
+            visibilityChanged = true;
         }
     }
 
@@ -93,7 +90,7 @@ namespace z0 {
     }
 
     void GWindow::eventCreate() {
-        if (widget == nullptr) { setWidget(); }
+        setWidget();
         onCreate();
         if (widget != nullptr ) { widget->resizeChildren(); }
     }
@@ -105,7 +102,6 @@ namespace z0 {
     }
 
     void GWindow::eventShow() {
-        if (windowManager) { windowManager->windowShown(this); }
         if (widget) { widget->eventShow(); }
         onShow();
         refresh();
@@ -165,7 +161,7 @@ namespace z0 {
     }
 
     void GWindow::refresh() {
-        if (windowManager) windowManager->refresh();
+        if (windowManager) { windowManager->refresh(); }
     }
 
     void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W) {
@@ -189,6 +185,12 @@ namespace z0 {
     void GWindow::setPos(float x, float y) {
         rect.x = x;
         rect.y = y;
+        eventMove();
+    }
+
+    void GWindow::setPos(vec2 pos) {
+        rect.x = pos.x;
+        rect.y = pos.y;
         eventMove();
     }
 
@@ -224,7 +226,6 @@ namespace z0 {
     }
 
     void GWindow::eventHide() {
-        if (windowManager) { windowManager->windowHidden(this); }
         onHide();
         refresh();
     }

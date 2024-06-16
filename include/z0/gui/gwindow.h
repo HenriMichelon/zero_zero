@@ -4,61 +4,72 @@ namespace z0 {
 
     class GManager;
 
-    // An UI window (inside the application window)
+    /**
+     * A UI window displayed inside the rendering window
+     */
     class GWindow: public GEventHandler {
     public:
+        /**
+         * Create a window with a given position & size
+         */
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;
 
-        /* Return the current layout or nullptr */
+        /** Return the current layout or nullptr */
         shared_ptr<GStyle> getLayout() const;
 
-        /* Set the current layout.
-            If nullptr, install a default layout */
+        /** Set the current layout. If nullptr, install a default layout */
         void setLayout(shared_ptr<GStyle>);
 
-        /* Return the main widget .
+        /** Returns the main widget .
             This is widget that cover the entire window and is the parent
             of all the widgets in the window. */
         GWidget& getWidget();
 
-        /* Set the main widget with optional resource string.
+        /** Set the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
         GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", float = 0);
 
+        /** Change the focus */
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
-        /* Return the width of the client area */
+        /** Return the width of the client area */
         float getWidth() const { return rect.width; };
 
-        /* Return the height of the client area */
+        /** Returns the height of the client area */
         float getHeight() const { return rect.height; };
 
-        /* Set the width of the client area */
+        /** Set the width of the client area */
         void setWidth(float w);
 
-        /* Set the height of the client area */
+        /** Set the height of the client area */
         void setHeight(float h);
 
-        /* Set the position of the window, bottom-left */
+        /** Set the position of the window, bottom-left */
         void setPos(float x, float y);
 
+        /** Set the position of the window, bottom-left */
+        void setPos(vec2 pos);
+
+        /** Set the X position of the window, bottom-left */
         void setX(float);
+
+        /** Set the Y position of the window, bottom-left */
         void setY(float);
 
-        /* Return the size & position of the widget */
+        /** Returns the size & position of the widget */
         const Rect& getRect() const { return rect; };
 
-        /* \return TRUE if window is currently visible */
-        bool isVisible() const { return visible; }
+        /** Return true if window is currently visible */
+        inline bool isVisible() const { return visible; }
 
-        /* set the window visibility */
+        /** Set the window visibility. The change will be effective at the start of the next frame */
         void setVisible(bool);
 
-        /* hide the window */
+        /** hide the window. The change will be effective at the start of the next frame : it need to be called before adding the window if you want the window to be hidden at startup */
         void hide();
 
-        /* show the window */
+        /** show the window. The change will be effective at the start of the next frame */
         void show();
 
         void setTransparency(float);
@@ -102,7 +113,7 @@ namespace z0 {
         /* Event called when the window lost the keyboard focus */
         virtual void onLostFocus() {};
 
-        shared_ptr<Font>& getDefaultFont() const;
+        shared_ptr<Font>& getDefaultFont();
         void refresh();
 
     protected:
@@ -112,6 +123,8 @@ namespace z0 {
         Rect                rect;
         GManager*           windowManager{nullptr};
         bool                visible{true};
+        bool                visibilityChanged{false};
+        bool                visibilityChange{false};
         shared_ptr<GStyle>  layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};

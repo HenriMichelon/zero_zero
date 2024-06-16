@@ -317,7 +317,7 @@ namespace z0 {
                 hInstance,
                 this
         );
-        if (hwnd == nullptr) { die("Cannot create Window", to_string(GetLastError())); };
+        if (hwnd == nullptr) { die("Cannot create Window", std::to_string(GetLastError())); };
 
         RAWINPUTDEVICE rid[1];
         rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
@@ -325,7 +325,7 @@ namespace z0 {
         rid[0].dwFlags = 0;
         rid[0].hwndTarget = 0;
         if (!RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE))) {
-            die("Failed to register raw input devices.", to_string(GetLastError()));
+            die("Failed to register raw input devices.", std::to_string(GetLastError()));
         }
 
         ShowWindow(hwnd, SW_SHOW);
@@ -478,7 +478,7 @@ namespace z0 {
                 hInstance,
                 this
         );
-        if (_hwndLog == nullptr) { die("Cannot create Log Window", to_string(GetLastError())); };
+        if (_hwndLog == nullptr) { die("Cannot create Log Window", std::to_string(GetLastError())); };
         ShowWindow(_hwndLog, SW_SHOW);
         UpdateWindow(_hwndLog);
     }

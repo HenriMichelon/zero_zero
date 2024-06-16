@@ -89,6 +89,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/nodes/directional_light.h
 		${Z0_INCLUDE_DIR}/nodes/omni_light.h
 		${Z0_INCLUDE_DIR}/nodes/spot_light.h
+		${Z0_INCLUDE_DIR}/nodes/label.h
 
 		${Z0_INCLUDE_DIR}/resources/resource.h
 		${Z0_INCLUDE_DIR}/resources/image.h
@@ -164,6 +165,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/nodes/directional_light.cpp
 		${Z0_ENGINE_DIR}/nodes/omni_light.cpp
 		${Z0_ENGINE_DIR}/nodes/spot_light.cpp
+		${Z0_ENGINE_DIR}/nodes/label.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp

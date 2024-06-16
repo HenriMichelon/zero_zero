@@ -5,32 +5,48 @@ namespace z0 {
     class Application;
     class VectorRenderer;
 
-    // Manage all the UI windows
+    /**
+     * Manage all the UI windows
+     */
     class GManager: public Object {
     public:
-        explicit GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);
-        ~GManager();
-
+        /**
+         * Add a UI window to the list of managed windows
+         */
         void add(const shared_ptr<GWindow>&);
+
+        /**
+         * Remove a UI window to the list of managed windows. The window will be removed at the start of the next frame.
+         */
         void remove(const shared_ptr<GWindow>&);
-        void refresh() { needRedraw = true; }
-        VectorRenderer& getRenderer() { return *vectorRenderer; }
+
+        /**
+         * Returns the default font loaded at startup
+         */
+        inline shared_ptr<Font>& getDefaultFont() { return defaultFont; }
+
+        /**
+         * Force a redraw of all the UI at the start of the next frame
+         */
+        inline void refresh() { needRedraw = true; }
+
+        inline VectorRenderer& getRenderer() { return *vectorRenderer; }
 
     private:
         shared_ptr<Font>            defaultFont;
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>>   windows;
         vector<shared_ptr<GWindow>> removedWindows{};
-        GWindow*                    focusedWindow{nullptr};
+        shared_ptr<GWindow>         focusedWindow{nullptr};
         bool                        needRedraw{false};
 
         void drawFrame();
         bool onInput(InputEvent& inputEvent);
-        void windowHidden(GWindow*);
-        void windowShown(GWindow*);
-
         friend class Application;
-        friend class GWindow;
+
+    public:
+        GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);
+        ~GManager();
     };
 
 }

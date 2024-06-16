@@ -38,6 +38,30 @@ namespace z0 {
             needRedraw = true;
         }
         removedWindows.clear();
+        for (auto& window: windows) {
+            if (window->visibilityChanged) {
+                window->visibilityChanged = false;
+                window->visible = window->visibilityChange;
+                needRedraw = true;
+                if (window->visible) {
+                    if (focusedWindow) { focusedWindow->eventLostFocus(); }
+                    focusedWindow = window;
+                    window->eventGotFocus();
+                    window->eventShow();
+                } else {
+                    if (focusedWindow == window) {
+                        window->eventLostFocus();
+                        if (windows.empty()) {
+                            focusedWindow = nullptr;
+                        } else {
+                            focusedWindow = windows.back();
+                            focusedWindow->eventGotFocus();
+                        }
+                    }
+                    window->eventHide();
+                }
+            }
+        }
         if (!needRedraw) { return; }
         needRedraw = false;
         vectorRenderer->beginDraw();
@@ -106,24 +130,6 @@ namespace z0 {
             //die("Not implemented");
         }
         return false;
-    }
-
-    void GManager::windowHidden(GWindow *window) {
-        if (focusedWindow == window) {
-            window->eventLostFocus();
-            if (windows.empty()) {
-                focusedWindow = nullptr;
-            } else {
-                focusedWindow = windows.back().get();
-                focusedWindow->eventGotFocus();
-            }
-        }
-    }
-
-    void GManager::windowShown(GWindow *window) {
-        if (focusedWindow) { focusedWindow->eventLostFocus(); }
-        focusedWindow = window;
-        window->eventGotFocus();
     }
 
 }

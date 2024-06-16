@@ -14,6 +14,15 @@ namespace z0 {
         setViewDirection();
     }
 
+    vec2 Camera::unproject(vec3 worldCoords) {
+        vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
+        vec3 ndcCoords = vec3(clipCoords) / clipCoords.w;
+        return {
+            (VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
+            VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)
+        };
+    }
+
     void Camera::setOrthographicProjection(float left, float right, float top, float bottom, float _near, float _far) {
         projectionMatrix = mat4{1.0f};
         projectionMatrix[0][0] = 2.f / (right - left);
