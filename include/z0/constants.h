@@ -165,110 +165,214 @@ namespace z0 {
      */
     enum Key {
         KEY_NONE        = 0,
+        //! Space
         KEY_SPACE       = 1,
+        //! -
         KEY_DASH        = 2,
+        //! |
         KEY_PIPE        = 3,
+        //! '
         KEY_APOSTROPHE  = 4,
+        //! ,
         KEY_COMMA       = 5,
+        //! .
         KEY_PERIOD      = 6,
+        //! ?
         KEY_QUESTIONMARK= 7,
+        //! 0
         KEY_0           = 8,
+        //! 1
         KEY_1           = 9,
+        //! 2
         KEY_2           = 10,
+        //! 3
         KEY_3           = 11,
+        //! 4
         KEY_4           = 12,
-        KEY_5           = 13,
+        //! 5
+        KEY_5           = 13,   
+        //! 6
         KEY_6           = 14,
+        //! 7
         KEY_7           = 15,
+        //! 8
         KEY_8           = 16,
+        //! 9
         KEY_9           = 17,
+        //! ;
         KEY_SEMICOLON   = 18,
+        //! =
         KEY_EQUAL       = 19,
+        //! A
         KEY_A           = 20,
+        //! B
         KEY_B           = 21,
+        //! C
         KEY_C           = 22,
+        //! D
         KEY_D           = 23,
+        //! E
         KEY_E           = 24,
+        //! F
         KEY_F           = 25,
+        //! G
         KEY_G           = 26,
+        //! H
         KEY_H           = 27,
+        //! I
         KEY_I           = 28,
+        //! J
         KEY_J           = 29,
+        //! K
         KEY_K           = 30,
+        //! L
         KEY_L           = 31,
+        //! M
         KEY_M           = 32,
+        //! N
         KEY_N           = 33,
+        //! O
         KEY_O           = 34,
+        //! P
         KEY_P           = 35,
+        //! Q
         KEY_Q           = 36,
+        //! R
         KEY_R           = 37,
+        //! S
         KEY_S           = 38,
+        //! T
         KEY_T           = 39,
+        //! U
         KEY_U           = 40,
+        //! V
         KEY_V           = 41,
+        //! W
         KEY_W           = 42,
+        //! X
         KEY_X           = 43,
+        //! Y
         KEY_Y           = 44,
+        //! Z
         KEY_Z           = 45,
+        //! [
         KEY_LEFT_BRACKET   = 46,
+        //! \ 
         KEY_BACKSLASH      = 47,
+        //! ]
         KEY_RIGHT_BRACKET  = 48,
         KEY_GRAVE_ACCENT   = 49,
+        //! ESC
         KEY_ESCAPE         = 50,
+        //! ⏎
         KEY_ENTER          = 51,
+        //! Tabulation
         KEY_TAB            = 52,
+        //! back space
         KEY_BACKSPACE      = 53,
+        //! Insert
         KEY_INSERT         = 54,
+        //! Delete
         KEY_DELETE         = 55,
+        //! →
         KEY_RIGHT          = 56,
+        //! ←
         KEY_LEFT           = 57,
+        //! ↓
         KEY_DOWN           = 58,
+        //! ↑
         KEY_UP             = 59,
+        //! Page ↑
         KEY_PAGE_UP        = 60,
+        //! Page ↓
         KEY_PAGE_DOWN      = 61,
+        //! Home/Start
         KEY_HOME           = 62,
+        //! End
         KEY_END            = 63,
+        //! Left caps lock
         KEY_CAPS_LOCK      = 64,
+        //! Scroll lock
         KEY_SCROLL_LOCK    = 65,
+        //! Numeric keypad lock
         KEY_NUM_LOCK       = 66,
+        //! Print
         KEY_PRINT_SCREEN   = 67,
+        //! Pause
         KEY_PAUSE          = 68,
+        //! F1
         KEY_F1             = 69,
+        //! F2
         KEY_F2             = 70,
+        //! F3
         KEY_F3             = 71,
+        //! F4
         KEY_F4             = 72,
+        //! F5
         KEY_F5             = 73,
+        //! F6
         KEY_F6             = 74,
+        //! F7
         KEY_F7             = 75,
+        //! F8
         KEY_F8             = 76,
+        //! F9
         KEY_F9             = 77,
+        //! F10
         KEY_F10            = 78,
+        //! F11
         KEY_F11            = 79,
+        //! F12
         KEY_F12            = 80,
+        //! Keypad 0
         KEY_KP_0           = 81,
+        //! Keypad 1
         KEY_KP_1           = 82,
+        //! Keypad 2
         KEY_KP_2           = 83,
+        //! Keypad 3
         KEY_KP_3           = 84,
+        //! Keypad 4
         KEY_KP_4           = 85,
+        //! Keypad 5
         KEY_KP_5           = 86,
+        //! Keypad 6
         KEY_KP_6           = 87,
+        //! Keypad 7
         KEY_KP_7           = 88,
+        //! Keypad 8
         KEY_KP_8           = 89,
+        //! Keypad 9
         KEY_KP_9           = 90,
+        //! Keypad .
         KEY_KP_PERIOD      = 91,
+        //! Keypad /
         KEY_KP_DIVIDE      = 92,
+        //! Keypad *
         KEY_KP_MULTIPLY    = 93,
+        //! Keypad -
         KEY_KP_SUBTRACT    = 94,
+        //! Keypad +
         KEY_KP_ADD         = 95,
+        //! Keypad ⏎
         KEY_KP_ENTER       = 96,
+        //! Keypad =
         KEY_KP_EQUAL       = 97,
+        //! Left Shift
         KEY_LEFT_SHIFT     = 98,
+        //! Left Control
         KEY_LEFT_CONTROL   = 99,
+        //! Left Alt
         KEY_LEFT_ALT       = 100,
+        //! Left Super/Windows
         KEY_LEFT_SUPER     = 101,
+        //! Right Shift
         KEY_RIGHT_SHIFT    = 102,
+        //! Right Control
         KEY_RIGHT_CONTROL  = 103,
+        //! Right Alt
         KEY_RIGHT_ALT      = 104,
+        //! Right Super/Windows
         KEY_RIGHT_SUPER    = 105,
     };
 
@@ -388,8 +492,11 @@ namespace z0 {
      */
     enum MouseButton {
         MOUSE_BUTTON_NONE      = 0,
+        //! Left
         MOUSE_BUTTON_LEFT      = 1,
+        //! Right
         MOUSE_BUTTON_RIGHT     = 2,
+        //! Middle
         MOUSE_BUTTON_MIDDLE    = 3,
     };
 
@@ -397,24 +504,42 @@ namespace z0 {
      * Gamepas buttons
      */
     enum GamepadButton {
+        //! A or X
         GAMEPAD_BUTTON_A            = 0,
+        //! B or ○
         GAMEPAD_BUTTON_B            = 1,
+        //! X or □
         GAMEPAD_BUTTON_X            = 2,
+        //! Y or △
         GAMEPAD_BUTTON_Y            = 3,
+        //! Left shoulder/bumper
         GAMEPAD_BUTTON_LB           = 4,
+        //! Right shoulder/bumper
         GAMEPAD_BUTTON_RB           = 5,
+        //! Back
         GAMEPAD_BUTTON_BACK         = 6,
+        //! Start
         GAMEPAD_BUTTON_START        = 7,
+        //! Left trigger
         GAMEPAD_BUTTON_LT           = 8,
+        //! Right trigger
         GAMEPAD_BUTTON_RT           = 9,
+        //! Directional hat ↑
         GAMEPAD_BUTTON_DPAD_UP      = 10,
+        //! Directional hat →
         GAMEPAD_BUTTON_DPAD_RIGHT   = 11,
+        //! Directional hat ↓
         GAMEPAD_BUTTON_DPAD_DOWN    = 12,
+        //! Directional hat ←
         GAMEPAD_BUTTON_DPAD_LEFT    = 13,
         GAMEPAD_BUTTON_LAST         = GAMEPAD_BUTTON_DPAD_LEFT,
+        //! A or X
         GAMEPAD_BUTTON_CROSS        = GAMEPAD_BUTTON_A,
+        //! B or ○
         GAMEPAD_BUTTON_CIRCLE       = GAMEPAD_BUTTON_B,
+        //! X or □
         GAMEPAD_BUTTON_SQUARE       = GAMEPAD_BUTTON_X,
+        //! Y or △
         GAMEPAD_BUTTON_TRIANGLE     = GAMEPAD_BUTTON_Y,
     };
 
@@ -422,7 +547,9 @@ namespace z0 {
      * Gamepad thumbs joysticks
      */
     enum GamepadAxisJoystick {
+        //! Left stick/joystick
         GAMEPAD_AXIS_LEFT           = 0,
+        //! Right stick/joystick
         GAMEPAD_AXIS_RIGHT          = 1,
     };
 
@@ -430,9 +557,13 @@ namespace z0 {
      * Gamepad axis & triggers
      */
     enum GamepadAxis {
+        //! Left stick/joystick X
         GAMEPAD_AXIS_LEFT_X         = 0,
+        //! Left stick/joystick Y
         GAMEPAD_AXIS_LEFT_Y         = 1,
+        //! Right stick/joystick X
         GAMEPAD_AXIS_RIGHT_X        = 2,
+        //! Right stick/joystick Y
         GAMEPAD_AXIS_RIGHT_Y        = 3,
         GAMEPAD_AXIS_LEFT_TRIGGER   = 4,
         GAMEPAD_AXIS_RIGHT_TRIGGER  = 5,

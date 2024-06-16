@@ -33,9 +33,6 @@ namespace z0 {
         return result;
     }
 
-    string toString(vec3 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
-    }
 /*
     JPH::Mat44 glmToJolt(const mat4& glmMat) {
         JPH::Mat44 joltMat;
@@ -47,4 +44,17 @@ namespace z0 {
         return joltMat;
     }*/
 
+}
+
+namespace std {
+    
+    string to_tring(vec3 vec) {
+        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
+    }
+    string to_tring(vec2 vec) {
+        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "]";
+    }
+    string to_tring(vec4 vec) {
+        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
+    }
 }

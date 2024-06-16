@@ -2,9 +2,15 @@
 
 namespace z0 {
 
+    /**
+     * Base class of all input events
+     */
     class InputEvent: public Object {
     public:
-        InputEventType getType() const { return type; }
+        /**
+         * Returns the type of the event
+         */
+        inline InputEventType getType() const { return type; }
 
     protected:
         explicit InputEvent(InputEventType _type): type{_type} {};
@@ -13,14 +19,32 @@ namespace z0 {
         InputEventType type;
     };
 
+    /**
+     * Keyboard input event
+     */
     class InputEventKey: public InputEvent {
     public:
         InputEventKey(Key key, bool pressed, int repeat, int modifiers);
 
-        Key getKeyCode() const { return keycode; }
+        /**
+         * Returns the key code
+         */
+        inline Key getKey() const { return keycode; }
+
+        /**
+         * The repeat count for the current event. The value is the number of times the keystroke is autorepeated as a result of the user holding down the key
+         */
         int getRepeatCount() const { return repeat; }
-        bool isPressed() const { return pressed; }
-        int getModifiers() const { return modifiers; }
+
+        /**
+         * Returns true if the key is pressed
+         */
+        inline bool isPressed() const { return pressed; }
+
+        /**
+         * Returns the state of the z0::KeyModifier keys
+         */
+        inline int getModifiers() const { return modifiers; }
 
     private:
         Key keycode;
@@ -29,18 +53,29 @@ namespace z0 {
         int modifiers;
     };
 
+    /**
+     * Gamepad buttons event
+     */
     class InputEventGamepadButton: public InputEvent {
     public:
         InputEventGamepadButton(GamepadButton button, bool pressed);
 
-        GamepadButton getGamepadButton() const { return button; }
-        bool isPressed() const { return pressed; }
+        /**
+         * Return the gamepad button
+         */
+        inline GamepadButton getGamepadButton() const { return button; }
+
+         /**
+         * Returns true if the gamepad button is pressed
+         */
+        inline bool isPressed() const { return pressed; }
 
     private:
         GamepadButton button;
         bool pressed;
     };
 
+    /** */
     class InputEventMouseMotion: public InputEvent {
     public:
         InputEventMouseMotion(float posX, float posY, float relativeX, float relativeY);

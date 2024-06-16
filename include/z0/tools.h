@@ -39,10 +39,6 @@ namespace z0 {
 #endif
     }
 
-    /**
-     * Helper to log a vec3
-     */
-    string toString(vec3 vec);
     //JPH::Mat44 glmToJolt(const mat4& glmMat);
 
     /**
@@ -60,4 +56,21 @@ namespace z0 {
      */
     float randomf(float max = 100.0f);
 
+}
+
+namespace std {
+    /**
+     * Helper to log a vec3 (std lib code convention)
+     */
+    string to_string(vec3 vec);
+
+    /**
+     * Helper to log a vec2 (std lib code convention)
+     */
+    string to_string(vec2 vec);
+
+    /**
+     * Helper to log a vec4 (std lib code convention)
+     */
+    string to_string(vec4 vec);
 }

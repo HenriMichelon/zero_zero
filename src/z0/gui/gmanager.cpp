@@ -66,9 +66,9 @@ namespace z0 {
             auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
             if ((focusedWindow != nullptr) && (focusedWindow->isVisible())) {
                 if (keyInputEvent.isPressed()) {
-                    return focusedWindow->eventKeybDown(keyInputEvent.getKeyCode());
+                    return focusedWindow->eventKeybDown(keyInputEvent.getKey());
                 } else {
-                    return focusedWindow->eventKeybUp(keyInputEvent.getKeyCode());
+                    return focusedWindow->eventKeybUp(keyInputEvent.getKey());
                 }
             }
         } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) {
