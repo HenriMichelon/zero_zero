@@ -108,8 +108,8 @@ namespace z0 {
 #endif
 
     private:
-        static const float DEADZONE_PERCENT;
-        static float applyDeadzone(float value);
+        static float applyDeadzone(float value, float deadzonePercent);
+        static void generateGamepadButtonEvent(GamepadButton, bool);
     };
 
 

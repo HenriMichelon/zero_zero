@@ -9,8 +9,6 @@
 
 namespace z0 {
 
-    const float Input::DEADZONE_PERCENT = 0.05f; // 5% deadzone
-
     //list<shared_ptr<InputEvent>> Input::_inputQueue;
     unordered_map<Key, bool> Input::_keyPressedStates;
     unordered_map<Key, bool> Input::_keyJustPressedStates;
@@ -185,11 +183,11 @@ namespace z0 {
         return KEY_NONE;
     }
 
-    float Input::applyDeadzone(float value) {
-        if (abs(value) < DEADZONE_PERCENT) {
+    float Input::applyDeadzone(float value, float deadzonePercent) {
+        if (abs(value) < deadzonePercent) {
             return 0.0f;
         } else {
-            return std::min(std::max(value < 0.0f ? value + DEADZONE_PERCENT : value - DEADZONE_PERCENT, -1.0f), 1.0f);
+            return std::min(std::max(value < 0.0f ? value + deadzonePercent : value - deadzonePercent, -1.0f), 1.0f);
         }
     }
 
@@ -404,6 +402,18 @@ namespace z0 {
         }
     }
 
+    void Input::generateGamepadButtonEvent(GamepadButton button, bool pressed) {
+        if (pressed && (!_gamepadButtonPressedStates[button])) {
+            auto event = InputEventGamepadButton(button, pressed);
+            Application::get()._onInput(event);
+        }
+        if ((!pressed) && (_gamepadButtonPressedStates[button])) {
+            auto event = InputEventGamepadButton(button, pressed);
+            Application::get()._onInput(event);
+        }
+        _gamepadButtonPressedStates[button] = pressed;
+    }
+
     void Input::_updateInputStates() {
         if (_useXInput) {
             _xinputStates.clear();
@@ -412,49 +422,44 @@ namespace z0 {
                 ZeroMemory(&state, sizeof(XINPUT_STATE));
                 if (XInputGetState(i, &state) == ERROR_SUCCESS) {
                     _xinputStates[i] = state;
+                    for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+                        auto button = static_cast<GamepadButton>(i);
+                        generateGamepadButtonEvent(button, state.Gamepad.wButtons & GAMEPABUTTON2XINPUT[button]);
+                    }
                 }
             }
         } else {
             for (auto& entry : _directInputStates) {
-            auto& gamepad = entry.second;
-            HRESULT hr = gamepad.device->Poll();
-            if (FAILED(hr)) {
-                hr = gamepad.device->Acquire();
-                while (hr == DIERR_INPUTLOST) {
-                    hr = gamepad.device->Acquire();
-                }
+                auto& gamepad = entry.second;
+                HRESULT hr = gamepad.device->Poll();
                 if (FAILED(hr)) {
-                    _directInputStates.erase(entry.first);
+                    hr = gamepad.device->Acquire();
+                    while (hr == DIERR_INPUTLOST) {
+                        hr = gamepad.device->Acquire();
+                    }
+                    if (FAILED(hr)) {
+                        _directInputStates.erase(entry.first);
+                        continue;
+                    }
+                }
+
+                DIJOYSTATE state{0};
+                if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
                     continue;
                 }
-            }
-
-            DIJOYSTATE state{0};
-            if (FAILED(gamepad.device->GetDeviceState(sizeof(state), &state))) {
-                continue;
-            }
-            gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / DI_AXIS_RANGE_DIV;
-            gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / DI_AXIS_RANGE_DIV;
-            gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / DI_AXIS_RANGE_DIV;
-            gamepad.axes[3] = (static_cast<float>(state.lRx) + 0.5f) / DI_AXIS_RANGE_DIV;
-            gamepad.axes[4] = (static_cast<float>(state.lRy) + 0.5f) / DI_AXIS_RANGE_DIV;
-            gamepad.axes[5] = (static_cast<float>(state.lRz) + 0.5f) / DI_AXIS_RANGE_DIV;
-            for (int i = 0; i < 32; i++) { // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
-                gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
-            }
-            for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
-                auto button = static_cast<GamepadButton>(i);
-                auto pressed = gamepad.buttons[gamepad.indexButtons[button]];
-                if (pressed && (!_gamepadButtonPressedStates[button])) {
-                    auto event = InputEventGamepadButton(button, pressed);
-                    Application::get()._onInput(event);
+                gamepad.axes[0] = (static_cast<float>(state.lX) + 0.5f) / DI_AXIS_RANGE_DIV;
+                gamepad.axes[1] = (static_cast<float>(state.lY) + 0.5f) / DI_AXIS_RANGE_DIV;
+                gamepad.axes[2] = (static_cast<float>(state.lZ) + 0.5f) / DI_AXIS_RANGE_DIV;
+                gamepad.axes[3] = (static_cast<float>(state.lRx) + 0.5f) / DI_AXIS_RANGE_DIV;
+                gamepad.axes[4] = (static_cast<float>(state.lRy) + 0.5f) / DI_AXIS_RANGE_DIV;
+                gamepad.axes[5] = (static_cast<float>(state.lRz) + 0.5f) / DI_AXIS_RANGE_DIV;
+                for (int i = 0; i < 32; i++) { // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
+                    gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
                 }
-                if ((!pressed) && (_gamepadButtonPressedStates[button])) {
-                    auto event = InputEventGamepadButton(button, pressed);
-                    Application::get()._onInput(event);
+                for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+                    auto button = static_cast<GamepadButton>(i);
+                    generateGamepadButtonEvent(button, gamepad.buttons[gamepad.indexButtons[button]]);
                 }
-                _gamepadButtonPressedStates[button] = pressed;
-            }
             }
         }
     }
@@ -469,31 +474,16 @@ namespace z0 {
         return false;
     }
 
-    float _normalizeThumbstickValue(SHORT value, SHORT deadzone) {
-        if (value > deadzone || value < -deadzone) {
-            // Max value for a SHORT is 32767, normalize to -1.0f to 1.0f
-            return (value < 0 ? (value + deadzone) : (value - deadzone)) / (32767.0f - deadzone);
-        } else {
-            return 0.0f;
-        }
-    }
-    
-
     vec2 Input::getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick) {
          if (_useXInput && _xinputStates.contains(index)) {
             auto gamepad = _xinputStates[index].Gamepad;
-            auto xAxis = 0;
-            auto yAxis = 0;
-            if (axisJoystick == GAMEPAD_AXIS_LEFT) {
-                xAxis = _normalizeThumbstickValue(gamepad.sThumbLX, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-                yAxis = _normalizeThumbstickValue(gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-            } else {
-                xAxis = _normalizeThumbstickValue(gamepad.sThumbRX, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
-                yAxis = _normalizeThumbstickValue(gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
-            }
+            auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLX : gamepad.sThumbRX;
+            auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLY : gamepad.sThumbRY;
+            auto deadzonPercent = ((axisJoystick == GAMEPAD_AXIS_LEFT ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE : XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+                                    / 32767.0f);
             vec2 vector{
-                xAxis,
-                -yAxis
+                applyDeadzone(xAxis / 32767.0f, deadzonPercent),
+                applyDeadzone(-yAxis / 32767.0f, deadzonPercent)
             };
             float length = glm::length(vector);
             return (length > 1.0f) ? vector / length : vector;
@@ -502,8 +492,8 @@ namespace z0 {
             auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
             auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
             vec2 vector{
-                applyDeadzone(gamepad.axes[xAxis]),
-                applyDeadzone(gamepad.axes[yAxis])
+                applyDeadzone(gamepad.axes[xAxis], 0.05f),
+                applyDeadzone(gamepad.axes[yAxis], 0.05f)
             };
             float length = glm::length(vector);
             return (length > 1.0f) ? vector / length : vector;
