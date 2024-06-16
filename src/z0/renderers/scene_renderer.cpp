@@ -48,10 +48,10 @@ namespace z0 {
         }
         if (skyboxRenderer != nullptr) skyboxRenderer->cleanup();
         for (const auto& shadowMapRenderer : shadowMapRenderers) {
+            device.unRegisterRenderer(shadowMapRenderer);
             shadowMapRenderer->cleanup();
         }
         shadowMapRenderers.clear();
-        shadowMaps.clear();
         opaquesModels.clear();
         omniLights.clear();
         BaseModelsRenderer::cleanup();
@@ -116,19 +116,27 @@ namespace z0 {
             if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
                 directionalLight = light;
                 log("Using directional light", directionalLight->toString());
-                if (directionalLight->getCastShadows() && (shadowMaps.size() < MAX_SHADOW_MAPS)) {
-                    shadowMaps.push_back(make_shared<ShadowMapFrameBuffer>(device, directionalLight));
-                    shadowMapsNeedUpdate = true;
+                if (directionalLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+                    auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
+                        device, 
+                        shaderDirectory,
+                        directionalLight);
+                    shadowMapRenderers.push_back(shadowMapRenderer);
+                    device.registerRenderer(shadowMapRenderer);
                 }
                 return;
             }
         }
         if (auto* omniLight = dynamic_cast<OmniLight*>(node.get())) {
             omniLights.push_back(omniLight);
-            if (omniLight->getCastShadows() && (shadowMaps.size() < MAX_SHADOW_MAPS)) {
+            if (omniLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
                 if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                    shadowMaps.push_back(std::make_shared<ShadowMapFrameBuffer>(device, spotLight));
-                    shadowMapsNeedUpdate = true;
+                    auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
+                        device, 
+                        shaderDirectory,
+                        spotLight);
+                    shadowMapRenderers.push_back(shadowMapRenderer);
+                    device.registerRenderer(shadowMapRenderer);
                 }
             }
         }
@@ -142,9 +150,32 @@ namespace z0 {
             if (currentEnvironment == environment) {
                 currentEnvironment = nullptr;
             }
+        } else if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
+            if ((directionalLight == light) && light->getCastShadows()) {
+                const auto& renderer = findShadowMapRenderer(light);
+                device.unRegisterRenderer(renderer);
+                shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer), shadowMapRenderers.end());
+            }
+        } else if (auto* omniLight = dynamic_cast<OmniLight*>(node.get())) {
+            omniLights.erase(remove(omniLights.begin(), omniLights.end(), omniLight), omniLights.end());
+            if (omniLight->getCastShadows()) {
+                const auto& renderer = findShadowMapRenderer(omniLight);
+                device.unRegisterRenderer(renderer);
+                shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer), shadowMapRenderers.end()); 
+            }
         } else {
             BaseModelsRenderer::removeNode(node);
         }
+    }
+
+    shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light* light) const {
+        for(const auto& renderer : shadowMapRenderers) {
+            if (renderer->getShadowMap()->getLight() == light) {
+                return renderer;
+            }
+        }
+        assert(false);
+        return nullptr;
     }
 
     void SceneRenderer::addImage(const shared_ptr<Image>& image) {
@@ -227,20 +258,8 @@ namespace z0 {
         for(const auto& material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get());
         }
-        if (shadowMapsNeedUpdate) {
-            // We need a more optimized method that does not destroy and recreate everything
-            for (const auto& shadowMapRenderer : shadowMapRenderers) {
-                device.unRegisterRenderer(shadowMapRenderer);
-                shadowMapRenderer->cleanup();
-            }
-            shadowMapRenderers.clear();
-            for (auto& shadowMap : shadowMaps) {
-                auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory);
-                shadowMapRenderer->loadScene(shadowMap, models);
-                shadowMapRenderers.push_back(shadowMapRenderer);
-                device.registerRenderer(shadowMapRenderer);
-            }
-            shadowMapsNeedUpdate = false;
+        for (auto& renderer : shadowMapRenderers) {
+            renderer->loadScene(models);
         }
     }
 
@@ -255,7 +274,7 @@ namespace z0 {
             .cameraPosition = currentCamera->getPosition(),
             .haveDirectionalLight = directionalLight != nullptr,
             .pointLightsCount = static_cast<uint32_t>(omniLights.size()),
-            .shadowMapsCount = static_cast<uint32_t>(shadowMaps.size()),
+            .shadowMapsCount = static_cast<uint32_t>(shadowMapRenderers.size()),
         };
         if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
@@ -272,8 +291,9 @@ namespace z0 {
         if (globalUbo.shadowMapsCount > 0) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for(uint32_t i=0; i < globalUbo.shadowMapsCount; i++) {
-                shadowMapArray[i].lightSpace = shadowMaps[i]->getLightSpace();
-                shadowMapArray[i].lightPos = shadowMaps[i]->getLightPosition();
+                auto& shadowMap = shadowMapRenderers[i]->getShadowMap();
+                shadowMapArray[i].lightSpace = shadowMap->getLightSpace();
+                shadowMapArray[i].lightPos = shadowMap->getLightPosition();
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
@@ -478,8 +498,8 @@ namespace z0 {
             materialUniformBufferCount = 1;
             createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize);
         }
-        if ((!shadowMaps.empty()) && (shadowMapUniformBufferCount != shadowMaps.size())) {
-            shadowMapUniformBufferCount = shadowMaps.size();
+        if ((!shadowMapRenderers.empty()) && (shadowMapUniformBufferCount != shadowMapRenderers.size())) {
+            shadowMapUniformBufferCount = shadowMapRenderers.size();
             createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize * shadowMapUniformBufferCount);
         }
         if (shadowMapUniformBufferCount == 0) {
@@ -506,7 +526,8 @@ namespace z0 {
         }
 
         imageIndex = 0;
-        for(const auto& shadowMap : shadowMaps) {
+        for(const auto& shadowMapRenderer : shadowMapRenderers) {
+            const auto& shadowMap = shadowMapRenderer->getShadowMap();
             shadowMapsInfo[imageIndex] = VkDescriptorImageInfo {
                         .sampler = shadowMap->getSampler(),
                         .imageView = shadowMap->getImageView(),

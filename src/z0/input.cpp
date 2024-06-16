@@ -107,7 +107,7 @@ namespace z0 {
             { KEY_Y           , OS_KEY_Y },
             { KEY_Z           , OS_KEY_Z },
             { KEY_LEFT_BRACKET   , OS_KEY_LEFT_BRACKET },
-            { KEY_BACKSLASH      , OS_KEY_BACKSLASH },
+            //{ KEY_BACKSLASH      , OS_KEY_BACKSLASH },
             { KEY_RIGHT_BRACKET  , OS_KEY_RIGHT_BRACKET },
             { KEY_GRAVE_ACCENT   , OS_KEY_GRAVE_ACCENT },
             { KEY_ESCAPE         , OS_KEY_ESCAPE },

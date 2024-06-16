@@ -21,8 +21,10 @@
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir): 
-        BaseRenderpass{dev, sDir} {}
+    ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir, Light* light): 
+        BaseRenderpass{dev, sDir}, 
+        shadowMap{make_shared<ShadowMapFrameBuffer>(dev, light)}
+        {}
 
     void ShadowMapRenderer::cleanup() {
         shadowMap->cleanupImagesResources();
@@ -31,9 +33,8 @@ namespace z0 {
         BaseRenderpass::cleanup();
     }
 
-    void ShadowMapRenderer::loadScene(shared_ptr<ShadowMapFrameBuffer>& _shadowMap, list<MeshInstance*>& _meshes) {
+    void ShadowMapRenderer::loadScene(list<MeshInstance*>& _meshes) {
         models = _meshes;
-        shadowMap = _shadowMap;
         createOrUpdateResources();
     }
 

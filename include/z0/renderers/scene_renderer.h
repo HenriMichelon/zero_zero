@@ -15,8 +15,6 @@ namespace z0 {
         void removeNode(const shared_ptr<Node>& node) override;
         void preUpdateScene();
         void postUpdateScene();
-        // All shadow maps
-        vector<shared_ptr<ShadowMapFrameBuffer>> shadowMaps;
 
     protected:
         void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) override;
@@ -89,8 +87,6 @@ namespace z0 {
         // Currently allocated material uniform buffer count
         uint32_t materialUniformBufferCount {0};
 
-        // True if we need to rebuild the shadow maps & associated renderers
-        bool shadowMapsNeedUpdate{true};
         // One renderer per shadow map
         vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // One buffer per shadow map with light information
@@ -153,6 +149,7 @@ namespace z0 {
         void addImage(const shared_ptr<Image>& image);
         void removeImage(const shared_ptr<Image>& image);
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw);
+        shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light* light) const;
 
     public:
         SceneRenderer(const SceneRenderer&) = delete;

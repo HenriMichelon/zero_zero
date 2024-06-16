@@ -207,7 +207,7 @@ namespace z0 {
     }
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
-        assert(node != nullptr && node->_isAddedToScene() && node->getParent() != nullptr);
+        assert(node != nullptr && node->_isAddedToScene());
         for(auto& child: node->getChildren()) {
             _removeNode(child);
         }

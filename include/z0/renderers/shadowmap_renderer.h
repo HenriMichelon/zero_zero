@@ -4,18 +4,18 @@ namespace z0 {
 
     class ShadowMapRenderer: public BaseRenderpass, public BaseRenderer {
     public:
-        ShadowMapRenderer(Device& device, const string& shaderDirectory);
-
-        void loadScene(shared_ptr<ShadowMapFrameBuffer>& shadowMap, list<MeshInstance*>& meshes);
+        ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light);
+        void loadScene(list<MeshInstance*>& meshes);
         void cleanup() override;
+        const shared_ptr<ShadowMapFrameBuffer>& getShadowMap() const { return shadowMap; };
 
+    private:
         // Depth bias (and slope) are used to avoid shadowing artifacts
         // Constant depth bias factor (always applied)
         const float depthBiasConstant = 1.25f;
         // Slope depth bias factor, applied depending on polygon's slope
         const float depthBiasSlope = 1.75f;
 
-    private:
         struct GobalUniformBuffer {
             mat4 lightSpace;
         };
