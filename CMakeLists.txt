@@ -3,6 +3,9 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
+#add_compile_definitions(NDEBUG)
+#add_compile_definitions(USE_PCH)
+
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -197,8 +200,6 @@ add_library(${PROJECT_NAME} SHARED
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
-#add_compile_definitions(NDEBUG)
-#add_compile_definitions(USE_PCH)
 target_precompile_headers(${PROJECT_NAME} PUBLIC
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h

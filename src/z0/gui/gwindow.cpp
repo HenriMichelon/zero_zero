@@ -169,6 +169,7 @@ namespace z0 {
     }
 
     GWidget& GWindow::getWidget() {
+        assert(windowManager && "GWindow must be added to a window manager before use");
         return *widget;
     }
 
