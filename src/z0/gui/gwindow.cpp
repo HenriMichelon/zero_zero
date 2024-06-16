@@ -43,7 +43,7 @@ namespace z0 {
 
     GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, float PADDING){
         assert(windowManager && "GWidow must be added to a window manager before setting the main widget");
-        if (layout == nullptr) { setLayout(nullptr); }
+        if (layout == nullptr) { setStyle(nullptr); }
         if (WIDGET == nullptr) {
             widget = make_shared<GPanel>();
         }
@@ -65,7 +65,7 @@ namespace z0 {
         return *widget;
     }
 
-    void GWindow::setLayout(shared_ptr<GStyle> LAYOUT) {
+    void GWindow::setStyle(shared_ptr<GStyle> LAYOUT) {
         if (layout == nullptr) {
             layout = GStyle::create();
         } else {
@@ -204,7 +204,7 @@ namespace z0 {
         eventMove();
     }
 
-    shared_ptr<GStyle> GWindow::getLayout() const {
+    shared_ptr<GStyle> GWindow::getStyle() const {
         return layout;
     }
 

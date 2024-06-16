@@ -15,11 +15,11 @@ namespace z0 {
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;
 
-        /** Return the current layout or nullptr */
-        shared_ptr<GStyle> getLayout() const;
+        /** Return the current style layout or nullptr */
+        shared_ptr<GStyle> getStyle() const;
 
-        /** Set the current layout. If nullptr, install a default layout */
-        void setLayout(shared_ptr<GStyle>);
+        /** Set the current style layout. If nullptr, install a default layout */
+        void setStyle(shared_ptr<GStyle>);
 
         /** Returns the main widget .
             This is widget that cover the entire window and is the parent
@@ -66,54 +66,59 @@ namespace z0 {
         /** Set the window visibility. The change will be effective at the start of the next frame */
         void setVisible(bool);
 
-        /** hide the window. The change will be effective at the start of the next frame : it need to be called before adding the window if you want the window to be hidden at startup */
+        /** Hide the window. The change will be effective at the start of the next frame : it needs to be called before adding the window to the manager if you want the window to be hidden at startup */
         void hide();
 
-        /** show the window. The change will be effective at the start of the next frame */
+        /** Show the window. The change will be effective at the start of the next frame */
         void show();
 
+        /** Set the alpha value for transparency */
         void setTransparency(float);
 
-        /* Event called after window creation (by the window manager) */
+        /** Event called after window creation (by the window manager) */
         virtual void onCreate() {};
 
-        /* Event called after window destruction (by the window manager) */
+        /** Event called after window destruction (by the window manager) */
         virtual void onDestroy() {};
 
-        /* Event called when (before) the window manager need to show the window */
+        /** Event called when (before) the window manager need to show the window */
         virtual void onShow() {};
 
-        /* Event called when (after) the window manager need to hide the window */
+        /** Event called when (after) the window manager need to hide the window */
         virtual void onHide() {};
 
-        /* Event called after a size change */
+        /** Event called after a size change */
         virtual void onResize() {};
 
-        /* Event called after a position change */
+        /** Event called after a position change */
         virtual void onMove() {};
 
-        /* Event called when a key was pressed */
+        /** Event called when a key was pressed */
         virtual bool onKeyDown(Key) { return false; };
 
-        /* Event called when a key was released */
+        /** Event called when a key was released */
         virtual bool onKeyUp(Key) { return false; };
 
-        /* Event called when a mouse button was pressed inside the window */
-        virtual bool onMouseDown(MouseButton, float, float) { return false; };
+        /** Event called when a mouse button was pressed inside the window */
+        virtual bool onMouseDown(MouseButton button, float x, float y) { return false; };
 
-        /* Event called when a mouse button was released inside the window */
-        virtual bool onMouseUp(MouseButton, float, float) { return false; };
+        /** Event called when a mouse button was released inside the window */
+        virtual bool onMouseUp(MouseButton button, float x, float y) { return false; };
 
-        /* Event called when mouse is moved above the window client area */
-        virtual bool onMouseMove(MouseButton, float, float) { return false; };
+        /** Event called when mouse is moved above the window client area */
+        virtual bool onMouseMove(MouseButton button, float x, float y) { return false; };
 
-        /* Event called when the window got the keyboard focus */
+        /** Event called when the window got the keyboard focus */
         virtual void onGotFocus() {};
 
-        /* Event called when the window lost the keyboard focus */
+        /** Event called when the window lost the keyboard focus */
         virtual void onLostFocus() {};
 
+        /**
+         * Returns the default font loaded at startup
+         */
         shared_ptr<Font>& getDefaultFont();
+
         void refresh();
 
     protected:

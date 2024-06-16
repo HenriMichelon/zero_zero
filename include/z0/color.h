@@ -7,7 +7,7 @@ namespace z0 {
      */
     struct Color {
         //! RGBA Color
-        vec4 color;
+        vec4 color{0.0f, 0.0f, 0.0f, 1.0f};
 
         /**
          * Create a {0.0, 0.0, 0.0, 0.0 } color

@@ -75,33 +75,79 @@ namespace z0 {
         bool pressed;
     };
 
-    /** */
+    /** 
+     * Mouse move event
+    */
     class InputEventMouseMotion: public InputEvent {
     public:
         InputEventMouseMotion(float posX, float posY, float relativeX, float relativeY);
 
-        vec2 getPosition() const { return vec2{x, y}; }
-        float getX() const { return x; }
-        float getY() const { return y; }
-        float getRelativeX() const { return relativeX; }
-        float getRelativeY() const { return relativeY; }
+        /**
+         * Returns the current mouse position
+         */
+        inline vec2 getPosition() const { return vec2{x, y}; }
+
+        /**
+         * Returns the current mouse x position
+         */
+        inline float getX() const { return x; }
+
+        /**
+         * Returns the current mouse y position
+         */
+        inline float getY() const { return y; }
+
+        /**
+         * Returns the relative x mouvement
+         */
+        inline float getRelativeX() const { return relativeX; }
+
+        /**
+         * Returns the relative y mouvement
+         */
+        inline float getRelativeY() const { return relativeY; }
 
     private:
         float x, y;
         float relativeX, relativeY;
     };
 
-
+    /** 
+     * Mouse button pressed/released event
+    */
     class InputEventMouseButton: public InputEvent {
     public:
         InputEventMouseButton(MouseButton button, bool pressed, int modifiers, float posX, float posY);
 
-        MouseButton getMouseButton() const { return button; }
-        bool isPressed() const { return pressed; }
-        int getModifiers() const { return modifiers; }
-        vec2 getPosition() const { return vec2{x, y}; }
-        float getX() const { return x; }
-        float getY() const { return y; }
+        /**
+         * Returns the mouse button
+         */
+        inline MouseButton getMouseButton() const { return button; }
+
+        /**
+         * Returns true is the button is pressed
+         */
+        inline bool isPressed() const { return pressed; }
+
+        /**
+         * Returns the state of the z0::KeyModifier keys
+        */
+        inline int getModifiers() const { return modifiers; }
+
+        /**
+         * Returns the current mouse position
+         */
+        inline vec2 getPosition() const { return vec2{x, y}; }
+
+        /**
+         * Returns the current mouse x position
+         */
+        inline float getX() const { return x; }
+
+        /**
+         * Returns the relative y mouvement
+         */
+        inline float getY() const { return y; }
 
     private:
         float x, y;

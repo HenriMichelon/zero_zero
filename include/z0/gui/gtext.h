@@ -2,7 +2,9 @@
 
 namespace z0 {
 
-    // A widget to display a line of text
+    /**
+     * A widget to display a line of text
+     */ 
     class GText: public GWidget {
     public:
         explicit GText(string);

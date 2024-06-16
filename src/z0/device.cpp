@@ -232,11 +232,11 @@ namespace z0 {
     }
 
     void Device::registerRenderer(const shared_ptr<BaseRenderer>& renderer) {
-        renderers.insert(renderers.begin(), renderer);
+        renderers.push_front(renderer);
     }
 
     void Device::unRegisterRenderer(const shared_ptr<BaseRenderer>& renderer) {
-        renderers.erase(remove(renderers.begin(), renderers.end(), renderer), renderers.end());
+        renderers.remove(renderer);
     }
 
     // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation

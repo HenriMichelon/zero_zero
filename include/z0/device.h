@@ -64,7 +64,7 @@ namespace z0 {
     private:
         const Window& window;
         VkInstance vkInstance;
-        vector<shared_ptr<BaseRenderer>> renderers;
+        list<shared_ptr<BaseRenderer>> renderers;
 
         // Physical & logical device management
         VkSurfaceKHR surface;
