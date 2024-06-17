@@ -42,7 +42,7 @@ namespace z0 {
             max_descender = std::max(max_descender, descender);
         }
         uint32_t height = max_height + max_descender;
-
+        
         auto bitmap = vector<uint32_t>(width * height, 0);
         int32_t x = 0;
         for (auto wc : str) {
@@ -66,7 +66,7 @@ namespace z0 {
     shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
         float width, height;
         auto bitmap = renderToBitmap(str, width, height);
-        //stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
+        stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
         return make_shared<Image>(device,
                                   str,
                                   width,
@@ -78,6 +78,67 @@ namespace z0 {
                                   VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER // don't repeat texture
                                   );
     }
+
+#ifdef __STB_INCLUDE_STB_TRUETYPE_H__
+
+    Font::Font(const string&_name, uint32_t _size):
+        Resource{_name}, path{_name}, size{_size} {
+        ifstream fontFile(path.c_str(), ios::binary);
+        if (!fontFile) { die("Failed to open font file", path); }
+        fontBuffer = make_unique<vector<unsigned char>>((std::istreambuf_iterator<char>(fontFile)), istreambuf_iterator<char>());
+        if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
+            die("Failed to initialize font", path);
+        }
+        scale = stbtt_ScaleForPixelHeight(&font, size * 2);
+        stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
+        ascent = ascent * scale;
+        descent = descent * scale;
+    }
+
+    /*
+    void savePPM(const char* filename, const unsigned char* bitmap, int width, int height) {
+        std::ofstream ofs(filename, std::ios::binary);
+        ofs << "P6\n" << width << " " << height << "\n255\n";
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                unsigned char pixel = bitmap[y * width + x];
+                ofs << pixel << pixel << pixel; // Writing RGB components (all the same for grayscale)
+            }
+        }
+        ofs.close();
+    }*/
+
+    void Font::render(CachedCharacter &cachedCharacter, char c) {
+        int advanceWidth, leftSideBearing;
+        stbtt_GetCodepointHMetrics(&font, c, &advanceWidth, &leftSideBearing);
+        cachedCharacter.advance = advanceWidth * scale;
+        cachedCharacter.xBearing = leftSideBearing * scale;
+        
+        int width, height;
+        auto srcBitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0,0);
+        cachedCharacter.width = width;
+        cachedCharacter.height = ascent - descent;
+        cachedCharacter.yBearing = cachedCharacter.height;
+        cachedCharacter.bitmap = make_unique<vector<uint32_t>>(cachedCharacter.width * cachedCharacter.height, 0);
+
+        int x1, y1, x2, y2;
+        stbtt_GetCodepointBitmapBox(&font, c, scale, scale, &x1, &y1, &x2, &y2);
+        auto yOffset = (ascent + y1);
+
+        auto dstBitmap = cachedCharacter.bitmap->data();
+        for (int y=0; y < height; ++y) {
+            for (int x=0; x < width; ++x) {
+                uint8_t gray = srcBitmap[y * width + x];
+                if (gray != 0) { dstBitmap[(y + yOffset) * cachedCharacter.width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray; };
+            }
+        }
+        //savePPM("output.ppm", srcBitmap, width, height);
+        stbtt_FreeBitmap(srcBitmap, nullptr);
+    }
+
+    Font::~Font() {}
+
+#endif
 
 #ifdef FT_FREETYPE_H
 
@@ -112,8 +173,8 @@ namespace z0 {
             library = nullptr;
         }
     }
-
-    /*void __saveBitmapAsPGM(const char* filename, uint8_t* bitmap, uint32_t width, uint32_t  rows) {
+    /*
+    void __saveBitmapAsPGM(const char* filename, uint8_t* bitmap, uint32_t width, uint32_t  rows) {
         auto *file = fopen(filename, "wb");
         if (file) {
             fprintf(file, "P5\n%d %d\n255\n", width, rows);
@@ -152,9 +213,9 @@ namespace z0 {
                 if (gray != 0) { dstBitmap[y * width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray; };
             }
         }
-        /*string name(1,wchar);
-        name = name.append(".pgm");
-        __saveBitmapAsPGM(name.c_str(), srcBitmap.buffer, width, height);*/
+        //string name(1,wchar);
+        //name = name.append(".pgm");
+        //__saveBitmapAsPGM(name.c_str(), srcBitmap.buffer, width, height);
         //stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, dstBitmap, width * STBI_rgb_alpha);
     }
 

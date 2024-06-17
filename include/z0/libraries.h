@@ -51,9 +51,9 @@ using namespace glm;
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 
-#include <ft2build.h>
+/*#include <ft2build.h>
 #include FT_FREETYPE_H
-#include FT_LCD_FILTER_H
+#include FT_LCD_FILTER_H*/
 
 #include <string>
 #include <memory>
@@ -88,3 +88,4 @@ using namespace std;
 
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include "stb_truetype.h"

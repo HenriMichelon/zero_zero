@@ -374,3 +374,5 @@ _deps
 *.blend1
 # doxygen theme
 docs/doxygen-awesome-css
+.vscode
+/shaders/

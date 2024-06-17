@@ -47,6 +47,14 @@ namespace z0 {
         CachedCharacter &getFromCache(char);
         void render(CachedCharacter&, char);
 
+#ifdef __STB_INCLUDE_STB_TRUETYPE_H__
+        float scale;
+        int ascent;
+        int descent;
+        int lineGap;
+        stbtt_fontinfo font;
+        unique_ptr<vector<unsigned char>> fontBuffer;
+#endif
 #ifdef FT_FREETYPE_H
         FT_Face				face;
         static FT_Library 	library;

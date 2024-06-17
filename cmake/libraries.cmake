@@ -31,12 +31,3 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fetch_fastgltf)
 target_link_libraries(${PROJECT_NAME} fastgltf)
-
-###### Using Freetype for text rendering
-FetchContent_Declare(
-        fetch_freetype
-        GIT_REPOSITORY https://github.com/freetype/freetype
-        GIT_TAG        VER-2-13-2
-)
-FetchContent_MakeAvailable(fetch_freetype)
-target_link_libraries(${PROJECT_NAME} freetype)
