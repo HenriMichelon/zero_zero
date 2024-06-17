@@ -89,7 +89,7 @@ namespace z0 {
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
             die("Failed to initialize font", path);
         }
-        scale = stbtt_ScaleForPixelHeight(&font, size * 2);
+        scale = stbtt_ScaleForPixelHeight(&font, size * 1.5);
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         ascent = ascent * scale;
         descent = descent * scale;
