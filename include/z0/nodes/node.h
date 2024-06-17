@@ -4,19 +4,51 @@ namespace z0 {
 
     class Application;
 
+    /**
+     * Base class for all 3D nodes
+     */
     class Node: public Object {
     public:
         using id_t = unsigned int;
 
+        /**
+         * Create a node by copying the transforms, process mode, parent and name
+         */
         Node(const Node&);
+        /**
+         * Create a new node at (0.0, 0.0, 0.0) without parent
+         */
         explicit Node(string name = "Node");
         virtual ~Node() = default;
 
+        /**
+         * Called when a node is ready to initialize, before being added to the scene
+         */
         virtual void onReady() {}
+        
+        /**
+         * Called when a node is added to the scene
+         */
         virtual void onEnterScene() {};
+
+        /**
+         * Called when a node is removed from the scene
+         */
         virtual void onExitScene() {};
+
+        /**
+         * Called each frame after the physics have been updated and just before drawing the frame
+         */
         virtual void onProcess(float alpha) {}
+
+        /**
+         * Called just after the physics system have been updated (can be called multiple times if we have free time between frames)
+         */
         virtual void onPhysicsProcess(float delta) {}
+
+        /**
+         * Called on a keyboard, mouse or gamepas event
+         */
         virtual bool onInput(InputEvent& inputEvent) { return false; }
 
         inline const mat4& getTransformLocal() const { return localTransform; }
