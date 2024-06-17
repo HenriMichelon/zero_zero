@@ -13,7 +13,7 @@ namespace z0 {
     public:
         uint32_t GetNumBroadPhaseLayers() const override { return 1;}
         JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override { return static_cast<JPH::BroadPhaseLayer>(0); }
-        const char * GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override { return "?";}};
+        const char * GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const { return "?";}};
 
     // Class that determines if an object layer can collide with a broadphase layer
     class ObjectVsBroadPhaseLayerFilterImpl : public JPH::ObjectVsBroadPhaseLayerFilter {
