@@ -40,9 +40,18 @@ namespace z0 {
     void GText::setSize(float w, float h) {
     }
 
+    void GText::setRect(const Rect&) {
+    }
+
+    void GText::setRect(float, float, float, float) {
+    }
+
     void GText::computeSize() {
         if (!text.empty()) {
-            getFont()->getSize(text,rect.width, rect.height);
+            getFont()->getSize(text, rect.width, rect.height);
+            auto& wnd = Application::get().getWindow();
+            rect.width = roundf(rect.width / (wnd.getWidth() / VECTOR_SCALE.x));
+            rect.height = roundf(rect.height / (wnd.getHeight() / VECTOR_SCALE.y));
         }
     }
 

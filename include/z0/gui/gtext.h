@@ -13,7 +13,10 @@ namespace z0 {
         void setText(const string&);
         void setTextColor(Color c);
         Color getTextColor() const { return textColor; }
+
         void setSize(float, float) override;
+        void setRect(const Rect&);
+        void setRect(float, float, float, float);
 
     private:
         string	text;

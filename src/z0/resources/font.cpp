@@ -66,7 +66,9 @@ namespace z0 {
     shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
         float width, height;
         auto bitmap = renderToBitmap(str, width, height);
-        stbi_write_png("glyph.png", width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
+        /*auto name = str;
+        name.append(".png");
+        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);*/
         return make_shared<Image>(device,
                                   str,
                                   width,
@@ -85,7 +87,7 @@ namespace z0 {
         Resource{_name}, path{_name}, size{_size} {
         ifstream fontFile(path.c_str(), ios::binary);
         if (!fontFile) { die("Failed to open font file", path); }
-        fontBuffer = make_unique<vector<unsigned char>>((std::istreambuf_iterator<char>(fontFile)), istreambuf_iterator<char>());
+        fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator<char>(fontFile)), istreambuf_iterator<char>());
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
             die("Failed to initialize font", path);
         }
@@ -129,7 +131,9 @@ namespace z0 {
         for (int y=0; y < height; ++y) {
             for (int x=0; x < width; ++x) {
                 uint8_t gray = srcBitmap[y * width + x];
-                if (gray != 0) { dstBitmap[(y + yOffset) * cachedCharacter.width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray; };
+                if (gray != 0) {
+                    dstBitmap[(y + yOffset) * cachedCharacter.width + x] = (gray << 24) | (gray << 16) | (gray << 8) | gray;
+                };
             }
         }
         //savePPM("output.ppm", srcBitmap, width, height);

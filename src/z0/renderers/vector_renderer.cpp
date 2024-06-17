@@ -54,7 +54,9 @@ namespace z0 {
                                         float w, float h,
                                         const shared_ptr<Image>& texture) {
         const auto pos = (vec2{x, y} + translate) / VECTOR_SCALE;
-        const auto size = vec2{w, h} / VECTOR_SCALE;
+        const auto extend = device.getSwapChainExtent();
+        vec2 size = vec2{w, h};
+        size /= VECTOR_SCALE;
         /*
          * v1 ---- v3
          * |  \     |
@@ -76,7 +78,9 @@ namespace z0 {
 
         auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_RECT, 6, color, texture);
-        if (texture != nullptr) { addImage(texture); }
+        if (texture != nullptr) { 
+            addImage(texture); 
+        }
     }
 
     void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect) {

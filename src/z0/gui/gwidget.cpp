@@ -329,7 +329,8 @@ namespace z0 {
     void GWidget::resizeChildren() {
         if ((!style) || (freeze)) { return; }
         freeze = true;
-        style->resize(*this, rect, *resource);
+        Rect r = getRect();
+        style->resize(*this, r, *resource);
 
         Rect clientRect = rect;
         clientRect.x += hborder + padding;
@@ -353,7 +354,7 @@ namespace z0 {
         auto it = children.begin();
         while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {
             auto& child = *it;
-            Rect childRect = child->rect;
+            Rect childRect = child->getRect();
             if (childRect.width > clientRect.width)  {
                 childRect.width = clientRect.width;
             }
