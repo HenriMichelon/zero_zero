@@ -25,13 +25,13 @@ namespace z0 {
         needPhysics = true;
     }
 
-    void CollisionObject::updateTransform() {
-        Node::updateTransform();
+    void CollisionObject::_updateTransform() {
+        Node::_updateTransform();
         setPositionAndRotation();
     }
 
-    void CollisionObject::updateTransform(const mat4 &parentMatrix) {
-        Node::updateTransform(parentMatrix);
+    void CollisionObject::_updateTransform(const mat4 &parentMatrix) {
+        Node::_updateTransform(parentMatrix);
         setPositionAndRotation();
     }
 

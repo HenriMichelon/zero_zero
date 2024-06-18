@@ -56,13 +56,13 @@ namespace z0 {
         return projectionMatrix;
     }
 
-    void Camera::updateTransform(const mat4& parentMatrix) {
-        Node::updateTransform(parentMatrix);
+    void Camera::_updateTransform(const mat4& parentMatrix) {
+        Node::_updateTransform(parentMatrix);
         setViewDirection();
     }
 
-    void Camera::updateTransform() {
-        Node::updateTransform();
+    void Camera::_updateTransform() {
+        Node::_updateTransform();
         setViewDirection();
     }
 

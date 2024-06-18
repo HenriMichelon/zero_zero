@@ -51,59 +51,190 @@ namespace z0 {
          */
         virtual bool onInput(InputEvent& inputEvent) { return false; }
 
+        /**
+         * Returns the local space transformation matrix
+         */
         inline const mat4& getTransformLocal() const { return localTransform; }
-        virtual void setTransform(mat4 transform) { localTransform = transform; }
-        virtual void updateTransform(const mat4& parentMatrix);
-        virtual void updateTransform();
+
+        /**
+         * Returns the world space transformation matrix
+         */
         inline mat4 getTransformGlobal() const { return worldTransform; }
+
+        /**
+         * Transforms a local vector from this node's local space to world space.
+         */
         vec3 toGlobal(vec3 local) const;
 
-        // parent relative position
+        /*
+        * Set the local space position (relative to parent)
+        */
         virtual void setPosition(vec3 position);
+
+        /*
+        * Returns the local space position (relative to parent)
+        */
         inline vec3 getPosition() const { return localTransform[3]; };
+
+        /**
+         * Changes the node's position by the given offset vector in local space.
+         */
         void translate(vec3 localOffset);
 
-        // world relative position
+        /**
+         * Set the world space position
+         */
         virtual void setPositionGlobal(vec3 position);
+
+        /**
+         * Returns the world space position
+         */
         inline vec3 getPositionGlobal() const { return worldTransform[3]; }
 
-        // rotations around own center
+        /**
+         * Rotates the local transformation around the X axis by angle in radians.
+         */
         void rotateX(float angle);
+
+        /**
+         * Rotates the local transformation around the Y axis by angle in radians.
+         */
         void rotateY(float angle);
+
+        /**
+         * Rotates the local transformation around the Z axis by angle in radians.
+         */
         void rotateZ(float angle);
+
+        /**
+         * Set the local transformation
+         */
         void setRotation(quat quat);
+
+        /**
+         * Set the X axis rotation of the local transformation by angle in radians.
+         */
         void setRotationX(float angle);
+
+        /**
+         * Set the Y axis rotation of the local transformation by angle in radians.
+         */
         void setRotationY(float angle);
+
+        /**
+         * Set the Z axis rotation of the local transformation by angle in radians.
+         */
         void setRotationZ(float angle);
+
+        /**
+         * Returns the rotation of the local transformation
+         */
         vec3 getRotation() const;
+
+        /**
+         * Return the X axis rotation of the local transformation
+         */
         float getRotationX() const { return getRotation().x; }
+
+        /**
+         * Return the Y axis rotation of the local transformation
+         */
         float getRotationY() const { return getRotation().y; }
+
+        /**
+         * Return the Z axis rotation of the local transformation
+         */
         float getRotationZ() const { return getRotation().z; }
 
+        /**
+         * Scale part of the local transformation.
+         */
         virtual void setScale(vec3 scale);
+
+        /**
+         * Scale part of the local transformation with the same value on each axis
+         */        
         void setScale(float scale);
+
+        /**
+         * Returns the scale part of the local transformation.
+         */
         vec3 getScale() const;
 
+        /**
+         * Returns the node's processing behavior. To check if the node can process in its current mode, use isProcessed().
+         */
         inline ProcessMode getProcessMode() const { return processMode; }
+
+        /**
+         * Change the node's processing behavior.
+         */
         void setProcessMode(ProcessMode mode) { processMode = mode; }
+
+        /**
+         * Returns true if the node is processed and receive input callbacks
+         */
         bool isProcessed() const;
 
+        /**
+         * Return the node's parent in the scene tree
+         */
         inline Node* getParent() const { return parent; }
-        bool addChild(const shared_ptr<Node>& child);
-        bool removeChild(const shared_ptr<Node>& child);
-        void removeAllChildren();
-        bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
-        inline list<shared_ptr<Node>>& getChildren() { return children; }
-        shared_ptr<Node> getChild(const string& name) const;
-        shared_ptr<Node> getNode(const string& path) const;
-        void printTree(int tab = 0) const;
-        string toString() const override { return name; }
-        //bool isParent(const shared_ptr<Node>&) const;
 
+        /**
+         * Adds a child node. 
+         * Nodes can have any number of children, but a child can have only one parent.
+         * Child nodes are automatically deleted when the parent node is deleted, so an entire scene can be removed by deleting its topmost node.
+         */
+        bool addChild(const shared_ptr<Node>& child);
+
+        /**
+         * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
+         */
+        bool removeChild(const shared_ptr<Node>& child);
+
+        /**
+         * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.
+         */
+        void removeAllChildren();
+
+        /**
+         * Return true if the node have this child
+         */
+        bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
+
+        /*
+        * Returns the child node by is name. Not recursive
+        */
+        shared_ptr<Node> getChild(const string& name) const;
+
+        /*
+        * Returns the child node by is absolute path
+        */
+        shared_ptr<Node> getNode(const string& path) const;
+
+        /**
+         * Recursively print the node tree in the log system
+         */
+        void printTree(int tab = 0) const;
+
+        string toString() const override { return name; }
+
+        /**
+         * Return the unique ID of this node
+         */
         inline id_t getId() const { return id; }
+
         inline bool operator == (const Node& other) const { return id == other.id;}
+
+        /**
+         * Duplicate a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
+         */
         shared_ptr<Node> duplicate();
 
+        /**
+         * Find the first child by is type
+         */
         template <typename T>
         T* findFirstChild(bool recursive=true) const {
             for(auto& node : children) {
@@ -146,6 +277,10 @@ namespace z0 {
         void _setAddedToScene(bool added) { addedToScene = added; }
         bool _isAddedToScene() { return addedToScene; }
         mat4& _getTransformLocal() { return localTransform; }
+        void _setTransform(mat4 transform) { localTransform = transform; }
+        virtual void _updateTransform(const mat4& parentMatrix);
+        virtual void _updateTransform();
+        inline list<shared_ptr<Node>>& _getChildren() { return children; }
 
     };
 

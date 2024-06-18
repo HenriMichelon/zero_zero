@@ -17,8 +17,8 @@ namespace z0 {
         const mat4& getProjection();
         inline const mat4& getView() const { return viewMatrix; }
 
-        void updateTransform(const mat4& parentMatrix) override;
-        void updateTransform() override;
+        void _updateTransform(const mat4& parentMatrix) override;
+        void _updateTransform() override;
 
         vec2 unproject(vec3 worldCoords);
 

@@ -20,8 +20,8 @@ namespace z0 {
         virtual void onCollisionStarts(const Collision collision) {};
         virtual void setVelocity(vec3 velocity);
         virtual vec3 getVelocity() const;
-        void updateTransform() override;
-        void updateTransform(const mat4& parentMatrix) override;
+        void _updateTransform() override;
+        void _updateTransform(const mat4& parentMatrix) override;
         void applyForce(vec3 force);
         void applyForce(vec3 force, vec3 point);
 

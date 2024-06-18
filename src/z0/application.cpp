@@ -195,7 +195,7 @@ namespace z0 {
         assert(node != nullptr);
         addedNodes.push_back(node);
         node->_onEnterScene();
-        for(const auto& child: node->getChildren()) {
+        for(const auto& child: node->_getChildren()) {
             _addNode(child);
         }
         node->_setAddedToScene(true);
@@ -203,7 +203,7 @@ namespace z0 {
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->_isAddedToScene());
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             _removeNode(child);
         }
         removedNodes.push_back(node);
@@ -300,7 +300,7 @@ namespace z0 {
 
     void Application::ready(const shared_ptr<Node>& node) {
         assert(node != nullptr);
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             ready(child);
         }
         node->_onReady();
@@ -309,7 +309,7 @@ namespace z0 {
     bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
         assert(node != nullptr);
         if (!node->_isAddedToScene()) { return false; }
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             if (input(child, inputEvent)) return true;
         }
         if (node->isProcessed()) {
@@ -324,7 +324,7 @@ namespace z0 {
         if (node->isProcessed()) {
             node->onProcess(delta);
         }
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             process(child, delta);
         }
     }
@@ -335,7 +335,7 @@ namespace z0 {
             if (node->_needPhysics()) { node->_physicsUpdate(delta); }
             node->onPhysicsProcess(delta);
         }
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             physicsProcess(child, delta);
         }
     }
@@ -348,7 +348,7 @@ namespace z0 {
         if ((!paused && (node->isProcessed()))) {
             node->_onResume();
         }
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             pause(child);
         }
     }
@@ -360,7 +360,7 @@ namespace z0 {
 
     void Application::cleanup(shared_ptr<z0::Node> &node) {
         assert(node != nullptr);
-        for(auto& child: node->getChildren()) {
+        for(auto& child: node->_getChildren()) {
             cleanup(child);
         }
         node.reset();

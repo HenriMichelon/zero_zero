@@ -13,7 +13,7 @@ namespace z0 {
         id{currentId++}{
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};
-        updateTransform(mat4{1.0f});
+        _updateTransform(mat4{1.0f});
     }
 
     Node::Node(const Node& orig): id{currentId++} {
@@ -32,7 +32,7 @@ namespace z0 {
 
     void Node::setPosition(vec3 pos) {
         localTransform[3] = vec4(pos, 1.0f);
-        updateTransform(mat4{1.0f});
+        _updateTransform(mat4{1.0f});
     }
 
     void Node::setPositionGlobal(vec3 pos) {
@@ -41,37 +41,37 @@ namespace z0 {
             return;
         }
         localTransform[3] = inverse(parent->worldTransform) * vec4{pos, 1.0};
-        updateTransform();
+        _updateTransform();
     }
 
-    void Node::updateTransform(const mat4& parentMatrix) {
+    void Node::_updateTransform(const mat4& parentMatrix) {
         worldTransform = parentMatrix * localTransform;
         for (const auto& child : children) {
-            child->updateTransform(worldTransform);
+            child->_updateTransform(worldTransform);
         }
     }
 
-    void Node::updateTransform() {
+    void Node::_updateTransform() {
         auto parentMatrix = parent == nullptr ? mat4{1.0f} : parent->worldTransform;
         worldTransform = parentMatrix * localTransform;
         for (const auto& child : children) {
-            child->updateTransform(worldTransform);
+            child->_updateTransform(worldTransform);
         }
     }
 
     void Node::rotateX(float angle) {
         localTransform = rotate(localTransform, angle, AXIS_X);
-        updateTransform();
+        _updateTransform();
     }
 
     void Node::rotateY(float angle) {
         localTransform = rotate(localTransform, angle, AXIS_Y);
-        updateTransform();
+        _updateTransform();
     }
 
     void Node::rotateZ(float angle) {
         localTransform = rotate(localTransform, angle, AXIS_Z);
-        updateTransform();
+        _updateTransform();
     }
 
     void Node::setRotation(quat quater) {
@@ -86,7 +86,7 @@ namespace z0 {
         localTransform = glm::translate(mat4(1.0f), translation)
                          * rotationMatrix
                          * glm::scale(mat4(1.0f), scale);
-        updateTransform();
+        _updateTransform();
     }
 
     vec3 Node::getRotation() const {
@@ -111,7 +111,7 @@ namespace z0 {
 
     void Node::setScale(glm::vec3 scale) {
         localTransform = glm::scale(localTransform, scale);
-        updateTransform();
+        _updateTransform();
     }
 
     glm::vec3 Node::getScale() const {
@@ -166,7 +166,7 @@ namespace z0 {
         if (haveChild(child, false)) return false;
         children.push_back(child);
         child->parent = this;
-        child->updateTransform(worldTransform);
+        child->_updateTransform(worldTransform);
         if (inReady || (parent != nullptr)) { child->_onReady(); }
         if (addedToScene) { Application::get()._addNode(child); }
         return true;

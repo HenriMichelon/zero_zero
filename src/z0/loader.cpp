@@ -266,10 +266,10 @@ namespace z0 {
                                                mat4 rm = toMat4(rot);
                                                mat4 sm = scale(mat4(1.f), sc);
 
-                                               newNode->setTransform(tm * rm * sm);
+                                               newNode->_setTransform(tm * rm * sm);
                                            } },
                        node.transform);
-            newNode->updateTransform(mat4{1.0f});
+            newNode->_updateTransform(mat4{1.0f});
             nodes.push_back(newNode);
         }
 
