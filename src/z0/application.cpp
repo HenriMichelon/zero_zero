@@ -374,7 +374,9 @@ namespace z0 {
         Input::_initInput();
         start();
         while (!window->shouldClose()) {
+#ifndef DISABLE_LOG
             Window::_processDeferredLog();
+#endif
             Input::_updateInputStates();
 #ifdef _WIN32
             MSG _messages;

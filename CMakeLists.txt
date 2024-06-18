@@ -5,6 +5,7 @@ project(ZeroZero)
 
 #add_compile_definitions(NDEBUG)
 #add_compile_definitions(USE_PCH)
+#add_compile_definitions(DISABLE_LOG)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)

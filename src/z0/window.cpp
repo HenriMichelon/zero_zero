@@ -219,9 +219,22 @@ namespace z0 {
         width{0},
         height{0},
         background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
-        _mainThreadId = GetCurrentThreadId();
         auto hInstance = GetModuleHandle(nullptr);
-        createLogWindow(hInstance);
+#ifndef DISABLE_LOG
+        _mainThreadId = GetCurrentThreadId();
+        if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            createLogWindow(hInstance);
+        }
+        if (Application::get().getConfig().loggingMode & LOGGING_FILE) {
+            _logFile = make_unique<ofstream>("log.txt");
+            if(!_logFile->is_open()) {
+                die("Error opening log file");
+            }
+        }
+        if (Application::get().getConfig().loggingMode != LOGGING_NONE) {
+            log("Log starting");
+        }
+#endif
 
         const WNDCLASSEX wincl{
             .cbSize = sizeof(WNDCLASSEX),
@@ -335,8 +348,20 @@ namespace z0 {
 
     Window::~Window() {
         DeleteObject(background);
-        CloseWindow(_hwndLog);
+#ifndef DISABLE_LOG
+        if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            CloseWindow(_hwndLog);
+        }
+        if (Application::get().getConfig().loggingMode & LOGGING_FILE) {
+            _logFile->close();
+        }
+#endif
     }
+
+#endif
+
+#ifndef DISABLE_LOG
+#ifdef _WIN32
 
     BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
         static int monitorIndex = 0;
@@ -398,7 +423,6 @@ namespace z0 {
                     DEFAULT_PITCH | FF_SWISS,  // Pitch and family
                     TEXT("Consolas"));            // Typeface name
                 SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
-                log("Log starting");
                 return 0;
             }
             case WM_COMMAND: {
@@ -425,7 +449,6 @@ namespace z0 {
                 return 0;
             }
             case WM_DESTROY: {
-                Window::_logFile.close();
                 DeleteObject(hFont);
             }
         }
@@ -437,14 +460,9 @@ namespace z0 {
     const char szClassNameLog[ ] = "WindowsAppLog";
     list<string> Window::_deferredLogMessages;
     DWORD Window::_mainThreadId;
-    ofstream Window::_logFile{"log.txt"};
+    unique_ptr<ofstream> Window::_logFile{nullptr};
 
     void Window::createLogWindow(HMODULE hInstance) {
-        if(!_logFile.is_open()) {
-            die("Error opening log file");
-        }
-
-
         RECT secondMonitorRect = { 0 };
         EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&secondMonitorRect);
 
@@ -484,6 +502,8 @@ namespace z0 {
     }
 
     void Window::_log(string msg) {
+        auto logMode = Application::get().getConfig().loggingMode;
+        if (logMode == LOGGING_NONE) { return; }
         using namespace chrono;
         auto in_time_t = system_clock::to_time_t(system_clock::now());
         tm tm;
@@ -492,28 +512,33 @@ namespace z0 {
         string item = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
         item.append(" ");
         item.append(msg);
-        // Store the log message in the deferred log queue if we log from another thread
-        // because the log window proc run on the main thread
-        if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
-            SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
-            int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
-            SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
-        } else {
-            _deferredLogMessages.push_back(item);
+        if (logMode & LOGGING_WINDOW) {
+            // Store the log message in the deferred log queue if we log from another thread
+            // because the log window proc run on the main thread
+            if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
+                SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
+                int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+                SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+            } else {
+                _deferredLogMessages.push_back(item);
+            }
         }
-        _logFile << item << endl;
+        if (logMode & LOGGING_FILE) {
+            *_logFile << item << endl;
+        }
     }
 
     void Window::_processDeferredLog() {
-        for(const auto& msg: _deferredLogMessages) {
-            SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(msg.c_str()));
-            int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
-            SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+        if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            for(const auto& msg: _deferredLogMessages) {
+                SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(msg.c_str()));
+                int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+                SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
+            }
+            _deferredLogMessages.clear();
         }
-        _deferredLogMessages.clear();
     }
-
-
+#endif
 #endif
 
 

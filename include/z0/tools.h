@@ -29,6 +29,9 @@ namespace z0 {
      * Log a message into the logging system. 
      * Log messages can be deferred when displayed inside a separate window if emited from a thread different from the main thread.
      */
+#ifdef DISABLE_LOG
+    void log(convertible_to<string_view> auto&& ...s) {}
+#else
     void log(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (auto v : initializer_list<string_view>{ s... }) {
@@ -38,6 +41,7 @@ namespace z0 {
        Window::_log(stringstream.str());
 #endif
     }
+#endif
 
     //JPH::Mat44 glmToJolt(const mat4& glmMat);
 

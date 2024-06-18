@@ -184,7 +184,6 @@ namespace z0 {
         /**
          * Adds a child node. 
          * Nodes can have any number of children, but a child can have only one parent.
-         * Child nodes are automatically deleted when the parent node is deleted, so an entire scene can be removed by deleting its topmost node.
          */
         bool addChild(const shared_ptr<Node>& child);
 

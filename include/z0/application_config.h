@@ -21,6 +21,8 @@ namespace z0 {
         string           defaultFontName = "DefaultFont.ttf";
         //! Default font size (not in pixels)
         uint32_t         defaultFontSize = 16;
+        //! Where to log message using log()
+        LoggingMode      loggingMode     = LOGGING_WINDOW;
         //! Default MSAA parameter. Note that MSAA is mandatory
         MSAA             msaa            = MSAA_AUTO;
         //! Gamma correction value for the tone mapping renderer
