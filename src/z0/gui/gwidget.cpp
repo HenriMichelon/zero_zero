@@ -20,11 +20,11 @@ namespace z0 {
         return Application::get();
     }
 
-    void GWidget::draw(VectorRenderer &R) const {
+    void GWidget::_draw(VectorRenderer &R) const {
         if (!isVisible()) return;
         style->draw(*this, *resource, R, true);
         for(auto& child: children) {
-            child->draw(R);
+            child->_draw(R);
         }
         style->draw(*this, *resource, R, false);
     }
@@ -119,10 +119,10 @@ namespace z0 {
             focused = F;
             if (F) {
                 if (!freeze) { refresh(); }
-                call(GEvent::OnGotFocus);
+                emit(GEvent::OnGotFocus);
             }
             else {
-                call(GEvent::OnLostFocus);
+                emit(GEvent::OnLostFocus);
                 /*shared_ptr<GWidget>p = parent;
                 while (p && (!p->DrawBackground())) p = p->parent;
                 if (p) { p->Refresh(rect); }*/
@@ -142,7 +142,7 @@ namespace z0 {
         return (font == nullptr ? window->getDefaultFont() : font);
     }
 
-    void GWidget::init(GWidget&WND, AlignmentType ALIGN, const string&RES, float P) {
+    void GWidget::_init(GWidget&WND, AlignmentType ALIGN, const string&RES, float P) {
         WND.padding = P;
         WND.alignment = ALIGN;
         if (!WND.font) { WND.font = font; }
@@ -161,7 +161,7 @@ namespace z0 {
         auto it = std::find(children.begin(), children.end(), W);
         if (it != children.end()) {
             W->parent = nullptr;
-            for (auto& child: W->getChildren()) {
+            for (auto& child: W->_getChildren()) {
                 W->remove(child);
             }
             children.remove(W);
@@ -185,43 +185,25 @@ namespace z0 {
         assert(window && "GWidget must be added to a window before adding child");
         if (!allowChildren) return WND;
         children.push_back(WND);
-        init(*WND, ALIGN, RES, P);
+        _init(*WND, ALIGN, RES, P);
         return WND;
     }
 
-    void GWidget::connect(GEvent::Type TYP,
-                          GEventHandler* OBJ,
-                          const GEventFunction FUNC) {
-        //cassert(OBJ, "Invalid object for event slot connection");
-        //PRE(FUNC, "Invalid method for event slot connection");
-        slots[TYP].obj = OBJ;
-        slots[TYP].func = FUNC;
-    }
-
-    bool GWidget::call(GEvent::Type TYP,  shared_ptr<GEvent> EVT) {
-        const GEventSlot &slot = slots[TYP];
-        if (slot.func) {
-            (slot.obj->*slot.func)(this, EVT.get());
-            return true;
-        }
-        return false;
-    }
-
     void GWidget::eventCreate() {
-        call(GEvent::OnCreate);
+        emit(GEvent::OnCreate);
     }
 
     void GWidget::eventDestroy() {
         for (auto& child: children) {
             child->eventDestroy();
         }
-        call(GEvent::OnDestroy);
+        emit(GEvent::OnDestroy);
         children.clear();
     }
 
     void GWidget::eventShow() {
         if (visible) {
-            call(GEvent::OnShow);
+            emit(GEvent::OnShow);
             for (auto& child: children) {
                 child->eventShow();
             }
@@ -235,12 +217,12 @@ namespace z0 {
                 child->eventHide();
             }
             if (parent) { parent->refresh(); }
-            call(GEvent::OnHide);
+            emit(GEvent::OnHide);
         }
     }
 
     void GWidget::eventEnable() {
-        call(GEvent::OnEnable);
+        emit(GEvent::OnEnable);
         for (auto& child: children) {
             child->enable();
         }
@@ -251,7 +233,7 @@ namespace z0 {
         for (auto& child: children) {
             child->enable(false);
         }
-        call(GEvent::OnDisable);
+        emit(GEvent::OnDisable);
         refresh();
     }
 
@@ -263,8 +245,7 @@ namespace z0 {
         for (auto& w: children) {
             w->setPos(w->rect.x - diffX, w->rect.y - diffY);
         }
-        auto event = make_shared<GEventPos>(X, Y);
-        call(GEvent::OnMove, event);
+        emit(GEvent::OnMove);
         if (parent) { parent->refresh(); }
         refresh();
     }
@@ -277,8 +258,7 @@ namespace z0 {
         resizeChildren();
         freeze = true;
         if ((rect.width != 0.0f) && (rect.height != 0.0f)) {
-            auto event = make_shared<GEventSize>(rect.width, rect.height);
-            call(GEvent::OnResize, event);
+            emit(GEvent::OnResize);
         }
         refresh();
         freeze = false;
@@ -519,24 +499,24 @@ namespace z0 {
 
     bool GWidget::eventKeybDown(Key K) {
         if (!enabled) { return false; }
-        auto event = make_shared<GEventKeyb>(K);
-        call(GEvent::OnKeyDown, event); // XXX consumed
-        return false;
+        auto event = GEventKeyb{ .key = K};
+        emit(GEvent::OnKeyDown, &event);
+        return event.consumed;
     }
 
     bool GWidget::eventKeybUp(Key K) {
         if (!enabled) { return false; }
         if (focused) {
-            auto event = make_shared<GEventKeyb>(K);
-            call(GEvent::OnKeyUp, event); // XXX consumed
-            return false;
+            auto event = GEventKeyb{ .key = K};
+            emit(GEvent::OnKeyUp, &event);
+            return event.consumed;
         }
         return false;
     }
 
     bool GWidget::eventMouseDown(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
-        bool consumed = false;
+        auto consumed = false;
         pushed = true;
         if (redrawOnMouseEvent) resizeChildren();
         GWidget* wfocus = nullptr;
@@ -552,15 +532,15 @@ namespace z0 {
             wfocus->setFocus();
         }
         if (redrawOnMouseEvent) { refresh(); }
-        auto event = make_shared<GEventMouse>(B, X, Y);
-        call(GEvent::OnMouseDown, event);
-        consumed |= event->consumed;
+        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        emit(GEvent::OnMouseDown, &event);
+        consumed |= event.consumed;
         return consumed;
     }
 
     bool GWidget::eventMouseUp(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
-        bool consumed = false;
+        auto consumed = false;
         pushed = false;
         if (redrawOnMouseEvent) resizeChildren();
         for (auto& w : children) {
@@ -571,16 +551,16 @@ namespace z0 {
             }
         }
         if (redrawOnMouseEvent) { refresh(); }
-        auto event = make_shared<GEventMouse>(B, X, Y);
-        call(GEvent::OnMouseUp, event);
-        consumed |= event->consumed;
+        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        emit(GEvent::OnMouseUp, &event);
+        consumed |= event.consumed;
         return consumed;
     }
 
     bool GWidget::eventMouseMove(MouseButton B, float X, float Y) {
         if (!enabled) { return false; }
-        bool consumed = false;
-        bool p = rect.contains(X, Y);
+        auto consumed = false;
+        auto p = rect.contains(X, Y);
         for (auto& w : children) {
             p = w->getRect().contains(X, Y);
             if (w->redrawOnMouseMove && (w->pointed != p)) {
@@ -595,18 +575,18 @@ namespace z0 {
             if (consumed) { break; }
         }
         if (redrawOnMouseMove && (pointed != p)) { refresh(); }
-        auto event = make_shared<GEventMouse>(B, X, Y);
-        call(GEvent::OnMove, event);
-        consumed |= event->consumed;
+        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        emit(GEvent::OnMove, &event);
+        consumed |= event.consumed;
         return consumed;
     }
 
     void GWidget::eventGotFocus() {
-        call(GEvent::OnGotFocus);
+        emit(GEvent::OnGotFocus);
     }
 
     void GWidget::eventLostFocus() {
-        call(GEvent::OnLostFocus);
+        emit(GEvent::OnLostFocus);
     }
 
     void GWidget::setTransparency(float alpha) {

@@ -4,24 +4,35 @@ namespace z0 {
 
     class GWindow;
 
-    // Super class for all widgets
-    class GWidget: public GEventHandler {
+    /**
+     * Base class for all UI widgets
+     */
+    class GWidget: public Object {
     public:
+        //! Widget type
         enum Type {
-            WIDGET,				// transparent widget
-            PANEL,				// rectangular widget with only a background
-            BOX,				// rectangular widget with a border and a background
-            SCROLLBOX,			// A box with scrollbars
-            LINE,				// An horizontal or vertical line
-            FRAME,				// A box with a title
+            //! transparent widget
+            WIDGET,				
+            //! rectangular widget with only a background
+            PANEL,
+            //! rectangular widget with a border and a background
+            BOX,				
+            //! An horizontal or vertical line
+            LINE,				
+            //! A box with a title
+            FRAME,				
+            //! A push button
+            BUTTON,				
+            //! A two states button
+            TOGGLEBUTTON,		
+            // A box with scrollbars
+            //SCROLLBOX,			
             //ARROW,				// up, down, left or right directed arrows
-            BUTTON,				// rectangular button
-            TOGGLEBUTTON,		// two states rectangular button
             //CHECKMARK,			// Cross or check mark drawing
             //CHECKBUTTON,		// Button with a checkmark inside
             //RADIOBUTTON,		// two states radio box
-            TEXT,				// single line text
-            TEXTEDIT,			// single line text edition field
+            //TEXT,				// single line text
+            //TEXTEDIT,			// single line text edition field
             //MEMOEDIT,			// multi lines text edition field
             //UPDOWN,				// up & down (or left & right) buttons
             //SCROLLBAR,			// scroll bar. with min, max & pos
@@ -47,132 +58,139 @@ namespace z0 {
         };
 
 
-        // Widget placement (relative to the parent widget)
+        //! Widget placement (relative to the parent widget)
         enum AlignmentType {
             NONE,
+            //! The child widget is centered and resized to the parent content size
             FILL,
+            //! The child widget is centered (and take all the parent content size)
             CENTER,
+            //! The child widget is horizontaly centered
             HCENTER,
+            //! The child widget is verticaly centered
             VCENTER,
+            //! The children are stack on the top 
             TOP,
+            //! The children are stack on the bottom
             BOTTOM,
+            //! The children are stack on the left
             LEFT,
+            //! The children are stack on the right
             RIGHT,
+            //! The children are stack on the top and horizontaly centered
             TOPCENTER,
+            //! The children are stack on the bottom and horizontaly centered
             BOTTOMCENTER,
+            //! The children are stack on the left and vertically centered
             LEFTCENTER,
+            //! The children are stack on the right and vertically centered
             RIGHTCENTER,
+            //! The children are stack on the top and left aligned
             TOPLEFT,
+            //! The children are stack on the bottom and left aligned
             BOTTOMLEFT,
+            //! The children are stack on the bottom and right aligned
             BOTTOMRIGHT,
+            //! The children are stack on the top and right aligned
             TOPRIGHT,
+            //! The children are stack on the left then on the top
             LEFTTOP,
+            //! The children are stack on the left then on the bottom
             LEFTBOTTOM,
+            //! The children are stack on the right then on the bottom
             RIGHTBOTTOM,
+            //! The children are stack on the right then on the top
             RIGHTTOP,
+            //!
             CORNERTOPLEFT,
+            //!
             CORNERTOPRIGHT,
+            //!
             CORNERBOTTOMLEFT,
+            //!
             CORNERBOTTOMRIGHT
         };
 
-        //! Create a widget of a particular type
+        //! Creates a widget of a particular type
         explicit GWidget(Type = WIDGET);
 
         virtual ~GWidget() = default;
 
-        //! Return the type of the widget
+        //! Returns the type of the widget
         Type getType() const;
 
-        //! Return true if the widget is visible
+        //! Returns true if the widget is visible
         bool isVisible() const;
 
-        //! Show or hide the widget
+        //! Shows or hides the widget
         void show(bool = true);
 
-        //! Return true is the widget is reactive to user action (mouse & keyboard)
+        //! Returns true is the widget is reactive to user action (mouse & keyboard)
         bool isEnabled() const;
 
-        //! Enable or disable widget reaction
+        //! Enables or disable widget reaction
         void enable(bool = true);
 
-        /* Move the widget to a particular position.
-             float	: Left position in pixels
-             float	: top position in pixels
-         */
-        void setPos(float, float);
+        //! Moves the widget to a particular position.
+        void setPos(float x, float y);
 
-        //! Return the width of the widget, in pixels
+        //! Returns the width of the widget, in pixels
         float getWidth() const { return rect.width; };
 
-        //! Return the height of the widget, in pixels
+        //! Returns the height of the widget, in pixels
         float getHeight() const { return rect.height; };
 
-        /* Resize the widget
-             float	: width in pixels
-             float	: height in pixels
-        */
-        virtual void setSize(float, float);
+        //! Resizes the widget
+        virtual void setSize(float width, float height);
 
-        /* Return size size & position of the widget */
+        //! Returns size size & position of the widget */
         const Rect& getRect() const;
 
-        /* Change the size & position of the widget
-          	float	: left position in pixels
-          	float	: bottom position in pixels
-          	float	: width in pixels
-          	float	: height in pixels
-        */
-        void setRect(float, float, float, float);
+        //! Changes the size & position of the widget
+        void setRect(float x, float y, float width, float height);
 
-        /* Change the size & position of the widget
-          	GRect	: size & position, all in pixels
+        /*! Changes the size & position of the widget
          */
         void setRect(const Rect&);
 
-        //! Return the current widget placement
+        //! Returns the current widget placement
         AlignmentType getAlignment() const;
 
-        /* Set the widget placement. Calling this method involve 
+        /** Sets the widget placement. Calling this method involve 
             redrawing the parent widget & resizing all the children widgets */
         void setAlignment(AlignmentType);
 
-        /* Return the current font of the widget */
+        /*! Returns the current font of the widget */
         shared_ptr<Font>& getFont();
 
-        //! Set the current font of the widget
+        //! Sets the current font of the widget
         void setFont(const shared_ptr<Font>&);
 
-        //! Return true if the widget have keyboard focus
+        //! Returns true if the widget have keyboard focus
         bool isFocused() const;
 
-        //! Return the parent widget, or nullptr */
+        //! Returns the parent widget, or nullptr */
         shared_ptr<GWidget> getParent() const;
 
-        /* Return the list of direct children widgets.
-            Do NOT use this list to add or remove children widget,
-            use Add(), Drop() & DropAll() instead */
-        virtual list<shared_ptr<GWidget>>& getChildren() { return children; };
-
-        /* Add a child widget.
+        /*! Adds a child widget.
               Childs widget will be destroyed on parent destruction.
-            	GWidget	: child widget to add
-            	AlignementType	: placement
-            	string	: resource string
-            	float	: default padding
+            	@param GWidget	: child widget to add
+            	@param AlignementType	: placement
+            	@Param string	: resource string
+            	@Param float	: default padding
         */
         virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", float = 0);
 
-        /* Remove a child widget */
+        /** Removes a child widget */
         virtual void remove(shared_ptr<GWidget>&);
 
-        /* Remove all children widgets recusivly */
+        /** Removes all children widgets recusivly */
         virtual void removeAll();
 
-        /* Change children padding (space between children) */
+        /** Changes children padding (space between children) */
         void setPadding(float);
 
-        /* Return current children padding (space between children) */
+        /** Returns current children padding (space between children) */
         float getPadding() const;
 
         float getVBorder() const;
@@ -180,55 +198,41 @@ namespace z0 {
         void setVBorder(float);
         void setHBorder(float);
 
+        //! Returns false if the background is transparent
         bool isDrawBackground() const;
-        void setDrawBackground(bool);
+        //! Sets to true to disable de background drawing
+        void setDrawBackground(bool isTransparent);
 
         bool isPushed() const;
         bool isPointed() const;
         bool isFreezed() const;
         bool isRedrawOnMouseEvent() const;
         Rect getChildrenRect() const;
-
         void setFreezed(bool f) { freeze = f; }
         void setPushed(bool p) { pushed = p; }
 
-        /* Force a refresh of the entire widget */
+        /** Force a refresh of the entire widget */
         void refresh();
 
-        /* Connect an object method to a event.
-          	EventType	: event type
-          	_PTR		: object address
-          	GEventFunction	: method offset 
-        */
-        void connect(GEvent::Type, GEventHandler*, GEventFunction);
-
-        /* Call the object method connected to an event, if any.
-          	EventType	: event to simulate
-          	GEvent		: event parameter.
-        */
-        bool call(GEvent::Type, shared_ptr<GEvent> = nullptr);
-
-        /* Change widget resources. Use with caution ! */
+        /** Changes widget resources. Use with caution ! */
         void setResource(shared_ptr<GResource>);
 
-        /* Return the user defined group index */
+        /** Return the user defined group index */
         uint32_t getGroupIndex() const;
 
-        /* Set the user defined group index */
+        /** Set the user defined group index */
         void setGroupIndex(int32_t);
 
-        /* Return user data */
+        /** Returns the user data */
         void* getData() const;
 
-        /* set user data */
+        /** set user data */
         void setData(void*);
 
-        friend class GWindow;
+        //! Return the transparency alpha value
+        inline const float getTransparency() const { return transparency; }
 
-        /* recursively draw the widget and his children */
-        void draw(VectorRenderer&) const;
-
-        const float getTransparency() const { return transparency; }
+        //! Changes the transpency alpha value
         void setTransparency(float alpha);
 
     protected:
@@ -276,11 +280,6 @@ namespace z0 {
         virtual void eventLostFocus();
 
     private:
-        struct GEventSlot {
-            GEventHandler* obj{nullptr};
-            GEventFunction func{nullptr};
-        };
-
         bool		     pushed{false};
         bool		     pointed{false};
         bool		     freeze{true};
@@ -290,12 +289,15 @@ namespace z0 {
         void*		     userData{nullptr};
         int32_t		     groupIndex{0};
         Rect		     childrenRect;
-        GEventSlot	     slots[GEvent::nbEvents];
+
+        friend class GWindow;
 
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void init(GWidget&, AlignmentType, const string&, float);
-    };
+        void _init(GWidget&, AlignmentType, const string&, float);
+        void _draw(VectorRenderer&) const;
+        virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
+   };
 
 }

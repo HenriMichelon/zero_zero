@@ -26,13 +26,13 @@ namespace z0 {
         return GWidget::eventMouseDown(B, X, Y);
     }
 
-    void GCheckWidget::setState(CheckState S) {
+    void GCheckWidget::setState(State S) {
         if (state == S) { return; }
         state = S;
         resizeChildren();
         refresh();
-        auto stat = make_shared<GEventState>(S);
-        call(GEvent::OnStateChange, stat);
+        auto stat = GEventState{ .state = S};
+        emit(GEvent::OnStateChange, &stat);
     }
 
 /*//----------------------------------------------

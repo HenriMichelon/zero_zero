@@ -23,7 +23,9 @@ namespace z0 {
     bool GToggleButton::eventMouseDown(MouseButton B, float X, float Y) {
         bool r = GCheckWidget::eventMouseDown(B, X, Y);
         if (getRect().contains(X, Y)) {
-            if (call(GEvent::OnClick)) { return true; }
+            auto event = GEventClick{};
+            emit(GEvent::OnClick, &event);
+            return event.consumed;
         }
         return r;
     }

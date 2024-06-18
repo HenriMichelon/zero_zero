@@ -1,123 +1,123 @@
 #pragma once
 
-#include "z0/object.h"
-
 namespace z0 {
 
-    // List of widgets events
+    /**
+     * List of widgets events signals
+     */
     class GEvent {
     public:
-        enum Type {
-            OnCreate,		// called after widget creation (all widgets)
-            OnDestroy,		// called before widget destruction (all widgets)
-            OnKeyDown,		// called when the user press a key & the widget have the keyboard focus (all widgets)
-            OnKeyUp, 		// called when the user press a key & the widget have the keyboard focus (all widgets)
-            OnMouseDown,	// the mouse button have been pressed above the widget or a child (all widgets)
-            OnMouseUp,		// the mouse button have been pressed above the widget or a child (all widgets)
-            OnMouseMove,	// the mouse have been moved above the widget (all widgets)
-            OnResize,		// the widget size have changed (all widgets)
-            OnMove,			// the widget position have changed (all widgets)
-            OnGotFocus,		// widget acquire keyboard focus (all widgets)
-            OnLostFocus,	// widget lost keyboard focus (all widgets)
-            OnShow,			// called after visibility change (all widgets)
-            OnHide,			// called before visibility change (all widgets)
-            OnEnable,
-            OnDisable,
-            OnTextChange,	// text content of the widget have changed
-            OnClick,		// the user click above the widget
-            OnStateChange,	// a CheckWidget state changed
-            OnPictureChange,// pixmap of a GPicture changed
-            OnInsertItem,	// item list of a GList widget have changed
-            OnRemoveItem,	// item list of a GList widget have changed
-            OnSelectItem,	// user selected an item list of a GList widget
-            OnValueChange,	// value of a GValueSelect widget changed
-            OnValueUserChange,	// value of a GValueSelect widget changed by the user
-            OnRangeChange,	// range of a GValueSelect widget changed
-            nbEvents
-        } ;
+        //! called after widget creation (all widgets)
+        static const string OnCreate;		
+        //! called before widget destruction (all widgets)
+        static const string OnDestroy;		
+        //! called when the user press a key & the widget have the keyboard focus (all widgets)
+        static const string OnKeyDown;		
+        //! called when the user press a key & the widget have the keyboard focus (all widgets)
+        static const string OnKeyUp; 		
+        //! the mouse button have been pressed above the widget or a child (all widgets)
+        static const string OnMouseDown;	
+        //! the mouse button have been pressed above the widget or a child (all widgets)
+        static const string OnMouseUp;		
+        //! the mouse have been moved above the widget (all widgets)
+        static const string OnMouseMove;
+        //! the widget size have changed (all widgets)
+        static const string OnResize;		
+        //! the widget position have changed (all widgets)
+        static const string OnMove;			
+        //! widget acquire keyboard focus (all widgets)
+        static const string OnGotFocus;		
+        //! widget lost keyboard focus (all widgets)
+        static const string OnLostFocus;	
+        //! called after visibility change (all widgets)
+        static const string OnShow;			
+        //! called before visibility change (all widgets)
+        static const string OnHide;			
+        //! called after state change (all widgets)
+        static const string OnEnable;
+        //! called after state change (all widgets)
+        static const string OnDisable;
+        //! text content of the widget have changed
+        static const string OnTextChange;	
+        //! called when the user click on the widget (buttons)
+        static const string OnClick;		
+        //! a CheckWidget state changed
+        static const string OnStateChange;	
+        //! item list of a GList widget have changed        
+        //static const string OnInsertItem;	
+        //! item list of a GList widget have changed
+        //static const string OnRemoveItem;	
+        //! user selected an item list of a GList widget
+        //static const string OnSelectItem;	
+        //! value of a GValueSelect widget changed
+        //static const string OnValueChange;	
+        //! value of a GValueSelect widget changed by the user
+        //static const string OnValueUserChange;	
+        //! range of a GValueSelect widget changed
+        //static const string OnRangeChange;	
     };
-
-    class GEventKeyb: public GEvent {
-    public:
-        Key	key;
-
-        explicit GEventKeyb(Key K): key(K) { };
-    };
-
-    class GEventMouse: public GEvent {
-    public:
-        MouseButton	button;
-        uint32_t	x;
-        uint32_t	y;
-        bool        consumed{false};
-
-        GEventMouse(MouseButton B, uint32_t X, uint32_t Y): button(B), x(X), y(Y) {};
-        GEventMouse() = default;
-    };
-
-    class GEventSize: public GEvent {
-    public:
-        uint32_t	width;
-        uint32_t	height;
-
-        GEventSize(uint32_t W, uint32_t H): width(W), height(H) {};
-    };
-
-    class GEventPos: public GEvent {
-    public:
-        int32_t	top;
-        int32_t	left;
-
-        GEventPos(int32_t T, int32_t L): top(T), left(L) {};
-    };
-
-    class GEventValue: public GEvent {
-    public:
-        int32_t	value;
-        int32_t	previous;
-
-        explicit GEventValue(int32_t V = 0, int32_t P = 0): value(V), previous(P)  {};
-    };
-
-    class GEventRange: public GEvent {
-    public:
-        int32_t	min;
-        int32_t	max;
-        int32_t	value;
-
-        explicit GEventRange(int32_t I = 0, int32_t A = 0, int32_t V = 0):
-                value(V) { min = I; max = A; };
-    };
-
-    class GEventState: public GEvent {
-    public:
-        int32_t	state;
-        explicit GEventState(int32_t S = 0): state(S) {};
-    };
-
-    class GEventText: public GEvent {
-    public:
-        const string	text;
-        explicit GEventText(string  T = ""): text(std::move(T)) {};
-        virtual ~GEventText() = default;
-    };
-
-    /*class GEventPicture: public GEvent {
-        IPixmap	*pixmap;
-    };*/
 
     class GWidget;
 
-    class GEventItem: public GEvent {
-    public:
-        int32_t	index;
-        shared_ptr<GWidget> item;
-
-        GEventItem(int32_t I, shared_ptr<GWidget> S): index(I), item(std::move(S)) {};
-        virtual ~GEventItem() = default;
+    /**
+     * Parameter for GEvent::OnClick
+     */
+    struct GEventClick: public Signal::Parameters {
+        //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
+        bool        consumed{false};
     };
 
-    class GEventHandler {};
-    typedef void (GEventHandler::*GEventFunction)(GWidget*, GEvent*);
+    /**
+     * Parameters for GEvent::OnKeyDown and GEvent::OnKeyUp
+     */
+    struct GEventKeyb: public Signal::Parameters {
+        //! Key code
+        Key	        key;
+        //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
+        bool        consumed{false};
+    };
+
+    /**
+     * Parameters for GEvent::OnMouseDown and GEvent::OnMouseUp
+     */
+    struct GEventMouse: public Signal::Parameters {
+        //! Mouse button
+        MouseButton	button;
+        //! X coord
+        float   	x;
+        //! Y coord
+        float   	y;
+        //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
+        bool        consumed{false};
+    };
+
+    /**
+     * Parameters for GEvent::OnStateChange
+     */
+    struct GEventState: public Signal::Parameters {
+        //! GCheckWidget::State
+        int32_t	    state;
+    };
+
+
+    /*struct GEventValue: public Signal::Parameters {
+        int32_t	    value;
+        int32_t	    previous;
+    };
+
+    struct GEventRange: public Signal::Parameters {
+        int32_t	    min;
+        int32_t	    max;
+        int32_t	    value;
+    };
+
+    struct GEventText: public Signal::Parameters {
+        const string	text;
+    };
+
+    struct GEventItem: public Signal::Parameters {
+        int32_t	            index;
+        shared_ptr<GWidget> item;
+    };*/
 
 }

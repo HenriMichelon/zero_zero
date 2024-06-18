@@ -27,11 +27,11 @@ namespace z0 {
         if (!isVisible()) return;
         windowManager->getRenderer().setTranslate({rect.x, rect.y});
         windowManager->getRenderer().setTransparency(1.0f - transparency);
-        widget->draw(windowManager->getRenderer());
+        widget->_draw(windowManager->getRenderer());
     }
 
     void GWindow::unFreeze(shared_ptr<GWidget>&W){
-        for (auto& child: W->getChildren()) {
+        for (auto& child: W->_getChildren()) {
             unFreeze(child);
         }
         W->setFreezed(false);

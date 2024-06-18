@@ -29,9 +29,11 @@ namespace z0 {
         }
         bool consumed = GBox::eventMouseUp(B, X, Y);
         if ((!consumed) && p) {
-            if (call(GEvent::OnClick)) { return true; }
+            auto event = GEventClick{ };
+            emit(GEvent::OnClick, &event);
+            return event.consumed;
         }
-        return true;
+        return consumed;
     }
 
 }

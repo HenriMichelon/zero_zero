@@ -29,7 +29,7 @@ namespace z0 {
         if (parent) { parent->refresh(); }
         computeSize();
         if (!parent) { refresh(); }
-        call(GEvent::OnTextChange);
+        emit(GEvent::OnTextChange);
     }
 
     void GText::eventCreate() {

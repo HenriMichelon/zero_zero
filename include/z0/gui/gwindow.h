@@ -7,7 +7,7 @@ namespace z0 {
     /**
      * A UI window displayed inside the rendering window
      */
-    class GWindow: public GEventHandler {
+    class GWindow: public Object {
     public:
         /**
          * Creates a window with a given position & size
