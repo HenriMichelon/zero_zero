@@ -13,7 +13,7 @@ namespace z0 {
         uint32_t getWidth() const { return width; }
 
         /**
-         * GeReturnst the height of the client area of the window, in pixels
+         * Returns the height of the client area of the window, in pixels
          */
         uint32_t getHeight() const { return height; }
 

@@ -24,7 +24,7 @@ namespace z0 {
         void disconnect(const string& name, Object* object, Signal::Handler handler);
 
         /**
-         * Emits a signal by name by calling all the connected functions in the connect order
+         * Emits a signal by name by calling all the connected function in the connect order
          * @param name signal name
          * @param params parameters to pass to the function connected to the signal
          */
