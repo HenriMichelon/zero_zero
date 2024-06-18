@@ -24,14 +24,15 @@ namespace z0 {
             //! A push button
             BUTTON,				
             //! A two states button
-            TOGGLEBUTTON,		
+            TOGGLEBUTTON,	
+            //! A single line of text	
+            TEXT,				
             // A box with scrollbars
             //SCROLLBOX,			
             //ARROW,				// up, down, left or right directed arrows
             //CHECKMARK,			// Cross or check mark drawing
             //CHECKBUTTON,		// Button with a checkmark inside
             //RADIOBUTTON,		// two states radio box
-            //TEXT,				// single line text
             //TEXTEDIT,			// single line text edition field
             //MEMOEDIT,			// multi lines text edition field
             //UPDOWN,				// up & down (or left & right) buttons
@@ -111,68 +112,67 @@ namespace z0 {
             CORNERBOTTOMRIGHT
         };
 
-        //! Creates a widget of a particular type
+        /** Creates a widget of a particular type */
         explicit GWidget(Type = WIDGET);
 
         virtual ~GWidget() = default;
 
-        //! Returns the type of the widget
+        /** Returns the type of the widget */
         Type getType() const;
 
-        //! Returns true if the widget is visible
+        /** Returns true if the widget is visible */
         bool isVisible() const;
 
-        //! Shows or hides the widget
+        /** Shows or hides the widget */
         void show(bool = true);
 
-        //! Returns true is the widget is reactive to user action (mouse & keyboard)
+        /** Returns true is the widget is reactive to user action (mouse & keyboard) */
         bool isEnabled() const;
 
-        //! Enables or disable widget reaction
+        /** Enables or disable widget reaction */
         void enable(bool = true);
 
-        //! Moves the widget to a particular position.
+        /** Moves the widget to a particular position. */
         void setPos(float x, float y);
 
-        //! Returns the width of the widget, in pixels
+        /** Returns the width of the widget, in pixels */
         float getWidth() const { return rect.width; };
 
-        //! Returns the height of the widget, in pixels
+        /** Returns the height of the widget, in pixels */
         float getHeight() const { return rect.height; };
 
-        //! Resizes the widget
+        /** Resizes the widget */
         virtual void setSize(float width, float height);
 
-        //! Returns size size & position of the widget */
+        /** Returns size size & position of the widget */
         const Rect& getRect() const;
 
-        //! Changes the size & position of the widget
+        /** Changes the size & position of the widget */
         void setRect(float x, float y, float width, float height);
 
-        /*! Changes the size & position of the widget
-         */
+        /** Changes the size & position of the widget */
         void setRect(const Rect&);
 
-        //! Returns the current widget placement
+        /** Returns the current widget placement */
         AlignmentType getAlignment() const;
 
         /** Sets the widget placement. Calling this method involve 
             redrawing the parent widget & resizing all the children widgets */
         void setAlignment(AlignmentType);
 
-        /*! Returns the current font of the widget */
+        /** Returns the current font of the widget */
         shared_ptr<Font>& getFont();
 
-        //! Sets the current font of the widget
+        /** Sets the current font of the widget */
         void setFont(const shared_ptr<Font>&);
 
-        //! Returns true if the widget have keyboard focus
+        /** Returns true if the widget have keyboard focus */
         bool isFocused() const;
 
-        //! Returns the parent widget, or nullptr */
+        /** Returns the parent widget, or nullptr */
         shared_ptr<GWidget> getParent() const;
 
-        /*! Adds a child widget.
+        /** Adds a child widget.
               Childs widget will be destroyed on parent destruction.
             	@param GWidget	: child widget to add
             	@param AlignementType	: placement
@@ -198,9 +198,10 @@ namespace z0 {
         void setVBorder(float);
         void setHBorder(float);
 
-        //! Returns false if the background is transparent
+        /** Returns false if the background is transparent */
         bool isDrawBackground() const;
-        //! Sets to true to disable de background drawing
+
+        /** Sets to true to disable de background drawing */
         void setDrawBackground(bool isTransparent);
 
         bool isPushed() const;
@@ -229,10 +230,10 @@ namespace z0 {
         /** set user data */
         void setData(void*);
 
-        //! Return the transparency alpha value
+        /** Return the transparency alpha value */
         inline const float getTransparency() const { return transparency; }
 
-        //! Changes the transpency alpha value
+        /** Changes the transpency alpha value */
         void setTransparency(float alpha);
 
     protected:

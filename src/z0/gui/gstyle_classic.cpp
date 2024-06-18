@@ -154,7 +154,7 @@ namespace z0 {
                     drawPanel((GPanel&)W, res, D);
                     break;
                 case GWidget::BOX:
-                case GWidget::SCROLLBOX:
+                //case GWidget::SCROLLBOX:
                     drawBox(W, res, D);
                     break;
                 case GWidget::LINE:
