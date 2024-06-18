@@ -5,8 +5,6 @@
 
 namespace z0 {
 
-    map<string, Signal> Object::signals;
-
     void Object::connect(const string& name, Object* object, Signal::Handler handler) {
         signals[name].connect(object, handler);
     }

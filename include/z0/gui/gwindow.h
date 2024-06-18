@@ -10,15 +10,15 @@ namespace z0 {
     class GWindow: public GEventHandler {
     public:
         /**
-         * Create a window with a given position & size
+         * Creates a window with a given position & size
          */
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;
 
-        /** Return the current style layout or nullptr */
+        /** Returns the current style layout or nullptr */
         shared_ptr<GStyle> getStyle() const;
 
-        /** Set the current style layout. If nullptr, install a default layout */
+        /** Sets the current style layout. If nullptr, install a default layout */
         void setStyle(shared_ptr<GStyle>);
 
         /** Returns the main widget .
@@ -26,53 +26,53 @@ namespace z0 {
             of all the widgets in the window. */
         GWidget& getWidget();
 
-        /** Set the main widget with optional resource string.
+        /** Sets the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
         GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", float = 0);
 
-        /** Change the focus */
+        /** Changes the focus */
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
-        /** Return the width of the client area */
+        /** Returns the width of the client area */
         float getWidth() const { return rect.width; };
 
         /** Returns the height of the client area */
         float getHeight() const { return rect.height; };
 
-        /** Set the width of the client area */
+        /** Sets the width of the client area */
         void setWidth(float w);
 
-        /** Set the height of the client area */
+        /** Sets the height of the client area */
         void setHeight(float h);
 
-        /** Set the position of the window, bottom-left */
+        /** Sets the position of the window, bottom-left */
         void setPos(float x, float y);
 
-        /** Set the position of the window, bottom-left */
+        /** Sets the position of the window, bottom-left */
         void setPos(vec2 pos);
 
-        /** Set the X position of the window, bottom-left */
+        /** Sets the X position of the window, bottom-left */
         void setX(float);
 
-        /** Set the Y position of the window, bottom-left */
+        /** Sets the Y position of the window, bottom-left */
         void setY(float);
 
         /** Returns the size & position of the widget */
         const Rect& getRect() const { return rect; };
 
-        /** Return true if window is currently visible */
+        /** Returns true if window is currently visible */
         inline bool isVisible() const { return visible; }
 
-        /** Set the window visibility. The change will be effective at the start of the next frame */
+        /** Sets the window visibility. The change will be effective at the start of the next frame */
         void setVisible(bool);
 
-        /** Hide the window. The change will be effective at the start of the next frame : it needs to be called before adding the window to the manager if you want the window to be hidden at startup */
+        /** Hides the window. The change will be effective at the start of the next frame : it needs to be called before adding the window to the manager if you want the window to be hidden at startup */
         void hide();
 
-        /** Show the window. The change will be effective at the start of the next frame */
+        /** Shows the window. The change will be effective at the start of the next frame */
         void show();
 
-        /** Set the alpha value for transparency */
+        /** Sets the alpha value for transparency */
         void setTransparency(float);
 
         /** Event called after window creation (by the window manager) */

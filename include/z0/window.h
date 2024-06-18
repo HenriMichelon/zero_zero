@@ -8,17 +8,17 @@ namespace z0 {
     class Window: public Object {
     public:
         /**
-         * Get the width of the client area of the window, in pixels
+         * Returns the width of the client area of the window, in pixels
          */
         uint32_t getWidth() const { return width; }
 
         /**
-         * Get the height of the client area of the window, in pixels
+         * GeReturnst the height of the client area of the window, in pixels
          */
         uint32_t getHeight() const { return height; }
 
         /**
-         * Close the window, effectively quitting the application, at the end of the current frame
+         * Closes the window, effectively quitting the application, at the end of the current frame
          */
         void close() { closing = true; }
 

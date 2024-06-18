@@ -12,11 +12,11 @@ namespace z0 {
         using id_t = unsigned int;
 
         /**
-         * Create a node by copying the transforms, process mode, parent and name
+         * Creates a node by copying the transforms, process mode, parent and name
          */
         Node(const Node&);
         /**
-         * Create a new node at (0.0, 0.0, 0.0) without parent
+         * Creates a new node at (0.0, 0.0, 0.0) without parent
          */
         explicit Node(string name = "Node");
         virtual ~Node() = default;
@@ -67,7 +67,7 @@ namespace z0 {
         vec3 toGlobal(vec3 local) const;
 
         /*
-        * Set the local space position (relative to parent)
+        * Sets the local space position (relative to parent)
         */
         virtual void setPosition(vec3 position);
 
@@ -82,7 +82,7 @@ namespace z0 {
         void translate(vec3 localOffset);
 
         /**
-         * Set the world space position
+         * Sets the world space position
          */
         virtual void setPositionGlobal(vec3 position);
 
@@ -107,22 +107,22 @@ namespace z0 {
         void rotateZ(float angle);
 
         /**
-         * Set the local transformation
+         * Sets the local transformation
          */
         void setRotation(quat quat);
 
         /**
-         * Set the X axis rotation of the local transformation by angle in radians.
+         * Sets the X axis rotation of the local transformation by angle in radians.
          */
         void setRotationX(float angle);
 
         /**
-         * Set the Y axis rotation of the local transformation by angle in radians.
+         * Sets the Y axis rotation of the local transformation by angle in radians.
          */
         void setRotationY(float angle);
 
         /**
-         * Set the Z axis rotation of the local transformation by angle in radians.
+         * Sets the Z axis rotation of the local transformation by angle in radians.
          */
         void setRotationZ(float angle);
 
@@ -132,27 +132,27 @@ namespace z0 {
         vec3 getRotation() const;
 
         /**
-         * Return the X axis rotation of the local transformation
+         * Returns the X axis rotation of the local transformation
          */
         float getRotationX() const { return getRotation().x; }
 
         /**
-         * Return the Y axis rotation of the local transformation
+         * Returns the Y axis rotation of the local transformation
          */
         float getRotationY() const { return getRotation().y; }
 
         /**
-         * Return the Z axis rotation of the local transformation
+         * Returns the Z axis rotation of the local transformation
          */
         float getRotationZ() const { return getRotation().z; }
 
         /**
-         * Scale part of the local transformation.
+         * Scales part of the local transformation.
          */
         virtual void setScale(vec3 scale);
 
         /**
-         * Scale part of the local transformation with the same value on each axis
+         * Scales part of the local transformation with the same value on each axis
          */        
         void setScale(float scale);
 
@@ -167,7 +167,7 @@ namespace z0 {
         inline ProcessMode getProcessMode() const { return processMode; }
 
         /**
-         * Change the node's processing behavior.
+         * Changes the node's processing behavior.
          */
         void setProcessMode(ProcessMode mode) { processMode = mode; }
 
@@ -177,7 +177,7 @@ namespace z0 {
         bool isProcessed() const;
 
         /**
-         * Return the node's parent in the scene tree
+         * Returns the node's parent in the scene tree
          */
         inline Node* getParent() const { return parent; }
 
@@ -198,7 +198,7 @@ namespace z0 {
         void removeAllChildren();
 
         /**
-         * Return true if the node have this child
+         * Returns true if the node have this child
          */
         bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
 
@@ -213,26 +213,26 @@ namespace z0 {
         shared_ptr<Node> getNode(const string& path) const;
 
         /**
-         * Recursively print the node tree in the log system
+         * Recursively prints the node tree in the log system
          */
         void printTree(int tab = 0) const;
 
         string toString() const override { return name; }
 
         /**
-         * Return the unique ID of this node
+         * Returns the unique ID of this node
          */
         inline id_t getId() const { return id; }
 
         inline bool operator == (const Node& other) const { return id == other.id;}
 
         /**
-         * Duplicate a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
+         * Duplicates a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
          */
         shared_ptr<Node> duplicate();
 
         /**
-         * Find the first child by is type
+         * Finds the first child by is type
          */
         template <typename T>
         T* findFirstChild(bool recursive=true) const {

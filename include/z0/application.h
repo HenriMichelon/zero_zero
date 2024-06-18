@@ -16,48 +16,48 @@ namespace z0 {
     class Application final: public Object {
     public:
         /**
-         * Get the application singleton
+         * Returns the application singleton
          * @return the global application object
          */
         static Application& get();
 
         /**
-         * Add a GUI window to the window manager for display
+         * Adds a GUI window to the window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
         void addWindow(const shared_ptr<GWindow>&window);
 
         /**
-         * Remove the window from the window manager
+         * Removes the window from the window manager
          * @param window    The window to remove, must be added to the window manager before
          */
         void removeWindow(const shared_ptr<GWindow>&window);
 
         /**
-         * Exit the application by closing the window (will wait for the current frame to be terminated)
+         * Exits the application by closing the window (will wait for the current frame to be terminated)
          */
         void quit();
 
         /**
-         * Get the startup configuration
+         * Returns the startup configuration
          * @return the global configuration given when the application was instancied
          */
         const ApplicationConfig& getConfig() const;
 
         /**
-         * Get the current display window
+         * Returns the current display window
          * @return The main window
          */
         const Window& getWindow() const;
 
         /**
-         * Get the frames per seconds
+         * Returns the frames per seconds
          * @return The average FPS
          */
         uint32_t getFPS() const { return fps; }
 
         /**
-         * Check if the scene is paused, in respect for z0::ProcessMode
+         * Checks if the scene is paused, in respect for z0::ProcessMode
          * @return  true if the current scene is paused
          */
         bool isPaused() const { return paused; }
@@ -71,19 +71,19 @@ namespace z0 {
         void setPaused(bool pause);
 
         /** 
-         * Change the current scene
+         * Changes the current scene
          * @param node The new scene, must not have a parent
          */
         void setRootNode(const shared_ptr<Node>& node);
 
         /**
-         * Change the current camera
+         * Changes the current camera
          * @param camera the camera to activate, must be in a scene
          */
         void activateCamera(const shared_ptr<Camera>& camera);
 
         /**
-         * Get the physics system gravity
+         * Returns the physics system gravity
          */
         vec3 getGravity() const;
 

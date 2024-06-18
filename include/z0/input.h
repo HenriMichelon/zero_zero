@@ -43,7 +43,7 @@ namespace z0 {
         static bool isMouseButtonJustReleased(MouseButton mouseButton);
 
         /**
-         * Set the mouse visibility and capture mode
+         * Sets the mouse visibility and capture mode
          */
         static void setMouseMode(MouseMode mode);
 

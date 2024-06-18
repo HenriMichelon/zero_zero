@@ -11,12 +11,12 @@ namespace z0 {
     class GManager: public Object {
     public:
         /**
-         * Add a UI window to the list of managed windows
+         * Adds a UI window to the list of managed windows
          */
         void add(const shared_ptr<GWindow>&);
 
         /**
-         * Remove a UI window to the list of managed windows. The window will be removed at the start of the next frame.
+         * Removes a UI window to the list of managed windows. The window will be removed at the start of the next frame.
          */
         void remove(const shared_ptr<GWindow>&);
 
@@ -26,7 +26,7 @@ namespace z0 {
         inline shared_ptr<Font>& getDefaultFont() { return defaultFont; }
 
         /**
-         * Force a redraw of all the UI at the start of the next frame
+         * Forces a redraw of all the UI at the start of the next frame
          */
         inline void refresh() { needRedraw = true; }
 
