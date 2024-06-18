@@ -22,7 +22,7 @@ namespace z0 {
         //! Default font size (not in pixels)
         uint32_t         defaultFontSize = 16;
         //! Where to log message using log()
-        LoggingMode      loggingMode     = LOGGING_WINDOW;
+        LoggingMode      loggingMode     = LOGGING_NONE;
         //! Default MSAA parameter. Note that MSAA is mandatory
         MSAA             msaa            = MSAA_AUTO;
         //! Gamma correction value for the tone mapping renderer

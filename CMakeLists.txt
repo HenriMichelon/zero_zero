@@ -58,6 +58,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/input.h
 		${Z0_INCLUDE_DIR}/physics.h
 		${Z0_INCLUDE_DIR}/rect.h
+		${Z0_INCLUDE_DIR}/signal.h
 		${Z0_INCLUDE_DIR}/libraries.h
 		${Z0_INCLUDE_DIR}/z0.h
 
@@ -122,6 +123,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_INCLUDE_DIR}/gui/gframe.h
 
 		${Z0_ENGINE_DIR}/tools.cpp
+		${Z0_ENGINE_DIR}/object.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/device.cpp
@@ -133,6 +135,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/input_event.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/rect.cpp
+		${Z0_ENGINE_DIR}/signal.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/mappings.h
 		${Z0_ENGINE_DIR}/libraries.cpp

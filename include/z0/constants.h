@@ -100,7 +100,7 @@ namespace z0 {
     enum LoggingMode {
         //! Disable logging
         LOGGING_NONE        = 0,
-        /*
+        /**
         * Open an external window (on the first screen if you have multiple screen) to display the log messages. 
         * Log message appearance in the window can be deferred to the next frame if the log message is sent from a thread different from the main thread
         */ 
