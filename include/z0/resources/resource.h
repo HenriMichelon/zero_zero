@@ -3,7 +3,8 @@
 namespace z0 {
 
     /**
-     * Base class for resources
+     * Base class for resources.
+     * All resources have a reference counter that *can* be used by the renderers to manage the resources of the scene.
      */
     class Resource: public Object {
     public:

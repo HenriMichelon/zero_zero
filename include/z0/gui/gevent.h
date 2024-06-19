@@ -21,10 +21,6 @@ namespace z0 {
         static const string OnMouseUp;		
         //! the mouse have been moved above the widget (all widgets)
         static const string OnMouseMove;
-        //! the widget size have changed (all widgets)
-        static const string OnResize;		
-        //! the widget position have changed (all widgets)
-        static const string OnMove;			
         //! widget acquire keyboard focus (all widgets)
         static const string OnGotFocus;		
         //! widget lost keyboard focus (all widgets)

@@ -2,32 +2,55 @@
 
 namespace z0 {
 
-
+    /**
+     * A font resource to render text in bitmaps.
+     * A font is a combination of a font file name and a size.
+     * Supports true type font files (cf https://github.com/nothings/stb/blob/master/stb_truetype.h)
+     * The font size is automatically scaled based on the resolution, from a base resolution of 640x480 
+     * (14 is 14 pixels height in this resolution)
+     */
     class Font: public Resource {
     public:
-        explicit Font(const string&, uint32_t);
+        /**
+         * Creates a font resource
+         * @param path : font file path, relative to the application working directory
+         * @param size : size in pixels on a base resolution of 640x480
+         */
+        explicit Font(const string&path, uint32_t size);
         ~Font();
 
-        /*! Return the size (in pixels) for a string */
-        void getSize(const string&, float&, float&);
+        /**
+         * Returns the size (in pixels) for a string.
+         */
+        void getSize(const string&text, float&width, float&height);
 
-        /*! Render a string into RGBA bitmap,
-         *  Glyph is white with alpha channel mapped to the glyphs geometry
-            Offsets are incremented
-            \param string	: string to render
-            \param uint32_t : size in pixels
-            \return
+        /**
+         *  Renders a string into a RGBA bitmap (stored in CPU memory).
+         *  Glyphs are white with alpha channel mapped to the glyphs geometry
+         *   @param text : text to render
+         *   @param width : width of the resulting bitmap
+         *   @param height : height of the resulting bitmap
+         *   @return a 32 bits RGBA bitmap stored in CPU memory
         */
-        vector<uint32_t> renderToBitmap(const string&, float&, float&);
+        vector<uint32_t> renderToBitmap(const string&text, float& width, float& height);
 
-        /*! Render a string into 8 bpp bitmap.
-            Offsets are incremented
-            \param string	: string to render
-            \return
-        */
-        shared_ptr<Image> renderToImage(const Device&, const string&);
+        /**
+         * Renders a string into a RGBA Image resource (stored in GPU memory).
+         * Glyphs are white with alpha channel mapped to the glyphs geometry
+         * @param device : GPU where the Image will be stored
+         * @param text : text to render
+         * @result a 32 bits RGBA bitmap stored in GPU memory with a VK_FORMAT_R8G8B8A8_SRGB format, clamped to border and VK_IMAGE_TILING_OPTIMAL tiling
+         */
+        shared_ptr<Image> renderToImage(const Device&device, const string&text);
 
+        /**
+         * Returns the font path. Useful to create another Font resource with a different size
+         */
         const string& getFontName() const { return path; }
+
+        /**
+         * Returns the font height in pixels (NOT scaled size, but the size given to the Font constructor)
+         */
         uint32_t getFontSize() const { return size; }
 
     private:
@@ -46,6 +69,7 @@ namespace z0 {
 
         CachedCharacter &getFromCache(char);
         void render(CachedCharacter&, char);
+        double scaleFontSize(uint32_t baseFontSize);
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
         float scale;

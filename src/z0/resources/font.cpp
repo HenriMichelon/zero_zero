@@ -2,6 +2,8 @@
 #ifndef USE_PCH
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
+#include "z0/nodes/node.h"
+#include "z0/application.h"
 #endif
 
 namespace z0 {
@@ -81,6 +83,17 @@ namespace z0 {
                                   );
     }
 
+    double Font::scaleFontSize(uint32_t baseFontSize) {
+        const int baseWidth = 640;
+        const int baseHeight = 480;
+        const int newHeight = Application::get().getWindow().getHeight();
+        const int newWidth = Application::get().getWindow().getWidth();
+        double horizontalScalingFactor = static_cast<double>(newWidth) / baseWidth;
+        double verticalScalingFactor = static_cast<double>(newHeight) / baseHeight;
+        double averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
+        return baseFontSize * averageScalingFactor;
+    }
+
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
 
     Font::Font(const string&_name, uint32_t _size):
@@ -91,7 +104,7 @@ namespace z0 {
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
             die("Failed to initialize font", path);
         }
-        scale = stbtt_ScaleForPixelHeight(&font, size * 1.5);
+        scale = stbtt_ScaleForPixelHeight(&font, scaleFontSize(size));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         ascent = ascent * scale;
         descent = descent * scale;

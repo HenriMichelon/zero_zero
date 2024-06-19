@@ -235,6 +235,8 @@ namespace z0 {
 
         /** Changes the transpency alpha value */
         void setTransparency(float alpha);
+        
+        void resizeChildren();
 
     protected:
         Rect			          rect;
@@ -261,7 +263,6 @@ namespace z0 {
         static void maxRect(Rect&, Rect, Rect) ;
         static bool clipRect(Rect&, const Rect&, const Rect&) ;
         void allowingFocus(bool = true);
-        void resizeChildren();
         Application& app();
 
         virtual void eventCreate();

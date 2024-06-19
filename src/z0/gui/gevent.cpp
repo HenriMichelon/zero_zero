@@ -12,8 +12,6 @@ namespace z0 {
     const string GEvent::OnMouseDown{"on_mouse_down"};
     const string GEvent::OnMouseUp{"on_mouse_up"};
     const string GEvent::OnMouseMove{"on_mouse_move"};
-    const string GEvent::OnResize{"on_resize"};
-    const string GEvent::OnMove{"on_move"};
     const string GEvent::OnGotFocus{"on_got_focus"};
     const string GEvent::OnLostFocus{"on_lost_focus"};
     const string GEvent::OnShow{"on_show"};

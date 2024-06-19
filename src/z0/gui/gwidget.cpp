@@ -245,7 +245,6 @@ namespace z0 {
         for (auto& w: children) {
             w->setPos(w->rect.x - diffX, w->rect.y - diffY);
         }
-        emit(GEvent::OnMove);
         if (parent) { parent->refresh(); }
         refresh();
     }
@@ -257,9 +256,6 @@ namespace z0 {
         }
         resizeChildren();
         freeze = true;
-        if ((rect.width != 0.0f) && (rect.height != 0.0f)) {
-            emit(GEvent::OnResize);
-        }
         refresh();
         freeze = false;
     }
@@ -576,7 +572,7 @@ namespace z0 {
         }
         if (redrawOnMouseMove && (pointed != p)) { refresh(); }
         auto event = GEventMouse{ .button = B, .x = X, .y = Y};
-        emit(GEvent::OnMove, &event);
+        emit(GEvent::OnMouseMove, &event);
         consumed |= event.consumed;
         return consumed;
     }
