@@ -84,8 +84,8 @@ namespace z0 {
     }
 
     double Font::scaleFontSize(uint32_t baseFontSize) {
-        const int baseWidth = 640;
-        const int baseHeight = 480;
+        const int baseWidth = 1280;
+        const int baseHeight = 720;
         const int newHeight = Application::get().getWindow().getHeight();
         const int newWidth = Application::get().getWindow().getWidth();
         double horizontalScalingFactor = static_cast<double>(newWidth) / baseWidth;
@@ -106,6 +106,7 @@ namespace z0 {
         }
         scale = stbtt_ScaleForPixelHeight(&font, scaleFontSize(size));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
+        height = ceilf((ascent - descent) * scale);
         ascent = ascent * scale;
         descent = descent * scale;
     }
@@ -132,7 +133,7 @@ namespace z0 {
         int width, height;
         auto srcBitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0,0);
         cachedCharacter.width = width;
-        cachedCharacter.height = ascent - descent;
+        cachedCharacter.height = this->height;
         cachedCharacter.yBearing = cachedCharacter.height;
         cachedCharacter.bitmap = make_unique<vector<uint32_t>>(cachedCharacter.width * cachedCharacter.height, 0);
 
