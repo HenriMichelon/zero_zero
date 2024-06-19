@@ -8,8 +8,9 @@
 
 namespace z0 {
 
-    Cubemap::Cubemap(const Device& dev, uint32_t w, uint32_t h, VkDeviceSize imageSize, vector<void*>& data, const string& name):
+    Cubemap::Cubemap(const Device& dev, uint32_t w, uint32_t h, VkDeviceSize imageSize, vector<unsigned char*>& data, const string& name):
             Resource(name), device{dev}, width{w}, height{h} {
+        assert(data.size() == 6 && "Must have 6 images for a cubemap");
         Buffer textureStagingBuffer{
                 device,
                 imageSize,
@@ -86,7 +87,7 @@ namespace z0 {
     shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filename, const string &ext) {
         const auto& filepath = (Application::get().getConfig().appDir / filename).string();
         int texWidth, texHeight, texChannels;
-        vector<void*> data;
+        vector<unsigned char*> data;
         const array<std::string, 6> names { "right", "left", "top", "bottom", "front", "back" };
         for (int i = 0; i < 6; i++) {
             string path = filepath + "_" + names[i] + ext;
@@ -96,11 +97,52 @@ namespace z0 {
             }
             data.push_back(pixels);
         }
-        VkDeviceSize imageSize = texWidth * texHeight * STBI_rgb_alpha;
-        auto cubemap =  make_shared<Cubemap>(Application::get()._getDevice(), texWidth, texHeight, imageSize, data);
+        auto cubemap = make_shared<Cubemap>(Application::get()._getDevice(), texWidth, texHeight, texWidth * texHeight * STBI_rgb_alpha, data);
         for (int i = 0; i < 6; i++) {
             stbi_image_free(data[i]);
         }
+        return cubemap;
+    }
+
+    unsigned char* Cubemap::extractImage(stbi_uc* source, int x, int y, int srcWidth, int w, int h, int channels) {
+        auto extractedImage = new unsigned char[w * h * channels];
+        for (uint32_t row = 0; row < h; ++row) {
+            for (uint32_t col = 0; col < w; ++col) {
+                for (uint32_t c = 0; c < channels; ++c) {
+                    extractedImage[(row * w + col) * channels + c] = source[((y + row) * srcWidth + (x + col)) * channels + c];
+                }
+            }
+        }
+        return extractedImage;
+    }
+
+    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filename) {
+        const auto& filepath = (Application::get().getConfig().appDir / filename).string();
+        int texWidth, texHeight, texChannels;
+        stbi_uc *pixels = stbi_load(filepath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        if (!pixels) {
+            die("failed to load texture image", filepath);
+        }
+        vector<unsigned char*> data;
+        const auto imgWidth = texWidth / 4;
+        const auto imgHeight = texHeight / 3;
+        // right
+        data.push_back(extractImage(pixels, 2 * imgWidth, 1 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        // left
+        data.push_back(extractImage(pixels, 0 * imgWidth, 1 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        // top
+        data.push_back(extractImage(pixels, 1 * imgWidth, 0 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        // bottom
+        data.push_back(extractImage(pixels, 1 * imgWidth, 2 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        // front
+        data.push_back(extractImage(pixels, 1 * imgWidth, 1 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        // back
+        data.push_back(extractImage(pixels, 3 * imgWidth, 1 * imgHeight, texWidth, imgWidth, imgHeight, STBI_rgb_alpha));
+        auto cubemap =  make_shared<Cubemap>(Application::get()._getDevice(), imgWidth, imgHeight, imgWidth * imgHeight * STBI_rgb_alpha, data);
+        for (int i = 0; i < 6; i++) {
+            delete[] data[i];
+        }
+        stbi_image_free(pixels);
         return cubemap;
     }
 

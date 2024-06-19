@@ -7,9 +7,14 @@
 
 namespace z0 {
 
-    Skybox::Skybox(const string& filename, const string& fileext, const string& nodeName):
-        Node{nodeName}{
+    Skybox::Skybox(const string& filename, const string& fileext):
+        Node{filename}{
         cubemap = Cubemap::loadFromFile(filename, fileext);
+    }
+
+    Skybox::Skybox(const string& filename):
+        Node{filename}{
+        cubemap = Cubemap::loadFromFile(filename);
     }
 
 }
