@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A convex hull collision shape
+     */
     class ConvexHullShape : public Shape {
     public:
         explicit ConvexHullShape(Node*, const string& resName = "ConvexHullShape");

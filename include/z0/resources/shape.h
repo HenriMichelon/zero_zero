@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for all collision shapes
+     */
     class Shape : public Resource {
     public:
         void setAttachedToNode();
@@ -17,6 +20,9 @@ namespace z0 {
         JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
     };
 
+    /**
+     * Box shaped collision shape
+     */
     class BoxShape : public Shape {
     public:
         explicit BoxShape(vec3 sizes, const string& resName = "BoxShape");

@@ -4,7 +4,10 @@ namespace z0 {
 
     constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-    class Device: public Object {
+    /**
+     * Vulkan VkDevice helper
+     */
+    class Device {
     public:
         explicit Device(VkInstance vkInstance, const vector<const char*>& requestedLayers,
                         const ApplicationConfig& applicationConfig, const Window& window);

@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Vulkan VkDescriptorSetLayout helper
+     */
     class DescriptorSetLayout {
     public:
         class Builder {
@@ -34,6 +37,9 @@ namespace z0 {
         friend class DescriptorWriter;
     };
 
+    /**
+     * Vulkan VkDescriptorPool helper
+     */
     class DescriptorPool {
     public:
         class Builder {
@@ -73,6 +79,9 @@ namespace z0 {
         friend class DescriptorWriter;
     };
 
+    /**
+     * Vulkan VkWriteDescriptorSet helper
+     */
     class DescriptorWriter {
     public:
         DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool);

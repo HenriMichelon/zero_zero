@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Vulkan VkBuffer helper
+     */
     class Buffer {
     public:
         Buffer(const Device& device,

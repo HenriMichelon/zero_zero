@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for all materials
+     */
     class Material: public Resource {
     public:
         CullMode getCullMode() const { return cullMode;}
@@ -22,6 +25,9 @@ namespace z0 {
         float alphaScissor { 0.1 };
     };
 
+    /**
+     * Simple albedo/specular material
+     */
     class StandardMaterial: public Material {
     public:
         explicit StandardMaterial(const string& name = "StandardMaterial"): Material(name) {}
@@ -45,6 +51,9 @@ namespace z0 {
         shared_ptr<ImageTexture>   normalTexture {nullptr};
     };
 
+    /**
+     * Shader based material
+     */
     class ShaderMaterial: public Material {
     public:
         static const int MAX_PARAMETERS = 4;
@@ -65,6 +74,9 @@ namespace z0 {
         vec4 parameters[MAX_PARAMETERS];
     };
 
+    /**
+     * Singleton for all the materials used by the SceneRenderer to oultine meshes
+     */
     class OutlineMaterials {
     public:
         static shared_ptr<ShaderMaterial>& get(int index);

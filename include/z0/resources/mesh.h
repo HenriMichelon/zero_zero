@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A mesh vertex
+     */
     struct Vertex {
         vec3   position{};
         vec3   normal{};
@@ -13,6 +16,10 @@ namespace z0 {
         }
     };
 
+    /**
+     * A mesh surface
+     */
+
     struct Surface {
         uint32_t firstVertexIndex;
         uint32_t indexCount;
@@ -21,6 +28,9 @@ namespace z0 {
                 firstVertexIndex{first}, indexCount{count}, material{nullptr} {};
     };
 
+    /**
+     * A mesh composed by multiple Surface and an indexes collection of Vertex
+     */
     class Mesh: public Resource {
     public:
         explicit Mesh(const string& meshName = "Mesh");

@@ -19,8 +19,8 @@ namespace z0 {
         uint32_t         windowHeight    = 1080;
         //! Default font name, the file must exists in the path
         string           defaultFontName = "DefaultFont.ttf";
-        //! Default font size (not in pixels). The font size is automatically scaled based on the resolution. cf the Font class.
-        uint32_t         defaultFontSize = 14;
+        //! Default font size. See the Font class for the details.
+        uint32_t         defaultFontSize = 20;
         //! Where to log message using log()
         LoggingMode      loggingMode     = LOGGING_NONE;
         //! Default MSAA parameter. Note that MSAA is mandatory

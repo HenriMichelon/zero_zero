@@ -5,11 +5,13 @@ namespace z0 {
     /**
      * A bitmap resource, stored in GPU memory.
      * Use loadFromFile(const string& filepath) to load a image from a file.
+     * Helper class for the Vulkan resources VkImage, VkImageView and VkSampler
      */
     class Image: public Resource {
     public:
         /** 
          * Creates a Image resource and store the image data in GPU memory.
+         * Use loadFromFile(const string& filepath) to load a image from a file.
          * @param device : the GPU where the image will be stored
          * @param name : resource name. Informational only.
          * @param width : width in pixels
@@ -19,6 +21,7 @@ namespace z0 {
          * @param format : data format of the bitmap (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkFormat.html)
          * @param tiling : image tiling arrangment (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageTiling.html)
          * @param samplerAddressMode : texture sampler mode (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSamplerAddressMode.html)
+         * @param noMipmaps : do not generate mipmaps
         */
         explicit Image(const Device& device,
                        const string& name,

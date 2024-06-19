@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Vulkan VkShaderEXT helper
+     */
     class Shader {
     public:
         Shader(const Device& device,

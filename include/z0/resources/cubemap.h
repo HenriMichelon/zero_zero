@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A cubemap composed by six images stored in a single VkImage in GPU memory
+     */
     class Cubemap: public Resource {
     public:
         ~Cubemap();

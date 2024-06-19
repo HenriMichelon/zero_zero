@@ -5,8 +5,8 @@ namespace z0 {
     /**
      * A font resource to render text in bitmaps.
      * A font is a combination of a font file name and a size.
-     * Supports true type font files (cf https://github.com/nothings/stb/blob/master/stb_truetype.h)
-     * The font size is automatically scaled based on the resolution, from a base resolution of 1280x720 
+     * Supports true type font files (cf https://github.com/nothings/stb/blob/master/stb_truetype.h).
+     * The font size is automatically scaled based on the resolution, from a base resolution of 1920x1080
      * (14 is 14 pixels height in this resolution)
      */
     class Font: public Resource {
@@ -14,7 +14,7 @@ namespace z0 {
         /**
          * Creates a font resource
          * @param path : font file path, relative to the application working directory
-         * @param size : size in pixels on a base resolution of 1280x720
+         * @param size : height in pixels on a base resolution of 1920x1080
          */
         explicit Font(const string&path, uint32_t size);
         ~Font();
