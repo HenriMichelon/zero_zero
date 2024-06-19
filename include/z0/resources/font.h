@@ -69,7 +69,7 @@ namespace z0 {
 
         CachedCharacter &getFromCache(char);
         void render(CachedCharacter&, char);
-        double scaleFontSize(uint32_t baseFontSize);
+        uint32_t scaleFontSize(uint32_t baseFontSize);
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
         float scale;

@@ -79,19 +79,19 @@ namespace z0 {
                                   bitmap.data(),
                                   VK_FORMAT_R8G8B8A8_SRGB,
                                   VK_IMAGE_TILING_OPTIMAL,
-                                  VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER // don't repeat texture
-                                  );
+                                  VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // don't repeat texture
+                                  false);
     }
 
-    double Font::scaleFontSize(uint32_t baseFontSize) {
-        const int baseWidth = 1280;
-        const int baseHeight = 720;
+    uint32_t Font::scaleFontSize(uint32_t baseFontSize) {
+        const int baseWidth = 1920;
+        const int baseHeight = 1080;
         const int newHeight = Application::get().getWindow().getHeight();
         const int newWidth = Application::get().getWindow().getWidth();
-        double horizontalScalingFactor = static_cast<double>(newWidth) / baseWidth;
-        double verticalScalingFactor = static_cast<double>(newHeight) / baseHeight;
-        double averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
-        return baseFontSize * averageScalingFactor;
+        auto horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
+        auto verticalScalingFactor = static_cast<float>(newHeight) / baseHeight;
+        auto averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
+        return ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor));
     }
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
@@ -107,6 +107,7 @@ namespace z0 {
         scale = stbtt_ScaleForPixelHeight(&font, scaleFontSize(size));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         height = ceilf((ascent - descent) * scale);
+        log(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
         ascent = ascent * scale;
         descent = descent * scale;
     }

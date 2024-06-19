@@ -15,7 +15,8 @@ namespace z0 {
                  const void* data,
                  VkFormat format,
                  VkImageTiling tiling,
-                 VkSamplerAddressMode samplerAddressMode):
+                 VkSamplerAddressMode samplerAddressMode,
+                 bool noMipmaps):
             Resource(name),
             device{dev},
             width{w},
@@ -28,7 +29,7 @@ namespace z0 {
         };
         textureStagingBuffer.writeToBuffer(data);
 
-        mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        mipLevels = noMipmaps ? 0 : static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
         device.createImage(width,
                            height,
                            mipLevels,
@@ -77,7 +78,7 @@ namespace z0 {
         //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
-        generateMipmaps(format);
+        if (!noMipmaps) { generateMipmaps(format); }
         createTextureSampler(samplerAddressMode);
 #ifdef VULKAN_STATS
         VulkanStats::get().imagesCount += 1;
@@ -130,9 +131,8 @@ namespace z0 {
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
             die("texture image format does not support linear blitting!"); // TODO
         }
-
         VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
-
+        
         VkImageMemoryBarrier barrier {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,

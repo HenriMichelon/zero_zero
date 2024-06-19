@@ -28,7 +28,8 @@ namespace z0 {
                        const void* data,
                        VkFormat format = VK_FORMAT_R8G8B8A8_SRGB,
                        VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL,
-                       VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT);
+                       VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                       bool noMipmaps = false);
         virtual ~Image();
 
         /**
