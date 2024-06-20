@@ -5,7 +5,7 @@ namespace z0 {
     constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     /**
-     * Vulkan VkDevice helper
+     * Vulkan [VkDevice](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDevice.html) helper
      */
     class Device {
     public:

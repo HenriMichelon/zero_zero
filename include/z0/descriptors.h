@@ -3,7 +3,7 @@
 namespace z0 {
 
     /**
-     * Vulkan VkDescriptorSetLayout helper
+     * Vulkan [VkDescriptorSetLayout](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDescriptorSetLayout.html) helper
      */
     class DescriptorSetLayout {
     public:
@@ -38,7 +38,7 @@ namespace z0 {
     };
 
     /**
-     * Vulkan VkDescriptorPool helper
+     * Vulkan [VkDescriptorPool](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDescriptorPool.html) helper
      */
     class DescriptorPool {
     public:
@@ -80,7 +80,7 @@ namespace z0 {
     };
 
     /**
-     * Vulkan VkWriteDescriptorSet helper
+     * Vulkan {VkWriteDescriptorSet](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html) helper
      */
     class DescriptorWriter {
     public:

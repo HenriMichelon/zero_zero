@@ -3,7 +3,7 @@
 namespace z0 {
 
     /**
-     * Vulkan VkShaderEXT helper
+     * Vulkan [VkShaderEXT](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkShaderEXT.html) helper
      */
     class Shader {
     public:

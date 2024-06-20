@@ -3,7 +3,7 @@
 namespace z0 {
 
     /**
-     * Vulkan VkBuffer helper
+     * Vulkan [VkBuffer](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkBuffer.html) helper
      */
     class Buffer {
     public:
