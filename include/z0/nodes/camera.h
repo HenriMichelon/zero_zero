@@ -1,25 +1,54 @@
 #pragma once
 
 namespace z0 {
+
+    /**
+     * Camera node, displays from a point of view.
+     */
     class Camera: public Node {
     public:
+        /**
+         * Creates a Camera
+         */
         explicit Camera(const string& nodeName = "Camera");
         ~Camera() override = default;
 
+        /**
+         * Returns `true` if the camera is the currently active camera for the current scene.
+         * Use Application::activateCamera() to activate a camera
+         */
         bool isActive() const { return active; }
 
+        /**
+         * Sets the camera projection to orthogonal mode.
+         * @param left, right, top, bottom size of the view
+         * @param near, far clip planes
+         */
         void setOrthographicProjection(float left, float right,
                                        float top, float bottom,
                                        float near, float far);
+
+        /**
+         * Sets the camera projection to perspective mode.
+         * @param fov field of view angle in radians
+         * @param near, far clip planes
+         */
         void setPerspectiveProjection(float fov,
                                       float near, float far);
 
+        /**
+         * Returns the projection matrix
+         */
         const mat4& getProjection();
+
+        /**
+         * Returns the view matrix
+         */
         inline const mat4& getView() const { return viewMatrix; }
 
-        void _updateTransform(const mat4& parentMatrix) override;
-        void _updateTransform() override;
-
+        /**
+         * Returns the 2D coordinate in the rendering window that maps to the given 3D point in world space.
+         */
         vec2 unproject(vec3 worldCoords);
 
     private:
@@ -36,5 +65,7 @@ namespace z0 {
 
     public:
         void _setActive(bool isActive) { active = isActive; }
+        void _updateTransform(const mat4& parentMatrix) override;
+        void _updateTransform() override;
     };
 }

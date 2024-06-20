@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for offscreen frame buffer with a VKSampler attached
+     */
     class SampledFrameBuffer: public BaseFrameBuffer {
     public:
         VkDescriptorImageInfo imageInfo();

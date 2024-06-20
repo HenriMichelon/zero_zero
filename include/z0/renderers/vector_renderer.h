@@ -3,10 +3,10 @@
 namespace z0 {
 
     /*
-     * 2D Vector drawing
-     * Coordinates system :
-     *  - origin : {0, 0} bottom left
-     *  - max values : { 1000, 1000 } top right
+     * 2D Vector drawing renderer.<br>
+     * Coordinates system :<br>
+     *  - origin : {0.0, 0.0} bottom left<br>
+     *  - max values : { 1000.0, 1000.0 } top right (use VECTOR_SCALE constant)<br>
      */
     class VectorRenderer: public BaseRenderpass, public BaseRenderer {
     public:

@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Omnidirectional light, such as a light bulb or a candle
+     */
     class OmniLight: public Light {
     public:
         explicit OmniLight(const string name = "OmniLight"): Light{name} {};

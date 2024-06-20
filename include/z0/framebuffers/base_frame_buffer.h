@@ -2,7 +2,9 @@
 
 namespace z0 {
 
-    // Base class for all offscreen fame buffers & rendering attachements
+    /**
+     * Base class for all offscreen frame buffers & rendering attachements
+     */ 
     class BaseFrameBuffer {
     public:
         const VkImage& getImage() const { return image; }

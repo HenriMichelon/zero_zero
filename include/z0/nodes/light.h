@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for different kinds of light nodes
+     */
     class Light: public Node {
     public:
         virtual ~Light() = default;

@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for 3D physics objects
+     */
     class CollisionObject: public Node {
     public:
         struct Collision {

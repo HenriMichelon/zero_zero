@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A spotlight, such as a spotlight or a lantern.
+     */
     class SpotLight: public OmniLight {
     public:
         explicit SpotLight(const string name = "SpotLight"): OmniLight{name} {};

@@ -4,7 +4,9 @@
 
 namespace z0 {
 
-    // a rectangular box
+    /**
+     * A rectangular box
+     */
     class GBox: public GPanel {
     public:
         GBox();

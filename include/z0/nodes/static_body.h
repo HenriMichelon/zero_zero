@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A 3D physics body that can't be moved by external forces. 
+     */
     class StaticBody: public PhysicsBody {
     public:
         explicit StaticBody(shared_ptr<Shape> shape,

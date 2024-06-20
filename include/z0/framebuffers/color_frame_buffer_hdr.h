@@ -2,7 +2,9 @@
 
 namespace z0 {
 
-    // Resolved HDR offscreen framebuffer
+    /**
+     * Resolved HDR offscreen framebuffer
+     */
     class ColorFrameBufferHDR: public SampledFrameBuffer {
     public:
         // HDR tone mapping

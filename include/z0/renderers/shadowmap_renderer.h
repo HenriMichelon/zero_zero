@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Shadow map renderer, one per light
+     */
     class ShadowMapRenderer: public BaseRenderpass, public BaseRenderer {
     public:
         ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light);

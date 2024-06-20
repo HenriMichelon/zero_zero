@@ -3,7 +3,7 @@
 namespace z0 {
 
     /**
-     * Helper class for loading resources
+     * Singleton for loading external resources
      */
     class Loader {
     public:

@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * A 3D physics body specialized for characters moved by code
+     */
     class Character: public CollisionObject, 
                      public JPH::BroadPhaseLayerFilter,
                      public JPH::ObjectLayerFilter,

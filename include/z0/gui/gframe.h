@@ -2,7 +2,9 @@
 
 namespace z0 {
 
-    // A rectangular frame with an optional title
+    /**
+     * A rectangular frame with an optional title
+     */
     class GFrame: public GPanel {
     public:
         // Create a GFrame widget with an optional title

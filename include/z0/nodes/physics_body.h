@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for 3D game objects affected by physics.
+     */
     class PhysicsBody: public CollisionObject {
     public:
         ~PhysicsBody() override;

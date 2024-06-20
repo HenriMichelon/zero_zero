@@ -7,9 +7,8 @@ namespace z0 {
     * @brief Some useful global functions
     */
 
-
     /**
-     * Violently stop the application is something goes wrong
+     * Violently stop the application, used is something goes wrong
      */
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;

@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Node that hold a Mesh.
+     */
     class MeshInstance: public Node {
     public:
         explicit MeshInstance(const shared_ptr<Mesh>& _mesh, const string& name = "MeshInstance");

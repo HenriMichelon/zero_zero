@@ -9,8 +9,8 @@ namespace z0 {
     class Cubemap: public Resource {
     public:
         /**
-         * Creates a Cubemap from 6 images stored in CPU memory
-         * and **must** have the same sizes
+         * Creates a Cubemap from 6 images stored in CPU memory.
+         * The images **must** have the same sizes
          * @param device : the GPU where the image will be stored
          * @param width : width in pixels of the images
          * @param height : height in pixels of the images
@@ -32,7 +32,7 @@ namespace z0 {
         VkImageView& getImageView() { return textureImageView; }
 
         /**
-         * Loads the cubemap from 6 RGBA images files.
+         * Loads a cubemap from 6 RGBA images files.
          * Images must be named `{name}_back.{ext}`, `{name}_front.{ext}`, `{name}_top.{ext}`, `{name}_bottom.{ext}`, `{name}_left.{ext}` and `{name}_right.{ext}`
          * and **must** have the same sizes
          * @param filename path and filename (without the extension) of the images

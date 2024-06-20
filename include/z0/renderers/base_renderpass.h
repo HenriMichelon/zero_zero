@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for renderers and sub passes
+     */
     class BaseRenderpass {
     public:
         virtual void cleanup();

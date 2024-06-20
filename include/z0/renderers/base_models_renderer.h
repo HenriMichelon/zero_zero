@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for renderers drawing a collection of Mesh
+     */
     class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
     public:
         // Add a model to the scene and update descriptor set

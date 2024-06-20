@@ -17,7 +17,7 @@ namespace z0 {
         explicit Skybox(const string& filename, const string& fileext);
 
         /**
-         * Loads the cubemap from a single RGBA image with the following format :<br>
+         * Creates a Skybox from a single RGBA image with the following format :<br>
          *&emsp;&emsp;&emsp;`top`<br>
          *&emsp;`left  back  right  front`<br>
          *&emsp;&emsp;&emsp;`bottom`<br>

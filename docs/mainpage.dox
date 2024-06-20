@@ -16,7 +16,9 @@
  * - [Jolt Physics](https://github.com/jrouwe/JoltPhysics) for the physics system
  * 
  * Released under the [MIT license](https://raw.githubusercontent.com/HenriMichelon/zero_zero/main/LICENSE.txt).
- * 
+ *
+ * - [Class list](annotated.html)
+ * - [Files list](files.html)
  *
  * \section install_sec Installation
  * **Building tools needed**

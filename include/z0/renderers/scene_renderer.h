@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Main renderer
+     */
     class SceneRenderer: public BaseModelsRenderer {
     public:
         SceneRenderer(Device& device, const string& shaderDirectory);

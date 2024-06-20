@@ -21,7 +21,7 @@ namespace z0 {
     };
 
     /**
-     * Box shaped collision shape
+     * Box shaped collision Shape
      */
     class BoxShape : public Shape {
     public:

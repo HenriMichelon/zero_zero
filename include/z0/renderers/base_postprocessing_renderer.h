@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Base class for post processing effect renderers
+     */
     class BasePostprocessingRenderer: public BaseRenderpass, public BaseRenderer {
     public:
         BasePostprocessingRenderer(Device& device,

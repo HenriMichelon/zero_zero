@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Common interface of all renderers
+     */
     class BaseRenderer {
     public:
         // Returns the offscreen image buffer

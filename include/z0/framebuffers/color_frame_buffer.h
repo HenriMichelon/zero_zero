@@ -2,7 +2,9 @@
 
 namespace z0 {
 
-    // Default Color Rendering attachments
+    /**
+     * Default color rendering attachments
+     */
     class ColorFrameBuffer: public BaseFrameBuffer {
     public:
         // If multisampled==true attachment will support multisampling *and* HDR

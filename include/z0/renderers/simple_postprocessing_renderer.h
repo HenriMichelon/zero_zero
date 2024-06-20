@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Fragment shader based post processing renderer
+     */
     class SimplePostprocessingRenderer: public BasePostprocessingRenderer {
     public:
         SimplePostprocessingRenderer(Device& device,

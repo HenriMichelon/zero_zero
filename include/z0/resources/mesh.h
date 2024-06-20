@@ -3,7 +3,7 @@
 namespace z0 {
 
     /**
-     * A mesh vertex
+     * A Mesh vertex
      */
     struct Vertex {
         vec3   position{};
@@ -17,7 +17,7 @@ namespace z0 {
     };
 
     /**
-     * A mesh surface
+     * A Mesh surface
      */
 
     struct Surface {

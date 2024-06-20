@@ -2,6 +2,9 @@
 
 namespace z0 {
 
+    /**
+     * Environment properties for the scene
+     */
     class Environment : public Node {
     public:
         explicit Environment(vec4 colorAndIntensity = {1.0f, 1.0f, 1.0f, 1.0f}, const string nodeName = "Environment"): 
