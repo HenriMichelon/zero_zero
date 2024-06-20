@@ -21,7 +21,7 @@ namespace z0 {
         vec3 sceneCenter;
         mat4 lightProjection;
         if (const auto* directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-            auto lightDirection = normalize(directionalLight->getDirection());
+            auto lightDirection = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
             auto sceneMin = vec3{-50.0f, -50.0f, -50.0f};
             auto sceneMax = vec3{50.0f, 50.0f, 50.0f};
@@ -38,7 +38,7 @@ namespace z0 {
                                     zNear, 
                                     orthoDepth);
         } else if (auto* spotLight = dynamic_cast<SpotLight*>(light)) {
-            auto lightDirection = normalize(spotLight->getDirection());
+            auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
             lightPosition = light->getPositionGlobal();
             sceneCenter = lightPosition + lightDirection;
             lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), zNear, zFar);

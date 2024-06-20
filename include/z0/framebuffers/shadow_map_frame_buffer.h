@@ -13,10 +13,10 @@ namespace z0 {
         const float zFar = 50.0f;
         const uint32_t size{4096};
 
-        const Light* getLight() const { return light; }
         mat4 getLightSpace() const;
-        vec3 getLightPosition() const { return light->getPosition(); }
-        const VkSampler& getSampler() const { return sampler; }
+        inline const Light* getLight() const { return light; }
+        inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+        inline const VkSampler& getSampler() const { return sampler; }
 
         void createImagesResources();
         void cleanupImagesResources();

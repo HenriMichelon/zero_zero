@@ -97,15 +97,17 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     if (global.haveDirectionalLight) {
         diffuse = calcDirectionalLight(global.directionalLight, color, normal);
     }
-    for(int i = 0; i < global.pointLightsCount; i++) {
-        diffuse += calcPointLight(pointLights.lights[i], color, normal);
-    }
-    vec3 result = ambient + diffuse;
 
+    vec3 result = ambient;
     for (int i = 0; i < global.shadowMapsCount; i++) {
         float shadows = shadowFactor(i);
         result = (ambient + shadows) * result;
     }
+
+    for(int i = 0; i < global.pointLightsCount; i++) {
+        diffuse += calcPointLight(pointLights.lights[i], color, normal);
+    }
+    result = result + diffuse;
 
     return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

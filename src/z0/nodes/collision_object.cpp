@@ -99,7 +99,7 @@ namespace z0 {
     }
 
     void CollisionObject::setPositionAndRotation() {
-        if (updating || (parent == nullptr)) return;
+        if (updating) return;
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
         bodyInterface.SetPositionAndRotation(
@@ -126,7 +126,6 @@ namespace z0 {
         bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
         auto pos = vec3{position.GetX(), position.GetY(), position.GetZ()};
         if (pos != getPositionGlobal()) {
-            //log(z0::toString(pos));
             setPositionGlobal(pos);
         }
         setRotation(quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()});

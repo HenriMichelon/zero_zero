@@ -70,7 +70,7 @@ namespace z0 {
     }
 
     void Character::setPositionAndRotation() {
-        if (updating || (parent == nullptr)) return;
+        if (updating) { return; }
         auto pos = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
         auto jpos = JPH::RVec3(pos.x, pos.y, pos.z);
@@ -115,11 +115,6 @@ namespace z0 {
             setPositionGlobal(newPos);
             bodyInterface.MoveKinematic(physicsCharacter->GetBodyID(), pos,  character->GetRotation(), delta);
         }
-        /*for(const auto& contact : character->GetActiveContacts()) {
-            if (contact.mBodyB != character->GetGroundBodyID()) {
-                bodyInterface.AddForce(contact.mBodyB, JPH::Vec3{0.0, 0.0, -10000.0}, contact.mPosition);
-            }
-        }*/
         updating = false;
     }
 

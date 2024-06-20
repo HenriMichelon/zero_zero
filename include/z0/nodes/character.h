@@ -27,7 +27,7 @@ namespace z0 {
         list<Collision> getCollisions() const;
 
     protected:
-        void setPositionAndRotation();
+        void setPositionAndRotation() override;
 
     private:
         vec3 upVector{AXIS_UP};

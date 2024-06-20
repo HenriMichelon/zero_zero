@@ -40,7 +40,7 @@ namespace z0 {
                     uint32_t layer,
                     uint32_t mask,
                     const string& name);
-        void setPositionAndRotation();
+        virtual void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
         CollisionObject* _getByBodyId(JPH::BodyID id);
 

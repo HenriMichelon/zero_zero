@@ -107,7 +107,7 @@ namespace z0 {
         scale = stbtt_ScaleForPixelHeight(&font, scaleFontSize(size));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         height = ceilf((ascent - descent) * scale);
-        log(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
+        //log(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
         ascent = ascent * scale;
         descent = descent * scale;
     }

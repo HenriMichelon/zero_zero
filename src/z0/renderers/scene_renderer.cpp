@@ -108,14 +108,14 @@ namespace z0 {
         if (currentEnvironment == nullptr) {
             if (auto* environment = dynamic_cast<Environment*>(node.get())) {
                 currentEnvironment = environment;
-                log("Using environment", environment->toString());
+                //log("Using environment", environment->toString());
                 return;
             }
         }
         if (directionalLight == nullptr) {
             if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
                 directionalLight = light;
-                log("Using directional light", directionalLight->toString());
+                //log("Using directional light", directionalLight->toString());
                 if (directionalLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
                     auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                         device, 
@@ -271,14 +271,14 @@ namespace z0 {
         GobalUniformBuffer globalUbo{
             .projection = currentCamera->getProjection(),
             .view = currentCamera->getView(),
-            .cameraPosition = currentCamera->getPosition(),
+            .cameraPosition = currentCamera->getPositionGlobal(),
             .haveDirectionalLight = directionalLight != nullptr,
             .pointLightsCount = static_cast<uint32_t>(omniLights.size()),
             .shadowMapsCount = static_cast<uint32_t>(shadowMapRenderers.size()),
         };
         if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
-                .direction = directionalLight->getDirection(),
+                .direction = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection()),
                 .color = directionalLight->getColorAndIntensity(),
                 .specular = directionalLight->getSpecularIntensity(),
             };
@@ -302,7 +302,7 @@ namespace z0 {
             auto pointLightsArray = make_unique<PointLightUniformBuffer[]>(globalUbo.pointLightsCount);
             for(uint32_t i=0; i < globalUbo.pointLightsCount; i++) {
                 auto* omniLight = omniLights[i];
-                pointLightsArray[i].position = omniLight->getPosition();
+                pointLightsArray[i].position = omniLight->getPositionGlobal();
                 pointLightsArray[i].color = omniLight->getColorAndIntensity();
                 pointLightsArray[i].specular = omniLight->getSpecularIntensity();
                 pointLightsArray[i].constant = omniLight->getAttenuation();
@@ -310,7 +310,7 @@ namespace z0 {
                 pointLightsArray[i].quadratic = omniLight->getQuadratic();
                 if (auto* spot = dynamic_cast<SpotLight*>(omniLight)) {
                     pointLightsArray[i].isSpot = true;
-                    pointLightsArray[i].direction = spot->getDirection();
+                    pointLightsArray[i].direction = normalize(mat3{spot->getTransformGlobal()} * spot->getDirection());
                     pointLightsArray[i].cutOff = spot->getCutOff();
                     pointLightsArray[i].outerCutOff =spot->getOuterCutOff();
                 }
