@@ -23,7 +23,6 @@ namespace z0 {
             if (currentCamera == nullptr) {
                 currentCamera = camera;
                 currentCamera->_setActive(true);
-                //log << "Using camera " << *currentCamera << endl;
             }
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
             if (meshInstance->isValid()) {
@@ -33,7 +32,6 @@ namespace z0 {
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
                 addedModel(meshInstance);
-                //log << "Added model " << *meshInstance << endl;
             }
         }
     }
@@ -51,7 +49,6 @@ namespace z0 {
                 removingModel(meshInstance);
             }
             descriptorSetNeedUpdate = true;
-            //log << "Removed model " << *meshInstance << endl;
         }
     }
 
@@ -59,11 +56,9 @@ namespace z0 {
         if (currentCamera != nullptr) currentCamera->_setActive(false);
         if (camera == nullptr) {
             currentCamera = nullptr;
-            log("Disabling camera ");
         } else {
             currentCamera = camera;
             currentCamera->_setActive(true);
-            log("Using camera ", currentCamera->toString());
         }
     }
 
