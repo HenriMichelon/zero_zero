@@ -9,11 +9,36 @@ namespace z0 {
     public:
         virtual ~Light() = default;
 
+        /**
+         * Returns the RGB color and the intensity factor
+         */
         const vec4& getColorAndIntensity() const { return colorAndIntensity; }
+
+        /**
+         * Sets the RGB color and the intensity factor
+         */
         void setColorAndIntensity(vec4 color) { colorAndIntensity = color; }
+
+        /**
+         * Returns the intensity of the specular blob in objects affected by the light.
+         */
         float getSpecularIntensity() const { return specularIntensity; }
+
+        /**
+         * Sets the intensity of the specular blob in objects affected by the light.
+         */
         void setSpecularIntensity(float specular) { specularIntensity = specular; }
+
+        /**
+         * If `true`, the light will cast real-time shadows. 
+         * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
+         */
         bool getCastShadows() const { return castShadows; }
+
+        /**
+         * Sets to `true` to makes the light cast real-time shadow.
+         * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
+         */
         void setCastShadow(bool cast) { castShadows = cast; }
 
     protected:

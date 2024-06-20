@@ -9,6 +9,9 @@ namespace z0 {
     public:
         ~PhysicsBody() override;
 
+        /**
+         * Sets an artificial gravity factor
+         */
         void setGravityScale(float value);
 
     protected:

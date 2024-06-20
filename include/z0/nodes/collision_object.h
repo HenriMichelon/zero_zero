@@ -3,30 +3,83 @@
 namespace z0 {
 
     /**
-     * Base class for 3D physics objects
+     * Base class for 3D physics objects.
+     * Object A can detect a contact with object B only if object B is in any of the layers that object A scans (mask value)
      */
     class CollisionObject: public Node {
     public:
+        /**
+         * Collision data
+         */
         struct Collision {
+            /** World space position of the collision, on the colliding `object` */
             vec3             position;
+            /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
             vec3             normal;
+            /** Collising object */
             CollisionObject* object;
         };
 
+        /**
+         * The physics layers this CollisionObject is in. 
+         */
         uint32_t getCollisionLayer() const { return collisionLayer; }
+
+        /**
+         * The physics layers this CollisionObject scans. 
+         */
         uint32_t getCollistionMask() const { return collisionMask; }
+
+        /**
+         * Returns `true` if the object is in the `layer`
+         */
         bool haveCollisionLayer(uint32_t layer) const;
-        bool haveCollisionMask(uint32_t layer) const;
+
+        /**
+         * Returns `true` if the object have the `mask`
+         */
+
+        bool haveCollisionMask(uint32_t mask) const;
+
+        /**
+         * Adds or removes a collision layer
+         */
         virtual void setCollistionLayer(uint32_t layer, bool value);
+
+        /**
+         * Adds or removes a collision mask
+         */
         virtual void setCollistionMask(uint32_t layer, bool value);
+
+        /**
+         * Returns `true` if the object can collide with an object with the layer `layer`
+         */
         bool shouldCollide(uint32_t layer) const;
+
+        /**
+         * Called when antoher body collides with the object, with respect to the layer/mask values
+         */
         virtual void onCollisionStarts(const Collision collision) {};
+
+        /**
+         * Sets the linear velocity
+         */
         virtual void setVelocity(vec3 velocity);
+
+        /**
+         * Returns the linear velocity
+         */
         virtual vec3 getVelocity() const;
-        void _updateTransform() override;
-        void _updateTransform(const mat4& parentMatrix) override;
+        
+        /**
+         * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
+         */
         void applyForce(vec3 force);
-        void applyForce(vec3 force, vec3 point);
+
+        /**
+         * Add force (unit: N) at `position` for the next time step, will be reset after the next physics update
+         */
+        void applyForce(vec3 force, vec3 position);
 
     protected:
         bool updating{false};
@@ -43,6 +96,8 @@ namespace z0 {
         virtual void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
         CollisionObject* _getByBodyId(JPH::BodyID id);
+        void _updateTransform() override;
+        void _updateTransform(const mat4& parentMatrix) override;
 
     private:
         JPH::BodyID bodyId;

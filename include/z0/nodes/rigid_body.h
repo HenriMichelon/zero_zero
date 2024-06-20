@@ -13,6 +13,10 @@ namespace z0 {
                            const string& name = "RigidBody");
         ~RigidBody() override = default;
 
+        /**
+         * Sets the coefficient of restitution
+         * (the ratio of the relative velocity of separation after collision to the relative velocity of approach before collision)
+         */
         void setBounce(float value);
 
     };
