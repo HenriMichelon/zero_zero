@@ -13,7 +13,6 @@ namespace z0 {
         id{currentId++}{
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};
-        _updateTransform(mat4{1.0f});
     }
 
     Node::Node(const Node& orig): id{currentId++} {
@@ -126,6 +125,7 @@ namespace z0 {
 
     void Node::_onReady() {
         inReady = true;
+        _updateTransform(mat4{1.0f});
         onReady();
         inReady = false;
     }
