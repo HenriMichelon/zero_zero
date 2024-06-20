@@ -13,7 +13,9 @@ namespace z0 {
         createImage(device.getSwapChainExtent().width,
                     device.getSwapChainExtent().height,
                     device.findImageTilingSupportedFormat(
-                            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D16_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT,},
+                            // "Prefer using 24-bit depth formats for optimal performance."
+                            //https://developer.nvidia.com/blog/vulkan-dos-donts/   
+                            {VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT},
                             VK_IMAGE_TILING_OPTIMAL,
                             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
                     multisampled ? device.getSamples() : VK_SAMPLE_COUNT_1_BIT,
