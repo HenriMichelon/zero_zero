@@ -74,10 +74,9 @@ float shadowFactor(int shadowMapIndex) {
 
 vec4 fragmentColor(vec4 color, bool useColor) {
     if (!useColor) {
+        color = material.albedoColor;
         if (material.diffuseIndex != -1) {
-            color = texture(texSampler[material.diffuseIndex], fs_in.UV);
-        } else {
-            color = material.albedoColor;
+            color = color * texture(texSampler[material.diffuseIndex], fs_in.UV);
         }
     }
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {

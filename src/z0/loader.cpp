@@ -96,14 +96,16 @@ namespace z0 {
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Node> Loader::loadModelFromFile(const filesystem::path& filename, bool forceBackFaceCulling) {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
-        fastgltf::Parser parser {fastgltf::Extensions::KHR_materials_specular};
+        fastgltf::Parser parser {fastgltf::Extensions::KHR_materials_specular | fastgltf::Extensions::KHR_texture_transform};
         constexpr auto gltfOptions =
                 fastgltf::Options::DontRequireValidAssetMember |
                 fastgltf::Options::AllowDouble |
                 fastgltf::Options::LoadGLBBuffers |
                 fastgltf::Options::LoadExternalBuffers;
         fastgltf::GltfDataBuffer data;
-        data.loadFromFile(filepath);
+        if (!data.loadFromFile(filepath)) {
+            die("Error loading", filename.string());
+        }
         auto asset = parser.loadGltfBinary(&data, filepath.parent_path(), gltfOptions);
         if (auto error = asset.error(); error != fastgltf::Error::None) {
             die(getErrorMessage(error));
@@ -115,9 +117,18 @@ namespace z0 {
         for (fastgltf::Material& mat : gltf.materials) {
             shared_ptr<StandardMaterial> material = make_shared<StandardMaterial>(mat.name.data());
             if (mat.pbrData.baseColorTexture.has_value()) {
-                auto imageIndex = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
-                shared_ptr<Image> image =  loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                const auto imageIndex = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
+                shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
                 material->setAlbedoTexture(make_shared<ImageTexture>(image));
+                // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/README.md
+                // We apply the albedo texture transform to all the textures (specular, normal, ...)
+                const auto& transform = mat.pbrData.baseColorTexture.value().transform;
+                if (transform != nullptr) {
+                    material->setTextureTransform({ 
+                        .offset = { transform->uvOffset[0], transform->uvOffset[1] },
+                        .scale = { transform->uvScale[0], transform->uvScale[1] }
+                    });
+                }
             }
             material->setAlbedoColor(Color{
                 mat.pbrData.baseColorFactor[0],

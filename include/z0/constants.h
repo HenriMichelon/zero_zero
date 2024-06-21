@@ -126,7 +126,8 @@ namespace z0 {
     };
 
     /**
-     * Cull mode for mesh surfaces
+     * Cull mode for mesh surfaces.
+     * Determines which side of the triangle to cull depending on whether the triangle faces towards or away from the camera.
      */
     enum CullMode {
         //! No face culling is performed; both the front face and back face will be visible.
@@ -138,7 +139,8 @@ namespace z0 {
     };
 
     /*
-    * Material transparency mode
+    * Materials transparency mode
+    * Any transparency mode other than TRANSPARENCY_DISABLED has a greater performance impact compared to opaque rendering.
     */
     enum Transparency {
         //! The material will not use transparency. This is the fastest to render.

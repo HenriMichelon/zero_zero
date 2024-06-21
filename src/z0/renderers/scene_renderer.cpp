@@ -336,6 +336,12 @@ namespace z0 {
                 materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
                 if (standardMaterial->getAlbedoTexture() != nullptr) {
                     materialUbo.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                    const auto& transform = standardMaterial->getTextureTransform();
+                    if (transform != nullptr) {
+                        materialUbo.hasTransform = true;
+                        materialUbo.textureOffset = transform->offset;
+                        materialUbo.textureScale = transform->scale;
+                    }
                 }
                 if (standardMaterial->getSpecularTexture() != nullptr) {
                     materialUbo.specularIndex = imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];

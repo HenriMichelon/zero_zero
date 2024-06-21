@@ -45,6 +45,9 @@ layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
     int normalIndex;
     vec4 albedoColor;
     float shininess;
+    bool hasTextureTransform;
+    vec2 textureOffset;
+    vec2 textureScale;
     vec4 parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 } material;
 
