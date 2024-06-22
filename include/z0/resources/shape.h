@@ -6,9 +6,6 @@ namespace z0 {
      * Base class for all collision shapes
      */
     class Shape : public Resource {
-    public:
-        void setAttachedToNode();
-
     protected:
         JPH::ShapeSettings* shapeSettings{nullptr};
         explicit Shape(const string& resName): Resource{resName}, shapeSettings{nullptr} {};
@@ -18,6 +15,7 @@ namespace z0 {
 
     public:
         JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
+        void setAttachedToNode();
     };
 
     /**
@@ -25,7 +23,10 @@ namespace z0 {
      */
     class BoxShape : public Shape {
     public:
-        explicit BoxShape(vec3 sizes, const string& resName = "BoxShape");
+        /**
+         * Creates a BoxShape with the given extends
+         */
+        explicit BoxShape(vec3 extends, const string& resName = "BoxShape");
     };
 
 
@@ -34,6 +35,9 @@ namespace z0 {
      */
     class SphereShape : public Shape {
     public:
+        /**
+         * Create a SphereShape with the given radius
+         */
         explicit SphereShape(float radius, const string& resName = "SphereShape");
     };
 

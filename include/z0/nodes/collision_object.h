@@ -8,11 +8,17 @@ namespace z0 {
      */
     class CollisionObject: public Node {
     public:
+        /**
+         * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision
+         */
         static const Signal::signal on_collision_starts;
+        /**
+         * Signal called whenever a contact is detected that was also detected last update and reports the first contact point in a CollisionObject::Collision
+         */
         static const Signal::signal on_collision_persists;
 
         /**
-         * Collision data for the "on_collision_starts" signal
+         * Collision data for the CollisionObject::on_collision_starts and CollisionObject::on_collision_persists signal
          */
         struct Collision: public Signal::Parameters {
             /** World space position of the first contact point, on the colliding `object` */
