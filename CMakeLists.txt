@@ -83,6 +83,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
 		${Z0_ENGINE_DIR}/nodes/collision_object.cpp
+		${Z0_ENGINE_DIR}/nodes/collision_area.cpp
 		${Z0_ENGINE_DIR}/nodes/raycast.cpp
 		${Z0_ENGINE_DIR}/nodes/light.cpp
 		${Z0_ENGINE_DIR}/nodes/directional_light.cpp

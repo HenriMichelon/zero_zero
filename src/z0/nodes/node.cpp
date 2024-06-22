@@ -13,6 +13,7 @@ namespace z0 {
         id{currentId++}{
         replace(name.begin(), name.end(),  '/', '_');
         localTransform = mat4 {1.0};
+        _updateTransform(mat4{1.0f});
     }
 
     Node::Node(const Node& orig): id{currentId++} {
@@ -125,7 +126,6 @@ namespace z0 {
 
     void Node::_onReady() {
         inReady = true;
-        _updateTransform(mat4{1.0f});
         onReady();
         inReady = false;
     }
@@ -233,6 +233,10 @@ namespace z0 {
                (!paused && (mode == PROCESS_MODE_PAUSABLE)) ||
                (paused && (mode == PROCESS_MODE_WHEN_PAUSED)) ||
                (mode == PROCESS_MODE_ALWAYS);
+    }
+
+    vec3 Node::getRightVector() const {
+        return normalize(mat3{worldTransform} * AXIS_X);
     }
 
     Application& Node::app() {

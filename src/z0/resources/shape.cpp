@@ -20,4 +20,9 @@ namespace z0 {
         shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(sizes.x/2, sizes.y/2, sizes.z/2));
     }
 
+    SphereShape::SphereShape(float radius, const string& resName):
+        Shape {resName} {
+        shapeSettings = new JPH::SphereShapeSettings(radius);
+    }
+
 }

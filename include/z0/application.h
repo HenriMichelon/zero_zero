@@ -133,7 +133,7 @@ namespace z0 {
          * Physic system members
          */
         JPH::PhysicsSystem physicsSystem;
-        ContactListener contactListener;
+        unique_ptr<ContactListener> contactListener;
         BPLayerInterfaceImpl broad_phase_layer_interface;
         ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter;
         ObjectLayerPairFilterImpl object_vs_object_layer_filter;

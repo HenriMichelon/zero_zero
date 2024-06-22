@@ -9,12 +9,13 @@ namespace z0 {
     class CollisionObject: public Node {
     public:
         static const Signal::signal on_collision_starts;
+        static const Signal::signal on_collision_persists;
 
         /**
          * Collision data for the "on_collision_starts" signal
          */
         struct Collision: public Signal::Parameters {
-            /** World space position of the collision, on the colliding `object` */
+            /** World space position of the first contact point, on the colliding `object` */
             vec3             position;
             /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
             vec3             normal;
@@ -77,6 +78,11 @@ namespace z0 {
          * Add force (unit: N) at `position` for the next time step, will be reset after the next physics update
          */
         void applyForce(vec3 force, vec3 position);
+
+        /**
+         * Returns `true` if `obj` were in contact with the object during the last simulation step
+         */
+        bool wereInContact(CollisionObject* obj);
 
     protected:
         bool updating{false};

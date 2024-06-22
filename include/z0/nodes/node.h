@@ -246,6 +246,11 @@ namespace z0 {
             return nullptr;
         }
 
+        /**
+         * Returns the normalized right vector
+         */
+        vec3 getRightVector() const;
+
     protected:
         string name;
         Node* parent {nullptr};

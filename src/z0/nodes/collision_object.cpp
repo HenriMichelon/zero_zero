@@ -13,6 +13,7 @@
 namespace z0 {
 
     const Signal::signal CollisionObject::on_collision_starts = "on_collision_starts";
+    const Signal::signal CollisionObject::on_collision_persists = "on_collision_persists";
 
     CollisionObject::CollisionObject(shared_ptr<Shape>& _shape,
                              uint32_t layer,
@@ -145,6 +146,10 @@ namespace z0 {
             bodyId, 
             JPH::Vec3{force.x, force.y, force.z}, 
             JPH::Vec3{position.x, position.y, position.z});
+    }
+
+    bool CollisionObject::wereInContact(CollisionObject* obj) {
+        return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
     }
 
 }

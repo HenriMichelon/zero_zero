@@ -27,6 +27,16 @@ namespace z0 {
                             const JPH::Body &inBody2,
                             const JPH::ContactManifold &inManifold,
                             JPH::ContactSettings &ioSettings) override;
+        void OnContactPersisted(const JPH::Body &inBody1, 
+                                const JPH::Body &inBody2, 
+                                const JPH::ContactManifold &inManifold, 
+                                JPH::ContactSettings &ioSettings) override;
+
+    private:
+        void emit(Signal::signal signal,
+                  const JPH::Body &body1, 
+                  const JPH::Body &body2, 
+                  const JPH::ContactManifold &inManifold);
     };
 
 }
