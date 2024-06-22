@@ -39,89 +39,6 @@ add_shaders(${PROJECT_NAME}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${
 
 # engine library
 add_library(${PROJECT_NAME} SHARED
-		${INCLUDE_DIR}/vk_mem_alloc.h
-
-		${Z0_INCLUDE_DIR}/constants.h
-		${Z0_INCLUDE_DIR}/application_config.h
-		${Z0_INCLUDE_DIR}/tools.h
-		${Z0_INCLUDE_DIR}/object.h
-		${Z0_INCLUDE_DIR}/window.h
-		${Z0_INCLUDE_DIR}/application.h
-		${Z0_INCLUDE_DIR}/device.h
-		${Z0_INCLUDE_DIR}/buffer.h
-		${Z0_INCLUDE_DIR}/stats.h
-		${Z0_INCLUDE_DIR}/descriptors.h
-		${Z0_INCLUDE_DIR}/color.h
-		${Z0_INCLUDE_DIR}/loader.h
-		${Z0_INCLUDE_DIR}/shader.h
-		${Z0_INCLUDE_DIR}/input_event.h
-		${Z0_INCLUDE_DIR}/input.h
-		${Z0_INCLUDE_DIR}/physics.h
-		${Z0_INCLUDE_DIR}/rect.h
-		${Z0_INCLUDE_DIR}/signal.h
-		${Z0_INCLUDE_DIR}/libraries.h
-		${Z0_INCLUDE_DIR}/z0.h
-
-		${Z0_INCLUDE_DIR}/framebuffers/base_frame_buffer.h
-		${Z0_INCLUDE_DIR}/framebuffers/sampled_frame_buffer.h
-		${Z0_INCLUDE_DIR}/framebuffers/depth_frame_buffer.h
-		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer.h
-		${Z0_INCLUDE_DIR}/framebuffers/color_frame_buffer_hdr.h
-		${Z0_INCLUDE_DIR}/framebuffers/shadow_map_frame_buffer.h
-
-		${Z0_INCLUDE_DIR}/renderers/base_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/base_models_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/base_renderpass.h
-		${Z0_INCLUDE_DIR}/renderers/scene_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/skybox_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/vector_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/shadowmap_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/base_postprocessing_renderer.h
-		${Z0_INCLUDE_DIR}/renderers/simple_postprocessing_renderer.h
-
-		${Z0_INCLUDE_DIR}/nodes/node.h
-		${Z0_INCLUDE_DIR}/nodes/mesh_instance.h
-		${Z0_INCLUDE_DIR}/nodes/camera.h
-		${Z0_INCLUDE_DIR}/nodes/physics_body.h
-		${Z0_INCLUDE_DIR}/nodes/rigid_body.h
-		${Z0_INCLUDE_DIR}/nodes/static_body.h
-		${Z0_INCLUDE_DIR}/nodes/skybox.h
-		${Z0_INCLUDE_DIR}/nodes/collision_object.h
-		${Z0_INCLUDE_DIR}/nodes/character.h
-		${Z0_INCLUDE_DIR}/nodes/kinematic_body.h
-		${Z0_INCLUDE_DIR}/nodes/raycast.h
-		${Z0_INCLUDE_DIR}/nodes/light.h
-		${Z0_INCLUDE_DIR}/nodes/directional_light.h
-		${Z0_INCLUDE_DIR}/nodes/omni_light.h
-		${Z0_INCLUDE_DIR}/nodes/spot_light.h
-
-		${Z0_INCLUDE_DIR}/resources/resource.h
-		${Z0_INCLUDE_DIR}/resources/image.h
-		${Z0_INCLUDE_DIR}/resources/texture.h
-		${Z0_INCLUDE_DIR}/resources/material.h
-		${Z0_INCLUDE_DIR}/resources/mesh.h
-		${Z0_INCLUDE_DIR}/resources/shape.h
-		${Z0_INCLUDE_DIR}/resources/sub_shape.h
-		${Z0_INCLUDE_DIR}/resources/convex_hull_shape.h
-		${Z0_INCLUDE_DIR}/resources/static_compound_shape.h
-		${Z0_INCLUDE_DIR}/resources/cubemap.h
-		${Z0_INCLUDE_DIR}/resources/font.h
-
-		${Z0_INCLUDE_DIR}/gui/gwindow.h
-		${Z0_INCLUDE_DIR}/gui/gwidget.h
-		${Z0_INCLUDE_DIR}/gui/gevent.h
-		${Z0_INCLUDE_DIR}/gui/gresource.h
-		${Z0_INCLUDE_DIR}/gui/gstyle.h
-		${Z0_INCLUDE_DIR}/gui/gmanager.h
-		${Z0_INCLUDE_DIR}/gui/gpanel.h
-		${Z0_INCLUDE_DIR}/gui/gline.h
-		${Z0_INCLUDE_DIR}/gui/gbutton.h
-		${Z0_INCLUDE_DIR}/gui/gbox.h
-		${Z0_INCLUDE_DIR}/gui/gtoggle_button.h
-		${Z0_INCLUDE_DIR}/gui/gcheck_widget.h
-		${Z0_INCLUDE_DIR}/gui/gtext.h
-		${Z0_INCLUDE_DIR}/gui/gframe.h
-
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/object.cpp
 		${Z0_ENGINE_DIR}/window.cpp
@@ -180,6 +97,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/resources/shape.cpp
 		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cpp
 		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
+		${Z0_ENGINE_DIR}/resources/mesh_shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/resources/font.cpp
 

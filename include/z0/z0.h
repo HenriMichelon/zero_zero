@@ -36,6 +36,7 @@
 #include <z0/resources/shape.h>
 #include <z0/nodes/mesh_instance.h>
 #include <z0/resources/convex_hull_shape.h>
+#include <z0/resources/mesh_shape.h>
 #include <z0/resources/sub_shape.h>
 #include <z0/resources/static_compound_shape.h>
 

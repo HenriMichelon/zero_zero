@@ -35,13 +35,13 @@ namespace z0 {
 
 
     void ConvexHullShape::createShape(const MeshInstance* meshInstance) {
-            JPH::Array<JPH::Vec3> points;
-            const auto& transform = meshInstance->getTransformLocal();
-            for(const auto& vertex : meshInstance->getMesh()->getVertices()) {
-                auto point = transform * vec4{vertex.position, 1.0f};
-                points.push_back(JPH::Vec3{point.x, point.y, point.z});
-            }
-            shapeSettings = new JPH::ConvexHullShapeSettings(points);
+        JPH::Array<JPH::Vec3> points;
+        const auto& transform = meshInstance->getTransformLocal();
+        for(const auto& vertex : meshInstance->getMesh()->getVertices()) {
+            auto point = transform * vec4{vertex.position, 1.0f};
+            points.push_back(JPH::Vec3{point.x, point.y, point.z});
+        }
+        shapeSettings = new JPH::ConvexHullShapeSettings(points);
     }
 
 }

@@ -24,8 +24,11 @@ namespace z0 {
         uint32_t firstVertexIndex;
         uint32_t indexCount;
         shared_ptr<BaseMaterial> material;
-        Surface(uint32_t first, uint32_t count):
-                firstVertexIndex{first}, indexCount{count}, material{nullptr} {};
+        Surface(uint32_t first, 
+                uint32_t count):
+                firstVertexIndex{first}, 
+                indexCount{count}, 
+                material{nullptr} {};
     };
 
     /**
@@ -39,11 +42,12 @@ namespace z0 {
              const vector<shared_ptr<Surface>>& surfaces,
              const string& meshName = "Mesh");
 
-        vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
         const shared_ptr<BaseMaterial>& getSurfaceMaterial(uint32_t surfaceIndex) const;
         void setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<BaseMaterial> material);
-        vector<Vertex>& getVertices() { return vertices; }
-        vector<uint32_t>& getIndices() { return indices; }
+
+        inline vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
+        inline vector<Vertex>& getVertices() { return vertices; }
+        inline vector<uint32_t>& getIndices() { return indices; }
 
     private:
         vector<Vertex> vertices;
