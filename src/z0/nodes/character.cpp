@@ -124,9 +124,9 @@ namespace z0 {
             auto* node = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(contact.mBodyB));
             assert(node && "physics body not associated with a node");
             contacts.push_back({
-                vec3{contact.mPosition.GetX(), contact.mPosition.GetY(), contact.mPosition.GetZ()},
-                vec3{contact.mSurfaceNormal.GetX(), contact.mSurfaceNormal.GetY(), contact.mSurfaceNormal.GetZ()},
-                node
+                .position = vec3{contact.mPosition.GetX(), contact.mPosition.GetY(), contact.mPosition.GetZ()},
+                .normal =  vec3{contact.mSurfaceNormal.GetX(), contact.mSurfaceNormal.GetY(), contact.mSurfaceNormal.GetZ()},
+                .object = node
                 });
         }
         return contacts;
@@ -141,11 +141,12 @@ namespace z0 {
         auto* charac = reinterpret_cast<Character*>(inCharacter->GetUserData());
         auto* node = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID2));
         assert(charac && node && "physics body not associated with a node");
-        charac->onCollisionStarts({
-            vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
-            vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
-            node
-        });        
+         auto event = CollisionObject::Collision {
+            .position = vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
+            .normal = vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
+            .object = node
+        };
+        this->emit(on_collision_starts, &event);
     }
 
     bool Character::ShouldCollide (JPH::ObjectLayer inLayer) const {

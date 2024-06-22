@@ -9,6 +9,8 @@ namespace z0 {
      */
     class Signal {
     public:
+        using signal = std::string;
+
         /**
          * Base struct for emit() parameters
          */

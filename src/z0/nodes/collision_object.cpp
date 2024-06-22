@@ -12,6 +12,8 @@
 
 namespace z0 {
 
+    const Signal::signal CollisionObject::on_collision_starts = "on_collision_starts";
+
     CollisionObject::CollisionObject(shared_ptr<Shape>& _shape,
                              uint32_t layer,
                              uint32_t mask,

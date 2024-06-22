@@ -10,6 +10,7 @@
 #endif
 
 namespace z0 {
+
     void ContactListener::OnContactAdded(const JPH::Body &inBody1,
                                          const JPH::Body &inBody2,
                                          const JPH::ContactManifold &inManifold,
@@ -18,11 +19,12 @@ namespace z0 {
         auto node2 = reinterpret_cast<CollisionObject*>(inBody2.GetUserData());
         assert(node1 && node2 && "physics body not associated with a node");
         auto pos = inManifold.GetWorldSpaceContactPointOn2(0);
-        node1->onCollisionStarts({
-            vec3{pos.GetX(), pos.GetY(), pos.GetZ()},
-            vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
-            node2
-        });
+        auto event = CollisionObject::Collision {
+            .position = vec3{pos.GetX(), pos.GetY(), pos.GetZ()},
+            .normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
+            .object = node2
+        };
+        node1->emit(CollisionObject::on_collision_starts, &event);
     }
 
     bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer layersAndMask1,

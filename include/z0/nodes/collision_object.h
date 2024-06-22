@@ -8,10 +8,12 @@ namespace z0 {
      */
     class CollisionObject: public Node {
     public:
+        static const Signal::signal on_collision_starts;
+
         /**
-         * Collision data
+         * Collision data for the "on_collision_starts" signal
          */
-        struct Collision {
+        struct Collision: public Signal::Parameters {
             /** World space position of the collision, on the colliding `object` */
             vec3             position;
             /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
@@ -55,11 +57,6 @@ namespace z0 {
          * Returns `true` if the object can collide with an object with the layer `layer`
          */
         bool shouldCollide(uint32_t layer) const;
-
-        /**
-         * Called when antoher body collides with the object, with respect to the layer/mask values
-         */
-        virtual void onCollisionStarts(const Collision collision) {};
 
         /**
          * Sets the linear velocity
