@@ -251,13 +251,31 @@ namespace z0 {
          */
         vec3 getRightVector() const;
 
+        /**
+         * Creates a Tween to tweens a property of the node between an `initial` value 
+         * and `final` value in a span of time equal to `duration`, in seconds.
+         */
+        template<typename T>
+        shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final, float duration) {
+            auto tween = make_shared<PropertyTween<T>>(this, set, initial, final, duration);
+            tweens.push_back(tween);
+            return tween;
+        }
+
+        /**
+         * Removes the `tween` from the processing list
+         */
+        template<typename T>
+        void killTween(shared_ptr<Tween>& tween) {
+            tweens.remove(tween);
+        }
+
     protected:
         string name;
         Node* parent {nullptr};
         list<shared_ptr<Node>> children;
         mat4 localTransform {};
         mat4 worldTransform {};
-        bool needPhysics {false};
 
         virtual shared_ptr<Node> duplicateInstance();
         Application& app();
@@ -268,6 +286,7 @@ namespace z0 {
         ProcessMode processMode{PROCESS_MODE_INHERIT};
         bool inReady{false};
         bool addedToScene{false};
+        list<shared_ptr<Tween>> tweens;
 
     public:
         virtual void _onReady();
@@ -275,9 +294,8 @@ namespace z0 {
         virtual void _onResume() {};
         inline virtual void _onEnterScene() { onEnterScene(); };
         inline virtual void _onExitScene() { onExitScene(); };
-        virtual void _physicsUpdate(float delta) {};
+        virtual void _physicsUpdate(float delta);
 
-        bool _needPhysics() const { return needPhysics; }
         void _setAddedToScene(bool added) { addedToScene = added; }
         bool _isAddedToScene() { return addedToScene; }
         mat4& _getTransformLocal() { return localTransform; }

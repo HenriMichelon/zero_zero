@@ -19,7 +19,6 @@ namespace z0 {
         Node(name), 
         target{_target},
         collisionMask{mask} {
-        needPhysics = true;
     }
 
     bool RayCast::isColliding() const {
@@ -57,6 +56,7 @@ namespace z0 {
     }
 
     void RayCast::_physicsUpdate(float delta) {
+        Node::_physicsUpdate(delta);
         const auto position = getPositionGlobal();
         const auto worldTarget = toGlobal(target);
         const JPH::RRayCast ray{

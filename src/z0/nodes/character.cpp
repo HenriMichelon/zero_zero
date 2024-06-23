@@ -101,6 +101,7 @@ namespace z0 {
     }
 
     void Character::_physicsUpdate(float delta) {
+        Node::_physicsUpdate(delta);
         updating = true;
         character->Update(delta, 
                           character->GetUp() * app()._getPhysicsSystem().GetGravity().Length(), 

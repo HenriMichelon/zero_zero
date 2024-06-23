@@ -24,6 +24,7 @@
 #include <z0/descriptors.h>
 #include <z0/buffer.h>
 #include <z0/shader.h>
+#include <z0/tween.h>
 
 #ifdef USE_PCH
 #include <z0/nodes/node.h>

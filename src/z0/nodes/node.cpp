@@ -32,7 +32,7 @@ namespace z0 {
 
     void Node::setPosition(vec3 pos) {
         localTransform[3] = vec4(pos, 1.0f);
-        _updateTransform(mat4{1.0f});
+        _updateTransform();
     }
 
     void Node::setPositionGlobal(vec3 pos) {
@@ -53,10 +53,7 @@ namespace z0 {
 
     void Node::_updateTransform() {
         auto parentMatrix = parent == nullptr ? mat4{1.0f} : parent->worldTransform;
-        worldTransform = parentMatrix * localTransform;
-        for (const auto& child : children) {
-            child->_updateTransform(worldTransform);
-        }
+        _updateTransform(parentMatrix);
     }
 
     void Node::rotateX(float angle) {
@@ -238,6 +235,17 @@ namespace z0 {
     vec3 Node::getRightVector() const {
         return normalize(mat3{worldTransform} * AXIS_X);
     }
+
+    void Node::_physicsUpdate(float delta) {
+        for (auto it = tweens.begin(); it != tweens.end(); ) {
+            if ((*it)->update(delta)) {
+                it = tweens.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    };
+
 
     Application& Node::app() {
         return Application::get();

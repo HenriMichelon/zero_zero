@@ -333,7 +333,7 @@ namespace z0 {
     void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
         assert(node != nullptr);
         if (node->isProcessed()) {
-            if (node->_needPhysics()) { node->_physicsUpdate(delta); }
+            node->_physicsUpdate(delta);
             node->onPhysicsProcess(delta);
         }
         for(auto& child: node->_getChildren()) {

@@ -25,7 +25,6 @@ namespace z0 {
         shape{_shape},
         activationMode{JPH::EActivation::Activate},
         bodyInterface{app()._getBodyInterface()} {
-        needPhysics = true;
     }
 
     void CollisionObject::_updateTransform() {
@@ -123,6 +122,7 @@ namespace z0 {
     }
 
     void CollisionObject::_physicsUpdate(float delta) {
+        Node::_physicsUpdate(delta);
         updating = true;
         JPH::Vec3 position;
         JPH::Quat rotation;

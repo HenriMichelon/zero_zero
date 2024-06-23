@@ -76,4 +76,38 @@ namespace std {
      * Helper to log a vec4 (std lib code convention)
      */
     string to_string(vec4 vec);
+
+    /** 
+     * lerp for a vec2 using std::lerp for componants
+    */
+    inline vec2 lerp(vec2 a, vec2 b, float t) {
+        return vec2{
+            lerp(a.x, b.x, t),
+            lerp(a.y, b.y, t),
+        };
+    }
+
+    /** 
+     * lerp for a vec3 using std::lerp for componants
+    */
+    inline vec3 lerp(vec3 a, vec3 b, float t) {
+        return vec3{
+            lerp(a.x, b.x, t),
+            lerp(a.y, b.y, t),
+            lerp(a.z, b.z, t),
+        };
+    }
+
+    /** 
+     * lerp for a vec4 using std::lerp for componants
+    */
+    inline vec4 lerp(vec4 a, vec4 b, float t) {
+        return vec4{
+            lerp(a.x, b.x, t),
+            lerp(a.y, b.y, t),
+            lerp(a.z, b.z, t),
+            lerp(a.w, b.w, t),
+        };
+    }
+
 }
