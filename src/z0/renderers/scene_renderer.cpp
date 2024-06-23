@@ -152,6 +152,7 @@ namespace z0 {
             }
         } else if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
             if ((directionalLight == light) && light->getCastShadows()) {
+                directionalLight = nullptr;
                 const auto& renderer = findShadowMapRenderer(light);
                 device.unRegisterRenderer(renderer);
                 shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer), shadowMapRenderers.end());
