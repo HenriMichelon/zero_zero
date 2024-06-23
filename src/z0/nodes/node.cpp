@@ -244,8 +244,7 @@ namespace z0 {
                 ++it;
             }
         }
-    };
-
+    }
 
     Application& Node::app() {
         return Application::get();

@@ -12,12 +12,10 @@
 
 namespace z0 {
 
-
     CollisionArea::CollisionArea(shared_ptr<Shape> _shape,
-                             uint32_t layer,
                              uint32_t mask,
                              const string& name):
-            CollisionObject{_shape, layer, mask, name} {
+            CollisionObject{_shape, 0, mask, name} {
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
         shape->setAttachedToNode();
