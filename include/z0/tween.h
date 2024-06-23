@@ -21,6 +21,9 @@ namespace z0 {
 
     protected:
         bool running{false};
+
+    public:
+        void _kill() { running = false; }
     };
 
     /**

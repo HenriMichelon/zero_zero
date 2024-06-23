@@ -265,9 +265,11 @@ namespace z0 {
         /**
          * Removes the `tween` from the processing list
          */
-        template<typename T>
         void killTween(shared_ptr<Tween>& tween) {
-            tweens.remove(tween);
+            if (tween != nullptr) {
+                tween->_kill();
+                tweens.remove(tween);
+            }
         }
 
     protected:
