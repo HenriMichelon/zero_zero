@@ -11,20 +11,48 @@ namespace z0 {
                      public JPH::BodyFilter,
                      public JPH::CharacterContactListener {
     public:
+        /**
+         * Creates a Character with a given collision `shape`, belonging to the `layer` layers and detecting collisions with bodies having a layer in the `mask` value.
+         */
         explicit Character(shared_ptr<Shape> shape,
                            uint32_t layer,
                            uint32_t mask,
                            const string& name = "Character");
         ~Character() override;
 
+        /**
+         * Returns `true` if the Character is on a ground
+         */
         bool isOnGround();
-        bool isGround(CollisionObject*);
+
+        /**
+         * Returns `true` if `object` is the ground
+         */
+        bool isGround(CollisionObject*object);
+
+        /**
+         * Returns the velocity in the world space of the ground.
+         */
+        vec3 getGroundVelocity() const;
+
+        /**
+         * Returns the UP axis for this Character
+         */
+        inline const vec3& getUpVector() const { return upVector; }
+
+        /**
+         * Sets the UP axis for this Character
+         */
+        void setUpVector(vec3 v);
+
+        /**
+        * Returns the list of the currently colliding bodies
+        */
+        list<Collision> getCollisions() const;
+        
+
         void setVelocity(vec3 velocity) override;
         vec3 getVelocity() const override;
-        vec3 getGroundVelocity() const;
-        inline const vec3& getUpVector() const { return upVector; }
-        void setUpVector(vec3 v);
-        list<Collision> getCollisions() const;
 
     protected:
         void setPositionAndRotation() override;

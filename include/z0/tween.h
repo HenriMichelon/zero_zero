@@ -4,14 +4,15 @@
 namespace z0 {
 
     /**
-     * Base class for all tweeners classes
+     * Base class for all tweeners classes.
+     * Tweens are objects that perform a specific animating task, e.g. interpolating a property of a Node. 
      */
     class Tween: public Object {
     public:
         /**
          * Update the tween.
          * If the Tween have been created manually you need to call update() in your Node::onPhysicsProcess() function.
-         * Do not call it if the Tween have been created with .
+         * Do not call it if the Tween have been created with Node::create*Tween().
          * * @return `false` if the tween is running
          */
         virtual bool update(float deltaTime) = 0;
@@ -23,7 +24,7 @@ namespace z0 {
     };
 
     /**
-     * Tweens are objects that perform a specific animating task, e.g. interpolating a property of a Node. 
+     * Tween to interpolate a property of a Object. 
      */
     template<typename T>
     class PropertyTween: public Tween {
@@ -34,7 +35,7 @@ namespace z0 {
         typedef void (Object::*Setter)(T);
 
         /**
-         * Create a Tween to tweens a property of an `node` between an `initial` value 
+         * Create a Tween to tweens a property of `node` between an `initial` value 
          * and `final` value in a span of time equal to `duration`, in seconds.
          */
         PropertyTween(Object* node, Setter set, T initial, T final, float duration):
@@ -58,7 +59,7 @@ namespace z0 {
         /**
          * Interpolate the property.
          * If the Tween have been created manually you need to call update() in your Node::onPhysicsProcess() function.
-         * Do not call it if the Tween have been created with .
+         * Do not call it if the Tween have been created with Node::createPropertyTween().
          * @return `false` if the tween is running
          */
         bool update(float deltaTime) override {

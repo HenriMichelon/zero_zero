@@ -8,7 +8,7 @@ namespace z0 {
     class CollisionArea: public CollisionObject {
     public:
         /**
-         * Creates a CollisionArea using the given geometric `shape` to detect collision with body having a layer in the `mask` value.
+         * Creates a CollisionArea using the given geometric `shape` to detect collision with bodies having a layer in the `mask` value.
          */
         CollisionArea(shared_ptr<Shape> shape,
                     uint32_t mask,
