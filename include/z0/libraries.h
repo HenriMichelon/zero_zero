@@ -8,6 +8,7 @@
 #include <hidsdi.h>
 #include <Xinput.h>
 #include <dinput.h>
+#include <dxgi1_4.h>
 #endif
 
 #include <volk.h>

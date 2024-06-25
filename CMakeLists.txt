@@ -128,7 +128,7 @@ target_precompile_headers(${PROJECT_NAME} PUBLIC
 		${Z0_INCLUDE_DIR}/z0.h
 )
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid)
+	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid dxgi)
 endif()
 
 

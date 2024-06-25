@@ -16,11 +16,14 @@ namespace z0 {
         VmaAllocator getAllocator() const { return allocator; }
         VkDevice getDevice() const { return device; }
         VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
-        VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties; }
+        VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
         VkSampleCountFlagBits getSamples() const { return samples; }
         const VkExtent2D& getSwapChainExtent() const { return swapChainExtent;}
         VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
         float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
+        uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
+        const string& getAdapterDescription() const { return adapterDescription; }
+        uint64_t getVideoMemoryUsage() const;
 
         void drawFrame();
         void wait() const;
@@ -76,8 +79,21 @@ namespace z0 {
         VkQueue graphicsQueue;
         VkQueue presentQueue;
         VkCommandPool commandPool;
-        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceProperties2 deviceProperties {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 
+        };
+        VkPhysicalDeviceIDProperties physDeviceIDProps {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES 
+        };
         VkSampleCountFlagBits samples;
+
+        // Total video memory given by the OS (not Vulkan)
+        uint64_t dedicatedVideoMemory;
+        // GPU description given by the OS (not Vulkan)
+        string adapterDescription;
+#ifdef _WIN32
+        IDXGIAdapter3* dxgiAdapter{nullptr};
+#endif
 
         // Vulkan Memory Allocator
         VmaAllocator allocator;
@@ -136,6 +152,8 @@ namespace z0 {
         VkSampleCountFlagBits getMaxUsableMSAASampleCount() const;
         // Get the swap chain images sizes
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
+        // Get the GPU details from the OS
+        void getAdapterDescFromOS();
 
     public:
         Device(const Device&) = delete;

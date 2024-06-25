@@ -88,6 +88,22 @@ namespace z0 {
          */
         vec3 getGravity() const;
 
+        /**
+         * Returns the number of bytes of dedicated video memory that are not shared with the CPU.
+         */
+        uint64_t getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
+
+        /**
+         * Returns the video adapter description
+         */
+        const string& getAdapterDescription() const { return device->getAdapterDescription(); }
+
+        /**
+         * Returns the application’s current video memory usage, in bytes.
+         */
+        uint64_t getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
+
+
     private:
         // The global startup configuration parameters
         const ApplicationConfig& applicationConfig;

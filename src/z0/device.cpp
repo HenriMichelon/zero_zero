@@ -56,8 +56,10 @@ namespace z0 {
             physicalDevice = candidates.rbegin()->second;
             // Select the best MSAA samples count if requested
             if (applicationConfig.msaa == MSAA_AUTO) samples = getMaxUsableMSAASampleCount();
-            // Get the physical device properties for futur uses
-            vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+            deviceProperties.pNext = &physDeviceIDProps;
+            vkGetPhysicalDeviceProperties2(physicalDevice, &deviceProperties);
+            // Get the GPU description and total memory
+            getAdapterDescFromOS();
         } else {
             die("Failed to find a suitable GPU!");
         }
@@ -167,7 +169,7 @@ namespace z0 {
                 .device = device,
                 .pVulkanFunctions = &vulkanFunctions,
                 .instance = vkInstance,
-                .vulkanApiVersion = deviceProperties.apiVersion,
+                .vulkanApiVersion = deviceProperties.properties.apiVersion,
         };
         vmaCreateAllocator(&allocatorInfo, &allocator);
 
@@ -225,6 +227,9 @@ namespace z0 {
         vmaDestroyAllocator(allocator);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
+#ifdef _WIN32
+        dxgiAdapter->Release();
+#endif
     }
 
     void Device::wait() const {
@@ -810,5 +815,36 @@ namespace z0 {
         vkQueueWaitIdle(graphicsQueue);
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
+
+#ifdef _WIN32
+    // https://dev.to/reg__/there-is-a-way-to-query-gpu-memory-usage-in-vulkan---use-dxgi-1f0d
+    void Device::getAdapterDescFromOS() {
+        IDXGIFactory4* dxgiFactory = nullptr;
+        CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+        IDXGIAdapter1* tmpDxgiAdapter = nullptr;
+        UINT adapterIndex = 0;
+        while(dxgiFactory->EnumAdapters1(adapterIndex, &tmpDxgiAdapter) != DXGI_ERROR_NOT_FOUND) {
+            DXGI_ADAPTER_DESC1 desc;
+            tmpDxgiAdapter->GetDesc1(&desc);
+            if(memcmp(&desc.AdapterLuid, physDeviceIDProps.deviceLUID, VK_LUID_SIZE) == 0) {
+                tmpDxgiAdapter->QueryInterface(IID_PPV_ARGS(&dxgiAdapter));
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                adapterDescription = converter.to_bytes(desc.Description);
+                dedicatedVideoMemory = static_cast<uint64_t>(desc.DedicatedVideoMemory);
+            }
+            tmpDxgiAdapter->Release();
+            ++adapterIndex;
+        }
+        dxgiFactory->Release();
+        log(adapterDescription + " VRAM", to_string(dedicatedVideoMemory / 1024 / 1024) + "Mb");
+    }
+
+    uint64_t Device::getVideoMemoryUsage() const {
+        DXGI_QUERY_VIDEO_MEMORY_INFO info = {};
+        dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+        return static_cast<uint64_t>(info.CurrentUsage);
+
+    }
+#endif
 
 }
