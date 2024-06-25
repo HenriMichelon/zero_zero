@@ -526,6 +526,9 @@ namespace z0 {
         if (logMode & LOGGING_FILE) {
             *_logFile << item << endl;
         }
+        if (logMode & LOGGING_STDOUT) {
+            std::cout << item << endl;
+        }
     }
 
     void Window::_processDeferredLog() {

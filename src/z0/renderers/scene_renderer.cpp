@@ -42,6 +42,10 @@ namespace z0 {
      }
 
     void SceneRenderer::cleanup() {
+        materialShaders.clear();
+        materialsUniformBuffers.clear();
+        shadowMapsUniformBuffers.clear();
+        pointLightUniformBuffers.clear();
         if (blankImage != nullptr) {
             blankImage.reset();
             blankImageData.clear();

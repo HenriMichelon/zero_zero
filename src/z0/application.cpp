@@ -166,8 +166,7 @@ namespace z0 {
                            broad_phase_layer_interface,
                            object_vs_broadphase_layer_filter,
                            object_vs_object_layer_filter);
-        contactListener = make_unique<ContactListener>();
-        physicsSystem.SetContactListener(contactListener.get());
+        physicsSystem.SetContactListener(&contactListener);
 
         // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};

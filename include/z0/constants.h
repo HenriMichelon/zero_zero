@@ -104,11 +104,15 @@ namespace z0 {
         * Open an external window (on the first screen if you have multiple screen) to display the log messages. 
         * Log message appearance in the window can be deferred to the next frame if the log message is sent from a thread different from the main thread
         */ 
-        LOGGING_WINDOW      = 0x01,
+        LOGGING_WINDOW      = 0x001,
         /**
          * Log the messages into a file named 'log.txt'
          */
-        LOGGING_FILE        = 0x10
+        LOGGING_FILE        = 0x010,
+        /**
+         * Log the messages to std::cout
+         */
+        LOGGING_STDOUT      = 0x100
     };
 
     /**
