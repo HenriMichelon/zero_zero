@@ -143,7 +143,7 @@ namespace z0 {
     };
 
     /*
-    * Materials transparency mode
+    * A Material transparency mode
     * Any transparency mode other than TRANSPARENCY_DISABLED has a greater performance impact compared to opaque rendering.
     */
     enum Transparency {
@@ -155,6 +155,14 @@ namespace z0 {
         TRANSPARENCY_SCISSOR          = 2,
         //! The material will cut off all values below a threshold, the rest will use the texture's alpha values for transparency.
         TRANSPARENCY_SCISSOR_ALPHA    = 3, 
+    };
+
+    /**
+     * A Tween transition type
+     */
+    enum TransitionType {
+        /** The animation is interpolated linearly */
+        TRANS_LINEAR        = 0,
     };
 
     /**

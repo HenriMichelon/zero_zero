@@ -5,7 +5,7 @@ namespace z0 {
 
     /**
      * Base class for all tweeners classes.
-     * Tweens are objects that perform a specific animating task, e.g. interpolating a property of a Node. 
+     * Tweens are objects that perform a specific animating task, e.g. interpolating a property of an Object. 
      */
     class Tween: public Object {
     public:
@@ -21,6 +21,9 @@ namespace z0 {
 
     protected:
         bool running{false};
+        TransitionType interpolationType;
+
+        explicit Tween(TransitionType type): interpolationType{type} {};
 
     public:
         void _kill() { running = false; }
@@ -38,31 +41,53 @@ namespace z0 {
         typedef void (Object::*Setter)(T);
 
         /**
-         * Create a Tween to tweens a property of `node` between an `initial` value 
-         * and `final` value in a span of time equal to `duration`, in seconds.
+         * Create a Tween to tweens a property of an Object.
+         * @param obj Target Object
+         * @param set Setter to call on the Object
+         * @param initial Initial value
+         * @param final Final value
+         * @param duration Animation duration in seconds
+         * @param ttype Transition type
          */
-        PropertyTween(Object* node, Setter set, T initial, T final, float duration):
+        PropertyTween(Object* obj, 
+                      Setter set, 
+                      T initial, 
+                      T final, 
+                      float duration, 
+                      TransitionType ttype = TRANS_LINEAR):
+            Tween{ttype},
             durationTime{duration},
             targetValue{final},
             startValue{initial},
-            targetObject{node},
+            targetObject{obj},
             setter{set} {}
 
          /**
-         * Create a Tween to tweens a property of an `node` between an `initial` value 
-         * and `final` value in a span of time equal to `duration`, in seconds.
+         * Create a Tween to tweens a property of an Object.
+         * @param obj Target Object
+         * @param set Setter to call on the Object
+         * @param initial Initial value
+         * @param final Final value
+         * @param duration Animation duration in seconds
+         * @param ttype Transition type
          */
-        PropertyTween(const shared_ptr<Object>& node, Setter set, T initial, T final, float duration):
+        PropertyTween(const shared_ptr<Object>& obj, 
+                      Setter set, 
+                      T initial, 
+                      T final, 
+                      float duration, 
+                      TransitionType ttype = TRANS_LINEAR):
+            Tween{ttype},
             durationTime{duration},
             targetValue{final},
             startValue{initial},
-            targetObject{node.get()},
+            targetObject{obj.get()},
             setter{set} {}
 
         /**
          * Interpolate the property.
-         * If the Tween have been created manually you need to call update() in your Node::onPhysicsProcess() function.
-         * Do not call it if the Tween have been created with Node::createPropertyTween().
+         * If the Tween have been created manually you need to call update() in a Node::onPhysicsProcess() function.
+         * *Do not call it* if the Tween have been created with Node::createPropertyTween().
          * @return `false` if the tween is running
          */
         bool update(float deltaTime) override {

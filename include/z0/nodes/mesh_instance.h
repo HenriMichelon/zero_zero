@@ -35,7 +35,7 @@ namespace z0 {
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
          */
-        void setOutlineMaterial(const shared_ptr<ShaderMaterial>& mat) { outlineMaterial = mat; }*
+        void setOutlineMaterial(const shared_ptr<ShaderMaterial>& mat) { outlineMaterial = mat; }
         
         /**
          * Returns the current outlining material
