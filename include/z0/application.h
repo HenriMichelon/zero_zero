@@ -216,6 +216,7 @@ namespace z0 {
         int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
             if (z0::Application::_instance == nullptr) z0::die("No Application object found"); \
             z0::Application::get()._mainLoop(); \
+            log("Closing log"); \
             return 0; \
         }
 #endif

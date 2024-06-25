@@ -184,6 +184,7 @@ namespace z0 {
     }
 
     Application::~Application() {
+        OutlineMaterials::_all().clear();
         device->cleanup();
 #ifndef NDEBUG
         DestroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr);
