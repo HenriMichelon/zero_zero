@@ -7,9 +7,14 @@ namespace z0 {
      */
     class RigidBody: public PhysicsBody {
     public:
+        /**
+         * Creates a RigidBody with a given collision `shape`, 
+         * belonging to the `layer` layers and detecting collisions 
+         * with bodies having a layer in the `mask` value.
+         */
         explicit RigidBody(shared_ptr<Shape> shape,
-                           uint32_t layer=1,
-                           uint32_t mask=1,
+                           uint32_t layer=0xff,
+                           uint32_t mask=0xff,
                            const string& name = "RigidBody");
         ~RigidBody() override = default;
 

@@ -110,7 +110,7 @@ namespace z0 {
          */
         LOGGING_FILE        = 0x010,
         /**
-         * Log the messages to std::cout
+         * Log the messages to std::cout. WIN32 applications needs to be linked with `-mconsole`
          */
         LOGGING_STDOUT      = 0x100
     };

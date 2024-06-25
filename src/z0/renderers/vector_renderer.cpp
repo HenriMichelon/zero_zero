@@ -31,7 +31,18 @@ namespace z0 {
     }
 
     void VectorRenderer::cleanup() {
+        commands.clear();
+        textures.clear();
+        vertexBuffer.reset();
+        stagingBuffer.reset();
+        oldBuffers.clear();
+        commandUniformBuffers.clear();
+        if (blankImage != nullptr) {
+            blankImage.reset();
+            blankImageData.clear();
+        }
         if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
+        BaseRenderpass::cleanup();
     }
 
     void VectorRenderer::drawLine(vec2 start, vec2 end) {

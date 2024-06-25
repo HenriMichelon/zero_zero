@@ -7,13 +7,39 @@ namespace z0 {
      */
     class MeshInstance: public Node {
     public:
-        explicit MeshInstance(const shared_ptr<Mesh>& _mesh, const string& name = "MeshInstance");
+        /**
+         * Creates a MeshInstance with the given Mesh
+         */
+        explicit MeshInstance(const shared_ptr<Mesh>& mesh, const string& name = "MeshInstance");
 
+        /**
+         * Returns the associated Mesh
+         */
         const shared_ptr<Mesh>& getMesh() const { return mesh; }
+
+        /**
+         * Returns `true` if the Mesh is valid
+         */
         bool isValid() const { return mesh != nullptr; }
+
+        /**
+         * Set to `true` to have the Mesh outlined starting to the next frame
+         */
         void setOutlined(bool o) { outlined = o; }
+
+        /**
+         * Returns `true` if the Mesh will be outlined during the next frame
+         */
         bool isOutlined() const { return outlined; }
-        void setOutlineMaterial(const shared_ptr<ShaderMaterial>& mat) { outlineMaterial = mat; }
+
+        /**
+         * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
+         */
+        void setOutlineMaterial(const shared_ptr<ShaderMaterial>& mat) { outlineMaterial = mat; }*
+        
+        /**
+         * Returns the current outlining material
+         */
         shared_ptr<ShaderMaterial>& getOutlineMaterial() { return outlineMaterial; }
 
     protected:

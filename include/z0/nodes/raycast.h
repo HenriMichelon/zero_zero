@@ -7,13 +7,43 @@ namespace z0 {
      */
     class RayCast : public Node, public JPH::ObjectLayerFilter, public JPH::BodyFilter  {
     public:
+        /**
+         * Creates a RayCast
+         * @param target The ray's destination point, relative to the RayCast's position
+         * @param mask The ray's collision mask. Only objects in at least one collision layer enabled in the mask will be detected
+         * @param name The node's name
+         */
         RayCast(vec3 target, uint32_t mask, const string& name = "RayCast");
 
+        /**
+         * Returns whether any object is intersecting with the ray's vector (considering the vector length).
+         */
         bool isColliding() const;
+
+        /**
+         * Returns the first object that the ray intersects, or `nullptr` if no object is intersecting the ray
+         */
         CollisionObject* getCollider() const;
+
+        /**
+         * Returns the collision point at which the ray intersects the closest object, in the global coordinate system
+         */
         vec3 getCollisionPoint() const;
+
+        /**
+         * If `true`, collisions will be ignored for this RayCast's immediate parent.
+         */
         void setExcludeParent(bool);
+
+        /**
+         * Updates the collision information for the ray immediately, 
+         * without waiting for the next physics update
+         */
         void forceRaycastUpdate();
+
+        /**
+         * Sets the ray's destination point, relative to the RayCast's position.
+         */
         void setTarget(vec3);
 
     private:
