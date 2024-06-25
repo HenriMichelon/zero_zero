@@ -5,6 +5,7 @@
 #include <z0/application_config.h>
 #include <z0/signal.h>
 #include <z0/object.h>
+#include <z0/type_registry.h>
 #include <z0/window.h>
 #include <z0/tools.h>
 #include <z0/color.h>

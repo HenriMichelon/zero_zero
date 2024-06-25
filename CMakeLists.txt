@@ -56,6 +56,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/mappings.h
 		${Z0_ENGINE_DIR}/libraries.cpp
+		${Z0_ENGINE_DIR}/type_registry.cpp
 
 		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cpp
