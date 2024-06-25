@@ -305,6 +305,67 @@ namespace z0 {
 
         return rootNode;
     }
+    
+    void Loader::addNode(shared_ptr<Node>& parent, map<string, shared_ptr<Node>>& nodeTree, const Loader::SceneNode& nodeDesc) {
+        shared_ptr<Node> node;
+        if (nodeDesc.isResource) {
+            if (nodeDesc.resourceType == "model") {
+                node = Loader::loadModelFromFile(nodeDesc.resource);
+            }
+        } else {
+            if (nodeDesc.clazz == "") {
+                node = make_shared<Node>();
+            } else {
+                node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
+            }
+            for(const auto& prop: nodeDesc.properties) {
+                if (prop.first == "position") {
+                    node->setPosition(to_vec3(prop.second));
+                }
+            }
+            for(const auto& child: nodeDesc.children) {
+                if (nodeTree.contains(child.id)) {
+                    node->addChild(nodeTree[child.id]);
+                } else {
+                    addNode(parent, nodeTree, child);
+                }
+            }
+            parent->addChild(node);
+        }
+        nodeTree[nodeDesc.id] = node;
+    }
 
+    void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename) {
+        filesystem::path filepath = Application::get().getConfig().appDir / filename;
+        map<string, shared_ptr<Node>> nodeTree;
+        for(const auto& nodeDesc: loadSceneFromJSON(filepath.string())) {
+            addNode(parent, nodeTree, nodeDesc);
+        }
+    }
+
+    void from_json(const nlohmann::json& j, Loader::SceneNode& node) {
+        j.at("id").get_to(node.id);
+        node.isResource = j.contains("resource");
+        if (node.isResource) {
+            j.at("resource").get_to(node.resource);
+            j.at("type").get_to(node.resourceType);
+        } else {
+            if (j.contains("class")) j.at("class").get_to(node.clazz);
+            if (j.contains("properties")) j.at("properties").get_to(node.properties);
+            if (j.contains("children")) j.at("children").get_to(node.children);
+        }
+    }
+
+    vector<Loader::SceneNode> Loader::loadSceneFromJSON(const string& filepath) {
+        ifstream ifs(filepath);
+        vector<Loader::SceneNode> nodes;
+        try {
+            auto jsonData = nlohmann::json::parse(ifs);
+            nodes = jsonData["nodes"];
+        } catch(nlohmann::json::parse_error) {
+            die("Error loading", filepath);
+        }
+        return nodes;
+    }
 
 }

@@ -7,6 +7,7 @@ namespace z0 {
     class TypeRegistry {
     public:
         template<typename T> static shared_ptr<T> makeShared(const string&clazz) {
+            if (!typeMap.contains(clazz)) die("Type", clazz, "not registered in TypeRegistry");
             return shared_ptr<T>(reinterpret_cast<T*>(TypeRegistry::typeMap[clazz]()));
         }
         template<typename T> static void registerType(const string&clazz) {

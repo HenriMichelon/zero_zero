@@ -44,6 +44,7 @@ namespace z0 {
         return joltMat;
     }*/
 
+
 }
 
 namespace std {
@@ -56,5 +57,13 @@ namespace std {
     }
     string to_string(vec4 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
+    }
+
+    vec3 to_vec3(const string& str) {
+        stringstream ss(str);
+        float x, y, z;
+        char comma;
+        ss >> x >> comma >> y >> comma >> z;
+        return vec3{x, y, z};
     }
 }
