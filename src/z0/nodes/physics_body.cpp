@@ -21,6 +21,20 @@ namespace z0 {
             CollisionObject{_shape, layer, mask, name},
         motionType{_motionType} {
         activationMode = _activationMode;
+        setShape(shape);
+    }
+
+    PhysicsBody::PhysicsBody(uint32_t layer,
+                             uint32_t mask,
+                             JPH::EActivation _activationMode,
+                             JPH::EMotionType _motionType,
+                             const string& name):
+            CollisionObject{layer, mask, name},
+        motionType{_motionType} {
+        activationMode = _activationMode;
+    }
+
+    void PhysicsBody::setShape(shared_ptr<Shape> shape) {
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
         shape->setAttachedToNode();

@@ -22,6 +22,14 @@ namespace z0 {
                     JPH::EMotionType motionType,
                     const string& name);
 
+        PhysicsBody(uint32_t layer,
+                    uint32_t mask,
+                    JPH::EActivation activationMode,
+                    JPH::EMotionType motionType,
+                    const string& name);
+
+        void setShape(shared_ptr<Shape> shape);
+
     private:
         JPH::EMotionType motionType;
     };

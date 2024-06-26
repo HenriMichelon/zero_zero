@@ -15,6 +15,17 @@ namespace z0 {
     const Signal::signal CollisionObject::on_collision_starts = "on_collision_starts";
     const Signal::signal CollisionObject::on_collision_persists = "on_collision_persists";
 
+    CollisionObject::CollisionObject(uint32_t layer,
+                                    uint32_t mask,
+                                    const string& name):
+        Node{name},
+        collisionLayer{layer},
+        collisionMask{mask},
+        shape{nullptr},
+        activationMode{JPH::EActivation::Activate},
+        bodyInterface{app()._getBodyInterface()} {
+    }
+
     CollisionObject::CollisionObject(shared_ptr<Shape>& _shape,
                              uint32_t layer,
                              uint32_t mask,
@@ -38,6 +49,7 @@ namespace z0 {
     }
 
     CollisionObject* CollisionObject::_getByBodyId(JPH::BodyID id) {
+        assert(!bodyId.IsInvalid());
         return reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(id));
     }
 
@@ -54,6 +66,7 @@ namespace z0 {
     }
 
     void CollisionObject::setCollistionLayer(uint32_t layer, bool value) {
+        assert(!bodyId.IsInvalid());
           if (value) {
             collisionLayer |= layer;
         } else {
@@ -63,6 +76,7 @@ namespace z0 {
     }
 
     void CollisionObject::setCollistionMask(uint32_t layer, bool value) {
+        assert(!bodyId.IsInvalid());
           if (value) {
             collisionMask |= layer;
         } else {
@@ -72,6 +86,7 @@ namespace z0 {
     }
 
     void CollisionObject::setVelocity(vec3 velocity) {
+        assert(!bodyId.IsInvalid());
         if (velocity == VEC3ZERO) {
             bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
         } else {
@@ -82,6 +97,7 @@ namespace z0 {
     }
 
     vec3 CollisionObject::getVelocity() const {
+        assert(!bodyId.IsInvalid());
         auto velocity = bodyInterface.GetLinearVelocity(bodyId);
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
@@ -89,19 +105,21 @@ namespace z0 {
     void CollisionObject::setBodyId(JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
-        //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
+        log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
     }
 
     void CollisionObject::_onPause() {
+        assert(!bodyId.IsInvalid());
         bodyInterface.DeactivateBody(bodyId);
     }
 
     void CollisionObject::_onResume() {
+        assert(!bodyId.IsInvalid());
         bodyInterface.ActivateBody(bodyId);
     }
 
     void CollisionObject::setPositionAndRotation() {
-        if (updating) return;
+        if (updating || bodyId.IsInvalid()) return;
         auto position = getPositionGlobal();
         auto quat = normalize(toQuat(mat3(worldTransform)));
         bodyInterface.SetPositionAndRotation(
@@ -113,6 +131,7 @@ namespace z0 {
 
     void CollisionObject::_onEnterScene() {
         bodyInterface.ActivateBody(bodyId);
+        setPositionAndRotation();
         Node::_onEnterScene();
     }
 
@@ -122,6 +141,7 @@ namespace z0 {
     }
 
     void CollisionObject::_physicsUpdate(float delta) {
+        assert(!bodyId.IsInvalid());
         Node::_physicsUpdate(delta);
         updating = true;
         JPH::Vec3 position;
@@ -136,12 +156,14 @@ namespace z0 {
     }
 
     void CollisionObject::applyForce(vec3 force) {
+        assert(!bodyId.IsInvalid());
         bodyInterface.AddForce(
             bodyId, 
             JPH::Vec3{force.x, force.y, force.z});
     }
 
     void CollisionObject::applyForce(vec3 force, vec3 position) {
+        assert(!bodyId.IsInvalid());
         bodyInterface.AddForce(
             bodyId, 
             JPH::Vec3{force.x, force.y, force.z}, 
@@ -149,6 +171,7 @@ namespace z0 {
     }
 
     bool CollisionObject::wereInContact(CollisionObject* obj) {
+        assert(!bodyId.IsInvalid());
         return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
     }
 

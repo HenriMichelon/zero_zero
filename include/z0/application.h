@@ -12,7 +12,7 @@ namespace z0 {
     /**
      * Global application.
      * Automaticaly instanciated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
-     * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html) and the Jolt Physics system
+     * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html) and the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html)
      */
     class Application final: public Object {
     public:

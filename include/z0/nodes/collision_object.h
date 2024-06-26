@@ -102,6 +102,10 @@ namespace z0 {
                     uint32_t layer,
                     uint32_t mask,
                     const string& name);
+        CollisionObject(uint32_t layer,
+                    uint32_t mask,
+                    const string& name);
+        
         virtual void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
         CollisionObject* _getByBodyId(JPH::BodyID id);
@@ -109,7 +113,7 @@ namespace z0 {
         void _updateTransform(const mat4& parentMatrix) override;
 
     private:
-        JPH::BodyID bodyId;
+        JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};
 
     public:
         void _physicsUpdate(float delta) override;

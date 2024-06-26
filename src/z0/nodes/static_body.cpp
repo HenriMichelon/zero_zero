@@ -13,10 +13,18 @@
 
 namespace z0 {
 
-    StaticBody::StaticBody(shared_ptr<Shape> shape, uint32_t layer, uint32_t mask, const string& name):
+    StaticBody::StaticBody(shared_ptr<Shape> shape, uint32_t layer, const string& name):
         PhysicsBody(shape,
                     layer,
-                    mask,
+                    0,
+                    JPH::EActivation::DontActivate,
+                    JPH::EMotionType::Static,
+                    name) {
+    }
+
+    StaticBody::StaticBody(uint32_t layer, const string& name):
+        PhysicsBody(layer,
+                    0,
                     JPH::EActivation::DontActivate,
                     JPH::EMotionType::Static,
                     name) {
