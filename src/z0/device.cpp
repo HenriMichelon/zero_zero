@@ -237,11 +237,11 @@ namespace z0 {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::registerRenderer(const shared_ptr<BaseRenderer>& renderer) {
+    void Device::registerRenderer(const shared_ptr<Renderer>& renderer) {
         renderers.push_front(renderer);
     }
 
-    void Device::unRegisterRenderer(const shared_ptr<BaseRenderer>& renderer) {
+    void Device::unRegisterRenderer(const shared_ptr<Renderer>& renderer) {
         renderers.remove(renderer);
     }
 

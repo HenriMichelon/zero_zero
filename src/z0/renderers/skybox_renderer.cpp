@@ -4,14 +4,14 @@
 #include "z0/nodes/camera.h"
 #include "z0/nodes/environment.h"
 #include "z0/resources/cubemap.h"
-#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/renderpass.h"
 #include "z0/renderers/skybox_renderer.h"
 #endif
 
 namespace z0 {
 
     SkyboxRenderer::SkyboxRenderer(Device &dev, const string& shaderDirectory):
-        BaseRenderpass{dev, shaderDirectory} {
+        Renderpass{dev, shaderDirectory} {
         static const float skyboxVertices[] = {
                 // positions
                 -1.0f,  1.0f, -1.0f,
@@ -78,7 +78,7 @@ namespace z0 {
     void SkyboxRenderer::cleanup() {
         vertexBuffer.reset();
         cubemap.reset();
-        BaseRenderpass::cleanup();
+        Renderpass::cleanup();
     }
 
     void SkyboxRenderer::loadScene(shared_ptr<Cubemap>& _cubemap) {

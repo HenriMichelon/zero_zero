@@ -2,7 +2,7 @@
 #ifndef USE_PCH
 #include "z0/resources/image.h"
 #include "z0/resources/font.h"
-#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #endif
 
@@ -16,7 +16,7 @@ namespace z0 {
 
     VectorRenderer::VectorRenderer(Device &dev,
                                    const string& sDir) :
-            BaseRenderpass{dev, sDir},
+            Renderpass{dev, sDir},
             internalColorFrameBuffer{true} {
         init();
     }
@@ -24,7 +24,7 @@ namespace z0 {
     VectorRenderer::VectorRenderer(Device &dev,
                                    const string& sDir,
                                    shared_ptr<ColorFrameBufferHDR>& inputColorAttachment) :
-            BaseRenderpass{dev, sDir},
+            Renderpass{dev, sDir},
             internalColorFrameBuffer{false},
             colorFrameBufferHdr{inputColorAttachment} {
         init();
@@ -42,7 +42,7 @@ namespace z0 {
             blankImageData.clear();
         }
         if (internalColorFrameBuffer) { colorFrameBufferHdr->cleanupImagesResources(); }
-        BaseRenderpass::cleanup();
+        Renderpass::cleanup();
     }
 
     void VectorRenderer::drawLine(vec2 start, vec2 end) {

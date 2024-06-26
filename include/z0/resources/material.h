@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Base class for all materials of models surfaces
      */
-    class BaseMaterial: public Resource {
+    class Material: public Resource {
     public:
         /**
          * Returns the cull mode.
@@ -43,7 +43,7 @@ namespace z0 {
         void setAlphaScissor(float scissor) { alphaScissor = scissor; }
 
     protected:
-        explicit BaseMaterial(const string& name): Resource(name) {}
+        explicit Material(const string& name): Resource(name) {}
 
     private:
         CullMode        cullMode     { CULLMODE_BACK };
@@ -54,7 +54,7 @@ namespace z0 {
     /**
      * Simple albedo/specular/normal material
      */
-    class StandardMaterial: public BaseMaterial {
+    class StandardMaterial: public Material {
     public:
         /**
          * Textures UV locals transforms
@@ -67,7 +67,7 @@ namespace z0 {
         /**
          * Creates a StandardMaterial with default parameters
          */
-        explicit StandardMaterial(const string& name = "StandardMaterial"): BaseMaterial(name) {}
+        explicit StandardMaterial(const string& name = "StandardMaterial"): Material(name) {}
 
         /**
          * Returns the material's base color.
@@ -131,7 +131,7 @@ namespace z0 {
     /**
      * Shader based material
      */
-    class ShaderMaterial: public BaseMaterial {
+    class ShaderMaterial: public Material {
     public:
         /**
          * Maximum number of parameters of a ShaderMaterial

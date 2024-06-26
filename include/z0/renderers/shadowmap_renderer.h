@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Shadow map renderer, one per light
      */
-    class ShadowMapRenderer: public BaseRenderpass, public BaseRenderer {
+    class ShadowMapRenderer: public Renderpass, public Renderer {
     public:
         ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light);
         void loadScene(list<MeshInstance*>& meshes);

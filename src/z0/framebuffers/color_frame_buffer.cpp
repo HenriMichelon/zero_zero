@@ -3,7 +3,7 @@
 namespace z0 {
 
     ColorFrameBuffer::ColorFrameBuffer(const Device &dev, bool _multisampled) :
-        BaseFrameBuffer{dev}, multisampled{_multisampled} {
+        FrameBuffer{dev}, multisampled{_multisampled} {
          createImagesResources();
      }
 

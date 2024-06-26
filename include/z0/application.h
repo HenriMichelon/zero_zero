@@ -6,7 +6,7 @@ namespace z0 {
     class GManager;
     class SceneRenderer;
     class VectorRenderer;
-    class BasePostprocessingRenderer;
+    class PostprocessingRenderer;
     class Camera;
 
     /**

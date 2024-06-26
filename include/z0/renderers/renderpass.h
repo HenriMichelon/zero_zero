@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Base class for renderers and sub passes
      */
-    class BaseRenderpass {
+    class Renderpass {
     public:
         virtual void cleanup();
 
@@ -32,7 +32,7 @@ namespace z0 {
                     1.0f}}};
         const VkClearValue depthClearValue { .depthStencil = {1.0f, 0} };
 
-        BaseRenderpass(Device& device, const string& shaderDirectory);
+        Renderpass(Device& device, const string& shaderDirectory);
 
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
@@ -56,8 +56,8 @@ namespace z0 {
         vector<char> readFile(const string& fileName);
 
     public:
-        BaseRenderpass(const BaseRenderpass&) = delete;
-        BaseRenderpass &operator=(const BaseRenderpass&) = delete;
+        Renderpass(const Renderpass&) = delete;
+        Renderpass &operator=(const Renderpass&) = delete;
     };
 
 }

@@ -90,7 +90,7 @@ namespace z0 {
             vkDestroySampler(device.getDevice(), sampler, nullptr);
             sampler = VK_NULL_HANDLE;
         }
-        BaseFrameBuffer::cleanupImagesResources();
+        FrameBuffer::cleanupImagesResources();
     }
 
 }

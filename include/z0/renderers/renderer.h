@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Common interface of all renderers
      */
-    class BaseRenderer {
+    class Renderer {
     public:
         // Returns the offscreen image buffer
         virtual VkImage getImage() const { return VK_NULL_HANDLE; };

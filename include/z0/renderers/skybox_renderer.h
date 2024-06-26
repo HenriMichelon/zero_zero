@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    class SkyboxRenderer: public BaseRenderpass {
+    class SkyboxRenderer: public Renderpass {
     public:
         SkyboxRenderer(Device& device, const string& shaderDirectory);
 

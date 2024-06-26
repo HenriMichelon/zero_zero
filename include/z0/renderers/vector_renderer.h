@@ -8,7 +8,7 @@ namespace z0 {
      *  - origin : {0.0, 0.0} bottom left<br>
      *  - max values : { 1000.0, 1000.0 } top right (use VECTOR_SCALE constant)<br>
      */
-    class VectorRenderer: public BaseRenderpass, public BaseRenderer {
+    class VectorRenderer: public Renderpass, public Renderer {
     public:
         // Used when this renderer is the only renderer
         VectorRenderer(Device& device,

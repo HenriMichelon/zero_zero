@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Base class for all offscreen frame buffers & rendering attachements
      */ 
-    class BaseFrameBuffer {
+    class FrameBuffer {
     public:
         const VkImage& getImage() const { return image; }
         const VkImageView& getImageView() const { return imageView; }
@@ -19,7 +19,7 @@ namespace z0 {
         VkImageView imageView;
         VkDeviceMemory imageMemory;
 
-        explicit BaseFrameBuffer(const Device &dev): device{dev} {};
+        explicit FrameBuffer(const Device &dev): device{dev} {};
 
         // Helper function for children classes
         void createImage(uint32_t width,
@@ -30,8 +30,8 @@ namespace z0 {
                          VkImageAspectFlags flags = VK_IMAGE_ASPECT_COLOR_BIT);
 
     public:
-        BaseFrameBuffer(const BaseFrameBuffer&) = delete;
-        BaseFrameBuffer &operator=(const BaseFrameBuffer&) = delete;
+        FrameBuffer(const FrameBuffer&) = delete;
+        FrameBuffer &operator=(const FrameBuffer&) = delete;
     };
 
 }

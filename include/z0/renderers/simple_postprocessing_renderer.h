@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Fragment shader based post processing renderer
      */
-    class SimplePostprocessingRenderer: public BasePostprocessingRenderer {
+    class SimplePostprocessingRenderer: public PostprocessingRenderer {
     public:
         SimplePostprocessingRenderer(Device& device,
                                      string shaderDirectory,

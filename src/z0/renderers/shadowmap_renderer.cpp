@@ -12,17 +12,17 @@
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/mesh_instance.h"
-#include "z0/framebuffers/base_frame_buffer.h"
+#include "z0/framebuffers/frame_buffer.h"
 #include "z0/framebuffers/shadow_map_frame_buffer.h"
-#include "z0/renderers/base_renderpass.h"
-#include "z0/renderers/base_renderer.h"
+#include "z0/renderers/renderpass.h"
+#include "z0/renderers/renderer.h"
 #include "z0/renderers/shadowmap_renderer.h"
 #endif
 
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir, Light* light): 
-        BaseRenderpass{dev, sDir}, 
+        Renderpass{dev, sDir}, 
         shadowMap{make_shared<ShadowMapFrameBuffer>(dev, light)}
         {}
 
@@ -34,7 +34,7 @@ namespace z0 {
         cleanupImagesResources();
         shadowMap.reset();
         modelUniformBuffers.clear();
-        BaseRenderpass::cleanup();
+        Renderpass::cleanup();
     }
 
     void ShadowMapRenderer::loadScene(list<MeshInstance*>& _meshes) {

@@ -7,18 +7,18 @@
 #include "z0/nodes/node.h"
 #include "z0/nodes/camera.h"
 #include "z0/nodes/mesh_instance.h"
-#include "z0/renderers/base_renderpass.h"
-#include "z0/renderers/base_models_renderer.h"
+#include "z0/renderers/renderpass.h"
+#include "z0/renderers/models_renderer.h"
 #include "z0/resources/mesh.h"
 #include "z0/descriptors.h"
 #endif
 
 namespace z0 {
 
-    BaseModelsRenderer::BaseModelsRenderer(Device &dev, const string& sDir):
-        BaseRenderpass(dev, sDir) {}
+    ModelsRenderer::ModelsRenderer(Device &dev, const string& sDir):
+        Renderpass(dev, sDir) {}
 
-    void BaseModelsRenderer::addNode(const shared_ptr<Node>& node) {
+    void ModelsRenderer::addNode(const shared_ptr<Node>& node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
             if (currentCamera == nullptr) {
                 currentCamera = camera;
@@ -37,7 +37,7 @@ namespace z0 {
         }
     }
 
-    void BaseModelsRenderer::removeNode(const shared_ptr<z0::Node> &node) {
+    void ModelsRenderer::removeNode(const shared_ptr<z0::Node> &node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
             if (camera == currentCamera) {
                 currentCamera->_setActive(false);
@@ -53,7 +53,7 @@ namespace z0 {
         }
     }
 
-    void BaseModelsRenderer::activateCamera(Camera* camera) {
+    void ModelsRenderer::activateCamera(Camera* camera) {
         if (currentCamera != nullptr) currentCamera->_setActive(false);
         if (camera == nullptr) {
             currentCamera = nullptr;
@@ -63,14 +63,14 @@ namespace z0 {
         }
     }
 
-    void BaseModelsRenderer::cleanup() {
+    void ModelsRenderer::cleanup() {
         depthFrameBuffer->cleanupImagesResources();
         cleanupImagesResources();
         modelUniformBuffers.clear();
-        BaseRenderpass::cleanup();
+        Renderpass::cleanup();
     }
 
-    void BaseModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) {
+    void ModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) {
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
 

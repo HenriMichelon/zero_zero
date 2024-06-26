@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Base class for renderers drawing a collection of Mesh
      */
-    class BaseModelsRenderer: public BaseRenderpass, public BaseRenderer {
+    class ModelsRenderer: public Renderpass, public Renderer {
     public:
         // Add a model to the scene and update descriptor set
         virtual void addNode(const shared_ptr<Node>& node);
@@ -30,7 +30,7 @@ namespace z0 {
         // Depth testing multisampled off screen buffer
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
 
-        BaseModelsRenderer(Device& device, const string& shaderDirectory);
+        ModelsRenderer(Device& device, const string& shaderDirectory);
 
         // A model is currently been added to the scene, called before updating the descriptor set
         virtual void addingModel(MeshInstance* meshInstance, uint32_t modelIndex) {};
@@ -42,8 +42,8 @@ namespace z0 {
         void setInitialState(VkCommandBuffer commandBuffer);
 
     public:
-        BaseModelsRenderer(const BaseModelsRenderer&) = delete;
-        BaseModelsRenderer &operator=(const BaseModelsRenderer&) = delete;
+        ModelsRenderer(const ModelsRenderer&) = delete;
+        ModelsRenderer &operator=(const ModelsRenderer&) = delete;
     };
 
 }

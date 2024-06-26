@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    void BaseFrameBuffer::cleanupImagesResources() {
+    void FrameBuffer::cleanupImagesResources() {
         if (imageMemory != VK_NULL_HANDLE) {
             vkDestroyImageView(device.getDevice(), imageView, nullptr);
             vkDestroyImage(device.getDevice(), image, nullptr);
@@ -13,7 +13,7 @@ namespace z0 {
         }
     }
 
-    void BaseFrameBuffer::createImage(uint32_t width,
+    void FrameBuffer::createImage(uint32_t width,
                                       uint32_t height,
                                       VkFormat format,
                                       VkSampleCountFlagBits samples,

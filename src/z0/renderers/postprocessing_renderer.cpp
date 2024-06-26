@@ -1,29 +1,29 @@
 #include "z0/z0.h"
 #ifndef USE_PCH
-#include "z0/renderers/base_renderpass.h"
-#include "z0/renderers/base_renderer.h"
-#include "z0/renderers/base_postprocessing_renderer.h"
+#include "z0/renderers/renderpass.h"
+#include "z0/renderers/renderer.h"
+#include "z0/renderers/postprocessing_renderer.h"
 #endif
 
 namespace z0 {
 
-    BasePostprocessingRenderer::BasePostprocessingRenderer(Device &dev,
+    PostprocessingRenderer::PostprocessingRenderer(Device &dev,
                                                            string shaderDirectory,
                                                            SampledFrameBuffer* inputColorAttachmentHdr):
-            BaseRenderpass{dev, shaderDirectory}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
+            Renderpass{dev, shaderDirectory}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
         createImagesResources();
     }
 
-    void BasePostprocessingRenderer::cleanup() {
+    void PostprocessingRenderer::cleanup() {
         cleanupImagesResources();
-        BaseRenderpass::cleanup();
+        Renderpass::cleanup();
     }
 
-    void BasePostprocessingRenderer::loadShaders() {
+    void PostprocessingRenderer::loadShaders() {
         vertShader = createShader("quad.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
 
-    void BasePostprocessingRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
+    void PostprocessingRenderer::recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) {
         bindShaders(commandBuffer);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
@@ -34,20 +34,20 @@ namespace z0 {
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
     }
 
-    void BasePostprocessingRenderer::createImagesResources() {
+    void PostprocessingRenderer::createImagesResources() {
         colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device);
     }
 
-    void BasePostprocessingRenderer::cleanupImagesResources() {
+    void PostprocessingRenderer::cleanupImagesResources() {
         colorAttachmentHdr->cleanupImagesResources();
     }
 
-    void BasePostprocessingRenderer::recreateImagesResources() {
+    void PostprocessingRenderer::recreateImagesResources() {
         colorAttachmentHdr->cleanupImagesResources();
         colorAttachmentHdr->createImagesResources();
     }
 
-    void BasePostprocessingRenderer::createDescriptorSetLayout() {
+    void PostprocessingRenderer::createDescriptorSetLayout() {
         descriptorPool =DescriptorPool::Builder(device)
                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
@@ -65,12 +65,12 @@ namespace z0 {
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
     }
 
-    void BasePostprocessingRenderer::setInputColorAttachmentHdr(SampledFrameBuffer* input) {
+    void PostprocessingRenderer::setInputColorAttachmentHdr(SampledFrameBuffer* input) {
         inputColorAttachmentHdr = input;
         createOrUpdateDescriptorSet(false);
     }
 
-    void BasePostprocessingRenderer::createOrUpdateDescriptorSet(bool create) {
+    void PostprocessingRenderer::createOrUpdateDescriptorSet(bool create) {
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto imageInfo = inputColorAttachmentHdr->imageInfo();
@@ -87,7 +87,7 @@ namespace z0 {
         }
     }
 
-    void BasePostprocessingRenderer::beginRendering(VkCommandBuffer commandBuffer) {
+    void PostprocessingRenderer::beginRendering(VkCommandBuffer commandBuffer) {
         device.transitionImageLayout(commandBuffer, colorAttachmentHdr->getImage(),
                                            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                            0, VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -114,7 +114,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void BasePostprocessingRenderer::endRendering(VkCommandBuffer commandBuffer, bool isLast) {
+    void PostprocessingRenderer::endRendering(VkCommandBuffer commandBuffer, bool isLast) {
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer, colorAttachmentHdr->getImage(),
                                         VK_IMAGE_LAYOUT_UNDEFINED,

@@ -8,7 +8,7 @@
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
 #include "z0/gui/gwindow.h"
-#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/renderpass.h"
 #include "z0/renderers/vector_renderer.h"
 #include "z0/gui/gmanager.h"
 #endif

@@ -19,8 +19,8 @@
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"
 #include "z0/framebuffers/shadow_map_frame_buffer.h"
-#include "z0/renderers/base_renderpass.h"
-#include "z0/renderers/base_models_renderer.h"
+#include "z0/renderers/renderpass.h"
+#include "z0/renderers/models_renderer.h"
 #include "z0/renderers/skybox_renderer.h"
 #include "z0/renderers/shadowmap_renderer.h"
 #include "z0/renderers/scene_renderer.h"
@@ -35,7 +35,7 @@ namespace z0 {
     }
 
     SceneRenderer::SceneRenderer(Device &dev, const string& sDir) :
-            BaseModelsRenderer{dev, sDir},
+            ModelsRenderer{dev, sDir},
             colorFrameBufferMultisampled{dev, true} {
         createImagesResources();
         OutlineMaterials::_initialize();
@@ -58,7 +58,7 @@ namespace z0 {
         shadowMapRenderers.clear();
         opaquesModels.clear();
         omniLights.clear();
-        BaseModelsRenderer::cleanup();
+        ModelsRenderer::cleanup();
     }
 
     void SceneRenderer::addingModel(MeshInstance *meshInstance, uint32_t modelIndex) {
@@ -144,7 +144,7 @@ namespace z0 {
                 }
             }
         }
-        BaseModelsRenderer::addNode(node);
+        ModelsRenderer::addNode(node);
     }
 
     void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
@@ -169,7 +169,7 @@ namespace z0 {
                 shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer), shadowMapRenderers.end()); 
             }
         } else {
-            BaseModelsRenderer::removeNode(node);
+            ModelsRenderer::removeNode(node);
         }
     }
 

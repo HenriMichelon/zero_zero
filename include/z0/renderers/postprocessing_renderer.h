@@ -5,9 +5,9 @@ namespace z0 {
     /**
      * Base class for post processing effect renderers
      */
-    class BasePostprocessingRenderer: public BaseRenderpass, public BaseRenderer {
+    class PostprocessingRenderer: public Renderpass, public Renderer {
     public:
-        BasePostprocessingRenderer(Device& device,
+        PostprocessingRenderer(Device& device,
                                    string shaderDirectory,
                                    SampledFrameBuffer* inputColorAttachmentHdr);
 

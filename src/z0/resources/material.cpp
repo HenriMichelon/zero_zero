@@ -8,7 +8,7 @@
 namespace z0 {
 
     ShaderMaterial::ShaderMaterial(const shared_ptr<ShaderMaterial>&orig):
-        BaseMaterial{orig->name},
+        Material{orig->name},
         fragFileName{orig->fragFileName},
         vertFileName{orig->vertFileName} {
         for(int i = 0; i < MAX_PARAMETERS; i++) {
@@ -19,7 +19,7 @@ namespace z0 {
     ShaderMaterial::ShaderMaterial(string fragShaderFileName,
                                    string vertShaderFileName,
                                    const string& name): 
-        BaseMaterial{name}, 
+        Material{name}, 
         fragFileName{std::move(fragShaderFileName)},
         vertFileName{std::move(vertShaderFileName)}
         {}

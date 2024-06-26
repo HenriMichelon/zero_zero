@@ -4,17 +4,17 @@
 #include "z0/resources/texture.h"
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
-#include "z0/renderers/base_renderpass.h"
+#include "z0/renderers/renderpass.h"
 #endif
 
 namespace z0 {
 
-    BaseRenderpass::BaseRenderpass(Device &dev, const string& sDir) :
+    Renderpass::Renderpass(Device &dev, const string& sDir) :
             device{dev},
             vkDevice{dev.getDevice()},
             shaderDirectory(sDir) {}
 
-    void BaseRenderpass::cleanup() {
+    void Renderpass::cleanup() {
         globalUniformBuffers.clear();
         if (vertShader != nullptr) vertShader.reset();
         if (fragShader != nullptr) fragShader.reset();
@@ -26,7 +26,7 @@ namespace z0 {
         descriptorPool.reset();
     }
 
-    void BaseRenderpass::bindShaders(VkCommandBuffer commandBuffer) {
+    void Renderpass::bindShaders(VkCommandBuffer commandBuffer) {
         if (vertShader != nullptr) {
             vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
         } else {
@@ -41,16 +41,16 @@ namespace z0 {
         }
     }
 
-    void BaseRenderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index) {
+    void Renderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data, uint32_t index) {
         const auto size = buffers[currentFrame]->getAlignmentSize();
         buffers[currentFrame]->writeToBuffer(data, size, size * index);
     }
 
-    void BaseRenderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data) {
+    void Renderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>>& buffers, uint32_t currentFrame, void *data) {
         buffers[currentFrame]->writeToBuffer(data);
     }
 
-    void BaseRenderpass::createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count) {
+    void Renderpass::createUniformBuffers(vector<unique_ptr<Buffer>>& buffers, VkDeviceSize size, uint32_t count) {
         for (auto &buffer: buffers) {
             buffer = make_unique<Buffer>(
                     device,
@@ -63,7 +63,7 @@ namespace z0 {
         }
     }
 
-    void BaseRenderpass::bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count, uint32_t *offsets) {
+    void Renderpass::bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count, uint32_t *offsets) {
         vkCmdBindDescriptorSets(commandBuffer,
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 pipelineLayout,
@@ -72,7 +72,7 @@ namespace z0 {
                                 count, offsets);
     }
 
-    void BaseRenderpass::createOrUpdateResources() {
+    void Renderpass::createOrUpdateResources() {
         if (descriptorPool == nullptr) {
             descriptorSetNeedUpdate = false;
             createDescriptorSetLayout();
@@ -87,7 +87,7 @@ namespace z0 {
         }
     };
 
-    void BaseRenderpass::createPipelineLayout() {
+    void Renderpass::createPipelineLayout() {
         const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
                 .setLayoutCount = 1,
@@ -100,7 +100,7 @@ namespace z0 {
         }
     }
 
-    unique_ptr<Shader> BaseRenderpass::createShader(const string& filename,
+    unique_ptr<Shader> Renderpass::createShader(const string& filename,
                                                     VkShaderStageFlagBits stage,
                                                     VkShaderStageFlags next_stage) {
         auto code = readFile(filename);
@@ -117,7 +117,7 @@ namespace z0 {
     }
 
     // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
-    void BaseRenderpass::buildShader(Shader& shader) {
+    void Renderpass::buildShader(Shader& shader) {
         VkShaderEXT shaderEXT;
         VkShaderCreateInfoEXT shaderCreateInfo = shader.getShaderCreateInfo();
         if (vkCreateShadersEXT(vkDevice, 1, &shaderCreateInfo, nullptr, &shaderEXT) != VK_SUCCESS) {
@@ -126,7 +126,7 @@ namespace z0 {
         shader.setShader(shaderEXT);
     }
 
-    void BaseRenderpass::setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height) {
+    void Renderpass::setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height) {
         const VkExtent2D extent = { width, height };
         const VkViewport viewport{
                 .x = 0.0f,
@@ -144,7 +144,7 @@ namespace z0 {
         vkCmdSetScissorWithCount(commandBuffer, 1, &scissor);
     }
 
-    std::vector<char> BaseRenderpass::readFile(const std::string &fileName) {
+    std::vector<char> Renderpass::readFile(const std::string &fileName) {
         filesystem::path filepath = shaderDirectory;
         filepath /= fileName;
         filepath += ".spv";

@@ -5,7 +5,7 @@ namespace z0 {
     /**
      * Main renderer
      */
-    class SceneRenderer: public BaseModelsRenderer {
+    class SceneRenderer: public ModelsRenderer {
     public:
         SceneRenderer(Device& device, const string& shaderDirectory);
 
@@ -83,7 +83,7 @@ namespace z0 {
         // Currently allocated model uniform buffer count
         uint32_t                        modelUniformBufferCount {0};
         // All the materials of the scene
-        list<BaseMaterial*>             materials;
+        list<Material*>             materials;
         // Indices of each material in the materials uniform buffer
         map<Resource::id_t, uint32_t>   materialsIndices {};
         // Datas for all the materials of the scene, one buffer for all the materials

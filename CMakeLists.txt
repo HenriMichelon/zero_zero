@@ -58,20 +58,20 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/type_registry.cpp
 
-		${Z0_ENGINE_DIR}/framebuffers/base_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cpp
 		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cpp
 
-		${Z0_ENGINE_DIR}/renderers/base_renderpass.cpp
+		${Z0_ENGINE_DIR}/renderers/renderpass.cpp
 		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/base_models_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/models_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/base_postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/postprocessing_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cpp
 
 		${Z0_ENGINE_DIR}/nodes/node.cpp

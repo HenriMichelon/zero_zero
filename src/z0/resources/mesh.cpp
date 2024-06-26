@@ -37,11 +37,11 @@ namespace std {
 
 namespace z0 {
 
-    const shared_ptr<BaseMaterial>& Mesh::getSurfaceMaterial(uint32_t surfaceIndex) const {
+    const shared_ptr<Material>& Mesh::getSurfaceMaterial(uint32_t surfaceIndex) const {
         return surfaces[surfaceIndex]->material;
     }
 
-    void Mesh::setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<BaseMaterial> material) {
+    void Mesh::setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material> material) {
         surfaces[surfaceIndex]->material = std::move(material);
         _materials.insert(surfaces[surfaceIndex]->material);
     }

@@ -27,8 +27,8 @@ namespace z0 {
 
         void drawFrame();
         void wait() const;
-        void registerRenderer(const shared_ptr<BaseRenderer>& renderer);
-        void unRegisterRenderer(const shared_ptr<BaseRenderer>& renderer);
+        void registerRenderer(const shared_ptr<Renderer>& renderer);
+        void unRegisterRenderer(const shared_ptr<Renderer>& renderer);
 
         VkImageView createImageView(VkImage image,
                                     VkFormat format,
@@ -70,7 +70,7 @@ namespace z0 {
     private:
         const Window& window;
         VkInstance vkInstance;
-        list<shared_ptr<BaseRenderer>> renderers;
+        list<shared_ptr<Renderer>> renderers;
 
         // Physical & logical device management
         VkSurfaceKHR surface;
