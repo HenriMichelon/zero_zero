@@ -192,6 +192,7 @@ namespace z0 {
         DestroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr);
 #endif
         vkDestroyInstance(vkInstance, nullptr);
+        log("===== END OF LOG =====");
     }
 
     void Application::_addNode(const shared_ptr<Node>& node) {
@@ -216,9 +217,7 @@ namespace z0 {
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
         assert(camera != nullptr);
-        if (rootNode->haveChild(camera, true)) {
-            sceneRenderer->activateCamera(camera);
-        }
+        sceneRenderer->activateCamera(camera);
     }
 
     void Application::drawFrame() {

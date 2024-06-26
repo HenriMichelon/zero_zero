@@ -109,13 +109,15 @@ namespace z0 {
     }
 
     void CollisionObject::_onPause() {
-        assert(!bodyId.IsInvalid());
-        bodyInterface.DeactivateBody(bodyId);
+        if (!bodyId.IsInvalid()) {
+            bodyInterface.DeactivateBody(bodyId);
+        }
     }
 
     void CollisionObject::_onResume() {
-        assert(!bodyId.IsInvalid());
-        bodyInterface.ActivateBody(bodyId);
+        if (!bodyId.IsInvalid()) {
+            bodyInterface.ActivateBody(bodyId);
+        }
     }
 
     void CollisionObject::setPositionAndRotation() {

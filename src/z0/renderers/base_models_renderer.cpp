@@ -23,6 +23,7 @@ namespace z0 {
             if (currentCamera == nullptr) {
                 currentCamera = camera;
                 currentCamera->_setActive(true);
+                //log("Using camera", currentCamera->toString());
             }
         } else if (auto* meshInstance = dynamic_cast<MeshInstance*>(node.get())) {
             if (meshInstance->isValid()) {

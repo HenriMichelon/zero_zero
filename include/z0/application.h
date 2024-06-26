@@ -204,7 +204,7 @@ namespace z0 {
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
-        virtual ~Application();
+        ~Application();
    };
 
 #ifdef _WIN32
@@ -218,7 +218,6 @@ namespace z0 {
         int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
             if (z0::Application::_instance == nullptr) z0::die("No Application object found"); \
             z0::Application::get()._mainLoop(); \
-            log("===== END OF LOG ====="); \
             return 0; \
         }
 #endif
