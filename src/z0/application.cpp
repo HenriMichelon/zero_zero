@@ -14,6 +14,7 @@
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/omni_light.h"
+#include "z0/nodes/skybox.h"
 #include "z0/framebuffers/shadow_map_frame_buffer.h"
 #include "z0/renderers/renderpass.h"
 #include "z0/renderers/vector_renderer.h"
@@ -427,6 +428,7 @@ namespace z0 {
         TypeRegistry::registerType<Node>("Node");
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");
+        TypeRegistry::registerType<Skybox>("Skybox");
     }
 
 }

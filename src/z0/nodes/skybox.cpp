@@ -17,4 +17,15 @@ namespace z0 {
         cubemap = Cubemap::loadFromFile(filename);
     }
 
+    void Skybox::setCubemapFromFile(const string& filename) {
+        cubemap = Cubemap::loadFromFile(filename);
+    }
+
+    void Skybox::setProperty(const string&property, const string& value) {
+        Node::setProperty(property, value);
+        if (property == "cubemap_file") {
+            cubemap = Cubemap::loadFromFile(value);
+        }
+    }
+
 }

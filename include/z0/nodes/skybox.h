@@ -14,7 +14,7 @@ namespace z0 {
          * @param filename path and filename (without the extension) of the images
          * @param filext files extension
          */
-        explicit Skybox(const string& filename, const string& fileext);
+        Skybox(const string& filename, const string& fileext);
 
         /**
          * Creates a Skybox from a single RGBA image with the following format :<br>
@@ -23,14 +23,31 @@ namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        explicit Skybox(const string& filename);
+        Skybox(const string& filename);
         
+        /**
+         * Creates an empty Skybox 
+         * @param filename path of the image
+         */
+        Skybox() = default;
+
         ~Skybox() override = default;
 
+        /**
+         * Load a Cubemap for the Skybox from a single RGBA image with the following format :<br>
+         *&emsp;&emsp;&emsp;`top`<br>
+         *&emsp;`left  back  right  front`<br>
+         *&emsp;&emsp;&emsp;`bottom`<br>
+         * @param filename path of the image
+         */
+        void setCubemapFromFile(const string& filename);
+        
         /**
          * Return the associated Cubemap
          */
         shared_ptr<Cubemap>& getCubemap() { return cubemap; }
+
+        void setProperty(const string&property, const string& value) override;
 
     private:
         shared_ptr<Cubemap> cubemap;
