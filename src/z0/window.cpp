@@ -232,7 +232,7 @@ namespace z0 {
             }
         }
         if (Application::get().getConfig().loggingMode != LOGGING_NONE) {
-            log("Log starting");
+            log("===== START OF LOG =====");
         }
 #endif
 

@@ -19,6 +19,13 @@ namespace z0 {
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
          **/       
+        static void addSceneFromFile(Node*parent, const filesystem::path& filepath);
+
+        /**
+         * Creates new instances of nodes described in a JSON file and add them to the parent's tree
+         * @param parent Node to add the new nodes to
+         * @param filepath path of the glTF file, relative to the application path
+         **/       
         static void addSceneFromFile(shared_ptr<Node>&parent, const filesystem::path& filepath);
 
         struct SceneNode {
@@ -35,7 +42,7 @@ namespace z0 {
 
     private:
         static vector<SceneNode> loadSceneFromJSON(const string& filepath);
-        static void addNode(shared_ptr<Node>& parent, 
+        static void addNode(Node* parent, 
                             map<string, shared_ptr<Node>>& nodeTree, 
                             map<string, SceneNode>& sceneTree, 
                             const SceneNode& nodeDesc);

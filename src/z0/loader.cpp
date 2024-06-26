@@ -306,7 +306,7 @@ namespace z0 {
         return rootNode;
     }
     
-    void Loader::addNode(shared_ptr<Node>& parent, 
+    void Loader::addNode(Node* parent, 
                          map<string, shared_ptr<Node>>& nodeTree, 
                          map<string, SceneNode>& sceneTree, 
                          const Loader::SceneNode& nodeDesc) {
@@ -321,18 +321,15 @@ namespace z0 {
             }
         } else {
             if (nodeDesc.clazz == "") {
-                node = make_shared<Node>();
+                node = make_shared<Node>(nodeDesc.id);
             } else {
                 node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
+                node->setName(nodeDesc.id);
             }
             for(const auto& prop: nodeDesc.properties) {
-                if (prop.first == "position") {
-                    node->setPosition(to_vec3(prop.second));
-                } else if (prop.first == "rotation") {
-                    auto rot = to_vec3(prop.second);
-                    node->setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
-                }
+                node->setProperty(to_lower(prop.first), prop.second);
             }
+            node->_setParent(parent);
             for(const auto& child: nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
                     if (sceneTree[child.id].isResource) {
@@ -341,7 +338,7 @@ namespace z0 {
                         node->addChild(nodeTree[child.id]);
                     }
                 } else {
-                    addNode(parent, nodeTree, sceneTree, child);
+                    addNode(node.get(), nodeTree, sceneTree, child);
                 }
             }
             parent->addChild(node);
@@ -350,6 +347,10 @@ namespace z0 {
     }
 
     void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename) {
+        addSceneFromFile(parent.get(), filename);
+    }
+
+    void Loader::addSceneFromFile(Node* parent, const filesystem::path& filename) {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode> sceneTree;

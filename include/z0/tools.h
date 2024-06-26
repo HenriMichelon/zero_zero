@@ -78,6 +78,9 @@ namespace std {
     string to_string(vec4 vec);
 
     vec3 to_vec3(const string& str) ;
+    vec4 to_vec4(const string& str) ;
+
+    string to_lower(const string& str);
 
     /** 
      * lerp for a vec2 using std::lerp for componants

@@ -29,6 +29,8 @@ namespace z0 {
         */
         void setAmbientColorAndIntensity(vec4 color) { ambientColorIntensity = color; }
 
+        void setProperty(const string&property, const string& value) override;
+
     private:
         vec4 ambientColorIntensity;
     };

@@ -180,7 +180,9 @@ namespace z0 {
         // The global UI window manager
         windowManager = make_unique<GManager>(vectorRenderer,
                                               (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
-                                              applicationConfig.defaultFontSize);    
+                                              applicationConfig.defaultFontSize);  
+
+        registerTypes();  
     }
 
     Application::~Application() {
@@ -418,6 +420,12 @@ namespace z0 {
     vec3 Application::getGravity() const {
         auto gravity = physicsSystem.GetGravity();
         return vec3{gravity.GetX(), gravity.GetY(), gravity.GetZ()};
+    }
+
+    void Application::registerTypes() {
+        TypeRegistry::registerType<Node>("Node");
+        TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
+        TypeRegistry::registerType<Environment>("Environment");
     }
 
 }

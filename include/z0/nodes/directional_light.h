@@ -20,7 +20,7 @@ namespace z0 {
          * @param name Node name
          */
         explicit DirectionalLight(vec3 direction,
-                                  vec4 color = {1.0f, 1.0f, 1.0f, 1.0f},
+                                  vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f },
                                   float specular = 1.0f,
                                   const string name = "DirectionalLight");
         virtual ~DirectionalLight() {};
@@ -34,6 +34,8 @@ namespace z0 {
          * Sets the direction of the light
         */
         void setDirection(vec3 lightDirection) { direction = lightDirection; }
+
+        void setProperty(const string&property, const string& value) override;
 
     private:
         vec3 direction{0.0f, .5f, 1.0f};

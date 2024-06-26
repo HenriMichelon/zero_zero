@@ -250,4 +250,26 @@ namespace z0 {
         return Application::get();
     }
 
+    void Node::setProperty(const string&property, const string& value) {
+        if (property == "position") {
+            setPosition(to_vec3(value));
+        } else if (property == "rotation") {
+            auto rot = to_vec3(value);
+            setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
+        } else if (property == "process_mode") {
+            auto v = to_lower(value);
+            if (v == "inherit") {
+                setProcessMode(PROCESS_MODE_INHERIT);
+            } else if (v == "pausable") {
+                setProcessMode(PROCESS_MODE_PAUSABLE);
+            } else if (v == "when_paused") {
+                setProcessMode(PROCESS_MODE_WHEN_PAUSED);
+            } else if (v == "always") {
+                setProcessMode(PROCESS_MODE_ALWAYS);
+            } else if (v == "disabled") {
+                setProcessMode(PROCESS_MODE_DISABLED);
+            } 
+        }
+    }
+
 }

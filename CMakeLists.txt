@@ -90,6 +90,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/nodes/directional_light.cpp
 		${Z0_ENGINE_DIR}/nodes/omni_light.cpp
 		${Z0_ENGINE_DIR}/nodes/spot_light.cpp
+		${Z0_ENGINE_DIR}/nodes/environment.cpp
 
 		${Z0_ENGINE_DIR}/resources/resource.cpp
 		${Z0_ENGINE_DIR}/resources/image.cpp

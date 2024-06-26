@@ -172,6 +172,8 @@ namespace z0 {
         void physicsProcess(const shared_ptr<Node>& node, float delta);
         // Recusively call onInput() on a tree node
         bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
+        // Register all nodes types
+        void registerTypes();
 
     public:
         // The following members are accessed by global function WinMain
@@ -216,7 +218,7 @@ namespace z0 {
         int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
             if (z0::Application::_instance == nullptr) z0::die("No Application object found"); \
             z0::Application::get()._mainLoop(); \
-            log("Closing log"); \
+            log("===== END OF LOG ====="); \
             return 0; \
         }
 #endif

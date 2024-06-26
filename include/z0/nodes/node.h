@@ -232,7 +232,8 @@ namespace z0 {
         shared_ptr<Node> duplicate();
 
         /**
-         * Finds the first child by is type
+         * Finds the first child by is type.
+         * Does not works with nodes loaded from a scene file since they are casted to Node.
          */
         template <typename T>
         T* findFirstChild(bool recursive=true) const {
@@ -272,6 +273,17 @@ namespace z0 {
             }
         }
 
+        /**
+         * Sets a property by is name and value. 
+         * Currently not all properties in all nodes classes are supported.
+         */
+        virtual void setProperty(const string&property, const string& value);
+
+        /**
+         * Sets the node name (purely informative)
+         */
+        void setName(const string&nodeName) { name = nodeName; }
+
     protected:
         string name;
         Node* parent {nullptr};
@@ -298,6 +310,7 @@ namespace z0 {
         inline virtual void _onExitScene() { onExitScene(); };
         virtual void _physicsUpdate(float delta);
 
+        void _setParent(Node* p) { parent = p; }
         void _setAddedToScene(bool added) { addedToScene = added; }
         bool _isAddedToScene() { return addedToScene; }
         mat4& _getTransformLocal() { return localTransform; }

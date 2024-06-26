@@ -59,11 +59,47 @@ namespace std {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
     }
 
+    string to_lower(const string& str) {
+        auto s = str;
+        // https://en.cppreference.com/w/cpp/string/byte/tolower
+         std::transform(s.begin(), s.end(), s.begin(), 
+                   [](unsigned char c){ return std::tolower(c); }
+                  );
+        return s;
+    }
+
     vec3 to_vec3(const string& str) {
         stringstream ss(str);
-        float x, y, z;
-        char comma;
-        ss >> x >> comma >> y >> comma >> z;
-        return vec3{x, y, z};
+        string token;
+        vec3 result;
+        if (getline(ss, token, ',')) {
+            result.x = stof(token);
+            if (getline(ss, token, ',')) {
+                result.y = stof(token);
+                if (getline(ss, token, ',')) {
+                    result.z = stof(token);
+                }
+            }
+        }
+        return result;
+    }
+    
+    vec4 to_vec4(const string& str) {
+        stringstream ss(str);
+        string token;
+        vec4 result;
+         if (getline(ss, token, ',')) {
+            result.x = stof(token);
+            if (getline(ss, token, ',')) {
+                result.y = stof(token);
+                if (getline(ss, token, ',')) {
+                    result.z = stof(token);
+                    if (getline(ss, token, ',')) {
+                        result.w = stof(token);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

@@ -13,4 +13,17 @@ namespace z0 {
         Light{color, specular, nodeName},
         direction{normalize(lightDirection)}  {}
 
+    void DirectionalLight::setProperty(const string&property, const string& value) {
+        Node::setProperty(property, value);
+        if (property == "direction") {
+            setDirection(normalize(to_vec3(value)));
+        } else if (property == "color") {
+            setColorAndIntensity(to_vec4(value));
+        } else if (property == "specular") {
+            setSpecularIntensity(stof(value));
+        } else if (property == "cast_shadow") {
+            setCastShadow(value == "true");
+        }
+    }
+
 }
