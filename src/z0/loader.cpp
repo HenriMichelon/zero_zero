@@ -306,7 +306,14 @@ namespace z0 {
         return rootNode;
     }
     
-    void Loader::addNode(shared_ptr<Node>& parent, map<string, shared_ptr<Node>>& nodeTree, const Loader::SceneNode& nodeDesc) {
+    void Loader::addNode(shared_ptr<Node>& parent, 
+                         map<string, shared_ptr<Node>>& nodeTree, 
+                         map<string, SceneNode>& sceneTree, 
+                         const Loader::SceneNode& nodeDesc) {
+        if (nodeTree.contains(nodeDesc.id)) {
+            die("Node with id", nodeDesc.id, "already exists in the scene tree");
+        }
+        sceneTree[nodeDesc.id] = nodeDesc;
         shared_ptr<Node> node;
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
@@ -321,13 +328,20 @@ namespace z0 {
             for(const auto& prop: nodeDesc.properties) {
                 if (prop.first == "position") {
                     node->setPosition(to_vec3(prop.second));
+                } else if (prop.first == "rotation") {
+                    auto rot = to_vec3(prop.second);
+                    node->setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
                 }
             }
             for(const auto& child: nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
-                    node->addChild(nodeTree[child.id]);
+                    if (sceneTree[child.id].isResource) {
+                        node->addChild(nodeTree[child.id]->duplicate());
+                    } else {
+                        node->addChild(nodeTree[child.id]);
+                    }
                 } else {
-                    addNode(parent, nodeTree, child);
+                    addNode(parent, nodeTree, sceneTree, child);
                 }
             }
             parent->addChild(node);
@@ -338,8 +352,9 @@ namespace z0 {
     void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename) {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
+        map<string, SceneNode> sceneTree;
         for(const auto& nodeDesc: loadSceneFromJSON(filepath.string())) {
-            addNode(parent, nodeTree, nodeDesc);
+            addNode(parent, nodeTree, sceneTree, nodeDesc);
         }
     }
 

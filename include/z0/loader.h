@@ -15,7 +15,7 @@ namespace z0 {
         static shared_ptr<Node> loadModelFromFile(const filesystem::path& filepath, bool forceBackFaceCulling = false);
 
         /**
-         * Add all the nodes described in a JSON file 
+         * Creates new instances of nodes described in a JSON file and add them to the parent's tree
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
          **/       
@@ -35,6 +35,9 @@ namespace z0 {
 
     private:
         static vector<SceneNode> loadSceneFromJSON(const string& filepath);
-        static void addNode(shared_ptr<Node>& parent, map<string, shared_ptr<Node>>& nodeTree, const SceneNode& nodeDesc);
+        static void addNode(shared_ptr<Node>& parent, 
+                            map<string, shared_ptr<Node>>& nodeTree, 
+                            map<string, SceneNode>& sceneTree, 
+                            const SceneNode& nodeDesc);
     };
 }
