@@ -62,7 +62,6 @@ namespace z0 {
                     VK_SAMPLE_COUNT_1_BIT,
                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_IMAGE_ASPECT_DEPTH_BIT);
-
         // Create sampler to sample from to depth attachment
         // Used to sample in the fragment shader for shadowed rendering
         VkFilter shadowmap_filter = device.formatIsFilterable( format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;

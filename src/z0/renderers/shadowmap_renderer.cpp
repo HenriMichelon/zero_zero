@@ -26,9 +26,13 @@ namespace z0 {
         shadowMap{make_shared<ShadowMapFrameBuffer>(dev, light)}
         {}
 
+    ShadowMapRenderer::~ShadowMapRenderer() {
+        cleanup();
+    }
+
     void ShadowMapRenderer::cleanup() {
-        shadowMap->cleanupImagesResources();
         cleanupImagesResources();
+        shadowMap.reset();
         modelUniformBuffers.clear();
         BaseRenderpass::cleanup();
     }

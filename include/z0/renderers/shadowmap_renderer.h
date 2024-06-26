@@ -11,6 +11,7 @@ namespace z0 {
         void loadScene(list<MeshInstance*>& meshes);
         void cleanup() override;
         const shared_ptr<ShadowMapFrameBuffer>& getShadowMap() const { return shadowMap; };
+        virtual ~ShadowMapRenderer();
 
     private:
         // Depth bias (and slope) are used to avoid shadowing artifacts

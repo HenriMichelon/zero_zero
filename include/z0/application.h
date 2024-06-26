@@ -204,7 +204,7 @@ namespace z0 {
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
-        ~Application();
+        virtual ~Application();
    };
 
 #ifdef _WIN32

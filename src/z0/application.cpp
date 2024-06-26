@@ -187,6 +187,8 @@ namespace z0 {
 
     Application::~Application() {
         OutlineMaterials::_all().clear();
+        sceneRenderer.reset();
+        vectorRenderer.reset();
         device->cleanup();
 #ifndef NDEBUG
         DestroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr);
