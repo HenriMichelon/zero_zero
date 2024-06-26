@@ -105,7 +105,7 @@ namespace z0 {
     void CollisionObject::setBodyId(JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
-        log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
+        //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
     }
 
     void CollisionObject::_onPause() {
