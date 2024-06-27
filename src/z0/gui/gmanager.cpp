@@ -95,7 +95,8 @@ namespace z0 {
                     return focusedWindow->eventKeybUp(keyInputEvent.getKey());
                 }
             }
-        } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) {
+        } else if ((inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) 
+                || (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION)) {
 #ifdef _WIN32
             CURSORINFO ci {
                 .cbSize = sizeof(CURSORINFO)
@@ -107,27 +108,40 @@ namespace z0 {
                 }
             }
 #endif
-            auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(inputEvent);
+            auto &mouseEvent = dynamic_cast<InputEventMouse&>(inputEvent);
             const auto& wnd = Application::get().getWindow();
             auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
             auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
-            auto x = mouseInputEvent.getX() * scaleX;
-            auto y = mouseInputEvent.getY() * scaleY;
-            for (auto& window: windows) {
-                auto consumed = false;
-                auto lx = x - window->getRect().x;
-                auto ly = y - window->getRect().y;
-                if (mouseInputEvent.isPressed()) {
+            auto x = mouseEvent.getX() * scaleX;
+            auto y = mouseEvent.getY() * scaleY;
+
+            if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
+                for (auto& window: windows) {
+                    auto consumed = false;
+                    auto lx = x - window->getRect().x;
+                    auto ly = y - window->getRect().y;
                     if (window->getRect().contains(x, y)) {
-                        consumed |= window->eventMouseDown(mouseInputEvent.getMouseButton(), lx, ly);
+                        consumed |= window->eventMouseMove(mouseEvent.getButtonsState(), lx, ly);
                     }
-                } else {
-                    consumed |= window->eventMouseUp(mouseInputEvent.getMouseButton(), lx, ly);
+                    if (consumed) { return true; }
                 }
-                if (consumed) { return true; }
+                //die("Not implemented");
+            } else {
+                auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
+                for (auto& window: windows) {
+                    auto consumed = false;
+                    auto lx = x - window->getRect().x;
+                    auto ly = y - window->getRect().y;
+                    if (mouseInputEvent.isPressed()) {
+                        if (window->getRect().contains(x, y)) {
+                            consumed |= window->eventMouseDown(mouseInputEvent.getMouseButton(), lx, ly);
+                        }
+                    } else {
+                        consumed |= window->eventMouseUp(mouseInputEvent.getMouseButton(), lx, ly);
+                    }
+                    if (consumed) { return true; }
+                }
             }
-        } else if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
-            //die("Not implemented");
         }
         return false;
     }

@@ -18,6 +18,14 @@ int _getKeyboardModifiers() {
     return modifiers;
 }
 
+uint32_t _getMouseButtonState(WPARAM wParam) {
+    uint32_t state{0};
+    if (wParam & MK_LBUTTON) state += z0::MOUSE_BUTTON_LEFT;
+    if (wParam & MK_MBUTTON) state += z0::MOUSE_BUTTON_MIDDLE;
+    if (wParam & MK_RBUTTON) state += z0::MOUSE_BUTTON_RIGHT;
+    return state;
+}
+
 // Rendering window proc
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     static float lastMouseX = -1.0f;
@@ -77,6 +85,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
                                                    true,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -89,6 +98,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
                                                    false,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -101,6 +111,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
                                                    true,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -113,6 +124,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
                                                    false,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -125,6 +137,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
                                                    true,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -137,6 +150,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
                                                    false,
                                                    _getKeyboardModifiers(),
+                                                   _getMouseButtonState(wParam),
                                                    LOWORD(lParam),
                                                    static_cast<float>(window->getHeight())-HIWORD(lParam));
             app._onInput(event);
@@ -154,10 +168,10 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             if ((lastMouseX != -1) && (lastMouseY != -1)) {
                 auto dx = xPos - lastMouseX;
                 auto dy = yPos - lastMouseY;
-                auto event = z0::InputEventMouseMotion(xPos, yPos, dx, dy);
+                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), xPos, yPos, dx, dy);
                 app._onInput(event);
             } else {
-                auto event = z0::InputEventMouseMotion(xPos, yPos, 0, 0);
+                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), xPos, yPos, 0, 0);
                 app._onInput(event);
             }
             lastMouseX = xPos;

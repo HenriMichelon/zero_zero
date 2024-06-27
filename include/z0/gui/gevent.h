@@ -76,9 +76,23 @@ namespace z0 {
     /**
      * Parameters for GEvent::OnMouseDown and GEvent::OnMouseUp
      */
-    struct GEventMouse: public Signal::Parameters {
+    struct GEventMouseButton: public Signal::Parameters {
         //! Mouse button
         MouseButton	button;
+        //! X coord
+        float   	x;
+        //! Y coord
+        float   	y;
+        //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
+        bool        consumed{false};
+    };
+
+    /**
+     * Parameters for GEvent::OnMouseMove
+     */
+    struct GEventMouseMove: public Signal::Parameters {
+        //! Mouse button states
+        uint32_t	buttonsState;
         //! X coord
         float   	x;
         //! Y coord

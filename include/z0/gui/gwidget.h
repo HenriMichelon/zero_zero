@@ -277,7 +277,7 @@ namespace z0 {
         virtual bool eventKeybUp(Key);
         virtual bool eventMouseDown(MouseButton, float, float);
         virtual bool eventMouseUp(MouseButton, float, float);
-        virtual bool eventMouseMove(MouseButton, float, float);
+        virtual bool eventMouseMove(uint32_t, float, float);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
 

@@ -24,7 +24,7 @@ namespace z0 {
         /** Returns the main widget .
             This is widget that cover the entire window and is the parent
             of all the widgets in the window. */
-        GWidget& getWidget();
+        [[nodiscard]] GWidget& getWidget();
 
         /** Sets the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
@@ -34,10 +34,10 @@ namespace z0 {
         void setFocusedWidget(const shared_ptr<GWidget>&);
 
         /** Returns the width of the client area */
-        float getWidth() const { return rect.width; };
+        [[nodiscard]] float getWidth() const { return rect.width; };
 
         /** Returns the height of the client area */
-        float getHeight() const { return rect.height; };
+        [[nodiscard]] float getHeight() const { return rect.height; };
 
         /** Sets the width of the client area */
         void setWidth(float w);
@@ -58,10 +58,10 @@ namespace z0 {
         void setY(float);
 
         /** Returns the size & position of the widget */
-        const Rect& getRect() const { return rect; };
+        [[nodiscard]] const Rect& getRect() const { return rect; };
 
         /** Returns true if window is currently visible */
-        inline bool isVisible() const { return visible; }
+        [[nodiscard]] inline bool isVisible() const { return visible; }
 
         /** Sets the window visibility. The change will be effective at the start of the next frame */
         void setVisible(bool);
@@ -106,7 +106,7 @@ namespace z0 {
         virtual bool onMouseUp(MouseButton button, float x, float y) { return false; };
 
         /** Event called when mouse is moved above the window client area */
-        virtual bool onMouseMove(MouseButton button, float x, float y) { return false; };
+        virtual bool onMouseMove(uint32_t buttonsState, float x, float y) { return false; };
 
         /** Event called when the window got the keyboard focus */
         virtual void onGotFocus() {};
@@ -117,7 +117,7 @@ namespace z0 {
         /**
          * Returns the default font loaded at startup
          */
-        shared_ptr<Font>& getDefaultFont();
+        [[nodiscard]] shared_ptr<Font>& getDefaultFont();
 
         void refresh();
 
@@ -150,7 +150,7 @@ namespace z0 {
         bool eventKeybUp(Key);
         bool eventMouseDown(MouseButton, float, float);
         bool eventMouseUp(MouseButton, float, float);
-        bool eventMouseMove(MouseButton, float, float);
+        bool eventMouseMove(uint32_t, float, float);
         void eventGotFocus();
         void eventLostFocus();
     };

@@ -528,7 +528,7 @@ namespace z0 {
             wfocus->setFocus();
         }
         if (redrawOnMouseEvent) { refresh(); }
-        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
         emit(GEvent::OnMouseDown, &event);
         consumed |= event.consumed;
         return consumed;
@@ -547,13 +547,13 @@ namespace z0 {
             }
         }
         if (redrawOnMouseEvent) { refresh(); }
-        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
         emit(GEvent::OnMouseUp, &event);
         consumed |= event.consumed;
         return consumed;
     }
 
-    bool GWidget::eventMouseMove(MouseButton B, float X, float Y) {
+    bool GWidget::eventMouseMove(uint32_t B, float X, float Y) {
         if (!enabled) { return false; }
         auto consumed = false;
         auto p = rect.contains(X, Y);
@@ -565,13 +565,13 @@ namespace z0 {
             }
             if (p) {
                 consumed |= w->eventMouseMove(B, X, Y);
-            } else if (w->pushed) {
+            }/*  else if (w->pushed) {
                 consumed |= w->eventMouseUp(B, X, Y);
-            }
+            } */
             if (consumed) { break; }
         }
         if (redrawOnMouseMove && (pointed != p)) { refresh(); }
-        auto event = GEventMouse{ .button = B, .x = X, .y = Y};
+        auto event = GEventMouseMove{ .buttonsState = B, .x = X, .y = Y};
         emit(GEvent::OnMouseMove, &event);
         consumed |= event.consumed;
         return consumed;

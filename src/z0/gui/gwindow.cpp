@@ -145,8 +145,9 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseMove(MouseButton B, float X, float Y) {
+    bool GWindow::eventMouseMove(uint32_t B, float X, float Y) {
         if (!visible) { return false; }
+        log("w", to_string(X), to_string(Y));
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {

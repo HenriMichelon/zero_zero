@@ -14,19 +14,21 @@ namespace z0 {
             button{_button},
             pressed{_pressed} {}
 
-    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, float posX, float posY):
-            InputEvent{INPUT_EVENT_MOUSE_BUTTON},
+    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, uint32_t buttonsState, float posX, float posY):
+            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, posX, posY},
             button{_button},
             pressed{_pressed},
-            modifiers{_modifiers},
-            x{posX},
-            y{posY} {}
+            modifiers{_modifiers} {}
 
-    InputEventMouseMotion::InputEventMouseMotion(float posX, float posY, float rX, float rY):
-            InputEvent{INPUT_EVENT_MOUSE_MOTION},
-            x{posX},
-            y{posY},
+    InputEventMouseMotion::InputEventMouseMotion(uint32_t buttonsState, float posX, float posY, float rX, float rY):
+            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, posX, posY},
             relativeX{rX},
             relativeY{rY} {}
+
+    InputEventMouse::InputEventMouse(InputEventType type, uint32_t _buttonsState, float posX, float posY):
+            InputEvent{type},
+            x{posX},
+            y{posY},
+            buttonsState{_buttonsState} {}
 
 }
