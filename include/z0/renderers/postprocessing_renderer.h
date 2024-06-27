@@ -12,9 +12,9 @@ namespace z0 {
                                    SampledFrameBuffer* inputColorAttachmentHdr);
 
         void setInputColorAttachmentHdr(SampledFrameBuffer* inputColorAttachmentHdr);
-        shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorAttachmentHdr; }
-        VkImage getImage() const override { return colorAttachmentHdr->getImage(); }
-        VkImageView getImageView() const override { return colorAttachmentHdr->getImageView(); }
+        [[nodiscard]] shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorAttachmentHdr; }
+        [[nodiscard]] VkImage getImage() const override { return colorAttachmentHdr->getImage(); }
+        [[nodiscard]] VkImageView getImageView() const override { return colorAttachmentHdr->getImageView(); }
 
         void cleanup() override;
         void loadShaders() override;

@@ -10,7 +10,7 @@ namespace z0 {
         /**
          * Returns the cull mode.
          */
-        inline CullMode getCullMode() const { return cullMode; }
+        [[nodiscard]] inline CullMode getCullMode() const { return cullMode; }
 
         /**
          * Sets the CullMode.
@@ -21,7 +21,7 @@ namespace z0 {
         /**
          * Returns the transparency mode
          */
-        inline Transparency getTransparency() const { return transparency; }
+        [[nodiscard]] inline Transparency getTransparency() const { return transparency; }
 
         /**
          * Sets the transparency mode
@@ -31,7 +31,7 @@ namespace z0 {
         /**
          * Returns the alpha scissor threshold value
          */
-        inline float getAlphaScissor() const { return alphaScissor; }
+        [[nodiscard]] inline float getAlphaScissor() const { return alphaScissor; }
 
         /**
          * Sets the alpha scissor threshold value
@@ -72,7 +72,7 @@ namespace z0 {
         /**
          * Returns the material's base color.
          */
-        inline const Color &getAlbedoColor() const { return albedoColor; }
+        [[nodiscard]] inline const Color &getAlbedoColor() const { return albedoColor; }
 
         /**
          * Sets the material's base color.
@@ -82,7 +82,7 @@ namespace z0 {
         /**
          * Returns the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        inline const shared_ptr<ImageTexture>& getAlbedoTexture() const { return albedoTexture; }
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getAlbedoTexture() const { return albedoTexture; }
 
         /**
          * Sets the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
@@ -92,7 +92,7 @@ namespace z0 {
         /**
          * Return the specular texture
          */
-        inline const shared_ptr<ImageTexture>& getSpecularTexture() const { return specularTexture; }
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getSpecularTexture() const { return specularTexture; }
 
         /**
          * Sets the specular texture
@@ -102,7 +102,7 @@ namespace z0 {
         /**
          * Return the normal texture
          */
-        inline const shared_ptr<ImageTexture>& getNormalTexture() const {return normalTexture; }
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getNormalTexture() const {return normalTexture; }
 
         /**
          * Sets the normal texture
@@ -112,7 +112,7 @@ namespace z0 {
         /**
          * Returns the texture's UV transform.
          */
-        inline const shared_ptr<TextureTransform>& getTextureTransform() const { return textureTransform; }
+        [[nodiscard]] inline const shared_ptr<TextureTransform>& getTextureTransform() const { return textureTransform; }
 
         /**
          * Sets the texture's UV transform.

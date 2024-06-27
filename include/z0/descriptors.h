@@ -27,7 +27,7 @@ namespace z0 {
         DescriptorSetLayout(const DescriptorSetLayout &) = delete;
         DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 
-        VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
+        [[nodiscard]] VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
 
     private:
         const Device &device;
@@ -46,10 +46,10 @@ namespace z0 {
         public:
             explicit Builder(const Device &dev) : device{dev} {}
 
-            Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
-            Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
-            Builder &setMaxSets(uint32_t count);
-            unique_ptr<DescriptorPool> build() const;
+            [[nodiscard]] Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
+            [[nodiscard]] Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
+            [[nodiscard]] Builder &setMaxSets(uint32_t count);
+            [[nodiscard]] unique_ptr<DescriptorPool> build() const;
 
         private:
             const Device &device;
@@ -86,10 +86,10 @@ namespace z0 {
     public:
         DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool);
 
-        DescriptorWriter &writeBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
-        DescriptorWriter &writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
+        [[nodiscard]] DescriptorWriter &writeBuffer(uint32_t binding, VkDescriptorBufferInfo *bufferInfo);
+        [[nodiscard]] DescriptorWriter &writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo);
 
-        bool build(VkDescriptorSet &set);
+        [[nodiscard]] bool build(VkDescriptorSet &set);
         void overwrite(VkDescriptorSet &set);
 
     private:

@@ -26,7 +26,7 @@ namespace z0 {
         /**
          * Returns the size in pixels on the texture
          */
-        virtual vec2 getSize() const { return vec2{getWidth(), getHeight()}; };
+        [[nodiscard]] virtual vec2 getSize() const { return vec2{getWidth(), getHeight()}; };
     };
 
     /**
@@ -48,10 +48,10 @@ namespace z0 {
         /**
          * Returns the attached Image
          */
-        const shared_ptr<Image>& getImage() const { return image; }
+        [[nodiscard]] const shared_ptr<Image>& getImage() const { return image; }
 
-        uint32_t getWidth() const override { return image->getWidth(); };
-        uint32_t getHeight() const override { return image->getHeight(); };
+        [[nodiscard]] uint32_t getWidth() const override { return image->getWidth(); };
+        [[nodiscard]] uint32_t getHeight() const override { return image->getHeight(); };
 
     protected:
         shared_ptr<Image> image {nullptr};

@@ -14,7 +14,7 @@ namespace z0 {
         bool isAttachedToNode{false};
 
     public:
-        JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
+        [[nodiscard]] JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
         void setAttachedToNode();
     };
 

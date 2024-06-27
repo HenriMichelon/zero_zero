@@ -59,7 +59,7 @@ namespace z0 {
                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                     device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
             );
-            buffer->map();
+            if (buffer->map() != VK_SUCCESS) { die("Error mapping UBO to GPU memory"); }
         }
     }
 

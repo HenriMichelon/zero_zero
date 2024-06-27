@@ -13,24 +13,24 @@ namespace z0 {
                         const ApplicationConfig& applicationConfig, const Window& window);
         void cleanup();
 
-        VmaAllocator getAllocator() const { return allocator; }
-        VkDevice getDevice() const { return device; }
-        VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
-        VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
-        VkSampleCountFlagBits getSamples() const { return samples; }
-        const VkExtent2D& getSwapChainExtent() const { return swapChainExtent;}
-        VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
-        float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
-        uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
-        const string& getAdapterDescription() const { return adapterDescription; }
-        uint64_t getVideoMemoryUsage() const;
+        [[nodiscard]] VmaAllocator getAllocator() const { return allocator; }
+        [[nodiscard]] VkDevice getDevice() const { return device; }
+        [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        [[nodiscard]] VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
+        [[nodiscard]] VkSampleCountFlagBits getSamples() const { return samples; }
+        [[nodiscard]] const VkExtent2D& getSwapChainExtent() const { return swapChainExtent;}
+        [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+        [[nodiscard]] float getAspectRatio() const {return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);}
+        [[nodiscard]] uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
+        [[nodiscard]] const string& getAdapterDescription() const { return adapterDescription; }
+        [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
         void drawFrame();
         void wait() const;
         void registerRenderer(const shared_ptr<Renderer>& renderer);
         void unRegisterRenderer(const shared_ptr<Renderer>& renderer);
 
-        VkImageView createImageView(VkImage image,
+        [[nodiscard]] VkImageView createImageView(VkImage image,
                                     VkFormat format,
                                     VkImageAspectFlags aspectFlags,
                                     uint32_t mipLevels = 1,
@@ -47,7 +47,7 @@ namespace z0 {
                          VkDeviceMemory& imageMemory,
                          VkImageCreateFlags flags = 0,
                          uint32_t layers = 1) const;
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+        [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
         static void transitionImageLayout(VkCommandBuffer commandBuffer,
                                    VkImage image,
                                    VkImageLayout oldLayout,
@@ -59,12 +59,12 @@ namespace z0 {
                                    VkImageAspectFlags aspectMask,
                                    uint32_t mipLevels = 1) ;
         // Returns true if a given format support LINEAR filtering
-        VkBool32 formatIsFilterable(VkFormat format, VkImageTiling tiling) const;
+        [[nodiscard]] VkBool32 formatIsFilterable(VkFormat format, VkImageTiling tiling) const;
         // Find a suitable IMAGE_TILING format (for the Depth buffering image)
-        VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
+        [[nodiscard]] VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
                                                 VkImageTiling tiling,
                                                 VkFormatFeatureFlags features) const;
-        VkCommandBuffer beginSingleTimeCommands() const;
+        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
         void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
     private:
@@ -118,11 +118,11 @@ namespace z0 {
         void recreateSwapChain();
 
         // Check if all the requested Vulkan extensions are supported by a device
-        static bool checkDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions);
+        [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions);
         // Get the swap chain format, default for sRGB/NON-LINEAR
-        static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats);
+        [[nodiscard]] static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats);
         // Get the swap chain present mode, default to MAILBOX, if not avaible FIFO (V-SYNC)
-        static VkPresentModeKHR chooseSwapPresentMode(const vector<VkPresentModeKHR>& availablePresentModes);
+        [[nodiscard]] static VkPresentModeKHR chooseSwapPresentMode(const vector<VkPresentModeKHR>& availablePresentModes);
 
         // For Device::findQueueFamilies()
         struct QueueFamilyIndices {
@@ -143,15 +143,15 @@ namespace z0 {
         // Set the initiale state for the dynamic rendering
         void setInitialState(VkCommandBuffer commandBuffer);
         // Rate physical device by properties to find the best suitable GPU
-        uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) const;
+        [[nodiscard]] uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice, const vector<const char*>& deviceExtensions) const;
         // Get the swap chain capabilities
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) const;
+        [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) const;
         // Get the supported queues families for a particular GPU
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
+        [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
         // Get the maximum MSAA samples
-        VkSampleCountFlagBits getMaxUsableMSAASampleCount() const;
+        [[nodiscard]] VkSampleCountFlagBits getMaxUsableMSAASampleCount() const;
         // Get the swap chain images sizes
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
+        [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
         // Get the GPU details from the OS
         void getAdapterDescFromOS();
 

@@ -32,7 +32,7 @@ namespace z0 {
          *   @param height : height of the resulting bitmap
          *   @return a 32 bits RGBA bitmap stored in CPU memory
         */
-        vector<uint32_t> renderToBitmap(const string&text, float& width, float& height);
+        [[nodiscard]] vector<uint32_t> renderToBitmap(const string&text, float& width, float& height);
 
         /**
          * Renders a string into a RGBA Image resource (stored in GPU memory).
@@ -41,17 +41,17 @@ namespace z0 {
          * @param text : text to render
          * @result a 32 bits RGBA bitmap stored in GPU memory with a VK_FORMAT_R8G8B8A8_SRGB format, clamped to border and VK_IMAGE_TILING_OPTIMAL tiling
          */
-        shared_ptr<Image> renderToImage(const Device&device, const string&text);
+        [[nodiscard]] shared_ptr<Image> renderToImage(const Device&device, const string&text);
 
         /**
          * Returns the font path. Useful to create another Font resource with a different size
          */
-        const string& getFontName() const { return path; }
+        [[nodiscard]] const string& getFontName() const { return path; }
 
         /**
          * Returns the font height in pixels (NOT scaled size, but the size given to the Font constructor)
          */
-        uint32_t getFontSize() const { return size; }
+        [[nodiscard]] uint32_t getFontSize() const { return size; }
 
     private:
         // Already rendered characters
@@ -67,9 +67,9 @@ namespace z0 {
         const string path;
         const uint32_t size;
 
-        CachedCharacter &getFromCache(char);
+        [[nodiscard]] CachedCharacter &getFromCache(char);
         void render(CachedCharacter&, char);
-        uint32_t scaleFontSize(uint32_t baseFontSize);
+        [[nodiscard]] uint32_t scaleFontSize(uint32_t baseFontSize);
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
         float scale;

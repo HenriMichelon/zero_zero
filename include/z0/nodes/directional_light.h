@@ -28,7 +28,7 @@ namespace z0 {
         /** 
          * Returns the direction of the light
         */
-        const vec3& getDirection() const { return direction; }
+        [[nodiscard]] const vec3& getDirection() const { return direction; }
 
         /** 
          * Sets the direction of the light

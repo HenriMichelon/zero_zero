@@ -10,7 +10,7 @@ namespace z0 {
         ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light);
         void loadScene(list<MeshInstance*>& meshes);
         void cleanup() override;
-        const shared_ptr<ShadowMapFrameBuffer>& getShadowMap() const { return shadowMap; };
+        [[nodiscard]] const shared_ptr<ShadowMapFrameBuffer>& getShadowMap() const { return shadowMap; };
         virtual ~ShadowMapRenderer();
 
     private:

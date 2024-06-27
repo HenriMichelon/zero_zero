@@ -11,7 +11,7 @@ namespace z0 {
         GFrame(const string& = "");
 
         // Return the current title of the widget
-        const string& getText() const { return text; }
+        [[nodiscard]] const string& getText() const { return text; }
 
         // Change the title of the widget
         void setText(const string&);

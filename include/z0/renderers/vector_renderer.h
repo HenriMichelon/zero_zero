@@ -41,7 +41,7 @@ namespace z0 {
         // Send the datas of the drawing commands to the GPU
         void endDraw();
 
-        VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
+        [[nodiscard]] VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
         void update(uint32_t currentFrame) override;
         void beginRendering(VkCommandBuffer commandBuffer) override;
         void endRendering(VkCommandBuffer commandBuffer, bool isLast)  override;

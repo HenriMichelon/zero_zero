@@ -23,14 +23,14 @@ namespace z0 {
         /**
          * Returns the default font loaded at startup
          */
-        inline shared_ptr<Font>& getDefaultFont() { return defaultFont; }
+        [[nodiscard]] inline shared_ptr<Font>& getDefaultFont() { return defaultFont; }
 
         /**
          * Forces a redraw of all the UI at the start of the next frame
          */
         inline void refresh() { needRedraw = true; }
 
-        inline VectorRenderer& getRenderer() { return *vectorRenderer; }
+        [[nodiscard]] inline VectorRenderer& getRenderer() { return *vectorRenderer; }
 
     private:
         shared_ptr<Font>            defaultFont;
@@ -41,7 +41,7 @@ namespace z0 {
         bool                        needRedraw{false};
 
         void drawFrame();
-        bool onInput(InputEvent& inputEvent);
+        [[nodiscard]] bool onInput(InputEvent& inputEvent);
         friend class Application;
 
     public:

@@ -43,25 +43,25 @@ namespace z0 {
          * Returns the startup configuration
          * @return the global configuration given when the application was instancied
          */
-        const ApplicationConfig& getConfig() const;
+        [[nodiscard]] const ApplicationConfig& getConfig() const;
 
         /**
          * Returns the current display window
          * @return The main window
          */
-        const Window& getWindow() const;
+        [[nodiscard]] const Window& getWindow() const;
 
         /**
          * Returns the frames per seconds
          * @return The average FPS
          */
-        uint32_t getFPS() const { return fps; }
+        [[nodiscard]] uint32_t getFPS() const { return fps; }
 
         /**
          * Checks if the scene is paused, in respect for z0::ProcessMode
          * @return  true if the current scene is paused
          */
-        bool isPaused() const { return paused; }
+        [[nodiscard]] bool isPaused() const { return paused; }
 
         /**
          * Pause or resume the current scene
@@ -86,22 +86,22 @@ namespace z0 {
         /**
          * Returns the physics system gravity
          */
-        vec3 getGravity() const;
+        [[nodiscard]] vec3 getGravity() const;
 
         /**
          * Returns the number of bytes of dedicated video memory that are not shared with the CPU.
          */
-        uint64_t getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
+        [[nodiscard]] uint64_t getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
 
         /**
          * Returns the video adapter description
          */
-        const string& getAdapterDescription() const { return device->getAdapterDescription(); }
+        [[nodiscard]] const string& getAdapterDescription() const { return device->getAdapterDescription(); }
 
         /**
          * Returns the application’s current video memory usage, in bytes.
          */
-        uint64_t getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
+        [[nodiscard]] uint64_t getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
 
 
     private:
@@ -209,7 +209,7 @@ namespace z0 {
 
 #ifdef _WIN32
     /**
-     * Application startup macro
+     * Application startup macro. Must be used outside any namespace.
      * @param CONFIG An ApplicationConfig object
      * @param ROOTNODE The root Node of the startup scene
      */

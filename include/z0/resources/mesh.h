@@ -42,12 +42,12 @@ namespace z0 {
              const vector<shared_ptr<Surface>>& surfaces,
              const string& meshName = "Mesh");
 
-        const shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex) const;
+        [[nodiscard]] const shared_ptr<Material>& getSurfaceMaterial(uint32_t surfaceIndex) const;
         void setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material> material);
 
-        inline vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
-        inline vector<Vertex>& getVertices() { return vertices; }
-        inline vector<uint32_t>& getIndices() { return indices; }
+        [[nodiscard]] inline vector<shared_ptr<Surface>>& getSurfaces() { return surfaces; };
+        [[nodiscard]] inline vector<Vertex>& getVertices() { return vertices; }
+        [[nodiscard]] inline vector<uint32_t>& getIndices() { return indices; }
 
     private:
         vector<Vertex> vertices;
@@ -58,9 +58,9 @@ namespace z0 {
         unique_ptr<Buffer> indexBuffer;
 
     public:
-        unordered_set<shared_ptr<Material>>& _getMaterials() { return _materials; };
-        static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
-        static vector<VkVertexInputAttributeDescription2EXT> _getAttributeDescription();
+        [[nodiscard]] unordered_set<shared_ptr<Material>>& _getMaterials() { return _materials; };
+        [[nodiscard]] static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
+        [[nodiscard]] static vector<VkVertexInputAttributeDescription2EXT> _getAttributeDescription();
         void _draw(VkCommandBuffer commandBuffer, uint32_t first, uint32_t count) const;
         void _buildModel();
 

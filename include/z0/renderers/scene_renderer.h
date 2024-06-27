@@ -9,9 +9,9 @@ namespace z0 {
     public:
         SceneRenderer(Device& device, const string& shaderDirectory);
 
-        shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorFrameBufferHdr; }
-        VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
-        VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
+        [[nodiscard]] shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorFrameBufferHdr; }
+        [[nodiscard]] VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
+        [[nodiscard]] VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
 
         void cleanup() override;
         void addNode(const shared_ptr<Node>& node) override;
@@ -155,7 +155,7 @@ namespace z0 {
         void addImage(const shared_ptr<Image>& image);
         void removeImage(const shared_ptr<Image>& image);
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance*>& modelsToDraw);
-        shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light* light) const;
+        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light* light) const;
 
     public:
         SceneRenderer(const SceneRenderer&) = delete;

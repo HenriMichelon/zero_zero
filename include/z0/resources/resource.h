@@ -14,12 +14,12 @@ namespace z0 {
         /**
          * Returns the unique id of the resource
          */
-        id_t getId() const { return id; }
+        [[nodiscard]] id_t getId() const { return id; }
 
         /**
          * Return the name (only informative, no real use)
          */
-        const string& getName() const { return name; }
+        [[nodiscard]] const string& getName() const { return name; }
 
         bool operator==(const Resource& other) const { return id == other.id;}
 
@@ -34,7 +34,7 @@ namespace z0 {
 
     public:
         void _incrementReferenceCounter();
-        bool _decrementReferenceCounter();
+        [[nodiscard]] bool _decrementReferenceCounter();
     };
 
 }

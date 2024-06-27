@@ -10,7 +10,7 @@ namespace z0 {
         explicit GResource(string R): res(std::move(R)) {};
         virtual ~GResource() = default;
 
-        const string& Resource() const { return res; };
+        [[nodiscard]] const string& Resource() const { return res; };
 
     private:
         string res;

@@ -12,7 +12,7 @@ namespace z0 {
         /**
          * Returns the RGB color and the intensity factor
          */
-        const vec4& getColorAndIntensity() const { return colorAndIntensity; }
+        [[nodiscard]] const vec4& getColorAndIntensity() const { return colorAndIntensity; }
 
         /**
          * Sets the RGB color and the intensity factor
@@ -22,7 +22,7 @@ namespace z0 {
         /**
          * Returns the intensity of the specular blob in objects affected by the light.
          */
-        float getSpecularIntensity() const { return specularIntensity; }
+        [[nodiscard]] float getSpecularIntensity() const { return specularIntensity; }
 
         /**
          * Sets the intensity of the specular blob in objects affected by the light.
@@ -33,7 +33,7 @@ namespace z0 {
          * If `true`, the light will cast real-time shadows. 
          * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
          */
-        bool getCastShadows() const { return castShadows; }
+        [[nodiscard]] bool getCastShadows() const { return castShadows; }
 
         /**
          * Sets to `true` to makes the light cast real-time shadow.

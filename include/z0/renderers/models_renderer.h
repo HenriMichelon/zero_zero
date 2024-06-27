@@ -17,7 +17,7 @@ namespace z0 {
         // Cleanup all Vulkan ressources
         void cleanup() override;
         // Get the current scene camera
-        Camera* getCamera() const { return currentCamera; }
+        [[nodiscard]] Camera* getCamera() const { return currentCamera; }
 
     protected:
         // Currently active camera, first camera added to the scene or the last activated

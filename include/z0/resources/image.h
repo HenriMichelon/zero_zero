@@ -38,23 +38,23 @@ namespace z0 {
         /**
          * Returns the width in pixels
          */
-        inline uint32_t getWidth() const { return width; }
+        [[nodiscard]] inline uint32_t getWidth() const { return width; }
 
         /**
          * Returns the height in pixels
          */
-        inline uint32_t getHeight() const { return height; }
+        [[nodiscard]] inline uint32_t getHeight() const { return height; }
 
         /**
          * Returns the size in pixels
          */
-        vec2 getSize() const { return vec2{getWidth(), getHeight()}; }
+        [[nodiscard]] vec2 getSize() const { return vec2{getWidth(), getHeight()}; }
 
         /**
          * Load a bitmap from file. For supported file formats see https://github.com/nothings/stb/blob/master/stb_image.h
          * @param filepath : path of the file, relative to the application working directory
          */
-        static shared_ptr<Image> loadFromFile(const string& filepath);
+        [[nodiscard]] static shared_ptr<Image> loadFromFile(const string& filepath);
 
     private:
         const Device&   device;

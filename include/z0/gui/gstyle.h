@@ -18,7 +18,7 @@ namespace z0 {
           	string	: layout name
            	nullptr on error (unknown layout)
         */
-        static shared_ptr<GStyle> create(const string& = "vector");
+        [[nodiscard]] static shared_ptr<GStyle> create(const string& = "vector");
 
         /* Create a resource from a resource description string.
           	string : string that describe the resources of a widget
@@ -36,7 +36,7 @@ namespace z0 {
             	string	: option name
              option value
         */
-        string getOption(const string&);
+        [[nodiscard]] string getOption(const string&);
 
         /* Draw a widget.
           	GWidget	: widget to draw
@@ -56,7 +56,7 @@ namespace z0 {
         /* Return the default font for the layout.
           	Font	: font to use for the layout
          */
-        shared_ptr<Font> getFont() const { return font; };
+        [[nodiscard]] shared_ptr<Font> getFont() const { return font; };
 
     protected:
         shared_ptr<Font>	font;

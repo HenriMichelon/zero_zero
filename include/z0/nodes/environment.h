@@ -22,7 +22,7 @@ namespace z0 {
         /**
          * Returns the ambient RGB color and intensity
          */
-        const vec4& getAmbientColorAndIntensity() const { return ambientColorIntensity; }
+        [[nodiscard]] const vec4& getAmbientColorAndIntensity() const { return ambientColorIntensity; }
 
         /**
          * Sets the ambient RGB color and intensity

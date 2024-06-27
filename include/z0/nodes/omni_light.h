@@ -32,7 +32,7 @@ namespace z0 {
         /**
          * Returns the linear term
          */
-        float getLinear() const { return linear; }
+        [[nodiscard]] float getLinear() const { return linear; }
 
         /**
          * Sets the linear term
@@ -42,7 +42,7 @@ namespace z0 {
         /**
          * Returns the quadratic term
          */
-        float getQuadratic() const { return quadratic; }
+        [[nodiscard]] float getQuadratic() const { return quadratic; }
 
         /**
          * Sets the quadratic term
@@ -52,7 +52,7 @@ namespace z0 {
         /**
          * Returns the attenuation factor
          */
-        float getAttenuation() const { return attenuation; }
+        [[nodiscard]] float getAttenuation() const { return attenuation; }
 
         /**
          * Sets the attenuation factor

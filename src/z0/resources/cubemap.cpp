@@ -18,7 +18,9 @@ namespace z0 {
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                 device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
         };
-        textureStagingBuffer.map();
+        if (textureStagingBuffer.map() != VK_SUCCESS) {
+            die("Failed to map Cubmap texture to GPU memory");
+        }
         for (int i = 0; i < 6; i++) {
             textureStagingBuffer.writeToBuffer(data[i], imageSize, textureStagingBuffer.getAlignmentSize() * i);
         }

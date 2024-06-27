@@ -12,7 +12,7 @@ namespace z0 {
         /**
          * Creates a new shared pointer to a new instance of type `clazz` with casting to the type `T`
          */
-        template<typename T> static shared_ptr<T> makeShared(const string&clazz) {
+        template<typename T> [[nodiscard]] static shared_ptr<T> makeShared(const string&clazz) {
             if (!typeMap.contains(clazz)) die("Type", clazz, "not registered in TypeRegistry");
             return shared_ptr<T>(reinterpret_cast<T*>(TypeRegistry::typeMap[clazz]()));
         }

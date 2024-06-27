@@ -12,7 +12,7 @@ namespace z0 {
          * @param filepath path of the glTF file, relative to the application path
          * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material in double sided (default is CULLMODE_DISABLED for double sided materials)
          */
-        static shared_ptr<Node> loadModelFromFile(const filesystem::path& filepath, bool forceBackFaceCulling = false);
+        [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const filesystem::path& filepath, bool forceBackFaceCulling = false);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
@@ -41,7 +41,7 @@ namespace z0 {
         };
 
     private:
-        static vector<SceneNode> loadSceneFromJSON(const string& filepath);
+        [[nodiscard]] static vector<SceneNode> loadSceneFromJSON(const string& filepath);
         static void addNode(Node* parent, 
                             map<string, shared_ptr<Node>>& nodeTree, 
                             map<string, SceneNode>& sceneTree, 

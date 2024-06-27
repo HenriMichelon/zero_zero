@@ -10,37 +10,37 @@ namespace z0 {
         /**
          * Returns true if you are pressing the key
          */
-        static bool isKeyPressed(Key key);
+        [[nodiscard]] static bool isKeyPressed(Key key);
 
         /**
          * Returns true when the user has started pressing the key
          */
-        static bool isKeyJustPressed(Key key);
+        [[nodiscard]] static bool isKeyJustPressed(Key key);
 
         /**
          * Returns true when the user stops pressing the key
          */
-        static bool isKeyJustReleased(Key key);
+        [[nodiscard]] static bool isKeyJustReleased(Key key);
 
         /**
          * Gets an input vector by specifying four keys for the positive and negative X and Y axes.
          */
-        static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
+        [[nodiscard]] static vec2 getKeyboardVector(Key negX, Key posX, Key negY, Key posY);
 
         /**
          * Returns true if you are pressing the mouse button
          */
-        static bool isMouseButtonPressed(MouseButton mouseButton);
+        [[nodiscard]] static bool isMouseButtonPressed(MouseButton mouseButton);
 
         /**
          * Returns true when the user has started pressing the mouse button
          */
-        static bool isMouseButtonJustPressed(MouseButton mouseButton);
+        [[nodiscard]] static bool isMouseButtonJustPressed(MouseButton mouseButton);
 
         /**
          * Returns true when the user stops pressing the mouse button
          */
-        static bool isMouseButtonJustReleased(MouseButton mouseButton);
+        [[nodiscard]] static bool isMouseButtonJustReleased(MouseButton mouseButton);
 
         /**
          * Sets the mouse visibility and capture mode
@@ -50,19 +50,19 @@ namespace z0 {
         /**
          * Returns the number of connected joypads, including gamepads
          */
-        static uint32_t getConnectedJoypads();
+        [[nodiscard]] static uint32_t getConnectedJoypads();
 
         /**
          * Returns true if the joypad is a gamepad
          * @param index index of the joypad in [0..getConnectedJoypads()]
          */
-        static bool isGamepad(uint32_t index);
+        [[nodiscard]] static bool isGamepad(uint32_t index);
 
         /**
          * Returns the joypad name
          * @param index index of the joypad in [0..getConnectedJoypads()]
          */
-        static string getJoypadName(uint32_t index);
+        [[nodiscard]] static string getJoypadName(uint32_t index);
 
 
         /**
@@ -70,14 +70,14 @@ namespace z0 {
          * @param index index of the joypad in [0..getConnectedJoypads()]
          * @param axisJoystick axis
          */
-        static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);
+        [[nodiscard]] static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);
 
          /**
          * Returns true if you are pressing the gamepad button
          * @param index index of the joypad in [0..getConnectedJoypads()]
          * @param gamepadButton gamepad button
          */
-        static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
+        [[nodiscard]] static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
         //static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
 
         /*static bool haveInputEvent() { return !_inputQueue.empty(); }
@@ -108,7 +108,7 @@ namespace z0 {
 #endif
 
     private:
-        static float applyDeadzone(float value, float deadzonePercent);
+        [[nodiscard]] static float applyDeadzone(float value, float deadzonePercent);
         static void generateGamepadButtonEvent(GamepadButton, bool);
     };
 

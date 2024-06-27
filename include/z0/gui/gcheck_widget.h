@@ -16,7 +16,7 @@ namespace z0 {
         } ;
 
         //! Return current state of the widget
-        State getState() const { return state; }
+        [[nodiscard]] State getState() const { return state; }
 
         //! Change the state of the widget
         virtual void setState(State);

@@ -32,23 +32,23 @@ namespace z0 {
         /**
          * The physics layers this CollisionObject is in. 
          */
-        uint32_t getCollisionLayer() const { return collisionLayer; }
+        [[nodiscard]] uint32_t getCollisionLayer() const { return collisionLayer; }
 
         /**
          * The physics layers this CollisionObject scans. 
          */
-        uint32_t getCollistionMask() const { return collisionMask; }
+        [[nodiscard]] uint32_t getCollistionMask() const { return collisionMask; }
 
         /**
          * Returns `true` if the object is in the `layer`
          */
-        bool haveCollisionLayer(uint32_t layer) const;
+        [[nodiscard]] bool haveCollisionLayer(uint32_t layer) const;
 
         /**
          * Returns `true` if the object have the `mask`
          */
 
-        bool haveCollisionMask(uint32_t mask) const;
+        [[nodiscard]] bool haveCollisionMask(uint32_t mask) const;
 
         /**
          * Adds or removes a collision layer
@@ -63,7 +63,7 @@ namespace z0 {
         /**
          * Returns `true` if the object can collide with an object with the layer `layer`
          */
-        bool shouldCollide(uint32_t layer) const;
+        [[nodiscard]] bool shouldCollide(uint32_t layer) const;
 
         /**
          * Sets the linear velocity
@@ -73,7 +73,7 @@ namespace z0 {
         /**
          * Returns the linear velocity
          */
-        virtual vec3 getVelocity() const;
+        [[nodiscard]] virtual vec3 getVelocity() const;
         
         /**
          * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
@@ -88,7 +88,7 @@ namespace z0 {
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step
          */
-        bool wereInContact(CollisionObject* obj);
+        [[nodiscard]] bool wereInContact(CollisionObject* obj);
 
     protected:
         bool updating{false};
@@ -108,7 +108,7 @@ namespace z0 {
         
         virtual void setPositionAndRotation();
         void setBodyId(JPH::BodyID id);
-        CollisionObject* _getByBodyId(JPH::BodyID id);
+        [[nodiscard]] CollisionObject* _getByBodyId(JPH::BodyID id);
         void _updateTransform() override;
         void _updateTransform(const mat4& parentMatrix) override;
 
@@ -122,7 +122,7 @@ namespace z0 {
         void _onPause() override;
         void _onResume() override;
 
-        JPH::BodyID _getBodyId() const { return bodyId; }
+        [[nodiscard]] JPH::BodyID _getBodyId() const { return bodyId; }
         ~CollisionObject() override = default;
     };
 

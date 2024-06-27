@@ -54,17 +54,17 @@ namespace z0 {
         /**
          * Returns the local space transformation matrix
          */
-        inline const mat4& getTransformLocal() const { return localTransform; }
+        [[nodiscard]] inline const mat4& getTransformLocal() const { return localTransform; }
 
         /**
          * Returns the world space transformation matrix
          */
-        inline mat4 getTransformGlobal() const { return worldTransform; }
+        [[nodiscard]] inline mat4 getTransformGlobal() const { return worldTransform; }
 
         /**
          * Transforms a local vector from this node's local space to world space.
          */
-        vec3 toGlobal(vec3 local) const;
+        [[nodiscard]] vec3 toGlobal(vec3 local) const;
 
         /*
         * Sets the local space position (relative to parent)
@@ -74,7 +74,7 @@ namespace z0 {
         /*
         * Returns the local space position (relative to parent)
         */
-        inline vec3 getPosition() const { return localTransform[3]; };
+        [[nodiscard]] inline vec3 getPosition() const { return localTransform[3]; };
 
         /**
          * Changes the node's position by the given offset vector in local space.
@@ -89,7 +89,7 @@ namespace z0 {
         /**
          * Returns the world space position
          */
-        inline vec3 getPositionGlobal() const { return worldTransform[3]; }
+        [[nodiscard]] inline vec3 getPositionGlobal() const { return worldTransform[3]; }
 
         /**
          * Rotates the local transformation around the X axis by angle in radians.
@@ -129,22 +129,22 @@ namespace z0 {
         /**
          * Returns the rotation of the local transformation
          */
-        vec3 getRotation() const;
+        [[nodiscard]] vec3 getRotation() const;
 
         /**
          * Returns the X axis rotation of the local transformation
          */
-        float getRotationX() const { return getRotation().x; }
+        [[nodiscard]] float getRotationX() const { return getRotation().x; }
 
         /**
          * Returns the Y axis rotation of the local transformation
          */
-        float getRotationY() const { return getRotation().y; }
+        [[nodiscard]] float getRotationY() const { return getRotation().y; }
 
         /**
          * Returns the Z axis rotation of the local transformation
          */
-        float getRotationZ() const { return getRotation().z; }
+        [[nodiscard]] float getRotationZ() const { return getRotation().z; }
 
         /**
          * Scales part of the local transformation.
@@ -159,12 +159,12 @@ namespace z0 {
         /**
          * Returns the scale part of the local transformation.
          */
-        vec3 getScale() const;
+        [[nodiscard]] vec3 getScale() const;
 
         /**
          * Returns the node's processing behavior. To check if the node can process in its current mode, use isProcessed().
          */
-        inline ProcessMode getProcessMode() const { return processMode; }
+        [[nodiscard]] inline ProcessMode getProcessMode() const { return processMode; }
 
         /**
          * Changes the node's processing behavior.
@@ -174,12 +174,12 @@ namespace z0 {
         /**
          * Returns true if the node is processed and receive input callbacks
          */
-        bool isProcessed() const;
+        [[nodiscard]] bool isProcessed() const;
 
         /**
          * Returns the node's parent in the scene tree
          */
-        inline Node* getParent() const { return parent; }
+        [[nodiscard]] inline Node* getParent() const { return parent; }
 
         /**
          * Adds a child node. 
@@ -200,43 +200,43 @@ namespace z0 {
         /**
          * Returns true if the node have this child
          */
-        bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
+        [[nodiscard]] bool haveChild(const shared_ptr<Node>& child, bool recursive) const;
 
         /*
         * Returns the child node by is name. Not recursive
         */
-        shared_ptr<Node> getChild(const string& name) const;
+        [[nodiscard]] shared_ptr<Node> getChild(const string& name) const;
 
         /*
         * Returns the child node by is absolute path
         */
-        shared_ptr<Node> getNode(const string& path) const;
+        [[nodiscard]] shared_ptr<Node> getNode(const string& path) const;
 
         /**
          * Recursively prints the node tree in the log system
          */
         void printTree(int tab = 0) const;
 
-        string toString() const override { return name; }
+        [[nodiscard]] string toString() const override { return name; }
 
         /**
          * Returns the unique ID of this node
          */
-        inline id_t getId() const { return id; }
+        [[nodiscard]] inline id_t getId() const { return id; }
 
         inline bool operator == (const Node& other) const { return id == other.id;}
 
         /**
          * Duplicates a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
          */
-        shared_ptr<Node> duplicate();
+        [[nodiscard]] shared_ptr<Node> duplicate();
 
         /**
          * Finds the first child by is type.
          * Does not works with nodes loaded from a scene file since they are casted to Node.
          */
         template <typename T>
-        T* findFirstChild(bool recursive=true) const {
+        [[nodiscard]] T* findFirstChild(bool recursive=true) const {
             for(auto& node : children) {
                 if (auto* pnode = dynamic_cast<T*>(node.get())) {
                     return pnode;
@@ -250,14 +250,14 @@ namespace z0 {
         /**
          * Returns the normalized right vector
          */
-        vec3 getRightVector() const;
+        [[nodiscard]] vec3 getRightVector() const;
 
         /**
          * Creates a Tween to tweens a property of the node between an `initial` value 
          * and `final` value in a span of time equal to `duration`, in seconds.
          */
         template<typename T>
-        shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final, float duration) {
+        [[nodiscard]] shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final, float duration) {
             auto tween = make_shared<PropertyTween<T>>(this, set, initial, final, duration);
             tweens.push_back(tween);
             return tween;

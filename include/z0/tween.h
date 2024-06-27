@@ -15,9 +15,9 @@ namespace z0 {
          * Do not call it if the Tween have been created with Node::create*Tween().
          * * @return `false` if the tween is running
          */
-        virtual bool update(float deltaTime) = 0;
+        [[nodiscard]] virtual bool update(float deltaTime) = 0;
 
-        bool isRunning() const { return running; }
+        [[nodiscard]] bool isRunning() const { return running; }
 
     protected:
         bool running{false};
@@ -90,7 +90,7 @@ namespace z0 {
          * *Do not call it* if the Tween have been created with Node::createPropertyTween().
          * @return `false` if the tween is running
          */
-        bool update(float deltaTime) override {
+        [[nodiscard]] bool update(float deltaTime) override {
             elapsedTime += deltaTime;
             float t = std::min(elapsedTime / durationTime, 1.0f); // Normalized time
             (targetObject->*setter)(lerp(startValue, targetValue, t));

@@ -15,12 +15,12 @@ namespace z0 {
         /**
          * Returns the associated Mesh
          */
-        const shared_ptr<Mesh>& getMesh() const { return mesh; }
+        [[nodiscard]] const shared_ptr<Mesh>& getMesh() const { return mesh; }
 
         /**
          * Returns `true` if the Mesh is valid
          */
-        bool isValid() const { return mesh != nullptr; }
+        [[nodiscard]] bool isValid() const { return mesh != nullptr; }
 
         /**
          * Set to `true` to have the Mesh outlined starting to the next frame
@@ -30,7 +30,7 @@ namespace z0 {
         /**
          * Returns `true` if the Mesh will be outlined during the next frame
          */
-        bool isOutlined() const { return outlined; }
+        [[nodiscard]] bool isOutlined() const { return outlined; }
 
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
@@ -40,7 +40,7 @@ namespace z0 {
         /**
          * Returns the current outlining material
          */
-        shared_ptr<ShaderMaterial>& getOutlineMaterial() { return outlineMaterial; }
+        [[nodiscard]] shared_ptr<ShaderMaterial>& getOutlineMaterial() { return outlineMaterial; }
 
     protected:
         shared_ptr<Node> duplicateInstance() override;

@@ -33,7 +33,7 @@ namespace z0 {
         /**
          * Converts the objet to a readable text
          */
-        virtual string toString() const { return "??"; };
+        [[nodiscard]] virtual string toString() const { return "??"; };
 
         friend ostream& operator<<(ostream& os, const Object& obj) {
             os << obj.toString();

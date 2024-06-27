@@ -9,7 +9,7 @@ namespace z0 {
     public:
         virtual void cleanup();
 
-        const Device& getDevice() const { return device; }
+        [[nodiscard]] const Device& getDevice() const { return device; }
 
     protected:
         Device& device;

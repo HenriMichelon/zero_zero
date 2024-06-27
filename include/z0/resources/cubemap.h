@@ -24,12 +24,12 @@ namespace z0 {
         /**
          * Returns the Vulkan image resource
          */
-        VkImage& getImage() { return textureImage; }
+        [[nodiscard]] VkImage& getImage() { return textureImage; }
 
         /**
          * Returns the Vulkan image view resource
          */
-        VkImageView& getImageView() { return textureImageView; }
+        [[nodiscard]] VkImageView& getImageView() { return textureImageView; }
 
         /**
          * Loads a cubemap from 6 RGBA images files.
@@ -38,7 +38,7 @@ namespace z0 {
          * @param filename path and filename (without the extension) of the images
          * @param filext files extension
          */
-        static shared_ptr<Cubemap> loadFromFile(const string &filepath, const string &ext);
+        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filepath, const string &ext);
 
         /**
          * Loads the cubemap from a single RGBA image with the following format :<br>
@@ -47,17 +47,17 @@ namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        static shared_ptr<Cubemap> loadFromFile(const string &filepath);
+        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filepath);
 
         /**
          * Returns the width in pixels of each image
          */
-        uint32_t getWidth() const { return width; }
+        [[nodiscard]] uint32_t getWidth() const { return width; }
 
         /**
          * Returns the height in pixels of each image
          */
-        uint32_t getHeight() const { return height; }
+        [[nodiscard]] uint32_t getHeight() const { return height; }
 
     private:
         const Device& device;
@@ -68,7 +68,7 @@ namespace z0 {
         VkSampler textureSampler;
 
         void createTextureSampler();
-        static unsigned char* extractImage(unsigned char* source, int x, int y, int srcWidth,  int w, int h, int channels);
+        [[nodiscard]] static unsigned char* extractImage(unsigned char* source, int x, int y, int srcWidth,  int w, int h, int channels);
 
     public:
         VkDescriptorImageInfo _getImageInfo();

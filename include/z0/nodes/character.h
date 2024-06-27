@@ -23,22 +23,22 @@ namespace z0 {
         /**
          * Returns `true` if the Character is on a ground
          */
-        bool isOnGround();
+        [[nodiscard]] bool isOnGround();
 
         /**
          * Returns `true` if `object` is the ground
          */
-        bool isGround(CollisionObject*object);
+        [[nodiscard]] bool isGround(CollisionObject*object);
 
         /**
          * Returns the velocity in the world space of the ground.
          */
-        vec3 getGroundVelocity() const;
+        [[nodiscard]] vec3 getGroundVelocity() const;
 
         /**
          * Returns the UP axis for this Character
          */
-        inline const vec3& getUpVector() const { return upVector; }
+        [[nodiscard]] inline const vec3& getUpVector() const { return upVector; }
 
         /**
          * Sets the UP axis for this Character
@@ -48,11 +48,11 @@ namespace z0 {
         /**
         * Returns the list of the currently colliding bodies
         */
-        list<Collision> getCollisions() const;
+        [[nodiscard]] list<Collision> getCollisions() const;
         
 
         void setVelocity(vec3 velocity) override;
-        vec3 getVelocity() const override;
+        [[nodiscard]] vec3 getVelocity() const override;
 
     protected:
         void setPositionAndRotation() override;

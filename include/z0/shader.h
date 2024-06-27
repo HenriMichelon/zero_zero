@@ -16,9 +16,9 @@ namespace z0 {
                const VkPushConstantRange* pushConstantRange);
         virtual ~Shader();
 
-        VkShaderCreateInfoEXT getShaderCreateInfo() const { return shaderCreateInfo; };
-        VkShaderStageFlagBits* getStage() { return &stage; };
-        VkShaderEXT* getShader() { return &shader; };
+        [[nodiscard]] VkShaderCreateInfoEXT getShaderCreateInfo() const { return shaderCreateInfo; };
+        [[nodiscard]] VkShaderStageFlagBits* getStage() { return &stage; };
+        [[nodiscard]] VkShaderEXT* getShader() { return &shader; };
 
         void setShader(VkShaderEXT _shader) { shader = _shader; };
 
@@ -34,7 +34,7 @@ namespace z0 {
 
     public:
         void _incrementReferenceCounter();
-        bool _decrementReferenceCounter();
+        [[nodiscard]] bool _decrementReferenceCounter();
     };
 
 }

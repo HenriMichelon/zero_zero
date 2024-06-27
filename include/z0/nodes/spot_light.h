@@ -38,7 +38,7 @@ namespace z0 {
         /** 
          * Returns the direction of the light
         */
-        vec3& getDirection() { return direction; }
+        [[nodiscard]] vec3& getDirection() { return direction; }
 
         /** 
          * Sets the direction of the light
@@ -53,7 +53,7 @@ namespace z0 {
         /**
          * Returns the inner cutoff value that specifies the spotlight's radius (not the angle!)
          */
-        float getCutOff() const {return cutOff;}
+        [[nodiscard]] float getCutOff() const {return cutOff;}
 
         /**
          * Sets the outer cutoff angle that specifies the spotlight's radius. Everything outside this angle is not lit by the spotlight.
@@ -63,12 +63,12 @@ namespace z0 {
         /**
          * Returns the outer cutoff value that specifies the spotlight's radius (not the angle!).
          */
-        float getOuterCutOff() const {return outerCutOff;}
+        [[nodiscard]] float getOuterCutOff() const {return outerCutOff;}
 
         /**
          * Returns the field of view of the spotlight, in radians
          */
-        float getFov() const { return fov; }
+        [[nodiscard]] float getFov() const { return fov; }
 
     private:
         vec3 direction{0.0f, 0.0f, 1.0f};

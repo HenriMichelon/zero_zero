@@ -10,12 +10,12 @@ namespace z0 {
         /**
          * Returns the width of the client area of the window, in pixels
          */
-        uint32_t getWidth() const { return width; }
+        [[nodiscard]] uint32_t getWidth() const { return width; }
 
         /**
          * Returns the height of the client area of the window, in pixels
          */
-        uint32_t getHeight() const { return height; }
+        [[nodiscard]] uint32_t getHeight() const { return height; }
 
         /**
          * Closes the window, effectively quitting the application, at the end of the current frame
@@ -25,7 +25,7 @@ namespace z0 {
         /*
         * Returns true if we need to stop the Application main loop and quit the application
         */
-        bool shouldClose() const { return closing; }
+        [[nodiscard]] bool shouldClose() const { return closing; }
 
         string toString() const override;
 
@@ -62,8 +62,8 @@ namespace z0 {
 #endif
 
         void _setSize(int width, int height);
-        HWND _getHandle() const { return hwnd; };
-        RECT _getRect() const { return rect; }
+        [[nodiscard]] HWND _getHandle() const { return hwnd; };
+        [[nodiscard]] RECT _getRect() const { return rect; }
 #endif
         explicit Window(const ApplicationConfig& applicationConfig);
         virtual ~Window();

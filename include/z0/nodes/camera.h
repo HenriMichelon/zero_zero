@@ -17,7 +17,7 @@ namespace z0 {
          * Returns `true` if the camera is the currently active camera for the current scene.
          * Use Application::activateCamera() to activate a camera
          */
-        bool isActive() const { return active; }
+        [[nodiscard]] bool isActive() const { return active; }
 
         /**
          * Sets the camera projection to orthogonal mode.
@@ -39,17 +39,17 @@ namespace z0 {
         /**
          * Returns the projection matrix
          */
-        const mat4& getProjection();
+        [[nodiscard]] const mat4& getProjection();
 
         /**
          * Returns the view matrix
          */
-        inline const mat4& getView() const { return viewMatrix; }
+        [[nodiscard]] inline const mat4& getView() const { return viewMatrix; }
 
         /**
          * Returns the 2D coordinate in the rendering window that maps to the given 3D point in world space.
          */
-        vec2 unproject(vec3 worldCoords);
+        [[nodiscard]] vec2 unproject(vec3 worldCoords);
 
     private:
         float fov{75.0};

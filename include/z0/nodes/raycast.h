@@ -18,17 +18,17 @@ namespace z0 {
         /**
          * Returns whether any object is intersecting with the ray's vector (considering the vector length).
          */
-        bool isColliding() const;
+        [[nodiscard]] bool isColliding() const;
 
         /**
          * Returns the first object that the ray intersects, or `nullptr` if no object is intersecting the ray
          */
-        CollisionObject* getCollider() const;
+        [[nodiscard]] CollisionObject* getCollider() const;
 
         /**
          * Returns the collision point at which the ray intersects the closest object, in the global coordinate system
          */
-        vec3 getCollisionPoint() const;
+        [[nodiscard]] vec3 getCollisionPoint() const;
 
         /**
          * If `true`, collisions will be ignored for this RayCast's immediate parent.

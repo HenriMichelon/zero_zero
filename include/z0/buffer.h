@@ -14,11 +14,11 @@ namespace z0 {
                VkDeviceSize minOffsetAlignment = 1);
         virtual ~Buffer();
 
-        VkBuffer getBuffer() const { return buffer; }
-        VkDeviceSize getAlignmentSize() const { return alignmentSize; }
-        VkDescriptorBufferInfo descriptorInfo(const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
+        [[nodiscard]] VkBuffer getBuffer() const { return buffer; }
+        [[nodiscard]] VkDeviceSize getAlignmentSize() const { return alignmentSize; }
+        [[nodiscard]] VkDescriptorBufferInfo descriptorInfo(const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
-        VkResult map();
+        [[nodiscard]] VkResult map();
         void writeToBuffer(const void* data, const VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
         void copyTo(Buffer& dstBuffer, VkDeviceSize size) const;
 

@@ -9,10 +9,10 @@ namespace z0 {
     public:
         explicit GText(string);
 
-        const string& getText() const { return text; }
+        [[nodiscard]] const string& getText() const { return text; }
         void setText(const string&);
         void setTextColor(Color c);
-        Color getTextColor() const { return textColor; }
+        [[nodiscard]] Color getTextColor() const { return textColor; }
 
         void setSize(float, float) override;
         void setRect(const Rect&);

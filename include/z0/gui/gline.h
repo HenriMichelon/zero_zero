@@ -14,7 +14,7 @@ namespace z0 {
 
         explicit GLine(LineStyle = HORIZ);
 
-        LineStyle getStyle() const { return style; };
+        [[nodiscard]] LineStyle getStyle() const { return style; };
         void setStyle(LineStyle);
 
     private:
