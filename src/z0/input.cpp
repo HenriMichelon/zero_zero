@@ -519,6 +519,18 @@ namespace z0 {
         return (length > 1.0f) ? vector / length : vector;
     }
 
+    const static map<MouseCursor, LPCSTR> _WIN_CURSORS {
+        { MOUSE_CURSOR_ARROW, IDC_ARROW },
+        { MOUSE_CURSOR_WAIT,  IDC_WAIT },
+        { MOUSE_CURSOR_RESIZE_H, IDC_SIZEWE },
+        { MOUSE_CURSOR_RESIZE_V, IDC_SIZENS },
+    };
+
+    void Input::setMouseCursor(MouseCursor cursor) {
+         HCURSOR hcursor = LoadCursor(NULL, _WIN_CURSORS.at(cursor));
+         SetCursor(hcursor);
+    }
+
     void Input::setMouseMode(MouseMode mode) {
         auto& wnd = Application::get().getWindow();
         MSG msg;

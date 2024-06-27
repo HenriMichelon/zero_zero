@@ -48,6 +48,11 @@ namespace z0 {
         static void setMouseMode(MouseMode mode);
 
         /**
+         * Sets the mouse cursor
+         */
+        static void setMouseCursor(MouseCursor cursor);
+
+        /**
          * Returns the number of connected joypads, including gamepads
          */
         [[nodiscard]] static uint32_t getConnectedJoypads();
@@ -64,7 +69,6 @@ namespace z0 {
          */
         [[nodiscard]] static string getJoypadName(uint32_t index);
 
-
         /**
          * Gets an input vector for a gamepad joystick
          * @param index index of the joypad in [0..getConnectedJoypads()]
@@ -79,10 +83,6 @@ namespace z0 {
          */
         [[nodiscard]] static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
         //static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
-
-        /*static bool haveInputEvent() { return !_inputQueue.empty(); }
-        static shared_ptr<InputEvent> consumeInputEvent();
-        static void injectInputEvent(const shared_ptr<InputEvent>& event);*/
 
     public:
         //static list<shared_ptr<InputEvent>> _inputQueue;

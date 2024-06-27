@@ -6,6 +6,7 @@
 #include "z0/renderers/vector_renderer.h"
 #include "z0/nodes/node.h"
 #include "z0/application.h"
+#include "z0/input.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
@@ -146,18 +147,34 @@ namespace z0 {
     }
 
     bool GWindow::eventMouseMove(uint32_t B, float X, float Y) {
+        const auto resizeDelta = 2.0f;
         if (!visible) { return false; }
-        log("w", to_string(X), to_string(Y));
+        if (widget->isDrawBackground()) {
+            if (X > (rect.width - resizeDelta)) {
+                log("resize X+");
+                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_H);
+            } else if (X < resizeDelta) {
+                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_H);
+                log("resize X-");
+            } else if (Y > (rect.height - resizeDelta)) {
+                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_V);
+                log("resize Y+");
+            } else if (Y < resizeDelta) {
+                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_V);
+                log("resize Y-");
+            } else {
+                Input::setMouseCursor(MOUSE_CURSOR_ARROW);
+            }
+        }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
             consumed = focusedWidget->eventMouseMove(B, X, Y);
-        }
-        else if (widget) {
+        } else if (widget) {
             consumed = widget->eventMouseMove(B, X, Y);
         }
         consumed |= onMouseMove(B, X, Y);
-        refresh();
+        if (consumed) { refresh(); }
         return consumed;
     }
 

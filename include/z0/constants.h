@@ -615,4 +615,18 @@ namespace z0 {
         MOUSE_MODE_HIDDEN_CAPTURED  = 3,
     };
 
+    /**
+     * Mouse cursors types
+     */
+    enum MouseCursor {
+        //! "Normal" arrow cursor
+        MOUSE_CURSOR_ARROW      = 0,
+        //! Waiting cursor
+        MOUSE_CURSOR_WAIT       = 1,
+        //! Horizontal resize cursor
+        MOUSE_CURSOR_RESIZE_H   = 2,
+        //! Vertical resize cursor
+        MOUSE_CURSOR_RESIZE_V   = 3,
+    };
+
 }
