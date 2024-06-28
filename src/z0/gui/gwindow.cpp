@@ -93,11 +93,13 @@ namespace z0 {
     void GWindow::eventCreate() {
         setWidget();
         onCreate();
+        emit(GEvent::OnCreate);
         if (widget != nullptr ) { widget->resizeChildren(); }
     }
 
     void GWindow::eventDestroy() {
         if (widget) { widget->eventDestroy(); }
+        emit(GEvent::OnDestroy);
         onDestroy();
         widget.reset();
     }
@@ -105,6 +107,7 @@ namespace z0 {
     void GWindow::eventShow() {
         if (widget) { widget->eventShow(); }
         onShow();
+        emit(GEvent::OnShow);
         refresh();
     }
 
@@ -113,7 +116,14 @@ namespace z0 {
 	    if (focusedWidget) {
             consumed = focusedWidget->eventKeybDown(K); // XXX consumed
         }
-        consumed |= onKeyDown(K);
+        if (!consumed) {
+            consumed |= onKeyDown(K);
+        }
+        if (!consumed) {
+            auto event = GEventKeyb{ .key = K};
+            emit(GEvent::OnKeyDown, &event);
+            consumed = event.consumed;
+        }
         refresh();
         return consumed;
     }
@@ -123,7 +133,14 @@ namespace z0 {
         if (focusedWidget) {
             focusedWidget->eventKeybUp(K); // XXX consumed
         }
-        consumed |= onKeyUp(K);
+        if (!consumed) {
+            consumed |= onKeyUp(K);
+        }
+        if (!consumed) {
+            auto event = GEventKeyb{ .key = K};
+            emit(GEvent::OnKeyUp, &event);
+            consumed = event.consumed;
+        }
         refresh();
         return consumed;
     }
@@ -132,7 +149,14 @@ namespace z0 {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
-        consumed |= onMouseDown(B, X, Y);
+        if (!consumed) {
+            consumed |= onMouseDown(B, X, Y);
+        }
+        if (!consumed) {
+            auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+            emit(GEvent::OnMouseDown, &event);
+            consumed = event.consumed;
+        }
         refresh();
         return consumed;
     }
@@ -141,31 +165,20 @@ namespace z0 {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
-        consumed |= onMouseUp(B, X, Y);
+        if (!consumed) {
+            consumed |= onMouseUp(B, X, Y);
+        }
+        if (!consumed) {
+            auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+            emit(GEvent::OnMouseUp, &event);
+            consumed = event.consumed;
+        }
         refresh();
         return consumed;
     }
 
     bool GWindow::eventMouseMove(uint32_t B, float X, float Y) {
-        const auto resizeDelta = 2.0f;
         if (!visible) { return false; }
-        if (widget->isDrawBackground()) {
-            if (X > (rect.width - resizeDelta)) {
-                log("resize X+");
-                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_H);
-            } else if (X < resizeDelta) {
-                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_H);
-                log("resize X-");
-            } else if (Y > (rect.height - resizeDelta)) {
-                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_V);
-                log("resize Y+");
-            } else if (Y < resizeDelta) {
-                Input::setMouseCursor(MOUSE_CURSOR_RESIZE_V);
-                log("resize Y-");
-            } else {
-                Input::setMouseCursor(MOUSE_CURSOR_ARROW);
-            }
-        }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
@@ -173,7 +186,14 @@ namespace z0 {
         } else if (widget) {
             consumed = widget->eventMouseMove(B, X, Y);
         }
-        consumed |= onMouseMove(B, X, Y);
+        if (!consumed) {
+            consumed |= onMouseMove(B, X, Y);
+        }
+        if (!consumed) {
+            auto event = GEventMouseMove{ .buttonsState = B, .x = X, .y = Y};
+            emit(GEvent::OnMouseMove, &event);
+            consumed = event.consumed;
+        }
         if (consumed) { refresh(); }
         return consumed;
     }
@@ -191,13 +211,20 @@ namespace z0 {
         return *widget;
     }
 
+    void GWindow::setRect(const Rect& r) {
+        rect = r;
+        rect.width = std::min(std::max(r.width, minWidth), maxWidth);
+        rect.height = std::min(std::max(r.height, minHeight), maxHeight);
+        eventResize();
+    }
+
     void GWindow::setHeight(float h) {
-        rect.height = h;
+        rect.height = std::min(std::max(h, minHeight), maxHeight);
         eventResize();
     }
 
     void GWindow::setWidth(float w) {
-        rect.width = w;
+        rect.width = std::min(std::max(w, minWidth), maxWidth);
         eventResize();
     }
 
@@ -235,27 +262,42 @@ namespace z0 {
     void GWindow::eventResize() {
         if (widget) { widget->setSize(rect.width, rect.height); }
         onResize();
+        emit(GEvent::OnResize);
         refresh();
     }
 
     void GWindow::eventMove() {
         if (widget) { widget->resizeChildren(); }
         onMove();
+        emit(GEvent::OnMove);
         refresh();
     }
 
     void GWindow::eventHide() {
+        emit(GEvent::OnHide);
         onHide();
         refresh();
     }
 
     void GWindow::eventGotFocus() {
         onGotFocus();
+        emit(GEvent::OnGotFocus);
         refresh();
     }
 
     void GWindow::eventLostFocus() {
         onLostFocus();
+        emit(GEvent::OnLostFocus);
         refresh();
+    }
+
+    void GWindow::setMinimumSize(float width, float height) {
+        minWidth = width;
+        minHeight = height;
+    }
+
+    void GWindow::setMaximumSize(float width, float height) {
+        maxWidth = width;
+        maxHeight = height;
     }
 }

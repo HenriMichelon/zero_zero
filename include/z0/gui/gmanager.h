@@ -31,14 +31,20 @@ namespace z0 {
         inline void refresh() { needRedraw = true; }
 
         [[nodiscard]] inline VectorRenderer& getRenderer() { return *vectorRenderer; }
+        [[nodiscard]] inline float getResizeDelta() { return resizeDelta; }
 
     private:
+        const float                 resizeDelta{5.0f};
         shared_ptr<Font>            defaultFont;
         shared_ptr<VectorRenderer>& vectorRenderer;
         list<shared_ptr<GWindow>>   windows;
         vector<shared_ptr<GWindow>> removedWindows{};
         shared_ptr<GWindow>         focusedWindow{nullptr};
+        shared_ptr<GWindow>         resizedWindow{nullptr};
         bool                        needRedraw{false};
+        bool                        resizingWindow{false};
+        bool                        resizingWindowOriginBorder{false};
+        MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};
 
         void drawFrame();
         [[nodiscard]] bool onInput(InputEvent& inputEvent);

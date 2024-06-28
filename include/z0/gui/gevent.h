@@ -51,6 +51,10 @@ namespace z0 {
         //static const string OnValueUserChange;	
         //! range of a GValueSelect widget changed
         //static const string OnRangeChange;	
+        //! a GWindow size changed
+        static const string OnResize;	
+        //! a GWindow position changed
+        static const string OnMove;	
     };
 
     class GWidget;

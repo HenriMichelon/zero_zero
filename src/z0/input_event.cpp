@@ -15,7 +15,7 @@ namespace z0 {
             pressed{_pressed} {}
 
     InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, uint32_t buttonsState, float posX, float posY):
-            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, posX, posY},
+            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, posX, posY},
             button{_button},
             pressed{_pressed},
             modifiers{_modifiers} {}

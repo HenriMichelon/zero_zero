@@ -10,10 +10,31 @@ namespace z0 {
     class GWindow: public Object {
     public:
         /**
+         * Which GWindow borders can be used to resize the window
+         */
+        enum ResizeableBorder {
+            RESIZEABLE_NONE     = 0b0000,
+            RESIZEABLE_LEFT     = 0b0001,
+            RESIZEABLE_RIGHT    = 0b0010,
+            RESIZEABLE_TOP      = 0b0100,
+            RESIZEABLE_BOTTOM   = 0b1000,
+        };
+
+        /**
          * Creates a window with a given position & size
          */
         explicit GWindow(Rect rect);
         virtual ~GWindow() = default;
+
+        /**
+         * Sets the borders that can be used to resize the window
+         */
+        void setResizeableBorders(uint32_t borders) { resizeableBorders = borders; }
+
+        /**
+         * Returns the borders that can be used to resize the window
+         */
+        [[nodiscard]] uint32_t getResizeableBorders() { return resizeableBorders; }
 
         /** Returns the current style layout or nullptr */
         shared_ptr<GStyle> getStyle() const;
@@ -38,6 +59,9 @@ namespace z0 {
 
         /** Returns the height of the client area */
         [[nodiscard]] float getHeight() const { return rect.height; };
+
+        /** Sets the client area position & size */
+        void setRect(const Rect& rect);
 
         /** Sets the width of the client area */
         void setWidth(float w);
@@ -115,6 +139,36 @@ namespace z0 {
         virtual void onLostFocus() {};
 
         /**
+         * Sets the minimum size of the window (default to {2.0f, 2.0f})
+         */
+        void setMinimumSize(float width, float height);
+
+        /**
+         * Sets the maximum size of the window (default to VECTOR_SCALE)
+         */
+        void setMaximumSize(float width, float height);
+
+        /**
+         * Returns the minimum width of the window
+         */
+        [[nodiscard]] inline float getMinimumWidth() { return minWidth; }
+
+        /**
+         * Returns the minimum height of the window
+         */
+        [[nodiscard]] inline float getMinimumHeight() { return minHeight; }
+
+        /**
+         * Returns the maximum width of the window
+         */
+        [[nodiscard]] inline float getMaximumWidth() { return maxWidth; }
+
+        /**
+         * Returns the maximum height of the window
+         */
+        [[nodiscard]] inline float getMaximumHeight() { return maxHeight; }
+
+        /**
          * Returns the default font loaded at startup
          */
         [[nodiscard]] shared_ptr<Font>& getDefaultFont();
@@ -126,6 +180,10 @@ namespace z0 {
 
     private:
         Rect                rect;
+        float               minWidth{2.0f};
+        float               minHeight{2.0f};
+        float               maxWidth{VECTOR_SCALE.x};
+        float               maxHeight{VECTOR_SCALE.y};
         GManager*           windowManager{nullptr};
         bool                visible{true};
         bool                visibilityChanged{false};
@@ -134,6 +192,7 @@ namespace z0 {
         shared_ptr<GWidget> widget{nullptr};
         GWidget*            focusedWidget{nullptr};
         float               transparency{1.0};
+        uint32_t            resizeableBorders{RESIZEABLE_NONE};
 
         void unFreeze(shared_ptr<GWidget>&);
         void draw() const;

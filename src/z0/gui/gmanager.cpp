@@ -4,9 +4,11 @@
 #include "z0/resources/font.h"
 #include "z0/nodes/node.h"
 #include "z0/application.h"
+#include "z0/input.h"
 #include "z0/gui/gresource.h"
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
+#include "z0/gui/gwidget.h"
 #include "z0/gui/gwindow.h"
 #include "z0/renderers/renderpass.h"
 #include "z0/renderers/vector_renderer.h"
@@ -116,18 +118,88 @@ namespace z0 {
             auto y = mouseEvent.getY() * scaleY;
 
             if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
+                if (resizingWindow) {
+                    Input::setMouseCursor(currentCursor);
+                    Rect rect = resizedWindow->getRect();
+                    if (currentCursor == MOUSE_CURSOR_RESIZE_H) {
+                        auto lx = x - rect.x;
+                        if (resizingWindowOriginBorder) {
+                            rect.width = rect.width - lx;
+                            rect.x = x;
+                        } else {
+                            rect.width = lx;
+                        }
+                    } else {
+                        auto ly = y - rect.y;
+                        if (resizingWindowOriginBorder) {
+                            rect.height = rect.height - ly;
+                            rect.y = y;
+                        } else {
+                            rect.height = ly;
+                        }
+                    }
+                    if ((rect.width < (resizeDelta + resizedWindow->getMinimumWidth())) || 
+                        (rect.height < (resizeDelta + resizedWindow->getMinimumHeight())) ||
+                        (rect.width > resizedWindow->getMaximumWidth()) ||
+                        (rect.height > resizedWindow->getMaximumHeight())) {
+                        return true;
+                    }
+                    resizedWindow->setRect(rect);
+                    return true;
+                }
                 for (auto& window: windows) {
                     auto consumed = false;
                     auto lx = x - window->getRect().x;
                     auto ly = y - window->getRect().y;
                     if (window->getRect().contains(x, y)) {
-                        consumed |= window->eventMouseMove(mouseEvent.getButtonsState(), lx, ly);
+                        if (window->getWidget().isDrawBackground()) {
+                            if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) && (lx > (window->getRect().width - resizeDelta))) {
+                                currentCursor = MOUSE_CURSOR_RESIZE_H;
+                                resizedWindow = window;
+                                resizingWindowOriginBorder = false;
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) && (lx < resizeDelta)) {
+                                currentCursor = MOUSE_CURSOR_RESIZE_H;
+                                resizedWindow = window;
+                                resizingWindowOriginBorder = true;
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && (ly > (window->getRect().height - resizeDelta))) {
+                                currentCursor = MOUSE_CURSOR_RESIZE_V;
+                                resizedWindow = window;
+                                resizingWindowOriginBorder = false;
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && (ly < resizeDelta)) {
+                                currentCursor = MOUSE_CURSOR_RESIZE_V;
+                                resizedWindow = window;
+                                resizingWindowOriginBorder = true;
+                            } else if (resizedWindow != nullptr) {
+                                currentCursor = MOUSE_CURSOR_ARROW;
+                                resizedWindow = nullptr;
+                                Input::setMouseCursor(currentCursor);
+                            }
+                        }
+                        if (resizedWindow != nullptr) {
+                            Input::setMouseCursor(currentCursor);
+                            consumed = true;
+                        } else {
+                            consumed |= window->eventMouseMove(mouseEvent.getButtonsState(), lx, ly);
+                        }
                     }
                     if (consumed) { return true; }
                 }
-                //die("Not implemented");
             } else {
                 auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
+                if (resizedWindow != nullptr) {
+                    if ((!resizingWindow) &&
+                        (mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) && 
+                        (mouseInputEvent.isPressed())) {
+                        resizingWindow = true;
+                    } else if ((mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
+                               (!mouseInputEvent.isPressed())) {
+                        currentCursor = MOUSE_CURSOR_ARROW;
+                        resizedWindow = nullptr;
+                        resizingWindow = false;
+                    }
+                    Input::setMouseCursor(currentCursor);
+                    return true;
+                }
                 for (auto& window: windows) {
                     auto consumed = false;
                     auto lx = x - window->getRect().x;

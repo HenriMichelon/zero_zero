@@ -301,7 +301,6 @@ namespace z0 {
         }
     }
 
-
     void GWidget::resizeChildren() {
         if ((!style) || (freeze)) { return; }
         freeze = true;
