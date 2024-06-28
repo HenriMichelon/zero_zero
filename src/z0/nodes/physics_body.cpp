@@ -49,11 +49,14 @@ namespace z0 {
     }
     
     PhysicsBody::~PhysicsBody() {
-        bodyInterface.RemoveBody(_getBodyId());
-        bodyInterface.DestroyBody(_getBodyId());
+        if (!_getBodyId().IsInvalid()) {
+            bodyInterface.RemoveBody(_getBodyId());
+            bodyInterface.DestroyBody(_getBodyId());
+        }
     }
 
     void PhysicsBody::setGravityScale(float value) {
+        assert(!_getBodyId().IsInvalid());
         bodyInterface.SetGravityFactor(_getBodyId(), value);
     }
 

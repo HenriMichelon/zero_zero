@@ -118,6 +118,7 @@ namespace z0 {
             auto y = mouseEvent.getY() * scaleY;
 
             if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
+                auto resizeDeltaY = scaleY * resizeDelta;
                 if (resizingWindow) {
                     Input::setMouseCursor(currentCursor);
                     Rect rect = resizedWindow->getRect();
@@ -139,7 +140,7 @@ namespace z0 {
                         }
                     }
                     if ((rect.width < (resizeDelta + resizedWindow->getMinimumWidth())) || 
-                        (rect.height < (resizeDelta + resizedWindow->getMinimumHeight())) ||
+                        (rect.height < (resizeDeltaY + resizedWindow->getMinimumHeight())) ||
                         (rect.width > resizedWindow->getMaximumWidth()) ||
                         (rect.height > resizedWindow->getMaximumHeight())) {
                         return true;
@@ -161,11 +162,11 @@ namespace z0 {
                                 currentCursor = MOUSE_CURSOR_RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && (ly > (window->getRect().height - resizeDelta))) {
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && (ly > (window->getRect().height - resizeDeltaY))) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && (ly < resizeDelta)) {
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && (ly < resizeDeltaY)) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;

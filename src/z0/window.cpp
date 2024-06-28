@@ -86,8 +86,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    true,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -99,8 +99,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    false,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -112,8 +112,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    true,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -125,8 +125,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    false,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -138,8 +138,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    true,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -151,8 +151,21 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
                                                    false,
                                                    _getKeyboardModifiers(),
                                                    _getMouseButtonState(wParam),
-                                                   LOWORD(lParam),
-                                                   static_cast<float>(window->getHeight())-HIWORD(lParam));
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
+            app._onInput(event);
+            break;
+        }
+        case WM_MOUSEWHEEL: {
+            z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
+            auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_WHEEL,
+                                                   GET_WHEEL_DELTA_WPARAM(wParam) < 0,
+                                                   _getKeyboardModifiers(),
+                                                   _getMouseButtonState(GET_KEYSTATE_WPARAM(wParam)),
+                                                   GET_X_LPARAM(lParam),
+                                                   static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
             app._onInput(event);
             break;
         }
@@ -168,10 +181,10 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             if ((lastMouseX != -1) && (lastMouseY != -1)) {
                 auto dx = xPos - lastMouseX;
                 auto dy = yPos - lastMouseY;
-                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), xPos, yPos, dx, dy);
+                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
                 app._onInput(event);
             } else {
-                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), xPos, yPos, 0, 0);
+                auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
                 app._onInput(event);
             }
             lastMouseX = xPos;

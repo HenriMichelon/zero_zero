@@ -120,7 +120,7 @@ namespace z0 {
             if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
                 directionalLight = light;
                 //log("Using directional light", directionalLight->toString());
-                if (directionalLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+                if (enableShadowMapRenders && (directionalLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
                     auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                         device, 
                         shaderDirectory,
@@ -133,7 +133,7 @@ namespace z0 {
         }
         if (auto* omniLight = dynamic_cast<OmniLight*>(node.get())) {
             omniLights.push_back(omniLight);
-            if (omniLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+            if (enableShadowMapRenders && (omniLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
                 if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
                     auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                         device, 
@@ -155,7 +155,7 @@ namespace z0 {
                 currentEnvironment = nullptr;
             }
         } else if (auto* light = dynamic_cast<DirectionalLight*>(node.get())) {
-            if ((directionalLight == light) && light->getCastShadows()) {
+            if (enableShadowMapRenders && (directionalLight == light) && light->getCastShadows()) {
                 directionalLight = nullptr;
                 const auto& renderer = findShadowMapRenderer(light);
                 device.unRegisterRenderer(renderer);
@@ -163,7 +163,7 @@ namespace z0 {
             }
         } else if (auto* omniLight = dynamic_cast<OmniLight*>(node.get())) {
             omniLights.erase(remove(omniLights.begin(), omniLights.end(), omniLight), omniLights.end());
-            if (omniLight->getCastShadows()) {
+            if (enableShadowMapRenders && omniLight->getCastShadows()) {
                 const auto& renderer = findShadowMapRenderer(omniLight);
                 device.unRegisterRenderer(renderer);
                 shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer), shadowMapRenderers.end()); 
@@ -293,7 +293,7 @@ namespace z0 {
         }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
-        if (globalUbo.shadowMapsCount > 0) {
+        if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for(uint32_t i=0; i < globalUbo.shadowMapsCount; i++) {
                 auto& shadowMap = shadowMapRenderers[i]->getShadowMap();
@@ -669,5 +669,9 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
                                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                       VK_IMAGE_ASPECT_DEPTH_BIT);
+    }
+
+    void SceneRenderer::setShadowCasting(bool enable) {
+        enableShadowMapRenders = enable;
     }
 }

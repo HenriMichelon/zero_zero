@@ -103,6 +103,11 @@ namespace z0 {
          */
         [[nodiscard]] uint64_t getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
 
+        /**
+         * Enable or disable shadow casting for the entire scene, applied when adding nodes
+         */
+        void setShadowCasting(bool);
+
 
     private:
         // The global startup configuration parameters

@@ -31,10 +31,10 @@ namespace z0 {
         /**
          * Sets the camera projection to perspective mode.
          * @param fov field of view angle in radians
-         * @param near, far clip planes
+         * @param near nearest clip plane
+         * @param far farthest clip plane
          */
-        void setPerspectiveProjection(float fov,
-                                      float near, float far);
+        void setPerspectiveProjection(float fov, float near, float far);
 
         /**
          * Returns the projection matrix

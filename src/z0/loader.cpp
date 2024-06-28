@@ -309,7 +309,8 @@ namespace z0 {
     void Loader::addNode(Node* parent, 
                          map<string, shared_ptr<Node>>& nodeTree, 
                          map<string, SceneNode>& sceneTree, 
-                         const Loader::SceneNode& nodeDesc) {
+                         const Loader::SceneNode& nodeDesc, 
+                         bool disableTree) {
         if (nodeTree.contains(nodeDesc.id)) {
             die("Node with id", nodeDesc.id, "already exists in the scene tree");
         }
@@ -329,6 +330,9 @@ namespace z0 {
             for(const auto& prop: nodeDesc.properties) {
                 node->setProperty(to_lower(prop.first), prop.second);
             }
+            if (disableTree) { 
+                node->setProcessMode(PROCESS_MODE_DISABLED);
+            }
             node->_setParent(parent);
             for(const auto& child: nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
@@ -338,7 +342,7 @@ namespace z0 {
                         node->addChild(nodeTree[child.id]);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child);
+                    addNode(node.get(), nodeTree, sceneTree, child, disableTree);
                 }
             }
             parent->addChild(node);
@@ -346,16 +350,16 @@ namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename) {
+    void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename, bool disableTree) {
         addSceneFromFile(parent.get(), filename);
     }
 
-    void Loader::addSceneFromFile(Node* parent, const filesystem::path& filename) {
+    void Loader::addSceneFromFile(Node* parent, const filesystem::path& filename, bool disableTree) {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode> sceneTree;
         for(const auto& nodeDesc: loadSceneFromJSON(filepath.string())) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc);
+            addNode(parent, nodeTree, sceneTree, nodeDesc, disableTree);
         }
     }
 

@@ -100,12 +100,18 @@ namespace z0 {
          */
         [[nodiscard]] inline uint32_t getButtonsState() { return buttonsState; }
 
+        /**
+         * Returns the state of the z0::KeyModifier keys
+        */
+        [[nodiscard]] inline int getModifiers() const { return modifiers; }
+        
     protected:
-        InputEventMouse(InputEventType type, uint32_t buttonsState, float posX, float posY);
+        InputEventMouse(InputEventType type, uint32_t buttonsState, int modifiers, float posX, float posY);
 
     private:
         float x, y;
         uint32_t buttonsState;
+        int modifiers;
     };
 
 
@@ -114,7 +120,7 @@ namespace z0 {
     */
     class InputEventMouseMotion: public InputEventMouse {
     public:
-        InputEventMouseMotion(uint32_t buttonsState, float posX, float posY, float relativeX, float relativeY);
+        InputEventMouseMotion(uint32_t buttonsState, int modifiers, float posX, float posY, float relativeX, float relativeY);
 
         /**
          * Returns the relative x mouvement
@@ -147,15 +153,9 @@ namespace z0 {
          */
         [[nodiscard]] inline bool isPressed() const { return pressed; }
 
-        /**
-         * Returns the state of the z0::KeyModifier keys
-        */
-        [[nodiscard]] inline int getModifiers() const { return modifiers; }
-
     private:
         MouseButton button;
         bool pressed;
-        int modifiers;
     };
 
 }

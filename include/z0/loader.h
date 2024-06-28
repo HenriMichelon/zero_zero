@@ -18,15 +18,17 @@ namespace z0 {
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
+         * @param editorMode disable all nodes
          **/       
-        static void addSceneFromFile(Node*parent, const filesystem::path& filepath);
+        static void addSceneFromFile(Node*parent, const filesystem::path& filepath, bool editorMode=false);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
+         * @param editorMode disable all nodes
          **/       
-        static void addSceneFromFile(shared_ptr<Node>&parent, const filesystem::path& filepath);
+        static void addSceneFromFile(shared_ptr<Node>&parent, const filesystem::path& filepath, bool editorMode=false);
 
         struct SceneNode {
             string id;
@@ -45,6 +47,7 @@ namespace z0 {
         static void addNode(Node* parent, 
                             map<string, shared_ptr<Node>>& nodeTree, 
                             map<string, SceneNode>& sceneTree, 
-                            const SceneNode& nodeDesc);
+                            const SceneNode& nodeDesc,
+                            bool disableTree);
     };
 }

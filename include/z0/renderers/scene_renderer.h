@@ -12,6 +12,7 @@ namespace z0 {
         [[nodiscard]] shared_ptr<ColorFrameBufferHDR>& getColorAttachment() { return colorFrameBufferHdr; }
         [[nodiscard]] VkImage getImage() const override { return colorFrameBufferHdr->getImage(); }
         [[nodiscard]] VkImageView getImageView() const override { return colorFrameBufferHdr->getImageView(); }
+        void setShadowCasting(bool);
 
         void cleanup() override;
         void addNode(const shared_ptr<Node>& node) override;
@@ -93,6 +94,8 @@ namespace z0 {
         // Currently allocated material uniform buffer count
         uint32_t                        materialUniformBufferCount {0};
 
+        // Enable or disable shadow casting (for the editor)
+        bool                                    enableShadowMapRenders{true};
         // One renderer per shadow map
         vector<shared_ptr<ShadowMapRenderer>>   shadowMapRenderers;
         // One buffer per shadow map with light information

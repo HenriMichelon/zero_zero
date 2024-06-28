@@ -385,10 +385,10 @@ namespace z0 {
         float fh, fw;
         W.getFont()->getSize(W.getText(), fw, fh);
         D.setPenColor(c2);
-        if ((!W.getText().empty()) && (W.getWidth() >= fw) && (W.getHeight() >= fh)) {
+        if ((!W.getText().empty()) && (W.getWidth() >= (fw+LEFTOFFSET)) && (W.getHeight() >= fh)) {
             D.drawLine({l, b+h}, {l + LEFTOFFSET, b+h});
-            D.drawLine({l + fw + LEFTOFFSET, b+h}, {l + w, b+h});
-            D.setPenColor(c1);
+            D.drawLine({l + fw + LEFTOFFSET + 1, b+h}, {l + w, b+h});
+            D.setPenColor(shadowDark);
             D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b+h) - (fh / 2), fw, fh);
             D.setPenColor(c2);
         } else {

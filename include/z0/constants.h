@@ -522,13 +522,15 @@ namespace z0 {
      * Mouse buttons
      */
     enum MouseButton {
-        MOUSE_BUTTON_NONE      = 0b000,
+        MOUSE_BUTTON_NONE      = 0b0000,
         //! Left
-        MOUSE_BUTTON_LEFT      = 0b001,
+        MOUSE_BUTTON_LEFT      = 0b0001,
         //! Right
-        MOUSE_BUTTON_RIGHT     = 0b010,
+        MOUSE_BUTTON_RIGHT     = 0b0010,
         //! Middle
-        MOUSE_BUTTON_MIDDLE    = 0b100,
+        MOUSE_BUTTON_MIDDLE    = 0b0100,
+        //! Wheel. Pressed==true means rotated backward
+        MOUSE_BUTTON_WHEEL     = 0b1000,
     };
 
     /**

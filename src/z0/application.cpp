@@ -201,7 +201,7 @@ namespace z0 {
     void Application::_addNode(const shared_ptr<Node>& node) {
         assert(node != nullptr);
         addedNodes.push_back(node);
-        node->_onEnterScene();
+        if (node->isProcessed()) { node->_onEnterScene(); }
         for(const auto& child: node->_getChildren()) {
             _addNode(child);
         }
@@ -215,7 +215,7 @@ namespace z0 {
         }
         removedNodes.push_back(node);
         node->_setAddedToScene(false);
-        node->_onExitScene();
+        if (node->isProcessed()) { node->_onExitScene(); }
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
@@ -235,7 +235,10 @@ namespace z0 {
             }
             removedNodes.clear();
             if (sceneRenderer->getCamera() == nullptr) {
-                sceneRenderer->activateCamera(rootNode->findFirstChild<Camera>(true));
+                const auto& camera = rootNode->findFirstChild<Camera>(true);
+                if (camera->isProcessed()) {
+                    sceneRenderer->activateCamera(camera);
+                }
             }
         }
         if (!addedNodes.empty()) {
@@ -308,7 +311,9 @@ namespace z0 {
         for(auto& child: node->_getChildren()) {
             ready(child);
         }
-        node->_onReady();
+        if (node->isProcessed()) {
+            node->_onReady();
+        }
     }
 
     bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
@@ -429,6 +434,10 @@ namespace z0 {
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");
         TypeRegistry::registerType<Skybox>("Skybox");
+    }
+
+    void Application::setShadowCasting(bool enable) {
+        sceneRenderer->setShadowCasting(enable);
     }
 
 }

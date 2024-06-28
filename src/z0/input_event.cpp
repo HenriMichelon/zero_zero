@@ -14,21 +14,21 @@ namespace z0 {
             button{_button},
             pressed{_pressed} {}
 
-    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int _modifiers, uint32_t buttonsState, float posX, float posY):
-            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, posX, posY},
+    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int modifiers, uint32_t buttonsState, float posX, float posY):
+            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, modifiers, posX, posY},
             button{_button},
-            pressed{_pressed},
-            modifiers{_modifiers} {}
+            pressed{_pressed} {}
 
-    InputEventMouseMotion::InputEventMouseMotion(uint32_t buttonsState, float posX, float posY, float rX, float rY):
-            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, posX, posY},
+    InputEventMouseMotion::InputEventMouseMotion(uint32_t buttonsState, int modifiers, float posX, float posY, float rX, float rY):
+            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, modifiers, posX, posY},
             relativeX{rX},
             relativeY{rY} {}
 
-    InputEventMouse::InputEventMouse(InputEventType type, uint32_t _buttonsState, float posX, float posY):
+    InputEventMouse::InputEventMouse(InputEventType type, uint32_t _buttonsState, int _modifiers, float posX, float posY):
             InputEvent{type},
             x{posX},
             y{posY},
-            buttonsState{_buttonsState} {}
+            buttonsState{_buttonsState},
+            modifiers{_modifiers} {}
 
 }

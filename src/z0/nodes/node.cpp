@@ -164,7 +164,7 @@ namespace z0 {
         children.push_back(child);
         child->parent = this;
         child->_updateTransform(worldTransform);
-        if (inReady || (parent != nullptr)) { child->_onReady(); }
+        if ((inReady || (parent != nullptr)) && isProcessed()) { child->_onReady(); }
         if (addedToScene) { Application::get()._addNode(child); }
         return true;
     }
