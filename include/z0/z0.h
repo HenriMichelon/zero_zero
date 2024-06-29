@@ -62,6 +62,7 @@
 #include <z0/nodes/omni_light.h>
 #include <z0/nodes/spot_light.h>
 #include <z0/nodes/environment.h>
+#include <z0/nodes/viewport.h>
 
 #include <z0/framebuffers/shadow_map_frame_buffer.h>
 #include <z0/renderers/renderpass.h>
