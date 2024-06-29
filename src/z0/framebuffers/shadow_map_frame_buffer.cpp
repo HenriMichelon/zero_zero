@@ -2,6 +2,7 @@
 #ifndef USE_PCH
 #include "z0/nodes/node.h"
 #include "z0/nodes/light.h"
+#include "z0/nodes/camera.h"
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/omni_light.h"
 #include "z0/nodes/spot_light.h"
@@ -10,9 +11,10 @@
 
 namespace z0 {
 
-    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, Light* spotLight) : 
+    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, Light* spotLight, vec3 position) : 
         SampledFrameBuffer{dev}, 
-        light(spotLight) {
+        light(spotLight),
+        globalPosition(position) {
         createImagesResources();
      }
 
@@ -23,8 +25,9 @@ namespace z0 {
         if (const auto* directionalLight = dynamic_cast<DirectionalLight*>(light)) {
             auto lightDirection = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
-            auto sceneMin = vec3{-50.0f, -50.0f, -50.0f};
-            auto sceneMax = vec3{50.0f, 50.0f, 50.0f};
+            const auto limit = 100.0f;
+            auto sceneMin = vec3{-limit, -limit, -limit} + globalPosition;
+            auto sceneMax = vec3{limit, limit, limit} + globalPosition;
             // Set up the orthographic projection matrix
             auto orthoWidth = distance(sceneMin.x, sceneMax.x);
             auto orthoHeight = distance(sceneMin.y, sceneMax.y);

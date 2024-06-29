@@ -30,7 +30,7 @@ namespace z0 {
 
         /**
          * Sets the camera projection to perspective mode.
-         * @param fov field of view angle in radians
+         * @param fov field of view angle in degrees
          * @param near nearest clip plane
          * @param far farthest clip plane
          */

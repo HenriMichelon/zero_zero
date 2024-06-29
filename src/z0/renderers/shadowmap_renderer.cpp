@@ -10,6 +10,7 @@
 #include "z0/resources/mesh.h"
 #include "z0/nodes/node.h"
 #include "z0/nodes/light.h"
+#include "z0/nodes/camera.h"
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/mesh_instance.h"
 #include "z0/framebuffers/frame_buffer.h"
@@ -21,9 +22,9 @@
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir, Light* light): 
+    ShadowMapRenderer::ShadowMapRenderer(Device &dev, const string& sDir, Light* light, vec3 position): 
         Renderpass{dev, sDir}, 
-        shadowMap{make_shared<ShadowMapFrameBuffer>(dev, light)}
+        shadowMap{make_shared<ShadowMapFrameBuffer>(dev, light, position)}
         {}
 
     ShadowMapRenderer::~ShadowMapRenderer() {

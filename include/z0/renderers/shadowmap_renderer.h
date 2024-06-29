@@ -7,7 +7,7 @@ namespace z0 {
      */
     class ShadowMapRenderer: public Renderpass, public Renderer {
     public:
-        ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light);
+        ShadowMapRenderer(Device& device, const string& shaderDirectory, Light* light, vec3 position);
         void loadScene(list<MeshInstance*>& meshes);
         void cleanup() override;
         [[nodiscard]] const shared_ptr<ShadowMapFrameBuffer>& getShadowMap() const { return shadowMap; };

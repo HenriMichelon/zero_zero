@@ -125,7 +125,8 @@ namespace z0 {
                     auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                         device, 
                         shaderDirectory,
-                        directionalLight);
+                        directionalLight,
+                        currentCamera == nullptr ? VEC3ZERO : currentCamera->getPositionGlobal());
                     shadowMapRenderers.push_back(shadowMapRenderer);
                     device.registerRenderer(shadowMapRenderer);
                 }
@@ -139,7 +140,8 @@ namespace z0 {
                     auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                         device, 
                         shaderDirectory,
-                        spotLight);
+                        spotLight,
+                        spotLight->getPositionGlobal());
                     shadowMapRenderers.push_back(shadowMapRenderer);
                     device.registerRenderer(shadowMapRenderer);
                 }
@@ -288,6 +290,9 @@ namespace z0 {
                 .color = directionalLight->getColorAndIntensity(),
                 .specular = directionalLight->getSpecularIntensity(),
             };
+            if (enableShadowMapRenders) {
+                findShadowMapRenderer(directionalLight)->getShadowMap()->setGlobalPosition(globalUbo.cameraPosition);
+            }
         }
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();

@@ -7,7 +7,7 @@ namespace z0 {
      */
     class ShadowMapFrameBuffer: public SampledFrameBuffer {
     public:
-        explicit ShadowMapFrameBuffer(const Device &dev, Light* light);
+        explicit ShadowMapFrameBuffer(const Device &dev, Light* light, vec3 position);
 
         const float zNear = 0.1f;
         const float zFar = 50.0f;
@@ -17,12 +17,14 @@ namespace z0 {
         [[nodiscard]] inline const Light* getLight() const { return light; }
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
         [[nodiscard]] inline const VkSampler& getSampler() const { return sampler; }
+        void setGlobalPosition(vec3 position) { globalPosition = position; }
 
         void createImagesResources();
         void cleanupImagesResources();
 
     private:
-        Light* light;
+        Light*  light;
+        vec3    globalPosition;
     };
 
 }
