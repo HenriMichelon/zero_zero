@@ -108,6 +108,11 @@ namespace z0 {
          */
         void setShadowCasting(bool);
 
+        /**
+         * Returns the global window manager
+         */
+        GManager& getWindowManager() const { return *windowManager; }
+
 
     private:
         // The global startup configuration parameters

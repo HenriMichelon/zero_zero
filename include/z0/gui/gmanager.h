@@ -32,6 +32,7 @@ namespace z0 {
 
         [[nodiscard]] inline VectorRenderer& getRenderer() { return *vectorRenderer; }
         [[nodiscard]] inline float getResizeDelta() { return resizeDelta; }
+        void setEnableWindowResizing(bool enable) { enableWindowResizing = enable; }
 
     private:
         const float                 resizeDelta{5.0f};
@@ -42,6 +43,7 @@ namespace z0 {
         shared_ptr<GWindow>         focusedWindow{nullptr};
         shared_ptr<GWindow>         resizedWindow{nullptr};
         bool                        needRedraw{false};
+        bool                        enableWindowResizing{true};
         bool                        resizingWindow{false};
         bool                        resizingWindowOriginBorder{false};
         MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};

@@ -119,69 +119,67 @@ namespace z0 {
 
             if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
                 auto resizeDeltaY = scaleY * resizeDelta;
-                if (resizingWindow) {
-                    Input::setMouseCursor(currentCursor);
-                    Rect rect = resizedWindow->getRect();
-                    if (currentCursor == MOUSE_CURSOR_RESIZE_H) {
-                        auto lx = x - rect.x;
-                        if (resizingWindowOriginBorder) {
-                            rect.width = rect.width - lx;
-                            rect.x = x;
+                if (resizedWindow != nullptr) {
+                    if (resizingWindow) {
+                        Rect rect = resizedWindow->getRect();
+                        if (currentCursor == MOUSE_CURSOR_RESIZE_H) {
+                            auto lx = x - rect.x;
+                            if (resizingWindowOriginBorder) {
+                                rect.width = rect.width - lx;
+                                rect.x = x;
+                            } else {
+                                rect.width = lx;
+                            }
                         } else {
-                            rect.width = lx;
+                            auto ly = y - rect.y;
+                            if (resizingWindowOriginBorder) {
+                                rect.height = rect.height - ly;
+                                rect.y = y;
+                            } else {
+                                rect.height = ly;
+                            }
                         }
-                    } else {
-                        auto ly = y - rect.y;
-                        if (resizingWindowOriginBorder) {
-                            rect.height = rect.height - ly;
-                            rect.y = y;
-                        } else {
-                            rect.height = ly;
-                        }
-                    }
-                    if ((rect.width < (resizeDelta + resizedWindow->getMinimumWidth())) || 
-                        (rect.height < (resizeDeltaY + resizedWindow->getMinimumHeight())) ||
-                        (rect.width > resizedWindow->getMaximumWidth()) ||
-                        (rect.height > resizedWindow->getMaximumHeight())) {
+                        resizedWindow->setRect(rect);
+                        Input::setMouseCursor(currentCursor);
                         return true;
                     }
-                    resizedWindow->setRect(rect);
-                    return true;
+                    currentCursor = MOUSE_CURSOR_ARROW;
+                    resizedWindow = nullptr;
+                    Input::setMouseCursor(currentCursor);
                 }
                 for (auto& window: windows) {
                     auto consumed = false;
-                    auto lx = x - window->getRect().x;
-                    auto ly = y - window->getRect().y;
+                    auto lx = ceil(x - window->getRect().x);
+                    auto ly = ceil(y - window->getRect().y);
                     if (window->getRect().contains(x, y)) {
-                        if (window->getWidget().isDrawBackground()) {
-                            if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) && (lx > (window->getRect().width - resizeDelta))) {
+                        if (enableWindowResizing && window->getWidget().isDrawBackground()) {
+                            if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) && 
+                                (lx >= (window->getRect().width - resizeDelta))) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) && (lx < resizeDelta)) {
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) && 
+                                       (lx < resizeDelta)) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && (ly > (window->getRect().height - resizeDeltaY))) {
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && 
+                                       (ly >= (window->getRect().height - resizeDeltaY))) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && (ly < resizeDeltaY)) {
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && 
+                                       (ly < resizeDeltaY)) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
-                            } else if (resizedWindow != nullptr) {
-                                currentCursor = MOUSE_CURSOR_ARROW;
-                                resizedWindow = nullptr;
-                                Input::setMouseCursor(currentCursor);
                             }
                         }
                         if (resizedWindow != nullptr) {
                             Input::setMouseCursor(currentCursor);
-                            consumed = true;
-                        } else {
-                            consumed |= window->eventMouseMove(mouseEvent.getButtonsState(), lx, ly);
+                            return true;
                         }
+                        consumed |= window->eventMouseMove(mouseEvent.getButtonsState(), lx, ly);
                     }
                     if (consumed) { return true; }
                 }
@@ -203,8 +201,8 @@ namespace z0 {
                 }
                 for (auto& window: windows) {
                     auto consumed = false;
-                    auto lx = x - window->getRect().x;
-                    auto ly = y - window->getRect().y;
+                    auto lx = ceil(x - window->getRect().x);
+                    auto ly = ceil(y - window->getRect().y);
                     if (mouseInputEvent.isPressed()) {
                         if (window->getRect().contains(x, y)) {
                             consumed |= window->eventMouseDown(mouseInputEvent.getMouseButton(), lx, ly);
