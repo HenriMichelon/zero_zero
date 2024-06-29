@@ -113,6 +113,11 @@ namespace z0 {
          */
         GManager& getWindowManager() const { return *windowManager; }
 
+        /**
+         * Return the vector renderer size ratios 
+         */
+        vec2 getVectorRatio() const;
+
 
     private:
         // The global startup configuration parameters

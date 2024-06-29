@@ -15,6 +15,7 @@
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/omni_light.h"
 #include "z0/nodes/spot_light.h"
+#include "z0/nodes/viewport.h"
 #include "z0/resources/material.h"
 #include "z0/resources/mesh.h"
 #include "z0/nodes/mesh_instance.h"

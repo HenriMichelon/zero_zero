@@ -29,6 +29,8 @@ namespace z0 {
         vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         // Depth testing multisampled off screen buffer
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
+        // Current viewport to reset the viewport size if removed from the scene tree
+        Viewport* currentViewport{nullptr};
 
         ModelsRenderer(Device& device, const string& shaderDirectory);
 

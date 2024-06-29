@@ -7,6 +7,7 @@
 #include "z0/nodes/node.h"
 #include "z0/nodes/camera.h"
 #include "z0/nodes/mesh_instance.h"
+#include "z0/nodes/viewport.h"
 #include "z0/renderers/renderpass.h"
 #include "z0/renderers/models_renderer.h"
 #include "z0/resources/mesh.h"
@@ -16,7 +17,8 @@
 namespace z0 {
 
     ModelsRenderer::ModelsRenderer(Device &dev, const string& sDir):
-        Renderpass(dev, sDir) {}
+        Renderpass(dev, sDir) {
+    }
 
     void ModelsRenderer::addNode(const shared_ptr<Node>& node) {
         if (auto* camera = dynamic_cast<Camera*>(node.get())) {
@@ -34,6 +36,9 @@ namespace z0 {
                 createOrUpdateResources();
                 addedModel(meshInstance);
             }
+            } else if (auto* viewport = dynamic_cast<Viewport*>(node.get())) {
+            currentViewport = viewport;
+            //log("Using viewport", currentViewport->toString());
         }
     }
 
@@ -50,6 +55,10 @@ namespace z0 {
                 removingModel(meshInstance);
             }
             descriptorSetNeedUpdate = true;
+        } else if (auto* viewport = dynamic_cast<Viewport*>(node.get())) {
+            if (currentViewport == viewport) {
+                currentViewport = nullptr;
+            }
         }
     }
 
@@ -72,7 +81,30 @@ namespace z0 {
 
     void ModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) {
         bindShaders(commandBuffer);
-        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
+        if (currentViewport != nullptr) {
+            const VkViewport viewport{
+                    .x = 0.0f,
+                    .y = 0.0f,
+                    .width = static_cast<float>(getDevice().getSwapChainExtent().width),
+                    .height = static_cast<float>(getDevice().getSwapChainExtent().height),
+                    .minDepth = 0.0f,
+                    .maxDepth = 1.0f
+            };
+            vkCmdSetViewportWithCount(commandBuffer, 1, &viewport);
+            const VkRect2D scissor{
+                    .offset = { 
+                        static_cast<int32_t>(currentViewport->getViewportPosition().x), 
+                        static_cast<int32_t>(currentViewport->getViewportPosition().y)
+                    },
+                    .extent = { 
+                        static_cast<uint32_t>(currentViewport->getViewportSize().x), 
+                        static_cast<uint32_t>(currentViewport->getViewportSize().y)
+                    },
+            };
+            vkCmdSetScissorWithCount(commandBuffer, 1, &scissor);
+        } else {
+            setViewport(commandBuffer, getDevice().getSwapChainExtent().width, getDevice().getSwapChainExtent().height);
+        }
 
         vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
 

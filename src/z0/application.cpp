@@ -11,6 +11,7 @@
 #include "z0/nodes/camera.h"
 #include "z0/nodes/environment.h"
 #include "z0/nodes/mesh_instance.h"
+#include "z0/nodes/viewport.h"
 #include "z0/nodes/light.h"
 #include "z0/nodes/directional_light.h"
 #include "z0/nodes/omni_light.h"
@@ -438,6 +439,13 @@ namespace z0 {
 
     void Application::setShadowCasting(bool enable) {
         sceneRenderer->setShadowCasting(enable);
+    }
+
+    vec2 Application::getVectorRatio() const {
+        return vec2 {
+            window->getWidth() / VECTOR_SCALE.x,
+            window->getHeight() / VECTOR_SCALE.y
+        };
     }
 
 }
