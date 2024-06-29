@@ -116,7 +116,7 @@ namespace z0 {
         /**
          * Return the vector renderer size ratios 
          */
-        vec2 getVectorRatio() const;
+        const vec2& getVectorRatio() const { return vectorRatio; }
 
 
     private:
@@ -148,6 +148,8 @@ namespace z0 {
         vector<shared_ptr<Node>> addedNodes{};
         // Defered list of nodes removed from the current scene, processed before each frame
         vector<shared_ptr<Node>> removedNodes{};
+        // vector renderer size ratios 
+        vec2 vectorRatio;
 
         /*
          * Main loop members

@@ -384,11 +384,17 @@ namespace z0 {
         }
         float fh, fw;
         W.getFont()->getSize(W.getText(), fw, fh);
+        const auto& ratio = Application::get().getVectorRatio();
+        fw = roundf(fw / ratio.x);
+        fh = roundf(fh  / ratio.y);
         D.setPenColor(c2);
         if ((!W.getText().empty()) && (W.getWidth() >= (fw+LEFTOFFSET)) && (W.getHeight() >= fh)) {
             D.drawLine({l, b+h}, {l + LEFTOFFSET, b+h});
             D.drawLine({l + fw + LEFTOFFSET + 1, b+h}, {l + w, b+h});
-            D.setPenColor(shadowDark);
+            D.setPenColor(Color{W.getTextColor().color.r,
+                        W.getTextColor().color.g,
+                        W.getTextColor().color.b,
+                        W.getTransparency()});
             D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b+h) - (fh / 2), fw, fh);
             D.setPenColor(c2);
         } else {

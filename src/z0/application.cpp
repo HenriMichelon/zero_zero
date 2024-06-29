@@ -134,6 +134,10 @@ namespace z0 {
 
         // The global display window
         window = make_unique<Window>(applicationConfig);
+        vectorRatio = vec2{
+            window->getWidth() / VECTOR_SCALE.x,
+            window->getHeight() / VECTOR_SCALE.y
+        };
         // The global Vulkan device helper
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
@@ -439,13 +443,6 @@ namespace z0 {
 
     void Application::setShadowCasting(bool enable) {
         sceneRenderer->setShadowCasting(enable);
-    }
-
-    vec2 Application::getVectorRatio() const {
-        return vec2 {
-            window->getWidth() / VECTOR_SCALE.x,
-            window->getHeight() / VECTOR_SCALE.y
-        };
     }
 
 }

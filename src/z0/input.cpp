@@ -198,6 +198,8 @@ namespace z0 {
     const int Input::DI_AXIS_RANGE = 1000;
     const float Input::DI_AXIS_RANGE_DIV = 1000.5f;
 
+    map<MouseCursor, HCURSOR> Input::_mouseCursors;
+
     struct _DirectInputState {
         LPDIRECTINPUTDEVICE8 device;
         string               name;
@@ -344,6 +346,11 @@ namespace z0 {
     }
 
     void Input::_initInput() {
+        _mouseCursors[MOUSE_CURSOR_ARROW] = LoadCursor(nullptr, IDC_ARROW);
+        _mouseCursors[MOUSE_CURSOR_WAIT] = LoadCursor(nullptr, IDC_WAIT);
+        _mouseCursors[MOUSE_CURSOR_RESIZE_H] = LoadCursor(nullptr, IDC_SIZEWE);
+        _mouseCursors[MOUSE_CURSOR_RESIZE_V] = LoadCursor(nullptr, IDC_SIZENS);
+
         for (uint32_t i = 0; i < XUSER_MAX_COUNT; ++i) {
             XINPUT_STATE state;
             ZeroMemory(&state, sizeof(XINPUT_STATE));
@@ -519,16 +526,8 @@ namespace z0 {
         return (length > 1.0f) ? vector / length : vector;
     }
 
-    const static map<MouseCursor, LPCSTR> _WIN_CURSORS {
-        { MOUSE_CURSOR_ARROW, IDC_ARROW },
-        { MOUSE_CURSOR_WAIT,  IDC_WAIT },
-        { MOUSE_CURSOR_RESIZE_H, IDC_SIZEWE },
-        { MOUSE_CURSOR_RESIZE_V, IDC_SIZENS },
-    };
-
     void Input::setMouseCursor(MouseCursor cursor) {
-         HCURSOR hcursor = LoadCursor(NULL, _WIN_CURSORS.at(cursor));
-         SetCursor(hcursor);
+        SetCursor(_mouseCursors[cursor]);
     }
 
     void Input::setMouseMode(MouseMode mode) {

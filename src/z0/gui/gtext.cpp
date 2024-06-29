@@ -49,9 +49,9 @@ namespace z0 {
     void GText::computeSize() {
         if (!text.empty()) {
             getFont()->getSize(text, rect.width, rect.height);
-            auto& wnd = Application::get().getWindow();
-            rect.width = roundf(rect.width / (wnd.getWidth() / VECTOR_SCALE.x));
-            rect.height = roundf(rect.height / (wnd.getHeight() / VECTOR_SCALE.y));
+            const auto& ratio = Application::get().getVectorRatio();
+            rect.width = roundf(rect.width / ratio.x);
+            rect.height = roundf(rect.height / ratio.y);
         }
     }
 

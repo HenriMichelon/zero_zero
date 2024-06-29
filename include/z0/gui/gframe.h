@@ -16,7 +16,11 @@ namespace z0 {
         // Change the title of the widget
         void setText(const string&);
 
+        void setTextColor(Color c);
+        [[nodiscard]] Color getTextColor() const { return textColor; }
+
     private:
-        string text;
+        string  text;
+        Color   textColor;
     };
 }
