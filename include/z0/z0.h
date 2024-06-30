@@ -88,4 +88,5 @@
 #include <z0/gui/gtoggle_button.h>
 #include <z0/gui/gline.h>
 #include <z0/gui/gframe.h>
+#include <z0/gui/gvalue_select.h>
 #endif
