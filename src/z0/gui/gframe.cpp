@@ -20,7 +20,6 @@ namespace z0 {
         text = C;
         resizeChildren();
         refresh();
-        emit(GEvent::OnTextChange);
     }
 
 

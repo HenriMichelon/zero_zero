@@ -231,7 +231,7 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) return;
 
-        // Process the deferred scene tree modification
+        // Process the deferred scene tree modifications
         sceneRenderer->preUpdateScene();
         windowManager->drawFrame();
         if (!removedNodes.empty()) {

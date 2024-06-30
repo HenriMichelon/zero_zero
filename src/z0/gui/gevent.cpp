@@ -18,16 +18,16 @@ namespace z0 {
     const string GEvent::OnHide{"on_hide"};
     const string GEvent::OnEnable{"on_enable"};
     const string GEvent::OnDisable{"on_disable"};
-    const string GEvent::OnTextChange{"on_text_change"};
+    //const string GEvent::OnTextChange{"on_text_change"};
     const string GEvent::OnClick{"on_click"};
     const string GEvent::OnStateChange{"on_state_change"};
     const string GEvent::OnResize{"on_resize"};
     const string GEvent::OnMove{"on_move"};
-/*     const string GEvent::OnInsertItem{"on_insert_item"};
-    const string GEvent::OnRemoveItem{"on_remove_item"};
-    const string GEvent::OnSelectItem{"on_select_item"};
     const string GEvent::OnValueChange{"on_value_change"};
     const string GEvent::OnValueUserChange{"on_value_use_change"};
     const string GEvent::OnRangeChange{"on_range_change"};
+/*     const string GEvent::OnInsertItem{"on_insert_item"};
+    const string GEvent::OnRemoveItem{"on_remove_item"};
+    const string GEvent::OnSelectItem{"on_select_item"};
  */
 }

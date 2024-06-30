@@ -34,23 +34,23 @@ namespace z0 {
         //! called after state change (all widgets)
         static const string OnDisable;
         //! text content of the widget have changed
-        static const string OnTextChange;	
+        //static const string OnTextChange;	
         //! called when the user click on the widget (buttons)
         static const string OnClick;		
         //! a CheckWidget state changed
         static const string OnStateChange;	
+        //! value of a GValueSelect widget changed
+        static const string OnValueChange;	
+        //! value of a GValueSelect widget changed by the user
+        static const string OnValueUserChange;	
+        //! range of a GValueSelect widget changed
+        static const string OnRangeChange;	
         //! item list of a GList widget have changed        
         //static const string OnInsertItem;	
         //! item list of a GList widget have changed
         //static const string OnRemoveItem;	
         //! user selected an item list of a GList widget
         //static const string OnSelectItem;	
-        //! value of a GValueSelect widget changed
-        //static const string OnValueChange;	
-        //! value of a GValueSelect widget changed by the user
-        //static const string OnValueUserChange;	
-        //! range of a GValueSelect widget changed
-        //static const string OnRangeChange;	
         //! a GWindow size changed
         static const string OnResize;	
         //! a GWindow position changed
@@ -113,19 +113,24 @@ namespace z0 {
         int32_t	    state;
     };
 
-
-    /*struct GEventValue: public Signal::Parameters {
-        int32_t	    value;
-        int32_t	    previous;
+    /**
+     * Parameters for GEvent::GEventValue
+     */
+    struct GEventValue: public Signal::Parameters {
+        float	    value;
+        float	    previous;
     };
 
+    /**
+     * Parameters for GEvent::GEventRange
+     */
     struct GEventRange: public Signal::Parameters {
-        int32_t	    min;
-        int32_t	    max;
-        int32_t	    value;
+        float	    min;
+        float	    max;
+        float	    value;
     };
 
-    struct GEventText: public Signal::Parameters {
+    /*struct GEventText: public Signal::Parameters {
         const string	text;
     };
 

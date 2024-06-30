@@ -26,9 +26,9 @@ namespace z0 {
             //! A two states button
             TOGGLEBUTTON,	
             //! A single line of text	
-            TEXT,				
-            // A box with scrollbars
-            //SCROLLBOX,			
+            TEXT,	
+            //! A scroll bar. with min, max & pos			
+            SCROLLBAR,			
             //ARROW,				// up, down, left or right directed arrows
             //CHECKMARK,			// Cross or check mark drawing
             //CHECKBUTTON,		// Button with a checkmark inside
@@ -36,7 +36,6 @@ namespace z0 {
             //TEXTEDIT,			// single line text edition field
             //MEMOEDIT,			// multi lines text edition field
             //UPDOWN,				// up & down (or left & right) buttons
-            //SCROLLBAR,			// scroll bar. with min, max & pos
             //TRACKBAR,			// horizontal track bar. with min, max, pos & step
             //ROUNDBUTTON,		// round button. with min, max, pos & step
             //PROGRESSBAR,		// progression bar. with min, max & pos
