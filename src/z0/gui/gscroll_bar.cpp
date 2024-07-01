@@ -20,27 +20,40 @@ namespace z0 {
     #define LIFT_MINWIDTH 	10
     #define LONGSTEP_MUX	5
 
-    GScrollBar::GScrollBar(Type T, uint32_t MIN, uint32_t MAX,
-                        uint32_t VAL, uint32_t STEP):
-        GValueSelect(SCROLLBAR), type(T), onScroll(FALSE)  {
+    GScrollBar::GScrollBar(Type T, 
+                           uint32_t MIN, 
+                           uint32_t MAX,
+                           uint32_t VAL, 
+                           uint32_t STEP,
+                           const string&RAREA, 
+                           const string&RCAGE):
+        GValueSelect{SCROLLBAR}, 
+        type{T}  {
         min = MIN;
         max = MAX;
         value = VAL;
         step = STEP;
-        mouseMoveOnFocus = TRUE;
         liftArea = make_shared<GBox>();
         liftCage = make_shared<GBox>();
     }
 
-    void GScrollBar::setResources(const string&RAREA, const string&RCAGE) {
-        add(liftArea, FILL, RAREA);
-        add(liftCage, NONE, RCAGE);
+    void GScrollBar::eventResize() {
+        GValueSelect::eventResize();
+        eventRangeChange();
+    }
+    
+    void GScrollBar::eventCreate() {
+        GValueSelect::eventCreate();
+        mouseMoveOnFocus = true;
+        add(liftArea, FILL, "");
+        add(liftCage, NONE, "");
         liftArea->connect(GEvent::OnMouseDown, this,
                         Signal::Handler(&GScrollBar::onLiftAreaDown));
         liftCage->connect(GEvent::OnMouseDown, this,
                         Signal::Handler(&GScrollBar::onLiftCageDown));
         liftCage->_setRedrawOnMouseEvent(true);
         liftCage->_setMoveChildrenOnPush(true);
+        eventRangeChange();
     }
 
     void GScrollBar::eventRangeChange() {
@@ -76,7 +89,7 @@ namespace z0 {
             }
             liftArea->refresh();
             liftCage->refresh();
-            GValueSelect::eventResize();
+            //GValueSelect::eventResize();
             GValueSelect::eventRangeChange() ;
         }
     }
@@ -110,7 +123,7 @@ namespace z0 {
         }
     }
 
-    bool GScrollBar::eventMouseMove(MouseButton B, float X, float Y) {
+    bool GScrollBar::eventMouseMove(uint32_t B, float X, float Y) {
         if (onScroll) {
             if (getRect().contains(X, Y)) {
                 float diff;

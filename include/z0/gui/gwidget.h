@@ -282,6 +282,8 @@ namespace z0 {
         virtual bool eventMouseMove(uint32_t, float, float);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
+        
+        virtual void _init(GWidget&, AlignmentType, const string&, float);
 
     private:
         bool		     pushed{false};
@@ -299,7 +301,6 @@ namespace z0 {
         GWidget* setNextFocus();
         GWidget* setFocus(bool = true);
 
-        void _init(GWidget&, AlignmentType, const string&, float);
         void _draw(VectorRenderer&) const;
         [[nodiscard]] virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
    };

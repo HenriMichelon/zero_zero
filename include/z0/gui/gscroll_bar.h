@@ -9,7 +9,13 @@ namespace z0 {
             VERTICAL
         };
 
-        GScrollBar(Type = HORIZONTAL, uint32_t = 0, uint32_t = 0, uint32_t = 0, uint32_t = 1);
+        GScrollBar(Type = HORIZONTAL, 
+                   uint32_t min = 0, 
+                   uint32_t max = 100, 
+                   uint32_t value = 0, 
+                   uint32_t step = 1,
+                   const string& resArea = "", 
+                   const string& resCage = "");
         
         Type getScrollBarType() const { return type; };
 
@@ -17,16 +23,18 @@ namespace z0 {
 
     private:
         Type                type;
-        bool		        onScroll;
+        bool		        onScroll{false};
         uint32_t	        scrollStart;
         shared_ptr<GBox>	liftArea;
         shared_ptr<GBox>	liftCage;
 
 
-        virtual bool eventMouseUp(MouseButton, float, float);
-        virtual bool eventMouseMove(MouseButton, float, float);
-        virtual void eventRangeChange();
-        virtual void eventValueChange(float);
+        bool eventMouseUp(MouseButton, float, float) override;
+        bool eventMouseMove(uint32_t, float, float) override;
+        void eventCreate() override;
+        void eventResize() override;
+        void eventRangeChange() override;
+        void eventValueChange(float) override;
 
         void onLiftAreaDown(GEventMouseButton*);
         void onLiftCageDown(GEventMouseButton*);
