@@ -120,6 +120,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/gui/gtext.cpp
 		${Z0_ENGINE_DIR}/gui/gframe.cpp
 		${Z0_ENGINE_DIR}/gui/gvalue_select.cpp
+		${Z0_ENGINE_DIR}/gui/gscroll_bar.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.h
 		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.h
 )

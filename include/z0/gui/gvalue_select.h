@@ -25,8 +25,8 @@ namespace z0 {
         float step;
 
         virtual void eventResize();
-        virtual void eventRangeChange() {};
-        virtual void eventValueChange(float) {};
+        virtual void eventRangeChange();
+        virtual void eventValueChange(float);
     };
 
 }

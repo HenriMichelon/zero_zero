@@ -15,7 +15,7 @@
 namespace z0 {
 
     GToggleButton::GToggleButton(): GCheckWidget(TOGGLEBUTTON) {
-        moveChildsOnPush = true;
+        moveChildrenOnPush = true;
         redrawOnMouseEvent = true;
         allowFocus = true;
     }

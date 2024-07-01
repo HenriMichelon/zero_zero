@@ -69,6 +69,16 @@ namespace z0 {
         refresh();
     }
 
+    void GValueSelect::eventValueChange(float prev) { 
+         auto event = GEventValue{ .value = value, .previous = prev };
+        emit(GEvent::OnValueChange, &event);
+    }
+
+    void GValueSelect::eventRangeChange() {
+        auto event = GEventRange{ .min = min, .max = max, .value = value };
+        emit(GEvent::OnRangeChange, &event);
+    }
+
     float GValueSelect::getValue() const { return value; }
 
     float GValueSelect::getMin() const { return min; }

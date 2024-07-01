@@ -237,6 +237,9 @@ namespace z0 {
         
         void resizeChildren();
 
+        void _setRedrawOnMouseEvent(bool r) { redrawOnMouseEvent = r; }
+        void _setMoveChildrenOnPush(bool r) { moveChildrenOnPush = r; }
+
     protected:
         Rect			          rect;
         float			          hborder{0};
@@ -246,7 +249,7 @@ namespace z0 {
         bool			          allowFocus{false};
         bool			          allowChildren{true};
         bool			          drawBackground{true};
-        bool			          moveChildsOnPush{false};
+        bool			          moveChildrenOnPush{false};
         bool			          redrawOnMouseEvent{false};
         bool			          redrawOnMouseMove{false};
         bool			          mouseMoveOnFocus{false};

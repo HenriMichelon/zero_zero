@@ -322,7 +322,7 @@ namespace z0 {
         else {
             clientRect.height = 0;
         }
-        if (pushed && moveChildsOnPush) {
+        if (pushed && moveChildrenOnPush) {
             clientRect.x += 1;
             clientRect.y -= 1;
         }

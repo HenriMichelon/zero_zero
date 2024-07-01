@@ -42,7 +42,7 @@ namespace z0 {
         //! value of a GValueSelect widget changed
         static const string OnValueChange;	
         //! value of a GValueSelect widget changed by the user
-        static const string OnValueUserChange;	
+        //static const string OnValueUserChange;	
         //! range of a GValueSelect widget changed
         static const string OnRangeChange;	
         //! item list of a GList widget have changed        
