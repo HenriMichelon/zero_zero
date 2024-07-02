@@ -13,6 +13,7 @@
 #include "z0/gui/gframe.h"
 
 namespace z0 {
+    
     GFrame::GFrame(const string& STR): GPanel(GWidget::FRAME), text(STR) {
     }
 

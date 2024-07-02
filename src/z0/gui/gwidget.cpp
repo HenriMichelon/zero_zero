@@ -485,8 +485,6 @@ namespace z0 {
                     break;
             }
             child->setRect(childRect);
-            //child->rect = childRect;
-            //child->eventResize();
             ++it;
         }
         freeze = false;

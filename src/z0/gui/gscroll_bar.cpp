@@ -7,9 +7,7 @@
 #include "z0/gui/gstyle.h"
 #include "z0/gui/gevent.h"
 #include "z0/gui/gwidget.h"
-#include "z0/gui/gbutton.h"
 #include "z0/gui/gbox.h"
-#include "z0/gui/gpanel.h"
 #include "z0/gui/gvalue_select.h"
 #include "z0/gui/gscroll_bar.h"
 #include "z0/application.h"
@@ -164,7 +162,6 @@ namespace z0 {
         }
         float prev = value;
         value = std::min(std::max(value + diff, min), max);
-        log(to_string(value));
         eventRangeChange();
         GValueSelect::eventValueChange(prev);
     }

@@ -28,7 +28,9 @@ namespace z0 {
             //! A single line of text	
             TEXT,	
             //! A scroll bar. with min, max & pos			
-            SCROLLBAR,			
+            SCROLLBAR,
+            //! Tree of GWidget
+            TREEVIEW,
             //ARROW,				// up, down, left or right directed arrows
             //CHECKMARK,			// Cross or check mark drawing
             //CHECKBUTTON,		// Button with a checkmark inside
@@ -46,7 +48,6 @@ namespace z0 {
             //MENU,
             //POPUPMENU,
             //OUTLINE,
-            //TREEVIEW,
             //TOOLTIPS,
             //STATUSPANEL,
             //SPLITTER,

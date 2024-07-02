@@ -19,6 +19,7 @@
 #include "z0/gui/gtoggle_button.h"
 #include "z0/gui/gvalue_select.h"
 #include "z0/gui/gscroll_bar.h"
+#include "z0/gui/gtree_view.h"
 #endif
 
 #include "gstyle_classic_resource.h"
@@ -80,6 +81,9 @@ namespace z0 {
             case GWidget::SCROLLBAR:
                 ((GScrollBar&)W).setResources(",,LOWERED", ",,RAISED");
                 break;
+            case GWidget::TREEVIEW:
+                ((GTreeView&)W).setResources(",,LOWERED", "18,18,RAISED", "");
+                break;
             // XXX
             /*case GWidget::UPDOWN:
                 ((GUpDown&)W).SetResources(RES, RES);
@@ -121,6 +125,13 @@ namespace z0 {
                 W.setVBorder(2);
                 W.setHBorder(2);
                 break;
+            case GWidget::FRAME: {
+                    W.setHBorder(4);
+                    float w, h;
+                    W.getFont()->getSize(((GFrame&)W).getText(), w, h);
+                    W.setVBorder(h - 2);
+                }
+                break;
             /*case GWidget::LINE:
             {
                 GLine &L = (GLine&)W;
@@ -131,10 +142,6 @@ namespace z0 {
                     R.width = 2;
                 }
             }
-                break;
-            case GWidget::FRAME:
-                W.SetHBorder(4);
-                W.SetVBorder(W.Font().Height()+2);
                 break;*/
             default:
                 break;
@@ -148,7 +155,6 @@ namespace z0 {
             switch (W.getType()) {
                 //case GWidget::TEXTEDIT: 
                 //case GWidget::UPDOWN:
-                //case GWidget::SCROLLBAR:
                 //case GWidget::PROGRESSBAR:
                 case GWidget::PANEL:
                     drawPanel((GPanel&)W, res, D);

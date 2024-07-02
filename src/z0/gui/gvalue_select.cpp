@@ -19,7 +19,7 @@ namespace z0 {
                                float MAX,
                                float VAL, 
                                float STEP): 
-        GPanel{T},
+        GWidget{T},
         min{MIN},
         max{MAX},
         value{VAL},

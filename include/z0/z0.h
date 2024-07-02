@@ -90,4 +90,5 @@
 #include <z0/gui/gframe.h>
 #include <z0/gui/gvalue_select.h>
 #include <z0/gui/gscroll_bar.h>
+#include <z0/gui/gtree_view.h>
 #endif

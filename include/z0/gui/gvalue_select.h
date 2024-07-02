@@ -2,7 +2,7 @@
 
 namespace z0 {
 
-    class GValueSelect: public GPanel
+    class GValueSelect: public GWidget
     {
     public:
         GValueSelect(Type T,

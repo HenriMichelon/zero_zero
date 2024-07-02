@@ -65,7 +65,7 @@ namespace z0 {
                                         float w, float h,
                                         const shared_ptr<Image>& texture) {
         const auto pos = (vec2{x, y} + translate) / VECTOR_SCALE;
-        vec2 size = vec2{w, h} / VECTOR_SCALE;
+        vec2 size = vec2{w-1.0f, h-1.0f} / VECTOR_SCALE;
         /*
          * v1 ---- v3
          * |  \     |
