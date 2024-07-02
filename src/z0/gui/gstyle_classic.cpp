@@ -17,6 +17,8 @@
 #include "z0/gui/gframe.h"
 #include "z0/gui/gcheck_widget.h"
 #include "z0/gui/gtoggle_button.h"
+#include "z0/gui/gvalue_select.h"
+#include "z0/gui/gscroll_bar.h"
 #endif
 
 #include "gstyle_classic_resource.h"
@@ -75,17 +77,15 @@ namespace z0 {
         W.setResource(res);
         W.setSize(res->width, res->height);
         switch (W.getType()) {
+            case GWidget::SCROLLBAR:
+                ((GScrollBar&)W).setResources(",,LOWERED", ",,RAISED");
+                break;
             // XXX
             /*case GWidget::UPDOWN:
                 ((GUpDown&)W).SetResources(RES, RES);
                 break;
             case GWidget::TRACKBAR:
                 ((GTrackBar&)W).SetResources("12,12,RAISED");
-                break;
-            case GWidget::SCROLLBAR:
-                ((GScrollBar&)W).SetResources(RES, RES,
-                                              string(",,LOWERED") + (res->flat ? ",FLAT" : ""),
-                                              string(",,RAISED") + (res->flat ? ",FLAT": ""));
                 break;
             case GWidget::PROGRESSBAR:
                 ((GProgressBar&)W).SetResources(RES);

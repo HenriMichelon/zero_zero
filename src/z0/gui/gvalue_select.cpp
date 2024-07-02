@@ -14,10 +14,16 @@
 
 namespace z0 {
         
-    GValueSelect::GValueSelect(Type T): 
-        GPanel{T}, value{0}, step{1} {
-        min = 0;
-        max = 0; 
+    GValueSelect::GValueSelect(Type T,
+                               float MIN, 
+                               float MAX,
+                               float VAL, 
+                               float STEP): 
+        GPanel{T},
+        min{MIN},
+        max{MAX},
+        value{VAL},
+        step{STEP} {
     }
 
 

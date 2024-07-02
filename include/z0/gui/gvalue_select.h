@@ -5,7 +5,11 @@ namespace z0 {
     class GValueSelect: public GPanel
     {
     public:
-        GValueSelect(Type T);
+        GValueSelect(Type T,
+                   float min,
+                   float max,
+                   float value,
+                   float step);
         virtual ~GValueSelect() {};
         
         float getMin() const;
