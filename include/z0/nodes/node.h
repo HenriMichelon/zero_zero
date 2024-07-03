@@ -284,6 +284,9 @@ namespace z0 {
          */
         void setName(const string&nodeName) { name = nodeName; }
 
+        /**
+         * Returns the inmutable list of children nodes
+         */
         inline const list<shared_ptr<Node>>& getChildren() const { return children; }
 
 

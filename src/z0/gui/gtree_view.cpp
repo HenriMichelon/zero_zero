@@ -18,6 +18,43 @@ namespace z0 {
 
     GTreeView::GTreeView(): GWidget(TREEVIEW) {}
 
+    GTreeView::Item::Item(shared_ptr<GWidget> _item) : item{_item} {
+    }
+
+    void GTreeView::expand(shared_ptr<GWidget>& item) {
+        for(const auto &widget : box->_getChildren()) {
+            if (auto itemWidget = dynamic_cast<GTreeView::Item*>(item.get())) {
+                if (itemWidget->item == item) {
+                    log("found");
+                }
+            }
+        }
+    }
+
+    shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<GWidget> item) {
+        items.push_back(make_shared<Item>(item));
+        auto& newWidget = items.back();
+        newWidget->setDrawBackground(false);
+        box->setSize(100, item->getHeight());
+        newWidget->add(item, GWidget::LEFT);
+        return newWidget;
+    }
+
+    shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<Item>&parent, shared_ptr<GWidget> item) {
+        parent->children.push_back(make_shared<Item>(item));
+        auto& newWidget = parent->children.back();
+        box->add(newWidget, GWidget::TOPLEFT);
+        box->setSize(100, item->getHeight());
+        newWidget->add(item, GWidget::LEFT);
+        //expand(parent->item);
+        return newWidget;
+    }
+
+    void GTreeView::removeAllItems() {
+        box->removeAll();
+        items.clear();
+    }
+
     void GTreeView::setResources(const string&RBOX, const string&RSCROLL, const string&) {
          if (box == nullptr) {
             box = make_shared<GBox>();
@@ -25,7 +62,7 @@ namespace z0 {
             add(vscroll, RIGHT, RSCROLL);
             add(box, FILL, RBOX);
             box->setDrawBackground(false);
-            box->setPadding(0);
+            box->setPadding(1);
 	        vscroll->setStep(2);
          }
     }

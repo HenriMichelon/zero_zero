@@ -617,7 +617,7 @@ namespace z0 {
     void GWidget::setGroupIndex(int32_t IDX) {
         groupIndex = IDX;
     }
-    void GWidget::setData(void* DATA) {
+    void GWidget::setUserData(void* DATA) {
         userData = DATA;
     }
 
@@ -706,7 +706,7 @@ namespace z0 {
         return groupIndex;
     }
 
-    void* GWidget::getData() const {
+    void* GWidget::getUserData() const {
         return userData;
     }
 

@@ -225,10 +225,10 @@ namespace z0 {
         void setGroupIndex(int32_t);
 
         /** Returns the user data */
-        void* getData() const;
+        void* getUserData() const;
 
         /** set user data */
-        void setData(void*);
+        void setUserData(void*);
 
         /** Return the transparency alpha value */
         [[nodiscard]] inline const float getTransparency() const { return transparency; }
@@ -240,6 +240,7 @@ namespace z0 {
 
         void _setRedrawOnMouseEvent(bool r) { redrawOnMouseEvent = r; }
         void _setMoveChildrenOnPush(bool r) { moveChildrenOnPush = r; }
+        [[nodiscard]] virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
 
     protected:
         Rect			          rect;
@@ -303,7 +304,6 @@ namespace z0 {
         GWidget* setFocus(bool = true);
 
         void _draw(VectorRenderer&) const;
-        [[nodiscard]] virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
    };
 
 }
