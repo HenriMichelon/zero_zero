@@ -34,18 +34,20 @@ namespace z0 {
     shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<GWidget> item) {
         items.push_back(make_shared<Item>(item));
         auto& newWidget = items.back();
-        newWidget->setDrawBackground(false);
-        box->setSize(100, item->getHeight());
+        box->add(newWidget, GWidget::TOPLEFT, "80,20");
         newWidget->add(item, GWidget::LEFT);
+        newWidget->setSize(80, item->getHeight());
+        newWidget->setDrawBackground(false);
         return newWidget;
     }
 
     shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<Item>&parent, shared_ptr<GWidget> item) {
         parent->children.push_back(make_shared<Item>(item));
         auto& newWidget = parent->children.back();
-        box->add(newWidget, GWidget::TOPLEFT);
-        box->setSize(100, item->getHeight());
+        box->add(newWidget, GWidget::TOPLEFT, "80,20");
         newWidget->add(item, GWidget::LEFT);
+        newWidget->setSize(80, item->getHeight());
+        newWidget->setDrawBackground(false);
         //expand(parent->item);
         return newWidget;
     }

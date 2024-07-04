@@ -54,15 +54,18 @@ namespace z0 {
         commands.emplace_back(PRIMITIVE_LINE, 2, color);
     }
 
-    void VectorRenderer::drawFilledRect(const Rect& rect) {
-        drawFilledRect(static_cast<float>(rect.x),
-                       static_cast<float>(rect.y),
-                       static_cast<float>(rect.width),
-                       static_cast<float>(rect.height));
+    void VectorRenderer::drawFilledRect(const Rect& rect, float clip_w, float clip_h) {
+        drawFilledRect(rect.x,
+                       rect.y,
+                       rect.width,
+                       rect.height,
+                       clip_w,
+                       clip_h);
     }
 
     void VectorRenderer::drawFilledRect(float x, float y,
                                         float w, float h,
+                                        float clip_w, float clip_h,
                                         const shared_ptr<Image>& texture) {
         const auto pos = (vec2{x, y} + translate) / VECTOR_SCALE;
         vec2 size = vec2{w-1.0f, h-1.0f} / VECTOR_SCALE;
@@ -86,18 +89,19 @@ namespace z0 {
         vertices.emplace_back(v2);
 
         auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
-        commands.emplace_back(PRIMITIVE_RECT, 6, color, texture);
+        commands.emplace_back(PRIMITIVE_RECT, 6, color, texture, clip_w / w, clip_h / h);
         if (texture != nullptr) { 
             addImage(texture); 
         }
     }
 
-    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect) {
-        drawText(text, font,rect.x,rect.y,rect.width,rect.height);
+    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect, float clip_w, float clip_h) {
+        log(text, to_string(rect.width), to_string(clip_w));
+        drawText(text, font,rect.x,rect.y,rect.width,rect.height, clip_w, clip_h);
     }
 
-    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, float x, float y, float w, float h) {
-        drawFilledRect(x, y, w, h, font->renderToImage(device, text));
+    void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, float x, float y, float w, float h, float clip_w, float clip_h) {
+        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(device, text));
     }
 
     void VectorRenderer::beginDraw() {
@@ -160,7 +164,9 @@ namespace z0 {
         for (const auto& command : commands) {
             CommandUniformBuffer commandUBO {
                 .color = command.color,
-                .textureIndex = (command.texture == nullptr ? -1 :  texturesIndices[command.texture->getId()])
+                .textureIndex = (command.texture == nullptr ? -1 :  texturesIndices[command.texture->getId()]),
+                .clipX = command.clipW,
+                .clipY = 1.0f - command.clipH
             };
             writeUniformBuffer(commandUniformBuffers, currentFrame, &commandUBO, commandIndex);
             commandIndex += 1;

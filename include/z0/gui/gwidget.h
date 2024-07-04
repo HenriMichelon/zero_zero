@@ -244,6 +244,7 @@ namespace z0 {
 
     protected:
         Rect			          rect;
+        Rect			          defaultRect;
         float			          hborder{0};
         float			          vborder{0};
         float		              padding{0};
@@ -264,10 +265,10 @@ namespace z0 {
         shared_ptr<GResource>     resource;
         list<shared_ptr<GWidget>> children;
 
-        static void maxRect(Rect&, Rect, Rect) ;
-        static bool clipRect(Rect&, const Rect&, const Rect&) ;
         void allowingFocus(bool = true);
         Application& app();
+
+        [[nodiscard]] inline virtual Rect _getDefaultRect() { return defaultRect; };
 
         virtual void eventCreate();
         virtual void eventDestroy();

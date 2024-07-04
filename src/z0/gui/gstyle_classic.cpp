@@ -231,7 +231,7 @@ namespace z0 {
             auto c = background;
             c.color.a = W.getTransparency();
             D.setPenColor(c);
-            D.drawFilledRect(W.getRect());
+            D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
             //texture->Draw(D, W.Rect());
         }
     }
@@ -253,7 +253,7 @@ namespace z0 {
             else {
                 D.setPenColor(fu);
             }
-            D.drawFilledRect(W.getRect());
+            D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
         }
         if (RES.style != GStyleClassicResource::FLAT) {
             auto sb = shadowBright;
@@ -358,7 +358,9 @@ namespace z0 {
                             W.getTextColor().color.g,
                             W.getTextColor().color.b,
                             W.getTransparency()});
-        D.drawText(W.getText(), W.getFont(), W.getRect());
+        auto rect = W.getRect();
+        W.getSize(rect.width, rect.height);
+        D.drawText(W.getText(), W.getFont(), rect, W.getRect().width, W.getRect().height);
     }
 
     void GStyleClassic::drawFrame(GFrame&W, GStyleClassicResource&RES, VectorRenderer&D) const {
@@ -401,7 +403,7 @@ namespace z0 {
                         W.getTextColor().color.g,
                         W.getTextColor().color.b,
                         W.getTransparency()});
-            D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b+h) - (fh / 2), fw, fh);
+            D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b+h) - (fh / 2), fw, fh, fw, fh);
             D.setPenColor(c2);
         } else {
             D.drawLine({l+w, b+h}, {l, b+h});

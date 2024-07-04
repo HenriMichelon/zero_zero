@@ -21,14 +21,15 @@ namespace z0 {
         // Draw a 1-fragment width line
         void drawLine(vec2 start, vec2 end);
         // Draw a filled rectangle
-        void drawFilledRect(const Rect& rect);
+        void drawFilledRect(const Rect& rect, float clip_w, float clip_h);
         // Draw a filled rectangle
         void drawFilledRect(float x, float y,
                             float w, float h,
+                            float clip_w, float clip_h,
                             const shared_ptr<Image>& texture = nullptr);
         // Draw a rectangle filled with a text
-        void drawText(const string&, shared_ptr<Font>& font,  const Rect& rect);
-        void drawText(const string&, shared_ptr<Font>& font, float x, float y, float w, float h);
+        void drawText(const string&, shared_ptr<Font>& font, const Rect& rect, float clip_w, float clip_h);
+        void drawText(const string&, shared_ptr<Font>& font, float x, float y, float w, float h, float clip_w, float clip_h);
         // Change the color of the fragment for the next drawing commands
         void setPenColor(Color color) { penColor = color; }
         // Change the [x,y] translation for the next drawing commands
@@ -67,6 +68,8 @@ namespace z0 {
             uint32_t          count; // number of vertex for this command
             vec4              color;
             shared_ptr<Image> texture{nullptr};
+            float             clipW;
+            float             clipH;
         };
         // Shader vertex input datas
         struct Vertex {
@@ -84,8 +87,10 @@ namespace z0 {
         list<Command>   commands;
 
         struct CommandUniformBuffer {
-            vec4    color;
-            int     textureIndex;
+            vec4                color;
+            alignas(4) int      textureIndex;
+            alignas(4) float    clipX;
+            alignas(4) float    clipY;
         };
         // For vkCmdSetVertexInputEXT
         const VkVertexInputBindingDescription2EXT     bindingDescription  {

@@ -67,6 +67,11 @@ namespace z0 {
 
     void GWidget::setSize(float W, float H) {
         if (parent) { parent->refresh(); }
+        if ((W != 0) && (H != 0) && (rect.width == 0) && (rect.height == 0)) {
+            defaultRect = rect;
+            defaultRect.width = W;
+            defaultRect.height = H;
+        }
         rect.width = W;
         rect.height = H;
         eventResize();
@@ -260,47 +265,6 @@ namespace z0 {
         freeze = false;
     }
 
-    bool GWidget::clipRect(Rect&R, const Rect& R1, const Rect& R2) {
-        if ((R1.width == 0.0f) || (R1.height == 0.0f) ||
-            (R2.width == 0.0f) || (R2.height == 0.0f)) {
-            return false;
-        }
-        if (R1.x > R2.x) {
-            R.width = std::min(R1.width, R2.width - (R1.x - R2.x));
-            R.x = R1.x;
-        }
-        else {
-            R.width = std::min(R2.width, R1.width - (R2.x - R1.x));
-            R.x = R2.x;
-        }
-        if (R1.y > R2.y) {
-            R.height = std::min(R1.height, R2.height - (R1.y - R2.y));
-            R.y = R1.y;
-        }
-        else {
-            R.height = std::min(R2.height, R1.height - (R2.y - R1.y));
-            R.y = R2.y;
-        }
-        return ((R.width > 0) && (R.height > 0));
-    }
-
-    void GWidget::maxRect(Rect&R, const Rect A, const Rect B) {
-        if ((A.width == 0.0f) || (A.height == 0.0f)) {
-            R = B;
-        }
-        else if ((B.width == 0.0f) || (B.height == 0.0f)) {
-            R = A;
-        }
-        else {
-            R.width = std::max(0.0f, std::max(A.x + A.width, B.x + B.width));
-            R.height = std::max(0.0f, std::max(A.y + A.height, B.y + B.height));
-            R.x = std::max(0.0f, std::min(A.x, B.x));
-            R.y = std::max(0.0f, std::min(A.y, B.y));
-            R.width -= R.x;
-            R.height -= R.y;
-        }
-    }
-
     void GWidget::resizeChildren() {
         if ((!style) || (freeze)) { return; }
         freeze = true;
@@ -329,7 +293,7 @@ namespace z0 {
         auto it = children.begin();
         while ((clientRect.width > 0) && (clientRect.height > 0) && (it != children.end())) {
             auto& child = *it;
-            Rect childRect = child->getRect();
+            Rect childRect = child->_getDefaultRect();
             if (childRect.width > clientRect.width)  {
                 childRect.width = clientRect.width;
             }

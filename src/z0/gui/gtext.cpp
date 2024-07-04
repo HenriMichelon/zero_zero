@@ -27,15 +27,33 @@ namespace z0 {
     void GText::setText(const string &C) {
         text = C;
         if (parent) { parent->refresh(); }
-        computeSize();
+        float w, h;
+        getSize(w, h);
+        setSize(w, h);
         if (!parent) { refresh(); }
     }
 
-    void GText::eventCreate() {
-        computeSize();
-        GWidget::eventCreate();
+    Rect GText::_getDefaultRect() {
+        if (rect.width == 0 && rect.height == 0) {
+            float w, h;
+            getSize(w, h);
+            setSize(w, h);
+        }
+        return GWidget::_getDefaultRect();
     }
 
+    void GText::getSize(float&width, float&height) {
+        getFont()->getSize(text, width, height);
+        const auto& ratio = Application::get().getVectorRatio();
+        width = roundf(width / ratio.x);
+        height = roundf(height / ratio.y);
+    }
+ 
+    void GText::eventCreate() {
+        getSize(rect.width, rect.height);
+        GWidget::eventCreate();
+    }
+/*
     void GText::setSize(float w, float h) {
     }
 
@@ -52,6 +70,6 @@ namespace z0 {
             rect.width = roundf(rect.width / ratio.x);
             rect.height = roundf(rect.height / ratio.y);
         }
-    }
+    } */
 
 }

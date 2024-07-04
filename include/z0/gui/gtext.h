@@ -14,15 +14,23 @@ namespace z0 {
         void setTextColor(Color c);
         [[nodiscard]] Color getTextColor() const { return textColor; }
 
-        void setSize(float, float) override;
+       /*  void setSize(float, float) override;
         void setRect(const Rect&);
-        void setRect(float, float, float, float);
+        void setRect(float, float, float, float); */
+
+         /**
+         * Returns the size (in screen units, VECTOR_SCALE ratio applied) for the text.
+         */
+        void getSize(float&width, float&height);
+
+    protected:
+        [[nodiscard]] Rect _getDefaultRect() override;
 
     private:
         string	text;
         Color   textColor;
 
-        void computeSize();
+        /* void computeSize();*/
         void eventCreate() override;
 
     };
