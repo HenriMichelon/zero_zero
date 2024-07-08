@@ -10,6 +10,7 @@
 #include "z0/gui/gbox.h"
 #include "z0/gui/gvalue_select.h"
 #include "z0/gui/gscroll_bar.h"
+#include "z0/gui/gtext.h"
 #include "z0/gui/gtree_view.h"
 #include "z0/application.h"
 #endif
@@ -35,6 +36,8 @@ namespace z0 {
         items.push_back(make_shared<Item>(item));
         auto& newWidget = items.back();
         box->add(newWidget, GWidget::TOPLEFT);
+        newWidget->handle = make_shared<GText>(" ");
+        newWidget->add(newWidget->handle, GWidget::LEFT, treeTabsSize);
         newWidget->add(item, GWidget::LEFT);
         newWidget->setSize(app().getWindow().getWidth(), item->getHeight());
         newWidget->setDrawBackground(false);
@@ -44,7 +47,17 @@ namespace z0 {
     shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<Item>&parent, shared_ptr<GWidget> item) {
         parent->children.push_back(make_shared<Item>(item));
         auto& newWidget = parent->children.back();
+        newWidget->level = parent->level + 1;
         box->add(newWidget, GWidget::TOPLEFT);
+        for (int i = 0; i <= newWidget->level; i++) {
+            if (i == (newWidget->level)) {
+                newWidget->handle = make_shared<GText>(" ");
+                newWidget->add(newWidget->handle, GWidget::LEFT, treeTabsSize);
+            } else {
+                newWidget->add(make_shared<GPanel>(), GWidget::LEFT, treeTabsSize);
+            }
+        }
+        parent->handle->setText("-");
         newWidget->add(item, GWidget::LEFT);
         newWidget->setSize(app().getWindow().getWidth(), item->getHeight());
         newWidget->setDrawBackground(false);

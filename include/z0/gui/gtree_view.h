@@ -8,7 +8,9 @@ namespace z0 {
         class Item : public GPanel {
         public:
             shared_ptr<GWidget>     item;
+            shared_ptr<GText>       handle;
             list<shared_ptr<Item>> 	children;
+            int                     level{0};
             bool                    selected{false};
             bool                    expanded{false};
 
@@ -24,6 +26,7 @@ namespace z0 {
         void expand(shared_ptr<GWidget>& item);
 
     private:
+        const string            treeTabsSize{"5,5"};
     	float		            innerHeight;
 	    float		            itemsHeight;
 	    list<shared_ptr<Item>> 	items;

@@ -68,9 +68,9 @@ namespace z0 {
     shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
         float width, height;
         auto bitmap = renderToBitmap(str, width, height);
-        auto name = str;
+       /*  auto name = str;
         name.append(".png");
-        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
+        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
         return make_shared<Image>(device,
                                   str,
                                   width,
