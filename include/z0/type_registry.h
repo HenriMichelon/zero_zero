@@ -41,7 +41,7 @@ namespace z0 {
     #define Z0_MACRO_CONCAT(x, y) Z0_CONCAT_IMPL(x, y)
     /**
       Register a new class.
-      Each type register object have an unique name in the form z0_Type_XX
+      Each registered type have an unique name in the form z0_Type_XX
     */
     #define Z0_REGISTER_TYPE(TYP) static _TypeRegister<TYP> Z0_MACRO_CONCAT(z0_Type_, __COUNTER__)(#TYP);  
 }

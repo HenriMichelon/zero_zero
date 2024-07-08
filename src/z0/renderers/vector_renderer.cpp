@@ -96,6 +96,7 @@ namespace z0 {
     }
 
     void VectorRenderer::drawText(const std::string &text, shared_ptr<Font>& font, const Rect& rect, float clip_w, float clip_h) {
+        //log(text, to_string(rect.width), to_string(clip_w));
         drawText(text, font,rect.x,rect.y,rect.width,rect.height, clip_w, clip_h);
     }
 

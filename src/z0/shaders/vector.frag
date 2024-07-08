@@ -18,8 +18,6 @@ void main()  {
     } else {
         if ((UV.x > command.clipX) || (UV.y < command.clipY)) { 
             discard;
-            //COLOR = vec4(1.0,0.0,0.0,1.0);
-            //return;
         }
         COLOR = command.color * texture(texSampler[command.textureIndex], UV);
     }

@@ -38,7 +38,7 @@ namespace z0 {
         uint32_t max_descender = 0;
         for (auto wc : str) {
             auto& cchar = getFromCache(wc);
-            width += cchar.advance;
+            width += cchar.advance + cchar.xBearing;
             auto descender = cchar.height - cchar.yBearing;
             max_height = std::max(max_height, cchar.height);
             max_descender = std::max(max_descender, descender);
@@ -68,9 +68,9 @@ namespace z0 {
     shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
         float width, height;
         auto bitmap = renderToBitmap(str, width, height);
-        /*auto name = str;
+        auto name = str;
         name.append(".png");
-        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);*/
+        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha);
         return make_shared<Image>(device,
                                   str,
                                   width,
@@ -111,9 +111,8 @@ namespace z0 {
         ascent = ascent * scale;
         descent = descent * scale;
     }
-
-    /*
-    void savePPM(const char* filename, const unsigned char* bitmap, int width, int height) {
+    
+   /*  void savePPM(const char* filename, const unsigned char* bitmap, int width, int height) {
         std::ofstream ofs(filename, std::ios::binary);
         ofs << "P6\n" << width << " " << height << "\n255\n";
         for (int y = 0; y < height; ++y) {
@@ -123,7 +122,7 @@ namespace z0 {
             }
         }
         ofs.close();
-    }*/
+    } */
 
     void Font::render(CachedCharacter &cachedCharacter, char c) {
         int advanceWidth, leftSideBearing;
@@ -151,7 +150,10 @@ namespace z0 {
                 };
             }
         }
-        //savePPM("output.ppm", srcBitmap, width, height);
+        /* string name = "f_";
+        name += c;
+        name += ".ppm";
+        savePPM( name.c_str(), srcBitmap, width, height); */
         stbtt_FreeBitmap(srcBitmap, nullptr);
     }
 
