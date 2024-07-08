@@ -33,6 +33,16 @@ namespace z0 {
         if (!parent) { refresh(); }
     }
 
+    void GText::setSize(float width, float height) {
+        if (width == 0 && height == 0 && rect.width == 0 && rect.height == 0) {
+            float w, h;
+            getSize(w, h);
+            setSize(w, h);
+        } else {
+            GWidget::setSize(width, height);
+        }
+    }
+
     Rect GText::_getDefaultRect() {
         if (rect.width == 0 && rect.height == 0) {
             float w, h;

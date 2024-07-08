@@ -23,6 +23,8 @@ namespace z0 {
          */
         void getSize(float&width, float&height);
 
+        void setSize(float width, float height) override;
+
     protected:
         [[nodiscard]] Rect _getDefaultRect() override;
 

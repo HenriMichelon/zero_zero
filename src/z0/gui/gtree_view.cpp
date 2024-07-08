@@ -34,9 +34,9 @@ namespace z0 {
     shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<GWidget> item) {
         items.push_back(make_shared<Item>(item));
         auto& newWidget = items.back();
-        box->add(newWidget, GWidget::TOPLEFT, "80,20");
+        box->add(newWidget, GWidget::TOPLEFT);
         newWidget->add(item, GWidget::LEFT);
-        newWidget->setSize(80, item->getHeight());
+        newWidget->setSize(box->getWidth(), item->getHeight());
         newWidget->setDrawBackground(false);
         return newWidget;
     }
@@ -44,9 +44,9 @@ namespace z0 {
     shared_ptr<GTreeView::Item>& GTreeView::addItem(shared_ptr<Item>&parent, shared_ptr<GWidget> item) {
         parent->children.push_back(make_shared<Item>(item));
         auto& newWidget = parent->children.back();
-        box->add(newWidget, GWidget::TOPLEFT, "80,20");
+        box->add(newWidget, GWidget::TOPLEFT);
         newWidget->add(item, GWidget::LEFT);
-        newWidget->setSize(80, item->getHeight());
+        newWidget->setSize(box->getWidth(), item->getHeight());
         newWidget->setDrawBackground(false);
         //expand(parent->item);
         return newWidget;
