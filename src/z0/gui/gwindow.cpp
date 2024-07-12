@@ -148,7 +148,9 @@ namespace z0 {
     bool GWindow::eventMouseDown(MouseButton B, float X, float Y) {
         if (!visible) { return false; }
         bool consumed = false;
-        if (widget) { consumed = widget->eventMouseDown(B, X, Y); }
+        if (widget) { 
+            consumed = widget->eventMouseDown(B, X, Y); 
+        }
         if (!consumed) {
             consumed |= onMouseDown(B, X, Y);
         }

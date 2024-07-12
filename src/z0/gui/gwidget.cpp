@@ -122,12 +122,13 @@ namespace z0 {
 
         if (focused != F) {
             focused = F;
+            auto event = GEvent{ .source = this };
             if (F) {
                 if (!freeze) { refresh(); }
-                emit(GEvent::OnGotFocus);
+                emit(GEvent::OnGotFocus, &event);
             }
             else {
-                emit(GEvent::OnLostFocus);
+                emit(GEvent::OnLostFocus, &event);
                 /*shared_ptr<GWidget>p = parent;
                 while (p && (!p->DrawBackground())) p = p->parent;
                 if (p) { p->Refresh(rect); }*/
@@ -195,20 +196,23 @@ namespace z0 {
     }
 
     void GWidget::eventCreate() {
-        emit(GEvent::OnCreate);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnCreate, &event);
     }
 
     void GWidget::eventDestroy() {
         for (auto& child: children) {
             child->eventDestroy();
         }
-        emit(GEvent::OnDestroy);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnDestroy, &event);
         children.clear();
     }
 
     void GWidget::eventShow() {
         if (visible) {
-            emit(GEvent::OnShow);
+            auto event = GEvent{ .source = this };
+            emit(GEvent::OnShow, &event);
             for (auto& child: children) {
                 child->eventShow();
             }
@@ -222,12 +226,14 @@ namespace z0 {
                 child->eventHide();
             }
             if (parent) { parent->refresh(); }
-            emit(GEvent::OnHide);
+            auto event = GEvent{ .source = this };
+            emit(GEvent::OnHide, &event);
         }
     }
 
     void GWidget::eventEnable() {
-        emit(GEvent::OnEnable);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnEnable, &event);
         for (auto& child: children) {
             child->enable();
         }
@@ -238,7 +244,8 @@ namespace z0 {
         for (auto& child: children) {
             child->enable(false);
         }
-        emit(GEvent::OnDisable);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnDisable, &event);
         refresh();
     }
 
@@ -456,7 +463,8 @@ namespace z0 {
 
     bool GWidget::eventKeybDown(Key K) {
         if (!enabled) { return false; }
-        auto event = GEventKeyb{ .key = K};
+        auto event = GEventKeyb{ .key = K };
+        event.source = this;
         emit(GEvent::OnKeyDown, &event);
         return event.consumed;
     }
@@ -465,6 +473,7 @@ namespace z0 {
         if (!enabled) { return false; }
         if (focused) {
             auto event = GEventKeyb{ .key = K};
+            event.source = this;
             emit(GEvent::OnKeyUp, &event);
             return event.consumed;
         }
@@ -490,6 +499,7 @@ namespace z0 {
         }
         if (redrawOnMouseEvent) { refresh(); }
         auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+        event.source = this;
         emit(GEvent::OnMouseDown, &event);
         consumed |= event.consumed;
         return consumed;
@@ -509,6 +519,7 @@ namespace z0 {
         }
         if (redrawOnMouseEvent) { refresh(); }
         auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+        event.source = this;
         emit(GEvent::OnMouseUp, &event);
         consumed |= event.consumed;
         return consumed;
@@ -533,17 +544,20 @@ namespace z0 {
         }
         if (redrawOnMouseMove && (pointed != p)) { refresh(); }
         auto event = GEventMouseMove{ .buttonsState = B, .x = X, .y = Y};
+        event.source = this;
         emit(GEvent::OnMouseMove, &event);
         consumed |= event.consumed;
         return consumed;
     }
 
     void GWidget::eventGotFocus() {
-        emit(GEvent::OnGotFocus);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnGotFocus, &event);
     }
 
     void GWidget::eventLostFocus() {
-        emit(GEvent::OnLostFocus);
+        auto event = GEvent{ .source = this };
+        emit(GEvent::OnLostFocus, &event);
     }
 
     void GWidget::setTransparency(float alpha) {
