@@ -14,9 +14,9 @@ namespace z0 {
 
         void setSelStart(uint32_t);
 
-        const string& GTextEdit::getText() const { return (string&)text; }
-        uint32_t GTextEdit::getSelStart() const { return selStart; }
-        uint32_t GTextEdit::getFirstDisplayedChar() const { return startPos; };
+        const string& getText() const { return (string&)text; }
+        uint32_t getSelStart() const { return selStart; }
+        uint32_t getFirstDisplayedChar() const { return startPos; };
 
         // return TRUE if this or parent have keyboard focus
         //bool haveFocus();
