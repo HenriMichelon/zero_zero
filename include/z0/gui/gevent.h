@@ -35,7 +35,7 @@ namespace z0 {
         //! called after state change (all widgets)
         static const string OnDisable;
         //! text content of the widget have changed
-        //static const string OnTextChange;	
+        static const string OnTextChange;	
         //! called when the user click on the widget (buttons)
         static const string OnClick;		
         //! a CheckWidget state changed
@@ -131,9 +131,8 @@ namespace z0 {
         float	    value;
     };
 
-    /*struct GEventText: public GEvent {
+    struct GEventTextChange: public GEvent {
         const string	text;
     };
-    */
 
 }

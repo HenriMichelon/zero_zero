@@ -18,7 +18,7 @@ namespace z0 {
     const string GEvent::OnHide{"on_hide"};
     const string GEvent::OnEnable{"on_enable"};
     const string GEvent::OnDisable{"on_disable"};
-    //const string GEvent::OnTextChange{"on_text_change"};
+    const string GEvent::OnTextChange{"on_text_change"};
     const string GEvent::OnClick{"on_click"};
     const string GEvent::OnStateChange{"on_state_change"};
     const string GEvent::OnResize{"on_resize"};

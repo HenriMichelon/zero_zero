@@ -83,6 +83,7 @@
 #include <z0/gui/gbox.h>
 #include <z0/gui/gpanel.h>
 #include <z0/gui/gtext.h>
+#include <z0/gui/gtextedit.h>
 #include <z0/gui/gbutton.h>
 #include <z0/gui/gcheck_widget.h>
 #include <z0/gui/gtoggle_button.h>

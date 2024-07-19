@@ -27,6 +27,8 @@ namespace z0 {
             TOGGLEBUTTON,	
             //! A single line of text	
             TEXT,	
+            //! An editable single line of text	
+            TEXTEDIT,
             //! A scroll bar. with min, max & pos			
             SCROLLBAR,
             //! Tree of GWidget
