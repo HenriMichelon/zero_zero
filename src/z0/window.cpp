@@ -535,8 +535,7 @@ namespace z0 {
         auto in_time_t = system_clock::to_time_t(system_clock::now());
         tm tm;
         localtime_s(&tm, &in_time_t);
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-        string item = converter.to_bytes(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
+        string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
         item.append(" ");
         item.append(msg);
         if (logMode & LOGGING_WINDOW) {

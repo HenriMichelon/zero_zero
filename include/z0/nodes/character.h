@@ -75,8 +75,8 @@ namespace z0 {
             return true;
         };
         bool ShouldCollide (JPH::ObjectLayer inLayer) const override;
-        bool ShouldCollide (const JPH::BodyID &inBodyID) const;
-        bool ShouldCollideLocked (const JPH::Body &inBody) const;
+        bool ShouldCollide (const JPH::BodyID &inBodyID) const override;
+        bool ShouldCollideLocked (const JPH::Body &inBody) const override;
     };
 
 }

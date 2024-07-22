@@ -115,4 +115,15 @@ namespace std {
         };
     }
 
+    inline string wstring_to_string(const std::wstring& wstr) {
+        wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+        return conv.to_bytes(wstr);
+    }
+
+    inline wstring string_to_wstring(const std::string& str) {
+        wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+        return conv.from_bytes(str);
+    }
+
+
 }

@@ -829,8 +829,7 @@ namespace z0 {
             tmpDxgiAdapter->GetDesc1(&desc);
             if(memcmp(&desc.AdapterLuid, physDeviceIDProps.deviceLUID, VK_LUID_SIZE) == 0) {
                 tmpDxgiAdapter->QueryInterface(IID_PPV_ARGS(&dxgiAdapter));
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                adapterDescription = converter.to_bytes(desc.Description);
+                adapterDescription =wstring_to_string(desc.Description);
                 dedicatedVideoMemory = static_cast<uint64_t>(desc.DedicatedVideoMemory);
             }
             tmpDxgiAdapter->Release();

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.30)
 cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
@@ -21,7 +21,7 @@ include(FetchContent)
 include(cmake/shaders.cmake)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF) # disabled due to fastgltf and VMA
 set(CMAKE_CXX_EXTENSIONS OFF)
 #add_compile_definitions(VULKAN_STATS) # print some stats at the end of the execution
