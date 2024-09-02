@@ -1,6 +1,17 @@
 ###### Auto detect Vulkan SDK
 find_package(Vulkan REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
+# compile Vulkan as a module
+add_library(vulkan-modules STATIC)
+target_include_directories(vulkan-modules PUBLIC ${Vulkan_INCLUDE_DIRS})
+target_sources(vulkan-modules
+  PUBLIC
+    FILE_SET moduleStd
+    TYPE CXX_MODULES
+    BASE_DIRS ${Vulkan_INCLUDE_DIRS}
+    FILES
+      ${Vulkan_INCLUDE_DIRS}/vulkan/vulkan.cppm)
+target_link_libraries(${PROJECT_NAME} vulkan-modules)
 
 ###### Using Volk to load Vulkan functions
 FetchContent_Declare(
@@ -21,7 +32,18 @@ FetchContent_Declare(
         GIT_TAG        1.0.1
 )
 FetchContent_MakeAvailable(fetch_glm)
-target_link_libraries(${PROJECT_NAME} glm::glm)
+set(GLM_DIR ${CMAKE_BINARY_DIR}/_deps/fetch_glm-src/glm)
+# compile GLM as a module
+add_library(glm-modules STATIC)
+target_sources(glm-modules
+  PUBLIC
+    FILE_SET moduleStd
+    TYPE CXX_MODULES
+    BASE_DIRS ${GLM_DIR}
+    FILES
+      ${GLM_DIR}/glm.cppm)
+target_link_libraries(glm-modules glm::glm)
+target_link_libraries(${PROJECT_NAME} glm::glm glm-modules)
 
 ###### Using FastGTLF to load models
 FetchContent_Declare(

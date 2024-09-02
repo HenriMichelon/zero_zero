@@ -1,20 +1,18 @@
-#include "z0/z0.h"
-#ifndef USE_PCH
-#include "z0/resources/image.h"
-#include "z0/resources/font.h"
-#include "z0/renderers/renderpass.h"
-#include "z0/renderers/vector_renderer.h"
-#include "z0/nodes/node.h"
-#include "z0/application.h"
-#include "z0/input.h"
-#include "z0/gui/gresource.h"
-#include "z0/gui/gstyle.h"
-#include "z0/gui/gevent.h"
-#include "z0/gui/gwidget.h"
-#include "z0/gui/gwindow.h"
-#include "z0/gui/gmanager.h"
-#include "z0/gui/gpanel.h"
-#endif
+module;
+#include "z0/modules.h"
+
+module Z0;
+
+import :Rect;
+import :Font;
+import :Application;
+import :GEvent;
+import :GManager;
+import :GWindow;
+import :GWidget;
+import :GPanel;
+import :GStyle;
+import :VectorRenderer;
 
 namespace z0 {
 

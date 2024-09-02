@@ -1,39 +1,24 @@
-#include "z0/z0.h"
-#ifndef USE_PCH
-#include "z0/input.h"
-#include "z0/resources/image.h"
-#include "z0/resources/texture.h"
-#include "z0/resources/material.h"
-#include "z0/resources/mesh.h"
-#include "z0/resources/font.h"
-#include "z0/resources/cubemap.h"
-#include "z0/nodes/node.h"
-#include "z0/nodes/camera.h"
-#include "z0/nodes/environment.h"
-#include "z0/nodes/mesh_instance.h"
-#include "z0/nodes/viewport.h"
-#include "z0/nodes/light.h"
-#include "z0/nodes/directional_light.h"
-#include "z0/nodes/omni_light.h"
-#include "z0/nodes/skybox.h"
-#include "z0/framebuffers/shadow_map_frame_buffer.h"
-#include "z0/renderers/renderpass.h"
-#include "z0/renderers/vector_renderer.h"
-#include "z0/renderers/skybox_renderer.h"
-#include "z0/renderers/models_renderer.h"
-#include "z0/renderers/shadowmap_renderer.h"
-#include "z0/renderers/postprocessing_renderer.h"
-#include "z0/renderers/simple_postprocessing_renderer.h"
-#include "z0/renderers/scene_renderer.h"
-#include "z0/gui/gresource.h"
-#include "z0/gui/gstyle.h"
-#include "z0/gui/gevent.h"
-#include "z0/gui/gwindow.h"
-#include "z0/gui/gmanager.h"
-#include "z0/application.h"
-#endif
-
+module;
+#include "z0/jolt.h"
+#include "z0/modules.h"
 #include <Jolt/RegisterTypes.h>
+
+module Z0;
+
+import :Node;
+import :Application;
+import :Input;
+import :InputEvent;
+import :TypeRegistry;
+import :DirectionalLight;
+import :Environment;
+import :Skybox;
+import :Window;
+import :Device;
+import :Material;
+import :SceneRenderer;
+import :VectorRenderer;
+import :GManager;
 
 namespace z0 {
 
@@ -416,19 +401,6 @@ namespace z0 {
 #endif
     }
 
-    const Window &Application::getWindow() const {
-        return *window;
-    }
-
-    Application &Application::get() {
-        assert(_instance != nullptr);
-        return *_instance;
-    }
-    
-    const ApplicationConfig& Application::getConfig() const { 
-        return applicationConfig; 
-    }
-
     vec3 Application::getGravity() const {
         auto gravity = physicsSystem.GetGravity();
         return vec3{gravity.GetX(), gravity.GetY(), gravity.GetZ()};
@@ -444,5 +416,14 @@ namespace z0 {
     void Application::setShadowCasting(bool enable) {
         sceneRenderer->setShadowCasting(enable);
     }
+
+
+    uint64_t  Application::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
+
+
+    const string&  Application::getAdapterDescription() const { return device->getAdapterDescription(); }
+
+     uint64_t  Application::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
+
 
 }

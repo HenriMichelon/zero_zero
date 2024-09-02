@@ -1,11 +1,20 @@
-#include "z0/z0.h"
-#ifndef USE_PCH
-#include "z0/nodes/node.h"
-#include "z0/application.h"
-#include "z0/input.h"
+module;
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    #include <Xinput.h>
+    #include <dinput.h>
 #endif
-
+#include "z0/modules.h"
 #include "mappings.h"
+
+module Z0;
+
+import :Constants;
+import :Input;
+import :InputEvent;
+import :Tools;
+import :Application;
 
 namespace z0 {
 
@@ -27,38 +36,6 @@ namespace z0 {
         _inputQueue.pop_front();
         return event;
     }*/
-
-    bool Input::isMouseButtonPressed(MouseButton mouseButton) {
-        return _mouseButtonPressedStates[mouseButton];
-    }
-
-    bool Input::isMouseButtonJustPressed(MouseButton mouseButton) {
-        auto result = _mouseButtonJustPressedStates[mouseButton];
-        _mouseButtonJustPressedStates[mouseButton] = false;
-        return result;
-    }
-
-    bool Input::isMouseButtonJustReleased(MouseButton mouseButton) {
-        auto result = _mouseButtonJustReleasedStates[mouseButton];
-        _mouseButtonJustReleasedStates[mouseButton] = false;
-        return result;
-    }
-
-    bool Input::isKeyPressed(Key key) {
-        return _keyPressedStates[key];
-    }
-
-    bool Input::isKeyJustPressed(Key key) {
-        auto result = _keyJustPressedStates[key];
-        _keyJustPressedStates[key] = false;
-        return result;
-    }
-
-    bool Input::isKeyJustReleased(Key key) {
-        auto result = _keyJustReleasedStates[key];
-        _keyJustReleasedStates[key] = false;
-        return result;
-    }
 
     static map<Key, OsKey> _keyMap {
             { KEY_SPACE       , OS_KEY_SPACE },

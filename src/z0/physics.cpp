@@ -1,14 +1,12 @@
-#include "z0/z0.h"
-#ifndef USE_PCH
-#include "z0/nodes/node.h"
-#include "z0/resources/image.h"
-#include "z0/resources/texture.h"
-#include "z0/resources/material.h"
-#include "z0/resources/shape.h"
-#include "z0/resources/mesh.h"
-#include "z0/nodes/collision_object.h"
-#include "z0/application.h"
-#endif
+module;
+#include "z0/jolt.h"
+#include "z0/modules.h"
+
+module Z0;
+
+import :Signal;
+import :Physics;
+import :CollisionObject;
 
 namespace z0 {
 
@@ -19,16 +17,16 @@ namespace z0 {
         emit(CollisionObject::on_collision_starts, inBody1, inBody2, inManifold);
     }
 
-    void ContactListener::OnContactPersisted(const JPH::Body &inBody1, 
-                        const JPH::Body &inBody2, 
-                        const JPH::ContactManifold &inManifold, 
+    void ContactListener::OnContactPersisted(const JPH::Body &inBody1,
+                        const JPH::Body &inBody2,
+                        const JPH::ContactManifold &inManifold,
                         JPH::ContactSettings &ioSettings) {
         emit(CollisionObject::on_collision_persists, inBody1, inBody2, inManifold);
     }
 
     void ContactListener::emit(Signal::signal signal,
-                               const JPH::Body &body1, 
-                               const JPH::Body &body2, 
+                               const JPH::Body &body1,
+                               const JPH::Body &body2,
                                const JPH::ContactManifold &inManifold) {
         auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
         auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());

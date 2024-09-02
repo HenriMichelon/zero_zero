@@ -1,19 +1,15 @@
-#include "z0/z0.h"
-#ifndef USE_PCH
-#include "z0/resources/image.h"
-#include "z0/resources/font.h"
-#include "z0/nodes/node.h"
-#include "z0/application.h"
-#include "z0/input.h"
-#include "z0/gui/gresource.h"
-#include "z0/gui/gstyle.h"
-#include "z0/gui/gevent.h"
-#include "z0/gui/gwidget.h"
-#include "z0/gui/gwindow.h"
-#include "z0/renderers/renderpass.h"
-#include "z0/renderers/vector_renderer.h"
-#include "z0/gui/gmanager.h"
-#endif
+module;
+#include "z0/modules.h"
+
+module Z0;
+
+import :Font;
+import :Input;
+import :InputEvent;
+import :Rect;
+import :VectorRenderer;
+import :GManager;
+import :GWindow;
 
 namespace z0 {
 
@@ -97,7 +93,7 @@ namespace z0 {
                     return focusedWindow->eventKeybUp(keyInputEvent.getKey());
                 }
             }
-        } else if ((inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON) 
+        } else if ((inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON)
                 || (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION)) {
 #ifdef _WIN32
             CURSORINFO ci {
@@ -153,22 +149,22 @@ namespace z0 {
                     auto ly = ceil(y - window->getRect().y);
                     if (window->getRect().contains(x, y)) {
                         if (enableWindowResizing && window->getWidget().isDrawBackground()) {
-                            if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) && 
+                            if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) &&
                                 (lx >= (window->getRect().width - resizeDelta))) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) && 
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) &&
                                        (lx < resizeDelta)) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) && 
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) &&
                                        (ly >= (window->getRect().height - resizeDeltaY))) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
-                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) && 
+                            } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) &&
                                        (ly < resizeDeltaY)) {
                                 currentCursor = MOUSE_CURSOR_RESIZE_V;
                                 resizedWindow = window;
@@ -187,7 +183,7 @@ namespace z0 {
                 auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
                 if (resizedWindow != nullptr) {
                     if ((!resizingWindow) &&
-                        (mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) && 
+                        (mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
                         (mouseInputEvent.isPressed())) {
                         resizingWindow = true;
                     } else if ((mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
