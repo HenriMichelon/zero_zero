@@ -1,6 +1,8 @@
 module;
+#include <cassert>
 #include "stb_image.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
+#include <volk.h>
 
 export module Z0:Cubemap;
 

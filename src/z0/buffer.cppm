@@ -4,10 +4,10 @@
  *
  */
 module;
-#include "z0/modules.h"
-#define VMA_VULKAN_VERSION 1003000
-#define VMA_STATIC_VULKAN_FUNCTIONS 0
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+#include <cstdlib>
+#include <cstddef>
+#include "z0/libraries.h"
+#include <volk.h>
 #include "vk_mem_alloc.h"
 
 export module Z0:Buffer;

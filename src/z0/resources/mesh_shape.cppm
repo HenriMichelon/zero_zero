@@ -1,6 +1,7 @@
 module;
+#include <cassert>
 #include "z0/jolt.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 
 export module Z0:MeshShape;

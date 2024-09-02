@@ -1,6 +1,7 @@
 module;
 #include "stb_image_write.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
+#include <volk.h>
 
 export module Z0:VectorRenderer;
 

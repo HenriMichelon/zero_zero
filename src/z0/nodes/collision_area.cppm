@@ -1,6 +1,6 @@
 module;
 #include "z0/jolt.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>

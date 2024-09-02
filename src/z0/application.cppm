@@ -1,7 +1,9 @@
 module;
 #include "z0/jolt.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <cassert>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <volk.h>
 
 export module Z0:Application;
 

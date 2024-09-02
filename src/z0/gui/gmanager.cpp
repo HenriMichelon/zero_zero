@@ -1,6 +1,10 @@
 module;
-#include "z0/modules.h"
-
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#include <cassert>
+#include "z0/libraries.h"
 module Z0;
 
 import :Font;

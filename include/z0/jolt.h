@@ -9,4 +9,3 @@ using std::is_trivially_destructible;
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/PhysicsSystem.h>
-

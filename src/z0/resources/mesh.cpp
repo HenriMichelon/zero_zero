@@ -1,11 +1,12 @@
-
 module;
-#include <time.h>
-#include "z0/modules.h"
 #ifdef _WIN32
-#include <Windowsx.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <windowsx.h>
 #include <hidsdi.h>
 #endif
+#include <time.h>
+#include "z0/libraries.h"
 
 module Z0;
 
@@ -31,7 +32,3 @@ namespace std {
     };
 }
 */
-namespace z0 {
-
-
-}

@@ -1,22 +1,22 @@
 module;
 #ifdef _WIN32
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
-#include "z0/modules.h"
+#include "z0/libraries.h"
 
 export module Z0:Tools;
 
 import :Constants;
+import :Window;
 
-export namespace z0
-{
+export namespace z0 {
     /**
-     * Violently stop the application, used is something goes wrong
+     * Violently stop the application, used if something goes wrong
      */
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
-        for (auto v : initializer_list<string_view>{ s... }) {
+        for (const auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
 #ifdef _WIN32
@@ -37,78 +37,56 @@ export namespace z0
 #else
     void log(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
-        for (auto v : initializer_list<string_view>{ s... }) {
+        for (const auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
 #ifdef _WIN32
-        //Window::_log(stringstream.str());
+        Window::_log(stringstream.str());
 #endif
     }
 #endif
 
-    //JPH::Mat44 glmToJolt(const mat4& glmMat);
-
     /**
-     * Split a string
-     */
-    vector<string_view> split(string_view str, char delimiter);
-
-    /**
-     * Returns a random value in the range [0, max]
-     */
-    uint32_t randomi(uint32_t max = 100);
-
-    /**
-     * Returns a random value in the range [0.0f, max]
-     */
-    float randomf(float max = 100.0f);
-
-    uint32_t randomi(uint32_t max) {
+    * Returns a random value in the range [0, max]
+    */
+    uint32_t randomi(const uint32_t max) {
         static std::random_device rd;
         static std::uniform_int_distribution<> distr(0, static_cast<int>(max));
-
         std::mt19937 gen(rd());
         return static_cast<uint32_t>(distr(gen));
     }
 
-    float randomf(float max) {
+    /**
+    * Returns a random value in the range [0.0f, max]
+    */
+    float randomf(const float max) {
         static std::random_device rd;
         static std::uniform_real_distribution<> distr(0, max);
-
         std::mt19937 gen(rd());
         return static_cast<float>(distr(gen));
     }
 
-    vector<string_view> split(string_view str, char delimiter) {
+
+    /**
+     * Split a string
+     */
+    vector<string_view> split(const string_view str, const char delimiter) {
         vector<std::string_view> result;
         size_t start = 0;
         size_t end = str.find(delimiter);
-
         while (end != std::string_view::npos) {
             result.push_back(str.substr(start, end - start));
             start = end + 1;
             end = str.find(delimiter, start);
         }
-
         result.push_back(str.substr(start)); // Add the last token
         return result;
     }
 
-    /*
-        JPH::Mat44 glmToJolt(const mat4& glmMat) {
-            JPH::Mat44 joltMat;
-            for (int row = 0; row < 4; ++row) {
-                for (int col = 0; col < 4; ++col) {
-                    joltMat(row, col) = glmMat[col][row];  // Transpose the matrix
-                }
-            }
-            return joltMat;
-        }*/
-
     /**
      * lerp for a vec2 using std::lerp for componants
     */
-    inline vec2 lerp(vec2 a, vec2 b, float t) {
+    inline vec2 lerp(const vec2 a, const vec2 b, const float t) {
         return vec2{
             std::lerp(a.x, b.x, t),
             std::lerp(a.y, b.y, t),
@@ -118,7 +96,7 @@ export namespace z0
     /**
      * lerp for a vec3 using std::lerp for componants
     */
-    inline vec3 lerp(vec3 a, vec3 b, float t) {
+    inline vec3 lerp(const vec3 a, const vec3 b, const float t) {
         return vec3{
             std::lerp(a.x, b.x, t),
             std::lerp(a.y, b.y, t),
@@ -129,7 +107,7 @@ export namespace z0
     /**
      * lerp for a vec4 using std::lerp for componants
     */
-    inline vec4 lerp(vec4 a, vec4 b, float t) {
+    inline vec4 lerp(const vec4 a, const vec4 b, const float t) {
         return vec4{
             std::lerp(a.x, b.x, t),
             std::lerp(a.y, b.y, t),
@@ -142,13 +120,24 @@ export namespace z0
 
 export namespace std {
 
-    string to_string(vec3 vec) {
+    /**
+     * Helper to log a vec3 (std lib code convention)
+     */
+    string to_string(const vec3 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
     }
-    string to_string(vec2 vec) {
+
+    /**
+     * Helper to log a vec2 (std lib code convention)
+     */
+    string to_string(const vec2 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "]";
     }
-    string to_string(vec4 vec) {
+
+    /**
+     * Helper to log a vec4 (std lib code convention)
+     */
+    string to_string(const vec4 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
     }
 
@@ -163,9 +152,8 @@ export namespace std {
 
     vec3 to_vec3(const string& str) {
         stringstream ss(str);
-        string token;
-        vec3 result;
-        if (getline(ss, token, ',')) {
+        vec3 result{};
+        if (string token; getline(ss, token, ',')) {
             result.x = stof(token);
             if (getline(ss, token, ',')) {
                 result.y = stof(token);
@@ -179,9 +167,8 @@ export namespace std {
     
     vec4 to_vec4(const string& str) {
         stringstream ss(str);
-        string token;
-        vec4 result;
-         if (getline(ss, token, ',')) {
+        vec4 result{};
+         if (string token; getline(ss, token, ',')) {
             result.x = stof(token);
             if (getline(ss, token, ',')) {
                 result.y = stof(token);
@@ -196,26 +183,6 @@ export namespace std {
         return result;
     }
 
-    /**
-     * Helper to log a vec3 (std lib code convention)
-     */
-    string to_string(vec3 vec);
-
-    /**
-     * Helper to log a vec2 (std lib code convention)
-     */
-    string to_string(vec2 vec);
-
-    /**
-     * Helper to log a vec4 (std lib code convention)
-     */
-    string to_string(vec4 vec);
-
-    vec3 to_vec3(const string& str) ;
-    vec4 to_vec4(const string& str) ;
-
-    string to_lower(const string& str);
-
     inline string wstring_to_string(const std::wstring& wstr) {
         wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
         return conv.to_bytes(wstr);
@@ -225,6 +192,4 @@ export namespace std {
         wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
         return conv.from_bytes(str);
     }
-
-
 }

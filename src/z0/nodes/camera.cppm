@@ -1,5 +1,6 @@
 module;
-#include "z0/modules.h"
+#include <cstdlib>
+#include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 
 export module Z0:Camera;

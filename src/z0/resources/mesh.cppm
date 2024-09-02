@@ -5,7 +5,9 @@ module;
  * and
  * https://vulkan-tutorial.com/Loading_models
 */
-#include "z0/modules.h"
+#include <cassert>
+#include "z0/libraries.h"
+#include <volk.h>
 
 export module Z0:Mesh;
 

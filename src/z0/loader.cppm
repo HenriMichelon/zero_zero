@@ -3,9 +3,10 @@ module;
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/core.hpp>
 #include "stb_image.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <volk.h>
 
 export module Z0:Loader;
 

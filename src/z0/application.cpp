@@ -1,7 +1,14 @@
 module;
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#include <cassert>
 #include "z0/jolt.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <Jolt/RegisterTypes.h>
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <volk.h>
 
 module Z0;
 

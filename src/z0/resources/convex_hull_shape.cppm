@@ -1,6 +1,7 @@
 module;
+#include <cassert>
 #include "z0/jolt.h"
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
 export module Z0:ConvexHullShape;

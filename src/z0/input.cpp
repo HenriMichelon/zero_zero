@@ -5,7 +5,7 @@ module;
     #include <Xinput.h>
     #include <dinput.h>
 #endif
-#include "z0/modules.h"
+#include "z0/libraries.h"
 #include "mappings.h"
 
 module Z0;

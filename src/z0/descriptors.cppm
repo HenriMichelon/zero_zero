@@ -5,7 +5,10 @@
  * https://vulkan-tutorial.com/Uniform_buffers/Descriptor_layout_and_buffer
 */
 module;
-#include "z0/modules.h"
+#include <cstdlib>
+#include "z0/libraries.h"
+#include <cassert>
+#include <volk.h>
 
 export module Z0:Descriptors;
 

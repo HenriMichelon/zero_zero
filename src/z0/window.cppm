@@ -1,9 +1,10 @@
 module;
-#include "z0/modules.h"
 #ifdef _WIN32
-    #include <Xinput.h>
-    #include <dinput.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <Xinput.h>
 #endif
+#include "z0/libraries.h"
 
 export module Z0:Window;
 

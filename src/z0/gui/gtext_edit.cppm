@@ -1,5 +1,5 @@
 module;
-#include "z0/modules.h"
+#include "z0/libraries.h"
 
 export module Z0:GTextEdit;
 
@@ -56,7 +56,7 @@ export namespace z0 {
     GTextEdit::GTextEdit(string TXT): GWidget(TEXTEDIT),
 		selStart(0), selLen(0), startPos(0), nDispChar(0) {
 		//transparent = TRUE;
-		allowFocus = TRUE;
+		allowFocus = true;
 		text = TXT;
 	}
 

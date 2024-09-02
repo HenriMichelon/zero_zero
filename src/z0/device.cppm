@@ -1,13 +1,11 @@
 module;
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <dxgi1_4.h>
 #endif
-#include "z0/modules.h"
-#define VMA_VULKAN_VERSION 1003000
-#define VMA_STATIC_VULKAN_FUNCTIONS 0
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+#include "z0/libraries.h"
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <volk.h>
 #include "vk_mem_alloc.h"
 
 export module Z0:Device;
