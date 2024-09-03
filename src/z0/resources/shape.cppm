@@ -24,8 +24,12 @@ export namespace z0 {
         bool isAttachedToNode{false};
 
     public:
-        [[nodiscard]] JPH::ShapeSettings* _getShapeSettings() { return shapeSettings; }
-        void setAttachedToNode();
+        [[nodiscard]] JPH::ShapeSettings* _getShapeSettings() const { return shapeSettings; }
+
+        void setAttachedToNode() {
+            if (isAttachedToNode) { die("Shape already attached to a node"); }
+            isAttachedToNode = true;
+        }
     };
 
     /**
@@ -36,9 +40,11 @@ export namespace z0 {
         /**
          * Creates a BoxShape with the given extends
          */
-        explicit BoxShape(vec3 extends, const string& resName = "BoxShape");
+        explicit BoxShape(const vec3 extends, const string& resName = "BoxShape"):
+            Shape {resName} {
+            shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x/2, extends.y/2, extends.z/2));
+        }
     };
-
 
     /**
      * Sphere shaped collision Shape
@@ -48,23 +54,10 @@ export namespace z0 {
         /**
          * Create a SphereShape with the given radius
          */
-        explicit SphereShape(float radius, const string& resName = "SphereShape");
+        explicit SphereShape(const float radius, const string& resName = "SphereShape"):
+            Shape {resName} {
+            shapeSettings = new JPH::SphereShapeSettings(radius);
+        }
     };
-
-    void Shape::setAttachedToNode() {
-        if (isAttachedToNode) { die("Shape already attached to a node"); }
-        isAttachedToNode = true;
-    }
-
-    BoxShape::BoxShape(vec3 sizes, const string& resName):
-        Shape {resName} {
-        shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(sizes.x/2, sizes.y/2, sizes.z/2));
-    }
-
-    SphereShape::SphereShape(float radius, const string& resName):
-        Shape {resName} {
-        shapeSettings = new JPH::SphereShapeSettings(radius);
-    }
-
 
 }

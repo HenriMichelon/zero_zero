@@ -45,7 +45,7 @@ export namespace z0 {
             _updateTransform(mat4{1.0f});
         }
 
-        inline virtual ~Node() = default;
+        inline ~Node() override = default;
 
         /**
          * Called when a node is ready to initialize, before being added to the scene
@@ -65,12 +65,12 @@ export namespace z0 {
         /**
          * Called each frame after the physics have been updated and just before drawing the frame
          */
-        virtual void onProcess(float alpha) {}
+        virtual void onProcess(const float alpha) {}
 
         /**
          * Called just after the physics system have been updated (can be called multiple times if we have free time between frames)
          */
-        virtual void onPhysicsProcess(float delta) {}
+        virtual void onPhysicsProcess(const float delta) {}
 
         /**
          * Called on a keyboard, mouse or gamepas event
@@ -254,7 +254,7 @@ export namespace z0 {
         /**
          * Changes the node's processing behavior.
          */
-        void setProcessMode(ProcessMode mode) { processMode = mode; }
+        void setProcessMode(const ProcessMode mode) { processMode = mode; }
 
         /**
          * Returns true if the node is processed and receive input callbacks
@@ -469,8 +469,11 @@ export namespace z0 {
         }
 
         virtual void _onPause() {};
+
         virtual void _onResume() {};
+
         inline virtual void _onEnterScene() { onEnterScene(); };
+
         inline virtual void _onExitScene() { onExitScene(); };
 
         virtual void _physicsUpdate(const float delta) {
@@ -484,10 +487,15 @@ export namespace z0 {
         }
 
         void _setParent(Node* p) { parent = p; }
+
         void _setAddedToScene(bool added) { addedToScene = added; }
+
         bool _isAddedToScene() { return addedToScene; }
+
         mat4& _getTransformLocal() { return localTransform; }
+
         void _setTransform(mat4 transform) { localTransform = transform; }
+
         virtual void _updateTransform(const mat4& parentMatrix) {
             worldTransform = parentMatrix * localTransform;
             for (const auto& child : children) {

@@ -32,7 +32,19 @@ export namespace z0 {
         /**
          * Returns the size (in pixels) for a string.
          */
-        void getSize(const string&text, float&width, float&height);
+        void getSize(const string& text, float& width, float& height) {
+            width = 0;
+            uint32_t max_height = 0;
+            uint32_t max_descender = 0;
+            for (auto wc : text) {
+                auto& cchar = getFromCache(wc);
+                width += static_cast<float>(cchar.advance);
+                auto descender = cchar.height - cchar.yBearing;
+                max_height = std::max(max_height, cchar.height);
+                max_descender = std::max(max_descender, descender);
+            }
+            height = static_cast<float>(max_height + max_descender);
+        }
 
         /**
          *  Renders a string into a RGBA bitmap (stored in CPU memory).
@@ -42,7 +54,38 @@ export namespace z0 {
          *   @param height : height of the resulting bitmap
          *   @return a 32 bits RGBA bitmap stored in CPU memory
         */
-        [[nodiscard]] vector<uint32_t> renderToBitmap(const string&text, float& width, float& height);
+        [[nodiscard]] vector<uint32_t> renderToBitmap(const string&text, float& wwidth, float& hheight) {
+            uint32_t width = 0;
+            uint32_t max_height = 0;
+            uint32_t max_descender = 0;
+            for (auto wc : text) {
+                auto& cchar = getFromCache(wc);
+                width += cchar.advance + cchar.xBearing;
+                auto descender = cchar.height - cchar.yBearing;
+                max_height = std::max(max_height, cchar.height);
+                max_descender = std::max(max_descender, descender);
+            }
+            uint32_t height = max_height + max_descender;
+
+            auto bitmap = vector<uint32_t>(width * height, 0);
+            int32_t x = 0;
+            for (auto wc : text) {
+                auto& cchar = getFromCache(wc);
+                auto offset = height - cchar.yBearing - max_descender;
+                for(int line = 0; line < cchar.height; line++) {
+                    auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
+                    auto src = cchar.bitmap->data() + (line * cchar.width);
+                    for (int col = 0; col < cchar.width; col++) {
+                        auto value = src[col];
+                        if (value != 0) { dest[col] = value; }
+                    }
+                }
+                x += cchar.advance;
+            }
+            wwidth = static_cast<float>(width);
+            hheight = static_cast<float>(height);
+            return bitmap;
+        }
 
         /**
          * Renders a string into a RGBA Image resource (stored in GPU memory).
@@ -51,7 +94,23 @@ export namespace z0 {
          * @param text : text to render
          * @result a 32 bits RGBA bitmap stored in GPU memory with a VK_FORMAT_R8G8B8A8_SRGB format, clamped to border and VK_IMAGE_TILING_OPTIMAL tiling
          */
-        [[nodiscard]] shared_ptr<Image> renderToImage(const Device&device, const string&text);
+        [[nodiscard]] shared_ptr<Image> renderToImage(const Device&device, const string&text) {
+            float width, height;
+            auto bitmap = renderToBitmap(text, width, height);
+            /*  auto name = str;
+             name.append(".png");
+             stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
+            return make_shared<Image>(device,
+                                      text,
+                                      width,
+                                      height,
+                                      static_cast<int>(width * height) * STBI_rgb_alpha,
+                                      bitmap.data(),
+                                      VK_FORMAT_R8G8B8A8_SRGB,
+                                      VK_IMAGE_TILING_OPTIMAL,
+                                      VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // don't repeat texture
+                                      false);
+        }
 
         /**
          * Returns the font path. Useful to create another Font resource with a different size
@@ -77,9 +136,28 @@ export namespace z0 {
         const string path;
         const uint32_t size;
 
-        [[nodiscard]] CachedCharacter &getFromCache(char);
-        void render(CachedCharacter&, char);
-        [[nodiscard]] uint32_t scaleFontSize(uint32_t baseFontSize);
+        [[nodiscard]] CachedCharacter &getFromCache(const char c) {
+            if (cache.contains(c)) {
+                return cache[c];
+            } else {
+                auto& cchar = cache[c];
+                render(cchar, c);
+                return cchar;
+            }
+        }
+
+        void render(CachedCharacter&, const char) const;
+
+        [[nodiscard]] uint32_t scaleFontSize(const uint32_t baseFontSize) {
+            constexpr int baseWidth = 1920;
+            constexpr int baseHeight = 1080;
+            const int newHeight = Application::get().getWindow().getHeight();
+            const int newWidth = Application::get().getWindow().getWidth();
+            auto horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
+            auto verticalScalingFactor = static_cast<float>(newHeight) / baseHeight;
+            auto averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
+            return ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor));
+        }
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
         float scale;
@@ -92,96 +170,9 @@ export namespace z0 {
 #endif
     };
 
-
-    void Font::getSize(const string &str, float& width, float& height) {
-        width = 0;
-        uint32_t max_height = 0;
-        uint32_t max_descender = 0;
-        for (auto wc : str) {
-            auto& cchar = getFromCache(wc);
-            width += static_cast<float>(cchar.advance);
-            auto descender = cchar.height - cchar.yBearing;
-            max_height = std::max(max_height, cchar.height);
-            max_descender = std::max(max_descender, descender);
-        }
-        height = static_cast<float>(max_height + max_descender);
-    }
-
-    Font::CachedCharacter& Font::getFromCache(char CHAR) {
-        if (cache.contains(CHAR)) {
-            return cache[CHAR];
-        } else {
-            auto& cchar = cache[CHAR];
-            render(cchar, CHAR);
-            return cchar;
-        }
-    }
-
-    vector<uint32_t> Font::renderToBitmap(const string &str, float&wwidth, float&hheight) {
-        uint32_t width = 0;
-        uint32_t max_height = 0;
-        uint32_t max_descender = 0;
-        for (auto wc : str) {
-            auto& cchar = getFromCache(wc);
-            width += cchar.advance + cchar.xBearing;
-            auto descender = cchar.height - cchar.yBearing;
-            max_height = std::max(max_height, cchar.height);
-            max_descender = std::max(max_descender, descender);
-        }
-        uint32_t height = max_height + max_descender;
-
-        auto bitmap = vector<uint32_t>(width * height, 0);
-        int32_t x = 0;
-        for (auto wc : str) {
-            auto& cchar = getFromCache(wc);
-            auto offset = height - cchar.yBearing - max_descender;
-            for(int line = 0; line < cchar.height; line++) {
-                auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
-                auto src = cchar.bitmap->data() + (line * cchar.width);
-                for (int col = 0; col < cchar.width; col++) {
-                    auto value = src[col];
-                    if (value != 0) { dest[col] = value; }
-                }
-            }
-            x += cchar.advance;
-        }
-        wwidth = static_cast<float>(width);
-        hheight = static_cast<float>(height);
-        return bitmap;
-    }
-
-    shared_ptr<Image> Font::renderToImage(const Device &device, const string &str) {
-        float width, height;
-        auto bitmap = renderToBitmap(str, width, height);
-       /*  auto name = str;
-        name.append(".png");
-        stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<Image>(device,
-                                  str,
-                                  width,
-                                  height,
-                                  static_cast<int>(width * height) * STBI_rgb_alpha,
-                                  bitmap.data(),
-                                  VK_FORMAT_R8G8B8A8_SRGB,
-                                  VK_IMAGE_TILING_OPTIMAL,
-                                  VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // don't repeat texture
-                                  false);
-    }
-
-    uint32_t Font::scaleFontSize(uint32_t baseFontSize) {
-        const int baseWidth = 1920;
-        const int baseHeight = 1080;
-        const int newHeight = Application::get().getWindow().getHeight();
-        const int newWidth = Application::get().getWindow().getWidth();
-        auto horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
-        auto verticalScalingFactor = static_cast<float>(newHeight) / baseHeight;
-        auto averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
-        return ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor));
-    }
-
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
 
-    Font::Font(const string&_name, uint32_t _size):
+    Font::Font(const string&_name, const uint32_t _size):
         Resource{_name}, path{_name}, size{_size} {
         ifstream fontFile(path.c_str(), ios::binary);
         if (!fontFile) { die("Failed to open font file", path); }
@@ -209,7 +200,7 @@ export namespace z0 {
         ofs.close();
     } */
 
-    void Font::render(CachedCharacter &cachedCharacter, char c) {
+    void Font::render(CachedCharacter &cachedCharacter, const char c) const {
         int advanceWidth, leftSideBearing;
         stbtt_GetCodepointHMetrics(&font, c, &advanceWidth, &leftSideBearing);
         cachedCharacter.advance = advanceWidth * scale;
