@@ -20,7 +20,9 @@ export namespace z0 {
          * @param position top left viewport position in pixels
          * @param size size in pixels
          */
-        Viewport(vec2 position, vec2 size, const string& name = "Viewport");
+        Viewport(const vec2 _pos, const vec2 _size, const string& name = "Viewport"):
+          Node{name}, position{_pos}, size{_size} {
+        }
 
 
         /**
@@ -36,28 +38,20 @@ export namespace z0 {
         /**
          * Sets the top left viewport position in pixels
          */
-        void setViewportSize(vec2 size);
+        void setViewportSize(const vec2 _size) {
+          size = _size;
+        }
 
         /**
          * Sets the viewport size in pixels
          */
-        void setViewportPosition(vec2 position);
+        void setViewportPosition(const vec2 _position) {
+           position = _position;
+        }
 
     private:
         vec2 position;
         vec2 size;
     };
-
-     Viewport::Viewport(vec2 _pos, vec2 _size, const string& name):
-        Node{name}, position{_pos}, size{_size} {
-    }
-
-    void Viewport::setViewportSize(vec2 _size) {
-        size = _size;
-    }
-
-    void Viewport::setViewportPosition(vec2 _position) {
-        position = _position;
-    }
 
 }

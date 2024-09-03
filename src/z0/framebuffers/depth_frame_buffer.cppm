@@ -1,5 +1,5 @@
 module;
-#include "z0/libraries.h"
+#include <volk.h>
 
 export module Z0:DepthFrameBuffer;
 
@@ -13,14 +13,14 @@ export namespace z0 {
      */
     class DepthFrameBuffer: public FrameBuffer {
     public:
-        explicit DepthFrameBuffer(const Device &dev, bool isMultisampled):
+        explicit DepthFrameBuffer(const Device &dev, const bool isMultisampled):
             FrameBuffer{dev},
             multisampled{isMultisampled} {
-            createImagesResources();
+            DepthFrameBuffer::createImagesResources();
         }
 
         // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
-        void createImagesResources() {
+        void createImagesResources() override {
             createImage(device.getSwapChainExtent().width,
                         device.getSwapChainExtent().height,
                         device.findImageTilingSupportedFormat(

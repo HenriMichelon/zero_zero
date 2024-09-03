@@ -1,23 +1,12 @@
 ###### Auto detect Vulkan SDK
 find_package(Vulkan REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
-# compile Vulkan as a module
-add_library(vulkan-modules STATIC)
-target_include_directories(vulkan-modules PUBLIC ${Vulkan_INCLUDE_DIRS})
-target_sources(vulkan-modules
-  PUBLIC
-    FILE_SET moduleStd
-    TYPE CXX_MODULES
-    BASE_DIRS ${Vulkan_INCLUDE_DIRS}
-    FILES
-      ${Vulkan_INCLUDE_DIRS}/vulkan/vulkan.cppm)
-target_link_libraries(${PROJECT_NAME} vulkan-modules)
 
 ###### Using Volk to load Vulkan functions
 FetchContent_Declare(
         fetch_volk
         GIT_REPOSITORY https://github.com/zeux/volk
-        GIT_TAG        vulkan-sdk-1.3.283.0
+        GIT_TAG        vulkan-sdk-1.3.290.0
 )
 FetchContent_MakeAvailable(fetch_volk)
 if (WIN32)

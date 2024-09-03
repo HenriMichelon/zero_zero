@@ -1,5 +1,5 @@
 module;
-#include "z0/libraries.h"
+#include <volk.h>
 
 export module Z0:ColorFrameBuffer;
 
@@ -15,9 +15,9 @@ export namespace z0 {
     class ColorFrameBuffer: public FrameBuffer {
     public:
         // If multisampled==true attachment will support multisampling *and* HDR
-        explicit ColorFrameBuffer(const Device &dev, bool isMultisampled) :
+        explicit ColorFrameBuffer(const Device &dev, const bool isMultisampled) :
         FrameBuffer{dev}, multisampled{isMultisampled} {
-            createImagesResources();
+            ColorFrameBuffer::createImagesResources();
         }
 
         // https://vulkan-tutorial.com/Multisampling#page_Setting-up-a-render-target

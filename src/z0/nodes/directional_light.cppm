@@ -16,7 +16,7 @@ export namespace z0 {
         /**
          * Creates a DirectionalLight with defaults parameters
          */
-        explicit DirectionalLight(const string name = "DirectionalLight");
+        explicit DirectionalLight(const string name = "DirectionalLight"): Light{name} {};
 
         /**
          * Create a DirectionalLight
@@ -25,11 +25,14 @@ export namespace z0 {
          * @param specular intensity of the specular blob in objects affected by the light.
          * @param name Node name
          */
-        explicit DirectionalLight(vec3 direction,
-                                  vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f },
-                                  float specular = 1.0f,
-                                  const string name = "DirectionalLight");
-        virtual ~DirectionalLight() {};
+        explicit DirectionalLight(const vec3 lightDirection,
+                                  const vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f },
+                                  const float specular = 1.0f,
+                                  const string nodeName = "DirectionalLight"):
+         Light{color, specular, nodeName},
+         direction{normalize(lightDirection)}  {}
+
+        ~DirectionalLight() override {};
 
         /** 
          * Returns the direction of the light
@@ -39,32 +42,23 @@ export namespace z0 {
         /** 
          * Sets the direction of the light
         */
-        void setDirection(vec3 lightDirection) { direction = lightDirection; }
+        void setDirection(const vec3 lightDirection) { direction = lightDirection; }
 
-        void setProperty(const string&property, const string& value) override;
+        void setProperty(const string&property, const string& value) override {
+             Node::setProperty(property, value);
+             if (property == "direction") {
+                 setDirection(normalize(to_vec3(value)));
+             } else if (property == "color") {
+                 setColorAndIntensity(to_vec4(value));
+             } else if (property == "specular") {
+                    setSpecularIntensity(stof(value));
+             } else if (property == "cast_shadow") {
+                    setCastShadow(value == "true");
+             }
+        }
 
     private:
         vec3 direction{0.0f, .5f, 1.0f};
     };
-
-    DirectionalLight::DirectionalLight(const string name): Light{name} {};
-
-    DirectionalLight::DirectionalLight(vec3 lightDirection, vec4 color, float specular, const string nodeName):
-        Light{color, specular, nodeName},
-        direction{normalize(lightDirection)}  {}
-
-    void DirectionalLight::setProperty(const string&property, const string& value) {
-     Node::setProperty(property, value);
-     if (property == "direction") {
-      setDirection(normalize(to_vec3(value)));
-     } else if (property == "color") {
-      setColorAndIntensity(to_vec4(value));
-     } else if (property == "specular") {
-      setSpecularIntensity(stof(value));
-     } else if (property == "cast_shadow") {
-      setCastShadow(value == "true");
-     }
-    }
-
 
 }

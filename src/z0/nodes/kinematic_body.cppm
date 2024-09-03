@@ -20,23 +20,18 @@ export namespace z0 {
          * with bodies having a layer in the `mask` value.
          */
         explicit KinematicBody(shared_ptr<Shape> shape,
-                           uint32_t layer=0xff,
-                           uint32_t mask=0xff,
-                           const string& name = "KinematicBody");
-        ~KinematicBody() override = default;
-
-    };
-
-    KinematicBody::KinematicBody(shared_ptr<Shape> shape,
-                        uint32_t layer,
-                        uint32_t mask,
-                        const string& name):
+                                const uint32_t layer=0xff,
+                                const uint32_t mask=0xff,
+                                const string& name = "KinematicBody"):
            PhysicsBody(shape,
                        layer,
                        mask,
                        JPH::EActivation::Activate,
                        JPH::EMotionType::Kinematic,
                        name) {
-    }
+        }
+        ~KinematicBody() override = default;
+
+    };
 
 }

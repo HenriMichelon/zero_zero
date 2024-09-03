@@ -3,7 +3,6 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
-#add_compile_definitions(NDEBUG)
 #add_compile_definitions(DISABLE_LOG)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -32,7 +31,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 )
 add_shaders(${PROJECT_NAME}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
-# engine lmodules
+# engine modules
 set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/z0.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
@@ -139,14 +138,16 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/gui/gwidget.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
 )
-#https://github.com/llvm/llvm-project/issues/105994
-#target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
+
 target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET CXX_MODULES 
-	FILES
+		PUBLIC
+		FILE_SET CXX_MODULES
+		FILES
 		${PROJECT_FILES}
 )
+
+#https://github.com/llvm/llvm-project/issues/105994
+#target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})

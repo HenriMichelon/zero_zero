@@ -34,9 +34,9 @@ namespace z0 {
         /**
          * Set to `true` to have the Mesh outlined starting to the next frame
          */
-        void setOutlined(bool o) { outlined = o; }
+        void setOutlined(const bool o) { outlined = o; }
 
-        /**
+        /**st
          * Returns `true` if the Mesh will be outlined during the next frame
          */
         [[nodiscard]] bool isOutlined() const { return outlined; }

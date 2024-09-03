@@ -1,5 +1,4 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
 
 export module Z0:SampledFrameBuffer;
@@ -14,7 +13,7 @@ export namespace z0 {
      */
     class SampledFrameBuffer: public FrameBuffer {
     public:
-        VkDescriptorImageInfo imageInfo() {
+        [[nodiscard]] VkDescriptorImageInfo imageInfo() const {
             return VkDescriptorImageInfo {
                 .sampler = sampler,
                 .imageView = imageView,

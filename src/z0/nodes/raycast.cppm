@@ -22,38 +22,54 @@ export namespace z0 {
          * @param mask The ray's collision mask. Only objects in at least one collision layer enabled in the mask will be detected
          * @param name The node's name
          */
-        RayCast(vec3 target, uint32_t mask, const string& name = "RayCast");
+        RayCast(const vec3 _target, const uint32_t mask, const string& name = "RayCast"):
+            Node(name),
+            target{_target},
+            collisionMask{mask} {
+        }
 
         /**
          * Returns whether any object is intersecting with the ray's vector (considering the vector length).
          */
-        [[nodiscard]] bool isColliding() const;
+        [[nodiscard]] bool isColliding() const {
+            return collider != nullptr;
+        }
 
         /**
          * Returns the first object that the ray intersects, or `nullptr` if no object is intersecting the ray
          */
-        [[nodiscard]] CollisionObject* getCollider() const;
+        [[nodiscard]] CollisionObject* getCollider() const{
+            return collider;
+        }
 
         /**
          * Returns the collision point at which the ray intersects the closest object, in the global coordinate system
          */
-        [[nodiscard]] vec3 getCollisionPoint() const;
+        [[nodiscard]] vec3 getCollisionPoint() const {
+            return hitPoint;
+        }
 
         /**
          * If `true`, collisions will be ignored for this RayCast's immediate parent.
          */
-        void setExcludeParent(bool);
+        void setExcludeParent(const bool exclude) {
+            excludeParent = exclude;
+        }
 
         /**
          * Updates the collision information for the ray immediately, 
          * without waiting for the next physics update
          */
-        void forceRaycastUpdate();
+        void forceRaycastUpdate() {
+            _physicsUpdate(0.0f);
+        }
 
         /**
          * Sets the ray's destination point, relative to the RayCast's position.
          */
-        void setTarget(vec3);
+        void setTarget(const vec3 t) {
+            target = t;
+        }
 
     private:
         vec3 target;
@@ -64,69 +80,34 @@ export namespace z0 {
         JPH::BroadPhaseLayerFilter broadPhaseLayerFilter{};
 
     public:
-        void _physicsUpdate(float delta) override;
-        bool ShouldCollide (JPH::ObjectLayer inLayer) const override;
-        bool ShouldCollideLocked (const JPH::Body &inBody) const override;
-    };
-
-     RayCast::RayCast(vec3 _target,
-                     uint32_t mask,
-                     const string& name):
-        Node(name),
-        target{_target},
-        collisionMask{mask} {
-    }
-
-    bool RayCast::isColliding() const {
-        return collider != nullptr;
-    }
-
-    CollisionObject* RayCast::getCollider() const {
-        return collider;
-    }
-
-    vec3 RayCast::getCollisionPoint() const {
-        return hitPoint;
-    }
-
-    bool RayCast::ShouldCollide (JPH::ObjectLayer inLayer) const {
-        auto targetLayer = (inLayer >> 4) & 0b1111;
-        return (targetLayer & collisionMask) != 0;
-    }
-
-    bool RayCast::ShouldCollideLocked (const JPH::Body &inBody) const {
-        auto* node = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
-        return (node != nullptr) && (!(excludeParent && (node == parent)));
-    }
-
-    void RayCast::setExcludeParent(bool exclude) {
-        excludeParent = exclude;
-    }
-
-    void RayCast::setTarget(vec3 t) {
-        target = t;
-    }
-
-    void RayCast::forceRaycastUpdate() {
-        _physicsUpdate(0.0f);
-    }
-
-    void RayCast::_physicsUpdate(float delta) {
-        Node::_physicsUpdate(delta);
-        const auto position = getPositionGlobal();
-        const auto worldTarget = toGlobal(target);
-        const JPH::RRayCast ray{
-            JPH::Vec3{position.x, position.y, position.z},
-            JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
-        };
-        JPH::RayCastResult result;
-        if (app()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(ray, result, broadPhaseLayerFilter, *this, *this)) {
-            collider = reinterpret_cast<CollisionObject*>(app()._getBodyInterface().GetUserData(result.mBodyID));
-            auto posInRay = ray.GetPointOnRay(result.mFraction);
-            hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
-        } else {
-            collider = nullptr;
+        void _physicsUpdate(const float delta) override {
+            Node::_physicsUpdate(delta);
+            const auto position = getPositionGlobal();
+            const auto worldTarget = toGlobal(target);
+            const JPH::RRayCast ray{
+                JPH::Vec3{position.x, position.y, position.z},
+                JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
+            };
+            JPH::RayCastResult result;
+            if (app()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(ray, result, broadPhaseLayerFilter, *this, *this)) {
+                collider = reinterpret_cast<CollisionObject*>(app()._getBodyInterface().GetUserData(result.mBodyID));
+                auto posInRay = ray.GetPointOnRay(result.mFraction);
+                hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
+            } else {
+                collider = nullptr;
+            }
         }
-    }
+
+        bool ShouldCollide (const JPH::ObjectLayer inLayer) const override {
+            const auto targetLayer = (inLayer >> 4) & 0b1111;
+            return (targetLayer & collisionMask) != 0;
+        }
+
+        bool ShouldCollideLocked (const JPH::Body &inBody) const override {
+            const auto* node = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
+            return (node != nullptr) && (!(excludeParent && (node == parent)));
+        }
+
+    };
 
 }

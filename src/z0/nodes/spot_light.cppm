@@ -31,16 +31,23 @@ export namespace z0 {
          * @param specular intensity of the specular blob in objects affected by the light.
          * @param name Node name
          */
-        explicit SpotLight(vec3 direction,
-                           float cutOffDegrees,
-                           float outerCutOffDegrees,
-                           float linear,
-                           float quadratic,
-                           float attenuation = 1.0f,
-                           vec4 color = {1.0f, 1.0f, 1.0f, 1.0f},
-                           float specular = 1.0f,
-                           const string name = "SpotLight");
-        virtual ~SpotLight() = default;
+        explicit SpotLight(const vec3 lightDirection,
+                           const float cutOffDegrees,
+                           const float outerCutOffDegrees,
+                           const float linear,
+                           const float quadratic,
+                           const float attenuation = 1.0f,
+                           const vec4 color = {1.0f, 1.0f, 1.0f, 1.0f},
+                           const float specular = 1.0f,
+                           const string nodeName = "SpotLight"):
+            OmniLight{linear, quadratic, attenuation, color, specular, nodeName},
+            direction{lightDirection},
+            fov{radians(outerCutOffDegrees)},
+            cutOff{cos(radians(cutOffDegrees))},
+            outerCutOff{cos(fov)}
+        { }
+
+        ~SpotLight() override = default;
 
         /** 
          * Returns the direction of the light
@@ -50,12 +57,14 @@ export namespace z0 {
         /** 
          * Sets the direction of the light
         */
-        void setDirection(vec3 lightDirection) { direction = lightDirection; }
+        void setDirection(const vec3 lightDirection) { direction = lightDirection; }
 
         /**
          * Sets the inner cutoff angle that specifies the spotlight's radius, in degrees
          */
-        void setCutOff(float cutOffDegrees);
+        void setCutOff(const float cutOffDegrees) {
+            cutOff = cos(radians(cutOffDegrees));
+        }
 
         /**
          * Returns the inner cutoff value that specifies the spotlight's radius (not the angle!)
@@ -65,7 +74,10 @@ export namespace z0 {
         /**
          * Sets the outer cutoff angle that specifies the spotlight's radius. Everything outside this angle is not lit by the spotlight.
          */
-        void setOuterCutOff(float outerCutOffDegrees);
+        void setOuterCutOff(const float outerCutOffDegrees) {
+            fov = radians(outerCutOffDegrees);
+            outerCutOff = cos(fov);
+        }
 
         /**
          * Returns the outer cutoff value that specifies the spotlight's radius (not the angle!).
@@ -82,39 +94,10 @@ export namespace z0 {
         float fov{0.0f};
         float cutOff { cos(radians(10.f)) };
         float outerCutOff { cos(radians(15.f)) };
-        shared_ptr<Node> duplicateInstance() override;
+
+        shared_ptr<Node> duplicateInstance() override {
+          return make_shared<SpotLight>(*this);
+        }
     };
-
-
-    SpotLight::SpotLight(vec3 lightDirection,
-            float cutOffDegrees,
-            float outerCutOffDegrees,
-            float linear,
-            float quadratic,
-            float attenuation,
-            vec4 color,
-            float specular,
-            const string nodeName):
-            OmniLight{linear, quadratic, attenuation, color, specular, nodeName},
-            direction{lightDirection},
-            fov{radians(outerCutOffDegrees)},
-            cutOff{cos(radians(cutOffDegrees))},
-            outerCutOff{cos(fov)}
-    {
-    }
-
-    void SpotLight::setCutOff(float cutOffDegrees) {
-     SpotLight::cutOff = cos(radians(cutOffDegrees));
-    }
-
-    void SpotLight::setOuterCutOff(float outerCutOffDegrees) {
-     fov = radians(outerCutOffDegrees);
-     SpotLight::outerCutOff = cos(fov);
-    }
-
-    shared_ptr<Node> SpotLight::duplicateInstance() {
-     return make_shared<SpotLight>(*this);
-    }
-
 
 }
