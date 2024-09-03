@@ -12,23 +12,22 @@ import :GStyle;
 import :GWidget;
 
 export namespace z0 {
-
     class GManager;
 
     /**
      * A UI window displayed inside the rendering window
      */
-    class GWindow: public Object {
+    class GWindow : public Object {
     public:
         /**
          * Which GWindow borders can be used to resize the window
          */
         enum ResizeableBorder {
-            RESIZEABLE_NONE     = 0b0000,
-            RESIZEABLE_LEFT     = 0b0001,
-            RESIZEABLE_RIGHT    = 0b0010,
-            RESIZEABLE_TOP      = 0b0100,
-            RESIZEABLE_BOTTOM   = 0b1000,
+            RESIZEABLE_NONE = 0b0000,
+            RESIZEABLE_LEFT = 0b0001,
+            RESIZEABLE_RIGHT = 0b0010,
+            RESIZEABLE_TOP = 0b0100,
+            RESIZEABLE_BOTTOM = 0b1000,
         };
 
         /**
@@ -60,7 +59,7 @@ export namespace z0 {
 
         /** Sets the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */
-        GWidget& setWidget(shared_ptr<GWidget> = nullptr, const string& = "", float = 0);
+        GWidget& setWidget(shared_ptr<GWidget>  = nullptr, const string& = "", float = 0);
 
         /** Changes the focus */
         void setFocusedWidget(const shared_ptr<GWidget>&);
@@ -111,22 +110,28 @@ export namespace z0 {
         void setTransparency(float);
 
         /** Event called after window creation (by the window manager) */
-        virtual void onCreate() {};
+        virtual void onCreate() {
+        };
 
         /** Event called after window destruction (by the window manager) */
-        virtual void onDestroy() {};
+        virtual void onDestroy() {
+        };
 
         /** Event called when (before) the window manager need to show the window */
-        virtual void onShow() {};
+        virtual void onShow() {
+        };
 
         /** Event called when (after) the window manager need to hide the window */
-        virtual void onHide() {};
+        virtual void onHide() {
+        };
 
         /** Event called after a size change */
-        virtual void onResize() {};
+        virtual void onResize() {
+        };
 
         /** Event called after a position change */
-        virtual void onMove() {};
+        virtual void onMove() {
+        };
 
         /** Event called when a key was pressed */
         virtual bool onKeyDown(Key) { return false; };
@@ -144,10 +149,12 @@ export namespace z0 {
         virtual bool onMouseMove(uint32_t buttonsState, float x, float y) { return false; };
 
         /** Event called when the window got the keyboard focus */
-        virtual void onGotFocus() {};
+        virtual void onGotFocus() {
+        };
 
         /** Event called when the window lost the keyboard focus */
-        virtual void onLostFocus() {};
+        virtual void onLostFocus() {
+        };
 
         /**
          * Sets the minimum size of the window (default to {2.0f, 2.0f})
@@ -190,20 +197,20 @@ export namespace z0 {
         Application& app();
 
     private:
-        Rect                rect;
-        float               minWidth{2.0f};
-        float               minHeight{2.0f};
-        float               maxWidth{VECTOR_SCALE.x};
-        float               maxHeight{VECTOR_SCALE.y};
-        GManager*           windowManager{nullptr};
-        bool                visible{true};
-        bool                visibilityChanged{false};
-        bool                visibilityChange{false};
-        shared_ptr<GStyle>  layout{nullptr};
+        Rect rect;
+        float minWidth{2.0f};
+        float minHeight{2.0f};
+        float maxWidth{VECTOR_SCALE.x};
+        float maxHeight{VECTOR_SCALE.y};
+        GManager* windowManager{nullptr};
+        bool visible{true};
+        bool visibilityChanged{false};
+        bool visibilityChange{false};
+        shared_ptr<GStyle> layout{nullptr};
         shared_ptr<GWidget> widget{nullptr};
-        GWidget*            focusedWidget{nullptr};
-        float               transparency{1.0};
-        uint32_t            resizeableBorders{RESIZEABLE_NONE};
+        GWidget* focusedWidget{nullptr};
+        float transparency{1.0};
+        uint32_t resizeableBorders{RESIZEABLE_NONE};
 
         void unFreeze(shared_ptr<GWidget>&);
         void draw() const;
@@ -224,5 +231,4 @@ export namespace z0 {
         void eventGotFocus();
         void eventLostFocus();
     };
-
 }

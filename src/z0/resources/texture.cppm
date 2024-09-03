@@ -9,7 +9,7 @@ import :Image;
 export namespace z0 {
 
     /**
-     * Base class the textures resource.
+     * Base class for textures resources.
      */
     class Texture: public Resource {
     public:
@@ -22,12 +22,12 @@ export namespace z0 {
         /**
          * Returns the width in pixels on the texture
          */
-        virtual uint32_t getWidth() const = 0;
+        [[nodiscard]] virtual uint32_t getWidth() const = 0;
 
         /**
          * Returns the height in pixels on the texture
          */
-        virtual uint32_t getHeight() const = 0;
+        [[nodiscard]] virtual uint32_t getHeight() const = 0;
 
         /**
          * Returns the size in pixels on the texture

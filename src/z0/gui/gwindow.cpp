@@ -16,10 +16,10 @@ import :GStyle;
 import :VectorRenderer;
 
 namespace z0 {
+    GWindow::GWindow(Rect r): rect{r} {
+    }
 
-    GWindow::GWindow(Rect r): rect{r} {}
-
-     Application& GWindow::app() {
+    Application& GWindow::app() {
         return Application::get();
     }
 
@@ -30,18 +30,18 @@ namespace z0 {
         widget->_draw(windowManager->getRenderer());
     }
 
-    void GWindow::unFreeze(shared_ptr<GWidget>&W){
-        for (auto& child: W->_getChildren()) {
+    void GWindow::unFreeze(shared_ptr<GWidget>& W) {
+        for (auto& child : W->_getChildren()) {
             unFreeze(child);
         }
         W->setFreezed(false);
     }
 
-    shared_ptr<Font> &GWindow::getDefaultFont() {
+    shared_ptr<Font>& GWindow::getDefaultFont() {
         return windowManager->getDefaultFont();
     }
 
-    GWidget& GWindow::setWidget(shared_ptr<GWidget>WIDGET, const string&RES, float PADDING){
+    GWidget& GWindow::setWidget(shared_ptr<GWidget> WIDGET, const string& RES, float PADDING) {
         assert(windowManager && "GWidow must be added to a window manager before setting the main widget");
         if (layout == nullptr) { setStyle(nullptr); }
         if (WIDGET == nullptr) {
@@ -68,7 +68,8 @@ namespace z0 {
     void GWindow::setStyle(shared_ptr<GStyle> LAYOUT) {
         if (layout == nullptr) {
             layout = GStyle::create();
-        } else {
+        }
+        else {
             layout = std::move(LAYOUT);
         }
         refresh();
@@ -93,7 +94,7 @@ namespace z0 {
         setWidget();
         onCreate();
         emit(GEvent::OnCreate);
-        if (widget != nullptr ) { widget->resizeChildren(); }
+        if (widget != nullptr) { widget->resizeChildren(); }
     }
 
     void GWindow::eventDestroy() {
@@ -112,14 +113,14 @@ namespace z0 {
 
     bool GWindow::eventKeybDown(Key K) {
         bool consumed = false;
-	    if (focusedWidget) {
+        if (focusedWidget) {
             consumed = focusedWidget->eventKeybDown(K); // XXX consumed
         }
         if (!consumed) {
             consumed |= onKeyDown(K);
         }
         if (!consumed) {
-            auto event = GEventKeyb{ .key = K};
+            auto event = GEventKeyb{.key = K};
             emit(GEvent::OnKeyDown, &event);
             consumed = event.consumed;
         }
@@ -136,7 +137,7 @@ namespace z0 {
             consumed |= onKeyUp(K);
         }
         if (!consumed) {
-            auto event = GEventKeyb{ .key = K};
+            auto event = GEventKeyb{.key = K};
             emit(GEvent::OnKeyUp, &event);
             consumed = event.consumed;
         }
@@ -147,14 +148,14 @@ namespace z0 {
     bool GWindow::eventMouseDown(MouseButton B, float X, float Y) {
         if (!visible) { return false; }
         bool consumed = false;
-        if (widget) { 
-            consumed = widget->eventMouseDown(B, X, Y); 
+        if (widget) {
+            consumed = widget->eventMouseDown(B, X, Y);
         }
         if (!consumed) {
             consumed |= onMouseDown(B, X, Y);
         }
         if (!consumed) {
-            auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+            auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
             emit(GEvent::OnMouseDown, &event);
             consumed = event.consumed;
         }
@@ -170,7 +171,7 @@ namespace z0 {
             consumed |= onMouseUp(B, X, Y);
         }
         if (!consumed) {
-            auto event = GEventMouseButton{ .button = B, .x = X, .y = Y};
+            auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
             emit(GEvent::OnMouseUp, &event);
             consumed = event.consumed;
         }
@@ -184,14 +185,15 @@ namespace z0 {
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
             consumed = focusedWidget->eventMouseMove(B, X, Y);
-        } else if (widget) {
+        }
+        else if (widget) {
             consumed = widget->eventMouseMove(B, X, Y);
         }
         if (!consumed) {
             consumed |= onMouseMove(B, X, Y);
         }
         if (!consumed) {
-            auto event = GEventMouseMove{ .buttonsState = B, .x = X, .y = Y};
+            auto event = GEventMouseMove{.buttonsState = B, .x = X, .y = Y};
             emit(GEvent::OnMouseMove, &event);
             consumed = event.consumed;
         }

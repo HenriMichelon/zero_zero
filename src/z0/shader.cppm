@@ -14,8 +14,8 @@ export namespace z0 {
     class Shader {
     public:
         Shader(const Device& dev,
-                    VkShaderStageFlagBits stageFlagsBits,
-                    VkShaderStageFlags nextStageFlags,
+                    const VkShaderStageFlagBits stageFlagsBits,
+                    const VkShaderStageFlags nextStageFlags,
                     string _name,
                     const vector<char> &code,
                     const VkDescriptorSetLayout *pSetLayouts,
@@ -52,7 +52,7 @@ export namespace z0 {
         [[nodiscard]] VkShaderStageFlagBits* getStage() { return &stage; };
         [[nodiscard]] VkShaderEXT* getShader() { return &shader; };
 
-        void setShader(VkShaderEXT _shader) { shader = _shader; };
+        void setShader(const VkShaderEXT _shader) { shader = _shader; };
 
     private:
         const Device& device;

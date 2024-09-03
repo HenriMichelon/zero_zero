@@ -29,17 +29,17 @@ namespace z0 {
                                const JPH::Body &body1,
                                const JPH::Body &body2,
                                const JPH::ContactManifold &inManifold) {
-        auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
-        auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
+        const auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
+        const auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
         assert(node1 && node2 && "physics body not associated with a node");
-        auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);
+        const auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);
         auto event1 = CollisionObject::Collision {
             .position = vec3{pos1.GetX(), pos1.GetY(), pos1.GetZ()},
             .normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
             .object = node2
         };
         node1->emit(signal, &event1);
-        auto pos2 = inManifold.GetWorldSpaceContactPointOn1(0);
+        const auto pos2 = inManifold.GetWorldSpaceContactPointOn1(0);
         auto event2 = CollisionObject::Collision {
             .position = vec3{pos2.GetX(), pos2.GetY(), pos2.GetZ()},
             .normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
@@ -50,8 +50,8 @@ namespace z0 {
 
     bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer layersAndMask1,
                                                   JPH::ObjectLayer layersAndMask2) const {
-        auto sourceMask = layersAndMask1 & 0b1111;
-        auto targetLayer = (layersAndMask2 >> 4) & 0b1111;
+        const auto sourceMask = layersAndMask1 & 0b1111;
+        const auto targetLayer = (layersAndMask2 >> 4) & 0b1111;
         return (targetLayer & sourceMask) != 0;
     }
 

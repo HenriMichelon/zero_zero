@@ -8,17 +8,16 @@ import :GWidget;
 import :GEvent;
 
 export namespace z0 {
-
     /**
      * Super class for all two-states widgets
      */
-    class GCheckWidget: public GWidget {
+    class GCheckWidget : public GWidget {
     public:
         //! State of the widget. Change on user action.
         enum State {
-            CHECK,		//! Checked (aka ON)
-            UNCHECK		//! Unchecked (aka OFF)
-        } ;
+            CHECK, //! Checked (aka ON)
+            UNCHECK //! Unchecked (aka OFF)
+        };
 
         //! Return current state of the widget
         [[nodiscard]] State getState() const { return state; }
@@ -27,21 +26,23 @@ export namespace z0 {
         virtual void setState(State);
 
     protected:
-        GCheckWidget(Type);
+        explicit GCheckWidget(Type);
 
         virtual bool eventMouseDown(MouseButton, uint32_t, uint32_t);
 
     private:
-        State	state{UNCHECK};
+        State state{UNCHECK};
     };
 
-    GCheckWidget::GCheckWidget(Type T): GWidget{T} {}
+    GCheckWidget::GCheckWidget(Type T): GWidget{T} {
+    }
 
     bool GCheckWidget::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
         if (getRect().contains(X, Y)) {
             if (state == CHECK) {
                 setState(UNCHECK);
-            } else {
+            }
+            else {
                 setState(CHECK);
             }
         }
@@ -53,7 +54,7 @@ export namespace z0 {
         state = S;
         resizeChildren();
         refresh();
-        auto stat = GEventState{ .state = S};
+        auto stat = GEventState{.state = S};
         emit(GEvent::OnStateChange, &stat);
     }
 
@@ -81,6 +82,4 @@ export namespace z0 {
             GCheckWidget::SetState(S);
         }
     */
-
-    
 }

@@ -29,28 +29,28 @@ export namespace z0 {
      * Automaticaly instanciated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
      * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html) and the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html)
      */
-    class Application final: public Object {
+    class Application final : public Object {
     public:
         /**
          * Returns the application singleton
          * @return the global application object
          */
-       static Application& get(){
-          assert(_instance != nullptr);
-          return *_instance;
-       }
+        static Application& get() {
+            assert(_instance != nullptr);
+            return *_instance;
+        }
 
         /**
          * Adds a GUI window to the window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void addWindow(const shared_ptr<GWindow>&window);
+        void addWindow(const shared_ptr<GWindow>& window);
 
         /**
          * Removes the window from the window manager
          * @param window    The window to remove, must be added to the window manager before
          */
-        void removeWindow(const shared_ptr<GWindow>&window);
+        void removeWindow(const shared_ptr<GWindow>& window);
 
         /**
          * Exits the application by closing the window (will wait for the current frame to be terminated)
@@ -64,6 +64,7 @@ export namespace z0 {
         [[nodiscard]] const ApplicationConfig& getConfig() const {
             return applicationConfig;
         }
+
         /**
          * Returns the current display window
          * @return The main window
@@ -138,7 +139,6 @@ export namespace z0 {
          * Return the vector renderer size ratios 
          */
         const vec2& getVectorRatio() const { return vectorRatio; }
-
 
     private:
         // The global startup configuration parameters
@@ -243,7 +243,5 @@ export namespace z0 {
         Application& operator=(const Application&) = delete;
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
         virtual ~Application();
-   };
-
-
+    };
 }
