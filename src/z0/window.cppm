@@ -14,8 +14,8 @@ import :Object;
 namespace z0 {
 
     /**
-       * Rendering target window, one per application
-       */
+    * Rendering target window, one per application
+   */
     export class Window: public Object {
     public:
         /**

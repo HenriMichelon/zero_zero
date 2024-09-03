@@ -134,7 +134,6 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/nodes/node.cpp
-		${Z0_ENGINE_DIR}/resources/mesh.cpp
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 		${Z0_ENGINE_DIR}/gui/gwidget.cpp

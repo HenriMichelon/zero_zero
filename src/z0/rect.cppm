@@ -19,46 +19,34 @@ export namespace z0 {
         float height{0.0f};
 
         /*! Returns true if the given point is inside the rect */
-        bool contains(float x, float y) const;
+        bool contains(float X, float Y) const {
+            return ((X >= x) && (X < (x + width)) &&
+                    (Y >= y) && (Y < (y + height)));
+        }
 
         /*! Returns true if the given rect is inside the rect */
-        bool contains(const Rect&) const;
+        bool contains(const Rect& R) const {
+            return ((R.x >= x) && (R.y >= y) &&
+                    ((R.x + R.width) <= (x + width)) &&
+                    ((R.y + R.height) <= (y + height)));
+        }
 
-        Rect& operator = (const Rect&R);
+        Rect& operator = (const Rect& R) = default;
 
-        bool operator == (const Rect&R) const;
+        bool operator == (const Rect& R) const {
+            return ((x == R.x) &&
+                    (y == R.y) &&
+                    (width == R.width) &&
+                    (height == R.height));
+        }
 
-        /*! The rect is the resulst of the intersection between two rects */
-        void intersect(const Rect&, const Rect&);
+        /*! The rect is the result of the intersection between two rects */
+        void intersect(const Rect& A, const Rect& B) {
+            x = std::max(A.x, B.x);
+            y = std::max(A.y, B.y);
+            width = std::min(A.x + A.width, B.x + B.width) - x;
+            height = std::min(A.y + A.height, B.y + B.height) - y;
+        }
     };
-
-
-    void Rect ::intersect(const Rect&A, const Rect&B) {
-        x = std::max(A.x, B.x);
-        y = std::max(A.y, B.y);
-        width = std::min(A.x + A.width, B.x + B.width) - x;
-        height = std::min(A.y + A.height, B.y + B.height) - y;
-    }
-
-    Rect& Rect :: operator = (const Rect&R) = default;
-
-    bool Rect :: operator == (const Rect&R) const {
-        return ((x == R.x) &&
-                (y == R.y) &&
-                (width == R.width) &&
-                (height == R.height));
-    }
-
-    bool Rect :: contains(float X, float Y) const {
-        return ((X >= x) && (X < (x + width)) &&
-                (Y >= y) && (Y < (y + height)));
-    }
-
-    bool Rect :: contains(const Rect&R) const {
-        return ((R.x >= x) && (R.y >= y) &&
-                ((R.x + R.width) <= (x + width)) &&
-                ((R.y + R.height) <= (y + height)));
-    }
-
 
 }

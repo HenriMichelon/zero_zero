@@ -150,6 +150,9 @@ export namespace std {
         return s;
     }
 
+    /**
+     * Helper to convert a vec3 from a string (std lib code convention)
+     */
     vec3 to_vec3(const string& str) {
         stringstream ss(str);
         vec3 result{};
@@ -165,6 +168,9 @@ export namespace std {
         return result;
     }
     
+    /**
+     * Helper to convert a vec4 from a string (std lib code convention)
+     */
     vec4 to_vec4(const string& str) {
         stringstream ss(str);
         vec4 result{};
@@ -182,6 +188,36 @@ export namespace std {
         }
         return result;
     }
+
+    /**
+     * Custom hash function for vec2 (std lib code convention)
+     */
+    template <>
+    struct hash<vec2> {
+        std::size_t operator()(const vec2& v) const {
+            return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1);
+        }
+    };
+
+    /**
+     * Custom hash function for vec3 (std lib code convention)
+     */
+    template <>
+    struct hash<vec3> {
+        std::size_t operator()(const vec3& v) const {
+            return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1) ^ (std::hash<float>()(v.z) << 2);
+        }
+    };
+
+    /**
+     * Custom hash function for vec4 (std lib code convention)
+     */
+    template <>
+    struct hash<vec4> {
+        std::size_t operator()(const vec4& v) const {
+            return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1) ^ (std::hash<float>()(v.z) << 2) ^ (std::hash<float>()(v.w) << 3);
+        }
+    };
 
     inline string wstring_to_string(const std::wstring& wstr) {
         wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;

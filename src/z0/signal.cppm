@@ -51,6 +51,7 @@ export namespace z0 {
                 (callable.obj->*callable.func)(params);
             }
         }
+        
     private:
         struct SignalCallable {
             Object* obj{nullptr};

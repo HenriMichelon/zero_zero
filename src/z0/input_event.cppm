@@ -8,7 +8,7 @@ import :Object;
 
 export namespace z0 {
 
-/**
+    /**
      * Base class of all input events
      */
     class InputEvent: public Object {
@@ -30,7 +30,12 @@ export namespace z0 {
      */
     class InputEventKey: public InputEvent {
     public:
-        InputEventKey(Key key, bool pressed, int repeat, int modifiers);
+         InputEventKey(Key _key, bool _pressed, int _repeat, int _modifiers):
+             InputEvent{INPUT_EVENT_KEY},
+             keycode{_key},
+             repeat{_repeat},
+             pressed{_pressed},
+             modifiers{_modifiers} {}
 
         /**
          * Returns the key code
@@ -64,7 +69,10 @@ export namespace z0 {
      */
     class InputEventGamepadButton: public InputEvent {
     public:
-        InputEventGamepadButton(GamepadButton button, bool pressed);
+        InputEventGamepadButton(GamepadButton _button, bool _pressed):
+            InputEvent{INPUT_EVENT_GAMEPAD_BUTTON},
+            button{_button},
+            pressed{_pressed} {}
 
         /**
          * Return the gamepad button
@@ -112,7 +120,12 @@ export namespace z0 {
         [[nodiscard]] inline int getModifiers() const { return modifiers; }
 
     protected:
-        InputEventMouse(InputEventType type, uint32_t buttonsState, int modifiers, float posX, float posY);
+        InputEventMouse(InputEventType type, uint32_t _buttonsState, int _modifiers, float posX, float posY):
+            InputEvent{type},
+            x{posX},
+            y{posY},
+            buttonsState{_buttonsState},
+            modifiers{_modifiers} {}
 
     private:
         float x, y;
@@ -126,7 +139,10 @@ export namespace z0 {
     */
     class InputEventMouseMotion: public InputEventMouse {
     public:
-        InputEventMouseMotion(uint32_t buttonsState, int modifiers, float posX, float posY, float relativeX, float relativeY);
+        InputEventMouseMotion(uint32_t buttonsState, int modifiers, float posX, float posY, float rX, float rY):
+            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, modifiers, posX, posY},
+            relativeX{rX},
+            relativeY{rY} {}
 
         /**
          * Returns the relative x mouvement
@@ -147,7 +163,10 @@ export namespace z0 {
     */
     class InputEventMouseButton: public InputEventMouse {
     public:
-        InputEventMouseButton(MouseButton button, bool pressed, int modifiers, uint32_t buttonsState, float posX, float posY);
+        InputEventMouseButton(MouseButton _button, bool _pressed, int modifiers, uint32_t buttonsState, float posX, float posY):
+            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, modifiers, posX, posY},
+            button{_button},
+            pressed{_pressed} {}
 
         /**
          * Returns the mouse button
@@ -163,34 +182,5 @@ export namespace z0 {
         MouseButton button;
         bool pressed;
     };
-
-    InputEventKey::InputEventKey(Key _key, bool _pressed, int _repeat, int _modifiers):
-            InputEvent{INPUT_EVENT_KEY},
-            keycode{_key},
-            repeat{_repeat},
-            pressed{_pressed},
-            modifiers{_modifiers} {}
-
-    InputEventGamepadButton::InputEventGamepadButton(GamepadButton _button, bool _pressed):
-            InputEvent{INPUT_EVENT_GAMEPAD_BUTTON},
-            button{_button},
-            pressed{_pressed} {}
-
-    InputEventMouseButton::InputEventMouseButton(MouseButton _button, bool _pressed, int modifiers, uint32_t buttonsState, float posX, float posY):
-            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, modifiers, posX, posY},
-            button{_button},
-            pressed{_pressed} {}
-
-    InputEventMouseMotion::InputEventMouseMotion(uint32_t buttonsState, int modifiers, float posX, float posY, float rX, float rY):
-            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, modifiers, posX, posY},
-            relativeX{rX},
-            relativeY{rY} {}
-
-    InputEventMouse::InputEventMouse(InputEventType type, uint32_t _buttonsState, int _modifiers, float posX, float posY):
-            InputEvent{type},
-            x{posX},
-            y{posY},
-            buttonsState{_buttonsState},
-            modifiers{_modifiers} {}
 
 }

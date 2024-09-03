@@ -49,7 +49,10 @@ export namespace z0 {
          * Creates an ImageTexture from a image file
          * @param filename : image file name, relative to the application working directory
          */
-        explicit ImageTexture(const string& filename);
+        explicit ImageTexture(const string& filename):
+            Texture{filename},
+            image{Image::loadFromFile(filename)} {
+        }
 
         /**
          * Returns the attached Image
@@ -62,11 +65,5 @@ export namespace z0 {
     protected:
         shared_ptr<Image> image {nullptr};
     };
-
- ImageTexture::ImageTexture(const string& filename):
-    Texture{filename},
-    image{Image::loadFromFile(filename)} {
- }
-
 
 }
