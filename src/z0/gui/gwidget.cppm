@@ -13,35 +13,34 @@ import :GStyle;
 import :Application;
 
 export namespace z0 {
-
     class GWindow;
 
     /**
      * Base class for all UI widgets
      */
-    class GWidget: public Object {
+    class GWidget : public Object {
     public:
         //! Widget type
         enum Type {
             //! transparent widget
-            WIDGET,				
+            WIDGET,
             //! rectangular widget with only a background
             PANEL,
             //! rectangular widget with a border and a background
-            BOX,				
+            BOX,
             //! An horizontal or vertical line
-            LINE,				
+            LINE,
             //! A box with a title
-            FRAME,				
+            FRAME,
             //! A push button
-            BUTTON,				
+            BUTTON,
             //! A two states button
-            TOGGLEBUTTON,	
-            //! A single line of text	
-            TEXT,	
-            //! An editable single line of text	
+            TOGGLEBUTTON,
+            //! A single line of text
+            TEXT,
+            //! An editable single line of text
             TEXTEDIT,
-            //! A scroll bar. with min, max & pos			
+            //! A scroll bar. with min, max & pos
             SCROLLBAR,
             //! Tree of GWidget
             TREEVIEW,
@@ -72,7 +71,6 @@ export namespace z0 {
             //SELECTION
         };
 
-
         //! Widget placement (relative to the parent widget)
         enum AlignmentType {
             NONE,
@@ -84,7 +82,7 @@ export namespace z0 {
             HCENTER,
             //! The child widget is verticaly centered
             VCENTER,
-            //! The children are stack on the top 
+            //! The children are stack on the top
             TOP,
             //! The children are stack on the bottom
             BOTTOM,
@@ -170,7 +168,7 @@ export namespace z0 {
         /** Returns the current widget placement */
         [[nodiscard]] AlignmentType getAlignment() const;
 
-        /** Sets the widget placement. Calling this method involve 
+        /** Sets the widget placement. Calling this method involve
             redrawing the parent widget & resizing all the children widgets */
         void setAlignment(AlignmentType);
 
@@ -249,7 +247,7 @@ export namespace z0 {
 
         /** Changes the transpency alpha value */
         void setTransparency(float alpha);
-        
+
         void resizeChildren();
 
         void _setRedrawOnMouseEvent(bool r) { redrawOnMouseEvent = r; }
@@ -257,26 +255,26 @@ export namespace z0 {
         [[nodiscard]] virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
 
     protected:
-        Rect			          rect;
-        Rect			          defaultRect;
-        float			          hborder{0};
-        float			          vborder{0};
-        float		              padding{0};
-        bool			          focused{false};
-        bool			          allowFocus{false};
-        bool			          allowChildren{true};
-        bool			          drawBackground{true};
-        bool			          moveChildrenOnPush{false};
-        bool			          redrawOnMouseEvent{false};
-        bool			          redrawOnMouseMove{false};
-        bool			          mouseMoveOnFocus{false};
-        float                     transparency{1.0f};
-        GWidget*		          parent{nullptr};
-        GWindow*		          window{nullptr};
-        Type		              type;
-        AlignmentType             alignment{NONE};
-        shared_ptr<GStyle>	      style{nullptr};
-        shared_ptr<GResource>     resource;
+        Rect rect;
+        Rect defaultRect;
+        float hborder{0};
+        float vborder{0};
+        float padding{0};
+        bool focused{false};
+        bool allowFocus{false};
+        bool allowChildren{true};
+        bool drawBackground{true};
+        bool moveChildrenOnPush{false};
+        bool redrawOnMouseEvent{false};
+        bool redrawOnMouseMove{false};
+        bool mouseMoveOnFocus{false};
+        float transparency{1.0f};
+        GWidget* parent{nullptr};
+        GWindow* window{nullptr};
+        Type type;
+        AlignmentType alignment{NONE};
+        shared_ptr<GStyle> style{nullptr};
+        shared_ptr<GResource> resource;
         list<shared_ptr<GWidget>> children;
 
         void allowingFocus(bool = true);
@@ -299,19 +297,19 @@ export namespace z0 {
         virtual bool eventMouseMove(uint32_t, float, float);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
-        
+
         virtual void _init(GWidget&, AlignmentType, const string&, float);
 
     private:
-        bool		     pushed{false};
-        bool		     pointed{false};
-        bool		     freeze{true};
-        bool		     enabled{true};
-        bool		     visible{true};
+        bool pushed{false};
+        bool pointed{false};
+        bool freeze{true};
+        bool enabled{true};
+        bool visible{true};
         shared_ptr<Font> font{nullptr};
-        void*		     userData{nullptr};
-        int32_t		     groupIndex{0};
-        Rect		     childrenRect;
+        void* userData{nullptr};
+        int32_t groupIndex{0};
+        Rect childrenRect;
 
         friend class GWindow;
 
@@ -319,6 +317,5 @@ export namespace z0 {
         GWidget* setFocus(bool = true);
 
         void _draw(VectorRenderer&) const;
-   };
-
+    };
 }

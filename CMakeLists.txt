@@ -7,6 +7,7 @@ project(ZeroZero)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(Z0_TARGET ${PROJECT_NAME})
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -29,7 +30,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 		"${Z0_SHADERS_DIR}/*.frag"
 		"${Z0_SHADERS_DIR}/*.vert"
 )
-add_shaders(${PROJECT_NAME}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
+add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine modules
 set(PROJECT_FILES
@@ -126,7 +127,7 @@ set(PROJECT_FILES
 )
 
 # engine library
-add_library(${PROJECT_NAME} SHARED
+add_library(${Z0_TARGET} SHARED
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
@@ -139,7 +140,7 @@ add_library(${PROJECT_NAME} SHARED
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(${Z0_TARGET}
 		PUBLIC
 		FILE_SET CXX_MODULES
 		FILES
@@ -149,11 +150,11 @@ target_sources(${PROJECT_NAME}
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
-target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIR})
+add_dependencies(${Z0_TARGET} ${Z0_TARGET}_shaders)
+target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME} Xinput dinput8 dxguid dxgi)
+	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
 endif()
 
 include(FetchContent)

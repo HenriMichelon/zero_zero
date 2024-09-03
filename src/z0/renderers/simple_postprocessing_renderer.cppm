@@ -12,46 +12,36 @@ export namespace z0 {
     /**
      * Fragment shader based post processing renderer
      */
-    class SimplePostprocessingRenderer: public PostprocessingRenderer {
+    class SimplePostprocessingRenderer : public PostprocessingRenderer {
     public:
         SimplePostprocessingRenderer(Device& device,
-                                     string shaderDirectory,
-                                     const string shaderName,
-                                     SampledFrameBuffer* inputColorAttachmentHdr);
+                                     const string& shaderDirectory,
+                                     const string& _shaderName,
+                                     SampledFrameBuffer* inputColorAttachmentHdr):
+            PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{_shaderName} {
+            createOrUpdateResources();
+        }
 
-        void update(uint32_t currentFrame) override;
-        void loadShaders() override;
-        void createDescriptorSetLayout()  override;
+        void update(const uint32_t currentFrame) override {
+            constexpr GobalUniformBufferObject globalUbo{};
+            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
+        }
+
+        void loadShaders() override {
+            PostprocessingRenderer::loadShaders();
+            fragShader = createShader(shaderName + ".frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        }
+
+        void createDescriptorSetLayout() override {
+            globalUniformBufferSize = sizeof(GobalUniformBufferObject);
+            PostprocessingRenderer::createDescriptorSetLayout();
+        }
 
     private:
         struct GobalUniformBufferObject {
             alignas(4) float dummy;
         };
+
         const string shaderName;
     };
-
-    SimplePostprocessingRenderer::SimplePostprocessingRenderer(Device &dev,
-                                                              string shaderDirectory,
-                                                              const string _shaderName,
-                                                              SampledFrameBuffer* inputColorAttachmentHdr):
-           PostprocessingRenderer{dev, shaderDirectory, inputColorAttachmentHdr}, shaderName{_shaderName} {
-        createOrUpdateResources();
-    }
-
-    void SimplePostprocessingRenderer::loadShaders() {
-        PostprocessingRenderer::loadShaders();
-        fragShader = createShader(shaderName + ".frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-    }
-
-    void SimplePostprocessingRenderer::update(uint32_t currentFrame) {
-        GobalUniformBufferObject globalUbo {
-        };
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
-    }
-
-    void SimplePostprocessingRenderer::createDescriptorSetLayout() {
-        globalUniformBufferSize = sizeof(GobalUniformBufferObject);
-        PostprocessingRenderer::createDescriptorSetLayout();
-    }
-
 }

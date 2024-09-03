@@ -46,7 +46,7 @@ export namespace z0 {
          * @param name signal name
          * @param params parameters to pass to the function connected to the signal
          */
-        void emit(Parameters* params) {
+        void emit(Parameters* params) const {
             for (const auto& callable : handlers) {
                 (callable.obj->*callable.func)(params);
             }

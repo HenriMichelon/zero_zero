@@ -63,7 +63,7 @@ export namespace z0 {
 
     public:
         GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);
-        ~GManager();
+        ~GManager() override;
     };
 
 }

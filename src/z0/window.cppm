@@ -77,7 +77,7 @@ namespace z0 {
         [[nodiscard]] RECT _getRect() const { return rect; }
 #endif
         explicit Window(const ApplicationConfig& applicationConfig);
-        virtual ~Window();
+        ~Window() override;
     };
 
 }

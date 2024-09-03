@@ -9,15 +9,13 @@ import :Font;
 import :GResource;
 
 export namespace z0 {
-
     class GWidget;
     class VectorRenderer;
 
     /**
      * Widget drawing base class
      */
-    class GStyle: public Object
-    {
+    class GStyle : public Object {
     public:
         GStyle();
         virtual ~GStyle() = default;
@@ -53,13 +51,11 @@ export namespace z0 {
         */
         virtual void draw(const GWidget&, GResource&, VectorRenderer&, bool) const = 0;
 
-
         /* Resize a widget.
           	GWidget	: widget to draw
           	GResource : resources used for resizing this widget
         */
         virtual void resize(GWidget&, Rect&, GResource&) = 0;
-
 
         /* Return the default font for the layout.
           	Font	: font to use for the layout
@@ -67,21 +63,20 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Font> getFont() const { return font; };
 
     protected:
-        shared_ptr<Font>	font;
+        shared_ptr<Font> font;
         virtual bool init() = 0;
         virtual void updateOptions() = 0;
 
     private:
-        class GLayoutOption
-        {
+        class GLayoutOption {
         public:
             string name;
             string value;
-            GLayoutOption(string N): name(std::move(N)) {};
+
+            GLayoutOption(string N): name(std::move(N)) {
+            };
         };
 
         list<shared_ptr<GLayoutOption>> options;
     };
-
-
 }

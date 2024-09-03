@@ -1,5 +1,4 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
 
 export module Z0:Renderer;
@@ -12,9 +11,9 @@ export namespace z0 {
     class Renderer {
     public:
         // Returns the offscreen image buffer
-        virtual VkImage getImage() const { return VK_NULL_HANDLE; };
+        [[nodiscard]] virtual VkImage getImage() const { return VK_NULL_HANDLE; };
         // Returns the offscreen image buffer view
-        virtual VkImageView getImageView() const { return VK_NULL_HANDLE; };
+        [[nodiscard]] virtual VkImageView getImageView() const { return VK_NULL_HANDLE; };
         // Release all the Vulkan resources
         virtual void cleanup() = 0;
         // Update frame datas
@@ -29,7 +28,7 @@ export namespace z0 {
         virtual void createImagesResources() = 0;
         // Release images, imageviews & buffers
         virtual void cleanupImagesResources() = 0;
-        // Release and re create images, imageviews & buffers, in needed
+        // Release and re-create images, imageviews & buffers, in needed
         virtual void recreateImagesResources() = 0;
     };
 

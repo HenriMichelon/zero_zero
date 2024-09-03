@@ -294,7 +294,7 @@ export namespace z0 {
             else {
                 D.setPenColor(fu);
             }
-            D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
+            //D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
         }
         if (RES.style != GStyleClassicResource::FLAT) {
             auto sb = shadowBright;
@@ -311,8 +311,8 @@ export namespace z0 {
                 default:
                     break;
             }
-            D.drawLine({l, b}, {l+w, b});
-            D.drawLine({l, b}, {l, b+h});
+            //D.drawLine({l, b}, {l+w, b});
+            //D.drawLine({l, b}, {l, b+h});
             switch (RES.style) {
                 case GStyleClassicResource::RAISED:
                     D.setPenColor(sb);
@@ -323,8 +323,8 @@ export namespace z0 {
                 default:
                     break;
             }
-            D.drawLine({l+w, b}, {l+w, b+h});
-            D.drawLine({l+w, b+h}, {l, b+h});
+            //D.drawLine({l+w, b}, {l+w, b+h});
+            //D.drawLine({l+w, b+h}, {l, b+h});
         }
     }
 

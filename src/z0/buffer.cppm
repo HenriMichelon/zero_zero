@@ -93,7 +93,7 @@ export namespace z0 {
             }
         }
 
-        void copyTo(Buffer& dstBuffer, const VkDeviceSize size) const {
+        void copyTo(const Buffer& dstBuffer, const VkDeviceSize size) const {
             VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
             const VkBufferCopy copyRegion {
                 .size = size

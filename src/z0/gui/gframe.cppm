@@ -14,13 +14,18 @@ export namespace z0 {
     class GFrame: public GPanel {
     public:
         // Create a GFrame widget with an optional title
-        GFrame(const string& = "");
+        explicit GFrame(const string& STR= ""): GPanel(GWidget::FRAME), text(STR) {
+        }
 
         // Return the current title of the widget
         [[nodiscard]] const string& getText() const { return text; }
 
         // Change the title of the widget
-        void setText(const string&);
+        void setText(const string& T) {
+            text = T;
+            resizeChildren();
+            refresh();
+        }
 
         void setTextColor(Color c);
         [[nodiscard]] Color getTextColor() const { return textColor; }
@@ -30,12 +35,4 @@ export namespace z0 {
         Color   textColor;
     };
 
-    GFrame::GFrame(const string& STR): GPanel(GWidget::FRAME), text(STR) {
-    }
-
-    void GFrame::setText(const string &C) {
-        text = C;
-        resizeChildren();
-        refresh();
-    }
 }

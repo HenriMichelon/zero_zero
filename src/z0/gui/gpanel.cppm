@@ -1,5 +1,4 @@
 module;
-#include "z0/libraries.h"
 
 export module Z0:GPanel;
 
@@ -15,7 +14,7 @@ export namespace z0 {
         GPanel(): GWidget(PANEL) {};
 
     protected:
-        explicit GPanel(Type T): GWidget(T) {};
+        explicit GPanel(const Type T): GWidget(T) {};
     };
 
 }

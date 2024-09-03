@@ -42,24 +42,30 @@ namespace z0 {
     }
 
     // vkCreateDebugUtilsMessengerEXT linker
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                          const VkAllocationCallbacks* pAllocator,
+                                          VkDebugUtilsMessengerEXT* pDebugMessenger) {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        } else {
+        }
+        else {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
     }
 
     // vkDestroyDebugUtilsMessengerEXT linker
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                       const VkAllocationCallbacks* pAllocator) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
             func(instance, debugMessenger, pAllocator);
         }
     }
 
-    Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node>& node):
+    Application::Application(const ApplicationConfig& appConfig, const shared_ptr<Node>& node):
         applicationConfig{appConfig},
         rootNode{node} {
         assert(_instance == nullptr);
@@ -74,7 +80,7 @@ namespace z0 {
         // Check if all the requested Vulkan layers are supported by the Vulkan instance
         const vector<const char*> requestedLayers = {
 #ifndef NDEBUG
-                "VK_LAYER_KHRONOS_validation"
+            "VK_LAYER_KHRONOS_validation"
 #endif
         };
         uint32_t layerCount;
@@ -107,19 +113,19 @@ namespace z0 {
 
         // Use Vulkan 1.3.x
         const VkApplicationInfo applicationInfo{
-                .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                .apiVersion = VK_API_VERSION_1_3
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .apiVersion = VK_API_VERSION_1_3
         };
         // Initialize Vulkan instances, extensions & layers
         const VkInstanceCreateInfo createInfo = {
-                VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-                nullptr,
-                0,
-                &applicationInfo,
-                static_cast<uint32_t>(requestedLayers.size()),
-                requestedLayers.data(),
-                static_cast<uint32_t>(instanceExtensions.size()),
-                instanceExtensions.data()
+            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            nullptr,
+            0,
+            &applicationInfo,
+            static_cast<uint32_t>(requestedLayers.size()),
+            requestedLayers.data(),
+            static_cast<uint32_t>(instanceExtensions.size()),
+            instanceExtensions.data()
         };
         if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)die("Failed to create Vulkan instance");
         volkLoadInstance(vkInstance);
@@ -136,14 +142,16 @@ namespace z0 {
         // Initialize validating layer loggin
         const VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+            | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
             .pfnUserCallback = debugCallback,
             .pUserData = nullptr,
         };
         if (CreateDebugUtilsMessengerEXT(vkInstance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
             die("failed to set up debug messenger!");
-        }   
+        }
 
         // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();
@@ -178,9 +186,9 @@ namespace z0 {
         // The global UI window manager
         windowManager = make_unique<GManager>(vectorRenderer,
                                               (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
-                                              applicationConfig.defaultFontSize);  
+                                              applicationConfig.defaultFontSize);
 
-        registerTypes();  
+        registerTypes();
     }
 
     Application::~Application() {
@@ -199,15 +207,15 @@ namespace z0 {
         assert(node != nullptr);
         addedNodes.push_back(node);
         if (node->isProcessed()) { node->_onEnterScene(); }
-        for(const auto& child: node->_getChildren()) {
+        for (const auto& child : node->_getChildren()) {
             _addNode(child);
         }
         node->_setAddedToScene(true);
     }
 
-    void Application::_removeNode(const shared_ptr<Node> &node) {
+    void Application::_removeNode(const shared_ptr<Node>& node) {
         assert(node != nullptr && node->_isAddedToScene());
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             _removeNode(child);
         }
         removedNodes.push_back(node);
@@ -215,7 +223,7 @@ namespace z0 {
         if (node->isProcessed()) { node->_onExitScene(); }
     }
 
-    void Application::activateCamera(const shared_ptr<Camera> &camera) {
+    void Application::activateCamera(const shared_ptr<Camera>& camera) {
         assert(camera != nullptr);
         sceneRenderer->activateCamera(camera);
     }
@@ -227,7 +235,7 @@ namespace z0 {
         sceneRenderer->preUpdateScene();
         windowManager->drawFrame();
         if (!removedNodes.empty()) {
-            for (const auto &node: removedNodes) {
+            for (const auto& node : removedNodes) {
                 sceneRenderer->removeNode(node);
             }
             removedNodes.clear();
@@ -239,7 +247,7 @@ namespace z0 {
             }
         }
         if (!addedNodes.empty()) {
-            for (const auto &node: addedNodes) {
+            for (const auto& node : addedNodes) {
                 sceneRenderer->addNode(node);
             }
             addedNodes.clear();
@@ -247,7 +255,8 @@ namespace z0 {
         sceneRenderer->postUpdateScene();
 
         // https://gafferongames.com/post/fix_your_timestep/
-        double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+        double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).
+            count();
         double frameTime = newTime - currentTime;
         if (frameTime > 0.25) frameTime = 0.25; // Note: Max frame time to avoid spiral of death
         currentTime = newTime;
@@ -273,7 +282,7 @@ namespace z0 {
         }
     }
 
-    void Application::_onInput(InputEvent &inputEvent) {
+    void Application::_onInput(InputEvent& inputEvent) {
         if (stopped) return;
         if (windowManager->onInput(inputEvent)) { return; }
         input(rootNode, inputEvent);
@@ -305,7 +314,7 @@ namespace z0 {
 
     void Application::ready(const shared_ptr<Node>& node) {
         assert(node != nullptr);
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             ready(child);
         }
         if (node->isProcessed()) {
@@ -316,12 +325,13 @@ namespace z0 {
     bool Application::input(const shared_ptr<Node>& node, InputEvent& inputEvent) {
         assert(node != nullptr);
         if (!node->_isAddedToScene()) { return false; }
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             if (input(child, inputEvent)) return true;
         }
         if (node->isProcessed()) {
             return node->onInput(inputEvent);
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -331,7 +341,7 @@ namespace z0 {
         if (node->isProcessed()) {
             node->onProcess(delta);
         }
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             process(child, delta);
         }
     }
@@ -342,11 +352,11 @@ namespace z0 {
             node->_physicsUpdate(delta);
             node->onPhysicsProcess(delta);
         }
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             physicsProcess(child, delta);
         }
     }
-    
+
     void Application::pause(const shared_ptr<Node>& node) {
         assert(node != nullptr);
         if (paused && (!node->isProcessed())) {
@@ -355,19 +365,19 @@ namespace z0 {
         if ((!paused && (node->isProcessed()))) {
             node->_onResume();
         }
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             pause(child);
         }
     }
 
-    void  Application::setPaused(bool state) { 
-        paused = state; 
+    void Application::setPaused(bool state) {
+        paused = state;
         pause(rootNode);
     }
 
-    void Application::cleanup(shared_ptr<z0::Node> &node) {
+    void Application::cleanup(shared_ptr<z0::Node>& node) {
         assert(node != nullptr);
-        for(auto& child: node->_getChildren()) {
+        for (auto& child : node->_getChildren()) {
             cleanup(child);
         }
         node.reset();
@@ -424,13 +434,9 @@ namespace z0 {
         sceneRenderer->setShadowCasting(enable);
     }
 
+    uint64_t Application::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
 
-    uint64_t  Application::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
+    const string& Application::getAdapterDescription() const { return device->getAdapterDescription(); }
 
-
-    const string&  Application::getAdapterDescription() const { return device->getAdapterDescription(); }
-
-     uint64_t  Application::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
-
-
+    uint64_t Application::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
 }

@@ -1,5 +1,4 @@
 module;
-#include "z0/libraries.h"
 
 export module Z0:GBox;
 
@@ -15,7 +14,7 @@ namespace z0 {
         GBox(): GPanel {BOX} {}
 
     protected:
-        GBox(Type T): GPanel{T} {}
+        explicit GBox(const Type T): GPanel{T} {}
     };
 
 

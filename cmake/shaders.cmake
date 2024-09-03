@@ -34,4 +34,5 @@ function(add_shaders TARGET_NAME BUILD_DIR SHADER_INCLUDE_DIR)
             SOURCES ${SHADER_SOURCE_FILES}
             BYPRODUCTS ${SHADER_PRODUCTS}
     )
+
 endfunction()

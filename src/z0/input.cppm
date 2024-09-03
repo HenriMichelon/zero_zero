@@ -1,7 +1,7 @@
 module;
 #ifdef _WIN32
-    #include <Xinput.h>
-    #include <dinput.h>
+#include <Xinput.h>
+#include <dinput.h>
 #endif
 #include "z0/libraries.h"
 
@@ -12,7 +12,6 @@ import :Tools;
 import :InputEvent;
 
 namespace z0 {
-
     /**
      * A singleton for handling inputs
      */
@@ -21,14 +20,14 @@ namespace z0 {
         /**
          * Returns true if you are pressing the key
          */
-        [[nodiscard]] static bool isKeyPressed(Key key) {
+        [[nodiscard]] static bool isKeyPressed(const Key key) {
             return _keyPressedStates[key];
         }
 
         /**
          * Returns true when the user has started pressing the key
          */
-        [[nodiscard]] static bool isKeyJustPressed(Key key) {
+        [[nodiscard]] static bool isKeyJustPressed(const Key key) {
             auto result = _keyJustPressedStates[key];
             _keyJustPressedStates[key] = false;
             return result;
@@ -37,7 +36,7 @@ namespace z0 {
         /**
          * Returns true when the user stops pressing the key
          */
-        [[nodiscard]] static bool isKeyJustReleased(Key key) {
+        [[nodiscard]] static bool isKeyJustReleased(const Key key) {
             auto result = _keyJustReleasedStates[key];
             _keyJustReleasedStates[key] = false;
             return result;
@@ -51,14 +50,14 @@ namespace z0 {
         /**
          * Returns true if you are pressing the mouse button
          */
-        [[nodiscard]] static bool isMouseButtonPressed(MouseButton mouseButton) {
+        [[nodiscard]] static bool isMouseButtonPressed(const MouseButton mouseButton) {
             return _mouseButtonPressedStates[mouseButton];
         }
 
         /**
          * Returns true when the user has started pressing the mouse button
          */
-       [[nodiscard]] static bool isMouseButtonJustPressed(MouseButton mouseButton) {
+        [[nodiscard]] static bool isMouseButtonJustPressed(const MouseButton mouseButton) {
             auto result = _mouseButtonJustPressedStates[mouseButton];
             _mouseButtonJustPressedStates[mouseButton] = false;
             return result;
@@ -67,10 +66,10 @@ namespace z0 {
         /**
          * Returns true when the user stops pressing the mouse button
          */
-        [[nodiscard]] static bool isMouseButtonJustReleased(MouseButton mouseButton) {
-           auto result = _mouseButtonJustReleasedStates[mouseButton];
-           _mouseButtonJustReleasedStates[mouseButton] = false;
-           return result;
+        [[nodiscard]] static bool isMouseButtonJustReleased(const MouseButton mouseButton) {
+            auto result = _mouseButtonJustReleasedStates[mouseButton];
+            _mouseButtonJustReleasedStates[mouseButton] = false;
+            return result;
         }
 
         /**
@@ -107,40 +106,40 @@ namespace z0 {
          */
         [[nodiscard]] static vec2 getGamepadVector(uint32_t index, GamepadAxisJoystick axisJoystick);
 
-         /**
-         * Returns true if you are pressing the gamepad button
-         * @param index index of the joypad in [0..getConnectedJoypads()]
-         * @param gamepadButton gamepad button
-         */
+        /**
+        * Returns true if you are pressing the gamepad button
+        * @param index index of the joypad in [0..getConnectedJoypads()]
+        * @param gamepadButton gamepad button
+        */
         [[nodiscard]] static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
         //static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
 
-       private:
+    private:
         [[nodiscard]] static float applyDeadzone(float value, float deadzonePercent);
         static void generateGamepadButtonEvent(GamepadButton, bool);
-    public:
-     //static list<shared_ptr<InputEvent>> _inputQueue;
-     static unordered_map<Key, bool> _keyPressedStates;
-     static unordered_map<Key, bool> _keyJustPressedStates;
-     static unordered_map<Key, bool> _keyJustReleasedStates;
-     static unordered_map<MouseButton, bool> _mouseButtonPressedStates;
-     static unordered_map<MouseButton, bool> _mouseButtonJustPressedStates;
-     static unordered_map<MouseButton, bool> _mouseButtonJustReleasedStates;
-     static unordered_map<GamepadButton, bool> _gamepadButtonPressedStates;
 
-     static OsKey keyToOsKey(Key key);
-     static Key osKeyToKey(OsKey key);
+    public:
+        //static list<shared_ptr<InputEvent>> _inputQueue;
+        static unordered_map<Key, bool> _keyPressedStates;
+        static unordered_map<Key, bool> _keyJustPressedStates;
+        static unordered_map<Key, bool> _keyJustReleasedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonPressedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonJustPressedStates;
+        static unordered_map<MouseButton, bool> _mouseButtonJustReleasedStates;
+        static unordered_map<GamepadButton, bool> _gamepadButtonPressedStates;
+
+        static OsKey keyToOsKey(Key key);
+        static Key osKeyToKey(OsKey key);
 
 #ifdef _WIN32
-     static map<MouseCursor, HCURSOR> _mouseCursors;
-     static const int   DI_AXIS_RANGE;
-     static const float DI_AXIS_RANGE_DIV;
-     static bool _keys[256];
-     static bool _useXInput;
-     static void _initInput();
-     static void _closeInput();
-     static void _updateInputStates();
+        static map<MouseCursor, HCURSOR> _mouseCursors;
+        static const int DI_AXIS_RANGE;
+        static const float DI_AXIS_RANGE_DIV;
+        static bool _keys[256];
+        static bool _useXInput;
+        static void _initInput();
+        static void _closeInput();
+        static void _updateInputStates();
 #endif
-
     };
 }
