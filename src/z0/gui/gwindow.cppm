@@ -53,9 +53,9 @@ export namespace z0 {
         void setStyle(shared_ptr<GStyle>);
 
         /** Returns the main widget .
-            This is widget that cover the entire window and is the parent
+            This is the widget that covers the entire window and is the parent
             of all the widgets in the window. */
-        [[nodiscard]] GWidget& getWidget();
+        [[nodiscard]] GWidget& getWidget() const;
 
         /** Sets the main widget with optional resource string.
             Call SetLayout(nullptr) if no layout have been set previously */

@@ -185,7 +185,7 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<GWidget> getParent() const;
 
         /** Adds a child widget.
-              Childs widget will be destroyed on parent destruction.
+              Children widgets will be destroyed on parent destruction.
             	@param GWidget	: child widget to add
             	@param AlignementType	: placement
             	@Param string	: resource string
@@ -213,7 +213,7 @@ export namespace z0 {
         /** Returns false if the background is transparent */
         [[nodiscard]] bool isDrawBackground() const;
 
-        /** Sets to true to disable de background drawing */
+        /** Sets to true make the widget background transparent */
         void setDrawBackground(bool isTransparent);
 
         [[nodiscard]] bool isPushed() const;
