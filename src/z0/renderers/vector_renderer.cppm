@@ -21,7 +21,7 @@ import :Resource;
 
 namespace z0 {
     void vr_stb_write_func(void* context, void* data, int size) {
-        auto* buffer = reinterpret_cast<vector<unsigned char>*>(context);
+        auto* buffer = static_cast<vector<unsigned char>*>(context);
         auto* ptr = static_cast<unsigned char*>(data);
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
@@ -42,7 +42,7 @@ namespace z0 {
             init();
         }
 
-        // USed when this renderer is in a renderer chain
+        // Used when this renderer is in a renderer chain
         VectorRenderer(Device& device,
                        const string& shaderDirectory,
                        const shared_ptr<ColorFrameBufferHDR>& inputColorAttachmentHdr) :
@@ -165,7 +165,7 @@ namespace z0 {
                 stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
             }
             descriptorSetNeedUpdate = true;
-            // Initialize or update pipeline layout & descriptos sets if needed
+            // Initialize or update pipeline layout & descriptors sets if needed
             createOrUpdateResources();
         }
 
