@@ -34,10 +34,14 @@ export import :TypeRegistry;
 export import :Character;
 export import :CollisionArea;
 export import :Tween;
+export import :Viewport;
 
+export import :GManager;
 export import :GEvent;
 export import :GButton;
 export import :GText;
 export import :GWindow;
 export import :GPanel;
+export import :GFrame;
+export import :GTreeView;
 
