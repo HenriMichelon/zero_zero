@@ -281,8 +281,8 @@ export namespace z0 {
         if ((W.getWidth()<4) || (W.getHeight()<4)) { return; }
         float l = W.getRect().x;
         float b = W.getRect().y;
-        float w = W.getRect().width;
-        float h = W.getRect().height;
+        const float w = W.getRect().width;
+        const float h = W.getRect().height;
         auto fd = fgDown;
         auto fu = fgUp;
         fd.color.a = W.getTransparency();

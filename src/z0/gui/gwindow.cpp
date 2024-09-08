@@ -209,7 +209,7 @@ namespace z0 {
         focusedWidget = W.get();
     }
 
-    GWidget& GWindow::getWidget() {
+    GWidget& GWindow::getWidget() const {
         assert(windowManager && "GWindow must be added to a window manager before use");
         return *widget;
     }
