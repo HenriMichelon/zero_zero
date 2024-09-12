@@ -21,7 +21,7 @@
  *
  * \section install_sec Installation
  * **Building tools needed**
- * - LLVM 18+ (or GCC 14+), for example [LLVM+MingGW 64/MSVCRT/x86_64](https://github.com/mstorsjo/llvm-mingw/releases)
+ * - LLVM 18+, for example [LLVM+MingGW 64/MSVCRT/x86_64](https://github.com/mstorsjo/llvm-mingw/releases)
  * - [CMake 3.29+](https://cmake.org/download/) with a [build tool](https://github.com/ninja-build/ninja/releases)
  * - [Vulkan SDK 1.3.29x+](https://vulkan.lunarg.com/)
  *
