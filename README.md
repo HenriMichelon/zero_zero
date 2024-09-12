@@ -1,6 +1,6 @@
 # ZeroZero
 
-ZeroZero is an experimental 3D engine based on [Vulkan 1.3](https://www.vulkan.org/) and [Jolt 5.x](https://github.com/jrouwe/JoltPhysics) made for learning purpose.
+ZeroZero is an experimental 3D engine based on [Vulkan 1.3](https://www.vulkan.org/) and [Jolt 5.x](https://github.com/jrouwe/JoltPhysics) made in Modern C++ for learning purpose.
 
 [User documentation](https://henrimichelon.github.io/ZeroZero/)
 
