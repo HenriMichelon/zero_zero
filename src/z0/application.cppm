@@ -59,7 +59,7 @@ export namespace z0 {
 
         /**
          * Returns the startup configuration
-         * @return the global configuration given when the application was instancied
+         * @return the global configuration given when the application was instanced
          */
         [[nodiscard]] const ApplicationConfig& getConfig() const {
             return applicationConfig;
