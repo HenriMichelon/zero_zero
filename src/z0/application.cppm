@@ -26,7 +26,7 @@ export namespace z0 {
 
     /**
      * Global application.
-     * Automaticaly instanciated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
+     * Automatically instantiated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
      * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html) and the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html)
      */
     class Application final : public Object {
@@ -165,9 +165,9 @@ export namespace z0 {
         shared_ptr<SceneRenderer> sceneRenderer;
         // The 2D vector renderer used for the UI
         shared_ptr<VectorRenderer> vectorRenderer;
-        // Defered list of nodes added to the current scene, processed before each frame
+        // Deferred list of nodes added to the current scene, processed before each frame
         vector<shared_ptr<Node>> addedNodes{};
-        // Defered list of nodes removed from the current scene, processed before each frame
+        // Deferred list of nodes removed from the current scene, processed before each frame
         vector<shared_ptr<Node>> removedNodes{};
         // vector renderer size ratios 
         vec2 vectorRatio;
@@ -200,15 +200,15 @@ export namespace z0 {
         void drawFrame();
         // Reset the allocated nodes of the tree node
         void cleanup(shared_ptr<Node>& node);
-        // Recusively reset the allocated nodes of the tree node
+        // Recursively reset the allocated nodes of the tree node
         void ready(const shared_ptr<Node>& node);
-        // Recusively call _onReady() on a tree node
+        // Recursively call _onReady() on a tree node
         void pause(const shared_ptr<Node>& node);
-        // Recusively call onProcess() on a tree node
+        // Recursively call onProcess() on a tree node
         void process(const shared_ptr<Node>& node, float alpha);
-        // Recusively call onPhysicsProcess() on a tree node
+        // Recursively call onPhysicsProcess() on a tree node
         void physicsProcess(const shared_ptr<Node>& node, float delta);
-        // Recusively call onInput() on a tree node
+        // Recursively call onInput() on a tree node
         bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
         // Register all nodes types
         void registerTypes() const;
@@ -222,7 +222,7 @@ export namespace z0 {
         void _mainLoop();
 #endif
         // Pause/resume the main loop
-        void _stop(bool stop) { stopped = stop; };
+        void _stop(const bool stop) { stopped = stop; };
 
         // Internal accessor/modifiers
         Device& _getDevice() { return *device; }
@@ -242,6 +242,6 @@ export namespace z0 {
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
         explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
-        virtual ~Application();
+        ~Application() override;
     };
 }
