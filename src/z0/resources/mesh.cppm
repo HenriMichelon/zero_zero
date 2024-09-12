@@ -152,7 +152,7 @@ export namespace z0 {
             const auto& device = Application::get()._getDevice();
             ////////////// Create vertices buffer
             const auto vertexCount = static_cast<uint32_t>(vertices.size());
-            assert(vertexCount >= 3 && "Vertex count must be at leat 3");
+            assert(vertexCount >= 3 && "Vertex count must be at least 3");
             constexpr auto vertexSize = sizeof(vertices[0]);
             const Buffer vtxStagingBuffer {
                 device,

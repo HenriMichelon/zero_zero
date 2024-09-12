@@ -30,7 +30,7 @@ export namespace z0 {
 
     /**
      * Log a message into the logging system. 
-     * Log messages can be deferred when displayed inside a separate window if emited from a thread different from the main thread.
+     * Log messages can be deferred when displayed inside a separate window if emitted from a thread different from the main thread.
      */
 #ifdef DISABLE_LOG
     void log(convertible_to<string_view> auto&& ...s) {}

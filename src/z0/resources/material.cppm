@@ -149,7 +149,7 @@ export namespace z0 {
         /**
          * Maximum number of parameters of a ShaderMaterial
          */
-        static const int MAX_PARAMETERS = 4;
+        static constexpr int MAX_PARAMETERS = 4;
 
         /**
          * Creates a ShaderMaterial by copy
@@ -208,7 +208,7 @@ export namespace z0 {
     };
 
     /**
-     * Singleton for all the materials used by the SceneRenderer to oultine meshes
+     * Singleton for all the materials used by the SceneRenderer to outline meshes
      */
     class OutlineMaterials {
     public:

@@ -20,7 +20,7 @@ namespace z0 {
 
 #ifdef _WIN32
 
-    const char szClassName[ ] = "WindowsApp";
+    constexpr char szClassName[ ] = "WindowsApp";
 
     // Helper to translate Windows get state to z0 key modifiers
     int _getKeyboardModifiers() {
@@ -43,8 +43,8 @@ namespace z0 {
     LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static float lastMouseX = -1.0f;
         static float lastMouseY = -1.0f;
-        auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-        auto& app = z0::Application::get();
+        auto* window = reinterpret_cast<z0::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        auto& app = Application::get();
         switch (message) {
             case WM_CREATE:
                 // Save the Window pointer passed to CreateWindowEx
@@ -72,30 +72,30 @@ namespace z0 {
                 }
                 break;
             case WM_KEYDOWN: {
-                auto scanCode = static_cast<z0::OsKey>((lParam & 0x00FF0000) >> 16);
-                auto key = z0::Input::osKeyToKey(scanCode);
-                z0::Input::_keyJustPressedStates[key] = !z0::Input::_keyPressedStates[key];
-                z0::Input::_keyPressedStates[key] = true;
-                z0::Input::_keyJustReleasedStates[key] = false;
-                auto event = z0::InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
+                auto scanCode = static_cast<OsKey>((lParam & 0x00FF0000) >> 16);
+                auto key = Input::osKeyToKey(scanCode);
+                Input::_keyJustPressedStates[key] = !Input::_keyPressedStates[key];
+                Input::_keyPressedStates[key] = true;
+                Input::_keyJustReleasedStates[key] = false;
+                auto event = InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
                 app._onInput(event);
                 break;
             }
             case WM_KEYUP: {
                 auto scanCode = static_cast<z0::OsKey>((lParam & 0x00FF0000) >> 16);
-                auto key = z0::Input::osKeyToKey(scanCode);
-                z0::Input::_keyPressedStates[key] = false;
-                z0::Input::_keyJustPressedStates[key] = false;
-                z0::Input::_keyJustReleasedStates[key] = true;
-                auto event = z0::InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
+                auto key = Input::osKeyToKey(scanCode);
+                Input::_keyPressedStates[key] = false;
+                Input::_keyJustPressedStates[key] = false;
+                Input::_keyJustReleasedStates[key] = true;
+                auto event = InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
                 app._onInput(event);
                 break;
             }
             case WM_LBUTTONDOWN: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT];
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = true;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_LEFT] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT];
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT] = true;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_LEFT] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_LEFT,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -105,10 +105,10 @@ namespace z0 {
                 break;
             }
             case WM_LBUTTONUP: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_LEFT] = false;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_LEFT] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_LEFT,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_LEFT] = false;
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT] = false;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_LEFT] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_LEFT,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -118,10 +118,10 @@ namespace z0 {
                 break;
             }
             case WM_RBUTTONDOWN: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT];
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = true;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_RIGHT] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT];
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT] = true;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_RIGHT] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_RIGHT,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -131,10 +131,10 @@ namespace z0 {
                 break;
             }
             case WM_RBUTTONUP: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_RIGHT] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_RIGHT,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_RIGHT] = false;
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT] = false;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_RIGHT] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_RIGHT,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -144,10 +144,10 @@ namespace z0 {
                 break;
             }
             case WM_MBUTTONDOWN: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = !z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE];
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = true;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE];
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = true;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_MIDDLE,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -157,10 +157,10 @@ namespace z0 {
                 break;
             }
             case WM_MBUTTONUP: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_MIDDLE,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = false;
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = false;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_MIDDLE,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -170,10 +170,10 @@ namespace z0 {
                 break;
             }
             case WM_MOUSEWHEEL: {
-                z0::Input::_mouseButtonJustPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                z0::Input::_mouseButtonPressedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                z0::Input::_mouseButtonJustReleasedStates[z0::MOUSE_BUTTON_MIDDLE] = false;
-                auto event = z0::InputEventMouseButton(z0::MOUSE_BUTTON_WHEEL,
+                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = false;
+                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = false;
+                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
+                auto event = InputEventMouseButton(MOUSE_BUTTON_WHEEL,
                                                        GET_WHEEL_DELTA_WPARAM(wParam) < 0,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(GET_KEYSTATE_WPARAM(wParam)),
@@ -194,10 +194,10 @@ namespace z0 {
                 if ((lastMouseX != -1) && (lastMouseY != -1)) {
                     auto dx = xPos - lastMouseX;
                     auto dy = yPos - lastMouseY;
-                    auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
+                    auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
                     app._onInput(event);
                 } else {
-                    auto event = z0::InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
+                    auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
                     app._onInput(event);
                 }
                 lastMouseX = xPos;
@@ -227,7 +227,7 @@ namespace z0 {
                     bool keyDown = !(rawKB.Flags & RI_KEY_BREAK);
                     UINT key = rawKB.MakeCode;
                     if (key < 256) {
-                        z0::Input::_keys[key] = keyDown;
+                        Input::_keys[key] = keyDown;
                     }
                 }
                 delete[] lpb;
@@ -274,7 +274,7 @@ namespace z0 {
             }
     #endif
 
-            const WNDCLASSEX wincl{
+            const WNDCLASSEX wincl {
                 .cbSize = sizeof(WNDCLASSEX),
                 .style = CS_DBLCLKS,
                 .lpfnWndProc = WindowProcedure,
@@ -323,8 +323,7 @@ namespace z0 {
                     break;
                 }
                 case WINDOW_MODE_FULLSCREEN: {
-                    DEVMODE dmScreenSettings;
-                    memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+                    DEVMODE dmScreenSettings = {};
                     dmScreenSettings.dmSize = sizeof(dmScreenSettings);
                     dmScreenSettings.dmPelsWidth = static_cast<int>(applicationConfig.windowWidth);
                     dmScreenSettings.dmPelsHeight =  static_cast<int>(applicationConfig.windowHeight);
@@ -404,7 +403,7 @@ namespace z0 {
         BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
             static int monitorIndex = 0;
             if (monitorIndex == 0) {
-                RECT* pRect = (RECT*)dwData;
+                RECT* pRect = reinterpret_cast<RECT*>(dwData);
                 *pRect = *lprcMonitor;
                 return FALSE;
             }
@@ -413,10 +412,10 @@ namespace z0 {
         }
 
         void CopyTextToClipboard(const string& text) {
-            if (OpenClipboard(NULL)) {
+            if (OpenClipboard(nullptr)) {
                 EmptyClipboard();
 
-                size_t size = (text.size() + 1) * sizeof(wchar_t);
+                const size_t size = (text.size() + 1) * sizeof(wchar_t);
                 HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size);
                 if (hMem) {
                     memcpy(GlobalLock(hMem), text.c_str(), size);
@@ -432,10 +431,9 @@ namespace z0 {
 
         LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
             static HFONT hFont;
-            auto* window = (z0::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             switch (message) {
                 case WM_CREATE: {
-                    z0::Window::_hwndLogList = CreateWindow(
+                    Window::_hwndLogList = CreateWindow(
                         "LISTBOX",
                         nullptr,
                         WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL |LBS_STANDARD,
@@ -460,17 +458,17 @@ namespace z0 {
                         DEFAULT_QUALITY,           // Output quality
                         DEFAULT_PITCH | FF_SWISS,  // Pitch and family
                         TEXT("Consolas"));            // Typeface name
-                    SendMessage(z0::Window::_hwndLogList, WM_SETFONT, (WPARAM)hFont, TRUE);
+                    SendMessage(Window::_hwndLogList, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
                     return 0;
                 }
                 case WM_COMMAND: {
                     auto subcommande = HIWORD(wParam);
                     if (subcommande == LBN_SELCHANGE) {
-                        int index = SendMessage(z0::Window::_hwndLogList, LB_GETCURSEL, 0, 0);
+                        int index = SendMessage(Window::_hwndLogList, LB_GETCURSEL, 0, 0);
                         if (index != LB_ERR) {
-                            auto length = SendMessage(z0::Window::_hwndLogList, LB_GETTEXTLEN, index, 0);
-                            TCHAR* buffer = new TCHAR[length+1];
-                            SendMessage(z0::Window::_hwndLogList, LB_GETTEXT, index, (LPARAM)buffer);
+                            const auto length = SendMessage(Window::_hwndLogList, LB_GETTEXTLEN, index, 0);
+                            auto buffer = new TCHAR[length+1];
+                            SendMessage(Window::_hwndLogList, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
                             buffer[length] = 0;
                             CopyTextToClipboard(buffer);
                             delete[] buffer;
@@ -479,32 +477,33 @@ namespace z0 {
                     break;
                 }
                 case WM_SIZE: {
-                    if (z0::Window::_hwndLogList) {
-                        int width = LOWORD(lParam);
-                        int height = HIWORD(lParam);
-                        MoveWindow(z0::Window::_hwndLogList, 0, 0, width, height, TRUE);
+                    if (Window::_hwndLogList) {
+                        const int width = LOWORD(lParam);
+                        const int height = HIWORD(lParam);
+                        MoveWindow(Window::_hwndLogList, 0, 0, width, height, TRUE);
                     }
                     return 0;
                 }
                 case WM_DESTROY: {
                     DeleteObject(hFont);
                 }
+                default: break;
             }
             return DefWindowProc(hwnd, message, wParam, lParam);
         }
 
         HWND Window::_hwndLog{nullptr};
         HWND Window::_hwndLogList{nullptr};
-        const char szClassNameLog[ ] = "WindowsAppLog";
+        constexpr char szClassNameLog[ ] = "WindowsAppLog";
         list<string> Window::_deferredLogMessages;
         DWORD Window::_mainThreadId;
         unique_ptr<ofstream> Window::_logFile{nullptr};
 
         void Window::createLogWindow(HMODULE hInstance) {
             RECT secondMonitorRect = { 0 };
-            EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&secondMonitorRect);
+            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&secondMonitorRect));
 
-            const WNDCLASSEX wincl{
+            const WNDCLASSEX wincl {
                 .cbSize = sizeof(WNDCLASSEX),
                 .style = CS_DBLCLKS,
                 .lpfnWndProc = WindowProcedureLog,
@@ -540,7 +539,7 @@ namespace z0 {
         }
 
         void Window::_log(string msg) {
-            auto logMode = Application::get().getConfig().loggingMode;
+            const auto logMode = Application::get().getConfig().loggingMode;
             if (logMode == LOGGING_NONE) { return; }
             using namespace chrono;
             auto in_time_t = system_clock::to_time_t(system_clock::now());
@@ -553,8 +552,8 @@ namespace z0 {
                 // Store the log message in the deferred log queue if we log from another thread
                 // because the log window proc run on the main thread
                 if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
-                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(item.c_str()));
-                    int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(item.c_str()));
+                    const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
                     SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
                 } else {
                     _deferredLogMessages.push_back(item);
@@ -571,8 +570,8 @@ namespace z0 {
         void Window::_processDeferredLog() {
             if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
                 for(const auto& msg: _deferredLogMessages) {
-                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, (LPARAM)(msg.c_str()));
-                    int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
+                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(msg.c_str()));
+                    const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
                     SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
                 }
                 _deferredLogMessages.clear();

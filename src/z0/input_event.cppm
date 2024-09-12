@@ -43,7 +43,7 @@ export namespace z0 {
         [[nodiscard]] inline Key getKey() const { return keycode; }
 
         /**
-         * The repeat count for the current event. The value is the number of times the keystroke is autorepeated as a result of the user holding down the key
+         * The repeat count for the current event. The value is the number of times the keystroke is auto-repeated as a result of the user holding down the key
          */
         [[nodiscard]] int getRepeatCount() const { return repeat; }
 
@@ -145,12 +145,12 @@ export namespace z0 {
             relativeY{rY} {}
 
         /**
-         * Returns the relative x mouvement
+         * Returns the relative x movement
          */
         [[nodiscard]] inline float getRelativeX() const { return relativeX; }
 
         /**
-         * Returns the relative y mouvement
+         * Returns the relative y movement
          */
         [[nodiscard]] inline float getRelativeY() const { return relativeY; }
 

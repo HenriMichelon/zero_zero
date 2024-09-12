@@ -28,7 +28,7 @@ namespace z0 {
     void ContactListener::emit(Signal::signal signal,
                                const JPH::Body &body1,
                                const JPH::Body &body2,
-                               const JPH::ContactManifold &inManifold) {
+                               const JPH::ContactManifold &inManifold) const {
         const auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
         const auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
         assert(node1 && node2 && "physics body not associated with a node");
@@ -48,8 +48,8 @@ namespace z0 {
         node2->emit(signal, &event2);
     }
 
-    bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer layersAndMask1,
-                                                  JPH::ObjectLayer layersAndMask2) const {
+    bool ObjectLayerPairFilterImpl::ShouldCollide(const JPH::ObjectLayer layersAndMask1,
+                                                  const JPH::ObjectLayer layersAndMask2) const {
         const auto sourceMask = layersAndMask1 & 0b1111;
         const auto targetLayer = (layersAndMask2 >> 4) & 0b1111;
         return (targetLayer & sourceMask) != 0;

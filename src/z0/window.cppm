@@ -38,7 +38,7 @@ namespace z0 {
         */
         [[nodiscard]] bool shouldClose() const { return closing; }
 
-        string toString() const override;
+        [[nodiscard]] string toString() const override;
 
     private:
         // width of the client area

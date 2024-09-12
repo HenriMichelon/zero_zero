@@ -86,7 +86,7 @@ export namespace z0 {
                     .imageOffset = {0, 0, 0},
                     .imageExtent = { width, height, 1 },
             };
-            VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
+            const VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
             Device::transitionImageLayout(commandBuffer,
                                        textureImage,
                                        VK_IMAGE_LAYOUT_UNDEFINED,
