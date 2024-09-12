@@ -112,7 +112,7 @@ namespace z0 {
 #endif
 
         // Use Vulkan 1.3.x
-        const VkApplicationInfo applicationInfo{
+        constexpr VkApplicationInfo applicationInfo{
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .apiVersion = VK_API_VERSION_1_3
         };
@@ -132,15 +132,15 @@ namespace z0 {
 
         // The global display window
         window = make_unique<Window>(applicationConfig);
-        vectorRatio = vec2{
+        vectorRatio = vec2 {
             window->getWidth() / VECTOR_SCALE.x,
             window->getHeight() / VECTOR_SCALE.y
         };
         // The global Vulkan device helper
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
-        // Initialize validating layer loggin
-        const VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
+        // Initialize validating layer for logging
+        constexpr VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
             .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
@@ -161,10 +161,10 @@ namespace z0 {
         job_system = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs,
                                                                 JPH::cMaxPhysicsBarriers,
                                                                 JPH::thread::hardware_concurrency() - 1);
-        const uint32_t cMaxBodies = 1024;
-        const uint32_t cNumBodyMutexes = 0;
-        const uint32_t cMaxBodyPairs = 1024;
-        const uint32_t cMaxContactConstraints = 1024;
+        constexpr uint32_t cMaxBodies = 1024;
+        constexpr uint32_t cNumBodyMutexes = 0;
+        constexpr uint32_t cMaxBodyPairs = 1024;
+        constexpr uint32_t cMaxContactConstraints = 1024;
         physicsSystem.Init(cMaxBodies,
                            cNumBodyMutexes,
                            cMaxBodyPairs,
@@ -223,7 +223,7 @@ namespace z0 {
         if (node->isProcessed()) { node->_onExitScene(); }
     }
 
-    void Application::activateCamera(const shared_ptr<Camera>& camera) {
+    void Application::activateCamera(const shared_ptr<Camera>& camera) const {
         assert(camera != nullptr);
         sceneRenderer->activateCamera(camera);
     }
@@ -274,9 +274,6 @@ namespace z0 {
         frameCount++;
         if (elapsedSeconds >= 1.0) {
             fps = static_cast<uint32_t>(frameCount / elapsedSeconds);
-#ifdef VULKAN_STATS
-            VulkanStats::get().averageFps = static_cast<uint32_t >((static_cast<float>(VulkanStats::get().averageFps) + fps) / 2.0f);
-#endif
             frameCount = 0;
             elapsedSeconds = 0;
         }
@@ -331,12 +328,10 @@ namespace z0 {
         if (node->isProcessed()) {
             return node->onInput(inputEvent);
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
-    void Application::process(const shared_ptr<Node>& node, float delta) {
+    void Application::process(const shared_ptr<Node>& node, const float delta) {
         assert(node != nullptr);
         if (node->isProcessed()) {
             node->onProcess(delta);
@@ -346,7 +341,7 @@ namespace z0 {
         }
     }
 
-    void Application::physicsProcess(const shared_ptr<Node>& node, float delta) {
+    void Application::physicsProcess(const shared_ptr<Node>& node, const float delta) {
         assert(node != nullptr);
         if (node->isProcessed()) {
             node->_physicsUpdate(delta);
@@ -370,12 +365,12 @@ namespace z0 {
         }
     }
 
-    void Application::setPaused(bool state) {
+    void Application::setPaused(const bool state) {
         paused = state;
         pause(rootNode);
     }
 
-    void Application::cleanup(shared_ptr<z0::Node>& node) {
+    void Application::cleanup(shared_ptr<Node>& node) {
         assert(node != nullptr);
         for (auto& child : node->_getChildren()) {
             cleanup(child);
@@ -383,7 +378,7 @@ namespace z0 {
         node.reset();
     }
 
-    void Application::quit() {
+    void Application::quit() const {
         window->close();
     }
 
@@ -413,9 +408,6 @@ namespace z0 {
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);
 #endif
-#ifdef VULKAN_STATS
-        VulkanStats::get().display();
-#endif
     }
 
     vec3 Application::getGravity() const {
@@ -423,14 +415,14 @@ namespace z0 {
         return vec3{gravity.GetX(), gravity.GetY(), gravity.GetZ()};
     }
 
-    void Application::registerTypes() {
+    void Application::registerTypes() const {
         TypeRegistry::registerType<Node>("Node");
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");
         TypeRegistry::registerType<Skybox>("Skybox");
     }
 
-    void Application::setShadowCasting(bool enable) {
+    void Application::setShadowCasting(const bool enable) const {
         sceneRenderer->setShadowCasting(enable);
     }
 

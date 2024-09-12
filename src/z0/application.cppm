@@ -55,7 +55,7 @@ export namespace z0 {
         /**
          * Exits the application by closing the window (will wait for the current frame to be terminated)
          */
-        void quit();
+        void quit() const;
 
         /**
          * Returns the startup configuration
@@ -103,7 +103,7 @@ export namespace z0 {
          * Changes the current camera
          * @param camera the camera to activate, must be in a scene
          */
-        void activateCamera(const shared_ptr<Camera>& camera);
+        void activateCamera(const shared_ptr<Camera>& camera) const;
 
         /**
          * Returns the physics system gravity
@@ -128,7 +128,7 @@ export namespace z0 {
         /**
          * Enable or disable shadow casting for the entire scene, applied when adding nodes
          */
-        void setShadowCasting(bool);
+        void setShadowCasting(bool) const;
 
         /**
          * Returns the global window manager
@@ -211,7 +211,7 @@ export namespace z0 {
         // Recusively call onInput() on a tree node
         bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
         // Register all nodes types
-        void registerTypes();
+        void registerTypes() const;
 
     public:
         // The following members are accessed by global function WinMain
