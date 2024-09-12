@@ -15,7 +15,7 @@ import :Application;
 export namespace z0 {
 
     /**
-     * A cubemap composed by six images stored in a single VkImage in GPU memory.
+     * A cubemap composed by six images stored in a single [VkImage](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImage.html) in GPU memory.
      * Use loadFromFile(const string &filepath, const string &ext) to load the cubemap
      */
     class Cubemap: public Resource {

@@ -20,7 +20,7 @@ export namespace z0 {
     /**
      * A bitmap resource, stored in GPU memory.
      * Use loadFromFile(const string& filepath) to load a image from a file.
-     * Helper class for the Vulkan resources VkImage, VkImageView and VkSampler
+     * Helper class for the Vulkan resources [VkImage](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImage.html), [VkImageView](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageView.html) and [VkSampler](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSampler.html)
      */
     class Image: public Resource {
     public:

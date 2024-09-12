@@ -11,7 +11,7 @@ export namespace z0 {
     template<typename T> Object* _createNewObjectInstance() { return new T; }
     
     /**
-     * Register custom nodes type used to map the node's description in JSON scene files and real classes
+     * Register custom nodes types used to map the node's description in JSON scene files and real classes
      */
     class TypeRegistry {
     public:

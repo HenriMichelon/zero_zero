@@ -189,7 +189,7 @@ export namespace z0 {
     };
 
     /**
-     * Vulkan {VkWriteDescriptorSet](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html) helper
+     * Vulkan [VkWriteDescriptorSet](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkWriteDescriptorSet.html) helper
      */
     class DescriptorWriter {
     public:

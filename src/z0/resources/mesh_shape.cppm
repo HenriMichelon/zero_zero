@@ -13,7 +13,7 @@ import :Shape;
 export namespace z0 {
 
     /**
-     * A mesh shape, consisting of triangles, *must* by only used with a StaticBody (like a terrain for example)
+     * A mesh shape, consisting of triangles. *Must* only be used with a StaticBody (like a terrain for example)
      */
     class MeshShape : public Shape {
     public:
