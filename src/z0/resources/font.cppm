@@ -27,7 +27,7 @@ export namespace z0 {
          * @param size : height in pixels on a base resolution of 1920x1080
          */
         explicit Font(const string&path, uint32_t size);
-        ~Font();
+        ~Font() override;
 
         /**
          * Returns the size (in pixels) for a string.
@@ -36,7 +36,7 @@ export namespace z0 {
             width = 0;
             uint32_t max_height = 0;
             uint32_t max_descender = 0;
-            for (auto wc : text) {
+            for (const auto wc : text) {
                 auto& cchar = getFromCache(wc);
                 width += static_cast<float>(cchar.advance);
                 auto descender = cchar.height - cchar.yBearing;
@@ -58,10 +58,10 @@ export namespace z0 {
             uint32_t width = 0;
             uint32_t max_height = 0;
             uint32_t max_descender = 0;
-            for (auto wc : text) {
+            for (const auto wc : text) {
                 auto& cchar = getFromCache(wc);
                 width += cchar.advance + cchar.xBearing;
-                auto descender = cchar.height - cchar.yBearing;
+                const auto descender = cchar.height - cchar.yBearing;
                 max_height = std::max(max_height, cchar.height);
                 max_descender = std::max(max_descender, descender);
             }
@@ -69,14 +69,14 @@ export namespace z0 {
 
             auto bitmap = vector<uint32_t>(width * height, 0);
             int32_t x = 0;
-            for (auto wc : text) {
+            for (const auto wc : text) {
                 auto& cchar = getFromCache(wc);
-                auto offset = height - cchar.yBearing - max_descender;
+                const auto offset = height - cchar.yBearing - max_descender;
                 for(int line = 0; line < cchar.height; line++) {
-                    auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
-                    auto src = cchar.bitmap->data() + (line * cchar.width);
+                    const auto dest = bitmap.data() + (x + cchar.xBearing) + ((line+offset) * width);
+                    const auto src = cchar.bitmap->data() + (line * cchar.width);
                     for (int col = 0; col < cchar.width; col++) {
-                        auto value = src[col];
+                        const auto value = src[col];
                         if (value != 0) { dest[col] = value; }
                     }
                 }
@@ -151,11 +151,11 @@ export namespace z0 {
         [[nodiscard]] uint32_t scaleFontSize(const uint32_t baseFontSize) {
             constexpr int baseWidth = 1920;
             constexpr int baseHeight = 1080;
-            const int newHeight = Application::get().getWindow().getHeight();
-            const int newWidth = Application::get().getWindow().getWidth();
-            auto horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
-            auto verticalScalingFactor = static_cast<float>(newHeight) / baseHeight;
-            auto averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
+            const auto newHeight = Application::get().getWindow().getHeight();
+            const auto newWidth = Application::get().getWindow().getWidth();
+            const auto horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
+            const auto verticalScalingFactor = static_cast<float>(newHeight) / baseHeight;
+            const auto averageScalingFactor = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
             return ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor));
         }
 
@@ -207,7 +207,7 @@ export namespace z0 {
         cachedCharacter.xBearing = leftSideBearing * scale;
 
         int width, height;
-        auto srcBitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0,0);
+        const auto srcBitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0,0);
         cachedCharacter.width = width;
         cachedCharacter.height = this->height;
         cachedCharacter.yBearing = cachedCharacter.height;
@@ -215,9 +215,9 @@ export namespace z0 {
 
         int x1, y1, x2, y2;
         stbtt_GetCodepointBitmapBox(&font, c, scale, scale, &x1, &y1, &x2, &y2);
-        auto yOffset = (ascent + y1);
+        const auto yOffset = (ascent + y1);
 
-        auto dstBitmap = cachedCharacter.bitmap->data();
+        const auto dstBitmap = cachedCharacter.bitmap->data();
         for (int y=0; y < height; ++y) {
             for (int x=0; x < width; ++x) {
                 uint8_t gray = srcBitmap[y * width + x];

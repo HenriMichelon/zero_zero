@@ -55,12 +55,12 @@ export namespace z0 {
          * @param duration Animation duration in seconds
          * @param ttype Transition type
          */
-        PropertyTween(Object* obj, 
-                      Setter set, 
+        PropertyTween(Object* obj,
+                      const Setter set,
                       T initial, 
                       T final, 
-                      float duration, 
-                      TransitionType ttype = TRANS_LINEAR):
+                      const float duration,
+                      const TransitionType ttype = TRANS_LINEAR):
             Tween{ttype},
             durationTime{duration},
             targetValue{final},
@@ -78,11 +78,11 @@ export namespace z0 {
          * @param ttype Transition type
          */
         PropertyTween(const shared_ptr<Object>& obj, 
-                      Setter set, 
+                      const Setter set,
                       T initial, 
                       T final, 
-                      float duration, 
-                      TransitionType ttype = TRANS_LINEAR):
+                      const float duration,
+                      const TransitionType ttype = TRANS_LINEAR):
             Tween{ttype},
             durationTime{duration},
             targetValue{final},
@@ -96,7 +96,7 @@ export namespace z0 {
          * *Do not call it* if the Tween have been created with Node::createPropertyTween().
          * @return `false` if the tween is running
          */
-        [[nodiscard]] bool update(float deltaTime) override {
+        [[nodiscard]] bool update(const float deltaTime) override {
             elapsedTime += deltaTime;
             float t = std::min(elapsedTime / durationTime, 1.0f); // Normalized time
             (targetObject->*setter)(lerp(startValue, targetValue, t));

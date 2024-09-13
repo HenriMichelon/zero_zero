@@ -20,7 +20,7 @@ export namespace z0 {
         /**
          * Creates a CollisionArea using the given geometric `shape` to detect collision with bodies having a layer in the `mask` value.
          */
-        CollisionArea(shared_ptr<Shape> _shape,
+        CollisionArea(const shared_ptr<Shape>& _shape,
                     const uint32_t mask,
                     const string& name = "CollisionArea"):
             CollisionObject{_shape, 0, mask, name} {

@@ -20,7 +20,7 @@ export namespace z0 {
          */
         template<typename T> [[nodiscard]] static shared_ptr<T> makeShared(const string&clazz) {
             if (!typeMap.contains(clazz)) die("Type", clazz, "not registered in TypeRegistry");
-            return shared_ptr<T>(reinterpret_cast<T*>(TypeRegistry::typeMap[clazz]()));
+            return shared_ptr<T>(reinterpret_cast<T*>(typeMap[clazz]()));
         }
 
         /**

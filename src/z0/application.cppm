@@ -44,13 +44,13 @@ export namespace z0 {
          * Adds a GUI window to the window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void addWindow(const shared_ptr<GWindow>& window);
+        void addWindow(const shared_ptr<GWindow>& window) const;
 
         /**
          * Removes the window from the window manager
          * @param window    The window to remove, must be added to the window manager before
          */
-        void removeWindow(const shared_ptr<GWindow>& window);
+        void removeWindow(const shared_ptr<GWindow>& window) const;
 
         /**
          * Exits the application by closing the window (will wait for the current frame to be terminated)

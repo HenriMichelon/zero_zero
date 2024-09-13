@@ -130,15 +130,15 @@ export namespace z0 {
          * Images must be named `{name}_back.{ext}`, `{name}_front.{ext}`, `{name}_top.{ext}`, `{name}_bottom.{ext}`, `{name}_left.{ext}` and `{name}_right.{ext}`
          * and **must** have the same sizes
          * @param filename path and filename (without the extension) of the images
-         * @param filext files extension
+         * @param fileext files extension
          */
-        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename, const string &ext) {
+        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename, const string &fileext) {
             const auto& filepath = (Application::get().getConfig().appDir / filename).string();
             int texWidth, texHeight, texChannels;
             vector<unsigned char*> data;
             const array<std::string, 6> names { "right", "left", "top", "bottom", "front", "back" };
             for (int i = 0; i < 6; i++) {
-                string path = filepath + "_" + names[i] + ext;
+                string path = filepath + "_" + names[i] + fileext;
                 stbi_uc *pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
                 if (!pixels) {
                     die("failed to load texture image", path);

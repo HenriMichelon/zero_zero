@@ -14,12 +14,12 @@ export namespace z0 {
     class Shader {
     public:
         Shader(const Device& dev,
-                    const VkShaderStageFlagBits stageFlagsBits,
-                    const VkShaderStageFlags nextStageFlags,
-                    string _name,
-                    const vector<char> &code,
-                    const VkDescriptorSetLayout *pSetLayouts,
-                    const VkPushConstantRange *pPushConstantRange):
+                const VkShaderStageFlagBits stageFlagsBits,
+                const VkShaderStageFlags nextStageFlags,
+                string _name,
+                const vector<char> &code,
+                const VkDescriptorSetLayout *pSetLayouts,
+                const VkPushConstantRange *pPushConstantRange):
              device{dev},
              stage{stageFlagsBits},
              stageFlags{nextStageFlags},

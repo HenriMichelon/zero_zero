@@ -23,16 +23,16 @@ export namespace z0 {
          * @param direction direction of the light rays
          * @param color RGB color and intensity of the light
          * @param specular intensity of the specular blob in objects affected by the light.
-         * @param name Node name
+         * @param nodeName Node name
          */
-        explicit DirectionalLight(const vec3 lightDirection,
+        explicit DirectionalLight(const vec3 direction,
                                   const vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f },
                                   const float specular = 1.0f,
                                   const string nodeName = "DirectionalLight"):
          Light{color, specular, nodeName},
-         direction{normalize(lightDirection)}  {}
+         direction{normalize(direction)}  {}
 
-        ~DirectionalLight() override {};
+        ~DirectionalLight() override = default;
 
         /** 
          * Returns the direction of the light

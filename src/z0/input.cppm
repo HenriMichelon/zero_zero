@@ -28,7 +28,7 @@ namespace z0 {
          * Returns true when the user has started pressing the key
          */
         [[nodiscard]] static bool isKeyJustPressed(const Key key) {
-            auto result = _keyJustPressedStates[key];
+            const auto result = _keyJustPressedStates[key];
             _keyJustPressedStates[key] = false;
             return result;
         }
@@ -37,7 +37,7 @@ namespace z0 {
          * Returns true when the user stops pressing the key
          */
         [[nodiscard]] static bool isKeyJustReleased(const Key key) {
-            auto result = _keyJustReleasedStates[key];
+            const auto result = _keyJustReleasedStates[key];
             _keyJustReleasedStates[key] = false;
             return result;
         }
@@ -58,7 +58,7 @@ namespace z0 {
          * Returns true when the user has started pressing the mouse button
          */
         [[nodiscard]] static bool isMouseButtonJustPressed(const MouseButton mouseButton) {
-            auto result = _mouseButtonJustPressedStates[mouseButton];
+            const auto result = _mouseButtonJustPressedStates[mouseButton];
             _mouseButtonJustPressedStates[mouseButton] = false;
             return result;
         }
@@ -67,7 +67,7 @@ namespace z0 {
          * Returns true when the user stops pressing the mouse button
          */
         [[nodiscard]] static bool isMouseButtonJustReleased(const MouseButton mouseButton) {
-            auto result = _mouseButtonJustReleasedStates[mouseButton];
+            const auto result = _mouseButtonJustReleasedStates[mouseButton];
             _mouseButtonJustReleasedStates[mouseButton] = false;
             return result;
         }

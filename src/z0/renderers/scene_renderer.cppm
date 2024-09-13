@@ -321,7 +321,7 @@ namespace z0 {
 
         // Indices of each model datas in the models uniform buffer
         map<Node::id_t, uint32_t> modelsIndices{};
-        // All non-transparents models
+        // All non-transparent models
         list<MeshInstance*> opaquesModels{};
         // Size of the model uniform buffer
         static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
@@ -369,7 +369,7 @@ namespace z0 {
         vector<unsigned char> blankImageData;
         // For rendering an optional skybox
         unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
-        // Evironement parameters for the current scene
+        // Environment parameters for the current scene
         Environment* currentEnvironment{nullptr};
 
         // One and only one directional light per scene
@@ -383,7 +383,7 @@ namespace z0 {
         // Currently allocated point light uniform buffer count
         uint32_t pointLightUniformBufferCount{0};
 
-        // Offscreen frame buffers attachements
+        // Offscreen frame buffers attachments
         ColorFrameBuffer colorFrameBufferMultisampled;
         shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
         shared_ptr<DepthFrameBuffer> resolvedDepthFrameBuffer;
@@ -698,8 +698,8 @@ namespace z0 {
                                           0, VK_ACCESS_TRANSFER_WRITE_BIT,
                                           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                           VK_IMAGE_ASPECT_COLOR_BIT);
-            // Color attachement : where the rendering is done (multisampled memory image)
-            // Resolved into a non multisampled image
+            // Color attachment : where the rendering is done (multi sampled memory image)
+            // Resolved into a non multi sampled image
             const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView = colorFrameBufferMultisampled.getImageView(),

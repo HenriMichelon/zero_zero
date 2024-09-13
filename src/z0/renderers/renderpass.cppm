@@ -208,7 +208,7 @@ export namespace z0 {
             if (!file.is_open()) {
                 die("failed to open file : ", fileName);
             }
-            size_t fileSize = static_cast<size_t>(file.tellg());
+            const size_t fileSize = static_cast<size_t>(file.tellg());
             vector<char> buffer(fileSize);
             file.seekg(0);
             file.read(buffer.data(), fileSize);

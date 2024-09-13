@@ -29,7 +29,7 @@ export namespace z0 {
          * @param object object containing the member function to connect
          * @param handler the member function to call when emit() is called
         */
-        void connect(Object* object, Handler handler) {
+        void connect(Object* object, const Handler handler) {
             handlers.push_back(SignalCallable{object, handler});
         }
 
@@ -38,12 +38,11 @@ export namespace z0 {
          * @param object object containing the member function to connect
          * @param handler the member function to call when emit() is called
         */
-        void disconnect(Object* object, Handler handler) {
+        void disconnect(Object* object, const Handler handler) {
             handlers.remove(SignalCallable{object, handler});
         }
         /**
          * Emits the signal by calling all the connected functions in the connect order
-         * @param name signal name
          * @param params parameters to pass to the function connected to the signal
          */
         void emit(Parameters* params) const {

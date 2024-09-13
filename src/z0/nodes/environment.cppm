@@ -20,7 +20,7 @@ export namespace z0 {
          */
         explicit Environment(
             const vec4 colorAndIntensity = {1.0f, 1.0f, 1.0f, 1.0f},
-            const string nodeName = "Environment"): 
+            const string& nodeName = "Environment"):
             Node{nodeName}, 
             ambientColorIntensity{colorAndIntensity} {}
 

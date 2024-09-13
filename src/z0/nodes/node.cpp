@@ -44,7 +44,7 @@ namespace z0 {
                (mode == PROCESS_MODE_ALWAYS);
     }
 
-    Application& Node::app() {
+    Application& Node::app() const {
         return Application::get();
     }
 }

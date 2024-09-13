@@ -18,7 +18,7 @@ export namespace z0 {
          * Creates a StaticBody with a given collision `shape`, 
          * belonging to the `layer` layers.
          */
-        explicit StaticBody(shared_ptr<Shape> shape,
+        explicit StaticBody(const shared_ptr<Shape>& shape,
                             const uint32_t layer=0xff,
                             const string& name = "StaticBody"):
            PhysicsBody(shape,

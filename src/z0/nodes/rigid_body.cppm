@@ -19,7 +19,7 @@ export namespace z0 {
          * belonging to the `layer` layers and detecting collisions 
          * with bodies having a layer in the `mask` value.
          */
-        explicit RigidBody(shared_ptr<Shape> shape,
+        explicit RigidBody(const shared_ptr<Shape>& shape,
                            const uint32_t layer=0xff,
                            const uint32_t mask=0xff,
                            const string& name = "RigidBody"):

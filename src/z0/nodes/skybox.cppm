@@ -18,7 +18,7 @@ export namespace z0 {
          * Images must be named `{name}_back.{ext}`, `{name}_front.{ext}`, `{name}_top.{ext}`, `{name}_bottom.{ext}`, `{name}_left.{ext}` and `{name}_right.{ext}`
          * and **must** have the same sizes
          * @param filename path and filename (without the extension) of the images
-         * @param filext files extension
+         * @param fileext files extension
          */
         Skybox(const string& filename, const string& fileext):
             Node{filename}{

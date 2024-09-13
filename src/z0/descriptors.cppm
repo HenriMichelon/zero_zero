@@ -227,7 +227,7 @@ export namespace z0 {
         }
 
         [[nodiscard]] bool build(VkDescriptorSet& set) {
-            auto success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
+            const auto success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
             if (!success) {
                 return false;
             }

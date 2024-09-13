@@ -27,7 +27,7 @@ export namespace z0 {
 
     private:
         void splitResString(const string& RES) {
-            const auto res& = split(RES, ',');
+            auto res = split(RES, ',');
             if ((!res.empty()) && (!res[0].empty())) {
                 width = stof(string{res[0]});
             }

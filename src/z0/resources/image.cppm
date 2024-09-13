@@ -137,7 +137,7 @@ export namespace z0 {
 
         /**
          * Load a bitmap from file. For supported file formats see https://github.com/nothings/stb/blob/master/stb_image.h
-         * @param filepath : path of the file, relative to the application working directory
+         * @param filename : path of the file, relative to the application working directory
          */
         [[nodiscard]] static shared_ptr<Image> loadFromFile(const string& filename) {
             const auto& filepath = (Application::get().getConfig().appDir / filename).string();

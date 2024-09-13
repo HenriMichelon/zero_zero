@@ -17,7 +17,7 @@ export namespace z0 {
         /**
          * Creates a SpotLight with default parameters
          */
-        explicit SpotLight(const string name = "SpotLight"): OmniLight{name} {};
+        explicit SpotLight(const string& name = "SpotLight"): OmniLight{name} {};
 
          /**
          * Create a SpotLight.
@@ -29,9 +29,9 @@ export namespace z0 {
          * @param attenuation the attenuation factor
          * @param color the RGB color and intensity
          * @param specular intensity of the specular blob in objects affected by the light.
-         * @param name Node name
+         * @param nodeName Node name
          */
-        explicit SpotLight(const vec3 lightDirection,
+        explicit SpotLight(const vec3 direction,
                            const float cutOffDegrees,
                            const float outerCutOffDegrees,
                            const float linear,
@@ -41,7 +41,7 @@ export namespace z0 {
                            const float specular = 1.0f,
                            const string nodeName = "SpotLight"):
             OmniLight{linear, quadratic, attenuation, color, specular, nodeName},
-            direction{lightDirection},
+            direction{direction},
             fov{radians(outerCutOffDegrees)},
             cutOff{cos(radians(cutOffDegrees))},
             outerCutOff{cos(fov)}

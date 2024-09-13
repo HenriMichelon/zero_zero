@@ -42,24 +42,23 @@ namespace z0 {
     }
 
     // vkCreateDebugUtilsMessengerEXT linker
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    VkResult CreateDebugUtilsMessengerEXT(const VkInstance instance,
+                                        const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                           const VkAllocationCallbacks* pAllocator,
                                           VkDebugUtilsMessengerEXT* pDebugMessenger) {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            instance, "vkCreateDebugUtilsMessengerEXT");
+        const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
+            instance, "vkCreateDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         }
-        else {
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
     // vkDestroyDebugUtilsMessengerEXT linker
     void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                        const VkAllocationCallbacks* pAllocator) {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            instance, "vkDestroyDebugUtilsMessengerEXT");
+        const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
+            instance, "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             func(instance, debugMessenger, pAllocator);
         }
@@ -299,12 +298,12 @@ namespace z0 {
         stopped = false;
     }
 
-    void Application::addWindow(const shared_ptr<GWindow>& window) {
+    void Application::addWindow(const shared_ptr<GWindow>& window) const {
         assert(window != nullptr);
         _instance->windowManager->add(window);
     }
 
-    void Application::removeWindow(const shared_ptr<GWindow>& window) {
+    void Application::removeWindow(const shared_ptr<GWindow>& window) const {
         assert(window != nullptr);
         _instance->windowManager->remove(window);
     }

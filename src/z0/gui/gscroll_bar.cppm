@@ -75,11 +75,11 @@ export namespace z0 {
                         size = liftArea->getWidth() - liftCage->getWidth();
                     }
                     if (diff > scrollStart) {
-                        const float newval = ((diff - scrollStart) * nbvalues) / size;
+                        float newval = ((diff - scrollStart) * nbvalues) / size;
                         if (type == VERTICAL) {
                             newval = max - newval;
                         }
-                        float prev = value;
+                        const float prev = value;
                         value = std::min(std::max(newval, min), max);
                         eventValueChange(prev);
                     }

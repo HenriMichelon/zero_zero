@@ -21,7 +21,7 @@ import :Resource;
 
 namespace z0 {
     void vr_stb_write_func(void* context, void* data, int size) {
-        auto* buffer = reinterpret_cast<vector<unsigned char>*>(context);
+        auto* buffer = static_cast<vector<unsigned char>*>(context);
         auto* ptr = static_cast<unsigned char*>(data);
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
@@ -122,7 +122,7 @@ namespace z0 {
         void setPenColor(const Color color) { penColor = color; }
         // Change the [x,y] translation for the next drawing commands
         void setTranslate(const vec2 t) { translate = t; }
-        // Change the global transparency for the next drawing commands. Value is substracted from the vertex alpha
+        // Change the global transparency for the next drawing commands. Value is subtracted from the vertex alpha
         void setTransparency(const float a) { transparency = a; }
 
         // Restart a new drawing session, clearing all the previous datas (vertices and drawing commands)
@@ -165,7 +165,7 @@ namespace z0 {
                 stagingBuffer->copyTo(*vertexBuffer, vertexBufferSize);
             }
             descriptorSetNeedUpdate = true;
-            // Initialize or update pipeline layout & descriptos sets if needed
+            // Initialize or update pipeline layout & descriptors sets if needed
             createOrUpdateResources();
         }
 
@@ -367,7 +367,7 @@ namespace z0 {
         }
 
     private:
-        // Drawind commands primitives
+        // Drawing commands primitives
         enum Primitive {
             PRIMITIVE_NONE,
             PRIMITIVE_LINE,
@@ -428,11 +428,11 @@ namespace z0 {
         shared_ptr<Buffer> stagingBuffer{VK_NULL_HANDLE};
         // Vertex buffer in GPU memory
         shared_ptr<Buffer> vertexBuffer{VK_NULL_HANDLE};
-        // Used when we need to postpone the buffers destruction when the are in use by a VkCommandBuffer
+        // Used when we need to postpone the buffers destruction when they are in use by a VkCommandBuffer
         list<shared_ptr<Buffer>> oldBuffers;
-        // The renderer use is own color attachment, not an attachement from the previous renderer
+        // The renderer use its own color attachment, not an attachment from the previous renderer
         bool internalColorFrameBuffer;
-        // The color attachemenbt for rendering
+        // The color attachment for rendering
         shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr{VK_NULL_HANDLE};
         // Maximum number of images supported by this renderer
         static constexpr uint32_t MAX_IMAGES = 100;

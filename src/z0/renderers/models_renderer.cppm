@@ -83,7 +83,7 @@ export namespace z0 {
 
         void activateCamera(const shared_ptr<Camera>& camera) { activateCamera(camera.get()); }
 
-        // Cleanup all Vulkan ressources
+        // Cleanup all Vulkan resources
         void cleanup() override {
             depthFrameBuffer->cleanupImagesResources();
             cleanupImagesResources();
@@ -102,7 +102,7 @@ export namespace z0 {
         // Datas for all the models of the scene, one buffer for all the models
         // https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
         vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
-        // Depth testing multisampled off-screen buffer
+        // Depth testing multi sampled off-screen buffer
         shared_ptr<DepthFrameBuffer> depthFrameBuffer;
         // Current viewport to reset the viewport size if removed from the scene tree
         Viewport* currentViewport{nullptr};

@@ -19,7 +19,7 @@ export namespace z0 {
     class PostprocessingRenderer : public Renderpass, public Renderer {
     public:
         PostprocessingRenderer(Device& device,
-                               string shaderDirectory,
+                               const string& shaderDirectory,
                                SampledFrameBuffer* inputColorAttachmentHdr):
             Renderpass{device, shaderDirectory}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
             createImagesResources();

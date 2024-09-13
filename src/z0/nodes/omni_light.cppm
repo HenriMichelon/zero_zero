@@ -16,7 +16,7 @@ export namespace z0 {
         /**
          * Creates an OmniLight with default parameters
          */
-        explicit OmniLight(const string name = "OmniLight"): Light{name} {};
+        explicit OmniLight(const string& name = "OmniLight"): Light{name} {};
 
         /**
          * Create an OmniLight.

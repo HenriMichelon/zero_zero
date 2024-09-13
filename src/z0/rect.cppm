@@ -19,7 +19,7 @@ export namespace z0 {
         float height{0.0f};
 
         /*! Returns true if the given point is inside the rect */
-        bool contains(float X, float Y) const {
+        bool contains(const float X, const float Y) const {
             return ((X >= x) && (X < (x + width)) &&
                     (Y >= y) && (Y < (y + height)));
         }

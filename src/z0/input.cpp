@@ -276,10 +276,10 @@ namespace z0 {
             }
             if (memcmp(&pdidInstance->guidProduct.Data4[2], "PIDVID", 6) == 0) {
                 sprintf(guid, "03000000%02x%02x0000%02x%02x000000000000",
-                        (uint8_t)pdidInstance->guidProduct.Data1,
-                        (uint8_t)(pdidInstance->guidProduct.Data1 >> 8),
-                        (uint8_t)(pdidInstance->guidProduct.Data1 >> 16),
-                        (uint8_t)(pdidInstance->guidProduct.Data1 >> 24));
+                        static_cast<uint8_t>(pdidInstance->guidProduct.Data1),
+                        static_cast<uint8_t>(pdidInstance->guidProduct.Data1 >> 8),
+                        static_cast<uint8_t>(pdidInstance->guidProduct.Data1 >> 16),
+                        static_cast<uint8_t>(pdidInstance->guidProduct.Data1 >> 24));
             }
             else {
                 sprintf(guid, "05000000%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x00",
@@ -342,7 +342,7 @@ namespace z0 {
             if (FAILED(DirectInput8Create(GetModuleHandle(nullptr),
                 DIRECTINPUT_VERSION,
                 IID_IDirectInput8,
-                (void**)&_directInput, nullptr))) {
+                reinterpret_cast<void**>(&_directInput), nullptr))) {
                 die("DirectInput8Create failed");
             }
             _directInput->EnumDevices(DI8DEVCLASS_GAMECTRL,
@@ -354,7 +354,7 @@ namespace z0 {
 
     void Input::_closeInput() {
         if (_directInput) {
-            for (auto entry : _directInputStates) {
+            for (const auto entry : _directInputStates) {
                 entry.second.device->Release();
             }
             _directInputStates.clear();
@@ -467,29 +467,29 @@ namespace z0 {
 
     vec2 Input::getGamepadVector(const uint32_t index, const GamepadAxisJoystick axisJoystick) {
         if (_useXInput && _xinputStates.contains(index)) {
-            auto gamepad = _xinputStates[index].Gamepad;
-            auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLX : gamepad.sThumbRX;
-            auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLY : gamepad.sThumbRY;
-            auto deadzonPercent = ((axisJoystick == GAMEPAD_AXIS_LEFT
-                                        ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
-                                        : XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+            const auto gamepad = _xinputStates[index].Gamepad;
+            const auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLX : gamepad.sThumbRX;
+            const auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLY : gamepad.sThumbRY;
+            const auto deadzonPercent = ((axisJoystick == GAMEPAD_AXIS_LEFT
+                                            ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+                                            : XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
                 / 32767.0f);
             vec2 vector{
                 applyDeadzone(xAxis / 32767.0f, deadzonPercent),
                 applyDeadzone(-yAxis / 32767.0f, deadzonPercent)
             };
-            float length = glm::length(vector);
+            const float length = glm::length(vector);
             return (length > 1.0f) ? vector / length : vector;
         }
         else if (_directInputStates.contains(index)) {
             const auto& gamepad = _directInputStates[index];
-            auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
-            auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
-            vec2 vector{
+            const auto xAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
+            const auto yAxis = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
+            const vec2 vector{
                 applyDeadzone(gamepad.axes[xAxis], 0.05f),
                 applyDeadzone(gamepad.axes[yAxis], 0.05f)
             };
-            float length = glm::length(vector);
+            const float length = glm::length(vector);
             return (length > 1.0f) ? vector / length : vector;
         }
         return VEC2ZERO;
@@ -506,10 +506,10 @@ namespace z0 {
     }
 
     vec2 Input::getKeyboardVector(const Key keyNegX, const Key keyPosX, const Key keyNegY, const Key keyPosY) {
-        auto x = _keys[keyToOsKey(keyNegX)] ? -1 : _keys[keyToOsKey(keyPosX)] ? 1 : 0;
-        auto y = _keys[keyToOsKey(keyNegY)] ? -1 : _keys[keyToOsKey(keyPosY)] ? 1 : 0;
-        vec2 vector{x, y};
-        float length = glm::length(vector);
+        const auto x = _keys[keyToOsKey(keyNegX)] ? -1 : _keys[keyToOsKey(keyPosX)] ? 1 : 0;
+        const auto y = _keys[keyToOsKey(keyNegY)] ? -1 : _keys[keyToOsKey(keyPosY)] ? 1 : 0;
+        const vec2 vector{x, y};
+        const float length = glm::length(vector);
         return (length > 1.0f) ? vector / length : vector;
     }
 

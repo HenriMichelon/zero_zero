@@ -403,7 +403,7 @@ namespace z0 {
         BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
             static int monitorIndex = 0;
             if (monitorIndex == 0) {
-                RECT* pRect = reinterpret_cast<RECT*>(dwData);
+                const auto pRect = reinterpret_cast<RECT*>(dwData);
                 *pRect = *lprcMonitor;
                 return FALSE;
             }
@@ -416,7 +416,7 @@ namespace z0 {
                 EmptyClipboard();
 
                 const size_t size = (text.size() + 1) * sizeof(wchar_t);
-                HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, size);
+                const auto hMem = GlobalAlloc(GMEM_MOVEABLE, size);
                 if (hMem) {
                     memcpy(GlobalLock(hMem), text.c_str(), size);
                     GlobalUnlock(hMem);
@@ -464,7 +464,7 @@ namespace z0 {
                 case WM_COMMAND: {
                     auto subcommande = HIWORD(wParam);
                     if (subcommande == LBN_SELCHANGE) {
-                        int index = SendMessage(Window::_hwndLogList, LB_GETCURSEL, 0, 0);
+                        const int index = SendMessage(Window::_hwndLogList, LB_GETCURSEL, 0, 0);
                         if (index != LB_ERR) {
                             const auto length = SendMessage(Window::_hwndLogList, LB_GETTEXTLEN, index, 0);
                             auto buffer = new TCHAR[length+1];

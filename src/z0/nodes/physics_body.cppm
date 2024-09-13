@@ -32,7 +32,7 @@ export namespace z0 {
         }
 
     protected:
-        PhysicsBody(shared_ptr<Shape>& _shape,
+        PhysicsBody(const shared_ptr<Shape>& _shape,
                     const uint32_t layer,
                     const uint32_t mask,
                     const JPH::EActivation _activationMode,
@@ -54,7 +54,7 @@ export namespace z0 {
             activationMode = _activationMode;
         }
 
-        void setShape(shared_ptr<Shape> shape) {
+        void setShape(const shared_ptr<Shape>& shape) {
             const auto position = getPositionGlobal();
             const auto quat = normalize(toQuat(mat3(worldTransform)));
             shape->setAttachedToNode();

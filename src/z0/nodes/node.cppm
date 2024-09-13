@@ -73,7 +73,7 @@ export namespace z0 {
         virtual void onPhysicsProcess(const float delta) {}
 
         /**
-         * Called on a keyboard, mouse or gamepas event
+         * Called on a keyboard, mouse or gamepad event
          */
         virtual bool onInput(InputEvent& inputEvent) { return false; }
 
@@ -351,7 +351,7 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Node> duplicate() {
             shared_ptr<Node> dup = duplicateInstance();
             dup->children.clear();
-            for(auto&child : children) {
+            for(const auto& child : children) {
                 dup->addChild(child->duplicate());
             }
             dup->id = currentId++;
@@ -396,7 +396,7 @@ export namespace z0 {
         /**
          * Removes the `tween` from the processing list
          */
-        void killTween(shared_ptr<Tween>& tween) {
+        void killTween(const shared_ptr<Tween>& tween) {
             if (tween != nullptr) {
                 tween->_kill();
                 tweens.remove(tween);
@@ -411,7 +411,7 @@ export namespace z0 {
             if (property == "position") {
                 setPosition(to_vec3(value));
             } else if (property == "rotation") {
-                auto rot = to_vec3(value);
+                const auto rot = to_vec3(value);
                 setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
             } else if (property == "process_mode") {
                 auto v = to_lower(value);
@@ -435,7 +435,7 @@ export namespace z0 {
         void setName(const string&nodeName) { name = nodeName; }
 
         /**
-         * Returns the inmutable list of children nodes
+         * Returns the immutable list of children nodes
          */
         inline const list<shared_ptr<Node>>& getChildren() const { return children; }
 
@@ -451,7 +451,7 @@ export namespace z0 {
             return make_shared<Node>(*this);
         }
 
-        Application& app();
+        Application& app() const;
 
     private:
         static id_t currentId;
@@ -490,7 +490,7 @@ export namespace z0 {
 
         void _setAddedToScene(bool added) { addedToScene = added; }
 
-        bool _isAddedToScene() { return addedToScene; }
+        bool _isAddedToScene() const { return addedToScene; }
 
         mat4& _getTransformLocal() { return localTransform; }
 
@@ -504,7 +504,7 @@ export namespace z0 {
         }
 
         virtual void _updateTransform() {
-            auto parentMatrix = parent == nullptr ? mat4{1.0f} : parent->worldTransform;
+            const auto parentMatrix = parent == nullptr ? mat4{1.0f} : parent->worldTransform;
             _updateTransform(parentMatrix);
         }
 

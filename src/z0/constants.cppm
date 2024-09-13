@@ -17,7 +17,7 @@ export namespace z0 {
     constexpr string ENGINE_NAME = "ZeroZero";
 
     /**
-     * Defaul background color for the display window
+     * Default background color for the display window
      */
     constexpr int WINDOW_CLEAR_COLOR[] { 0, 0, 0 };
 

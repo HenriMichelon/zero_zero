@@ -47,7 +47,7 @@ export namespace z0 {
         void setCastShadow(const bool cast) { castShadows = cast; }
 
     protected:
-        explicit Light(const string nodeName) : Node{nodeName} {}
+        explicit Light(const string& nodeName) : Node{nodeName} {}
         explicit Light(const vec4 color, const float specular, const string nodeName):
           Node{nodeName},
           colorAndIntensity{color},
