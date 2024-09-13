@@ -30,7 +30,7 @@ namespace z0 {
 
     void GStyle :: setOption(const string&NAME, const string&VAL) {
         shared_ptr<GLayoutOption> option;
-        for(auto& opt: options) {
+        for(const auto& opt: options) {
             if (opt->name == NAME) {
                 option = opt;
                 break;
@@ -46,7 +46,7 @@ namespace z0 {
 
     string GStyle :: getOption(const string&NAME) {
         shared_ptr<GLayoutOption> option;
-        for(auto& opt: options) {
+        for(const auto& opt: options) {
             if (opt->name == NAME) {
                 option = opt;
                 break;

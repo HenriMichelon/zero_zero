@@ -28,7 +28,7 @@ export namespace z0 {
             }
         };
 
-        GTreeView(): GWidget(TREEVIEW) {}
+        explicit GTreeView(): GWidget(TREEVIEW) {}
 
         void setResources(const string& RBOX, const string& RSCROLL, const string&) {
             if (box == nullptr) {
@@ -59,7 +59,7 @@ export namespace z0 {
             return newWidget;
         }
 
-        shared_ptr<Item>& addItem(shared_ptr<Item>& parent, shared_ptr<GWidget> item) {
+        shared_ptr<Item>& addItem(const shared_ptr<Item>& parent, shared_ptr<GWidget> item) {
             parent->children.push_back(make_shared<Item>(item));
             auto& newWidget = parent->children.back();
             newWidget->level = parent->level + 1;
@@ -81,7 +81,7 @@ export namespace z0 {
             return newWidget;
         }
 
-        void expand(shared_ptr<GWidget>& item) {
+        void expand(const shared_ptr<GWidget>& item) const {
             for (const auto& widget : box->_getChildren()) {
                 if (auto itemWidget = dynamic_cast<GTreeView::Item*>(item.get())) {
                     if (itemWidget->item == item) {

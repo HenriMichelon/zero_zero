@@ -12,7 +12,7 @@ namespace z0 {
      */
     class GResource: public Object {
     public:
-        explicit GResource(string R): res(std::move(R)) {};
+        explicit GResource(const string& R): res(std::move(R)) {};
         ~GResource() override = default;
 
         [[nodiscard]] const string& Resource() const { return res; };

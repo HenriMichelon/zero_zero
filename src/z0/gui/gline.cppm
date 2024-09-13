@@ -15,13 +15,13 @@ export namespace z0 {
             VERT
         };
 
-        explicit GLine(LineStyle K = HORIZ): GWidget{LINE}, style{K} {
+        explicit GLine(const LineStyle K = HORIZ): GWidget{LINE}, style{K} {
             allowChildren = false;
         }
 
         [[nodiscard]] LineStyle getStyle() const { return style; };
 
-        void setStyle(LineStyle K) {
+        void setStyle(const LineStyle K) {
             if (style != K) {
                 style = K;
                 resizeChildren();

@@ -18,7 +18,7 @@ export namespace z0 {
     class GStyle : public Object {
     public:
         GStyle();
-        virtual ~GStyle() = default;
+    	~GStyle() override = default;
 
         /* Create a new layout.
           	string	: layout name
@@ -73,7 +73,7 @@ export namespace z0 {
             string name;
             string value;
 
-            GLayoutOption(string N): name(std::move(N)) {
+            explicit GLayoutOption(const string& N): name(std::move(N)) {
             };
         };
 

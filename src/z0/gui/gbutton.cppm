@@ -19,14 +19,14 @@ export namespace z0 {
         }
 
     protected:
-        bool eventMouseUp(MouseButton B, float X, float Y) override {
+        bool eventMouseUp(const MouseButton B, const float X, const float Y) override {
             const bool p = isPushed();
             if (p && (!getRect().contains(X, Y))) {
                 setPushed(false);
                 resizeChildren();
                 return GBox::eventMouseUp(B, X, Y);
             }
-            bool consumed = GBox::eventMouseUp(B, X, Y);
+            const bool consumed = GBox::eventMouseUp(B, X, Y);
             if ((!consumed) && p) {
                 auto event = GEventClick{};
                 emit(GEvent::OnClick, &event);

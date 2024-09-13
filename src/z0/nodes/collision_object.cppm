@@ -158,10 +158,10 @@ export namespace z0 {
         JPH::EActivation activationMode;
         JPH::BodyInterface& bodyInterface;
 
-        CollisionObject(shared_ptr<Shape>& _shape,
-                    const uint32_t layer,
-                    const uint32_t mask,
-                    const string& name):
+        CollisionObject(const shared_ptr<Shape>& _shape,
+                        const uint32_t layer,
+                        const uint32_t mask,
+                        const string& name):
             Node{name},
             collisionLayer{layer},
             collisionMask{mask},
@@ -183,8 +183,8 @@ export namespace z0 {
 
         virtual void setPositionAndRotation() {
             if (updating || bodyId.IsInvalid()) return;
-            auto position = getPositionGlobal();
-            auto quat = normalize(toQuat(mat3(worldTransform)));
+            const auto position = getPositionGlobal();
+            const auto quat = normalize(toQuat(mat3(worldTransform)));
             bodyInterface.SetPositionAndRotation(
                     bodyId,
                     JPH::RVec3(position.x, position.y, position.z),
@@ -224,7 +224,7 @@ export namespace z0 {
             JPH::Vec3 position;
             JPH::Quat rotation;
             bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
-            auto pos = vec3{position.GetX(), position.GetY(), position.GetZ()};
+            const auto pos = vec3{position.GetX(), position.GetY(), position.GetZ()};
             if (pos != getPositionGlobal()) {
                 setPositionGlobal(pos);
             }

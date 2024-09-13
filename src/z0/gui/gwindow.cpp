@@ -19,7 +19,7 @@ namespace z0 {
     GWindow::GWindow(Rect r): rect{r} {
     }
 
-    Application& GWindow::app() {
+    Application& GWindow::app() const {
         return Application::get();
     }
 
@@ -37,7 +37,7 @@ namespace z0 {
         W->setFreezed(false);
     }
 
-    shared_ptr<Font>& GWindow::getDefaultFont() {
+    shared_ptr<Font>& GWindow::getDefaultFont() const {
         return windowManager->getDefaultFont();
     }
 
@@ -75,7 +75,7 @@ namespace z0 {
         refresh();
     }
 
-    void GWindow::setVisible(bool isVisible) {
+    void GWindow::setVisible(const bool isVisible) {
         if (visible != isVisible) {
             visibilityChange = isVisible;
             visibilityChanged = true;
@@ -111,7 +111,7 @@ namespace z0 {
         refresh();
     }
 
-    bool GWindow::eventKeybDown(Key K) {
+    bool GWindow::eventKeybDown(const Key K) {
         bool consumed = false;
         if (focusedWidget) {
             consumed = focusedWidget->eventKeybDown(K); // XXX consumed
@@ -128,7 +128,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventKeybUp(Key K) {
+    bool GWindow::eventKeybUp(const Key K) {
         bool consumed = false;
         if (focusedWidget) {
             focusedWidget->eventKeybUp(K); // XXX consumed
@@ -145,7 +145,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseDown(MouseButton B, float X, float Y) {
+    bool GWindow::eventMouseDown(const MouseButton B, const float X, const float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) {
@@ -163,7 +163,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseUp(MouseButton B, float X, float Y) {
+    bool GWindow::eventMouseUp(const MouseButton B, const float X, const float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
@@ -179,7 +179,7 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWindow::eventMouseMove(uint32_t B, float X, float Y) {
+    bool GWindow::eventMouseMove(const uint32_t B, const float X, const float Y) {
         if (!visible) { return false; }
         bool consumed = false;
         if ((focusedWidget != nullptr) &&
@@ -221,34 +221,34 @@ namespace z0 {
         eventResize();
     }
 
-    void GWindow::setHeight(float h) {
+    void GWindow::setHeight(const float h) {
         rect.height = std::min(std::max(h, minHeight), maxHeight);
         eventResize();
     }
 
-    void GWindow::setWidth(float w) {
+    void GWindow::setWidth(const float w) {
         rect.width = std::min(std::max(w, minWidth), maxWidth);
         eventResize();
     }
 
-    void GWindow::setPos(float x, float y) {
+    void GWindow::setPos(const float x, const float y) {
         rect.x = x;
         rect.y = y;
         eventMove();
     }
 
-    void GWindow::setPos(vec2 pos) {
+    void GWindow::setPos(const vec2 pos) {
         rect.x = pos.x;
         rect.y = pos.y;
         eventMove();
     }
 
-    void GWindow::setX(float x) {
+    void GWindow::setX(const float x) {
         rect.x = x;
         eventMove();
     }
 
-    void GWindow::setY(float y) {
+    void GWindow::setY(const float y) {
         rect.y = y;
         eventMove();
     }
@@ -257,7 +257,7 @@ namespace z0 {
         return layout;
     }
 
-    void GWindow::setTransparency(float alpha) {
+    void GWindow::setTransparency(const float alpha) {
         transparency = alpha;
         refresh();
     }
@@ -294,12 +294,12 @@ namespace z0 {
         refresh();
     }
 
-    void GWindow::setMinimumSize(float width, float height) {
+    void GWindow::setMinimumSize(const float width, const float height) {
         minWidth = width;
         minHeight = height;
     }
 
-    void GWindow::setMaximumSize(float width, float height) {
+    void GWindow::setMaximumSize(const float width, const float height) {
         maxWidth = width;
         maxHeight = height;
     }

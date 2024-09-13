@@ -12,7 +12,7 @@ export namespace z0 {
     /**
      * List of widgets events signals
      */
-    struct GEvent : public Signal::Parameters {
+    struct GEvent : Signal::Parameters {
         //! called after widget creation (all widgets)
         static const string OnCreate;
         //! called before widget destruction (all widgets)
@@ -66,7 +66,7 @@ export namespace z0 {
     /**
      * Parameter for GEvent::OnClick
      */
-    struct GEventClick : public GEvent {
+    struct GEventClick : GEvent {
         //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
         bool consumed{false};
     };
@@ -74,7 +74,7 @@ export namespace z0 {
     /**
      * Parameters for GEvent::OnKeyDown and GEvent::OnKeyUp
      */
-    struct GEventKeyb : public GEvent {
+    struct GEventKeyb : GEvent {
         //! Key code
         Key key;
         //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
@@ -84,7 +84,7 @@ export namespace z0 {
     /**
      * Parameters for GEvent::OnMouseDown and GEvent::OnMouseUp
      */
-    struct GEventMouseButton : public GEvent {
+    struct GEventMouseButton : GEvent {
         //! Mouse button
         MouseButton button;
         //! X coord
@@ -98,7 +98,7 @@ export namespace z0 {
     /**
      * Parameters for GEvent::OnMouseMove
      */
-    struct GEventMouseMove : public GEvent {
+    struct GEventMouseMove : GEvent {
         //! Mouse button states
         uint32_t buttonsState;
         //! X coord
@@ -112,7 +112,7 @@ export namespace z0 {
     /**
      * Parameters for GEvent::OnStateChange
      */
-    struct GEventState : public GEvent {
+    struct GEventState : GEvent {
         //! GCheckWidget::State
         int32_t state;
     };
@@ -120,7 +120,7 @@ export namespace z0 {
     /**
      * Parameters for GEvent::GEventValue
      */
-    struct GEventValue : public GEvent {
+    struct GEventValue : GEvent {
         float value;
         float previous;
     };
@@ -128,13 +128,13 @@ export namespace z0 {
     /**
      * Parameters for GEvent::GEventRange
      */
-    struct GEventRange : public GEvent {
+    struct GEventRange : GEvent {
         float min;
         float max;
         float value;
     };
 
-    struct GEventTextChange : public GEvent {
+    struct GEventTextChange : GEvent {
         const string text;
     };
 

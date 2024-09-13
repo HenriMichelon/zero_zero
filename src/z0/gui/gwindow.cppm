@@ -189,12 +189,12 @@ export namespace z0 {
         /**
          * Returns the default font loaded at startup
          */
-        [[nodiscard]] shared_ptr<Font>& getDefaultFont();
+        [[nodiscard]] shared_ptr<Font>& getDefaultFont() const;
 
         void refresh();
 
     protected:
-        Application& app();
+        Application& app() const;
 
     private:
         Rect rect;

@@ -27,11 +27,12 @@ export namespace z0 {
             refresh();
         }
 
-        void setTextColor(Color c);
+        void setTextColor(const Color c) { textColor = c; }
+
         [[nodiscard]] Color getTextColor() const { return textColor; }
 
     private:
-        string  text;
+        string  text{};
         Color   textColor;
     };
 

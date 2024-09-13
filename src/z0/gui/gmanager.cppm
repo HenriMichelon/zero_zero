@@ -39,9 +39,9 @@ export namespace z0 {
          */
         inline void refresh() { needRedraw = true; }
 
-        [[nodiscard]] inline VectorRenderer& getRenderer() { return *vectorRenderer; }
-        [[nodiscard]] inline float getResizeDelta() { return resizeDelta; }
-        void setEnableWindowResizing(bool enable) { enableWindowResizing = enable; }
+        [[nodiscard]] inline VectorRenderer& getRenderer() const { return *vectorRenderer; }
+        [[nodiscard]] inline float getResizeDelta() const { return resizeDelta; }
+        void setEnableWindowResizing(const bool enable) { enableWindowResizing = enable; }
 
     private:
         const float                 resizeDelta{5.0f};
@@ -58,7 +58,9 @@ export namespace z0 {
         MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};
 
         void drawFrame();
+
         [[nodiscard]] bool onInput(InputEvent& inputEvent);
+
         friend class Application;
 
     public:

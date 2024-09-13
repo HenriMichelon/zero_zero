@@ -164,8 +164,8 @@ export namespace z0 {
                               *this,
                               {},
                               *app()._getTempAllocator().get());
-            auto pos = character->GetPosition();
-            auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
+            const auto pos = character->GetPosition();
+            const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
             if (newPos != getPositionGlobal()) {
                 setPositionGlobal(newPos);
                 bodyInterface.MoveKinematic(physicsCharacter->GetBodyID(), pos,  character->GetRotation(), delta);
@@ -179,7 +179,7 @@ export namespace z0 {
                             JPH::RVec3Arg inContactPosition, 
                             JPH::Vec3Arg inContactNormal, 
                             JPH::CharacterContactSettings &ioSettings) override {
-            auto* charac = reinterpret_cast<Character*>(inCharacter->GetUserData());
+            const auto* charac = reinterpret_cast<Character*>(inCharacter->GetUserData());
             auto* node = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID2));
             assert(charac && node && "physics body not associated with a node");
             auto event = CollisionObject::Collision {
@@ -195,17 +195,17 @@ export namespace z0 {
         };
 
         bool ShouldCollide (JPH::ObjectLayer inLayer) const override {
-            auto targetLayer = (inLayer >> 4) & 0b1111;
+            const auto targetLayer = (inLayer >> 4) & 0b1111;
             return (targetLayer & collisionMask) != 0;
         }
 
         bool ShouldCollide (const JPH::BodyID &inBodyID) const override {
-            auto node1 = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID));
+            const auto node1 = reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(inBodyID));
             return (node1->getCollisionLayer() & collisionMask) != 0;
         }
 
         bool ShouldCollideLocked (const JPH::Body &inBody) const override {
-            auto node1 = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
+            const auto node1 = reinterpret_cast<CollisionObject*>(inBody.GetUserData());
             return (node1->getCollisionLayer() & collisionMask) != 0;
         }
     };

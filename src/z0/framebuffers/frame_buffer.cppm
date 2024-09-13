@@ -8,7 +8,7 @@ import :Device;
 export namespace z0 {
 
     /**
-     * Base class for all offscreen frame buffers & rendering attachements
+     * Base class for all offscreen frame buffers & rendering attachments
      */ 
     class FrameBuffer {
     public:

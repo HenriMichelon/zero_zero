@@ -19,13 +19,13 @@ namespace z0 {
 
     GManager::GManager(shared_ptr<VectorRenderer> &renderer,
                        const string& defaultFontName,
-                       uint32_t defaultFontSize):
+                       const uint32_t defaultFontSize):
         vectorRenderer{renderer} {
         defaultFont = make_shared<Font>(defaultFontName, defaultFontSize);
     }
 
     GManager::~GManager() {
-        for (auto& window: windows) {
+        for (const auto& window: windows) {
             window->eventDestroy();
         }
         windows.clear();
@@ -67,7 +67,7 @@ namespace z0 {
         if (!needRedraw) { return; }
         needRedraw = false;
         vectorRenderer->beginDraw();
-        for (auto& window: windows) {
+        for (const auto& window: windows) {
             window->draw();
         }
         vectorRenderer->endDraw();
@@ -89,7 +89,7 @@ namespace z0 {
 
     bool GManager::onInput(InputEvent &inputEvent) {
         if (inputEvent.getType() == INPUT_EVENT_KEY) {
-            auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
+            const auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
             if ((focusedWindow != nullptr) && (focusedWindow->isVisible())) {
                 if (keyInputEvent.isPressed()) {
                     return focusedWindow->eventKeybDown(keyInputEvent.getKey());
@@ -112,10 +112,10 @@ namespace z0 {
 #endif
             auto &mouseEvent = dynamic_cast<InputEventMouse&>(inputEvent);
             const auto& wnd = Application::get().getWindow();
-            auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
-            auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
-            auto x = mouseEvent.getX() * scaleX;
-            auto y = mouseEvent.getY() * scaleY;
+            const auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
+            const auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
+            const auto x = mouseEvent.getX() * scaleX;
+            const auto y = mouseEvent.getY() * scaleY;
 
             if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
                 auto resizeDeltaY = scaleY * resizeDelta;
@@ -123,7 +123,7 @@ namespace z0 {
                     if (resizingWindow) {
                         Rect rect = resizedWindow->getRect();
                         if (currentCursor == MOUSE_CURSOR_RESIZE_H) {
-                            auto lx = x - rect.x;
+                            const auto lx = x - rect.x;
                             if (resizingWindowOriginBorder) {
                                 rect.width = rect.width - lx;
                                 rect.x = x;
@@ -131,7 +131,7 @@ namespace z0 {
                                 rect.width = lx;
                             }
                         } else {
-                            auto ly = y - rect.y;
+                            const auto ly = y - rect.y;
                             if (resizingWindowOriginBorder) {
                                 rect.height = rect.height - ly;
                                 rect.y = y;
@@ -147,10 +147,10 @@ namespace z0 {
                     resizedWindow = nullptr;
                     Input::setMouseCursor(currentCursor);
                 }
-                for (auto& window: windows) {
+                for (const auto& window: windows) {
                     auto consumed = false;
-                    auto lx = ceil(x - window->getRect().x);
-                    auto ly = ceil(y - window->getRect().y);
+                    const auto lx = ceil(x - window->getRect().x);
+                    const auto ly = ceil(y - window->getRect().y);
                     if (window->getRect().contains(x, y)) {
                         if (enableWindowResizing && window->getWidget().isDrawBackground()) {
                             if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) &&
@@ -184,7 +184,7 @@ namespace z0 {
                     if (consumed) { return true; }
                 }
             } else {
-                auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
+                const auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
                 if (resizedWindow != nullptr) {
                     if ((!resizingWindow) &&
                         (mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
@@ -199,10 +199,10 @@ namespace z0 {
                     Input::setMouseCursor(currentCursor);
                     return true;
                 }
-                for (auto& window: windows) {
+                for (const auto& window: windows) {
                     auto consumed = false;
-                    auto lx = ceil(x - window->getRect().x);
-                    auto ly = ceil(y - window->getRect().y);
+                    const auto lx = ceil(x - window->getRect().x);
+                    const auto ly = ceil(y - window->getRect().y);
                     if (mouseInputEvent.isPressed()) {
                         if (window->getRect().contains(x, y)) {
                             consumed |= window->eventMouseDown(mouseInputEvent.getMouseButton(), lx, ly);

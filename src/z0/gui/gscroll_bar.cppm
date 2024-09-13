@@ -21,11 +21,11 @@ export namespace z0 {
             VERTICAL
         };
 
-        GScrollBar(Type T = HORIZONTAL,
-                   float min = 0,
-                   float max = 100,
-                   float value = 0,
-                   float step = 1):
+        explicit GScrollBar(const Type T = HORIZONTAL,
+                            const float min = 0,
+                            const float max = 100,
+                            const float value = 0,
+                            const float step = 1):
             GValueSelect{SCROLLBAR, min, max, value, step},
             type{T} {
         }
@@ -55,17 +55,17 @@ export namespace z0 {
         shared_ptr<GBox> liftArea;
         shared_ptr<GBox> liftCage;
 
-        bool eventMouseUp(MouseButton B, float X, float Y) override {
+        bool eventMouseUp(const MouseButton B, const float X, const float Y) override {
             onScroll = false;
             return GValueSelect::eventMouseUp(B, X, Y);
         }
 
-        bool eventMouseMove(uint32_t B, float X, float Y) override {
+        bool eventMouseMove(const uint32_t B, const float X, const float Y) override {
             if (onScroll) {
                 if (getRect().contains(X, Y)) {
                     float diff;
                     float size;
-                    float nbvalues = max - min;
+                    const float nbvalues = max - min;
                     if (type == VERTICAL) {
                         diff = Y - liftArea->getRect().y;
                         size = liftArea->getHeight() - liftCage->getHeight();
@@ -75,7 +75,7 @@ export namespace z0 {
                         size = liftArea->getWidth() - liftCage->getWidth();
                     }
                     if (diff > scrollStart) {
-                        float newval = ((diff - scrollStart) * nbvalues) / size;
+                        const float newval = ((diff - scrollStart) * nbvalues) / size;
                         if (type == VERTICAL) {
                             newval = max - newval;
                         }
@@ -102,7 +102,7 @@ export namespace z0 {
             }
         }
 
-        void eventValueChange(float prev) override {
+        void eventValueChange(const float prev) override {
             liftCage->setPushed(onScroll);
             const Rect& rect = liftArea->getRect();
             if (rect.width && rect.height && ((max - min) > 0.0f)) {
@@ -111,9 +111,9 @@ export namespace z0 {
             }
         }
 
-        void onLiftAreaDown(GEventMouseButton* event) {
+        void onLiftAreaDown(const GEventMouseButton* event) {
             if (liftCage->getRect().contains(event->x, event->y)) { return; }
-            float longStep = step * LONGSTEP_MUX;
+            const float longStep = step * LONGSTEP_MUX;
             float diff = 0;
             if (type == VERTICAL) {
                 if (event->y < liftCage->getRect().y)
@@ -131,13 +131,13 @@ export namespace z0 {
                 else
                     return;
             }
-            float prev = value;
+            const float prev = value;
             value = std::min(std::max(value + diff, min), max);
             eventRangeChange();
             GValueSelect::eventValueChange(prev);
         }
 
-        void onLiftCageDown(GEventMouseButton* event) {
+        void onLiftCageDown(const GEventMouseButton* event) {
             onScroll = true;
             if (type == VERTICAL) {
                 scrollStart = event->y - liftCage->getRect().y;
@@ -148,19 +148,17 @@ export namespace z0 {
         }
 
         void liftRefresh(const Rect& rect) const {
-            float size, liftSize, liftPos;
-            float nbvalues = max - min;
+            float size;
             if (type == VERTICAL) {
                 size = rect.height;
             }
             else {
                 size = rect.width;
             }
+            float liftSize = LIFT_MINWIDTH;
+            const float nbvalues = max - min;
             if (size >= nbvalues) {
                 liftSize = size - nbvalues;
-            }
-            else {
-                liftSize = LIFT_MINWIDTH;
             }
             if (type == VERTICAL) {
                 liftCage->setSize(rect.width, liftSize);
@@ -170,7 +168,7 @@ export namespace z0 {
                 liftCage->setSize(liftSize, rect.height);
                 liftSize = liftCage->getWidth();
             }
-            liftPos = ((value - min) * (size - liftSize)) / nbvalues;
+            const auto liftPos = ((value - min) * (size - liftSize)) / nbvalues;
             if (type == VERTICAL) {
                 //log(to_string(liftPos), to_string(liftSize), to_string(size));
                 liftCage->setPos(rect.x, rect.y + size - liftSize - liftPos);
@@ -185,14 +183,14 @@ export namespace z0 {
 
     class GVScrollBar : public GScrollBar {
     public:
-        GVScrollBar(uint32_t min = 0, uint32_t max = 100, uint32_t value = 0, uint32_t step = 1):
+        explicit GVScrollBar(const uint32_t min = 0, const uint32_t max = 100, const uint32_t value = 0, const uint32_t step = 1):
             GScrollBar(VERTICAL, min, max, value, step) {
         };
     };
 
     class GHScrollBar : public GScrollBar {
     public:
-        GHScrollBar(uint32_t min = 0, uint32_t max = 100, uint32_t value = 0, uint32_t step = 1):
+        explicit GHScrollBar(const uint32_t min = 0, const uint32_t max = 100, const uint32_t value = 0, const uint32_t step = 1):
             GScrollBar(HORIZONTAL, min, max, value, step) {
         };
     };

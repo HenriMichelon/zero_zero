@@ -9,11 +9,11 @@ import :GEvent;
 export namespace z0 {
     class GValueSelect : public GWidget {
     public:
-        GValueSelect(Type T,
-                     float MIN,
-                     float MAX,
-                     float VAL,
-                     float STEP):
+        GValueSelect(const Type T,
+                     const float MIN,
+                     const float MAX,
+                     const float VAL,
+                     const float STEP):
             GWidget{T},
             min{MIN},
             max{MAX},
@@ -21,15 +21,14 @@ export namespace z0 {
             step{STEP} {
         }
 
-        ~GValueSelect() override {
-        };
+        ~GValueSelect() override = default;
 
         float getMin() const { return min; }
         float getMax() const { return max; }
         float getValue() const { return value; }
         float getStep() const { return step; }
 
-        virtual void setMin(float V) {
+        virtual void setMin(const float V) {
             if (min == V) return;
             if (min > max) return;
             min = V;
@@ -41,7 +40,7 @@ export namespace z0 {
             emit(GEvent::OnRangeChange, &event);
         }
 
-        virtual void setMax(float V) {
+        virtual void setMax(const float V) {
             if (max == V) return;
             if (V < min) return;
             max = V;
@@ -52,9 +51,9 @@ export namespace z0 {
             emit(GEvent::OnRangeChange, &event);
         }
 
-        virtual void setValue(float V) {
+        virtual void setValue(const float V) {
             if (value == V) { return; }
-            float prev = value;
+            const float prev = value;
             value = V;
             if (V < min) {
                 value = min;
@@ -69,7 +68,7 @@ export namespace z0 {
             emit(GEvent::OnValueChange, &event);
         }
 
-        virtual void setStep(float V) {
+        virtual void setStep(const float V) {
             assert(V != 0 && "GValueSelect: can't use a step of 0");
             if (step == V) return;
             step = V;
@@ -93,7 +92,7 @@ export namespace z0 {
             emit(GEvent::OnRangeChange, &event);
         }
 
-        virtual void eventValueChange(float prev) {
+        virtual void eventValueChange(const float prev) {
             auto event = GEventValue{.value = value, .previous = prev};
             emit(GEvent::OnValueChange, &event);
         }

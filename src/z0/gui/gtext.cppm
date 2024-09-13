@@ -52,7 +52,7 @@ export namespace z0 {
             height = roundf(height / ratio.y);
         }
 
-        void setSize(float width, float height) override {
+        void setSize(const float width, const float height) override {
             if (width == 0 && height == 0 && rect.width == 0 && rect.height == 0) {
                 float w, h;
                 getSize(w, h);

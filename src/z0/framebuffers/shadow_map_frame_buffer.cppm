@@ -39,7 +39,7 @@ export namespace z0 {
             if (const auto* directionalLight = dynamic_cast<DirectionalLight*>(light)) {
                 auto lightDirection = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
                 // Scene bounds
-                const auto limit = 100.0f;
+                constexpr auto limit = 100.0f;
                 auto sceneMin = vec3{-limit, -limit, -limit} + globalPosition;
                 auto sceneMax = vec3{limit, limit, limit} + globalPosition;
                 // Set up the orthographic projection matrix
@@ -62,7 +62,7 @@ export namespace z0 {
             } else {
                 return mat4{};
             }
-            // Combine the projecttion and view matrix to form the light's space matrix
+            // Combine the projection and view matrix to form the light's space matrix
             return lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
         }
 
@@ -90,7 +90,7 @@ export namespace z0 {
             // Create sampler to sample from to depth attachment
             // Used to sample in the fragment shader for shadowed rendering
             VkFilter shadowmap_filter = device.formatIsFilterable( format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-            VkSamplerCreateInfo samplerCreateInfo{
+            const VkSamplerCreateInfo samplerCreateInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 .magFilter = shadowmap_filter,
                 .minFilter = shadowmap_filter,

@@ -24,7 +24,7 @@ export namespace z0 {
             Node{nodeName}, 
             ambientColorIntensity{colorAndIntensity} {}
 
-        virtual ~Environment() {};
+        ~Environment() override = default;
 
         /**
          * Returns the ambient RGB color and intensity

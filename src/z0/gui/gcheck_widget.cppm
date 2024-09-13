@@ -23,63 +23,33 @@ export namespace z0 {
         [[nodiscard]] State getState() const { return state; }
 
         //! Change the state of the widget
-        virtual void setState(State);
+        virtual void setState(const State S) {
+            if (state == S) { return; }
+            state = S;
+            resizeChildren();
+            refresh();
+            auto stat = GEventState{.state = S};
+            emit(GEvent::OnStateChange, &stat);
+        }
 
     protected:
-        explicit GCheckWidget(Type);
+        explicit GCheckWidget(const Type T): GWidget{T} {
+        }
 
-        virtual bool eventMouseDown(MouseButton, uint32_t, uint32_t);
+        virtual bool eventMouseDown(const MouseButton B, const uint32_t X, const uint32_t Y) {
+            if (getRect().contains(X, Y)) {
+                if (state == CHECK) {
+                    setState(UNCHECK);
+                }
+                else {
+                    setState(CHECK);
+                }
+            }
+            return GWidget::eventMouseDown(B, X, Y);
+        }
 
     private:
         State state{UNCHECK};
     };
 
-    GCheckWidget::GCheckWidget(Type T): GWidget{T} {
-    }
-
-    bool GCheckWidget::eventMouseDown(MouseButton B, uint32_t X, uint32_t Y) {
-        if (getRect().contains(X, Y)) {
-            if (state == CHECK) {
-                setState(UNCHECK);
-            }
-            else {
-                setState(CHECK);
-            }
-        }
-        return GWidget::eventMouseDown(B, X, Y);
-    }
-
-    void GCheckWidget::setState(State S) {
-        if (state == S) { return; }
-        state = S;
-        resizeChildren();
-        refresh();
-        auto stat = GEventState{.state = S};
-        emit(GEvent::OnStateChange, &stat);
-    }
-
-    /*//----------------------------------------------
-        GCheckButton::GCheckButton(): GCheckWidget(GWidget::CHECKBUTTON)
-        {
-        }
-
-
-    //----------------------------------------------
-        void GCheckButton::EventCreate()
-        {
-            Add(box, CLIENT, resource->Resource());
-            box.Add(checkmark, CLIENT, resource->Resource());
-            allowChilds = FALSE;
-            checkmark.Show(State() == CHECK);
-            GCheckWidget::EventCreate();
-        }
-
-
-    //----------------------------------------------
-        void GCheckButton::SetState(CheckState S)
-        {
-            checkmark.Show(State() == UNCHECK);
-            GCheckWidget::SetState(S);
-        }
-    */
 }

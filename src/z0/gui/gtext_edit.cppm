@@ -13,9 +13,8 @@ import :GEvent;
 export namespace z0 {
     class GTextEdit : public GWidget {
     public:
-        GTextEdit(string TXT = ""): GWidget(TEXTEDIT),
+        explicit GTextEdit(const string& TXT = ""): GWidget(TEXTEDIT),
                                     selStart(0), selLen(0), startPos(0), nDispChar(0) {
-            //transparent = TRUE;
             allowFocus = true;
             text = TXT;
         }
@@ -26,7 +25,7 @@ export namespace z0 {
             return readonly;
         }
 
-        void setReadOnly(bool READONLY) {
+        void setReadOnly(const bool READONLY) {
             readonly = READONLY;
         }
 
@@ -52,7 +51,7 @@ export namespace z0 {
             if (startPos > selStart) startPos = selStart;
         }
 
-        const string& getText() const { return (string&)text; }
+        const string& getText() const { return const_cast<string&>(text); }
         uint32_t getSelStart() const { return selStart; }
         uint32_t getFirstDisplayedChar() const { return startPos; };
 
@@ -73,7 +72,7 @@ export namespace z0 {
 
     protected:
         string text;
-        bool readonly;
+        bool readonly{false};
         uint32_t selStart;
         uint32_t selLen;
         uint32_t startPos;
@@ -82,7 +81,7 @@ export namespace z0 {
         shared_ptr<GText> gtext;
 
         bool eventKeybDown(Key K) override {
-            auto consumed = GWidget::eventKeybDown(K);
+            const auto consumed = GWidget::eventKeybDown(K);
             if (isReadOnly()) { return K; }
 
             setFreezed(true);

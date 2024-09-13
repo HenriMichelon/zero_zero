@@ -225,7 +225,7 @@ export namespace z0 {
         void setPushed(bool p) { pushed = p; }
 
         /** Force a refresh of the entire widget */
-        void refresh();
+        void refresh() const;
 
         /** Changes widget resources. Use with caution ! */
         void setResource(shared_ptr<GResource>);
@@ -278,7 +278,7 @@ export namespace z0 {
         list<shared_ptr<GWidget>> children;
 
         void allowingFocus(bool = true);
-        Application& app();
+        Application& app() const;
 
         [[nodiscard]] inline virtual Rect _getDefaultRect() { return defaultRect; };
 

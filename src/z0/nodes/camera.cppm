@@ -90,8 +90,8 @@ export namespace z0 {
          * Returns the 2D coordinate in the rendering window that maps to the given 3D point in world space.
          */
         [[nodiscard]] vec2 unproject(const vec3 worldCoords) {
-            vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
-            vec3 ndcCoords = vec3(clipCoords) / clipCoords.w;
+            const vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
+            const vec3 ndcCoords = vec3(clipCoords) / clipCoords.w;
             return {
                 (VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
                 VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)

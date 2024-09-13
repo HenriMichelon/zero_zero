@@ -9,7 +9,7 @@ import :GCheckWidget;
 
 export namespace z0 {
     /**
-     * Two states clickeable button
+     * Two states clickable button
      */
     class GToggleButton : public GCheckWidget {
     public:
@@ -23,8 +23,8 @@ export namespace z0 {
         };
 
     protected:
-        bool eventMouseDown(MouseButton B, float X, float Y) override {
-            bool r = GCheckWidget::eventMouseDown(B, X, Y);
+        bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
+            const bool r = GCheckWidget::eventMouseDown(B, X, Y);
             if (getRect().contains(X, Y)) {
                 auto event = GEventClick{};
                 emit(GEvent::OnClick, &event);
