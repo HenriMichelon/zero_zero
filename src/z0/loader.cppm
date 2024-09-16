@@ -54,6 +54,7 @@ export namespace z0 {
         struct SceneNode {
             string id;
             bool isResource;
+            bool isCustom;
 
             string clazz;
             vector<SceneNode> children;
@@ -69,7 +70,7 @@ export namespace z0 {
                             map<string, shared_ptr<Node>>& nodeTree, 
                             map<string, SceneNode>& sceneTree, 
                             const SceneNode& nodeDesc,
-                            bool disableTree);
+                            bool editorMode);
     };
 
 
@@ -370,8 +371,8 @@ export namespace z0 {
     void Loader::addNode(Node* parent,
                          map<string, shared_ptr<Node>>& nodeTree,
                          map<string, SceneNode>& sceneTree,
-                         const Loader::SceneNode& nodeDesc,
-                         bool disableTree) {
+                         const SceneNode& nodeDesc,
+                         const bool editorMode) {
         if (nodeTree.contains(nodeDesc.id)) {
             die("Node with id", nodeDesc.id, "already exists in the scene tree");
         }
@@ -382,7 +383,7 @@ export namespace z0 {
                 node = Loader::loadModelFromFile(nodeDesc.resource);
             }
         } else {
-            if (nodeDesc.clazz == "") {
+            if ((nodeDesc.clazz == "") || (nodeDesc.isCustom)) {
                 node = make_shared<Node>(nodeDesc.id);
             } else {
                 node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
@@ -391,7 +392,7 @@ export namespace z0 {
             for(const auto& prop: nodeDesc.properties) {
                 node->setProperty(to_lower(prop.first), prop.second);
             }
-            if (disableTree) {
+            if (editorMode) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
             }
             node->_setParent(parent);
@@ -403,7 +404,7 @@ export namespace z0 {
                         node->addChild(nodeTree[child.id]);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child, disableTree);
+                    addNode(node.get(), nodeTree, sceneTree, child, editorMode);
                 }
             }
             parent->addChild(node);
@@ -411,22 +412,27 @@ export namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(shared_ptr<Node>& parent, const filesystem::path& filename, bool disableTree) {
-        addSceneFromFile(parent.get(), filename);
+    void Loader::addSceneFromFile(shared_ptr<Node>& parent,
+                                  const filesystem::path& filename,
+                                  const bool editorMode) {
+        addSceneFromFile(parent.get(), filename, editorMode);
     }
 
-    void Loader::addSceneFromFile(Node* parent, const filesystem::path& filename, bool disableTree) {
+    void Loader::addSceneFromFile(Node* parent,
+                                  const filesystem::path& filename,
+                                  const bool editorMode) {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode> sceneTree;
         for(const auto& nodeDesc: loadSceneFromJSON(filepath.string())) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc, disableTree);
+            addNode(parent, nodeTree, sceneTree, nodeDesc, editorMode);
         }
     }
 
     void from_json(const nlohmann::json& j, Loader::SceneNode& node) {
         j.at("id").get_to(node.id);
         node.isResource = j.contains("resource");
+        node.isCustom = j.contains("custom");
         if (node.isResource) {
             j.at("resource").get_to(node.resource);
             j.at("type").get_to(node.resourceType);
