@@ -87,7 +87,7 @@ export namespace z0 {
         [[nodiscard]] inline const mat4& getView() const { return viewMatrix; }
 
         /**
-         * Returns the 2D coordinate in the rendering window that maps to the given 3D point in world space.
+         * Returns the 2D coordinates in the rendering window that maps to the given 3D point in world space.
          */
         [[nodiscard]] vec2 unproject(const vec3 worldCoords) {
             const vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
@@ -105,8 +105,9 @@ export namespace z0 {
         float nearDistance{0.1f};
         // furthest clipping distance
         float farDistance{100.1f};
-        // is the camera view is perpective or othogonal ?
+        // is the camera view is perspective or orthogonal ?
         bool usePerspectiveProjection{false};
+        // Camera projection matrix for the perspective and orthogonal 3D projections
         mat4 projectionMatrix{1.0f};
         mat4 viewMatrix{1.0f};
         const vec3 direction{0.0f, 0.0f, 1.0f };
@@ -116,11 +117,10 @@ export namespace z0 {
         void setViewDirection() {
             const auto rotationQuaternion = toQuat(mat3(worldTransform));
             const auto newDirection = rotationQuaternion * direction;
-            const auto position = getPositionGlobal();
+            const auto& position = getPositionGlobal();
 
             auto w{normalize(newDirection)};
-            // inverted Y axis for Vulkan
-            w *= -1;
+            w *= -1; // inverted Y axis for Vulkan
             const auto u{normalize(cross(w, AXIS_UP))};
             const auto v{cross(w, u)};
 
