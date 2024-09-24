@@ -39,14 +39,14 @@ export namespace z0 {
          */
         void setOrthographicProjection(const float left, const float right,
                                        const float top, const float bottom,
-                                       const float _near, const float _far) {
+                                       const float near, const float far) {
             projectionMatrix = mat4{1.0f};
             projectionMatrix[0][0] = 2.f / (right - left);
             projectionMatrix[1][1] = 2.f / (bottom - top);
-            projectionMatrix[2][2] = 1.f / (_far - _near);
+            projectionMatrix[2][2] = 1.f / (far - near);
             projectionMatrix[3][0] = -(right + left) / (right - left);
             projectionMatrix[3][1] = -(bottom + top) / (bottom - top);
-            projectionMatrix[3][2] = -_near / (_far - _near);
+            projectionMatrix[3][2] = -near / (far - near);
         }
 
         /**
@@ -55,10 +55,10 @@ export namespace z0 {
          * @param near nearest clip plane
          * @param far farthest clip plane
          */
-        void setPerspectiveProjection(const float _fov, const float _near, const float _far) {
-            fov = _fov;
-            nearDistance = _near;
-            farDistance = _far;
+        void setPerspectiveProjection(const float fov, const float near, const float far) {
+            this->fov = fov;
+            nearDistance = near;
+            farDistance = far;
             usePerspectiveProjection = true;
             const auto aspect = Application::get()._getDevice().getAspectRatio();
             assert(glm::abs(aspect - numeric_limits<float>::epsilon()) > 0.0f);
@@ -66,9 +66,9 @@ export namespace z0 {
             projectionMatrix = mat4{0.0f};
             projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
             projectionMatrix[1][1] = 1.f / (tanHalfFovy);
-            projectionMatrix[2][2] = _far / (_far - _near);
+            projectionMatrix[2][2] = far / (far - near);
             projectionMatrix[2][3] = 1.f;
-            projectionMatrix[3][2] = -(_far * _near) / (_far - _near);
+            projectionMatrix[3][2] = -(far * near) / (far - near);
         }
 
         /**
@@ -99,21 +99,27 @@ export namespace z0 {
         }
 
     private:
+        // Field of view in degrees
         float fov{75.0};
+        // nearest clipping distance
         float nearDistance{0.1f};
+        // furthest clipping distance
         float farDistance{100.1f};
+        // is the camera view is perpective or othogonal ?
         bool usePerspectiveProjection{false};
         mat4 projectionMatrix{1.0f};
         mat4 viewMatrix{1.0f};
         const vec3 direction{0.0f, 0.0f, 1.0f };
         bool active{false};
 
+        // Compute the view matrix
         void setViewDirection() {
-            const auto rotationQuat = toQuat(mat3(worldTransform));
-            const auto newDirection = rotationQuat * direction;
+            const auto rotationQuaternion = toQuat(mat3(worldTransform));
+            const auto newDirection = rotationQuaternion * direction;
             const auto position = getPositionGlobal();
 
             auto w{normalize(newDirection)};
+            // inverted Y axis for Vulkan
             w *= -1;
             const auto u{normalize(cross(w, AXIS_UP))};
             const auto v{cross(w, u)};
@@ -136,6 +142,7 @@ export namespace z0 {
 
     public:
         void _setActive(const bool isActive) { active = isActive; }
+
         void _updateTransform(const mat4& parentMatrix) override {
             Node::_updateTransform(parentMatrix);
             setViewDirection();

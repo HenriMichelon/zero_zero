@@ -127,7 +127,7 @@ set(PROJECT_FILES
 )
 
 # engine library
-add_library(${Z0_TARGET} SHARED
+add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
