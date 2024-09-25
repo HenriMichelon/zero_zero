@@ -31,7 +31,7 @@ export namespace z0 {
         /**
          * Load a glTF scene
          * @param filepath path of the glTF file, relative to the application path
-         * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material in double sided (default is CULLMODE_DISABLED for double sided materials)
+         * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double sided (default is CULLMODE_DISABLED for double sided materials)
          */
         [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const filesystem::path& filepath, bool forceBackFaceCulling = false);
 
@@ -51,17 +51,21 @@ export namespace z0 {
          **/       
         static void addSceneFromFile(shared_ptr<Node>&parent, const filesystem::path& filepath, bool editorMode=false);
 
+        // Node description inside a JSON file
         struct SceneNode {
-            string id;
-            bool isResource;
-            bool isCustom;
+            string id{};
+            bool isResource{false};
+            bool isCustom{false};
 
-            string clazz;
-            vector<SceneNode> children;
-            map<string, string> properties;
+            string clazz{};
+            shared_ptr<SceneNode> mesh{nullptr};
+            vector<SceneNode> children{};
+            map<string, string> properties{};
 
-            string resource;
-            string resourceType;
+            string resource{};
+            string resourcePath{};
+            string resourceType{};
+            bool needDuplicate{false};
         };
 
     private:
@@ -72,7 +76,6 @@ export namespace z0 {
                             const SceneNode& nodeDesc,
                             bool editorMode);
     };
-
 
     // https://fastgltf.readthedocs.io/v0.7.x/tools.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
@@ -381,6 +384,18 @@ export namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
                 node = Loader::loadModelFromFile(nodeDesc.resource);
+            } else if (nodeDesc.resourceType == "mesh") {
+                if (nodeTree.contains(nodeDesc.resource)) {
+                    // get the parent resource
+                    auto& resource = nodeTree[nodeDesc.resource];
+                    // get the mesh node via the relative path
+                    node = resource->getNode(nodeDesc.resourcePath);
+                    // fallback if the path is incorrect
+                    if (node == nullptr) node = make_shared<Node>(nodeDesc.id);
+                } else {
+                    // fallback if the parent resource is incorrect
+                    if (node == nullptr) node = make_shared<Node>(nodeDesc.id);
+                }
             }
         } else {
             if ((nodeDesc.clazz == "") || (nodeDesc.isCustom)) {
@@ -396,9 +411,16 @@ export namespace z0 {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
             }
             node->_setParent(parent);
+            if (nodeDesc.mesh != nullptr) {
+                if (nodeDesc.mesh->needDuplicate) {
+                    node->addChild(nodeTree[nodeDesc.mesh->id]->duplicate());
+                } else {
+                    node->addChild(nodeTree[nodeDesc.mesh->id]);
+                }
+            }
             for(const auto& child: nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
-                    if (sceneTree[child.id].isResource) {
+                    if (child.needDuplicate) {
                         node->addChild(nodeTree[child.id]->duplicate());
                     } else {
                         node->addChild(nodeTree[child.id]);
@@ -433,19 +455,25 @@ export namespace z0 {
         j.at("id").get_to(node.id);
         node.isResource = j.contains("resource");
         node.isCustom = j.contains("custom");
+        node.needDuplicate = j.contains("duplicate");
         if (node.isResource) {
             j.at("resource").get_to(node.resource);
             j.at("type").get_to(node.resourceType);
+            if (j.contains("path")) j.at("path").get_to(node.resourcePath);
         } else {
             if (j.contains("class")) j.at("class").get_to(node.clazz);
             if (j.contains("properties")) j.at("properties").get_to(node.properties);
+            if (j.contains("mesh")) {
+                node.mesh = make_shared<Loader::SceneNode>();
+                j.at("mesh").get_to(*(node.mesh));
+            }
             if (j.contains("children")) j.at("children").get_to(node.children);
         }
     }
 
     vector<Loader::SceneNode> Loader::loadSceneFromJSON(const string& filepath) {
         ifstream ifs(filepath);
-        vector<Loader::SceneNode> nodes;
+        vector<SceneNode> nodes;
         try {
             auto jsonData = nlohmann::json::parse(ifs);
             nodes = jsonData["nodes"];
