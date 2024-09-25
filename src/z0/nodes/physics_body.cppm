@@ -74,7 +74,7 @@ export namespace z0 {
             CollisionObject::setProperty(property, value);
             if (property == "shape") {
                 // split shape class name from parameters
-                const auto& parts = split(value, ',');
+                const auto& parts = split(value, ';');
                 // we must have at least a class name
                 if (parts.size() > 0) {
                     if ((parts[0] == "ConvexHullShape") && (parts.size() > 1)) {
@@ -83,6 +83,8 @@ export namespace z0 {
                         if (mesh != nullptr) {
                             setShape(make_shared<ConvexHullShape>(mesh));
                         }
+                    } else if ((parts[0] == "BoxShape") && (parts.size() > 1)) {
+                        setShape(make_shared<BoxShape>(to_vec3(parts[1].data())));
                     }
                 }
             }

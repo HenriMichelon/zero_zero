@@ -155,6 +155,8 @@ export namespace z0 {
             Node::setProperty(property, value);
             if (property == "layer") {
                 collisionLayer = stoi(value);
+            } else if (property == "mask") {
+                collisionMask = stoi(value);
             }
         }
 
