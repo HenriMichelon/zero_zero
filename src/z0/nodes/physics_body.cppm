@@ -6,8 +6,10 @@ module;
 
 export module Z0:PhysicsBody;
 
+import :Tools;
 import :CollisionObject;
 import :Shape;
+import :ConvexHullShape;
 
 export namespace z0 {
 
@@ -55,8 +57,8 @@ export namespace z0 {
         }
 
         void setShape(const shared_ptr<Shape>& shape) {
-            const auto position = getPositionGlobal();
-            const auto quat = normalize(toQuat(mat3(worldTransform)));
+            const auto& position = getPositionGlobal();
+            const auto& quat = normalize(toQuat(mat3(worldTransform)));
             shape->setAttachedToNode();
             const JPH::BodyCreationSettings settings{
                 shape->_getShapeSettings(),
@@ -66,6 +68,24 @@ export namespace z0 {
                 collisionLayer << 4 | collisionMask
             };
             setBodyId(bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate));
+        }
+
+        void setProperty(const string&property, const string& value) override {
+            CollisionObject::setProperty(property, value);
+            if (property == "shape") {
+                // split shape class name from parameters
+                const auto& parts = split(value, ',');
+                // we must have at least a class name
+                if (parts.size() > 0) {
+                    if ((parts[0] == "ConvexHullShape") && (parts.size() > 1)) {
+                        // get the children who provide the mesh for the shape
+                        const auto mesh = getChild(parts[1].data());
+                        if (mesh != nullptr) {
+                            setShape(make_shared<ConvexHullShape>(mesh));
+                        }
+                    }
+                }
+            }
         }
 
     private:

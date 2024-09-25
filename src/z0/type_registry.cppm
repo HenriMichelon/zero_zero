@@ -8,7 +8,7 @@ import :Tools;
 
 export namespace z0 {
 
-    template<typename T> Object* _createNewObjectInstance() { return new T; }
+    template<typename T> Object* _createNewObjectInstance() { return new T(); }
     
     /**
      * Register custom nodes types used to map the node's description in JSON scene files and real classes

@@ -6,6 +6,7 @@ module;
 export module Z0:CollisionObject;
 
 import :Constants;
+import :Tools;
 import :Node;
 import :Signal;
 import :Shape;
@@ -145,9 +146,16 @@ export namespace z0 {
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step
          */
-        [[nodiscard]] bool wereInContact(const CollisionObject* obj) {
+        [[nodiscard]] bool wereInContact(const CollisionObject* obj) const {
             assert(!bodyId.IsInvalid());
             return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
+        }
+
+        void setProperty(const string&property, const string& value) override {
+            Node::setProperty(property, value);
+            if (property == "layer") {
+                collisionLayer = stoi(value);
+            }
         }
 
     protected:
@@ -198,7 +206,7 @@ export namespace z0 {
             //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
         }
 
-        [[nodiscard]] CollisionObject* _getByBodyId(JPH::BodyID id) {
+        [[nodiscard]] CollisionObject* _getByBodyId(JPH::BodyID id) const {
             assert(!bodyId.IsInvalid());
             return reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(id));
         }

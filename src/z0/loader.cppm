@@ -384,6 +384,7 @@ export namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
                 node = Loader::loadModelFromFile(nodeDesc.resource);
+                node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 if (nodeTree.contains(nodeDesc.resource)) {
                     // get the parent resource
@@ -404,12 +405,6 @@ export namespace z0 {
                 node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
                 node->setName(nodeDesc.id);
             }
-            for(const auto& prop: nodeDesc.properties) {
-                node->setProperty(to_lower(prop.first), prop.second);
-            }
-            if (editorMode) {
-                node->setProcessMode(PROCESS_MODE_DISABLED);
-            }
             node->_setParent(parent);
             if (nodeDesc.mesh != nullptr) {
                 if (nodeDesc.mesh->needDuplicate) {
@@ -429,7 +424,13 @@ export namespace z0 {
                     addNode(node.get(), nodeTree, sceneTree, child, editorMode);
                 }
             }
+            for(const auto& prop: nodeDesc.properties) {
+                node->setProperty(to_lower(prop.first), prop.second);
+            }
             parent->addChild(node);
+            if (editorMode) {
+                node->setProcessMode(PROCESS_MODE_DISABLED);
+            }
         }
         nodeTree[nodeDesc.id] = node;
     }

@@ -19,7 +19,7 @@ export namespace z0 {
          * belonging to the `layer` layers.
          */
         explicit StaticBody(const shared_ptr<Shape>& shape,
-                            const uint32_t layer=0xff,
+                            const uint32_t layer,
                             const string& name = "StaticBody"):
            PhysicsBody(shape,
                        layer,
@@ -28,13 +28,25 @@ export namespace z0 {
                        JPH::EMotionType::Static,
                        name) {
         }
+
         /**
-         * Creates a StaticBody without a collision `shape`, 
+         * Creates a StaticBody without a collision shape`
          * belonging to the `layer` layers
          */
-        explicit StaticBody(const uint32_t layer=0xff,
+        explicit StaticBody(const uint32_t layer,
                             const string& name = "StaticBody"):
             PhysicsBody(layer,
+                        0,
+                        JPH::EActivation::DontActivate,
+                        JPH::EMotionType::Static,
+                        name) {
+        }
+
+        /**
+        * Creates a StaticBody without a collision shape`
+        */
+        explicit StaticBody(const string& name = "StaticBody"):
+            PhysicsBody(0,
                         0,
                         JPH::EActivation::DontActivate,
                         JPH::EMotionType::Static,

@@ -419,6 +419,7 @@ namespace z0 {
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");
         TypeRegistry::registerType<Skybox>("Skybox");
+        TypeRegistry::registerType<StaticBody>("StaticBody");
     }
 
     void Application::setShadowCasting(const bool enable) const {
