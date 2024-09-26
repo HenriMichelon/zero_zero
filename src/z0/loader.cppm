@@ -71,7 +71,7 @@ export namespace z0 {
         };
 
     private:
-        [[nodiscard]] static vector<SceneNode> loadSceneFromJSON(const string& filepath);
+        [[nodiscard]] static vector<SceneNode> loadSceneFromJSON(const filesystem::path& filepath);
         static void addNode(Node* parent,
                             map<string, shared_ptr<Node>>& nodeTree,
                             map<string, SceneNode>& sceneTree,
@@ -390,7 +390,8 @@ export namespace z0 {
                          map<string, SceneNode>& sceneTree,
                          const SceneNode& nodeDesc,
                          const bool editorMode) {
-        if (nodeTree.contains(nodeDesc.id)) die("Node with id", nodeDesc.id, "already exists in the scene tree");
+        constexpr auto log_name {"Scene loader :"};
+        if (nodeTree.contains(nodeDesc.id)) die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
         sceneTree[nodeDesc.id] = nodeDesc;
         shared_ptr<Node> node;
         if (nodeDesc.isResource) {
@@ -405,10 +406,10 @@ export namespace z0 {
                     auto& resource = nodeTree[nodeDesc.resource];
                     // get the mesh node via the relative path
                     node = resource->getNode(nodeDesc.resourcePath);
-                    if (node == nullptr) die("Mesh with path", nodeDesc.resourcePath, "not found");
+                    if (node == nullptr) die(log_name, "Mesh with path", nodeDesc.resourcePath, "not found");
                 }
                 else {
-                    die("Resource with id", nodeDesc.resource, "not found");
+                    die(log_name, "Resource with id", nodeDesc.resource, "not found");
                 }
             }
         }
@@ -426,6 +427,7 @@ export namespace z0 {
                 // If we have a designated child we mimic the position, rotation and scale of the child
                 // usefull for physics bodies declarations
                 const auto& child = nodeTree[nodeDesc.child->id];
+                if (child == nullptr) die(log_name, "Child node", nodeDesc.child->id, "not found");
                 node->setPositionGlobal(child->getPositionGlobal());
                 node->setRotation(child->getRotation());
                 node->setScale(child->getScale());
@@ -470,7 +472,7 @@ export namespace z0 {
         filesystem::path filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode> sceneTree;
-        for (const auto& nodeDesc : loadSceneFromJSON(filepath.string())) {
+        for (const auto& nodeDesc : loadSceneFromJSON(filepath)) {
             addNode(parent, nodeTree, sceneTree, nodeDesc, editorMode);
         }
     }
@@ -500,17 +502,23 @@ export namespace z0 {
         }
     }
 
-    vector<Loader::SceneNode> Loader::loadSceneFromJSON(const string& filepath) {
+    vector<Loader::SceneNode> Loader::loadSceneFromJSON(const std::filesystem::path& filepath) {
         ifstream ifs(filepath);
-        vector<SceneNode> nodes;
+        vector<SceneNode> scene{};
         try {
-            // parsing using ordered_json to preserver fields order
-            auto jsonData = nlohmann::ordered_json::parse(ifs);
-            nodes = jsonData["nodes"];
+            auto jsonData = nlohmann::ordered_json::parse(ifs); // parsing using ordered_json to preserver fields order
+            if (jsonData.contains("includes")) {
+                vector<string> includes = jsonData["includes"];
+                for (const auto& include : includes) {
+                    vector<SceneNode> includeNodes = loadSceneFromJSON(filepath.parent_path() / include);
+                    scene.append_range(includeNodes);
+                }
+            }
+            vector<SceneNode> nodes = jsonData["nodes"];
+            scene.append_range(nodes);
+        } catch (nlohmann::json::parse_error) {
+            die("Error loading scene from JSON file ", filepath.string());
         }
-        catch (nlohmann::json::parse_error) {
-            die("Error loading", filepath);
-        }
-        return nodes;
+        return scene;
     }
 }
