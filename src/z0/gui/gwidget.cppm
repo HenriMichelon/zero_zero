@@ -213,8 +213,8 @@ export namespace z0 {
         /** Returns false if the background is transparent */
         [[nodiscard]] bool isDrawBackground() const;
 
-        /** Sets to true make the widget background transparent */
-        void setDrawBackground(bool isTransparent);
+        /** Sets to false make the widget background transparent */
+        void setDrawBackground(bool drawBackground);
 
         [[nodiscard]] bool isPushed() const;
         [[nodiscard]] bool isPointed() const;

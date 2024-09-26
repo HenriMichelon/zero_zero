@@ -82,7 +82,6 @@ namespace z0 {
                 if (Input::_keyJustPressedStates[key]) {
                     auto event = InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
                     app._onInput(event);
-                    log("kd");
                 }
                 break;
             }
@@ -94,7 +93,6 @@ namespace z0 {
                 Input::_keyJustReleasedStates[key] = true;
                 auto event = InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
                 app._onInput(event);
-                log("ku");
                 break;
             }
             case WM_LBUTTONDOWN: {
