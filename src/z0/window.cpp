@@ -59,36 +59,42 @@ namespace z0 {
                 }
                 break;
             }
-            case WM_SYSCOMMAND:
+            case WM_SYSCOMMAND: {
                 if (wParam == SC_CLOSE) {
                     window->close();
                     return 0;
-                } else if (wParam == SC_MINIMIZE) {
+                }
+                if (wParam == SC_MINIMIZE) {
                     app._stop(true);
                     ShowWindow(hwnd, SW_MINIMIZE);
                 } else if (wParam == SC_RESTORE ) {
                     ShowWindow(hwnd, SW_RESTORE);
                     app._stop(false);
                 }
-                break;
-            case WM_KEYDOWN: {
+            }
+            break;
+            case WM_KEYDOWN:{
                 auto scanCode = static_cast<OsKey>((lParam & 0x00FF0000) >> 16);
                 auto key = Input::osKeyToKey(scanCode);
                 Input::_keyJustPressedStates[key] = !Input::_keyPressedStates[key];
                 Input::_keyPressedStates[key] = true;
                 Input::_keyJustReleasedStates[key] = false;
-                auto event = InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-                app._onInput(event);
+                if (Input::_keyJustPressedStates[key]) {
+                    auto event = InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
+                    app._onInput(event);
+                    log("kd");
+                }
                 break;
             }
             case WM_KEYUP: {
-                auto scanCode = static_cast<z0::OsKey>((lParam & 0x00FF0000) >> 16);
+                auto scanCode = static_cast<OsKey>((lParam & 0x00FF0000) >> 16);
                 auto key = Input::osKeyToKey(scanCode);
                 Input::_keyPressedStates[key] = false;
                 Input::_keyJustPressedStates[key] = false;
                 Input::_keyJustReleasedStates[key] = true;
                 auto event = InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
                 app._onInput(event);
+                log("ku");
                 break;
             }
             case WM_LBUTTONDOWN: {
@@ -202,35 +208,6 @@ namespace z0 {
                 }
                 lastMouseX = xPos;
                 lastMouseY = yPos;
-                break;
-            }
-            case WM_INPUT: {
-                UINT dwSize;
-                GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam),
-                                RID_INPUT,
-                                nullptr,
-                                &dwSize,
-                                sizeof(RAWINPUTHEADER));
-                auto lpb = new BYTE[dwSize];
-                if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam),
-                                    RID_INPUT,
-                                    lpb,
-                                    &dwSize,
-                                    sizeof(RAWINPUTHEADER)) != dwSize) {
-                    z0::die("GetRawInputData does not return correct size");
-                }
-
-                auto* raw = reinterpret_cast<RAWINPUT*>(lpb);
-                if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-                    // for Input::getKeyboardVector
-                    const RAWKEYBOARD& rawKB = raw->data.keyboard;
-                    bool keyDown = !(rawKB.Flags & RI_KEY_BREAK);
-                    UINT key = rawKB.MakeCode;
-                    if (key < 256) {
-                        Input::_keys[key] = keyDown;
-                    }
-                }
-                delete[] lpb;
                 break;
             }
             default:

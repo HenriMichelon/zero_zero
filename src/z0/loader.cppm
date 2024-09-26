@@ -62,7 +62,7 @@ export namespace z0 {
             string clazz{};
             shared_ptr<SceneNode> child{nullptr};
             vector<SceneNode> children{};
-            map<string, string> properties{};
+            vector<std::pair<string,string>> properties{}; // using a vector of pairs to preserve JSON declaration order
 
             string resource{};
             string resourcePath{};
@@ -475,7 +475,7 @@ export namespace z0 {
         }
     }
 
-    void from_json(const nlohmann::json& j, Loader::SceneNode& node) {
+    void from_json(const nlohmann::ordered_json& j, Loader::SceneNode& node) {
         j.at("id").get_to(node.id);
         node.isResource = j.contains("resource");
         node.isCustom = j.contains("custom");
@@ -487,7 +487,11 @@ export namespace z0 {
         }
         else {
             if (j.contains("class")) j.at("class").get_to(node.clazz);
-            if (j.contains("properties")) j.at("properties").get_to(node.properties);
+            if (j.contains("properties")) {
+                for(auto& [k, v] : j.at("properties").items()) {
+                    node.properties.push_back({k, v});
+                }
+            }
             if (j.contains("child")) {
                 node.child = make_shared<Loader::SceneNode>();
                 j.at("child").get_to(*(node.child));
@@ -500,7 +504,8 @@ export namespace z0 {
         ifstream ifs(filepath);
         vector<SceneNode> nodes;
         try {
-            auto jsonData = nlohmann::json::parse(ifs);
+            // parsing using ordered_json to preserver fields order
+            auto jsonData = nlohmann::ordered_json::parse(ifs);
             nodes = jsonData["nodes"];
         }
         catch (nlohmann::json::parse_error) {

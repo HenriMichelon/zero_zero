@@ -18,7 +18,6 @@ import :Application;
 
 namespace z0 {
 
-    //list<shared_ptr<InputEvent>> Input::_inputQueue;
     unordered_map<Key, bool> Input::_keyPressedStates;
     unordered_map<Key, bool> Input::_keyJustPressedStates;
     unordered_map<Key, bool> Input::_keyJustReleasedStates;
@@ -26,16 +25,6 @@ namespace z0 {
     unordered_map<MouseButton, bool> Input::_mouseButtonJustPressedStates;
     unordered_map<MouseButton, bool> Input::_mouseButtonJustReleasedStates;
     unordered_map<GamepadButton, bool> Input::_gamepadButtonPressedStates;
-
-    /*void Input::injectInputEvent(const shared_ptr<InputEvent>& event) {
-        _inputQueue.push_back(event);
-    }
-
-    shared_ptr<InputEvent> Input::consumeInputEvent() {
-        const auto& event = _inputQueue.front();
-        _inputQueue.pop_front();
-        return event;
-    }*/
 
     static map<Key, OsKey> _keyMap{
         {KEY_SPACE, OS_KEY_SPACE},
@@ -163,14 +152,11 @@ namespace z0 {
         if (abs(value) < deadzonePercent) {
             return 0.0f;
         }
-        else {
-            return std::min(std::max(value < 0.0f ? value + deadzonePercent : value - deadzonePercent, -1.0f), 1.0f);
-        }
+        return std::min(std::max(value < 0.0f ? value + deadzonePercent : value - deadzonePercent, -1.0f), 1.0f);
     }
 
 #ifdef _WIN32
 
-    bool Input::_keys[256]{false};
     bool Input::_useXInput{false};
     const int Input::DI_AXIS_RANGE = 1000;
     const float Input::DI_AXIS_RANGE_DIV = 1000.5f;
@@ -506,8 +492,8 @@ namespace z0 {
     }
 
     vec2 Input::getKeyboardVector(const Key keyNegX, const Key keyPosX, const Key keyNegY, const Key keyPosY) {
-        const auto x = _keys[keyToOsKey(keyNegX)] ? -1 : _keys[keyToOsKey(keyPosX)] ? 1 : 0;
-        const auto y = _keys[keyToOsKey(keyNegY)] ? -1 : _keys[keyToOsKey(keyPosY)] ? 1 : 0;
+        const auto x = _keyPressedStates[keyNegX] ? -1 : _keyPressedStates[keyPosX] ? 1 : 0;
+        const auto y = _keyPressedStates[keyNegY] ? -1 : _keyPressedStates[keyPosY] ? 1 : 0;
         const vec2 vector{x, y};
         const float length = glm::length(vector);
         return (length > 1.0f) ? vector / length : vector;

@@ -154,9 +154,9 @@ export namespace z0 {
         void setProperty(const string&property, const string& value) override {
             Node::setProperty(property, value);
             if (property == "layer") {
-                collisionLayer = stoi(value);
+                setCollistionLayer(stoul(value), true);
             } else if (property == "mask") {
-                collisionMask = stoi(value);
+                setCollistionMask(stoul(value), true);
             }
         }
 

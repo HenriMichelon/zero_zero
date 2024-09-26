@@ -384,20 +384,26 @@ namespace z0 {
     void Application::_mainLoop() {
         Input::_initInput();
         start();
-        while (!window->shouldClose()) {
+        auto messageLoop = [] {
 #ifndef DISABLE_LOG
             Window::_processDeferredLog();
 #endif
             Input::_updateInputStates();
 #ifdef _WIN32
             MSG _messages;
-            if (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
+            while (PeekMessage(&_messages, nullptr, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&_messages);
                 DispatchMessage(&_messages);
             }
 #endif
-            drawFrame();
+        };
+        unique_ptr<thread> drawThread{nullptr};
+        while (!window->shouldClose()) {
+            messageLoop();
+            if ((drawThread != nullptr) && (drawThread->joinable())) drawThread->join();
+            drawThread = make_unique<thread>([this]{ drawFrame();});
         }
+        if ((drawThread != nullptr) && (drawThread->joinable())) drawThread->join();
         stopped = true;
         Input::_closeInput();
         device->wait();
@@ -420,6 +426,7 @@ namespace z0 {
         TypeRegistry::registerType<Environment>("Environment");
         TypeRegistry::registerType<Skybox>("Skybox");
         TypeRegistry::registerType<StaticBody>("StaticBody");
+        TypeRegistry::registerType<RigidBody>("RigidBody");
     }
 
     void Application::setShadowCasting(const bool enable) const {

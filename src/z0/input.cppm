@@ -135,7 +135,6 @@ namespace z0 {
         static map<MouseCursor, HCURSOR> _mouseCursors;
         static const int DI_AXIS_RANGE;
         static const float DI_AXIS_RANGE_DIV;
-        static bool _keys[256];
         static bool _useXInput;
         static void _initInput();
         static void _closeInput();
