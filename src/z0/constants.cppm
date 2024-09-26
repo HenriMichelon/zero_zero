@@ -57,6 +57,11 @@ export namespace z0 {
     constexpr vec3 VEC3ZERO{0.0};
 
     /**
+     * Unit quaternion with no rotation
+     */
+    constexpr quat QUATERNION_IDENTITY{1.0f, 0.0f, 0.0f, 0.0f};
+
+    /**
      * The Basis of 3D transform. 
      * It is composed by 3 axes (Basis.x, Basis.y, and Basis.z). 
      * Together, these represent the transform's rotation, scale, and shear.

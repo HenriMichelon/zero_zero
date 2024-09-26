@@ -77,13 +77,14 @@ export namespace z0 {
                 const auto& parts = split(value, ';');
                 // we must have at least a class name
                 if (parts.size() > 0) {
-                    if ((parts[0] == "ConvexHullShape") && (parts.size() > 1)) {
+                    if (parts[0] == "ConvexHullShape") {
+                        if (parts.size() > 2) die("Missing parameter for ConvexHullShape");
                         // get the children who provide the mesh for the shape
                         const auto mesh = getChild(parts[1].data());
-                        if (mesh != nullptr) {
-                            setShape(make_shared<ConvexHullShape>(mesh));
-                        }
-                    } else if ((parts[0] == "BoxShape") && (parts.size() > 1)) {
+                        if (mesh == nullptr) die("Child with path", parts[1].data(), "not found in", toString());
+                        setShape(make_shared<ConvexHullShape>(mesh));
+                    } else if (parts[0] == "BoxShape") {
+                        if (parts.size() > 2) die("Missing parameter for BoxShape");
                         setShape(make_shared<BoxShape>(to_vec3(parts[1].data())));
                     }
                 }
