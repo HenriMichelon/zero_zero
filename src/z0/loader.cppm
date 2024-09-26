@@ -34,7 +34,8 @@ export namespace z0 {
          * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double sided (default is CULLMODE_DISABLED for double sided materials)
          */
         [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const filesystem::path& filepath,
-                                                                bool forceBackFaceCulling = false);
+                                                                bool forceBackFaceCulling = false,
+                                                                bool commandLineMode = false);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
@@ -62,7 +63,8 @@ export namespace z0 {
             string clazz{};
             shared_ptr<SceneNode> child{nullptr};
             vector<SceneNode> children{};
-            vector<std::pair<string,string>> properties{}; // using a vector of pairs to preserve JSON declaration order
+            vector<std::pair<string, string>> properties{};
+            // using a vector of pairs to preserve JSON declaration order
 
             string resource{};
             string resourcePath{};
@@ -163,8 +165,9 @@ export namespace z0 {
 
     // https://fastgltf.readthedocs.io/v0.7.x/overview.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
-    shared_ptr<Node> Loader::loadModelFromFile(const filesystem::path& filename, bool forceBackFaceCulling) {
-        filesystem::path filepath = Application::get().getConfig().appDir / filename;
+    shared_ptr<Node> Loader::loadModelFromFile(const filesystem::path& filename, bool forceBackFaceCulling,
+                                               bool commandLineMode) {
+        filesystem::path filepath = commandLineMode ? filename : (Application::get().getConfig().appDir / filename);
         fastgltf::Parser parser{
             fastgltf::Extensions::KHR_materials_specular | fastgltf::Extensions::KHR_texture_transform
         };
@@ -187,7 +190,7 @@ export namespace z0 {
         vector<std::shared_ptr<StandardMaterial>> materials{};
         for (fastgltf::Material& mat : gltf.materials) {
             shared_ptr<StandardMaterial> material = make_shared<StandardMaterial>(mat.name.data());
-            if (mat.pbrData.baseColorTexture.has_value()) {
+            if (!commandLineMode && mat.pbrData.baseColorTexture.has_value()) {
                 const auto imageIndex = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.
                     value();
                 shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
@@ -209,14 +212,14 @@ export namespace z0 {
                 mat.pbrData.baseColorFactor[3],
             });
             if (mat.specular != nullptr) {
-                if (mat.specular->specularColorTexture.has_value()) {
+                if (!commandLineMode && mat.specular->specularColorTexture.has_value()) {
                     auto imageIndex = gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.
                         value();
                     shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
                     material->setSpecularTexture(std::make_shared<ImageTexture>(image));
                 }
             }
-            if (mat.normalTexture.has_value()) {
+            if (!commandLineMode && mat.normalTexture.has_value()) {
                 auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
                 // https://www.reddit.com/r/vulkan/comments/wksa4z/comment/jd7504e/
                 shared_ptr<Image> image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
@@ -333,10 +336,9 @@ export namespace z0 {
             // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
-                mesh->_buildModel();
+                if (!commandLineMode) mesh->_buildModel();
                 newNode = std::make_shared<MeshInstance>(mesh, name);
-            }
-            else {
+            } else {
                 newNode = std::make_shared<Node>(name);
             }
 
@@ -390,8 +392,9 @@ export namespace z0 {
                          map<string, SceneNode>& sceneTree,
                          const SceneNode& nodeDesc,
                          const bool editorMode) {
-        constexpr auto log_name {"Scene loader :"};
-        if (nodeTree.contains(nodeDesc.id)) die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
+        constexpr auto log_name{"Scene loader :"};
+        if (nodeTree.contains(nodeDesc.id)) die(log_name, "Node with id", nodeDesc.id,
+                                                "already exists in the scene tree");
         sceneTree[nodeDesc.id] = nodeDesc;
         shared_ptr<Node> node;
         if (nodeDesc.isResource) {
@@ -407,13 +410,11 @@ export namespace z0 {
                     // get the mesh node via the relative path
                     node = resource->getNode(nodeDesc.resourcePath);
                     if (node == nullptr) die(log_name, "Mesh with path", nodeDesc.resourcePath, "not found");
-                }
-                else {
+                } else {
                     die(log_name, "Resource with id", nodeDesc.resource, "not found");
                 }
             }
-        }
-        else {
+        } else {
             if ((nodeDesc.clazz.empty()) || (nodeDesc.isCustom)) {
                 // The node class is a game class
                 node = make_shared<Node>(nodeDesc.id);
@@ -440,12 +441,10 @@ export namespace z0 {
                 if (nodeTree.contains(child.id)) {
                     if (child.needDuplicate) {
                         node->addChild(nodeTree[child.id]->duplicate());
-                    }
-                    else {
+                    } else {
                         node->addChild(nodeTree[child.id]);
                     }
-                }
-                else {
+                } else {
                     addNode(node.get(), nodeTree, sceneTree, child, editorMode);
                 }
             }
@@ -486,11 +485,10 @@ export namespace z0 {
             j.at("resource").get_to(node.resource);
             j.at("type").get_to(node.resourceType);
             if (j.contains("path")) j.at("path").get_to(node.resourcePath);
-        }
-        else {
+        } else {
             if (j.contains("class")) j.at("class").get_to(node.clazz);
             if (j.contains("properties")) {
-                for(auto& [k, v] : j.at("properties").items()) {
+                for (auto& [k, v] : j.at("properties").items()) {
                     node.properties.push_back({k, v});
                 }
             }
@@ -516,7 +514,8 @@ export namespace z0 {
             }
             vector<SceneNode> nodes = jsonData["nodes"];
             scene.append_range(nodes);
-        } catch (nlohmann::json::parse_error) {
+        }
+        catch (nlohmann::json::parse_error) {
             die("Error loading scene from JSON file ", filepath.string());
         }
         return scene;

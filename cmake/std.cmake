@@ -18,4 +18,3 @@ target_compile_options(std-cxx-modules
   PRIVATE
     -Wno-reserved-module-identifier
     -Wno-reserved-user-defined-literal)
-target_link_libraries(${PROJECT_NAME} std-cxx-modules)
