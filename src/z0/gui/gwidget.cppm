@@ -127,7 +127,7 @@ export namespace z0 {
         /** Creates a widget of a particular type */
         explicit GWidget(Type = WIDGET);
 
-        virtual ~GWidget() = default;
+        ~GWidget() override = default;
 
         /** Returns the type of the widget */
         [[nodiscard]] Type getType() const;
@@ -145,7 +145,8 @@ export namespace z0 {
         void enable(bool = true);
 
         /** Moves the widget to a particular position. */
-        void setPos(float x, float y);
+        void setPos(float x,
+                    float y);
 
         /** Returns the width of the widget, in pixels */
         [[nodiscard]] float getWidth() const { return rect.width; };
@@ -154,13 +155,17 @@ export namespace z0 {
         [[nodiscard]] float getHeight() const { return rect.height; };
 
         /** Resizes the widget */
-        virtual void setSize(float width, float height);
+        virtual void setSize(float width,
+                             float height);
 
         /** Returns size size & position of the widget */
         [[nodiscard]] const Rect& getRect() const;
 
         /** Changes the size & position of the widget */
-        void setRect(float x, float y, float width, float height);
+        void setRect(float x,
+                     float y,
+                     float width,
+                     float height);
 
         /** Changes the size & position of the widget */
         void setRect(const Rect&);
@@ -186,12 +191,15 @@ export namespace z0 {
 
         /** Adds a child widget.
               Children widgets will be destroyed on parent destruction.
-            	@param GWidget	: child widget to add
-            	@param AlignementType	: placement
+            	@param child	: child widget to add
+            	@param alignment: placement
             	@Param string	: resource string
             	@Param float	: default padding
         */
-        virtual shared_ptr<GWidget> add(shared_ptr<GWidget>, AlignmentType, string = "", float = 0);
+        virtual shared_ptr<GWidget> add(shared_ptr<GWidget> child,
+                                        AlignmentType alignment,
+                                        const string& = "",
+                                        float = 0);
 
         /** Removes a child widget */
         virtual void remove(shared_ptr<GWidget>&);
@@ -221,8 +229,8 @@ export namespace z0 {
         [[nodiscard]] bool isFreezed() const;
         [[nodiscard]] bool isRedrawOnMouseEvent() const;
         [[nodiscard]] Rect getChildrenRect() const;
-        void setFreezed(bool f) { freeze = f; }
-        void setPushed(bool p) { pushed = p; }
+        void setFreezed(const bool f) { freeze = f; }
+        void setPushed(const bool p) { pushed = p; }
 
         /** Force a refresh of the entire widget */
         void refresh() const;
@@ -243,15 +251,15 @@ export namespace z0 {
         void setUserData(void*);
 
         /** Return the transparency alpha value */
-        [[nodiscard]] inline const float getTransparency() const { return transparency; }
+        [[nodiscard]] inline float getTransparency() const { return transparency; }
 
         /** Changes the transpency alpha value */
         void setTransparency(float alpha);
 
         void resizeChildren();
 
-        void _setRedrawOnMouseEvent(bool r) { redrawOnMouseEvent = r; }
-        void _setMoveChildrenOnPush(bool r) { moveChildrenOnPush = r; }
+        void _setRedrawOnMouseEvent(const bool r) { redrawOnMouseEvent = r; }
+        void _setMoveChildrenOnPush(const bool r) { moveChildrenOnPush = r; }
         [[nodiscard]] virtual list<shared_ptr<GWidget>>& _getChildren() { return children; };
 
     protected:
@@ -288,17 +296,27 @@ export namespace z0 {
         virtual void eventHide();
         virtual void eventEnable();
         virtual void eventDisable();
-        virtual void eventMove(float, float);
+        virtual void eventMove(float,
+                               float);
         virtual void eventResize();
         virtual bool eventKeybDown(Key);
         virtual bool eventKeybUp(Key);
-        virtual bool eventMouseDown(MouseButton, float, float);
-        virtual bool eventMouseUp(MouseButton, float, float);
-        virtual bool eventMouseMove(uint32_t, float, float);
+        virtual bool eventMouseDown(MouseButton,
+                                    float,
+                                    float);
+        virtual bool eventMouseUp(MouseButton,
+                                  float,
+                                  float);
+        virtual bool eventMouseMove(uint32_t,
+                                    float,
+                                    float);
         virtual void eventGotFocus();
         virtual void eventLostFocus();
 
-        virtual void _init(GWidget&, AlignmentType, const string&, float);
+        virtual void _init(GWidget&,
+                           AlignmentType,
+                           const string&,
+                           float);
 
     private:
         bool pushed{false};

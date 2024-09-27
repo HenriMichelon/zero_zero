@@ -34,8 +34,7 @@ namespace z0 {
         auto p = this;
         do {
             if (!p->visible) { return false; }
-        }
-        while ((p = p->parent) != nullptr);
+        } while ((p = p->parent) != nullptr);
         return (window && window->isVisible());
     }
 
@@ -44,8 +43,7 @@ namespace z0 {
         visible = S;
         if (visible) {
             eventShow();
-        }
-        else {
+        } else {
             eventHide();
         }
     }
@@ -55,18 +53,19 @@ namespace z0 {
         enabled = S;
         if (enabled) {
             eventEnable();
-        }
-        else {
+        } else {
             eventDisable();
         }
     }
 
-    void GWidget::setPos(float x, float y) {
+    void GWidget::setPos(float x,
+                         float y) {
         if ((x == rect.x) && (y == rect.y)) return;
         eventMove(x, y);
     }
 
-    void GWidget::setSize(float W, float H) {
+    void GWidget::setSize(float W,
+                          float H) {
         if (parent) { parent->refresh(); }
         if ((W != 0) && (H != 0) && (rect.width == 0) && (rect.height == 0)) {
             defaultRect = rect;
@@ -86,8 +85,7 @@ namespace z0 {
     GWidget* GWidget::setNextFocus() {
         if (focused) {
             setFocus(false);
-        }
-        else {
+        } else {
             GWidget* r = setFocus();
             if (r) return r;
         }
@@ -127,8 +125,7 @@ namespace z0 {
             if (F) {
                 if (!freeze) { refresh(); }
                 emit(GEvent::OnGotFocus, &event);
-            }
-            else {
+            } else {
                 emit(GEvent::OnLostFocus, &event);
                 /*shared_ptr<GWidget>p = parent;
                 while (p && (!p->DrawBackground())) p = p->parent;
@@ -149,7 +146,10 @@ namespace z0 {
         return (font == nullptr ? window->getDefaultFont() : font);
     }
 
-    void GWidget::_init(GWidget& WND, AlignmentType ALIGN, const string& RES, float P) {
+    void GWidget::_init(GWidget& WND,
+                        AlignmentType ALIGN,
+                        const string& RES,
+                        float P) {
         WND.padding = P;
         WND.alignment = ALIGN;
         if (!WND.font) { WND.font = font; }
@@ -187,7 +187,7 @@ namespace z0 {
 
     shared_ptr<GWidget> GWidget::add(shared_ptr<GWidget> WND,
                                      const AlignmentType ALIGN,
-                                     const string RES,
+                                     const string& RES,
                                      const float P) {
         assert(window && "GWidget must be added to a window before adding child");
         if (!allowChildren) return WND;
@@ -250,7 +250,8 @@ namespace z0 {
         refresh();
     }
 
-    void GWidget::eventMove(const float X, const float Y) {
+    void GWidget::eventMove(const float X,
+                            const float Y) {
         const float diffX = rect.x - X;
         const float diffY = rect.y - Y;
         rect.x = X;
@@ -283,15 +284,13 @@ namespace z0 {
         clientRect.x += hborder + padding;
         if (clientRect.width > (2 * hborder + 2 * padding)) {
             clientRect.width -= 2 * hborder + 2 * padding;
-        }
-        else {
+        } else {
             clientRect.width = 0;
         }
         clientRect.y += vborder + padding;
         if (clientRect.height > (2 * vborder + 2 * padding)) {
             clientRect.height -= 2 * vborder + 2 * padding;
-        }
-        else {
+        } else {
             clientRect.height = 0;
         }
         if (pushed && moveChildrenOnPush) {
@@ -481,7 +480,9 @@ namespace z0 {
         return false;
     }
 
-    bool GWidget::eventMouseDown(const MouseButton B, const float X, const float Y) {
+    bool GWidget::eventMouseDown(const MouseButton B,
+                                 const float X,
+                                 const float Y) {
         if (!enabled) { return false; }
         auto consumed = false;
         pushed = true;
@@ -506,7 +507,9 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWidget::eventMouseUp(const MouseButton B, const float X, const float Y) {
+    bool GWidget::eventMouseUp(const MouseButton B,
+                               const float X,
+                               const float Y) {
         if (!enabled) { return false; }
         auto consumed = false;
         pushed = false;
@@ -526,7 +529,9 @@ namespace z0 {
         return consumed;
     }
 
-    bool GWidget::eventMouseMove(const uint32_t B, const float X, const float Y) {
+    bool GWidget::eventMouseMove(const uint32_t B,
+                                 const float X,
+                                 const float Y) {
         if (!enabled) { return false; }
         auto consumed = false;
         auto p = rect.contains(X, Y);
@@ -637,7 +642,10 @@ namespace z0 {
         return rect;
     }
 
-    void GWidget::setRect(const float L, const float T, const float W, const float H) {
+    void GWidget::setRect(const float L,
+                          const float T,
+                          const float W,
+                          const float H) {
         setPos(L, T);
         setSize(W, H);
     }

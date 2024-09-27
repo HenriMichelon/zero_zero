@@ -41,8 +41,8 @@ export namespace z0 {
             return true;
         }
 
-        void draw(const GWidget& W, GResource& RES, VectorRenderer& D, bool BEFORE) const override {
-            auto& res = (GStyleClassicResource&)RES;
+        void draw(const GWidget &W, GResource &RES, VectorRenderer &D, bool BEFORE) const override {
+            auto &res = (GStyleClassicResource &)RES;
             if (!W.isVisible()) { return; }
             if (BEFORE) {
                 switch (W.getType()) {
@@ -50,26 +50,26 @@ export namespace z0 {
                 //case GWidget::UPDOWN:
                 //case GWidget::PROGRESSBAR:
                 case GWidget::PANEL:
-                    drawPanel((GPanel&)W, res, D);
+                    drawPanel((GPanel &)W, res, D);
                     break;
                 case GWidget::BOX:
                     //case GWidget::SCROLLBOX:
                     drawBox(W, res, D);
                     break;
                 case GWidget::LINE:
-                    drawLine((GLine&)W, res, D);
+                    drawLine((GLine &)W, res, D);
                     break;
                 case GWidget::BUTTON:
-                    drawButton((GButton&)W, res, D);
+                    drawButton((GButton &)W, res, D);
                     break;
                 case GWidget::TOGGLEBUTTON:
-                    drawToggleButton((GToggleButton&)(GCheckWidget&)W, res, D);
+                    drawToggleButton((GToggleButton &)(GCheckWidget &)W, res, D);
                     break;
                 case GWidget::TEXT:
-                    drawText((GText&)W, res, D);
+                    drawText((GText &)W, res, D);
                     break;
                 case GWidget::FRAME:
-                    drawFrame((GFrame&)W, res, D);
+                    drawFrame((GFrame &)W, res, D);
                     break;
                 /*case GWidget::GRIDCELL:
                     DrawGridCell((GGridCell&)W, D, res);
@@ -101,8 +101,7 @@ export namespace z0 {
                 default:
                     break;
                 }
-            }
-            else {
+            } else {
                 switch (W.getType()) {
                 /*case GWidget::TEXTEDIT:
                     DrawTextEdit((GTextEdit&)W, D, res, R);
@@ -119,16 +118,16 @@ export namespace z0 {
             }
         }
 
-        void addResource(GWidget& W, const string& RES) override {
+        void addResource(GWidget &W, const string &RES) override {
             auto res = make_shared<GStyleClassicResource>(RES);
             W.setResource(res);
             W.setSize(res->width, res->height);
             switch (W.getType()) {
             case GWidget::SCROLLBAR:
-                ((GScrollBar&)W).setResources(",,LOWERED", ",,RAISED");
+                ((GScrollBar &)W).setResources(",,LOWERED", ",,RAISED");
                 break;
             case GWidget::TREEVIEW:
-                ((GTreeView&)W).setResources(",,LOWERED", "18,18,RAISED", "");
+                ((GTreeView &)W).setResources(",,LOWERED", "18,18,RAISED", "");
                 break;
             // XXX
             /*case GWidget::UPDOWN:
@@ -163,7 +162,7 @@ export namespace z0 {
             }
         }
 
-        void resize(GWidget& W, Rect& R, GResource&) override {
+        void resize(GWidget &W, Rect &R, GResource &) override {
             switch (W.getType()) {
             case GWidget::BOX:
             case GWidget::BUTTON:
@@ -174,7 +173,7 @@ export namespace z0 {
             case GWidget::FRAME: {
                 W.setHBorder(4);
                 float w, h;
-                W.getFont()->getSize(((GFrame&)W).getText(), w, h);
+                W.getFont()->getSize(((GFrame &)W).getText(), w, h);
                 W.setVBorder(h - 2);
             }
             break;
@@ -219,29 +218,38 @@ export namespace z0 {
             }*/
         }
 
-        Color extractColor(const string& OPT, const float R, const float G, const float B) {
+        Color extractColor(const string &OPT, const float R, const float G, const float B) {
             string opt = getOption(OPT);
             if (!opt.empty()) {
-                const auto& rgb = split(opt, ',');
+                const auto &rgb = split(opt, ',');
                 if (rgb.size() == 3) {
                     return Color(vec3{stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]})});
-                }
-                else if (rgb.size() == 4) {
+                } else if (rgb.size() == 4) {
                     return Color(vec4{
-                        stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), stof(string{rgb[3]})
+                        stof(string{rgb[0]}),
+                        stof(string{rgb[1]}),
+                        stof(string{rgb[2]}),
+                        stof(string{rgb[3]})
                     });
                 }
             }
             return Color(vec3{R, G, B});
         }
 
-        void drawPanel(const GPanel&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawBox(const GWidget&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawLine(GLine&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawButton(GButton&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawToggleButton(GToggleButton&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawText(GText&, GStyleClassicResource&, VectorRenderer&) const;
-        void drawFrame(GFrame&, GStyleClassicResource&, VectorRenderer&) const;
+        void drawPanel(const GPanel &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawBox(const GWidget &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawLine(GLine &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawButton(GButton &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawToggleButton(GToggleButton &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawText(GText &, GStyleClassicResource &, VectorRenderer &) const;
+
+        void drawFrame(GFrame &, GStyleClassicResource &, VectorRenderer &) const;
+
         /*void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
         void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
         void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
@@ -254,7 +262,7 @@ export namespace z0 {
         void drawGridCell(GGridCell&, GLayoutVectorResource&, VectorRenderer&);*/
     };
 
-    void GStyleClassic::drawPanel(const GPanel& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawPanel(const GPanel &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         if (W.isDrawBackground()) {
             auto c = background;
             c.color.a = W.getTransparency();
@@ -264,7 +272,7 @@ export namespace z0 {
         }
     }
 
-    void GStyleClassic::drawBox(const GWidget& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawBox(const GWidget &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         if ((W.getWidth() < 4) || (W.getHeight() < 4)) { return; }
         float l = W.getRect().x;
         float b = W.getRect().y;
@@ -277,8 +285,7 @@ export namespace z0 {
         if (W.isDrawBackground()) {
             if (W.isPushed()) {
                 D.setPenColor(fd);
-            }
-            else {
+            } else {
                 D.setPenColor(fu);
             }
             //D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
@@ -298,8 +305,8 @@ export namespace z0 {
             default:
                 break;
             }
-            //D.drawLine({l, b}, {l+w, b});
-            //D.drawLine({l, b}, {l, b+h});
+            D.drawLine({l, b}, {l + w, b});
+            D.drawLine({l, b}, {l, b + h});
             switch (RES.style) {
             case GStyleClassicResource::RAISED:
                 D.setPenColor(sb);
@@ -310,12 +317,12 @@ export namespace z0 {
             default:
                 break;
             }
-            //D.drawLine({l+w, b}, {l+w, b+h});
-            //D.drawLine({l+w, b+h}, {l, b+h});
+            D.drawLine({l + w, b}, {l + w, b + h});
+            D.drawLine({l + w, b + h}, {l, b + h});
         }
     }
 
-    void GStyleClassic::drawLine(GLine& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawLine(GLine &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         Color c1, c2;
         auto sb = shadowBright;
         sb.color.a = W.getTransparency();
@@ -348,40 +355,36 @@ export namespace z0 {
             D.drawLine({rect.x + 1, rect.y}, {rect.x + 1, rect.y + rect.height});
     }
 
-    void GStyleClassic::drawButton(GButton& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawButton(GButton &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         if (W.isPushed()) {
             RES.style = GStyleClassicResource::LOWERED;
-        }
-        else {
+        } else {
             if (RES.flat) {
                 if (W.isPointed()) {
                     RES.style = GStyleClassicResource::RAISED;
-                }
-                else {
+                } else {
                     RES.style = GStyleClassicResource::FLAT;
                 }
-            }
-            else {
+            } else {
                 RES.style = GStyleClassicResource::RAISED;
             }
         }
         drawBox(W, RES, D);
     }
 
-    void GStyleClassic::drawToggleButton(GToggleButton& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawToggleButton(GToggleButton &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         W.setDrawBackground(!RES.flat);
         if (W.getState() == GCheckWidget::CHECK) {
             RES.style = GStyleClassicResource::LOWERED;
             W.setPushed(true);
-        }
-        else {
+        } else {
             RES.style = GStyleClassicResource::RAISED;
             W.setPushed(false);
         }
         drawBox(W, RES, D);
     }
 
-    void GStyleClassic::drawText(GText& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawText(GText &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         D.setPenColor(Color{
             W.getTextColor().color.r,
             W.getTextColor().color.g,
@@ -393,7 +396,7 @@ export namespace z0 {
         D.drawText(W.getText(), W.getFont(), rect, W.getRect().width, W.getRect().height);
     }
 
-    void GStyleClassic::drawFrame(GFrame& W, GStyleClassicResource& RES, VectorRenderer& D) const {
+    void GStyleClassic::drawFrame(GFrame &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         if ((W.getWidth() < 4) || (W.getHeight() < 4)) { return; }
         const int32_t LEFTOFFSET = 8;
         float l = W.getRect().x;
@@ -422,7 +425,7 @@ export namespace z0 {
         }
         float fh, fw;
         W.getFont()->getSize(W.getText(), fw, fh);
-        const auto& ratio = Application::get().getVectorRatio();
+        const auto &ratio = Application::get().getVectorRatio();
         fw = roundf(fw / ratio.x);
         fh = roundf(fh / ratio.y);
         D.setPenColor(c2);
@@ -437,8 +440,7 @@ export namespace z0 {
             });
             D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b + h) - (fh / 2), fw, fh, fw, fh);
             D.setPenColor(c2);
-        }
-        else {
+        } else {
             D.drawLine({l + w, b + h}, {l, b + h});
         }
         D.drawLine({l + w, b}, {l + w, b + h});
