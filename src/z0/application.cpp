@@ -29,9 +29,9 @@ import :Character;
 import :CollisionArea;
 import :DirectionalLight;
 import :Environment;
-import :KinematicBody;
 import :OmniLight;
 import :RayCast;
+import :KinematicBody;
 import :RigidBody;
 import :Skybox;
 import :StaticBody;
@@ -426,17 +426,10 @@ namespace z0 {
             }
 #endif
         };
-        unique_ptr<thread> drawThread{nullptr};
-        auto               waitForDrawThread = [&drawThread] {
-            if ((drawThread != nullptr) && (drawThread->joinable()))
-                drawThread->join();
-        };
         while (!window->shouldClose()) {
             messageLoop();
-            waitForDrawThread();
-            drawThread = make_unique<thread>([this] { drawFrame(); });
+            drawFrame();
         }
-        waitForDrawThread();
         stopped = true;
         Input::_closeInput();
         device->wait();

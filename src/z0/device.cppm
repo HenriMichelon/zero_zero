@@ -49,12 +49,11 @@ export namespace z0 {
                     .hwnd = theWindow._getHandle(),
             };
             if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS)
-                die(
-                        "Failed to create window surface!");
+                die("Failed to create window surface!");
 #endif
 
             // Requested device extensions
-            const vector<const char *> deviceExtensions = {
+            const vector deviceExtensions = {
                     // Mandatory to create a swap chain
                     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                     // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
@@ -97,9 +96,9 @@ export namespace z0 {
             vector<VkDeviceQueueCreateInfo> queueCreateInfos;
             QueueFamilyIndices              indices = findQueueFamilies(physicalDevice);
             {
-                auto          queuePriority       = 1.0f;
-                set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-                for (uint32_t queueFamily : uniqueQueueFamilies) {
+                auto queuePriority       = 1.0f;
+                set  uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+                for (auto queueFamily : uniqueQueueFamilies) {
                     const VkDeviceQueueCreateInfo queueCreateInfo{
                             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
                             .queueFamilyIndex = queueFamily,
@@ -141,8 +140,7 @@ export namespace z0 {
                         .pEnabledFeatures = &deviceFeatures,
                 };
                 if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
-                    die(
-                            "Failed to create logical device!");
+                    die("Failed to create logical device!");
             }
 
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
@@ -160,8 +158,7 @@ export namespace z0 {
                     .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
             };
             if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-                die(
-                        "Failed to create the command pool");
+                die("Failed to create the command pool");
 
             //////////////////// Create VMA allocator
 
@@ -219,8 +216,7 @@ export namespace z0 {
                         .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())
                 };
                 if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-                    die(
-                            "failed to allocate command buffers!");
+                    die("failed to allocate command buffers!");
             }
 
             //////////////////// Create sync objects
@@ -296,18 +292,19 @@ export namespace z0 {
             vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
             uint32_t imageIndex;
             auto     result = vkAcquireNextImageKHR(device,
-                                                    swapChain,
-                                                    UINT64_MAX,
-                                                    imageAvailableSemaphores[currentFrame],
-                                                    VK_NULL_HANDLE,
-                                                    &imageIndex);
+                                                swapChain,
+                                                UINT64_MAX,
+                                                imageAvailableSemaphores[currentFrame],
+                                                VK_NULL_HANDLE,
+                                                &imageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                 recreateSwapChain();
                 for (auto &renderer : renderers) {
                     renderer->recreateImagesResources();
                 }
                 return;
-            } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            }
+            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
                 die("failed to acquire swap chain image!");
             }
             vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -445,8 +442,7 @@ export namespace z0 {
             };
             VkImageView imageView;
             if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-                die(
-                        "failed to create texture image view!");
+                die("failed to create texture image view!");
             return imageView;
         }
 
@@ -567,7 +563,7 @@ export namespace z0 {
                                                               const VkImageTiling        tiling,
                                                               const VkFormatFeatureFlags features) const {
             // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
-            for (VkFormat format : candidates) {
+            for (auto format : candidates) {
                 VkFormatProperties props;
                 vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
                 if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
@@ -1001,7 +997,7 @@ export namespace z0 {
             if (memcmp(&desc.AdapterLuid, physDeviceIDProps.deviceLUID, VK_LUID_SIZE) == 0) {
                 tmpDxgiAdapter->QueryInterface(IID_PPV_ARGS(&dxgiAdapter));
                 adapterDescription   = wstring_to_string(desc.Description);
-                dedicatedVideoMemory = static_cast<uint64_t>(desc.DedicatedVideoMemory);
+                dedicatedVideoMemory = desc.DedicatedVideoMemory;
             }
             tmpDxgiAdapter->Release();
             ++adapterIndex;
@@ -1013,7 +1009,7 @@ export namespace z0 {
     uint64_t Device::getVideoMemoryUsage() const {
         DXGI_QUERY_VIDEO_MEMORY_INFO info = {};
         dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
-        return static_cast<uint64_t>(info.CurrentUsage);
+        return info.CurrentUsage;
     }
 #endif
 }
