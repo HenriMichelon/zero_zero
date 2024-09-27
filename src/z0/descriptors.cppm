@@ -24,18 +24,20 @@ export namespace z0 {
     public:
         class Builder {
         public:
-            explicit Builder(const Device& dev) : device{dev} {}
+            explicit Builder(const Device &dev) :
+                device{dev} {
+            }
 
-            Builder& addBinding(const uint32_t binding,
-                                const VkDescriptorType descriptorType,
+            Builder &addBinding(const uint32_t           binding,
+                                const VkDescriptorType   descriptorType,
                                 const VkShaderStageFlags stageFlags,
-                                const uint32_t count = 1) {
+                                const uint32_t           count = 1) {
                 assert(bindings.count(binding) == 0 && "Binding already in use");
                 const VkDescriptorSetLayoutBinding layoutBinding{
-                    .binding = binding,
-                    .descriptorType = descriptorType,
-                    .descriptorCount = count == 0 ? 1 : count,
-                    .stageFlags = stageFlags,
+                        .binding = binding,
+                        .descriptorType = descriptorType,
+                        .descriptorCount = count == 0 ? 1 : count,
+                        .stageFlags = stageFlags,
                 };
                 bindings[binding] = layoutBinding;
                 return *this;
@@ -46,13 +48,13 @@ export namespace z0 {
             }
 
         private:
-            const Device& device;
+            const Device &                                        device;
             unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
         };
 
-        DescriptorSetLayout(const Device& device,
+        DescriptorSetLayout(const Device &device,
                             const unordered_map<uint32_t,
-                            VkDescriptorSetLayoutBinding>& bindings):
+                                                VkDescriptorSetLayoutBinding> &bindings):
             device{device},
             bindings{bindings} {
             vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
@@ -60,15 +62,15 @@ export namespace z0 {
                 setLayoutBindings.push_back(kv.second);
             }
             const VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-                .bindingCount = static_cast<uint32_t>(setLayoutBindings.size()),
-                .pBindings = setLayoutBindings.data(),
+                    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                    .bindingCount = static_cast<uint32_t>(setLayoutBindings.size()),
+                    .pBindings = setLayoutBindings.data(),
             };
             if (vkCreateDescriptorSetLayout(
-                device.getDevice(),
-                &descriptorSetLayoutInfo,
-                nullptr,
-                &descriptorSetLayout) != VK_SUCCESS) {
+                    device.getDevice(),
+                    &descriptorSetLayoutInfo,
+                    nullptr,
+                    &descriptorSetLayout) != VK_SUCCESS) {
                 die("failed to create descriptor set layout!");
             }
         }
@@ -77,14 +79,15 @@ export namespace z0 {
             vkDestroyDescriptorSetLayout(device.getDevice(), descriptorSetLayout, nullptr);
         }
 
-        DescriptorSetLayout(const DescriptorSetLayout&) = delete;
-        DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
+        DescriptorSetLayout(const DescriptorSetLayout &) = delete;
 
-        [[nodiscard]] VkDescriptorSetLayout* getDescriptorSetLayout() { return &descriptorSetLayout; }
+        DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
+
+        [[nodiscard]] VkDescriptorSetLayout *getDescriptorSetLayout() { return &descriptorSetLayout; }
 
     private:
-        const Device& device;
-        VkDescriptorSetLayout descriptorSetLayout;
+        const Device &                                        device;
+        VkDescriptorSetLayout                                 descriptorSetLayout;
         unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
 
         friend class DescriptorWriter;
@@ -97,20 +100,21 @@ export namespace z0 {
     public:
         class Builder {
         public:
-            explicit Builder(const Device& dev) : device{dev} {
+            explicit Builder(const Device &dev) :
+                device{dev} {
             }
 
-            [[nodiscard]] Builder& addPoolSize(const VkDescriptorType descriptorType, const uint32_t count) {
+            [[nodiscard]] Builder &addPoolSize(const VkDescriptorType descriptorType, const uint32_t count) {
                 poolSizes.push_back({descriptorType, count});
                 return *this;
             }
 
-            [[nodiscard]] Builder& setPoolFlags(const VkDescriptorPoolCreateFlags flags) {
+            [[nodiscard]] Builder &setPoolFlags(const VkDescriptorPoolCreateFlags flags) {
                 poolFlags = flags;
                 return *this;
             }
 
-            [[nodiscard]] Builder& setMaxSets(const uint32_t count) {
+            [[nodiscard]] Builder &setMaxSets(const uint32_t count) {
                 maxSets = count;
                 return *this;
             }
@@ -120,24 +124,24 @@ export namespace z0 {
             }
 
         private:
-            const Device& device;
+            const Device &               device;
             vector<VkDescriptorPoolSize> poolSizes{};
-            uint32_t maxSets = 1000;
-            VkDescriptorPoolCreateFlags poolFlags = 0;
+            uint32_t                     maxSets   = 1000;
+            VkDescriptorPoolCreateFlags  poolFlags = 0;
         };
 
         DescriptorPool(
-            const Device& device,
-            const uint32_t maxSets,
-            const VkDescriptorPoolCreateFlags poolFlags,
-            const vector<VkDescriptorPoolSize>& poolSizes):
+                const Device &                      device,
+                const uint32_t                      maxSets,
+                const VkDescriptorPoolCreateFlags   poolFlags,
+                const vector<VkDescriptorPoolSize> &poolSizes):
             device{device} {
             const VkDescriptorPoolCreateInfo descriptorPoolInfo{
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-                .flags = poolFlags,
-                .maxSets = maxSets,
-                .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
-                .pPoolSizes = poolSizes.data(),
+                    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+                    .flags = poolFlags,
+                    .maxSets = maxSets,
+                    .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
+                    .pPoolSizes = poolSizes.data(),
             };
             if (vkCreateDescriptorPool(device.getDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
                 VK_SUCCESS) {
@@ -149,15 +153,16 @@ export namespace z0 {
             vkDestroyDescriptorPool(device.getDevice(), descriptorPool, nullptr);
         }
 
-        DescriptorPool(const DescriptorPool&) = delete;
-        DescriptorPool& operator=(const DescriptorPool&) = delete;
+        DescriptorPool(const DescriptorPool &) = delete;
 
-        bool allocateDescriptor(const VkDescriptorSetLayout& descriptorSetLayout, VkDescriptorSet& descriptor) const {
+        DescriptorPool &operator=(const DescriptorPool &) = delete;
+
+        bool allocateDescriptor(const VkDescriptorSetLayout &descriptorSetLayout, VkDescriptorSet &descriptor) const {
             const VkDescriptorSetAllocateInfo allocInfo{
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-                .descriptorPool = descriptorPool,
-                .descriptorSetCount = 1,
-                .pSetLayouts = &descriptorSetLayout,
+                    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+                    .descriptorPool = descriptorPool,
+                    .descriptorSetCount = 1,
+                    .pSetLayouts = &descriptorSetLayout,
             };
             // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
             // a new pool whenever an old pool fills up. But this is beyond our current scope
@@ -167,12 +172,12 @@ export namespace z0 {
             return true;
         }
 
-        void freeDescriptors(const vector<VkDescriptorSet>& descriptors) const {
+        void freeDescriptors(const vector<VkDescriptorSet> &descriptors) const {
             vkFreeDescriptorSets(
-                device.getDevice(),
-                descriptorPool,
-                static_cast<uint32_t>(descriptors.size()),
-                descriptors.data());
+                    device.getDevice(),
+                    descriptorPool,
+                    static_cast<uint32_t>(descriptors.size()),
+                    descriptors.data());
         }
 
         void resetPool() const {
@@ -182,7 +187,7 @@ export namespace z0 {
         VkDescriptorPool getPool() const { return descriptorPool; }
 
     private:
-        const Device& device;
+        const Device &   device;
         VkDescriptorPool descriptorPool;
 
         friend class DescriptorWriter;
@@ -193,40 +198,40 @@ export namespace z0 {
      */
     class DescriptorWriter {
     public:
-        DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool):
+        DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool):
             setLayout{setLayout},
             pool{pool} {
         }
 
-        [[nodiscard]] DescriptorWriter& writeBuffer(const uint32_t binding, const VkDescriptorBufferInfo* bufferInfo) {
+        [[nodiscard]] DescriptorWriter &writeBuffer(const uint32_t binding, const VkDescriptorBufferInfo *bufferInfo) {
             assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
-            const auto& bindingDescription = setLayout.bindings[binding];
+            const auto &               bindingDescription = setLayout.bindings[binding];
             const VkWriteDescriptorSet write{
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstBinding = binding,
-                .descriptorCount = bindingDescription.descriptorCount,
-                .descriptorType = bindingDescription.descriptorType,
-                .pBufferInfo = bufferInfo,
+                    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                    .dstBinding = binding,
+                    .descriptorCount = bindingDescription.descriptorCount,
+                    .descriptorType = bindingDescription.descriptorType,
+                    .pBufferInfo = bufferInfo,
             };
             writes.push_back(write);
             return *this;
         }
 
-        [[nodiscard]] DescriptorWriter& writeImage(const uint32_t binding, const VkDescriptorImageInfo* imageInfo) {
+        [[nodiscard]] DescriptorWriter &writeImage(const uint32_t binding, const VkDescriptorImageInfo *imageInfo) {
             assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
-            const auto& bindingDescription = setLayout.bindings[binding];
+            const auto &               bindingDescription = setLayout.bindings[binding];
             const VkWriteDescriptorSet write{
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstBinding = binding,
-                .descriptorCount = bindingDescription.descriptorCount,
-                .descriptorType = bindingDescription.descriptorType,
-                .pImageInfo = imageInfo,
+                    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                    .dstBinding = binding,
+                    .descriptorCount = bindingDescription.descriptorCount,
+                    .descriptorType = bindingDescription.descriptorType,
+                    .pImageInfo = imageInfo,
             };
             writes.push_back(write);
             return *this;
         }
 
-        [[nodiscard]] bool build(VkDescriptorSet& set) {
+        [[nodiscard]] bool build(VkDescriptorSet &set) {
             const auto success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
             if (!success) {
                 return false;
@@ -235,16 +240,16 @@ export namespace z0 {
             return true;
         }
 
-        void overwrite(const VkDescriptorSet& set) {
-            for (auto& write : writes) {
+        void overwrite(const VkDescriptorSet &set) {
+            for (auto &write : writes) {
                 write.dstSet = set;
             }
             vkUpdateDescriptorSets(pool.device.getDevice(), writes.size(), writes.data(), 0, nullptr);
         }
 
     private:
-        DescriptorSetLayout& setLayout;
-        DescriptorPool& pool;
+        DescriptorSetLayout &        setLayout;
+        DescriptorPool &             pool;
         vector<VkWriteDescriptorSet> writes;
     };
 }

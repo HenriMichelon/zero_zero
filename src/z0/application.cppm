@@ -35,7 +35,7 @@ export namespace z0 {
          * Returns the application singleton
          * @return the global application object
          */
-        static Application& get() {
+        static Application &get() {
             assert(_instance != nullptr);
             return *_instance;
         }
@@ -44,13 +44,13 @@ export namespace z0 {
          * Adds a GUI window to the window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void addWindow(const shared_ptr<GWindow>& window) const;
+        void add(const shared_ptr<GWindow> &window) const;
 
         /**
          * Removes the window from the window manager
          * @param window    The window to remove, must be added to the window manager before
          */
-        void removeWindow(const shared_ptr<GWindow>& window) const;
+        void remove(const shared_ptr<GWindow> &window) const;
 
         /**
          * Exits the application by closing the window (will wait for the current frame to be terminated)
@@ -61,7 +61,7 @@ export namespace z0 {
          * Returns the startup configuration
          * @return the global configuration given when the application was instanced
          */
-        [[nodiscard]] const ApplicationConfig& getConfig() const {
+        [[nodiscard]] const ApplicationConfig &getConfig() const {
             return applicationConfig;
         }
 
@@ -69,7 +69,7 @@ export namespace z0 {
          * Returns the current display window
          * @return The main window
          */
-        [[nodiscard]] const Window& getWindow() const {
+        [[nodiscard]] const Window &getWindow() const {
             return *window;
         }
 
@@ -93,17 +93,17 @@ export namespace z0 {
          */
         void setPaused(bool pause);
 
-        /** 
+        /**
          * Changes the current scene
          * @param node The new scene, must not have a parent
          */
-        void setRootNode(const shared_ptr<Node>& node);
+        void setRootNode(const shared_ptr<Node> &node);
 
         /**
          * Changes the current camera
          * @param camera the camera to activate, must be in a scene
          */
-        void activateCamera(const shared_ptr<Camera>& camera) const;
+        void activateCamera(const shared_ptr<Camera> &camera) const;
 
         /**
          * Returns the physics system gravity
@@ -118,7 +118,7 @@ export namespace z0 {
         /**
          * Returns the video adapter description
          */
-        [[nodiscard]] const string& getAdapterDescription() const;
+        [[nodiscard]] const string &getAdapterDescription() const;
 
         /**
          * Returns the application’s current video memory usage, in bytes.
@@ -133,16 +133,16 @@ export namespace z0 {
         /**
          * Returns the global window manager
          */
-        GManager& getWindowManager() const { return *windowManager; }
+        GManager &getWindowManager() const { return *windowManager; }
 
         /**
-         * Return the vector renderer size ratios 
+         * Return the vector renderer size ratios
          */
-        const vec2& getVectorRatio() const { return vectorRatio; }
+        const vec2 &getVectorRatio() const { return vectorRatio; }
 
     private:
         // The global startup configuration parameters
-        const ApplicationConfig& applicationConfig;
+        const ApplicationConfig &applicationConfig;
         // The current scene
         shared_ptr<Node> rootNode;
         // The global display window
@@ -169,7 +169,7 @@ export namespace z0 {
         vector<shared_ptr<Node>> addedNodes{};
         // Deferred list of nodes removed from the current scene, processed before each frame
         vector<shared_ptr<Node>> removedNodes{};
-        // vector renderer size ratios 
+        // vector renderer size ratios
         vec2 vectorRatio;
 
         /*
@@ -186,37 +186,45 @@ export namespace z0 {
         /*
          * Physic system members
          */
-        JPH::PhysicsSystem physicsSystem;
-        ContactListener contactListener;
-        BPLayerInterfaceImpl broad_phase_layer_interface;
-        ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter;
-        ObjectLayerPairFilterImpl object_vs_object_layer_filter;
-        unique_ptr<JPH::TempAllocatorImpl> temp_allocator;
+        JPH::PhysicsSystem                   physicsSystem;
+        ContactListener                      contactListener;
+        BPLayerInterfaceImpl                 broad_phase_layer_interface;
+        ObjectVsBroadPhaseLayerFilterImpl    object_vs_broadphase_layer_filter;
+        ObjectLayerPairFilterImpl            object_vs_object_layer_filter;
+        unique_ptr<JPH::TempAllocatorImpl>   temp_allocator;
         unique_ptr<JPH::JobSystemThreadPool> job_system;
 
         // Called on startup and after each root node change
         void start();
+
         // Prepare and draw a frame
         void drawFrame();
+
         // Reset the allocated nodes of the tree node
-        void cleanup(shared_ptr<Node>& node);
+        void cleanup(shared_ptr<Node> &node);
+
         // Recursively reset the allocated nodes of the tree node
-        void ready(const shared_ptr<Node>& node);
+        void ready(const shared_ptr<Node> &node);
+
         // Recursively call _onReady() on a tree node
-        void pause(const shared_ptr<Node>& node);
+        void pause(const shared_ptr<Node> &node);
+
         // Recursively call onProcess() on a tree node
-        void process(const shared_ptr<Node>& node, float alpha);
+        void process(const shared_ptr<Node> &node, float alpha);
+
         // Recursively call onPhysicsProcess() on a tree node
-        void physicsProcess(const shared_ptr<Node>& node, float delta);
+        void physicsProcess(const shared_ptr<Node> &node, float delta);
+
         // Recursively call onInput() on a tree node
-        bool input(const shared_ptr<Node>& node, InputEvent& inputEvent);
+        bool input(const shared_ptr<Node> &node, InputEvent &inputEvent);
+
         // Register all nodes types
         void registerTypes() const;
 
     public:
         // The following members are accessed by global function WinMain
         // Application singleton
-        static Application* _instance;
+        static Application *_instance;
 #ifdef _WIN32
         // The Main Loop, process Windows message and draw a frame
         void _mainLoop();
@@ -225,23 +233,33 @@ export namespace z0 {
         void _stop(const bool stop) { stopped = stop; };
 
         // Internal accessor/modifiers
-        Device& _getDevice() { return *device; }
+        Device &_getDevice() { return *device; }
+
         VkInstance _getVkInstance() const { return vkInstance; }
-        JPH::BodyInterface& _getBodyInterface() { return physicsSystem.GetBodyInterface(); }
-        JPH::PhysicsSystem& _getPhysicsSystem() { return physicsSystem; }
-        BPLayerInterfaceImpl& _getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
-        unique_ptr<JPH::TempAllocatorImpl>& _getTempAllocator() { return temp_allocator; }
+
+        JPH::BodyInterface &_getBodyInterface() { return physicsSystem.GetBodyInterface(); }
+
+        JPH::PhysicsSystem &_getPhysicsSystem() { return physicsSystem; }
+
+        BPLayerInterfaceImpl &_getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
+
+        unique_ptr<JPH::TempAllocatorImpl> &_getTempAllocator() { return temp_allocator; }
 
         // Add a node to the current scene
-        void _addNode(const shared_ptr<Node>& node);
-        // Remove a node from the current scene
-        void _removeNode(const shared_ptr<Node>& node);
-        // Propagate input event to the UI Window manager and to the current scene tree
-        void _onInput(InputEvent& inputEvent);
+        void _addNode(const shared_ptr<Node> &node);
 
-        Application(const Application&) = delete;
-        Application& operator=(const Application&) = delete;
-        explicit Application(const ApplicationConfig& applicationConfig, const shared_ptr<Node>& rootNode);
+        // Remove a node from the current scene
+        void _removeNode(const shared_ptr<Node> &node);
+
+        // Propagate input event to the UI Window manager and to the current scene tree
+        void _onInput(InputEvent &inputEvent);
+
+        Application(const Application &) = delete;
+
+        Application &operator=(const Application &) = delete;
+
+        explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
+
         ~Application() override;
     };
 }

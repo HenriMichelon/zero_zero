@@ -25,8 +25,8 @@ export namespace z0 {
      */
     class Device {
     public:
-        explicit Device(VkInstance instance, const vector<const char*>& requestedLayers,
-                        const ApplicationConfig& applicationConfig, const Window& theWindow):
+        explicit Device(VkInstance               instance, const vector<const char *> &requestedLayers,
+                        const ApplicationConfig &applicationConfig, const Window &     theWindow):
             vkInstance{instance},
             window{theWindow},
             samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)} {
@@ -36,32 +36,33 @@ export namespace z0 {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Selecting-a-physical-device
             uint32_t deviceCount = 0;
             vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
-            if (deviceCount == 0) die("Failed to find GPUs with Vulkan support");
+            if (deviceCount == 0)
+                die("Failed to find GPUs with Vulkan support");
 
             // Get a VkSurface for drawing in the window, must be done before picking the better physical device
             // since we need the VkSurface for vkGetPhysicalDeviceSurfaceCapabilitiesKHR
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Window-surface-creation
 #ifdef _WIN32
             const VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{
-                .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-                .hinstance = GetModuleHandle(nullptr),
-                .hwnd = theWindow._getHandle(),
+                    .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+                    .hinstance = GetModuleHandle(nullptr),
+                    .hwnd = theWindow._getHandle(),
             };
             if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS)
                 die(
-                    "Failed to create window surface!");
+                        "Failed to create window surface!");
 #endif
 
             // Requested device extensions
-            const vector<const char*> deviceExtensions = {
-                // Mandatory to create a swap chain
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
-                VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-                // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
-                VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
-                // for Vulkan Memory Allocator
-                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
+            const vector<const char *> deviceExtensions = {
+                    // Mandatory to create a swap chain
+                    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                    // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
+                    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+                    // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
+                    VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
+                    // for Vulkan Memory Allocator
+                    VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
             };
 
             // Use the better Vulkan physical device found
@@ -70,7 +71,7 @@ export namespace z0 {
             vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
             // Use an ordered map to automatically sort candidates by increasing score
             multimap<uint32_t, VkPhysicalDevice> candidates;
-            for (const auto& dev : devices) {
+            for (const auto &dev : devices) {
                 uint32_t score = rateDeviceSuitability(dev, deviceExtensions);
                 candidates.insert(make_pair(score, dev));
             }
@@ -79,13 +80,13 @@ export namespace z0 {
                 // Select the better suitable device found
                 physicalDevice = candidates.rbegin()->second;
                 // Select the best MSAA samples count if requested
-                if (applicationConfig.msaa == MSAA_AUTO) samples = getMaxUsableMSAASampleCount();
+                if (applicationConfig.msaa == MSAA_AUTO)
+                    samples = getMaxUsableMSAASampleCount();
                 deviceProperties.pNext = &physDeviceIDProps;
                 vkGetPhysicalDeviceProperties2(physicalDevice, &deviceProperties);
                 // Get the GPU description and total memory
                 getAdapterDescFromOS();
-            }
-            else {
+            } else {
                 die("Failed to find a suitable GPU!");
             }
 
@@ -94,16 +95,16 @@ export namespace z0 {
             // Find a graphical command queue and a presentation command queue
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
             vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-            QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+            QueueFamilyIndices              indices = findQueueFamilies(physicalDevice);
             {
-                auto queuePriority = 1.0f;
+                auto          queuePriority       = 1.0f;
                 set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
                 for (uint32_t queueFamily : uniqueQueueFamilies) {
                     const VkDeviceQueueCreateInfo queueCreateInfo{
-                        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-                        .queueFamilyIndex = queueFamily,
-                        .queueCount = 1,
-                        .pQueuePriorities = &queuePriority,
+                            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                            .queueFamilyIndex = queueFamily,
+                            .queueCount = 1,
+                            .pQueuePriorities = &queuePriority,
                     };
                     queueCreateInfos.push_back(queueCreateInfo);
                 }
@@ -115,33 +116,33 @@ export namespace z0 {
             {
                 // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
                 VkPhysicalDeviceShaderObjectFeaturesEXT deviceShaderObjectFeatures{
-                    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
-                    .pNext = VK_NULL_HANDLE,
-                    .shaderObject = VK_TRUE,
+                        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
+                        .pNext = VK_NULL_HANDLE,
+                        .shaderObject = VK_TRUE,
                 };
                 // https://lesleylai.info/en/vk-khr-dynamic-rendering/
                 const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature{
-                    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-                    .pNext = &deviceShaderObjectFeatures,
-                    .dynamicRendering = VK_TRUE,
+                        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+                        .pNext = &deviceShaderObjectFeatures,
+                        .dynamicRendering = VK_TRUE,
                 };
                 constexpr VkPhysicalDeviceFeatures deviceFeatures{
-                    .samplerAnisotropy = VK_TRUE
+                        .samplerAnisotropy = VK_TRUE
                 };
                 const VkDeviceCreateInfo createInfo{
-                    .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-                    .pNext = &dynamicRenderingFeature,
-                    .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
-                    .pQueueCreateInfos = queueCreateInfos.data(),
-                    .enabledLayerCount = static_cast<uint32_t>(requestedLayers.size()),
-                    .ppEnabledLayerNames = requestedLayers.data(),
-                    .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
-                    .ppEnabledExtensionNames = deviceExtensions.data(),
-                    .pEnabledFeatures = &deviceFeatures,
+                        .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                        .pNext = &dynamicRenderingFeature,
+                        .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+                        .pQueueCreateInfos = queueCreateInfos.data(),
+                        .enabledLayerCount = static_cast<uint32_t>(requestedLayers.size()),
+                        .ppEnabledLayerNames = requestedLayers.data(),
+                        .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                        .ppEnabledExtensionNames = deviceExtensions.data(),
+                        .pEnabledFeatures = &deviceFeatures,
                 };
                 if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
                     die(
-                        "Failed to create logical device!");
+                            "Failed to create logical device!");
             }
 
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
@@ -152,53 +153,53 @@ export namespace z0 {
             ////////////////////  Create the device command pool
 
             // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-            auto queueFamilyIndices = findQueueFamilies(physicalDevice);
-            const VkCommandPoolCreateInfo poolInfo = {
-                .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
+            auto                          queueFamilyIndices = findQueueFamilies(physicalDevice);
+            const VkCommandPoolCreateInfo poolInfo           = {
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+                    .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                    .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
             };
             if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
                 die(
-                    "Failed to create the command pool");
+                        "Failed to create the command pool");
 
             //////////////////// Create VMA allocator
 
             // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
             const VmaVulkanFunctions vulkanFunctions{
-                .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
-                .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
-                .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
-                .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
-                .vkAllocateMemory = vkAllocateMemory,
-                .vkFreeMemory = vkFreeMemory,
-                .vkMapMemory = vkMapMemory,
-                .vkUnmapMemory = vkUnmapMemory,
-                .vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges,
-                .vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges,
-                .vkBindBufferMemory = vkBindBufferMemory,
-                .vkBindImageMemory = vkBindImageMemory,
-                .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
-                .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
-                .vkCreateBuffer = vkCreateBuffer,
-                .vkDestroyBuffer = vkDestroyBuffer,
-                .vkCreateImage = vkCreateImage,
-                .vkDestroyImage = vkDestroyImage,
-                .vkCmdCopyBuffer = vkCmdCopyBuffer,
-                .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
-                .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR,
-                .vkBindBufferMemory2KHR = vkBindBufferMemory2KHR,
-                .vkBindImageMemory2KHR = vkBindImageMemory2KHR,
-                .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
-                .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
-                .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
+                    .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+                    .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+                    .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
+                    .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
+                    .vkAllocateMemory = vkAllocateMemory,
+                    .vkFreeMemory = vkFreeMemory,
+                    .vkMapMemory = vkMapMemory,
+                    .vkUnmapMemory = vkUnmapMemory,
+                    .vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges,
+                    .vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges,
+                    .vkBindBufferMemory = vkBindBufferMemory,
+                    .vkBindImageMemory = vkBindImageMemory,
+                    .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
+                    .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
+                    .vkCreateBuffer = vkCreateBuffer,
+                    .vkDestroyBuffer = vkDestroyBuffer,
+                    .vkCreateImage = vkCreateImage,
+                    .vkDestroyImage = vkDestroyImage,
+                    .vkCmdCopyBuffer = vkCmdCopyBuffer,
+                    .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
+                    .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR,
+                    .vkBindBufferMemory2KHR = vkBindBufferMemory2KHR,
+                    .vkBindImageMemory2KHR = vkBindImageMemory2KHR,
+                    .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
+                    .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
+                    .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
             };
             const VmaAllocatorCreateInfo allocatorInfo = {
-                .physicalDevice = physicalDevice,
-                .device = device,
-                .pVulkanFunctions = &vulkanFunctions,
-                .instance = vkInstance,
-                .vulkanApiVersion = deviceProperties.properties.apiVersion,
+                    .physicalDevice = physicalDevice,
+                    .device = device,
+                    .pVulkanFunctions = &vulkanFunctions,
+                    .instance = vkInstance,
+                    .vulkanApiVersion = deviceProperties.properties.apiVersion,
             };
             vmaCreateAllocator(&allocatorInfo, &allocator);
 
@@ -212,14 +213,14 @@ export namespace z0 {
             {
                 commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
                 const VkCommandBufferAllocateInfo allocInfo{
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                    .commandPool = commandPool,
-                    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                    .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())
+                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                        .commandPool = commandPool,
+                        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                        .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())
                 };
                 if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
                     die(
-                        "failed to allocate command buffers!");
+                            "failed to allocate command buffers!");
             }
 
             //////////////////// Create sync objects
@@ -228,11 +229,11 @@ export namespace z0 {
                 renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
                 inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
                 constexpr VkSemaphoreCreateInfo semaphoreInfo{
-                    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+                        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
                 };
                 constexpr VkFenceCreateInfo fenceInfo{
-                    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                    .flags = VK_FENCE_CREATE_SIGNALED_BIT
+                        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                        .flags = VK_FENCE_CREATE_SIGNALED_BIT
                 };
                 for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                     if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS
@@ -247,7 +248,7 @@ export namespace z0 {
         }
 
         void cleanup() {
-            for (auto& renderer : renderers) {
+            for (auto &renderer : renderers) {
                 renderer->cleanup();
             }
             renderers.clear();
@@ -267,11 +268,17 @@ export namespace z0 {
         }
 
         [[nodiscard]] VmaAllocator getAllocator() const { return allocator; }
+
         [[nodiscard]] VkDevice getDevice() const { return device; }
+
         [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+
         [[nodiscard]] VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
+
         [[nodiscard]] VkSampleCountFlagBits getSamples() const { return samples; }
-        [[nodiscard]] const VkExtent2D& getSwapChainExtent() const { return swapChainExtent; }
+
+        [[nodiscard]] const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+
         [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
 
         [[nodiscard]] float getAspectRatio() const {
@@ -279,39 +286,40 @@ export namespace z0 {
         }
 
         [[nodiscard]] uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
-        [[nodiscard]] const string& getAdapterDescription() const { return adapterDescription; }
+
+        [[nodiscard]] const string &getAdapterDescription() const { return adapterDescription; }
+
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
         void drawFrame() {
             // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
             vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
             uint32_t imageIndex;
-            auto result = vkAcquireNextImageKHR(device,
-                                                swapChain,
-                                                UINT64_MAX,
-                                                imageAvailableSemaphores[currentFrame],
-                                                VK_NULL_HANDLE,
-                                                &imageIndex);
+            auto     result = vkAcquireNextImageKHR(device,
+                                                    swapChain,
+                                                    UINT64_MAX,
+                                                    imageAvailableSemaphores[currentFrame],
+                                                    VK_NULL_HANDLE,
+                                                    &imageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                 recreateSwapChain();
-                for (auto& renderer : renderers) {
+                for (auto &renderer : renderers) {
                     renderer->recreateImagesResources();
                 }
                 return;
-            }
-            else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
                 die("failed to acquire swap chain image!");
             }
             vkResetFences(device, 1, &inFlightFences[currentFrame]);
             {
                 vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-                for (auto& renderer : renderers) {
+                for (auto &renderer : renderers) {
                     renderer->update(currentFrame);
                 }
                 constexpr VkCommandBufferBeginInfo beginInfo{
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                    .flags = 0,
-                    .pInheritanceInfo = nullptr
+                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                        .flags = 0,
+                        .pInheritanceInfo = nullptr
                 };
                 if (vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
                     die("failed to begin recording command buffer!");
@@ -319,22 +327,22 @@ export namespace z0 {
 
                 setInitialState(commandBuffers[currentFrame]);
                 auto lastRenderer = renderers.back();
-                for (auto& renderer : renderers) {
+                for (auto &renderer : renderers) {
                     renderer->beginRendering(commandBuffers[currentFrame]);
                     renderer->recordCommands(commandBuffers[currentFrame], currentFrame);
                     renderer->endRendering(commandBuffers[currentFrame], renderer == lastRenderer);
                 }
 
                 transitionImageLayout(
-                    commandBuffers[currentFrame],
-                    swapChainImages[imageIndex],
-                    VK_IMAGE_LAYOUT_UNDEFINED,
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    0,
-                    VK_ACCESS_TRANSFER_WRITE_BIT,
-                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT);
+                        commandBuffers[currentFrame],
+                        swapChainImages[imageIndex],
+                        VK_IMAGE_LAYOUT_UNDEFINED,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        0,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_IMAGE_ASPECT_COLOR_BIT);
                 vkCmdBlitImage(commandBuffers[currentFrame],
                                lastRenderer->getImage(),
                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -344,15 +352,15 @@ export namespace z0 {
                                &colorImageBlit,
                                VK_FILTER_LINEAR);
                 transitionImageLayout(
-                    commandBuffers[currentFrame],
-                    swapChainImages[imageIndex],
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                    0,
-                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT);
+                        commandBuffers[currentFrame],
+                        swapChainImages[imageIndex],
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                        0,
+                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                        VK_IMAGE_ASPECT_COLOR_BIT);
 
                 if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS) {
                     die("failed to record command buffer!");
@@ -361,17 +369,17 @@ export namespace z0 {
 
             const VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
             {
-                const VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-                constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-                const VkSubmitInfo submitInfo{
-                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                    .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = waitSemaphores,
-                    .pWaitDstStageMask = waitStages,
-                    .commandBufferCount = 1,
-                    .pCommandBuffers = &commandBuffers[currentFrame],
-                    .signalSemaphoreCount = 1,
-                    .pSignalSemaphores = signalSemaphores
+                const VkSemaphore              waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+                constexpr VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+                const VkSubmitInfo             submitInfo{
+                        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                        .waitSemaphoreCount = 1,
+                        .pWaitSemaphores = waitSemaphores,
+                        .pWaitDstStageMask = waitStages,
+                        .commandBufferCount = 1,
+                        .pCommandBuffers = &commandBuffers[currentFrame],
+                        .signalSemaphoreCount = 1,
+                        .pSignalSemaphores = signalSemaphores
                 };
                 if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
                     die("failed to submit draw command buffer!");
@@ -380,24 +388,23 @@ export namespace z0 {
             }
 
             {
-                const VkSwapchainKHR swapChains[] = {swapChain};
+                const VkSwapchainKHR   swapChains[] = {swapChain};
                 const VkPresentInfoKHR presentInfo{
-                    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-                    .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = signalSemaphores,
-                    .swapchainCount = 1,
-                    .pSwapchains = swapChains,
-                    .pImageIndices = &imageIndex,
-                    .pResults = nullptr // Optional
+                        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                        .waitSemaphoreCount = 1,
+                        .pWaitSemaphores = signalSemaphores,
+                        .swapchainCount = 1,
+                        .pSwapchains = swapChains,
+                        .pImageIndices = &imageIndex,
+                        .pResults = nullptr // Optional
                 };
                 result = vkQueuePresentKHR(presentQueue, &presentInfo);
                 if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                     recreateSwapChain();
-                    for (auto& renderer : renderers) {
+                    for (auto &renderer : renderers) {
                         renderer->recreateImagesResources();
                     }
-                }
-                else if (result != VK_SUCCESS) {
+                } else if (result != VK_SUCCESS) {
                     die("failed to present swap chain image!");
                 }
             }
@@ -409,66 +416,66 @@ export namespace z0 {
             vkDeviceWaitIdle(device);
         }
 
-        void registerRenderer(const shared_ptr<Renderer>& renderer) {
+        void registerRenderer(const shared_ptr<Renderer> &renderer) {
             renderers.push_front(renderer);
         }
 
-        void unRegisterRenderer(const shared_ptr<Renderer>& renderer) {
+        void unRegisterRenderer(const shared_ptr<Renderer> &renderer) {
             renderers.remove(renderer);
         }
 
-        [[nodiscard]] VkImageView createImageView(const VkImage image,
-                                                  const VkFormat format,
+        [[nodiscard]] VkImageView createImageView(const VkImage            image,
+                                                  const VkFormat           format,
                                                   const VkImageAspectFlags aspectFlags,
-                                                  const uint32_t mipLevels = 1,
-                                                  const VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D) const {
+                                                  const uint32_t           mipLevels = 1,
+                                                  const VkImageViewType    type      = VK_IMAGE_VIEW_TYPE_2D) const {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Image_views
             const VkImageViewCreateInfo viewInfo{
-                .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-                .image = image,
-                .viewType = type,
-                .format = format,
-                .subresourceRange = {
-                    .aspectMask = aspectFlags,
-                    .baseMipLevel = 0,
-                    .levelCount = mipLevels,
-                    .baseArrayLayer = 0,
-                    .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : 1,
-                }
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+                    .image = image,
+                    .viewType = type,
+                    .format = format,
+                    .subresourceRange = {
+                            .aspectMask = aspectFlags,
+                            .baseMipLevel = 0,
+                            .levelCount = mipLevels,
+                            .baseArrayLayer = 0,
+                            .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    }
             };
             VkImageView imageView;
             if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
                 die(
-                    "failed to create texture image view!");
+                        "failed to create texture image view!");
             return imageView;
         }
 
-        void createImage(const uint32_t width,
-                         const uint32_t height,
-                         const uint32_t mipLevels,
+        void createImage(const uint32_t              width,
+                         const uint32_t              height,
+                         const uint32_t              mipLevels,
                          const VkSampleCountFlagBits numSamples,
-                         const VkFormat format,
-                         const VkImageTiling tiling,
-                         const VkImageUsageFlags usage,
+                         const VkFormat              format,
+                         const VkImageTiling         tiling,
+                         const VkImageUsageFlags     usage,
                          const VkMemoryPropertyFlags properties,
-                         VkImage& image,
-                         VkDeviceMemory& imageMemory,
-                         const VkImageCreateFlags flags = 0,
-                         const uint32_t layers = 1) const {
+                         VkImage &                   image,
+                         VkDeviceMemory &            imageMemory,
+                         const VkImageCreateFlags    flags  = 0,
+                         const uint32_t              layers = 1) const {
             // https://vulkan-tutorial.com/Texture_mapping/Images#page_Texture-Image
             const VkImageCreateInfo imageInfo{
-                .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-                .flags = flags,
-                .imageType = VK_IMAGE_TYPE_2D,
-                .format = format,
-                .extent = {width, height, 1},
-                .mipLevels = mipLevels,
-                .arrayLayers = layers,
-                .samples = numSamples,
-                .tiling = tiling,
-                .usage = usage,
-                .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+                    .flags = flags,
+                    .imageType = VK_IMAGE_TYPE_2D,
+                    .format = format,
+                    .extent = {width, height, 1},
+                    .mipLevels = mipLevels,
+                    .arrayLayers = layers,
+                    .samples = numSamples,
+                    .tiling = tiling,
+                    .usage = usage,
+                    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+                    .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             };
             if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
                 die("failed to create image!");
@@ -478,9 +485,9 @@ export namespace z0 {
             vkGetImageMemoryRequirements(device, image, &memRequirements);
 
             const VkMemoryAllocateInfo allocInfo{
-                .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-                .allocationSize = memRequirements.size,
-                .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
+                    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                    .allocationSize = memRequirements.size,
+                    .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
             };
             if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
                 die("failed to allocate image memory!");
@@ -502,43 +509,46 @@ export namespace z0 {
             return 0;
         }
 
-        static void transitionImageLayout(const VkCommandBuffer commandBuffer,
-                                          const VkImage image,
-                                          const VkImageLayout oldLayout,
-                                          const VkImageLayout newLayout,
-                                          const VkAccessFlags srcAccessMask,
-                                          const VkAccessFlags dstAccessMask,
+        static void transitionImageLayout(const VkCommandBuffer      commandBuffer,
+                                          const VkImage              image,
+                                          const VkImageLayout        oldLayout,
+                                          const VkImageLayout        newLayout,
+                                          const VkAccessFlags        srcAccessMask,
+                                          const VkAccessFlags        dstAccessMask,
                                           const VkPipelineStageFlags srcStageMask,
                                           const VkPipelineStageFlags dstStageMask,
-                                          const VkImageAspectFlags aspectMask,
-                                          const uint32_t mipLevels = 1) {
+                                          const VkImageAspectFlags   aspectMask,
+                                          const uint32_t             mipLevels = 1) {
             // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
             // https://vulkan-tutorial.com/Generating_Mipmaps#page_Generating-Mipmaps
             VkImageMemoryBarrier barrier = {
-                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                .srcAccessMask = srcAccessMask,
-                .dstAccessMask = dstAccessMask,
-                .oldLayout = oldLayout,
-                .newLayout = newLayout,
-                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .image = image,
-                .subresourceRange = {
-                    .aspectMask = aspectMask,
-                    .baseMipLevel = 0,
-                    .levelCount = mipLevels,
-                    .baseArrayLayer = 0,
-                    .layerCount = VK_REMAINING_ARRAY_LAYERS,
-                }
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                    .srcAccessMask = srcAccessMask,
+                    .dstAccessMask = dstAccessMask,
+                    .oldLayout = oldLayout,
+                    .newLayout = newLayout,
+                    .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .image = image,
+                    .subresourceRange = {
+                            .aspectMask = aspectMask,
+                            .baseMipLevel = 0,
+                            .levelCount = mipLevels,
+                            .baseArrayLayer = 0,
+                            .layerCount = VK_REMAINING_ARRAY_LAYERS,
+                    }
             };
             vkCmdPipelineBarrier(
-                commandBuffer,
-                srcStageMask,
-                dstStageMask,
-                0,
-                0, nullptr,
-                0, nullptr,
-                1, &barrier);
+                    commandBuffer,
+                    srcStageMask,
+                    dstStageMask,
+                    0,
+                    0,
+                    nullptr,
+                    0,
+                    nullptr,
+                    1,
+                    &barrier);
         }
 
         // Returns true if a given format support LINEAR filtering
@@ -553,8 +563,8 @@ export namespace z0 {
         }
 
         // Find a suitable IMAGE_TILING format (for the Depth buffering image)
-        [[nodiscard]] VkFormat findImageTilingSupportedFormat(const vector<VkFormat>& candidates,
-                                                              const VkImageTiling tiling,
+        [[nodiscard]] VkFormat findImageTilingSupportedFormat(const vector<VkFormat> &   candidates,
+                                                              const VkImageTiling        tiling,
                                                               const VkFormatFeatureFlags features) const {
             // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
             for (VkFormat format : candidates) {
@@ -562,8 +572,7 @@ export namespace z0 {
                 vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
                 if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
                     return format;
-                }
-                else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+                } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
                     return format;
                 }
             }
@@ -574,17 +583,17 @@ export namespace z0 {
         [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const {
             // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
             const VkCommandBufferAllocateInfo allocInfo{
-                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                .commandPool = commandPool,
-                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                .commandBufferCount = 1
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                    .commandPool = commandPool,
+                    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                    .commandBufferCount = 1
             };
             VkCommandBuffer commandBuffer;
             vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
             constexpr VkCommandBufferBeginInfo beginInfo{
-                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
             };
             vkBeginCommandBuffer(commandBuffer, &beginInfo);
             return commandBuffer;
@@ -594,9 +603,9 @@ export namespace z0 {
             // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
             vkEndCommandBuffer(commandBuffer);
             const VkSubmitInfo submitInfo{
-                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                .commandBufferCount = 1,
-                .pCommandBuffers = &commandBuffer
+                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                    .commandBufferCount = 1,
+                    .pCommandBuffers = &commandBuffer
             };
             vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
             vkQueueWaitIdle(graphicsQueue);
@@ -604,22 +613,22 @@ export namespace z0 {
         }
 
     private:
-        const Window& window;
-        VkInstance vkInstance;
+        const Window &             window;
+        VkInstance                 vkInstance;
         list<shared_ptr<Renderer>> renderers;
 
         // Physical & logical device management
-        VkSurfaceKHR surface;
-        VkDevice device;
-        VkPhysicalDevice physicalDevice;
-        VkQueue graphicsQueue;
-        VkQueue presentQueue;
-        VkCommandPool commandPool;
+        VkSurfaceKHR                surface;
+        VkDevice                    device;
+        VkPhysicalDevice            physicalDevice;
+        VkQueue                     graphicsQueue;
+        VkQueue                     presentQueue;
+        VkCommandPool               commandPool;
         VkPhysicalDeviceProperties2 deviceProperties{
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
         };
         VkPhysicalDeviceIDProperties physDeviceIDProps{
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };
         VkSampleCountFlagBits samples;
 
@@ -628,34 +637,34 @@ export namespace z0 {
         // GPU description given by the OS (not Vulkan)
         string adapterDescription;
 #ifdef _WIN32
-        IDXGIAdapter3* dxgiAdapter{nullptr};
+        IDXGIAdapter3 *dxgiAdapter{nullptr};
 #endif
 
         // Vulkan Memory Allocator
         VmaAllocator allocator;
 
         // Drawing a frame
-        uint32_t currentFrame = 0;
+        uint32_t                currentFrame = 0;
         vector<VkCommandBuffer> commandBuffers;
-        vector<VkSemaphore> imageAvailableSemaphores;
-        vector<VkSemaphore> renderFinishedSemaphores;
-        vector<VkFence> inFlightFences;
-        VkImageBlit colorImageBlit{};
+        vector<VkSemaphore>     imageAvailableSemaphores;
+        vector<VkSemaphore>     renderFinishedSemaphores;
+        vector<VkFence>         inFlightFences;
+        VkImageBlit             colorImageBlit{};
 
         // Swap chain management
-        VkSwapchainKHR swapChain;
-        vector<VkImage> swapChainImages;
-        VkFormat swapChainImageFormat;
-        VkExtent2D swapChainExtent;
-        vector<VkImageView> swapChainImageViews;
+        VkSwapchainKHR             swapChain;
+        vector<VkImage>            swapChainImages;
+        VkFormat                   swapChainImageFormat;
+        VkExtent2D                 swapChainExtent;
+        vector<VkImageView>        swapChainImageViews;
         shared_ptr<VkSwapchainKHR> oldSwapChain;
 
         void createSwapChain() {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain
             const SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
-            const VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-            const VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-            const VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+            const VkSurfaceFormatKHR      surfaceFormat    = chooseSwapSurfaceFormat(swapChainSupport.formats);
+            const VkPresentModeKHR        presentMode      = chooseSwapPresentMode(swapChainSupport.presentModes);
+            const VkExtent2D              extent           = chooseSwapExtent(swapChainSupport.capabilities);
 
             uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
             if (swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -665,76 +674,77 @@ export namespace z0 {
 
             {
                 VkSwapchainCreateInfoKHR createInfo = {
-                    .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-                    .surface = surface,
-                    .minImageCount = imageCount,
-                    .imageFormat = surfaceFormat.format,
-                    .imageColorSpace = surfaceFormat.colorSpace,
-                    .imageExtent = extent,
-                    .imageArrayLayers = 1,
-                    // VK_IMAGE_USAGE_TRANSFER_DST_BIT for Blit or Revolve (see presentToSwapChain())
-                    .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                    .preTransform = swapChainSupport.capabilities.currentTransform,
-                    .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-                    .presentMode = presentMode,
-                    .clipped = VK_TRUE
+                        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+                        .surface = surface,
+                        .minImageCount = imageCount,
+                        .imageFormat = surfaceFormat.format,
+                        .imageColorSpace = surfaceFormat.colorSpace,
+                        .imageExtent = extent,
+                        .imageArrayLayers = 1,
+                        // VK_IMAGE_USAGE_TRANSFER_DST_BIT for Blit or Revolve (see presentToSwapChain())
+                        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                        .preTransform = swapChainSupport.capabilities.currentTransform,
+                        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+                        .presentMode = presentMode,
+                        .clipped = VK_TRUE
                 };
                 const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
                 const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
                 if (indices.graphicsFamily != indices.presentFamily) {
-                    createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+                    createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
                     createInfo.queueFamilyIndexCount = 2;
-                    createInfo.pQueueFamilyIndices = queueFamilyIndices;
-                }
-                else {
-                    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+                    createInfo.pQueueFamilyIndices   = queueFamilyIndices;
+                } else {
+                    createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
                     createInfo.queueFamilyIndexCount = 0; // Optional
-                    createInfo.pQueueFamilyIndices = nullptr; // Optional
+                    createInfo.pQueueFamilyIndices   = nullptr; // Optional
                 }
                 createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : *oldSwapChain;
                 // Need VK_KHR_SWAPCHAIN extension or it will crash (no validation error)
                 if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
                     die(
-                        "Failed to create Vulkan swap chain!");
+                            "Failed to create Vulkan swap chain!");
             }
 
             vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
             swapChainImages.resize(imageCount);
             vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
             swapChainImageFormat = surfaceFormat.format;
-            swapChainExtent = extent;
+            swapChainExtent      = extent;
 
             swapChainImageViews.resize(swapChainImages.size());
             for (uint32_t i = 0; i < swapChainImages.size(); i++) {
-                swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat,
-                                                         VK_IMAGE_ASPECT_COLOR_BIT, 1);
+                swapChainImageViews[i] = createImageView(swapChainImages[i],
+                                                         swapChainImageFormat,
+                                                         VK_IMAGE_ASPECT_COLOR_BIT,
+                                                         1);
             }
 
             // For bliting image to swapchain
             constexpr VkOffset3D vkOffset0{0, 0, 0};
-            const VkOffset3D vkOffset1{
-                static_cast<int32_t>(swapChainExtent.width),
-                static_cast<int32_t>(swapChainExtent.height),
-                1,
+            const VkOffset3D     vkOffset1{
+                    static_cast<int32_t>(swapChainExtent.width),
+                    static_cast<int32_t>(swapChainExtent.height),
+                    1,
             };
-            colorImageBlit.srcOffsets[0] = vkOffset0;
-            colorImageBlit.srcOffsets[1] = vkOffset1;
-            colorImageBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            colorImageBlit.srcSubresource.mipLevel = 0;
+            colorImageBlit.srcOffsets[0]                 = vkOffset0;
+            colorImageBlit.srcOffsets[1]                 = vkOffset1;
+            colorImageBlit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            colorImageBlit.srcSubresource.mipLevel       = 0;
             colorImageBlit.srcSubresource.baseArrayLayer = 0;
-            colorImageBlit.srcSubresource.layerCount = 1;
-            colorImageBlit.dstOffsets[0] = vkOffset0;
-            colorImageBlit.dstOffsets[1] = vkOffset1;
-            colorImageBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            colorImageBlit.dstSubresource.mipLevel = 0;
+            colorImageBlit.srcSubresource.layerCount     = 1;
+            colorImageBlit.dstOffsets[0]                 = vkOffset0;
+            colorImageBlit.dstOffsets[1]                 = vkOffset1;
+            colorImageBlit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            colorImageBlit.dstSubresource.mipLevel       = 0;
             colorImageBlit.dstSubresource.baseArrayLayer = 0;
-            colorImageBlit.dstSubresource.layerCount = 1;
+            colorImageBlit.dstSubresource.layerCount     = 1;
         }
 
         void cleanupSwapChain() const {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Swap_chain_recreation#page_Recreating-the-swap-chain
-            for (auto& swapChainImageView : swapChainImageViews) {
+            for (auto &swapChainImageView : swapChainImageViews) {
                 vkDestroyImageView(device, swapChainImageView, nullptr);
             }
             vkDestroySwapchainKHR(device, swapChain, nullptr);
@@ -750,16 +760,18 @@ export namespace z0 {
         }
 
         // Check if all the requested Vulkan extensions are supported by a device
-        [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice,
-                                                              const vector<const char*>& deviceExtensions) {
+        [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice            vkPhysicalDevice,
+                                                              const vector<const char *> &deviceExtensions) {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Checking-for-swap-chain-support
             uint32_t extensionCount;
             vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &extensionCount, nullptr);
             vector<VkExtensionProperties> availableExtensions(extensionCount);
-            vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &extensionCount,
+            vkEnumerateDeviceExtensionProperties(vkPhysicalDevice,
+                                                 nullptr,
+                                                 &extensionCount,
                                                  availableExtensions.data());
             set<string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-            for (const auto& extension : availableExtensions) {
+            for (const auto &extension : availableExtensions) {
                 requiredExtensions.erase(extension.extensionName);
             }
             return requiredExtensions.empty();
@@ -767,9 +779,9 @@ export namespace z0 {
 
         // Get the swap chain format, default for sRGB/NON-LINEAR
         [[nodiscard]] static VkSurfaceFormatKHR chooseSwapSurfaceFormat(
-            const vector<VkSurfaceFormatKHR>& availableFormats) {
+                const vector<VkSurfaceFormatKHR> &availableFormats) {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Choosing-the-right-settings-for-the-swap-chain
-            for (const auto& availableFormat : availableFormats) {
+            for (const auto &availableFormat : availableFormats) {
                 // Using sRGB no-linear color space
                 // https://learnopengl.com/Advanced-Lighting/Gamma-Correction
                 if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
@@ -782,10 +794,11 @@ export namespace z0 {
 
         // Get the swap chain present mode, default to MAILBOX, if not avaible FIFO (V-SYNC)
         [[nodiscard]] static VkPresentModeKHR chooseSwapPresentMode(
-            const vector<VkPresentModeKHR>& availablePresentModes) {
+                const vector<VkPresentModeKHR> &availablePresentModes) {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Presentation-mode
-            for (const auto& availablePresentMode : availablePresentModes) {
-                if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
+            for (const auto &availablePresentMode : availablePresentModes) {
+                if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+                    return availablePresentMode;
             }
             return VK_PRESENT_MODE_FIFO_KHR;
         }
@@ -802,9 +815,9 @@ export namespace z0 {
 
         // For Device::querySwapChainSupport()
         struct SwapChainSupportDetails {
-            VkSurfaceCapabilitiesKHR capabilities;
+            VkSurfaceCapabilitiesKHR   capabilities;
             vector<VkSurfaceFormatKHR> formats;
-            vector<VkPresentModeKHR> presentModes;
+            vector<VkPresentModeKHR>   presentModes;
         };
 
         // Set the initiale state for the dynamic rendering
@@ -812,12 +825,12 @@ export namespace z0 {
             // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/extensions/shader_object/shader_object.cpp
             vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
             const VkColorBlendEquationEXT colorBlendEquation{
-                .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-                .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-                .colorBlendOp = VK_BLEND_OP_ADD,
-                .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
-                .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
-                .alphaBlendOp = VK_BLEND_OP_ADD,
+                    .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+                    .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+                    .colorBlendOp = VK_BLEND_OP_ADD,
+                    .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+                    .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+                    .alphaBlendOp = VK_BLEND_OP_ADD,
             };
             vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
 
@@ -844,8 +857,8 @@ export namespace z0 {
 
             // Use RGBA color write mask
             VkColorComponentFlags color_component_flags[] = {
-                VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT |
-                VK_COLOR_COMPONENT_A_BIT
+                    VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT |
+                    VK_COLOR_COMPONENT_A_BIT
             };
             vkCmdSetColorWriteMaskEXT(commandBuffer, 0, 1, color_component_flags);
 
@@ -853,8 +866,8 @@ export namespace z0 {
         }
 
         // Rate physical device by properties to find the best suitable GPU
-        [[nodiscard]] uint32_t rateDeviceSuitability(VkPhysicalDevice vkPhysicalDevice,
-                                                     const vector<const char*>& deviceExtensions) const {
+        [[nodiscard]] uint32_t rateDeviceSuitability(VkPhysicalDevice            vkPhysicalDevice,
+                                                     const vector<const char *> &deviceExtensions) const {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Base-device-suitability-checks
             VkPhysicalDeviceProperties _deviceProperties;
             vkGetPhysicalDeviceProperties(vkPhysicalDevice, &_deviceProperties);
@@ -863,20 +876,23 @@ export namespace z0 {
 
             uint32_t score = 0;
             // Discrete GPUs have a significant performance advantage
-            if (_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) score += 1000;
+            if (_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+                score += 1000;
             // Maximum possible size of textures affects graphics quality
             score += _deviceProperties.limits.maxImageDimension2D;
             // Application can't function without geometry shaders
-            if (!deviceFeatures.geometryShader) return 0;
+            if (!deviceFeatures.geometryShader)
+                return 0;
 
             bool extensionsSupported = checkDeviceExtensionSupport(vkPhysicalDevice, deviceExtensions);
-            bool swapChainAdequate = false;
+            bool swapChainAdequate   = false;
             if (extensionsSupported) {
                 SwapChainSupportDetails swapChainSupport = querySwapChainSupport(vkPhysicalDevice);
                 swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
             }
             QueueFamilyIndices indices = findQueueFamilies(vkPhysicalDevice);
-            if ((!extensionsSupported) || (!indices.isComplete()) || (!swapChainAdequate)) return 0;
+            if ((!extensionsSupported) || (!indices.isComplete()) || (!swapChainAdequate))
+                return 0;
             return score;
         }
 
@@ -895,7 +911,9 @@ export namespace z0 {
             vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, surface, &presentModeCount, nullptr);
             if (presentModeCount != 0) {
                 details.presentModes.resize(presentModeCount);
-                vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, surface, &presentModeCount,
+                vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice,
+                                                          surface,
+                                                          &presentModeCount,
                                                           details.presentModes.data());
             }
             return details;
@@ -905,17 +923,20 @@ export namespace z0 {
         [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
             QueueFamilyIndices indices;
-            uint32_t queueFamilyCount = 0;
+            uint32_t           queueFamilyCount = 0;
             vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, nullptr);
             vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
             vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, queueFamilies.data());
             int i = 0;
-            for (const auto& queueFamily : queueFamilies) {
-                if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) indices.graphicsFamily = i;
+            for (const auto &queueFamily : queueFamilies) {
+                if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                    indices.graphicsFamily = i;
                 VkBool32 presentSupport = false;
                 vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, surface, &presentSupport);
-                if (presentSupport) indices.presentFamily = i;
-                if (indices.isComplete()) break;
+                if (presentSupport)
+                    indices.presentFamily = i;
+                if (indices.isComplete())
+                    break;
                 i++;
             }
             return indices;
@@ -927,7 +948,7 @@ export namespace z0 {
             VkPhysicalDeviceProperties physicalDeviceProperties;
             vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
             VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
-                physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+                    physicalDeviceProperties.limits.framebufferDepthSampleCounts;
             /*if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
             if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
             if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }*/
@@ -939,22 +960,21 @@ export namespace z0 {
         }
 
         // Get the swap chain images sizes
-        [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const {
+        [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const {
             // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Swap-extent
             if (capabilities.currentExtent.width != numeric_limits<uint32_t>::max()) {
                 return capabilities.currentExtent;
-            }
-            else {
+            } else {
                 VkExtent2D actualExtent{
-                    .width = window.getWidth(),
-                    .height = window.getHeight()
+                        .width = window.getWidth(),
+                        .height = window.getHeight()
                 };
                 actualExtent.width = std::max(
-                    capabilities.minImageExtent.width,
-                    std::min(capabilities.maxImageExtent.width, actualExtent.width));
+                        capabilities.minImageExtent.width,
+                        std::min(capabilities.maxImageExtent.width, actualExtent.width));
                 actualExtent.height = std::max(
-                    capabilities.minImageExtent.height,
-                    std::min(capabilities.maxImageExtent.height, actualExtent.height));
+                        capabilities.minImageExtent.height,
+                        std::min(capabilities.maxImageExtent.height, actualExtent.height));
                 return actualExtent;
             }
         }
@@ -963,23 +983,24 @@ export namespace z0 {
         void getAdapterDescFromOS();
 
     public:
-        Device(const Device&) = delete;
-        Device& operator=(const Device&) = delete;
+        Device(const Device &) = delete;
+
+        Device &operator=(const Device &) = delete;
     };
 
 #ifdef _WIN32
     // https://dev.to/reg__/there-is-a-way-to-query-gpu-memory-usage-in-vulkan---use-dxgi-1f0d
     void Device::getAdapterDescFromOS() {
-        IDXGIFactory4* dxgiFactory = nullptr;
+        IDXGIFactory4 *dxgiFactory = nullptr;
         CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
-        IDXGIAdapter1* tmpDxgiAdapter = nullptr;
-        UINT adapterIndex = 0;
+        IDXGIAdapter1 *tmpDxgiAdapter = nullptr;
+        UINT           adapterIndex   = 0;
         while (dxgiFactory->EnumAdapters1(adapterIndex, &tmpDxgiAdapter) != DXGI_ERROR_NOT_FOUND) {
             DXGI_ADAPTER_DESC1 desc;
             tmpDxgiAdapter->GetDesc1(&desc);
             if (memcmp(&desc.AdapterLuid, physDeviceIDProps.deviceLUID, VK_LUID_SIZE) == 0) {
                 tmpDxgiAdapter->QueryInterface(IID_PPV_ARGS(&dxgiAdapter));
-                adapterDescription = wstring_to_string(desc.Description);
+                adapterDescription   = wstring_to_string(desc.Description);
                 dedicatedVideoMemory = static_cast<uint64_t>(desc.DedicatedVideoMemory);
             }
             tmpDxgiAdapter->Release();

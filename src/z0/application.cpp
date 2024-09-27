@@ -298,12 +298,12 @@ namespace z0 {
         stopped = false;
     }
 
-    void Application::addWindow(const shared_ptr<GWindow>& window) const {
+    void Application::add(const shared_ptr<GWindow>& window) const {
         assert(window != nullptr);
         _instance->windowManager->add(window);
     }
 
-    void Application::removeWindow(const shared_ptr<GWindow>& window) const {
+    void Application::remove(const shared_ptr<GWindow>& window) const {
         assert(window != nullptr);
         _instance->windowManager->remove(window);
     }

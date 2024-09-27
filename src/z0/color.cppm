@@ -30,12 +30,12 @@ export namespace z0 {
         /**
          * Create from an RGBA color
          */
-        Color(const float r,const  float g,const  float b,const  float a) { color = vec4{r, g, b, a}; }
+        Color(const float r, const float g, const float b, const float a) { color = vec4{r, g, b, a}; }
 
         /**
          * Create from an RGB color, A=1.0
          */
-        Color(const float r,const  float g,const  float b) { color = vec4{r, g, b, 1.0f}; }
+        Color(const float r, const float g, const float b) { color = vec4{r, g, b, 1.0f}; }
 
     };
 
