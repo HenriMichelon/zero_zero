@@ -19,19 +19,20 @@ export namespace z0 {
     /**
      * Base class for all 3D nodes
      */
-    class Node: public Object {
+    class Node : public Object {
     public:
         using id_t = unsigned int;
 
         /**
          * Creates a node by copying the transforms, process mode, parent and name
          */
-        Node(const Node& orig): id{currentId++} {
-            name = orig.name;
-            parent = orig.parent;
+        Node(const Node &orig):
+            id{currentId++} {
+            name           = orig.name;
+            parent         = orig.parent;
             localTransform = orig.localTransform;
             worldTransform = orig.worldTransform;
-            processMode = orig.processMode;
+            processMode    = orig.processMode;
         }
 
         /**
@@ -39,48 +40,53 @@ export namespace z0 {
          */
         explicit Node(string nodeName = "Node"):
             name{std::move(nodeName)},
-            id{currentId++}{
-            replace(name.begin(), name.end(),  '/', '_');
-            localTransform = mat4 {1.0};
+            id{currentId++} {
+            replace(name.begin(), name.end(), '/', '_');
+            localTransform = mat4{1.0};
             _updateTransform(mat4{1.0f});
         }
 
-        inline ~Node() override = default;
+        ~Node() override = default;
 
         /**
          * Called when a node is ready to initialize, before being added to the scene
          */
-        virtual void onReady() {}
-        
+        virtual void onReady() {
+        }
+
         /**
          * Called when a node is added to the scene
          */
-        virtual void onEnterScene() {};
+        virtual void onEnterScene() {
+        }
 
         /**
          * Called when a node is removed from the scene
          */
-        virtual void onExitScene() {};
+        virtual void onExitScene() {
+        }
 
         /**
          * Called each frame after the physics have been updated and just before drawing the frame
          */
-        virtual void onProcess(const float alpha) {}
+        virtual void onProcess(const float alpha) {
+        }
 
         /**
          * Called just after the physics system have been updated (can be called multiple times if we have free time between frames)
          */
-        virtual void onPhysicsProcess(const float delta) {}
+        virtual void onPhysicsProcess(const float delta) {
+        }
 
         /**
          * Called on a keyboard, mouse or gamepad event
          */
-        virtual bool onInput(InputEvent& inputEvent) { return false; }
+        virtual bool onInput(InputEvent &inputEvent) { return false; }
 
         /**
          * Returns the local space transformation matrix
          */
-        [[nodiscard]] inline const mat4& getTransformLocal() const { return localTransform; }
+        [[nodiscard]] inline const mat4 &getTransformLocal() const { return localTransform; }
 
         /**
          * Returns the world space transformation matrix
@@ -98,21 +104,21 @@ export namespace z0 {
         * Sets the local space position (relative to parent)
         */
         virtual void setPosition(const vec3 position) {
-            localTransform[3] = vec4(position, 1.0f);
+            localTransform[3] = vec4{position, 1.0f};
             _updateTransform();
         }
 
         /*
         * Returns the local space position (relative to parent)
         */
-        [[nodiscard]] inline vec3 getPosition() const { return localTransform[3]; };
+        [[nodiscard]] inline vec3 getPosition() const { return localTransform[3]; }
 
         /**
          * Changes the node's position by the given offset vector in local space.
          */
         void translate(const vec3 localOffset) {
             // current orientation * velocity
-            const vec3 worldTranslation =  toQuat(mat3(localTransform)) * localOffset;
+            const vec3 worldTranslation = toQuat(mat3(localTransform)) * localOffset;
             setPosition(getPosition() + worldTranslation);
         }
 
@@ -169,9 +175,9 @@ export namespace z0 {
             // Create a rotation matrix from the new quaternion
             mat4 rotationMatrix = toMat4(quater);
             // Reconstruct the transformation matrix with the new rotation, preserving the original translation and scale
-            localTransform = glm::translate(mat4(1.0f), translation)
-                             * rotationMatrix
-                             * glm::scale(mat4(1.0f), scale);
+            localTransform = glm::translate(mat4{1.0f}, translation)
+                    * rotationMatrix
+                    * glm::scale(mat4{1.0f}, scale);
             _updateTransform();
         }
 
@@ -228,7 +234,7 @@ export namespace z0 {
 
         /**
          * Scales part of the local transformation with the same value on each axis
-         */        
+         */
         void setScale(const float scale) {
             setScale(vec3{scale, scale, scale});
         }
@@ -264,18 +270,18 @@ export namespace z0 {
         /**
          * Returns the node's parent in the scene tree
          */
-        [[nodiscard]] inline Node* getParent() const { return parent; }
+        [[nodiscard]] inline Node *getParent() const { return parent; }
 
         /**
-         * Adds a child node. 
+         * Adds a child node.
          * Nodes can have any number of children, but a child can have only one parent.
          */
-        bool addChild(const shared_ptr<Node>& child);
+        bool addChild(const shared_ptr<Node> &child);
 
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
          */
-        bool removeChild(const shared_ptr<Node>& child);
+        bool removeChild(const shared_ptr<Node> &child);
 
         /**
          * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.
@@ -285,32 +291,35 @@ export namespace z0 {
         /**
          * Returns true if the node have this child
          */
-        [[nodiscard]] bool haveChild(const shared_ptr<Node>& child, const bool recursive) const {
+        [[nodiscard]] bool haveChild(const shared_ptr<Node> &child, const bool recursive) const {
             if (recursive) {
-                if (haveChild(child, false)) return true;
-                for(const auto& node : children) {
-                    if (node->haveChild(child, true)) return true;
+                if (haveChild(child, false))
+                    return true;
+                for (const auto &node : children) {
+                    if (node->haveChild(child, true))
+                        return true;
                 }
                 return false;
-            } else {
-                return find(children.begin(), children.end(), child) != children.end();
             }
+            return find(children.begin(), children.end(), child) != children.end();
         }
 
         /*
         * Returns the child node by is name. Not recursive
         */
-        [[nodiscard]] shared_ptr<Node> getChild(const string& name) const {
-            auto it = std::find_if(children.begin(), children.end(), [name](std::shared_ptr<Node> elem) {
-                return elem->name == name;
-            });
+        [[nodiscard]] shared_ptr<Node> getChild(const string &name) const {
+            auto it = std::find_if(children.begin(),
+                                   children.end(),
+                                   [name] (std::shared_ptr<Node> elem) {
+                                       return elem->name == name;
+                                   });
             return it == children.end() ? nullptr : *it;
         }
 
         /*
         * Returns the child node by is absolute path
         */
-        [[nodiscard]] shared_ptr<Node> getNode(const string& path) const {
+        [[nodiscard]] shared_ptr<Node> getNode(const string &path) const {
             size_t pos = path.find('/');
             if (pos != std::string::npos) {
                 auto child = getChild(path.substr(0, pos));
@@ -318,9 +327,8 @@ export namespace z0 {
                     return child->getNode(path.substr(pos + 1));
                 }
                 return nullptr;
-            } else {
-                return getChild(path);
             }
+            return getChild(path);
         }
 
         /**
@@ -328,12 +336,13 @@ export namespace z0 {
          */
         void printTree(const int tab = 0) const {
             stringstream sstream;
-            for (int i = 0; i < (tab*2); i++) {
+            for (int i = 0; i < (tab * 2); i++) {
                 sstream << " ";
             }
             sstream << " " << toString();
             log(sstream.str());
-            for (auto& child: children) child->printTree(tab+1);
+            for (auto &child : children)
+                child->printTree(tab + 1);
         }
 
         [[nodiscard]] string toString() const override { return name; }
@@ -343,7 +352,7 @@ export namespace z0 {
          */
         [[nodiscard]] inline id_t getId() const { return id; }
 
-        inline bool operator == (const Node& other) const { return id == other.id;}
+        inline bool operator ==(const Node &other) const { return id == other.id; }
 
         /**
          * Duplicates a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
@@ -351,24 +360,25 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Node> duplicate() {
             shared_ptr<Node> dup = duplicateInstance();
             dup->children.clear();
-            for(const auto& child : children) {
+            for (const auto &child : children) {
                 dup->addChild(child->duplicate());
             }
-            dup->id = currentId++;
+            dup->id   = currentId++;
             dup->name = name;
             return dup;
         }
 
         /**
          * Finds the first child by is type.
-         * Does not works with nodes loaded from a scene file since they are casted to Node.
+         * Does not work with nodes loaded from a scene file since they are cast to Node.
          */
         template <typename T>
-        [[nodiscard]] T* findFirstChild(bool recursive=true) const {
-            for(auto& node : children) {
-                if (auto* pnode = dynamic_cast<T*>(node.get())) {
+        [[nodiscard]] T *findFirstChild(bool recursive = true) const {
+            for (auto &node : children) {
+                if (auto *pnode = dynamic_cast<T *>(node.get())) {
                     return pnode;
-                } else if (recursive) {
+                }
+                if (recursive) {
                     return node->findFirstChild<T>(true);
                 }
             }
@@ -383,11 +393,12 @@ export namespace z0 {
         }
 
         /**
-         * Creates a Tween to tweens a property of the node between an `initial` value 
+         * Creates a Tween to tweens a property of the node between an `initial` value
          * and `final` value in a span of time equal to `duration`, in seconds.
          */
-        template<typename T>
-        [[nodiscard]] shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final, float duration) {
+        template <typename T>
+        [[nodiscard]] shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final,
+                                                            float                    duration) {
             auto tween = make_shared<PropertyTween<T>>(this, set, initial, final, duration);
             tweens.push_back(tween);
             return tween;
@@ -396,7 +407,7 @@ export namespace z0 {
         /**
          * Removes the `tween` from the processing list
          */
-        void killTween(const shared_ptr<Tween>& tween) {
+        void killTween(const shared_ptr<Tween> &tween) {
             if (tween != nullptr) {
                 tween->_kill();
                 tweens.remove(tween);
@@ -404,10 +415,10 @@ export namespace z0 {
         }
 
         /**
-         * Sets a property by is name and value. 
-         * Currently not all properties in all nodes classes are supported.
+         * Sets a property by is name and value.
+         * Currently, not all properties in all nodes classes are supported.
          */
-        virtual void setProperty(const string&property, const string& value) {
+        virtual void setProperty(const string &property, const string &value) {
             if (property == "position") {
                 setPosition(to_vec3(value));
             } else if (property == "rotation") {
@@ -432,33 +443,32 @@ export namespace z0 {
         /**
          * Sets the node name (purely informative)
          */
-        void setName(const string&nodeName) { name = nodeName; }
+        void setName(const string &nodeName) { name = nodeName; }
 
         /**
          * Returns the immutable list of children nodes
          */
-        inline const list<shared_ptr<Node>>& getChildren() const { return children; }
-
+        inline const list<shared_ptr<Node>> &getChildren() const { return children; }
 
     protected:
-        string name;
-        Node* parent {nullptr};
+        string                 name;
+        Node *                 parent{nullptr};
         list<shared_ptr<Node>> children;
-        mat4 localTransform {};
-        mat4 worldTransform {};
+        mat4                   localTransform{};
+        mat4                   worldTransform{};
 
         virtual shared_ptr<Node> duplicateInstance() {
             return make_shared<Node>(*this);
         }
 
-        Application& app() const;
+        Application &app() const;
 
     private:
-        static id_t currentId;
-        id_t id;
-        ProcessMode processMode{PROCESS_MODE_INHERIT};
-        bool inReady{false};
-        bool addedToScene{false};
+        static id_t             currentId;
+        id_t                    id;
+        ProcessMode             processMode{PROCESS_MODE_INHERIT};
+        bool                    inReady{false};
+        bool                    addedToScene{false};
         list<shared_ptr<Tween>> tweens;
 
     public:
@@ -468,16 +478,18 @@ export namespace z0 {
             inReady = false;
         }
 
-        virtual void _onPause() {};
+        virtual void _onPause() {
+        }
 
-        virtual void _onResume() {};
+        virtual void _onResume() {
+        }
 
-        inline virtual void _onEnterScene() { onEnterScene(); };
+        inline virtual void _onEnterScene() { onEnterScene(); }
 
-        inline virtual void _onExitScene() { onExitScene(); };
+        inline virtual void _onExitScene() { onExitScene(); }
 
         virtual void _physicsUpdate(const float delta) {
-            for (auto it = tweens.begin(); it != tweens.end(); ) {
+            for (auto it = tweens.begin(); it != tweens.end();) {
                 if ((*it)->update(delta)) {
                     it = tweens.erase(it);
                 } else {
@@ -486,19 +498,19 @@ export namespace z0 {
             }
         }
 
-        void _setParent(Node* p) { parent = p; }
+        void _setParent(Node *p) { parent = p; }
 
-        void _setAddedToScene(bool added) { addedToScene = added; }
+        void _setAddedToScene(const bool added) { addedToScene = added; }
 
         bool _isAddedToScene() const { return addedToScene; }
 
-        mat4& _getTransformLocal() { return localTransform; }
+        mat4 &_getTransformLocal() { return localTransform; }
 
-        void _setTransform(mat4 transform) { localTransform = transform; }
+        void _setTransform(const mat4& transform) { localTransform = transform; }
 
-        virtual void _updateTransform(const mat4& parentMatrix) {
+        virtual void _updateTransform(const mat4 &parentMatrix) {
             worldTransform = parentMatrix * localTransform;
-            for (const auto& child : children) {
+            for (const auto &child : children) {
                 child->_updateTransform(worldTransform);
             }
         }
@@ -508,7 +520,7 @@ export namespace z0 {
             _updateTransform(parentMatrix);
         }
 
-        inline list<shared_ptr<Node>>& _getChildren() { return children; }
+        inline list<shared_ptr<Node>> &_getChildren() { return children; }
 
     };
 
