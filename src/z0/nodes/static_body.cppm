@@ -26,7 +26,8 @@ export namespace z0 {
                         0,
                         JPH::EActivation::DontActivate,
                         JPH::EMotionType::Static,
-                        name) {
+                        name,
+                        STATIC_BODY) {
         }
 
         /**
@@ -39,7 +40,8 @@ export namespace z0 {
                         0,
                         JPH::EActivation::DontActivate,
                         JPH::EMotionType::Static,
-                        name) {
+                        name,
+                        STATIC_BODY) {
         }
 
         /**
@@ -50,7 +52,8 @@ export namespace z0 {
                         0,
                         JPH::EActivation::DontActivate,
                         JPH::EMotionType::Static,
-                        name) {
+                        name,
+                        STATIC_BODY) {
         }
 
         ~StaticBody() override = default;

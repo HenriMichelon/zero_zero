@@ -22,11 +22,11 @@ export namespace z0 {
          * @param name node name
          */
         Viewport(const vec2 &position, const vec2 &size, const string &name = "Viewport"):
-            Node{name}, position{position}, size{size} {
+            Node{name, VIEWPORT}, position{position}, size{size} {
         }
 
-        Viewport(const string &name = "Viewport"):
-            Node{name} {
+        explicit Viewport(const string &name = "Viewport"):
+            Node{name, VIEWPORT} {
         }
 
         /**
@@ -42,15 +42,15 @@ export namespace z0 {
         /**
          * Sets the top left viewport position in pixels
          */
-        void setViewportSize(const vec2 _size) {
-            size = _size;
+        void setViewportSize(const vec2 size) {
+            this->size = size;
         }
 
         /**
          * Sets the viewport size in pixels
          */
-        void setViewportPosition(const vec2 _position) {
-            position = _position;
+        void setViewportPosition(const vec2 position) {
+            this->position = position;
         }
 
     private:

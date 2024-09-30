@@ -16,8 +16,8 @@ export namespace z0 {
         /**
          * Creates a DirectionalLight with defaults parameters
          */
-        explicit DirectionalLight(const string name = "DirectionalLight"):
-            Light{name} {
+        explicit DirectionalLight(const string &name = "DirectionalLight"):
+            Light{name, DIRECTIONAL_LIGHT} {
         };
 
         /**
@@ -27,11 +27,11 @@ export namespace z0 {
          * @param specular intensity of the specular blob in objects affected by the light.
          * @param nodeName Node name
          */
-        explicit DirectionalLight(const vec3   direction,
-                                  const vec4   color    = {1.0f, 1.0f, 1.0f, 1.0f},
-                                  const float  specular = 1.0f,
-                                  const string nodeName = "DirectionalLight"):
-            Light{color, specular, nodeName},
+        explicit DirectionalLight(const vec3    direction,
+                                  const vec4    color    = {1.0f, 1.0f, 1.0f, 1.0f},
+                                  const float   specular = 1.0f,
+                                  const string &nodeName = "DirectionalLight"):
+            Light{color, specular, nodeName, DIRECTIONAL_LIGHT},
             direction{normalize(direction)} {
         }
 

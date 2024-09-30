@@ -36,7 +36,8 @@ export namespace z0 {
             CollisionObject(shape,
                             layer,
                             mask,
-                            name) {
+                            name,
+                            CHARACTER) {
             setShape(shape);
         }
 
@@ -44,7 +45,7 @@ export namespace z0 {
          * Creates a Character withtout a collision `shape`,
          */
         explicit Character(const string &name = "Character"):
-            CollisionObject(0, 0, name) {
+            CollisionObject(0, 0, name, CHARACTER) {
         }
 
         void setShape(const shared_ptr<Shape> &shape) {
@@ -61,10 +62,10 @@ export namespace z0 {
             settingsVirtual.mShape         = new JPH::BoxShape(shapeHe);
             settingsVirtual.mMaxSlopeAngle = radians(45.0);
             character                      = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
-                pos,
-                rot,
-                0,
-                &app()._getPhysicsSystem());
+                                                           pos,
+                                                           rot,
+                                                           0,
+                                                           &app()._getPhysicsSystem());
             character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
             character->SetUserData(reinterpret_cast<uint64>(this));
             character->SetListener(this);
@@ -115,8 +116,8 @@ export namespace z0 {
         /**
          * Sets the UP axis for this Character
          */
-        void setUpVector(const vec3 v) {
-            upVector = v;
+        void setUpVector(const vec3 vector) {
+            upVector = vector;
             character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
         }
 

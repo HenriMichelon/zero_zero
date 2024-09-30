@@ -171,8 +171,9 @@ export namespace z0 {
         CollisionObject(const shared_ptr<Shape> &_shape,
                         const uint32_t           layer,
                         const uint32_t           mask,
-                        const string &           name):
-            Node{name},
+                        const string &           name,
+                        const Type               type = COLLISION_OBJECT):
+            Node{name, type},
             collisionLayer{layer},
             collisionMask{mask},
             shape{_shape},
@@ -182,8 +183,9 @@ export namespace z0 {
 
         CollisionObject(const uint32_t layer,
                         const uint32_t mask,
-                        const string & name):
-            Node{name},
+                        const string & name,
+                        const Type     type = COLLISION_OBJECT):
+            Node{name, type},
             collisionLayer{layer},
             collisionMask{mask},
             shape{nullptr},
@@ -203,13 +205,13 @@ export namespace z0 {
                     activationMode);
         }
 
-        void setBodyId(JPH::BodyID id) {
+        void setBodyId(const JPH::BodyID id) {
             bodyId = id;
             bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
             //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
         }
 
-        [[nodiscard]] CollisionObject *_getByBodyId(JPH::BodyID id) const {
+        [[nodiscard]] CollisionObject *_getByBodyId(const JPH::BodyID id) const {
             assert(!bodyId.IsInvalid());
             return reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(id));
         }

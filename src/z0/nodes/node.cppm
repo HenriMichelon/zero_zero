@@ -23,6 +23,28 @@ export namespace z0 {
     public:
         using id_t = unsigned int;
 
+        //! Node type
+        enum Type {
+            CAMERA,
+            CHARACTER,
+            COLLISION_AREA,
+            COLLISION_OBJECT,
+            DIRECTIONAL_LIGHT,
+            ENVIRONMENT,
+            KINEMATIC_BODY,
+            LIGHT,
+            MESH_INSTANCE,
+            NODE,
+            OMNI_LIGHT,
+            PHYSICS_BODY,
+            RAYCAST,
+            RIGID_BODY,
+            SKYBOX,
+            SPOT_LIGHT,
+            STATIC_BODY,
+            VIEWPORT
+        };
+
         /**
          * Creates a node by copying the transforms, process mode, parent and name
          */
@@ -33,12 +55,14 @@ export namespace z0 {
             localTransform = orig.localTransform;
             worldTransform = orig.worldTransform;
             processMode    = orig.processMode;
+            type           = orig.type;
         }
 
         /**
          * Creates a new node at (0.0, 0.0, 0.0) without parent
          */
-        explicit Node(string nodeName = "Node"):
+        explicit Node(const string &nodeName = "Node", Type type = NODE):
+            type{type},
             name{std::move(nodeName)},
             id{currentId++} {
             replace(name.begin(), name.end(), '/', '_');
@@ -310,7 +334,7 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Node> getChild(const string &name) const {
             auto it = std::find_if(children.begin(),
                                    children.end(),
-                                   [name] (std::shared_ptr<Node> elem) {
+                                   [name](std::shared_ptr<Node> elem) {
                                        return elem->name == name;
                                    });
             return it == children.end() ? nullptr : *it;
@@ -450,7 +474,13 @@ export namespace z0 {
          */
         inline const list<shared_ptr<Node>> &getChildren() const { return children; }
 
+        /**
+         * Return the node type
+         */
+        Type getType() const { return type; }
+
     protected:
+        Type                   type;
         string                 name;
         Node *                 parent{nullptr};
         list<shared_ptr<Node>> children;

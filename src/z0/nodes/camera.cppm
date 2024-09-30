@@ -20,7 +20,7 @@ export namespace z0 {
          * Creates a Camera
          */
         explicit Camera(const string &nodeName = "Camera"):
-            Node{nodeName} {
+            Node{nodeName, CAMERA} {
             setPerspectiveProjection(fov, nearDistance, farDistance);
             setViewDirection();
         }

@@ -18,7 +18,7 @@ export namespace z0 {
          * Creates a SpotLight with default parameters
          */
         explicit SpotLight(const string &name = "SpotLight"):
-            OmniLight{name} {
+            OmniLight{name, SPOT_LIGHT} {
         };
 
         /**
@@ -41,8 +41,8 @@ export namespace z0 {
                            const float  attenuation = 1.0f,
                            const vec4   color       = {1.0f, 1.0f, 1.0f, 1.0f},
                            const float  specular    = 1.0f,
-                           const string nodeName    = "SpotLight"):
-            OmniLight{linear, quadratic, attenuation, color, specular, nodeName},
+                           const string& nodeName    = "SpotLight"):
+            OmniLight{linear, quadratic, attenuation, color, specular, nodeName, SPOT_LIGHT},
             direction{direction},
             fov{radians(outerCutOffDegrees)},
             cutOff{cos(radians(cutOffDegrees))},

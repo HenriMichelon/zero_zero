@@ -39,8 +39,9 @@ export namespace z0 {
                     const uint32_t           mask,
                     const JPH::EActivation   _activationMode,
                     const JPH::EMotionType   _motionType,
-                    const string &           name):
-            CollisionObject{_shape, layer, mask, name},
+                    const string &           name,
+                    const Type               type = PHYSICS_BODY):
+            CollisionObject{_shape, layer, mask, name, type},
             motionType{_motionType} {
             activationMode = _activationMode;
             setShape(shape);
@@ -50,8 +51,9 @@ export namespace z0 {
                     const uint32_t         mask,
                     const JPH::EActivation _activationMode,
                     const JPH::EMotionType _motionType,
-                    const string &         name):
-            CollisionObject{layer, mask, name},
+                    const string &         name,
+                    const Type             type = PHYSICS_BODY):
+            CollisionObject{layer, mask, name, type},
             motionType{_motionType} {
             activationMode = _activationMode;
         }

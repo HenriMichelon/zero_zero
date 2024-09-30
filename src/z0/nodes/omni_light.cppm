@@ -16,8 +16,8 @@ export namespace z0 {
         /**
          * Creates an OmniLight with default parameters
          */
-        explicit OmniLight(const string &name = "OmniLight"):
-            Light{name} {
+        explicit OmniLight(const string &name = "OmniLight", const Type type = OMNI_LIGHT):
+            Light{name, type} {
         };
 
         /**
@@ -29,13 +29,14 @@ export namespace z0 {
          * @param specular intensity of the specular blob in objects affected by the light.
          * @param nodeName Node name
          */
-        explicit OmniLight(const float  linear,
-                           const float  quadratic,
-                           const float  attenuation = 1.0f,
-                           const vec4   color        = {1.0f, 1.0f, 1.0f, 1.0f},
-                           const float  specular     = 1.0f,
-                           const string nodeName     = "OmniLight"):
-            Light{color, specular, nodeName},
+        explicit OmniLight(const float   linear,
+                           const float   quadratic,
+                           const float   attenuation = 1.0f,
+                           const vec4    color       = {1.0f, 1.0f, 1.0f, 1.0f},
+                           const float   specular    = 1.0f,
+                           const string &nodeName    = "OmniLight",
+                           const Type    type        = OMNI_LIGHT):
+            Light{color, specular, nodeName, type},
             attenuation{attenuation}, linear{linear}, quadratic{quadratic} {
         }
 
@@ -49,7 +50,7 @@ export namespace z0 {
         /**
          * Sets the linear term
          */
-        void setLinear(const float _linear) { linear = _linear; }
+        void setLinear(const float linear) { this->linear = linear; }
 
         /**
          * Returns the quadratic term
@@ -59,7 +60,7 @@ export namespace z0 {
         /**
          * Sets the quadratic term
          */
-        void setQuadratic(const float _quadratic) { quadratic = _quadratic; }
+        void setQuadratic(const float quadratic) { this->quadratic = quadratic; }
 
         /**
          * Returns the attenuation factor
@@ -69,7 +70,7 @@ export namespace z0 {
         /**
          * Sets the attenuation factor
          */
-        void setAttenuation(const float _attenuation) { attenuation = _attenuation; }
+        void setAttenuation(const float attenuation) { this->attenuation = attenuation; }
 
     private:
         float attenuation{1.0};

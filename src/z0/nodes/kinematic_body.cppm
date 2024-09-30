@@ -28,7 +28,8 @@ export namespace z0 {
                         mask,
                         JPH::EActivation::Activate,
                         JPH::EMotionType::Kinematic,
-                        name) {
+                        name,
+                        KINEMATIC_BODY) {
         }
 
         /**
@@ -39,7 +40,8 @@ export namespace z0 {
                         0xff,
                         JPH::EActivation::Activate,
                         JPH::EMotionType::Kinematic,
-                        name) {
+                        name,
+                        KINEMATIC_BODY) {
         }
 
         ~KinematicBody() override = default;

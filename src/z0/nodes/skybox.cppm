@@ -21,7 +21,7 @@ export namespace z0 {
          * @param fileext files extension
          */
         Skybox(const string &filename, const string &fileext):
-            Node{filename} {
+            Node{filename, SKYBOX} {
             cubemap = Cubemap::loadFromFile(filename, fileext);
         }
 
@@ -33,7 +33,7 @@ export namespace z0 {
          * @param filename path of the image
          */
         explicit Skybox(const string &filename):
-            Node{filename} {
+            Node{filename, SKYBOX} {
             cubemap = Cubemap::loadFromFile(filename);
         }
 

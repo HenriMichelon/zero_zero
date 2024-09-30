@@ -24,15 +24,15 @@ export namespace z0 {
         CollisionArea(const shared_ptr<Shape> &shape,
                       const uint32_t           mask,
                       const string &           name = "CollisionArea"):
-            CollisionObject{shape, 0, mask, name} {
+            CollisionObject{shape, 0, mask, name, COLLISION_AREA} {
             setShape(shape);
         }
 
         /**
          * Creates a CollisionArea without collision shape
          */
-        CollisionArea(const string &name = "CollisionArea"):
-            CollisionObject{0, 0, name} {
+        explicit CollisionArea(const string &name = "CollisionArea"):
+            CollisionObject{0, 0, name, COLLISION_AREA} {
         }
 
         void setShape(const shared_ptr<Shape> &shape) {

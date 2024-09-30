@@ -17,9 +17,9 @@ namespace z0 {
         /**
          * Creates a MeshInstance with the given Mesh
          */
-        explicit MeshInstance(const shared_ptr<Mesh> &_mesh, const string &name = "MeshInstance"):
-            Node{name},
-            mesh{_mesh} {
+        explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = "MeshInstance"):
+            Node{name, MESH_INSTANCE},
+            mesh{mesh} {
         }
 
         /**
@@ -45,7 +45,7 @@ namespace z0 {
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
          */
-        void setOutlineMaterial(const shared_ptr<ShaderMaterial> &mat) { outlineMaterial = mat; }
+        void setOutlineMaterial(const shared_ptr<ShaderMaterial> &material) { outlineMaterial = material; }
 
         /**
          * Returns the current outlining material

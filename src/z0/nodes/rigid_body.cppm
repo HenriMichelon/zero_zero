@@ -28,7 +28,8 @@ export namespace z0 {
                         mask,
                         JPH::EActivation::Activate,
                         JPH::EMotionType::Dynamic,
-                        name) {
+                        name,
+                        RIGID_BODY) {
         }
 
         /**
@@ -39,7 +40,8 @@ export namespace z0 {
                         0,
                         JPH::EActivation::Activate,
                         JPH::EMotionType::Dynamic,
-                        name) {
+                        name,
+                        RIGID_BODY) {
         }
 
         ~RigidBody() override = default;

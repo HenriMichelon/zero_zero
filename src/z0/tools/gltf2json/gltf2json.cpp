@@ -2,17 +2,26 @@
 import std;
 import Z0;
 
+const auto types = std::map<z0::Node::Type, std::string>{
+    { z0::Node::NODE, "node"},
+    { z0::Node::MESH_INSTANCE, "mesh"}
+};
+
 void process(const std::string &              scene_id,
              const std::string &              parent,
              const std::shared_ptr<z0::Node> &node,
              std::ofstream &                  out,
              const int                        level) {
+    if (!types.contains(node->getType())) {
+        std::cerr << "unknown node type : " << node->getType() << std::endl;
+        return;
+    }
     out << ",\n";
     auto tabs = std::string(level * 2, ' ');
     out << tabs << "{\n";
     tabs = std::string(level * 2 + 2, ' ');
     out << "      \"id\": \"" << node->toString() << "\",\n";
-    out << "      \"type\": \"mesh\",\n";
+    out << "      \"type\": \"" << types.at(node->getType()) << "\",\n";
     out << "      \"resource\": \"" << scene_id << "\",\n";
     out << "      \"path\": \"" << parent << (parent.empty() ? "" : "/") << node->toString() << "\"\n";
     tabs = std::string(level * 2, ' ');

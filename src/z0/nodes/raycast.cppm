@@ -23,7 +23,7 @@ export namespace z0 {
          * @param name The node's name
          */
         RayCast(const vec3 &target, const uint32_t mask, const string &name = "RayCast"):
-            Node(name),
+            Node{name, RAYCAST},
             target{target},
             collisionMask{mask} {
         }
@@ -32,8 +32,8 @@ export namespace z0 {
          * Creates a RayCast with a [0.0, 0.0, 0.0] target
          * @param name The node's name
          */
-        RayCast(const string &name = "RayCast"):
-            Node(name) {
+        explicit RayCast(const string &name = "RayCast"):
+            Node{name, RAYCAST} {
         }
 
         /**
@@ -75,8 +75,8 @@ export namespace z0 {
         /**
          * Sets the ray's destination point, relative to the RayCast's position.
          */
-        void setTarget(const vec3 &t) {
-            target = t;
+        void setTarget(const vec3 &target) {
+            this->target = target;
         }
 
     private:
