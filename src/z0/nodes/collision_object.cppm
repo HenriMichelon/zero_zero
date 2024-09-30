@@ -18,7 +18,7 @@ export namespace z0 {
      * Base class for 3D physics objects.
      * Object A can detect a contact with object B only if object B is in any of the layers that object A scans (mask value)
      */
-    class CollisionObject: public Node {
+    class CollisionObject : public Node {
     public:
         /**
          * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision
@@ -32,22 +32,22 @@ export namespace z0 {
         /**
          * Collision data for the CollisionObject::on_collision_starts and CollisionObject::on_collision_persists signal
          */
-        struct Collision: Signal::Parameters {
+        struct Collision : Signal::Parameters {
             /** World space position of the first contact point, on the colliding `object` */
-            vec3             position;
+            vec3 position;
             /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
-            vec3             normal;
+            vec3 normal;
             /** Collising object */
-            CollisionObject* object;
+            CollisionObject *object;
         };
 
         /**
-         * The physics layers this CollisionObject is in. 
+         * The physics layers this CollisionObject is in.
          */
         [[nodiscard]] uint32_t getCollisionLayer() const { return collisionLayer; }
 
         /**
-         * The physics layers this CollisionObject scans. 
+         * The physics layers this CollisionObject scans.
          */
         [[nodiscard]] uint32_t getCollistionMask() const { return collisionMask; }
 
@@ -96,7 +96,7 @@ export namespace z0 {
          * Returns `true` if the object can collide with an object with the layer `layer`
          */
         [[nodiscard]] bool shouldCollide(const uint32_t layer) const {
-            return  (layer & collisionMask) != 0;
+            return (layer & collisionMask) != 0;
         }
 
         /**
@@ -121,15 +121,15 @@ export namespace z0 {
             const auto velocity = bodyInterface.GetLinearVelocity(bodyId);
             return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
         }
-        
+
         /**
          * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
          */
         void applyForce(const vec3 force) const {
             assert(!bodyId.IsInvalid());
             bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z});
+                    bodyId,
+                    JPH::Vec3{force.x, force.y, force.z});
         }
 
         /**
@@ -138,20 +138,20 @@ export namespace z0 {
         void applyForce(const vec3 force, const vec3 position) const {
             assert(!bodyId.IsInvalid());
             bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z},
-                JPH::Vec3{position.x, position.y, position.z});
+                    bodyId,
+                    JPH::Vec3{force.x, force.y, force.z},
+                    JPH::Vec3{position.x, position.y, position.z});
         }
 
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step
          */
-        [[nodiscard]] bool wereInContact(const CollisionObject* obj) const {
+        [[nodiscard]] bool wereInContact(const CollisionObject *obj) const {
             assert(!bodyId.IsInvalid());
             return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
         }
 
-        void setProperty(const string&property, const string& value) override {
+        void setProperty(const string &property, const string &value) override {
             Node::setProperty(property, value);
             if (property == "layer") {
                 setCollistionLayer(stoul(value), true);
@@ -161,17 +161,17 @@ export namespace z0 {
         }
 
     protected:
-        bool updating{false};
-        uint32_t collisionLayer;
-        uint32_t collisionMask;
-        shared_ptr<Shape> shape;
-        JPH::EActivation activationMode;
-        JPH::BodyInterface& bodyInterface;
+        bool                updating{false};
+        uint32_t            collisionLayer;
+        uint32_t            collisionMask;
+        shared_ptr<Shape>   shape;
+        JPH::EActivation    activationMode;
+        JPH::BodyInterface &bodyInterface;
 
-        CollisionObject(const shared_ptr<Shape>& _shape,
-                        const uint32_t layer,
-                        const uint32_t mask,
-                        const string& name):
+        CollisionObject(const shared_ptr<Shape> &_shape,
+                        const uint32_t           layer,
+                        const uint32_t           mask,
+                        const string &           name):
             Node{name},
             collisionLayer{layer},
             collisionMask{mask},
@@ -181,8 +181,8 @@ export namespace z0 {
         }
 
         CollisionObject(const uint32_t layer,
-                    const uint32_t mask,
-                    const string& name):
+                        const uint32_t mask,
+                        const string & name):
             Node{name},
             collisionLayer{layer},
             collisionMask{mask},
@@ -192,9 +192,10 @@ export namespace z0 {
         }
 
         virtual void setPositionAndRotation() {
-            if (updating || bodyId.IsInvalid()) return;
+            if (updating || bodyId.IsInvalid())
+                return;
             const auto position = getPositionGlobal();
-            const auto quat = normalize(toQuat(mat3(worldTransform)));
+            const auto quat     = normalize(toQuat(mat3(worldTransform)));
             bodyInterface.SetPositionAndRotation(
                     bodyId,
                     JPH::RVec3(position.x, position.y, position.z),
@@ -208,9 +209,9 @@ export namespace z0 {
             //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
         }
 
-        [[nodiscard]] CollisionObject* _getByBodyId(JPH::BodyID id) const {
+        [[nodiscard]] CollisionObject *_getByBodyId(JPH::BodyID id) const {
             assert(!bodyId.IsInvalid());
-            return reinterpret_cast<CollisionObject*>(bodyInterface.GetUserData(id));
+            return reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(id));
         }
 
         void _updateTransform() override {
@@ -218,7 +219,7 @@ export namespace z0 {
             setPositionAndRotation();
         }
 
-        void _updateTransform(const mat4& parentMatrix) override {
+        void _updateTransform(const mat4 &parentMatrix) override {
             Node::_updateTransform(parentMatrix);
             setPositionAndRotation();
         }
@@ -266,10 +267,11 @@ export namespace z0 {
         }
 
         [[nodiscard]] JPH::BodyID _getBodyId() const { return bodyId; }
+
         inline ~CollisionObject() override = default;
     };
 
-    const Signal::signal CollisionObject::on_collision_starts = "on_collision_starts";
+    const Signal::signal CollisionObject::on_collision_starts   = "on_collision_starts";
     const Signal::signal CollisionObject::on_collision_persists = "on_collision_persists";
 
 }

@@ -48,22 +48,23 @@ export namespace z0 {
         }
 
         void setShape(const shared_ptr<Shape> &shape) {
-            this->shape = shape;
+            this->shape   = shape;
             auto position = getPositionGlobal();
             auto quat     = normalize(toQuat(mat3(worldTransform)));
             // TODO : use a capsule shape
-            const auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings *>(this->shape->_getShapeSettings())->mHalfExtent;
-            auto       pos     = JPH::RVec3(position.x, position.y, position.z);
-            auto       rot     = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
+            const auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings *>(this->shape->_getShapeSettings())->
+                    mHalfExtent;
+            auto pos = JPH::RVec3(position.x, position.y, position.z);
+            auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
 
             JPH::CharacterVirtualSettings settingsVirtual;
             settingsVirtual.mShape         = new JPH::BoxShape(shapeHe);
             settingsVirtual.mMaxSlopeAngle = radians(45.0);
             character                      = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
-                                                           pos,
-                                                           rot,
-                                                           0,
-                                                           &app()._getPhysicsSystem());
+                pos,
+                rot,
+                0,
+                &app()._getPhysicsSystem());
             character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
             character->SetUserData(reinterpret_cast<uint64>(this));
             character->SetListener(this);

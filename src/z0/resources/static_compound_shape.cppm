@@ -21,10 +21,10 @@ export namespace z0 {
         /**
          * Creates a StaticCompoundShape using the `subshaped` collection of Shape
          */
-        explicit StaticCompoundShape(const vector<SubShape>& subshapes, const string& resName = "StaticCompoundShape") :
+        explicit StaticCompoundShape(const vector<SubShape> &subshapes, const string &resName = "StaticCompoundShape") :
             Shape{resName} {
-            auto* settings = new JPH::StaticCompoundShapeSettings();
-            for(const auto& subshape: subshapes) {
+            auto *settings = new JPH::StaticCompoundShapeSettings();
+            for (const auto &subshape : subshapes) {
                 const auto quat = glm::quat(subshape.rotation);
                 settings->AddShape(JPH::Vec3{subshape.position.x, subshape.position.y, subshape.position.z},
                                    JPH::Quat{quat.x, quat.y, quat.z, quat.w},

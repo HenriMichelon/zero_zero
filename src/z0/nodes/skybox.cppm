@@ -11,7 +11,7 @@ export namespace z0 {
     /**
      * Cubemap based skybox
      */
-    class Skybox: public Node {
+    class Skybox : public Node {
     public:
         /**
          * Creates a Skybox based on 6 images.
@@ -20,8 +20,8 @@ export namespace z0 {
          * @param filename path and filename (without the extension) of the images
          * @param fileext files extension
          */
-        Skybox(const string& filename, const string& fileext):
-            Node{filename}{
+        Skybox(const string &filename, const string &fileext):
+            Node{filename} {
             cubemap = Cubemap::loadFromFile(filename, fileext);
         }
 
@@ -32,11 +32,11 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        explicit Skybox(const string& filename):
-            Node{filename}{
+        explicit Skybox(const string &filename):
+            Node{filename} {
             cubemap = Cubemap::loadFromFile(filename);
         }
-        
+
         /**
          * Creates an empty Skybox 
          * @param filename path of the image
@@ -52,16 +52,16 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        void setCubemapFromFile(const string& filename) {
+        void setCubemapFromFile(const string &filename) {
             cubemap = Cubemap::loadFromFile(filename);
         }
-        
+
         /**
          * Return the associated Cubemap
          */
-        [[nodiscard]] shared_ptr<Cubemap>& getCubemap() { return cubemap; }
+        [[nodiscard]] shared_ptr<Cubemap> &getCubemap() { return cubemap; }
 
-        void setProperty(const string&property, const string& value) override {
+        void setProperty(const string &property, const string &value) override {
             Node::setProperty(property, value);
             if (property == "cubemap_file") {
                 cubemap = Cubemap::loadFromFile(value);

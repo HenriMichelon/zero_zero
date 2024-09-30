@@ -10,14 +10,14 @@ export namespace z0 {
     /**
      * Base class for different kinds of light nodes
      */
-    class Light: public Node {
+    class Light : public Node {
     public:
         ~Light() override = default;
 
         /**
          * Returns the RGB color and the intensity factor
          */
-        [[nodiscard]] const vec4& getColorAndIntensity() const { return colorAndIntensity; }
+        [[nodiscard]] const vec4 &getColorAndIntensity() const { return colorAndIntensity; }
 
         /**
          * Sets the RGB color and the intensity factor
@@ -47,16 +47,20 @@ export namespace z0 {
         void setCastShadow(const bool cast) { castShadows = cast; }
 
     protected:
-        explicit Light(const string& nodeName) : Node{nodeName} {}
+        explicit Light(const string &nodeName) :
+            Node{nodeName} {
+        }
+
         explicit Light(const vec4 color, const float specular, const string nodeName):
-          Node{nodeName},
-          colorAndIntensity{color},
-          specularIntensity{specular}  {}
+            Node{nodeName},
+            colorAndIntensity{color},
+            specularIntensity{specular} {
+        }
 
     private:
-        vec4 colorAndIntensity {1.0f, 1.0f, 1.0f, 1.0f};
-        float specularIntensity {1.0f};
-        bool castShadows {false};
+        vec4  colorAndIntensity{1.0f, 1.0f, 1.0f, 1.0f};
+        float specularIntensity{1.0f};
+        bool  castShadows{false};
     };
 
 }

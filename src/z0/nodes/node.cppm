@@ -506,7 +506,7 @@ export namespace z0 {
 
         mat4 &_getTransformLocal() { return localTransform; }
 
-        void _setTransform(const mat4& transform) { localTransform = transform; }
+        void _setTransform(const mat4 &transform) { localTransform = transform; }
 
         virtual void _updateTransform(const mat4 &parentMatrix) {
             worldTransform = parentMatrix * localTransform;

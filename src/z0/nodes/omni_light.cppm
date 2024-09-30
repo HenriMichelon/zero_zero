@@ -11,12 +11,14 @@ export namespace z0 {
     /**
      * Omnidirectional light, such as a light bulb or a candle
      */
-    class OmniLight: public Light {
+    class OmniLight : public Light {
     public:
         /**
          * Creates an OmniLight with default parameters
          */
-        explicit OmniLight(const string& name = "OmniLight"): Light{name} {};
+        explicit OmniLight(const string &name = "OmniLight"):
+            Light{name} {
+        };
 
         /**
          * Create an OmniLight.
@@ -25,17 +27,18 @@ export namespace z0 {
          * @param attenuation the attenuation factor
          * @param color the RGB color and intensity
          * @param specular intensity of the specular blob in objects affected by the light.
-         * @param name Node name
+         * @param nodeName Node name
          */
-        explicit OmniLight(const float _linear,
-                           const float _quadratic,
-                           const float _attenuation = 1.0f,
-                           const vec4 color = {1.0f, 1.0f, 1.0f, 1.0f},
-                           const float specular = 1.0f,
-                           const string nodeName = "OmniLight"):
+        explicit OmniLight(const float  linear,
+                           const float  quadratic,
+                           const float  attenuation = 1.0f,
+                           const vec4   color        = {1.0f, 1.0f, 1.0f, 1.0f},
+                           const float  specular     = 1.0f,
+                           const string nodeName     = "OmniLight"):
             Light{color, specular, nodeName},
-            attenuation{_attenuation}, linear{_linear}, quadratic{_quadratic}
-        { }
+            attenuation{attenuation}, linear{linear}, quadratic{quadratic} {
+        }
+
         ~OmniLight() override = default;
 
         /**
@@ -56,7 +59,7 @@ export namespace z0 {
         /**
          * Sets the quadratic term
          */
-        void setQuadratic(const float _quadratic) { quadratic = _quadratic;}
+        void setQuadratic(const float _quadratic) { quadratic = _quadratic; }
 
         /**
          * Returns the attenuation factor
@@ -66,7 +69,7 @@ export namespace z0 {
         /**
          * Sets the attenuation factor
          */
-        void setAttenuation(const float _attenuation) { attenuation = _attenuation;}
+        void setAttenuation(const float _attenuation) { attenuation = _attenuation; }
 
     private:
         float attenuation{1.0};

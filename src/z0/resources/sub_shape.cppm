@@ -18,11 +18,11 @@ export namespace z0 {
         /**
          * Local space position
          */
-        vec3              position{0.0f};
+        vec3 position{0.0f};
         /**
          * Local space rotation
          */
-        vec3              rotation{0.0f};
+        vec3 rotation{0.0f};
     };
 
 

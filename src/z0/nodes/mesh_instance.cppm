@@ -12,19 +12,20 @@ namespace z0 {
     /**
      * Node that hold a Mesh.
      */
-    export class MeshInstance: public Node {
+    export class MeshInstance : public Node {
     public:
         /**
          * Creates a MeshInstance with the given Mesh
          */
-        explicit MeshInstance(const shared_ptr<Mesh>& _mesh, const string& name = "MeshInstance"):
-           Node{name},
-           mesh{_mesh}  {}
+        explicit MeshInstance(const shared_ptr<Mesh> &_mesh, const string &name = "MeshInstance"):
+            Node{name},
+            mesh{_mesh} {
+        }
 
         /**
          * Returns the associated Mesh
          */
-        [[nodiscard]] const shared_ptr<Mesh>& getMesh() const { return mesh; }
+        [[nodiscard]] const shared_ptr<Mesh> &getMesh() const { return mesh; }
 
         /**
          * Returns `true` if the Mesh is valid
@@ -44,21 +45,21 @@ namespace z0 {
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
          */
-        void setOutlineMaterial(const shared_ptr<ShaderMaterial>& mat) { outlineMaterial = mat; }
+        void setOutlineMaterial(const shared_ptr<ShaderMaterial> &mat) { outlineMaterial = mat; }
 
         /**
          * Returns the current outlining material
          */
-        [[nodiscard]] shared_ptr<ShaderMaterial>& getOutlineMaterial() { return outlineMaterial; }
+        [[nodiscard]] shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
 
     protected:
-        shared_ptr<Node> duplicateInstance() override  {
-             return make_shared<MeshInstance>(*this);
+        shared_ptr<Node> duplicateInstance() override {
+            return make_shared<MeshInstance>(*this);
         }
 
     private:
-        bool outlined{false};
-        shared_ptr<Mesh> mesh;
+        bool                       outlined{false};
+        shared_ptr<Mesh>           mesh;
         shared_ptr<ShaderMaterial> outlineMaterial;
     };
 

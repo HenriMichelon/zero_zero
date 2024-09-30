@@ -16,7 +16,7 @@ export namespace z0 {
     /**
      * Base class for 3D game objects affected by physics.
      */
-    class PhysicsBody: public CollisionObject {
+    class PhysicsBody : public CollisionObject {
     public:
         ~PhysicsBody() override {
             if (!_getBodyId().IsInvalid()) {
@@ -34,57 +34,60 @@ export namespace z0 {
         }
 
     protected:
-        PhysicsBody(const shared_ptr<Shape>& _shape,
-                    const uint32_t layer,
-                    const uint32_t mask,
-                    const JPH::EActivation _activationMode,
-                    const JPH::EMotionType _motionType,
-                    const string& name):
+        PhysicsBody(const shared_ptr<Shape> &_shape,
+                    const uint32_t           layer,
+                    const uint32_t           mask,
+                    const JPH::EActivation   _activationMode,
+                    const JPH::EMotionType   _motionType,
+                    const string &           name):
             CollisionObject{_shape, layer, mask, name},
             motionType{_motionType} {
             activationMode = _activationMode;
             setShape(shape);
         }
 
-        PhysicsBody(const uint32_t layer,
-                    const uint32_t mask,
+        PhysicsBody(const uint32_t         layer,
+                    const uint32_t         mask,
                     const JPH::EActivation _activationMode,
                     const JPH::EMotionType _motionType,
-                    const string& name):
+                    const string &         name):
             CollisionObject{layer, mask, name},
             motionType{_motionType} {
             activationMode = _activationMode;
         }
 
-        void setShape(const shared_ptr<Shape>& shape) {
-            const auto& position = getPositionGlobal();
-            const auto& quat = normalize(toQuat(mat3(worldTransform)));
+        void setShape(const shared_ptr<Shape> &shape) {
+            const auto &position = getPositionGlobal();
+            const auto &quat     = normalize(toQuat(mat3(worldTransform)));
             shape->setAttachedToNode();
             const JPH::BodyCreationSettings settings{
-                shape->_getShapeSettings(),
-                JPH::RVec3{position.x, position.y, position.z},
-                JPH::Quat{quat.x, quat.y, quat.z, quat.w},
-                motionType,
-                collisionLayer << 4 | collisionMask
+                    shape->_getShapeSettings(),
+                    JPH::RVec3{position.x, position.y, position.z},
+                    JPH::Quat{quat.x, quat.y, quat.z, quat.w},
+                    motionType,
+                    collisionLayer << 4 | collisionMask
             };
             setBodyId(bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate));
         }
 
-        void setProperty(const string&property, const string& value) override {
+        void setProperty(const string &property, const string &value) override {
             CollisionObject::setProperty(property, value);
             if (property == "shape") {
                 // split shape class name from parameters
-                const auto& parts = split(value, ';');
+                const auto &parts = split(value, ';');
                 // we must have at least a class name
                 if (parts.size() > 0) {
                     if (parts[0] == "ConvexHullShape") {
-                        if (parts.size() > 2) die("Missing parameter for ConvexHullShape");
+                        if (parts.size() > 2)
+                            die("Missing parameter for ConvexHullShape");
                         // get the children who provide the mesh for the shape
                         const auto mesh = getChild(parts[1].data());
-                        if (mesh == nullptr) die("Child with path", parts[1].data(), "not found in", toString());
+                        if (mesh == nullptr)
+                            die("Child with path", parts[1].data(), "not found in", toString());
                         setShape(make_shared<ConvexHullShape>(mesh));
                     } else if (parts[0] == "BoxShape") {
-                        if (parts.size() > 2) die("Missing parameter for BoxShape");
+                        if (parts.size() > 2)
+                            die("Missing parameter for BoxShape");
                         setShape(make_shared<BoxShape>(to_vec3(parts[1].data())));
                     }
                 }

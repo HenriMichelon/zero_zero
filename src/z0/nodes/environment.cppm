@@ -19,24 +19,25 @@ export namespace z0 {
          * @param nodeName Node name.
          */
         explicit Environment(
-            const vec4 colorAndIntensity = {1.0f, 1.0f, 1.0f, 1.0f},
-            const string& nodeName = "Environment"):
-            Node{nodeName}, 
-            ambientColorIntensity{colorAndIntensity} {}
+                const vec4    colorAndIntensity = {1.0f, 1.0f, 1.0f, 1.0f},
+                const string &nodeName          = "Environment"):
+            Node{nodeName},
+            ambientColorIntensity{colorAndIntensity} {
+        }
 
         ~Environment() override = default;
 
         /**
          * Returns the ambient RGB color and intensity
          */
-        [[nodiscard]] const vec4& getAmbientColorAndIntensity() const { return ambientColorIntensity; }
+        [[nodiscard]] const vec4 &getAmbientColorAndIntensity() const { return ambientColorIntensity; }
 
         /**
          * Sets the ambient RGB color and intensity
         */
         void setAmbientColorAndIntensity(const vec4 color) { ambientColorIntensity = color; }
 
-        void setProperty(const string&property, const string& value) override{
+        void setProperty(const string &property, const string &value) override {
             Node::setProperty(property, value);
             if (property == "ambient_color") {
                 setAmbientColorAndIntensity(to_vec4(value));

@@ -11,13 +11,15 @@ export namespace z0 {
     /**
      * Base class for textures resources.
      */
-    class Texture: public Resource {
+    class Texture : public Resource {
     public:
         /**
          * Creates a Texture
          * @param name resource name. Only informative.
          */
-        explicit Texture(const string& name): Resource{name} {};
+        explicit Texture(const string &name):
+            Resource{name} {
+        };
 
         /**
          * Returns the width in pixels on the texture
@@ -38,18 +40,20 @@ export namespace z0 {
     /**
      * Image based texture stored in GPU memory
      */
-    class ImageTexture: public Texture {
+    class ImageTexture : public Texture {
     public:
         /**
          * Creates an ImageTexture from an existing Image
          */
-        explicit ImageTexture(const shared_ptr<Image>& img): Texture{img->getName()}, image(img) {};
+        explicit ImageTexture(const shared_ptr<Image> &img):
+            Texture{img->getName()}, image(img) {
+        };
 
         /**
          * Creates an ImageTexture from a image file
          * @param filename : image file name, relative to the application working directory
          */
-        explicit ImageTexture(const string& filename):
+        explicit ImageTexture(const string &filename):
             Texture{filename},
             image{Image::loadFromFile(filename)} {
         }
@@ -57,13 +61,14 @@ export namespace z0 {
         /**
          * Returns the attached Image
          */
-        [[nodiscard]] const shared_ptr<Image>& getImage() const { return image; }
+        [[nodiscard]] const shared_ptr<Image> &getImage() const { return image; }
 
         [[nodiscard]] uint32_t getWidth() const override { return image->getWidth(); };
+
         [[nodiscard]] uint32_t getHeight() const override { return image->getHeight(); };
 
     protected:
-        shared_ptr<Image> image {nullptr};
+        shared_ptr<Image> image{nullptr};
     };
 
 }
