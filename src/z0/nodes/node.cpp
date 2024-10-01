@@ -1,4 +1,5 @@
 module;
+#include <cassert>
 #include "z0/libraries.h"
 
 module Z0;
@@ -8,10 +9,13 @@ import :Application;
 
 namespace z0 {
 
-    bool Node::addChild(const shared_ptr<Node>& child) {
+    bool Node::addChild(const shared_ptr<Node> child) {
         if (haveChild(child, false)) return false;
-        children.push_back(child);
+        if (child->parent != nullptr) {
+            die("remove child from parent first");
+        }
         child->parent = this;
+        children.push_back(child);
         child->_updateTransform(worldTransform);
         if ((inReady || (parent != nullptr)) && isProcessed()) { child->_onReady(); }
         if (addedToScene) { Application::get()._addNode(child); }
@@ -24,6 +28,13 @@ namespace z0 {
         if (node->addedToScene) { Application::get()._removeNode(node); }
         children.remove(node);
         return true;
+    }
+
+    list<shared_ptr<Node>>::const_iterator Node::removeChild(const list<shared_ptr<Node>>::const_iterator& it) {
+        auto& node = *it;
+        node->parent = nullptr;
+        if (node->addedToScene) { Application::get()._removeNode(node); }
+        return children.erase(it);
     }
 
     void Node::removeAllChildren() {

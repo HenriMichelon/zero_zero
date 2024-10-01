@@ -51,7 +51,6 @@ export namespace z0 {
         Node(const Node &orig):
             id{currentId++} {
             name           = orig.name;
-            parent         = orig.parent;
             localTransform = orig.localTransform;
             worldTransform = orig.worldTransform;
             processMode    = orig.processMode;
@@ -300,12 +299,18 @@ export namespace z0 {
          * Adds a child node.
          * Nodes can have any number of children, but a child can have only one parent.
          */
-        bool addChild(const shared_ptr<Node> &child);
+        bool addChild(const shared_ptr<Node> child);
+
+        /**
+         * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
+         * Use the iterator version in a for-each loop
+         */
+        bool removeChild(const shared_ptr<Node> &child);
 
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
          */
-        bool removeChild(const shared_ptr<Node> &child);
+        list<shared_ptr<Node>>::const_iterator removeChild(const list<shared_ptr<Node>>::const_iterator& it);
 
         /**
          * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.
@@ -334,7 +339,7 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Node> getChild(const string &name) const {
             auto it = std::find_if(children.begin(),
                                    children.end(),
-                                   [name](std::shared_ptr<Node> elem) {
+                                   [name] (std::shared_ptr<Node> elem) {
                                        return elem->name == name;
                                    });
             return it == children.end() ? nullptr : *it;
@@ -475,9 +480,14 @@ export namespace z0 {
         inline const list<shared_ptr<Node>> &getChildren() const { return children; }
 
         /**
-         * Return the node type
+         * Returns the node type
          */
         Type getType() const { return type; }
+
+        /**
+         * Returns the node name
+         */
+        const string &getName() const { return name; }
 
     protected:
         Type                   type;

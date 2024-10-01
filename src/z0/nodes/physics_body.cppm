@@ -34,28 +34,28 @@ export namespace z0 {
         }
 
     protected:
-        PhysicsBody(const shared_ptr<Shape> &_shape,
+        PhysicsBody(const shared_ptr<Shape> &shape,
                     const uint32_t           layer,
                     const uint32_t           mask,
-                    const JPH::EActivation   _activationMode,
-                    const JPH::EMotionType   _motionType,
+                    const JPH::EActivation   activationMode,
+                    const JPH::EMotionType   motionType,
                     const string &           name,
                     const Type               type = PHYSICS_BODY):
-            CollisionObject{_shape, layer, mask, name, type},
-            motionType{_motionType} {
-            activationMode = _activationMode;
+            CollisionObject{shape, layer, mask, name, type},
+            motionType{motionType} {
+            this->activationMode = activationMode;
             setShape(shape);
         }
 
         PhysicsBody(const uint32_t         layer,
                     const uint32_t         mask,
-                    const JPH::EActivation _activationMode,
-                    const JPH::EMotionType _motionType,
+                    const JPH::EActivation activationMode,
+                    const JPH::EMotionType motionType,
                     const string &         name,
                     const Type             type = PHYSICS_BODY):
             CollisionObject{layer, mask, name, type},
-            motionType{_motionType} {
-            activationMode = _activationMode;
+            motionType{motionType} {
+            this->activationMode = activationMode;
         }
 
         void setShape(const shared_ptr<Shape> &shape) {

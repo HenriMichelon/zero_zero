@@ -451,6 +451,7 @@ export namespace z0 {
             for (const auto& prop : nodeDesc.properties) {
                 node->setProperty(to_lower(prop.first), prop.second);
             }
+            node->_setParent(nullptr);
             parent->addChild(node);
             if (editorMode) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);

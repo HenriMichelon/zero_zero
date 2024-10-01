@@ -8,6 +8,7 @@ export module Z0:ConvexHullShape;
 
 import :Tools;
 import :Node;
+import :Mesh;
 import :MeshInstance;
 import :Shape;
 
@@ -19,7 +20,8 @@ export namespace z0 {
     class ConvexHullShape : public Shape {
     public:
         /**
-         * Creates a ConvexHullShape using the vertices of the Mesh of first MeshInstance found in the `node` tree
+         * Creates a ConvexHullShape using the vertices of the Mesh of first MeshInstance found in the `node` tree.
+         * Uses the local transform of the node when creating the shape.
          */
         explicit ConvexHullShape(Node*node, const string& resName = "ConvexHullShape"):
             Shape{resName} {
@@ -28,11 +30,20 @@ export namespace z0 {
         }
 
         /**
-         * Creates a ConvexHullShape using the vertices of the Mesh of the first MeshInstance found in the `node` tree
+         * Creates a ConvexHullShape using the vertices of the Mesh of the first MeshInstance found in the `node` tree.
+         * Uses the local transform of the node when creating the shape.
          */
         explicit ConvexHullShape(const shared_ptr<Node>&node, const string& resName = "ConvexHullShape"):
             Shape{resName} {
             tryCreateShape(node.get());
+        }
+
+        /**
+         * Creates a ConvexHullShape using the vertices of the Mesh
+         */
+        explicit ConvexHullShape(const shared_ptr<Mesh>&mesh, const string& resName = "ConvexHullShape"):
+            Shape{resName} {
+            createShape(mesh);
         }
 
     private:
@@ -52,6 +63,14 @@ export namespace z0 {
             for(const auto& vertex : meshInstance->getMesh()->getVertices()) {
                 auto point = transform * vec4{vertex.position, 1.0f};
                 points.push_back(JPH::Vec3{point.x, point.y, point.z});
+            }
+            shapeSettings = new JPH::ConvexHullShapeSettings(points);
+        }
+
+        void createShape(const shared_ptr<Mesh>& mesh) {
+            JPH::Array<JPH::Vec3> points;
+            for(const auto& vertex : mesh->getVertices()) {
+                points.push_back(JPH::Vec3{vertex.position.x, vertex.position.y, vertex.position.z});
             }
             shapeSettings = new JPH::ConvexHullShapeSettings(points);
         }
