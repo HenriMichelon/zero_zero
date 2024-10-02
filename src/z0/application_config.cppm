@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:ApplicationConfig;
+export module z0:ApplicationConfig;
 
 import :Constants;
 

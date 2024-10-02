@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Skybox;
+export module z0:Skybox;
 
 import :Node;
 import :Cubemap;

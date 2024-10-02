@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GScrollBar;
+export module z0:GScrollBar;
 
 import :Constants;
 import :Rect;

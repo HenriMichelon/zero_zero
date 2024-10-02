@@ -5,7 +5,7 @@ module;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <volk.h>
 
-export module Z0:Application;
+export module z0:Application;
 
 import :Object;
 import :ApplicationConfig;

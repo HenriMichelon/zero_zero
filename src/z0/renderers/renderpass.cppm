@@ -2,7 +2,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:Renderpass;
+export module z0:Renderpass;
 
 import :Tools;
 import :Constants;

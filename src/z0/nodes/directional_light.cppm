@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:DirectionalLight;
+export module z0:DirectionalLight;
 
 import :Tools;
 import :Light;

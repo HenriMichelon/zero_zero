@@ -5,7 +5,7 @@ module;
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
-export module Z0:CollisionArea;
+export module z0:CollisionArea;
 
 import :CollisionObject;
 import :Shape;

@@ -1,6 +1,6 @@
 module;
 
-export module Z0:GPanel;
+export module z0:GPanel;
 
 import :GWidget;
 

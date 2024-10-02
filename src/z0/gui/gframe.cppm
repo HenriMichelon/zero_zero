@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GFrame;
+export module z0:GFrame;
 
 import :Color;
 import :GPanel;

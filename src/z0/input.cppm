@@ -5,7 +5,7 @@ module;
 #endif
 #include "z0/libraries.h"
 
-export module Z0:Input;
+export module z0:Input;
 
 import :Constants;
 import :Tools;
@@ -20,27 +20,17 @@ namespace z0 {
         /**
          * Returns true if you are pressing the key
          */
-        [[nodiscard]] static bool isKeyPressed(const Key key) {
-            return _keyPressedStates[key];
-        }
+        [[nodiscard]] static bool isKeyPressed(Key key);
 
         /**
          * Returns true when the user has started pressing the key
          */
-        [[nodiscard]] static bool isKeyJustPressed(const Key key) {
-            const auto result = _keyJustPressedStates[key];
-            _keyJustPressedStates[key] = false;
-            return result;
-        }
+        [[nodiscard]] static bool isKeyJustPressed(Key key);
 
         /**
          * Returns true when the user stops pressing the key
          */
-        [[nodiscard]] static bool isKeyJustReleased(const Key key) {
-            const auto result = _keyJustReleasedStates[key];
-            _keyJustReleasedStates[key] = false;
-            return result;
-        }
+        [[nodiscard]] static bool isKeyJustReleased(Key key);
 
         /**
          * Gets an input vector by specifying four keys for the positive and negative X and Y axes.
@@ -50,27 +40,16 @@ namespace z0 {
         /**
          * Returns true if you are pressing the mouse button
          */
-        [[nodiscard]] static bool isMouseButtonPressed(const MouseButton mouseButton) {
-            return _mouseButtonPressedStates[mouseButton];
-        }
+        [[nodiscard]] static bool isMouseButtonPressed(MouseButton mouseButton);
 
         /**
          * Returns true when the user has started pressing the mouse button
          */
-        [[nodiscard]] static bool isMouseButtonJustPressed(const MouseButton mouseButton) {
-            const auto result = _mouseButtonJustPressedStates[mouseButton];
-            _mouseButtonJustPressedStates[mouseButton] = false;
-            return result;
-        }
-
+        [[nodiscard]] static bool isMouseButtonJustPressed(MouseButton mouseButton);
         /**
          * Returns true when the user stops pressing the mouse button
          */
-        [[nodiscard]] static bool isMouseButtonJustReleased(const MouseButton mouseButton) {
-            const auto result = _mouseButtonJustReleasedStates[mouseButton];
-            _mouseButtonJustReleasedStates[mouseButton] = false;
-            return result;
-        }
+        [[nodiscard]] static bool isMouseButtonJustReleased(MouseButton mouseButton);
 
         /**
          * Sets the mouse visibility and capture mode

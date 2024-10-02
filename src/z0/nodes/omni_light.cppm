@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:OmniLight;
+export module z0:OmniLight;
 
 import :Tools;
 import :Light;

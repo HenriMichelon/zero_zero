@@ -1,6 +1,6 @@
 module;
 
-export module Z0:GLine;
+export module z0:GLine;
 
 import :GWidget;
 

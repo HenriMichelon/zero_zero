@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:MeshInstance;
+export module z0:MeshInstance;
 
 import :Mesh;
 import :Material;

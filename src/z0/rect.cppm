@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Rect;
+export module z0:Rect;
 
 export namespace z0 {
 

@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Tween;
+export module z0:Tween;
 
 import :Tools;
 import :Object;

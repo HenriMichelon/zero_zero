@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GResource;
+export module z0:GResource;
 
 import :Object;
 

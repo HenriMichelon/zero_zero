@@ -4,7 +4,7 @@ module;
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 
-export module Z0:Viewport;
+export module z0:Viewport;
 
 import :Node;
 

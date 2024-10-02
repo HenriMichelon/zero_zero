@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Texture;
+export module z0:Texture;
 
 import :Resource;
 import :Image;

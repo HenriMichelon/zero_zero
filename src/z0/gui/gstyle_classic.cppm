@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GStyleClassic;
+export module z0:GStyleClassic;
 
 import :Rect;
 import :Tools;

@@ -2,7 +2,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:ShadowMapRenderer;
+export module z0:ShadowMapRenderer;
 
 import :Tools;
 import :Renderer;

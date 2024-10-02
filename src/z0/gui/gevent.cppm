@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GEvent;
+export module z0:GEvent;
 
 import :Constants;
 import :Signal;

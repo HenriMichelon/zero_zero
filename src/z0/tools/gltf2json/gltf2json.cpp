@@ -1,6 +1,6 @@
 #include "cxxopts.hpp"
 import std;
-import Z0;
+import z0;
 
 const auto types = std::map<z0::Node::Type, std::string>{
     { z0::Node::NODE, "node"},

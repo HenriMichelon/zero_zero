@@ -1,6 +1,6 @@
 module;
 
-export module Z0:GBox;
+export module z0:GBox;
 
 import :GPanel;
 

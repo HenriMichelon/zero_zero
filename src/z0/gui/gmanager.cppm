@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GManager;
+export module z0:GManager;
 
 import :Constants;
 import :Object;

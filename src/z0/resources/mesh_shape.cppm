@@ -4,7 +4,7 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 
-export module Z0:MeshShape;
+export module z0:MeshShape;
 
 import :Node;
 import :MeshInstance;

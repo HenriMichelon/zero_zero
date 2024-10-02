@@ -2,7 +2,7 @@ module;
 #include "stb_truetype.h"
 #include "z0/libraries.h"
 
-export module Z0:Font;
+export module z0:Font;
 
 import :Tools;
 import :Resource;

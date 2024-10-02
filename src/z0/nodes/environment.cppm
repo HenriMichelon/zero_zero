@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Environment;
+export module z0:Environment;
 
 import :Tools;
 import :Node;

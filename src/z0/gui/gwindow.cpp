@@ -2,7 +2,7 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module Z0;
+module z0;
 
 import :Rect;
 import :Font;
@@ -16,45 +16,46 @@ import :GStyle;
 import :VectorRenderer;
 
 namespace z0 {
-    GWindow::GWindow(Rect r): rect{r} {
+    GWindow::GWindow(Rect r):
+        rect{r} {
     }
 
-    Application& GWindow::app() const {
+    Application &GWindow::app() const {
         return Application::get();
     }
 
     void GWindow::draw() const {
-        if (!isVisible()) return;
+        if (!isVisible())
+            return;
         windowManager->getRenderer().setTranslate({rect.x, rect.y});
         windowManager->getRenderer().setTransparency(1.0f - transparency);
         widget->_draw(windowManager->getRenderer());
     }
 
-    void GWindow::unFreeze(shared_ptr<GWidget>& W) {
-        for (auto& child : W->_getChildren()) {
+    void GWindow::unFreeze(shared_ptr<GWidget> &W) {
+        for (auto &child : W->_getChildren()) {
             unFreeze(child);
         }
         W->setFreezed(false);
     }
 
-    shared_ptr<Font>& GWindow::getDefaultFont() const {
+    shared_ptr<Font> &GWindow::getDefaultFont() const {
         return windowManager->getDefaultFont();
     }
 
-    GWidget& GWindow::setWidget(shared_ptr<GWidget> WIDGET, const string& RES, float PADDING) {
+    GWidget &GWindow::setWidget(shared_ptr<GWidget> WIDGET, const string &RES, float PADDING) {
         assert(windowManager && "GWidow must be added to a window manager before setting the main widget");
         if (layout == nullptr) { setStyle(nullptr); }
         if (WIDGET == nullptr) {
             widget = make_shared<GPanel>();
-        }
-        else {
+        } else {
             widget = std::move(WIDGET);
         }
-        widget->freeze = true;
+        widget->freeze  = true;
         widget->padding = PADDING;
-        widget->window = this;
-        widget->style = layout;
-        widget->font = widget->style->getFont();
+        widget->window  = this;
+        widget->style   = layout;
+        widget->font    = widget->style->getFont();
         widget->style->addResource(*widget, RES);
         widget->setDrawBackground(true);
         widget->eventCreate();
@@ -68,8 +69,7 @@ namespace z0 {
     void GWindow::setStyle(shared_ptr<GStyle> LAYOUT) {
         if (layout == nullptr) {
             layout = GStyle::create();
-        }
-        else {
+        } else {
             layout = std::move(LAYOUT);
         }
         refresh();
@@ -77,7 +77,7 @@ namespace z0 {
 
     void GWindow::setVisible(const bool isVisible) {
         if (visible != isVisible) {
-            visibilityChange = isVisible;
+            visibilityChange  = isVisible;
             visibilityChanged = true;
         }
     }
@@ -185,8 +185,7 @@ namespace z0 {
         if ((focusedWidget != nullptr) &&
             (focusedWidget->mouseMoveOnFocus)) {
             consumed = focusedWidget->eventMouseMove(B, X, Y);
-        }
-        else if (widget) {
+        } else if (widget) {
             consumed = widget->eventMouseMove(B, X, Y);
         }
         if (!consumed) {
@@ -205,18 +204,18 @@ namespace z0 {
         if (windowManager) { windowManager->refresh(); }
     }
 
-    void GWindow::setFocusedWidget(const shared_ptr<GWidget>& W) {
+    void GWindow::setFocusedWidget(const shared_ptr<GWidget> &W) {
         focusedWidget = W.get();
     }
 
-    GWidget& GWindow::getWidget() const {
+    GWidget &GWindow::getWidget() const {
         assert(windowManager && "GWindow must be added to a window manager before use");
         return *widget;
     }
 
-    void GWindow::setRect(const Rect& r) {
-        rect = r;
-        rect.width = std::min(std::max(r.width, minWidth), maxWidth);
+    void GWindow::setRect(const Rect &r) {
+        rect        = r;
+        rect.width  = std::min(std::max(r.width, minWidth), maxWidth);
         rect.height = std::min(std::max(r.height, minHeight), maxHeight);
         eventResize();
     }
@@ -295,12 +294,12 @@ namespace z0 {
     }
 
     void GWindow::setMinimumSize(const float width, const float height) {
-        minWidth = width;
+        minWidth  = width;
         minHeight = height;
     }
 
     void GWindow::setMaximumSize(const float width, const float height) {
-        maxWidth = width;
+        maxWidth  = width;
         maxHeight = height;
     }
 }

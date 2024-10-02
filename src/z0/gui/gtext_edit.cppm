@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GTextEdit;
+export module z0:GTextEdit;
 
 import :Tools;
 import :Constants;

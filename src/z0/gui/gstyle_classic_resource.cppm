@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GStyleClassicResource;
+export module z0:GStyleClassicResource;
 
 import :Tools;
 import :GResource;

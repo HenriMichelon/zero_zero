@@ -2,7 +2,7 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module Z0:StaticBody;
+export module z0:StaticBody;
 
 import :PhysicsBody;
 import :Shape;

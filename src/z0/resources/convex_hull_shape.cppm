@@ -4,7 +4,7 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
-export module Z0:ConvexHullShape;
+export module z0:ConvexHullShape;
 
 import :Tools;
 import :Node;

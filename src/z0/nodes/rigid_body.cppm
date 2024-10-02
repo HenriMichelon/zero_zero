@@ -3,7 +3,7 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module Z0:RigidBody;
+export module z0:RigidBody;
 
 import :PhysicsBody;
 import :Shape;

@@ -1,6 +1,6 @@
 module;
 
-export module Z0:GButton;
+export module z0:GButton;
 
 import :Constants;
 import :GBox;

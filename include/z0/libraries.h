@@ -11,4 +11,3 @@ import glm;
 
 using namespace std;
 using namespace glm;
-

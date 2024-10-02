@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GText;
+export module z0:GText;
 
 import :Color;
 import :Rect;

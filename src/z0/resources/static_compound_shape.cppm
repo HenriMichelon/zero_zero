@@ -3,7 +3,7 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 
-export module Z0:StaticCompoundShape;
+export module z0:StaticCompoundShape;
 
 import :Tools;
 import :Node;

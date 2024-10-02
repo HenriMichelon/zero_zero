@@ -4,7 +4,7 @@ module;
 #include <glm/gtc/matrix_transform.hpp>
 #include <volk.h>
 
-export module Z0:ShadowMapFrameBuffer;
+export module z0:ShadowMapFrameBuffer;
 
 import :Tools;
 import :Constants;

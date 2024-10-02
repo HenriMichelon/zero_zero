@@ -2,7 +2,7 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-export module Z0:Material;
+export module z0:Material;
 
 import :Constants;
 import :Resource;

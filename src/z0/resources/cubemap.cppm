@@ -4,7 +4,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:Cubemap;
+export module z0:Cubemap;
 
 import :Tools;
 import :Resource;

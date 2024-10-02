@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GCheckWidget;
+export module z0:GCheckWidget;
 
 import :Constants;
 import :GWidget;

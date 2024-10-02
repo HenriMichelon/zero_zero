@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:TypeRegistry;
+export module z0:TypeRegistry;
 
 import :Object;
 import :Tools;

@@ -1,4 +1,4 @@
-export module Z0;
+export module z0;
 
 export import :Constants;
 export import :ApplicationConfig;

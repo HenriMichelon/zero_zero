@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GTreeView;
+export module z0:GTreeView;
 
 import :Tools;
 import :Constants;

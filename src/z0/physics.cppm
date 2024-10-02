@@ -3,7 +3,7 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/ContactListener.h>
 
-export module Z0:Physics;
+export module z0:Physics;
 
 import :Signal;
 

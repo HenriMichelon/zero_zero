@@ -1,7 +1,7 @@
 module;
 #include <cassert>
 
-export module Z0:GValueSelect;
+export module z0:GValueSelect;
 
 import :GWidget;
 import :GEvent;

@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-module Z0;
+module z0;
 
 import :GStyle;
 import :GStyleClassic;

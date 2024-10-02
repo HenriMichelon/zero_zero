@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:SimplePostprocessingRenderer;
+export module z0:SimplePostprocessingRenderer;
 
 import :PostprocessingRenderer;
 import :Device;

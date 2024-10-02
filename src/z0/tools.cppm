@@ -5,7 +5,7 @@ module;
 #endif
 #include "z0/libraries.h"
 
-export module Z0:Tools;
+export module z0:Tools;
 
 import :Constants;
 import :Window;
@@ -49,47 +49,25 @@ export namespace z0 {
     /**
     * Returns a random value in the range [0, max]
     */
-    uint32_t randomi(const uint32_t max) {
-        static std::random_device rd;
-        static std::uniform_int_distribution<> distr(0, static_cast<int>(max));
-        std::mt19937 gen(rd());
-        return static_cast<uint32_t>(distr(gen));
-    }
+    uint32_t randomi( uint32_t max);
 
     /**
     * Returns a random value in the range [0.0f, max]
     */
-    float randomf(const float max) {
-        static std::random_device rd;
-        static std::uniform_real_distribution<> distr(0, max);
-        std::mt19937 gen(rd());
-        return static_cast<float>(distr(gen));
-    }
-
+    float randomf( float max);
 
     /**
      * Split a string
      */
-    vector<string_view> split(const string_view str, const char delimiter) {
-        vector<std::string_view> result;
-        size_t start = 0;
-        size_t end = str.find(delimiter);
-        while (end != std::string_view::npos) {
-            result.push_back(str.substr(start, end - start));
-            start = end + 1;
-            end = str.find(delimiter, start);
-        }
-        result.push_back(str.substr(start)); // Add the last token
-        return result;
-    }
+    vector<string_view> split( string_view str,  char delimiter);
 
     /**
      * lerp for a vec2 using std::lerp for componants
     */
     inline vec2 lerp(const vec2 a, const vec2 b, const float t) {
         return vec2{
-            std::lerp(a.x, b.x, t),
-            std::lerp(a.y, b.y, t),
+                std::lerp(a.x, b.x, t),
+                std::lerp(a.y, b.y, t),
         };
     }
 
@@ -98,9 +76,9 @@ export namespace z0 {
     */
     inline vec3 lerp(const vec3 a, const vec3 b, const float t) {
         return vec3{
-            std::lerp(a.x, b.x, t),
-            std::lerp(a.y, b.y, t),
-            std::lerp(a.z, b.z, t),
+                std::lerp(a.x, b.x, t),
+                std::lerp(a.y, b.y, t),
+                std::lerp(a.z, b.z, t),
         };
     }
 
@@ -109,10 +87,10 @@ export namespace z0 {
     */
     inline vec4 lerp(const vec4 a, const vec4 b, const float t) {
         return vec4{
-            std::lerp(a.x, b.x, t),
-            std::lerp(a.y, b.y, t),
-            std::lerp(a.z, b.z, t),
-            std::lerp(a.w, b.w, t),
+                std::lerp(a.x, b.x, t),
+                std::lerp(a.y, b.y, t),
+                std::lerp(a.z, b.z, t),
+                std::lerp(a.w, b.w, t),
         };
     }
 
@@ -123,78 +101,36 @@ export namespace std {
     /**
      * Helper to log a vec3 (std lib code convention)
      */
-    string to_string(const vec3 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
-    }
+    string to_string(vec3 vec);
 
     /**
      * Helper to log a vec2 (std lib code convention)
      */
-    string to_string(const vec2 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "]";
-    }
+    string to_string(vec2 vec);
 
     /**
      * Helper to log a vec4 (std lib code convention)
      */
-    string to_string(const vec4 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
-    }
+    string to_string(vec4 vec);
 
-    string to_lower(const string& str) {
-        auto s = str;
-        // https://en.cppreference.com/w/cpp/string/byte/tolower
-         std::transform(s.begin(), s.end(), s.begin(), 
-                   [](unsigned char c){ return std::tolower(c); }
-                  );
-        return s;
-    }
+    string to_lower(const string &str);
 
     /**
      * Helper to convert a vec3 from a string (std lib code convention)
      */
-    vec3 to_vec3(const string& str) {
-        stringstream ss(str);
-        vec3 result{};
-        if (string token; getline(ss, token, ',')) {
-            result.x = stof(token);
-            if (getline(ss, token, ',')) {
-                result.y = stof(token);
-                if (getline(ss, token, ',')) {
-                    result.z = stof(token);
-                }
-            }
-        }
-        return result;
-    }
-    
+    vec3 to_vec3(const string &str);
+
     /**
      * Helper to convert a vec4 from a string (std lib code convention)
      */
-    vec4 to_vec4(const string& str) {
-        stringstream ss(str);
-        vec4 result{};
-         if (string token; getline(ss, token, ',')) {
-            result.x = stof(token);
-            if (getline(ss, token, ',')) {
-                result.y = stof(token);
-                if (getline(ss, token, ',')) {
-                    result.z = stof(token);
-                    if (getline(ss, token, ',')) {
-                        result.w = stof(token);
-                    }
-                }
-            }
-        }
-        return result;
-    }
+    vec4 to_vec4(const string &str);
 
     /**
      * Custom hash function for vec2 (std lib code convention)
      */
     template <>
     struct hash<vec2> {
-        std::size_t operator()(const vec2& v) const {
+        std::size_t operator()(const vec2 &v) const {
             return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1);
         }
     };
@@ -204,7 +140,7 @@ export namespace std {
      */
     template <>
     struct hash<vec3> {
-        std::size_t operator()(const vec3& v) const {
+        std::size_t operator()(const vec3 &v) const {
             return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1) ^ (std::hash<float>()(v.z) << 2);
         }
     };
@@ -214,17 +150,18 @@ export namespace std {
      */
     template <>
     struct hash<vec4> {
-        std::size_t operator()(const vec4& v) const {
-            return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1) ^ (std::hash<float>()(v.z) << 2) ^ (std::hash<float>()(v.w) << 3);
+        std::size_t operator()(const vec4 &v) const {
+            return std::hash<float>()(v.x) ^ (std::hash<float>()(v.y) << 1) ^ (std::hash<float>()(v.z) << 2) ^ (
+                std::hash<float>()(v.w) << 3);
         }
     };
 
-    inline string wstring_to_string(const std::wstring& wstr) {
+    inline string wstring_to_string(const std::wstring &wstr) {
         wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
         return conv.to_bytes(wstr);
     }
 
-    inline wstring string_to_wstring(const std::string& str) {
+    inline wstring string_to_wstring(const std::string &str) {
         wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
         return conv.from_bytes(str);
     }

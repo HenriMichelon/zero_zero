@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Signal;
+export module z0:Signal;
 
 export namespace z0 {
 
@@ -29,7 +29,7 @@ export namespace z0 {
          * @param object object containing the member function to connect
          * @param handler the member function to call when emit() is called
         */
-        void connect(Object* object, const Handler handler) {
+        inline void connect(Object* object, const Handler handler) {
             handlers.push_back(SignalCallable{object, handler});
         }
 
@@ -38,18 +38,14 @@ export namespace z0 {
          * @param object object containing the member function to connect
          * @param handler the member function to call when emit() is called
         */
-        void disconnect(Object* object, const Handler handler) {
+        inline void disconnect(Object* object, const Handler handler) {
             handlers.remove(SignalCallable{object, handler});
         }
         /**
          * Emits the signal by calling all the connected functions in the connect order
          * @param params parameters to pass to the function connected to the signal
          */
-        void emit(Parameters* params) const {
-            for (const auto& callable : handlers) {
-                (callable.obj->*callable.func)(params);
-            }
-        }
+        void emit(Parameters* params) const;
         
     private:
         struct SignalCallable {

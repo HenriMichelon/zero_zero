@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:SpotLight;
+export module z0:SpotLight;
 
 import :Tools;
 import :Node;

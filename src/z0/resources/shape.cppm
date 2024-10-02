@@ -5,7 +5,7 @@ module;
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
-export module Z0:Shape;
+export module z0:Shape;
 
 import :Tools;
 import :Resource;

@@ -136,7 +136,19 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/application.cpp
+		${Z0_ENGINE_DIR}/buffer.cpp
+		${Z0_ENGINE_DIR}/descriptors.cpp
+		${Z0_ENGINE_DIR}/device.cpp
+		${Z0_ENGINE_DIR}/loader.cpp
+		${Z0_ENGINE_DIR}/object.cpp
+		${Z0_ENGINE_DIR}/shader.cpp
+		${Z0_ENGINE_DIR}/signal.cpp
+		${Z0_ENGINE_DIR}/tools.cpp
+		${Z0_ENGINE_DIR}/nodes/camera.cpp
+		${Z0_ENGINE_DIR}/nodes/character.cpp
+		${Z0_ENGINE_DIR}/nodes/collision_object.cpp
 		${Z0_ENGINE_DIR}/nodes/node.cpp
+		${Z0_ENGINE_DIR}/nodes/physics_body.cpp
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 		${Z0_ENGINE_DIR}/gui/gwidget.cpp

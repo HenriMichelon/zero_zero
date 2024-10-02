@@ -3,7 +3,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:VectorRenderer;
+export module z0:VectorRenderer;
 
 import :Constants;
 import :Tools;

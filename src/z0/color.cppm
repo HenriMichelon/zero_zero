@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Color;
+export module z0:Color;
 
 export namespace z0 {
 

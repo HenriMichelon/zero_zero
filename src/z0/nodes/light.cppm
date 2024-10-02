@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:Light;
+export module z0:Light;
 
 import :Node;
 

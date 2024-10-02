@@ -2,7 +2,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:ModelsRenderer;
+export module z0:ModelsRenderer;
 
 import :Renderer;
 import :Renderpass;

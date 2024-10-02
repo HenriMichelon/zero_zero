@@ -1,7 +1,7 @@
 module;
 #include <volk.h>
 
-export module Z0:DepthFrameBuffer;
+export module z0:DepthFrameBuffer;
 
 import :Device;
 import :FrameBuffer;

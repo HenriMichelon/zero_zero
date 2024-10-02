@@ -10,7 +10,7 @@ module;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <volk.h>
 
-module Z0;
+module z0;
 
 import :Node;
 import :Application;

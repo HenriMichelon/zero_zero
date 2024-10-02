@@ -1,7 +1,7 @@
 module;
 #include <volk.h>
 
-export module Z0:ColorFrameBuffer;
+export module z0:ColorFrameBuffer;
 
 import :Device;
 import :FrameBuffer;

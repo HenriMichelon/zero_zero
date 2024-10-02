@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:GToggleButton;
+export module z0:GToggleButton;
 
 import :Constants;
 import :GEvent;

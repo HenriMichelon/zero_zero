@@ -2,7 +2,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module Z0:PostprocessingRenderer;
+export module z0:PostprocessingRenderer;
 
 import :Tools;
 import :Renderer;

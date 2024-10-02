@@ -1,7 +1,7 @@
 module;
 #include "z0/libraries.h"
 
-export module Z0:InputEvent;
+export module z0:InputEvent;
 
 import :Constants;
 import :Object;
@@ -19,7 +19,7 @@ export namespace z0 {
         [[nodiscard]] inline InputEventType getType() const { return type; }
 
     protected:
-        explicit InputEvent(const InputEventType _type): type{_type} {};
+        explicit InputEvent(const InputEventType _type): type{_type} {}
 
     private:
         InputEventType type;

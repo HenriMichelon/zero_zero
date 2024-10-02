@@ -1,7 +1,7 @@
 module;
 #include <volk.h>
 
-export module Z0:SampledFrameBuffer;
+export module z0:SampledFrameBuffer;
 
 import :Device;
 import :FrameBuffer;
