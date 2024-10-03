@@ -411,24 +411,33 @@ namespace z0 {
             node->_setParent(parent);
             if (nodeDesc.child != nullptr) {
                 // If we have a designated child we mimic the position, rotation and scale of the child
-                // usefull for physics bodies declarations
-                const auto &child = nodeTree[nodeDesc.child->id];
+                auto &child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr)
                     die(log_name, "Child node", nodeDesc.child->id, "not found");
                 node->setPositionGlobal(child->getPositionGlobal());
                 node->setRotation(child->getRotation());
                 node->setScale(child->getScale());
+                if (nodeDesc.child->needDuplicate) {
+                    child = child->duplicate();
+                }
                 child->setPosition(VEC3ZERO);
                 child->setRotation(QUATERNION_IDENTITY);
                 child->setScale(1.0f);
+                if (child->getParent() != nullptr) {
+                    child->getParent()->removeChild(child);
+                };
                 node->addChild(child);
             }
             for (const auto &child : nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
+                    auto& childNode = nodeTree[child.id];
                     if (child.needDuplicate) {
-                        node->addChild(nodeTree[child.id]->duplicate());
+                        node->addChild(childNode->duplicate());
                     } else {
-                        node->addChild(nodeTree[child.id]);
+                        if (childNode->getParent() != nullptr) {
+                            childNode->getParent()->removeChild(childNode);
+                        };
+                        node->addChild(childNode);
                     }
                 } else {
                     addNode(node.get(), nodeTree, sceneTree, child, editorMode);

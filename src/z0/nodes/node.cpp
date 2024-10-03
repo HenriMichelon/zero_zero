@@ -90,7 +90,7 @@ namespace z0 {
     shared_ptr<Node> Node::getChild(const string &name) const {
         auto it = std::find_if(children.begin(),
                                children.end(),
-                               [name] (std::shared_ptr<Node> elem) {
+                               [name](std::shared_ptr<Node> elem) {
                                    return elem->name == name;
                                });
         return it == children.end() ? nullptr : *it;
@@ -227,10 +227,8 @@ namespace z0 {
         _updateTransform(parentMatrix);
     }
 
-
     bool Node::addChild(const shared_ptr<Node> child) {
-        if (haveChild(child, false))
-            return false;
+        if (haveChild(child, false)) { return false; }
         if (child->parent != nullptr) {
             die("remove child from parent first");
         }
@@ -243,8 +241,7 @@ namespace z0 {
     }
 
     bool Node::removeChild(const shared_ptr<Node> &node) {
-        if (!haveChild(node, false))
-            return false;
+        if (!haveChild(node, false)) { return false; }
         node->parent = nullptr;
         if (node->addedToScene) { Application::get()._removeNode(node); }
         children.remove(node);
