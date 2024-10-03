@@ -17,25 +17,13 @@ export namespace z0 {
         SimplePostprocessingRenderer(Device& device,
                                      const string& shaderDirectory,
                                      const string& _shaderName,
-                                     SampledFrameBuffer* inputColorAttachmentHdr):
-            PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{_shaderName} {
-            createOrUpdateResources();
-        }
+                                     SampledFrameBuffer* inputColorAttachmentHdr);
 
-        void update(const uint32_t currentFrame) override {
-            constexpr GobalUniformBufferObject globalUbo{};
-            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
-        }
+        void update( uint32_t currentFrame) override ;
 
-        void loadShaders() override {
-            PostprocessingRenderer::loadShaders();
-            fragShader = createShader(shaderName + ".frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-        }
+        void loadShaders() override;
 
-        void createDescriptorSetLayout() override {
-            globalUniformBufferSize = sizeof(GobalUniformBufferObject);
-            PostprocessingRenderer::createDescriptorSetLayout();
-        }
+        void createDescriptorSetLayout() override;
 
     private:
         struct GobalUniformBufferObject {

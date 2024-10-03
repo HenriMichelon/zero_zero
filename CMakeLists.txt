@@ -96,14 +96,14 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cppm
 
-		${Z0_ENGINE_DIR}/renderers/renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/renderpass.cppm
 		${Z0_ENGINE_DIR}/renderers/models_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/postprocessing_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/renderpass.cppm
 		${Z0_ENGINE_DIR}/renderers/scene_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/vector_renderer.cppm
 
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
@@ -127,7 +127,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gui/gwindow.cppm
 		${Z0_ENGINE_DIR}/gui/gmanager.cppm
 		${Z0_ENGINE_DIR}/gui/rect.cppm
-
 )
 
 # engine library
@@ -182,6 +181,15 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cpp
+
+		${Z0_ENGINE_DIR}/renderers/models_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/renderpass.cpp
+		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
 
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
