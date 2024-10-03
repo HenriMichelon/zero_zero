@@ -38,28 +38,28 @@ namespace z0 {
                        const shared_ptr<ColorFrameBufferHDR> &inputColorAttachmentHdr);
 
         // Draw a 1-fragment width line
-        void drawLine(const vec2 start, const vec2 end);
+        void drawLine(vec2 start, vec2 end);
 
         // Draw a filled rectangle
-        void drawFilledRect(const Rect &rect, const float clip_w, const float clip_h);
+        void drawFilledRect(const Rect &rect, float clip_w, float clip_h);
 
         // Draw a filled rectangle
-        void drawFilledRect(const float              x, const float      y,
-                            const float              w, const float      h,
-                            const float              clip_w, const float clip_h,
+        void drawFilledRect(float                    x, float      y,
+                            float                    w, float      h,
+                            float                    clip_w, float clip_h,
                             const shared_ptr<Image> &texture = nullptr);
 
         // Draw a rectangle filled with a text
         void drawText(const string &    text,
                       shared_ptr<Font> &font,
                       const Rect &      rect,
-                      const float       clip_w,
-                      const float       clip_h);
+                      float             clip_w,
+                      float             clip_h);
 
-        void drawText(const string &text, shared_ptr<Font> &font,
-                      const float   x, const float          y, const float w,
-                      const float   h, const float          clip_w,
-                      const float   clip_h);
+        void drawText(const string &text, const shared_ptr<Font> &font,
+                      float         x, float                      y,
+                      float         w, float                      h,
+                      float         clip_w, float                 clip_h);
 
         // Change the color of the fragment for the next drawing commands
         inline void setPenColor(const Color color) { penColor = color; }

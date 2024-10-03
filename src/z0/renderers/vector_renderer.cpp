@@ -21,7 +21,7 @@ import :Resource;
 import :VectorRenderer;
 
 namespace z0 {
-    void vr_stb_write_func(void *context, void *data, int size) {
+    void vr_stb_write_func(void *context, void *data, const int size) {
         auto *buffer = static_cast<vector<unsigned char> *>(context);
         auto *ptr    = static_cast<unsigned char *>(data);
         buffer->insert(buffer->end(), ptr, ptr + size);
@@ -38,8 +38,8 @@ namespace z0 {
                                    const string &                         shaderDirectory,
                                    const shared_ptr<ColorFrameBufferHDR> &inputColorAttachmentHdr) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
-        internalColorFrameBuffer{false},
-        colorFrameBufferHdr{inputColorAttachmentHdr} {
+        colorFrameBufferHdr{inputColorAttachmentHdr},
+        internalColorFrameBuffer{false} {
         init();
     }
 
@@ -99,7 +99,7 @@ namespace z0 {
         drawText(text, font, rect.x, rect.y, rect.width, rect.height, clip_w, clip_h);
     }
 
-    void VectorRenderer::drawText(const string &text, shared_ptr<Font> &font, const float x, const float y,
+    void VectorRenderer::drawText(const string &text, const shared_ptr<Font> &font, const float x, const float y,
                                   const float   w,
                                   const float   h, const float clip_w,
                                   const float   clip_h) {
@@ -163,7 +163,7 @@ namespace z0 {
         }
     }
 
-    void VectorRenderer::beginRendering(VkCommandBuffer commandBuffer) {
+    void VectorRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -195,7 +195,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void VectorRenderer::endRendering(VkCommandBuffer commandBuffer, const bool isLast) {
+    void VectorRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferHdr->getImage(),
@@ -264,7 +264,7 @@ namespace z0 {
 
         // Create an in-memory default blank image
         if (blankImage == nullptr) {
-            auto data = new unsigned char[1 * 1 * 3];
+            const auto data = new unsigned char[1 * 1 * 3];
             data[0]   = 0;
             data[1]   = 0;
             data[2]   = 0;
@@ -274,7 +274,7 @@ namespace z0 {
         }
     }
 
-    void VectorRenderer::recordCommands(VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void VectorRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         if (vertices.empty())
             return;
 
@@ -287,7 +287,7 @@ namespace z0 {
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
 
         vkCmdSetLineWidth(commandBuffer, 1);
-        // Some GPU don't support other values but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+        // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
         vkCmdSetVertexInputEXT(commandBuffer,
                                1,
                                &bindingDescription,
@@ -336,8 +336,8 @@ namespace z0 {
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto commandBufferInfo = commandUniformBuffers[i]->descriptorInfo(commandUniformBufferSize);
             auto writer            = DescriptorWriter(*setLayout, *descriptorPool)
-                                     .writeBuffer(0, &commandBufferInfo)
-                                     .writeImage(1, imagesInfo.data());
+                          .writeBuffer(0, &commandBufferInfo)
+                          .writeImage(1, imagesInfo.data());
             if (create) {
                 if (!writer.build(descriptorSet[i]))
                     die("Cannot allocate descriptor set");

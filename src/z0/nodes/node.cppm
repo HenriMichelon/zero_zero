@@ -42,7 +42,7 @@ export namespace z0 {
         };
 
         /**
-         * Creates a node by copying the transforms, process mode, parent and name
+         * Creates a node by copying the transforms, process mode, type and name
          */
         Node(const Node &orig);
 
@@ -258,9 +258,9 @@ export namespace z0 {
         /**
          * Recursively prints the node tree in the log system
          */
-        void printTree(const int tab = 0) const;
+        void printTree(int tab = 0) const;
 
-        [[nodiscard]] string toString() const override { return name; }
+        [[nodiscard]] inline string toString() const override { return name; }
 
         /**
          * Returns the unique ID of this node
@@ -279,7 +279,7 @@ export namespace z0 {
          * Does not work with nodes loaded from a scene file since they are cast to Node.
          */
         template <typename T>
-        [[nodiscard]] T *findFirstChild(bool recursive = true) const {
+        [[nodiscard]] T *findFirstChild(const bool recursive = true) const {
             for (auto &node : children) {
                 if (auto *pnode = dynamic_cast<T *>(node.get())) {
                     return pnode;
@@ -332,12 +332,12 @@ export namespace z0 {
         /**
          * Returns the node type
          */
-        Type getType() const { return type; }
+        inline Type getType() const { return type; }
 
         /**
          * Returns the node name
          */
-        const string &getName() const { return name; }
+        inline const string &getName() const { return name; }
 
     protected:
         Type                   type;
@@ -347,9 +347,7 @@ export namespace z0 {
         mat4                   localTransform{};
         mat4                   worldTransform{};
 
-        virtual shared_ptr<Node> duplicateInstance() {
-            return make_shared<Node>(*this);
-        }
+        virtual shared_ptr<Node> duplicateInstance();
 
         Application &app() const;
 
@@ -362,16 +360,12 @@ export namespace z0 {
         list<shared_ptr<Tween>> tweens;
 
     public:
-        virtual void _onReady() {
-            inReady = true;
-            onReady();
-            inReady = false;
+        virtual void _onReady();
+
+        inline virtual void _onPause() {
         }
 
-        virtual void _onPause() {
-        }
-
-        virtual void _onResume() {
+        inline virtual void _onResume() {
         }
 
         inline virtual void _onEnterScene() { onEnterScene(); }
@@ -380,15 +374,15 @@ export namespace z0 {
 
         virtual void _physicsUpdate(float delta);
 
-        void _setParent(Node *p) { parent = p; }
+        inline void _setParent(Node *p) { parent = p; }
 
-        void _setAddedToScene(const bool added) { addedToScene = added; }
+        inline void _setAddedToScene(const bool added) { addedToScene = added; }
 
-        bool _isAddedToScene() const { return addedToScene; }
+        inline bool _isAddedToScene() const { return addedToScene; }
 
-        mat4 &_getTransformLocal() { return localTransform; }
+        inline mat4 &_getTransformLocal() { return localTransform; }
 
-        void _setTransform(const mat4 &transform) { localTransform = transform; }
+        inline void _setTransform(const mat4 &transform) { localTransform = transform; }
 
         virtual void _updateTransform(const mat4 &parentMatrix);
 
@@ -397,7 +391,5 @@ export namespace z0 {
         inline list<shared_ptr<Node>> &_getChildren() { return children; }
 
     };
-
-    Node::id_t Node::currentId = 0;
 
 }

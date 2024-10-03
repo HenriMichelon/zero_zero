@@ -63,7 +63,6 @@ layout(set = 0, binding = 6) uniform PointLightArray {
     PointLight lights[1];
 } pointLights;
 
-
 struct VertexOut {
     vec2 UV;
     vec3 NORMAL;

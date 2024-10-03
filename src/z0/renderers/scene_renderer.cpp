@@ -33,13 +33,13 @@ import :SceneRenderer;
 
 namespace z0 {
 
-    void sc_stb_write_func(void *context, void *data, int size) {
+    void sc_stb_write_func(void *context, void *data, const int size) {
         auto *buffer = static_cast<vector<unsigned char> *>(context);
         auto *ptr    = static_cast<unsigned char *>(data);
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
 
-    SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, vec3 clearColor) :
+    SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
         ModelsRenderer{device, shaderDirectory, clearColor}, colorFrameBufferMultisampled{device, true} {
         createImagesResources();
         OutlineMaterials::_initialize();
@@ -123,8 +123,7 @@ namespace z0 {
                 directionalLight     = nullptr;
                 const auto &renderer = findShadowMapRenderer(light);
                 device.unRegisterRenderer(renderer);
-                shadowMapRenderers.erase(remove(shadowMapRenderers.begin(), shadowMapRenderers.end(), renderer),
-                                         shadowMapRenderers.end());
+                erase(shadowMapRenderers, renderer);
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             erase(omniLights, omniLight);
@@ -183,7 +182,7 @@ namespace z0 {
 
     void SceneRenderer::addedModel(MeshInstance *meshInstance) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-            if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
+            if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                 loadShadersMaterials(shaderMaterial);
             }
         }
@@ -218,7 +217,7 @@ namespace z0 {
             }
         }
 
-        auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
+        const auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
         if (it != opaquesModels.end()) {
             opaquesModels.erase(it);
             modelsIndices.erase(meshInstance->getId());
@@ -344,7 +343,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::recordCommands(VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         if (currentCamera == nullptr)
             return;
         setInitialState(commandBuffer);
@@ -565,7 +564,7 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         // Color attachment : where the rendering is done (multi sampled memory image)
-        // Resolved into a non multi sampled image
+        // Resolved into a non-multi sampled image
         const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView          = colorFrameBufferMultisampled.getImageView(),
@@ -599,7 +598,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void SceneRenderer::endRendering(VkCommandBuffer commandBuffer, const bool isLast) {
+    void SceneRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferHdr->getImage(),
@@ -647,7 +646,8 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::drawModels(VkCommandBuffer commandBuffer, const uint32_t currentFrame,
+    void SceneRenderer::drawModels(const VkCommandBuffer       commandBuffer,
+                                   const uint32_t currentFrame,
                                    const list<MeshInstance *> &modelsToDraw) {
         bool shadersChanged{false};
         for (const auto &meshInstance : modelsToDraw) {
@@ -659,16 +659,16 @@ namespace z0 {
                         const auto        &material      = meshInstance->getOutlineMaterial();
                         const auto        &materialIndex = materialsIndices[material->getId()];
                         array<uint32_t, 5> offsets2      = {
-                                0,
                                 // globalBuffers
+                                0,
                                 static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
                                                       modelIndex),
                                 static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
                                                       materialIndex),
-                                0,
                                 // shadowMapsBuffers
                                 0,
                                 // pointLightBuffers
+                                0,
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
                         vkCmdBindShadersEXT(commandBuffer,
@@ -690,7 +690,7 @@ namespace z0 {
                                              : surface->material->getCullMode() == CULLMODE_BACK
                                              ? VK_CULL_MODE_BACK_BIT
                                              : VK_CULL_MODE_FRONT_BIT);
-                    if (auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
+                    if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
                             Shader *material = materialShaders[shaderMaterial->getFragFileName()].get();
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());

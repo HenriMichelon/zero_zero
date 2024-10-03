@@ -28,27 +28,27 @@ namespace z0 {
         descriptorPool.reset();
     }
 
-    Renderpass::Renderpass(Device &dev, string shaderDir, vec3 clearColor) :
+    Renderpass::Renderpass(Device &dev, string shaderDir, const vec3 clearColor) :
         device{dev},
         vkDevice{dev.getDevice()},
         shaderDirectory(std::move(shaderDir)) {
         this->clearColor = {{{
-            clearColor.r / 256.0f,
-            clearColor.g / 256.0f,
-            clearColor.b / 256.0f,
-            1.0f}}};
+                clearColor.r / 256.0f,
+                clearColor.g / 256.0f,
+                clearColor.b / 256.0f,
+                1.0f}}};
     }
 
-    Renderpass::Renderpass(Device &dev, string shaderDir, VkClearValue clearColor) :
-    device{dev},
-    vkDevice{dev.getDevice()},
-    shaderDirectory(std::move(shaderDir)),
-    clearColor{clearColor} {
+    Renderpass::Renderpass(Device &dev, string shaderDir, const VkClearValue clearColor) :
+        device{dev},
+        vkDevice{dev.getDevice()},
+        shaderDirectory(std::move(shaderDir)),
+        clearColor{clearColor} {
     }
 
-    void Renderpass::setViewport(VkCommandBuffer commandBuffer,
-                                 const uint32_t  width,
-                                 const uint32_t  height) {
+    void Renderpass::setViewport(const VkCommandBuffer commandBuffer,
+                                 const uint32_t        width,
+                                 const uint32_t        height) {
         const VkExtent2D extent = {width, height};
         const VkViewport viewport{
                 .x = 0.0f,
@@ -110,10 +110,10 @@ namespace z0 {
         }
     }
 
-    void Renderpass::bindDescriptorSets(VkCommandBuffer commandBuffer,
-                                        const uint32_t  currentFrame,
-                                        const uint32_t  count,
-                                        const uint32_t *offsets) const {
+    void Renderpass::bindDescriptorSets(const VkCommandBuffer commandBuffer,
+                                        const uint32_t        currentFrame,
+                                        const uint32_t        count,
+                                        const uint32_t *      offsets) const {
         vkCmdBindDescriptorSets(commandBuffer,
                                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 pipelineLayout,
@@ -124,7 +124,7 @@ namespace z0 {
                                 offsets);
     }
 
-    void Renderpass::bindShaders(VkCommandBuffer commandBuffer) const {
+    void Renderpass::bindShaders(const VkCommandBuffer commandBuffer) const {
         if (vertShader != nullptr) {
             vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
         } else {

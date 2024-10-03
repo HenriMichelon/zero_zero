@@ -11,6 +11,8 @@ import :Application;
 
 namespace z0 {
 
+    Node::id_t Node::currentId = 0;
+
     Node::Node(const Node &orig):
         id{currentId++} {
         name           = orig.name;
@@ -272,6 +274,16 @@ namespace z0 {
                 (!paused && (mode == PROCESS_MODE_PAUSABLE)) ||
                 (paused && (mode == PROCESS_MODE_WHEN_PAUSED)) ||
                 (mode == PROCESS_MODE_ALWAYS);
+    }
+
+    shared_ptr<Node> Node::duplicateInstance() {
+        return make_shared<Node>(*this);
+    }
+
+    void Node::_onReady() {
+        inReady = true;
+        onReady();
+        inReady = false;
     }
 
     Application &Node::app() const {
