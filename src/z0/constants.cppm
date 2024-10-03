@@ -19,7 +19,7 @@ export namespace z0 {
     /**
      * Default background color for the display window
      */
-    constexpr int WINDOW_CLEAR_COLOR[]{0, 0, 0};
+    constexpr vec3 WINDOW_CLEAR_COLOR{0, 0, 0};
 
     /**
      * X Axis

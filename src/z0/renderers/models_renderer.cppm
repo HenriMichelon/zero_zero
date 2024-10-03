@@ -51,7 +51,7 @@ export namespace z0 {
         // Current viewport to reset the viewport size if removed from the scene tree
         Viewport *currentViewport{nullptr};
 
-        ModelsRenderer(Device &device, const string &shaderDirectory);
+        ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
 
         // A model is currently been added to the scene, called before updating the descriptor set
         virtual void addingModel(MeshInstance *meshInstance, uint32_t modelIndex) {

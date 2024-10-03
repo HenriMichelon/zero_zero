@@ -1,6 +1,6 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 module z0;
 
@@ -15,10 +15,9 @@ import :PostprocessingRenderer;
 
 namespace z0 {
 
-    PostprocessingRenderer::PostprocessingRenderer(Device &            device,
-                                                   const string &      shaderDirectory,
-                                                   SampledFrameBuffer *inputColorAttachmentHdr):
-        Renderpass{device, shaderDirectory}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
+    PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
+                                                   SampledFrameBuffer *inputColorAttachmentHdr) :
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
         createImagesResources();
     }
 
@@ -42,8 +41,8 @@ namespace z0 {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto imageInfo        = inputColorAttachmentHdr->imageInfo();
             auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                    .writeBuffer(0, &globalBufferInfo)
-                                    .writeImage(1, &imageInfo);
+                                  .writeBuffer(0, &globalBufferInfo)
+                                  .writeImage(1, &imageInfo);
             if (create) {
                 if (!writer.build(descriptorSet[i])) {
                     die("Cannot allocate descriptor set for BasePostprocessingRenderer");
@@ -56,19 +55,14 @@ namespace z0 {
 
     void PostprocessingRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
-                         .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
-                         .build();
+                                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                                 .build();
         setLayout = DescriptorSetLayout::Builder(device)
-                    .addBinding(0,
-                                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                VK_SHADER_STAGE_FRAGMENT_BIT)
-                    .addBinding(1,
-                                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                VK_SHADER_STAGE_FRAGMENT_BIT,
-                                1)
-                    .build();
+                            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .build();
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
     }
 
@@ -87,9 +81,7 @@ namespace z0 {
         colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device);
     }
 
-    void PostprocessingRenderer::cleanupImagesResources() {
-        colorAttachmentHdr->cleanupImagesResources();
-    }
+    void PostprocessingRenderer::cleanupImagesResources() { colorAttachmentHdr->cleanupImagesResources(); }
 
     void PostprocessingRenderer::recreateImagesResources() {
         colorAttachmentHdr->cleanupImagesResources();
@@ -106,24 +98,20 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        const VkRenderingAttachmentInfo colorAttachmentInfo{
-                .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView = colorAttachmentHdr->getImageView(),
-                .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                .clearValue = clearColor
-        };
-        const VkRenderingInfo renderingInfo{
-                .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                .pNext = nullptr,
-                .renderArea = {{0, 0}, device.getSwapChainExtent()},
-                .layerCount = 1,
-                .colorAttachmentCount = 1,
-                .pColorAttachments = &colorAttachmentInfo,
-                .pDepthAttachment = nullptr,
-                .pStencilAttachment = nullptr
-        };
+        const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+                                                            .imageView   = colorAttachmentHdr->getImageView(),
+                                                            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                            .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                                                            .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
+                                                            .clearValue  = clearColor};
+        const VkRenderingInfo           renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                                      .pNext                = nullptr,
+                                                      .renderArea           = {{0, 0}, device.getSwapChainExtent()},
+                                                      .layerCount           = 1,
+                                                      .colorAttachmentCount = 1,
+                                                      .pColorAttachments    = &colorAttachmentInfo,
+                                                      .pDepthAttachment     = nullptr,
+                                                      .pStencilAttachment   = nullptr};
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
@@ -132,16 +120,13 @@ namespace z0 {
         device.transitionImageLayout(commandBuffer,
                                      colorAttachmentHdr->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
-                                     isLast
-                                     ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
-                                     : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                     isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+                                            : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                      0,
                                      isLast ? VK_ACCESS_TRANSFER_READ_BIT : VK_ACCESS_SHADER_READ_BIT,
                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                     isLast
-                                     ? VK_PIPELINE_STAGE_TRANSFER_BIT
-                                     : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                     isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
-}
+} // namespace z0

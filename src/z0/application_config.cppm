@@ -34,5 +34,7 @@ export namespace z0 {
         float            gamma           = 1.0f;
         //! Exposure correction value for the tone mapping renderer
         float            exposure        = 1.0f;
+        //! Window clear color
+        vec3             clearColor       = WINDOW_CLEAR_COLOR;
     };
 }

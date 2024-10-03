@@ -231,7 +231,7 @@ namespace z0 {
         Window::Window(const ApplicationConfig& applicationConfig):
             width{0},
             height{0},
-            background{CreateSolidBrush(RGB(z0::WINDOW_CLEAR_COLOR[0], z0::WINDOW_CLEAR_COLOR[1], z0::WINDOW_CLEAR_COLOR[2]))} {
+            background{CreateSolidBrush(RGB(applicationConfig.clearColor.r, applicationConfig.clearColor.g, applicationConfig.clearColor.b))} {
             auto hInstance = GetModuleHandle(nullptr);
     #ifndef DISABLE_LOG
             _mainThreadId = GetCurrentThreadId();

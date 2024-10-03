@@ -1,6 +1,6 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 export module z0:Renderpass;
 
@@ -24,7 +24,7 @@ export namespace z0 {
         [[nodiscard]] inline const Device &getDevice() const { return device; }
 
     protected:
-        Device &                        device;
+        Device                         &device;
         VkDevice                        vkDevice;
         string                          shaderDirectory; // SPIR-V Compiled shaders directory
         VkPipelineLayout                pipelineLayout{VK_NULL_HANDLE};
@@ -36,46 +36,33 @@ export namespace z0 {
         VkDeviceSize                    globalUniformBufferSize{0};
         vector<unique_ptr<Buffer>>      globalUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         bool                            descriptorSetNeedUpdate{false};
+        VkClearValue                    clearColor;
 
-        const VkClearValue clearColor{{{
-                static_cast<float>(WINDOW_CLEAR_COLOR[0]) / 256.0f,
-                static_cast<float>(WINDOW_CLEAR_COLOR[1]) / 256.0f,
-                static_cast<float>(WINDOW_CLEAR_COLOR[2]) / 256.0f,
-                1.0f}}};
         const VkClearValue depthClearValue{.depthStencil = {1.0f, 0}};
 
-        Renderpass(Device &dev, string shaderDir);
+        Renderpass(Device &dev, string shaderDir, vec3 clearColor);
+        Renderpass(Device &dev, string shaderDir, VkClearValue clearColor);
 
         // Helpers function for children classes
-        static void setViewport(VkCommandBuffer commandBuffer,
-                                uint32_t        width,
-                                uint32_t        height);
+        static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
 
-        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers,
-                                       uint32_t                          currentFrame,
-                                       const void *                      data,
-                                       uint32_t                          index);
+        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
+                                       const void *data, uint32_t index);
 
-        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers,
-                                       uint32_t                          currentFrame,
-                                       const void *                      data);
+        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
+                                       const void *data);
 
         void createOrUpdateResources();
 
-        void createUniformBuffers(vector<unique_ptr<Buffer>> &buffers,
-                                  VkDeviceSize                size,
-                                  uint32_t                    count = 1) const;
+        void createUniformBuffers(vector<unique_ptr<Buffer>> &buffers, VkDeviceSize size, uint32_t count = 1) const;
 
-        void bindDescriptorSets(VkCommandBuffer commandBuffer,
-                                uint32_t        currentFrame,
-                                uint32_t        count   = 0,
+        void bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count = 0,
                                 const uint32_t *offsets = nullptr) const;
 
         void bindShaders(VkCommandBuffer commandBuffer) const;
 
-        unique_ptr<Shader> createShader(const string &        filename,
-                                        VkShaderStageFlagBits stage,
-                                        VkShaderStageFlags    next_stage);
+        unique_ptr<Shader> createShader(const string &filename, VkShaderStageFlagBits stage,
+                                        VkShaderStageFlags next_stage);
 
         virtual void loadShaders() = 0;
 
@@ -83,8 +70,7 @@ export namespace z0 {
 
         virtual void createDescriptorSetLayout() = 0;
 
-        virtual void createOrUpdateDescriptorSet(bool create) {
-        }
+        virtual void createOrUpdateDescriptorSet(bool create) {}
 
         virtual void createPipelineLayout();
 
@@ -99,4 +85,4 @@ export namespace z0 {
         Renderpass &operator=(const Renderpass &) = delete;
     };
 
-}
+} // namespace z0

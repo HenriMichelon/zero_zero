@@ -27,10 +27,9 @@ namespace z0 {
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
 
-
     VectorRenderer::VectorRenderer(Device &      device,
                                    const string &shaderDirectory) :
-        Renderpass{device, shaderDirectory},
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{true} {
         init();
     }
@@ -38,7 +37,7 @@ namespace z0 {
     VectorRenderer::VectorRenderer(Device &                               device,
                                    const string &                         shaderDirectory,
                                    const shared_ptr<ColorFrameBufferHDR> &inputColorAttachmentHdr) :
-        Renderpass{device, shaderDirectory},
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false},
         colorFrameBufferHdr{inputColorAttachmentHdr} {
         init();

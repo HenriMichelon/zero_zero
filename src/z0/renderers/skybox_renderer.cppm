@@ -16,13 +16,13 @@ export namespace z0 {
 
     class SkyboxRenderer : public Renderpass {
     public:
-        SkyboxRenderer(Device &device, const string &shaderDirectory);
+        SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor);
 
         void loadScene(const shared_ptr<Cubemap> &_cubemap);
 
         void cleanup() override;
 
-        void update(Camera *currentCamera, const Environment *currentEnvironment, const uint32_t currentFrame);
+        void update(Camera *currentCamera, const Environment *currentEnvironment, uint32_t currentFrame);
 
         void loadShaders() override;
 

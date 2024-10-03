@@ -78,8 +78,8 @@ import :ModelsRenderer;
         Renderpass::cleanup();
     }
 
-    ModelsRenderer::ModelsRenderer(Device &device, const string &shaderDirectory):
-        Renderpass(device, shaderDirectory) {
+    ModelsRenderer::ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor):
+        Renderpass(device, shaderDirectory, clearColor) {
     }
 
     // Set the initial states of the dynamic rendering

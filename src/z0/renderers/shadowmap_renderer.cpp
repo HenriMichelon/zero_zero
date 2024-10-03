@@ -20,7 +20,7 @@ namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &   device, const string &shaderDirectory, Light *light,
                                          const vec3 position):
-        Renderpass{device, shaderDirectory},
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         shadowMap{make_shared<ShadowMapFrameBuffer>(device, light, position)} {
     }
 

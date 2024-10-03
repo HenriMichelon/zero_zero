@@ -16,8 +16,8 @@ import :SkyboxRenderer;
 
 namespace z0 {
 
-    SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory):
-        Renderpass{device, shaderDirectory} {
+    SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor):
+        Renderpass{device, shaderDirectory, clearColor} {
         static constexpr float skyboxVertices[] = {
                 // positions
             -1.0f, 1.0f, -1.0f,
