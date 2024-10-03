@@ -13,7 +13,7 @@ export namespace z0 {
      */
     class SampledFrameBuffer: public FrameBuffer {
     public:
-        [[nodiscard]] VkDescriptorImageInfo imageInfo() const {
+        [[nodiscard]] inline VkDescriptorImageInfo imageInfo() const {
             return VkDescriptorImageInfo {
                 .sampler = sampler,
                 .imageView = imageView,
@@ -24,7 +24,7 @@ export namespace z0 {
     protected:
         VkSampler sampler{VK_NULL_HANDLE};
 
-        explicit SampledFrameBuffer(const Device &dev): FrameBuffer{dev} {};
+        explicit SampledFrameBuffer(const Device &dev): FrameBuffer{dev} {}
     };
 
 }

@@ -24,7 +24,7 @@ export namespace z0 {
          * Sets the CullMode.
          * Determines which side of the triangle to cull depending on whether the triangle faces towards or away from the camera.
          */
-        void setCullMode(const CullMode mode) { cullMode = mode; }
+        inline void setCullMode(const CullMode mode) { cullMode = mode; }
 
         /**
          * Returns the transparency mode
@@ -34,7 +34,7 @@ export namespace z0 {
         /**
          * Sets the transparency mode
          */
-        void setTransparency(const Transparency transparencyMode) { transparency = transparencyMode; }
+        inline void setTransparency(const Transparency transparencyMode) { transparency = transparencyMode; }
 
         /**
          * Returns the alpha scissor threshold value
@@ -48,12 +48,10 @@ export namespace z0 {
          * If the material becomes too opaque at a distance, try increasing this value.
          * If the material disappears at a distance, try decreasing this value.
          */
-        void setAlphaScissor(const float scissor) { alphaScissor = scissor; }
+        inline void setAlphaScissor(const float scissor) { alphaScissor = scissor; }
 
     protected:
-        explicit Material(const string &name):
-            Resource(name) {
-        }
+        explicit Material(const string &name);
 
     private:
         CullMode     cullMode{CULLMODE_BACK};
@@ -77,9 +75,7 @@ export namespace z0 {
         /**
          * Creates a StandardMaterial with default parameters
          */
-        explicit StandardMaterial(const string &name = "StandardMaterial"):
-            Material(name) {
-        }
+        explicit StandardMaterial(const string &name = "StandardMaterial");
 
         /**
          * Returns the material's base color.
@@ -89,7 +85,7 @@ export namespace z0 {
         /**
          * Sets the material's base color.
          */
-        void setAlbedoColor(const Color &color) { albedoColor = color; }
+        inline void setAlbedoColor(const Color &color) { albedoColor = color; }
 
         /**
          * Returns the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
@@ -99,7 +95,7 @@ export namespace z0 {
         /**
          * Sets the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        void setAlbedoTexture(const shared_ptr<ImageTexture> &texture) { albedoTexture = texture; }
+        inline void setAlbedoTexture(const shared_ptr<ImageTexture> &texture) { albedoTexture = texture; }
 
         /**
          * Return the specular texture
@@ -109,7 +105,7 @@ export namespace z0 {
         /**
          * Sets the specular texture
          */
-        void setSpecularTexture(const shared_ptr<ImageTexture> &texture) { specularTexture = texture; }
+        inline void setSpecularTexture(const shared_ptr<ImageTexture> &texture) { specularTexture = texture; }
 
         /**
          * Return the normal texture
@@ -119,7 +115,7 @@ export namespace z0 {
         /**
          * Sets the normal texture
          */
-        void setNormalTexture(const shared_ptr<ImageTexture> &texture) { normalTexture = texture; }
+        inline void setNormalTexture(const shared_ptr<ImageTexture> &texture) { normalTexture = texture; }
 
         /**
          * Returns the texture's UV transform.
@@ -131,7 +127,7 @@ export namespace z0 {
         /**
          * Sets the texture's UV transform.
          */
-        void setTextureTransform(const TextureTransform transform) {
+        inline void setTextureTransform(const TextureTransform transform) {
             textureTransform = make_shared<TextureTransform>(transform);
         }
 
@@ -156,14 +152,7 @@ export namespace z0 {
         /**
          * Creates a ShaderMaterial by copy
          */
-        explicit ShaderMaterial(const shared_ptr<ShaderMaterial> &orig):
-            Material{orig->name},
-            fragFileName{orig->fragFileName},
-            vertFileName{orig->vertFileName} {
-            for (int i = 0; i < MAX_PARAMETERS; i++) {
-                parameters[i] = orig->parameters[i];
-            }
-        }
+        explicit ShaderMaterial(const shared_ptr<ShaderMaterial> &orig);
 
         /**
          * Creates a ShaderMaterial
@@ -173,33 +162,29 @@ export namespace z0 {
          */
         explicit ShaderMaterial(string        fragShaderFileName,
                                 string        vertShaderFileName = "",
-                                const string &name               = "ShaderMaterial"):
-            Material{name},
-            fragFileName{std::move(fragShaderFileName)},
-            vertFileName{std::move(vertShaderFileName)} {
-        }
+                                const string &name               = "ShaderMaterial");
 
         /**
          * Returns the fragment shader file path, relative to the application directory
          */
-        [[nodiscard]] const string &getFragFileName() const { return fragFileName; }
+        [[nodiscard]] inline const string &getFragFileName() const { return fragFileName; }
 
         /**
          * Returns the vertex shader file path, relative to the application directory
          */
-        [[nodiscard]] const string &getVertFileName() const { return vertFileName; }
+        [[nodiscard]] inline const string &getVertFileName() const { return vertFileName; }
 
         /**
          * Sets a parameter value
          */
-        void setParameter(const int index, const vec4 value) {
+        inline void setParameter(const int index, const vec4 value) {
             parameters[index] = value;
         }
 
         /**
          * Returns a parameter value
          */
-        [[nodiscard]] vec4 getParameter(const int index) const {
+        [[nodiscard]] inline vec4 getParameter(const int index) const {
             return parameters[index];
         }
 
@@ -217,17 +202,12 @@ export namespace z0 {
         /**
          * Returns a given outline material
          */
-        static shared_ptr<ShaderMaterial> &get(const int index) {
-            assert(index < materials.size());
-            return materials[index];
-        }
+        static shared_ptr<ShaderMaterial> &get(int index);
 
         /**
          * Adds an outline material.
          */
-        static void add(const shared_ptr<ShaderMaterial> &material) {
-            materials.push_back(material);
-        }
+        static void add(const shared_ptr<ShaderMaterial> &material);
 
     private:
         static vector<shared_ptr<ShaderMaterial>> materials;
@@ -237,14 +217,7 @@ export namespace z0 {
             return materials;
         }
 
-        static void _initialize() {
-            const auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag", "outline.vert");
-            outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});
-            outlineMaterial->setParameter(1, vec4{0.01f});
-            add(outlineMaterial);
-        }
+        static void _initialize();
     };
-
-    vector<shared_ptr<ShaderMaterial>> OutlineMaterials::materials;
 
 }

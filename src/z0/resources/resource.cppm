@@ -15,30 +15,24 @@ export namespace z0 {
     public:
         using id_t = unsigned int;
 
-        explicit Resource(string name):
-            name{std::move(name)},
-            id{currentId++} {
-            replace(name.begin(), name.end(), '/', '_');
-            replace(name.begin(), name.end(), '\\', '_');
-            replace(name.begin(), name.end(), ':', '_');
-        }
+        explicit Resource(string name);
 
         /**
          * Returns the unique id of the resource
          */
-        [[nodiscard]] id_t getId() const { return id; }
+        [[nodiscard]] inline id_t getId() const { return id; }
 
         /**
          * Return the name (only informative, no real use)
          */
-        [[nodiscard]] const string &getName() const { return name; }
+        [[nodiscard]] inline const string &getName() const { return name; }
 
-        bool operator==(const Resource &other) const { return id == other.id; }
+        inline bool operator==(const Resource &other) const { return id == other.id; }
 
     protected:
         string name;
 
-        [[nodiscard]] string toString() const override { return name; }
+        [[nodiscard]] inline string toString() const override { return name; }
 
     private:
         id_t        id;
@@ -46,16 +40,12 @@ export namespace z0 {
         static id_t currentId;
 
     public:
-        void _incrementReferenceCounter() {
-            refCount += 1;
-        }
+        inline void _incrementReferenceCounter() { refCount += 1; }
 
-        [[nodiscard]] bool _decrementReferenceCounter() {
+        [[nodiscard]] inline bool _decrementReferenceCounter() {
             refCount -= 1;
             return refCount == 0;
         }
     };
-
-    Resource::id_t Resource::currentId = 0;
 
 }

@@ -89,11 +89,11 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
 		${Z0_ENGINE_DIR}/resources/texture.cppm
 
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cppm
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cppm
+		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cppm
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cppm
 
 		${Z0_ENGINE_DIR}/renderers/renderer.cppm
@@ -168,6 +168,20 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/resources/font.cpp
+		${Z0_ENGINE_DIR}/resources/image.cpp
+		${Z0_ENGINE_DIR}/resources/material.cpp
+		${Z0_ENGINE_DIR}/resources/mesh.cpp
+		${Z0_ENGINE_DIR}/resources/mesh_shape.cpp
+		${Z0_ENGINE_DIR}/resources/resource.cpp
+		${Z0_ENGINE_DIR}/resources/shape.cpp
+		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
+		${Z0_ENGINE_DIR}/resources/texture.cpp
+
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cpp
+		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cpp
 
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
@@ -203,4 +217,3 @@ include(cmake/libraries.cmake)
 include(cmake/std.cmake)
 target_link_libraries(${PROJECT_NAME} std-cxx-modules)
 target_link_libraries(${Z0_TOOL_GLTF2JON} std-cxx-modules)
-
