@@ -20,10 +20,7 @@ export namespace z0 {
          * @param filename path and filename (without the extension) of the images
          * @param fileext files extension
          */
-        Skybox(const string &filename, const string &fileext):
-            Node{filename, SKYBOX} {
-            cubemap = Cubemap::loadFromFile(filename, fileext);
-        }
+        Skybox(const string &filename, const string &fileext);
 
         /**
          * Creates a Skybox from a single RGBA image with the following format :<br>
@@ -32,10 +29,7 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        explicit Skybox(const string &filename):
-            Node{filename, SKYBOX} {
-            cubemap = Cubemap::loadFromFile(filename);
-        }
+        explicit Skybox(const string &filename);
 
         /**
          * Creates an empty Skybox 
@@ -52,21 +46,14 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        void setCubemapFromFile(const string &filename) {
-            cubemap = Cubemap::loadFromFile(filename);
-        }
+        void setCubemapFromFile(const string &filename);
 
         /**
          * Return the associated Cubemap
          */
-        [[nodiscard]] shared_ptr<Cubemap> &getCubemap() { return cubemap; }
+        [[nodiscard]] inline shared_ptr<Cubemap> &getCubemap() { return cubemap; }
 
-        void setProperty(const string &property, const string &value) override {
-            Node::setProperty(property, value);
-            if (property == "cubemap_file") {
-                cubemap = Cubemap::loadFromFile(value);
-            }
-        }
+        void setProperty(const string &property, const string &value) override ;
 
     private:
         shared_ptr<Cubemap> cubemap;

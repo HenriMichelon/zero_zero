@@ -37,58 +37,57 @@ add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_
 
 # engine modules
 set(PROJECT_FILES
-		${Z0_ENGINE_DIR}/z0.cppm
-		${Z0_ENGINE_DIR}/constants.cppm
+		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
-		${Z0_ENGINE_DIR}/signal.cppm
-		${Z0_ENGINE_DIR}/object.cppm
-		${Z0_ENGINE_DIR}/tools.cppm
+		${Z0_ENGINE_DIR}/buffer.cppm
+		${Z0_ENGINE_DIR}/color.cppm
+		${Z0_ENGINE_DIR}/constants.cppm
+		${Z0_ENGINE_DIR}/descriptors.cppm
+		${Z0_ENGINE_DIR}/device.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
-		${Z0_ENGINE_DIR}/application.cppm
-		${Z0_ENGINE_DIR}/window.cppm
-		${Z0_ENGINE_DIR}/physics.cppm
-		${Z0_ENGINE_DIR}/device.cppm
-		${Z0_ENGINE_DIR}/buffer.cppm
-		${Z0_ENGINE_DIR}/descriptors.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
-		${Z0_ENGINE_DIR}/color.cppm
+		${Z0_ENGINE_DIR}/object.cppm
+		${Z0_ENGINE_DIR}/physics.cppm
+		${Z0_ENGINE_DIR}/shader.cppm
+		${Z0_ENGINE_DIR}/signal.cppm
+		${Z0_ENGINE_DIR}/tools.cppm
 		${Z0_ENGINE_DIR}/tween.cppm
 		${Z0_ENGINE_DIR}/type_registry.cppm
-		${Z0_ENGINE_DIR}/rect.cppm
-		${Z0_ENGINE_DIR}/shader.cppm
+		${Z0_ENGINE_DIR}/window.cppm
+		${Z0_ENGINE_DIR}/z0.cppm
 
-		${Z0_ENGINE_DIR}/nodes/node.cppm
-		${Z0_ENGINE_DIR}/nodes/mesh_instance.cppm
-		${Z0_ENGINE_DIR}/nodes/light.cppm
-		${Z0_ENGINE_DIR}/nodes/directional_light.cppm
-		${Z0_ENGINE_DIR}/nodes/omni_light.cppm
-		${Z0_ENGINE_DIR}/nodes/spot_light.cppm
 		${Z0_ENGINE_DIR}/nodes/camera.cppm
-		${Z0_ENGINE_DIR}/nodes/collision_object.cppm
 		${Z0_ENGINE_DIR}/nodes/character.cppm
 		${Z0_ENGINE_DIR}/nodes/collision_area.cppm
+		${Z0_ENGINE_DIR}/nodes/collision_object.cppm
+		${Z0_ENGINE_DIR}/nodes/directional_light.cppm
 		${Z0_ENGINE_DIR}/nodes/environment.cppm
-		${Z0_ENGINE_DIR}/nodes/physics_body.cppm
-		${Z0_ENGINE_DIR}/nodes/rigid_body.cppm
-		${Z0_ENGINE_DIR}/nodes/static_body.cppm
 		${Z0_ENGINE_DIR}/nodes/kinematic_body.cppm
-		${Z0_ENGINE_DIR}/nodes/skybox.cppm
+		${Z0_ENGINE_DIR}/nodes/light.cppm
+		${Z0_ENGINE_DIR}/nodes/mesh_instance.cppm
+		${Z0_ENGINE_DIR}/nodes/node.cppm
+		${Z0_ENGINE_DIR}/nodes/omni_light.cppm
+		${Z0_ENGINE_DIR}/nodes/physics_body.cppm
 		${Z0_ENGINE_DIR}/nodes/raycast.cppm
+		${Z0_ENGINE_DIR}/nodes/rigid_body.cppm
+		${Z0_ENGINE_DIR}/nodes/skybox.cppm
+		${Z0_ENGINE_DIR}/nodes/spot_light.cppm
+		${Z0_ENGINE_DIR}/nodes/static_body.cppm
 		${Z0_ENGINE_DIR}/nodes/viewport.cppm
 
-		${Z0_ENGINE_DIR}/resources/resource.cppm
+		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cppm
+		${Z0_ENGINE_DIR}/resources/cubemap.cppm
+		${Z0_ENGINE_DIR}/resources/font.cppm
 		${Z0_ENGINE_DIR}/resources/image.cppm
 		${Z0_ENGINE_DIR}/resources/material.cppm
-		${Z0_ENGINE_DIR}/resources/texture.cppm
 		${Z0_ENGINE_DIR}/resources/mesh.cppm
-		${Z0_ENGINE_DIR}/resources/font.cppm
-		${Z0_ENGINE_DIR}/resources/shape.cppm
-		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cppm
-		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
-		${Z0_ENGINE_DIR}/resources/static_compound_shape.cppm
 		${Z0_ENGINE_DIR}/resources/mesh_shape.cppm
-		${Z0_ENGINE_DIR}/resources/cubemap.cppm
+		${Z0_ENGINE_DIR}/resources/resource.cppm
+		${Z0_ENGINE_DIR}/resources/shape.cppm
+		${Z0_ENGINE_DIR}/resources/static_compound_shape.cppm
+		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
+		${Z0_ENGINE_DIR}/resources/texture.cppm
 
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
@@ -127,32 +126,53 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gui/gtree_view.cppm
 		${Z0_ENGINE_DIR}/gui/gwindow.cppm
 		${Z0_ENGINE_DIR}/gui/gmanager.cppm
+		${Z0_ENGINE_DIR}/gui/rect.cppm
+
 )
 
 # engine library
 add_library(${Z0_TARGET} STATIC
-		${Z0_ENGINE_DIR}/input.cpp
-		${Z0_ENGINE_DIR}/window.cpp
-		${Z0_ENGINE_DIR}/libraries.cpp
-		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/buffer.cpp
 		${Z0_ENGINE_DIR}/descriptors.cpp
 		${Z0_ENGINE_DIR}/device.cpp
+		${Z0_ENGINE_DIR}/input.cpp
+		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/loader.cpp
 		${Z0_ENGINE_DIR}/object.cpp
+		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/shader.cpp
 		${Z0_ENGINE_DIR}/signal.cpp
 		${Z0_ENGINE_DIR}/tools.cpp
+		${Z0_ENGINE_DIR}/window.cpp
+
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
+		${Z0_ENGINE_DIR}/nodes/collision_area.cpp
 		${Z0_ENGINE_DIR}/nodes/collision_object.cpp
+		${Z0_ENGINE_DIR}/nodes/directional_light.cpp
+		${Z0_ENGINE_DIR}/nodes/environment.cpp
+		${Z0_ENGINE_DIR}/nodes/kinematic_body.cpp
+		${Z0_ENGINE_DIR}/nodes/light.cpp
+		${Z0_ENGINE_DIR}/nodes/mesh_instance.cpp
 		${Z0_ENGINE_DIR}/nodes/node.cpp
+		${Z0_ENGINE_DIR}/nodes/omni_light.cpp
 		${Z0_ENGINE_DIR}/nodes/physics_body.cpp
+		${Z0_ENGINE_DIR}/nodes/raycast.cpp
+		${Z0_ENGINE_DIR}/nodes/rigid_body.cpp
+		${Z0_ENGINE_DIR}/nodes/skybox.cpp
+		${Z0_ENGINE_DIR}/nodes/spot_light.cpp
+		${Z0_ENGINE_DIR}/nodes/static_body.cpp
+		${Z0_ENGINE_DIR}/nodes/viewport.cpp
+
+		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cpp
+		${Z0_ENGINE_DIR}/resources/cubemap.cpp
+		${Z0_ENGINE_DIR}/resources/font.cpp
+
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
-		${Z0_ENGINE_DIR}/gui/gwindow.cpp
-		${Z0_ENGINE_DIR}/gui/gwidget.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
+		${Z0_ENGINE_DIR}/gui/gwidget.cpp
+		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 )
 target_sources(${Z0_TARGET}
 		PUBLIC

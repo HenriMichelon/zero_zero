@@ -1,14 +1,12 @@
 module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
-#include <glm/gtx/quaternion.hpp>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 
 export module z0:PhysicsBody;
 
 import :CollisionObject;
 import :Shape;
-import :ConvexHullShape;
 
 export namespace z0 {
 

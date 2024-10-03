@@ -9,7 +9,6 @@ export module z0:Character;
 import :Constants;
 import :CollisionObject;
 import :Shape;
-import :Application;
 
 export namespace z0 {
 

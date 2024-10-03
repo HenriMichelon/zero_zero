@@ -1,6 +1,5 @@
 module;
 #ifdef _WIN32
-#include <Xinput.h>
 #include <dinput.h>
 #endif
 #include "z0/libraries.h"
@@ -8,8 +7,6 @@ module;
 export module z0:Input;
 
 import :Constants;
-import :Tools;
-import :InputEvent;
 
 namespace z0 {
     /**
@@ -98,7 +95,6 @@ namespace z0 {
         static void generateGamepadButtonEvent(GamepadButton, bool);
 
     public:
-        //static list<shared_ptr<InputEvent>> _inputQueue;
         static unordered_map<Key, bool> _keyPressedStates;
         static unordered_map<Key, bool> _keyJustPressedStates;
         static unordered_map<Key, bool> _keyJustReleasedStates;

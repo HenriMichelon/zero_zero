@@ -17,45 +17,40 @@ namespace z0 {
         /**
          * Creates a MeshInstance with the given Mesh
          */
-        explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = "MeshInstance"):
-            Node{name, MESH_INSTANCE},
-            mesh{mesh} {
-        }
+        explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = "MeshInstance");
 
         /**
          * Returns the associated Mesh
          */
-        [[nodiscard]] const shared_ptr<Mesh> &getMesh() const { return mesh; }
+        [[nodiscard]] inline const shared_ptr<Mesh> &getMesh() const { return mesh; }
 
         /**
          * Returns `true` if the Mesh is valid
          */
-        [[nodiscard]] bool isValid() const { return mesh != nullptr; }
+        [[nodiscard]] inline bool isValid() const { return mesh != nullptr; }
 
         /**
          * Set to `true` to have the Mesh outlined starting to the next frame
          */
-        void setOutlined(const bool o) { outlined = o; }
+        inline void setOutlined(const bool o) { outlined = o; }
 
         /**st
          * Returns `true` if the Mesh will be outlined during the next frame
          */
-        [[nodiscard]] bool isOutlined() const { return outlined; }
+        [[nodiscard]] inline bool isOutlined() const { return outlined; }
 
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
          */
-        void setOutlineMaterial(const shared_ptr<ShaderMaterial> &material) { outlineMaterial = material; }
+        inline void setOutlineMaterial(const shared_ptr<ShaderMaterial> &material) { outlineMaterial = material; }
 
         /**
          * Returns the current outlining material
          */
-        [[nodiscard]] shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
+        [[nodiscard]] inline shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
 
     protected:
-        shared_ptr<Node> duplicateInstance() override {
-            return make_shared<MeshInstance>(*this);
-        }
+        shared_ptr<Node> duplicateInstance() override;
 
     private:
         bool                       outlined{false};

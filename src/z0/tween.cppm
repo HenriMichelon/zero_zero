@@ -3,9 +3,9 @@ module;
 
 export module z0:Tween;
 
-import :Tools;
 import :Object;
 import :Constants;
+import :Tools;
 
 export namespace z0 {
 
