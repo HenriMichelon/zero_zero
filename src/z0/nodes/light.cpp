@@ -17,4 +17,8 @@ namespace z0 {
         specularIntensity{specular} {
     }
 
+    void Light::setCastShadows(const bool castShadows) {
+        this->castShadows = castShadows;
+    }
+
 }

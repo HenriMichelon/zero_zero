@@ -1,6 +1,6 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 module z0;
 
@@ -18,11 +18,10 @@ import :ShadowMapRenderer;
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &   device, const string &shaderDirectory, Light *light,
-                                         const vec3 position):
+    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light,
+                                         const vec3 position) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
-        shadowMap{make_shared<ShadowMapFrameBuffer>(device, light, position)} {
-    }
+        shadowMap{make_shared<ShadowMapFrameBuffer>(device, light, position)} {}
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
@@ -36,14 +35,10 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    ShadowMapRenderer::~ShadowMapRenderer() {
-        ShadowMapRenderer::cleanup();
-    }
+    ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        const GobalUniformBuffer globalUbo{
-                .lightSpace = shadowMap->getLightSpace()
-        };
+        const GobalUniformBuffer globalUbo{.lightSpace = shadowMap->getLightSpace()};
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         uint32_t modelIndex = 0;
@@ -87,8 +82,8 @@ namespace z0 {
                     /*if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
                          vkCmdSetCullMode(commandBuffer,
                                      surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                     surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT);
-                    } else {
+                                     surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT :
+                    VK_CULL_MODE_FRONT_BIT); } else {
                         //vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                     }*/
@@ -108,22 +103,23 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::createDescriptorSetLayout() {
-        descriptorPool = DescriptorPool::Builder(device)
-                         .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // model UBO
-                         .build();
+        descriptorPool =
+                DescriptorPool::Builder(device)
+                        .setMaxSets(MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // model UBO
+                        .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
-                    .addBinding(0,
-                                // global UBO
-                                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                VK_SHADER_STAGE_VERTEX_BIT)
-                    .addBinding(1,
-                                // model UBO
-                                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                VK_SHADER_STAGE_VERTEX_BIT)
-                    .build();
+                            .addBinding(0,
+                                        // global UBO
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_SHADER_STAGE_VERTEX_BIT)
+                            .addBinding(1,
+                                        // model UBO
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_SHADER_STAGE_VERTEX_BIT)
+                            .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
@@ -142,9 +138,9 @@ namespace z0 {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo  = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
             if (!DescriptorWriter(*setLayout, *descriptorPool)
-                 .writeBuffer(0, &globalBufferInfo)
-                 .writeBuffer(1, &modelBufferInfo)
-                 .build(descriptorSet[i])) {
+                         .writeBuffer(0, &globalBufferInfo)
+                         .writeBuffer(1, &modelBufferInfo)
+                         .build(descriptorSet[i])) {
                 die("Cannot allocate descriptor set for shadow maps");
             }
         }
@@ -154,9 +150,7 @@ namespace z0 {
         vertShader = createShader("shadowmap.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
     }
 
-    void ShadowMapRenderer::createImagesResources() {
-        shadowMap->createImagesResources();
-    }
+    void ShadowMapRenderer::createImagesResources() { shadowMap->createImagesResources(); }
 
     void ShadowMapRenderer::cleanupImagesResources() {
         if (shadowMap != nullptr) {
@@ -164,8 +158,7 @@ namespace z0 {
         }
     }
 
-    void ShadowMapRenderer::recreateImagesResources() {
-    }
+    void ShadowMapRenderer::recreateImagesResources() {}
 
     void ShadowMapRenderer::beginRendering(VkCommandBuffer commandBuffer) {
         device.transitionImageLayout(commandBuffer,
@@ -178,44 +171,38 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                      VK_IMAGE_ASPECT_DEPTH_BIT);
         const VkRenderingAttachmentInfo depthAttachmentInfo{
-                .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView = shadowMap->getImageView(),
+                .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+                .imageView   = shadowMap->getImageView(),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
-                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                .clearValue = depthClearValue,
+                .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
+                .clearValue  = depthClearValue,
         };
-        const VkRenderingInfo renderingInfo{
-                .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                .pNext = nullptr,
-                .renderArea = {
-                        {0, 0},
-                        {shadowMap->size, shadowMap->size}
-                },
-                .layerCount = 1,
-                .colorAttachmentCount = 0,
-                .pColorAttachments = nullptr,
-                .pDepthAttachment = &depthAttachmentInfo,
-                .pStencilAttachment = nullptr
-        };
+        const VkRenderingInfo renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                            .pNext                = nullptr,
+                                            .renderArea           = {{0, 0}, {shadowMap->size, shadowMap->size}},
+                                            .layerCount           = 1,
+                                            .colorAttachmentCount = 0,
+                                            .pColorAttachments    = nullptr,
+                                            .pDepthAttachment     = &depthAttachmentInfo,
+                                            .pStencilAttachment   = nullptr};
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
     void ShadowMapRenderer::endRendering(VkCommandBuffer commandBuffer, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
-        device.transitionImageLayout(
-                commandBuffer,
-                shadowMap->getImage(),
-                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                VK_ACCESS_TRANSFER_WRITE_BIT,
-                VK_ACCESS_SHADER_READ_BIT,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                // After depth writes
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                // Before depth reads in the shader
-                VK_IMAGE_ASPECT_DEPTH_BIT);
+        device.transitionImageLayout(commandBuffer,
+                                     shadowMap->getImage(),
+                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                     VK_ACCESS_TRANSFER_WRITE_BIT,
+                                     VK_ACCESS_SHADER_READ_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     // After depth writes
+                                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                     // Before depth reads in the shader
+                                     VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
-}
+} // namespace z0

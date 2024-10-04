@@ -16,7 +16,7 @@ import :ShadowMapFrameBuffer;
 
 namespace z0 {
 
-    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, Light *spotLight, const vec3 position) :
+    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const Light *spotLight, const vec3 position) :
         SampledFrameBuffer{dev},
         light(spotLight),
         globalPosition(position) {
@@ -27,7 +27,7 @@ namespace z0 {
         vec3 lightPosition;
         vec3 sceneCenter;
         mat4 lightProjection;
-        if (const auto *directionalLight = dynamic_cast<DirectionalLight *>(light)) {
+        if (const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light)) {
             auto lightDirection = normalize(
                     mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
@@ -47,7 +47,7 @@ namespace z0 {
                                     orthoHeight / 2,
                                     zNear,
                                     orthoDepth);
-        } else if (auto *spotLight = dynamic_cast<SpotLight *>(light)) {
+        } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
             lightPosition       = light->getPositionGlobal();
             sceneCenter         = lightPosition + lightDirection;

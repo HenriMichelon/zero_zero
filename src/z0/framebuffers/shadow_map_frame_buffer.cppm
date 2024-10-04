@@ -15,7 +15,7 @@ export namespace z0 {
      */
     class ShadowMapFrameBuffer : public SampledFrameBuffer {
     public:
-        explicit ShadowMapFrameBuffer(const Device &dev, Light *spotLight, vec3 position);
+        explicit ShadowMapFrameBuffer(const Device &dev, const Light *spotLight, vec3 position);
 
         const float    zNear = 0.1f;
         const float    zFar  = 50.0f;
@@ -36,7 +36,7 @@ export namespace z0 {
         void cleanupImagesResources() override;
 
     private:
-        Light *light;
+        const Light *light;
         vec3   globalPosition;
     };
 

@@ -219,14 +219,16 @@ export namespace z0 {
         [[nodiscard]] inline Node *getParent() const { return parent; }
 
         /**
-         * Adds a child node.
-         * Nodes can have any number of children, but a child can have only one parent.
+         * Adds a child node.<br>
+         * Nodes can have any number of children, but a child can have only one parent.<br>
+         * The node will be added to the scene at the start of the next frame.
          */
         bool addChild(shared_ptr<Node> child);
 
         /**
-         * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
-         * Use the iterator version in a for-each loop
+         * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.<br>
+         * Use the iterator version in a for-each loop.<br>
+         * The node will be removed from the scene at the start of the next frame.
          */
         bool removeChild(const shared_ptr<Node> &child);
 

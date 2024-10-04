@@ -35,16 +35,19 @@ export namespace z0 {
         inline void setSpecularIntensity(const float specularIntensity) { this->specularIntensity = specularIntensity; }
 
         /**
-         * If `true`, the light will cast real-time shadows. 
+         * If `true`, the light will cast real-time shadows.<br>
          * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
          */
         [[nodiscard]] inline bool getCastShadows() const { return castShadows; }
 
         /**
-         * Sets to `true` to makes the light cast real-time shadow.
-         * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
+         * Sets to `true` to makes the light cast real-time shadow.<br>
+         * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.<br>
+         * Changing this parameter have no effect after adding the light to the scene (to avoid destroying shadow map renderers during frame rendering),
+         * you have to remove the light from the scene, change the setting, then add the light to the scene (adding and removing nodes from the
+         * scene if a deferred process).
          */
-        inline void setCastShadow(const bool castShadows) { this->castShadows = castShadows; }
+        void setCastShadows(bool castShadows);
 
     protected:
         explicit Light(const string &nodeName, Type type = LIGHT);

@@ -26,7 +26,7 @@ namespace z0 {
         } else if (property == "specular") {
             setSpecularIntensity(stof(value));
         } else if (property == "cast_shadow") {
-            setCastShadow(value == "true");
+            setCastShadows(value == "true");
         }
     }
 

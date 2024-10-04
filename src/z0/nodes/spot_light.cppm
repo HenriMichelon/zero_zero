@@ -44,7 +44,7 @@ export namespace z0 {
         /** 
          * Returns the direction of the light
         */
-        [[nodiscard]] inline vec3 &getDirection() { return direction; }
+        [[nodiscard]] inline vec3 getDirection() const { return direction; }
 
         /** 
          * Sets the direction of the light

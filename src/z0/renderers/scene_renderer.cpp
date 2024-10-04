@@ -83,29 +83,14 @@ namespace z0 {
             if (auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
                 directionalLight = light;
                 // log("Using directional light", directionalLight->toString());
-                if (enableShadowMapRenders &&
-                    (directionalLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
-                    auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
-                            device,
-                            shaderDirectory,
-                            directionalLight,
-                            currentCamera == nullptr ? VEC3ZERO : currentCamera->getPositionGlobal());
-                    shadowMapRenderers.push_back(shadowMapRenderer);
-                    device.registerRenderer(shadowMapRenderer);
-                }
+                enableLightShadowCasting(directionalLight);
                 return;
             }
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             omniLights.push_back(omniLight);
-            if (enableShadowMapRenders &&
-                (omniLight->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
-                if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                    auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
-                            device, shaderDirectory, spotLight, spotLight->getPositionGlobal());
-                    shadowMapRenderers.push_back(shadowMapRenderer);
-                    device.registerRenderer(shadowMapRenderer);
-                }
+            if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
+                enableLightShadowCasting(spotLight);
             }
         }
         ModelsRenderer::addNode(node);
@@ -119,19 +104,12 @@ namespace z0 {
                 currentEnvironment = nullptr;
             }
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
-            if (enableShadowMapRenders && (directionalLight == light) && light->getCastShadows()) {
+            if (directionalLight == light) {
+                disableLightShadowCasting(directionalLight);
                 directionalLight     = nullptr;
-                const auto &renderer = findShadowMapRenderer(light);
-                device.unRegisterRenderer(renderer);
-                erase(shadowMapRenderers, renderer);
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
-            erase(omniLights, omniLight);
-            if (enableShadowMapRenders && omniLight->getCastShadows()) {
-                const auto &renderer = findShadowMapRenderer(omniLight);
-                device.unRegisterRenderer(renderer);
-                erase(shadowMapRenderers, renderer);
-            }
+            disableLightShadowCasting(omniLight);
         } else {
             ModelsRenderer::removeNode(node);
         }
@@ -263,7 +241,9 @@ namespace z0 {
                     .specular = directionalLight->getSpecularIntensity(),
             };
             if (enableShadowMapRenders) {
-                findShadowMapRenderer(directionalLight)->getShadowMap()->setGlobalPosition(globalUbo.cameraPosition);
+                auto renderer = findShadowMapRenderer(directionalLight);
+                if (renderer != nullptr)
+                    renderer->getShadowMap()->setGlobalPosition(globalUbo.cameraPosition);
             }
         }
         if (currentEnvironment != nullptr) {
@@ -727,13 +707,36 @@ namespace z0 {
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
-        for (const auto &renderer : shadowMapRenderers) {
-            if (renderer->getShadowMap()->getLight() == light) {
-                return renderer;
+        auto it = std::find_if(shadowMapRenderers.begin(), shadowMapRenderers.end(),
+            [light](const shared_ptr<ShadowMapRenderer>& e) {
+                return e->getShadowMap()->getLight() == light;
+        });
+        return (it == shadowMapRenderers.end() ? nullptr : *it);
+    }
+
+
+    void SceneRenderer::enableLightShadowCasting(const Light* light) {
+        if (enableShadowMapRenders &&
+            (light->getCastShadows() &&
+            (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
+            auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
+                    device,
+                    shaderDirectory,
+                    light,
+                    currentCamera == nullptr ? VEC3ZERO : currentCamera->getPositionGlobal());
+            shadowMapRenderers.push_back(shadowMapRenderer);
+            device.registerRenderer(shadowMapRenderer);
+        }
+    }
+
+    void SceneRenderer::disableLightShadowCasting(const Light* light) {
+        if (enableShadowMapRenders) {
+            const auto renderer = findShadowMapRenderer(light);
+            if (renderer != nullptr) {
+                device.unRegisterRenderer(renderer);
+                erase(shadowMapRenderers, renderer);
             }
         }
-        assert(false);
-        return nullptr;
     }
 
 } // namespace z0

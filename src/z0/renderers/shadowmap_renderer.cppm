@@ -20,7 +20,7 @@ export namespace z0 {
      */
     class ShadowMapRenderer : public Renderpass, public Renderer {
     public:
-        ShadowMapRenderer(Device &device, const string &shaderDirectory, Light *light, vec3 position);
+        ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light, vec3 position);
 
         void loadScene(const list<MeshInstance *> &meshes);
 

@@ -215,6 +215,10 @@ namespace z0 {
 
         [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const;
 
+        void enableLightShadowCasting(const Light* light);
+
+        void disableLightShadowCasting(const Light* light);
+
     public:
         SceneRenderer(const SceneRenderer &) = delete;
 
