@@ -16,7 +16,7 @@ export namespace z0 {
     public:
         SimplePostprocessingRenderer(Device& device,
                                      const string& shaderDirectory,
-                                     const string& _shaderName,
+                                     const string& shaderName,
                                      SampledFrameBuffer* inputColorAttachmentHdr);
 
         void update( uint32_t currentFrame) override ;

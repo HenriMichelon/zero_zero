@@ -15,14 +15,17 @@ import :Buffer;
 import :Mesh;
 
 export namespace z0 {
+    class Camera;
     /**
      * Shadow map renderer, one per light
      */
     class ShadowMapRenderer : public Renderpass, public Renderer {
     public:
-        ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light, vec3 position);
+        ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light);
 
         void loadScene(const list<MeshInstance *> &meshes);
+
+        inline void activateCamera(Camera *camera) { currentCamera = camera; }
 
         void cleanup() override;
 
@@ -44,6 +47,8 @@ export namespace z0 {
         const float depthBiasConstant = 1.25f;
         // Slope depth bias factor, applied depending on polygon's slope
         const float depthBiasSlope = 1.75f;
+        // Scene current camera
+        Camera *currentCamera{nullptr};
         // All the models of the scene
         list<MeshInstance *> models{};
         // Datas for all the models of the scene, one buffer for all the models

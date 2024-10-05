@@ -172,6 +172,8 @@ export namespace z0 {
         // vector renderer size ratios
         vec2 vectorRatio;
 
+        shared_ptr<PostprocessingRenderer> postProcessingRenderer;
+
         /*
          * Main loop members
          */
@@ -220,6 +222,8 @@ export namespace z0 {
 
         // Register all nodes types
         void registerTypes() const;
+
+        void processDeferredUpdates();
 
     public:
         // The following members are accessed by global function WinMain

@@ -21,8 +21,7 @@ import :ModelsRenderer;
     void ModelsRenderer::addNode(const shared_ptr<Node> &node) {
         if (auto *camera = dynamic_cast<Camera *>(node.get())) {
             if (currentCamera == nullptr) {
-                currentCamera = camera;
-                currentCamera->_setActive(true);
+                activateCamera(camera);
                 //log("Using camera", currentCamera->toString());
             }
         } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {

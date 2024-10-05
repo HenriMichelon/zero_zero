@@ -89,7 +89,7 @@ namespace z0 {
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             omniLights.push_back(omniLight);
-            if (auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
+            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
                 enableLightShadowCasting(spotLight);
             }
         }
@@ -217,13 +217,18 @@ namespace z0 {
         }
     }
 
+    void SceneRenderer::activateCamera(Camera *camera) {
+        ModelsRenderer::activateCamera(camera);
+        for(const auto& renderer : shadowMapRenderers) {
+            renderer->activateCamera(camera);
+        }
+    }
+
     void SceneRenderer::update(uint32_t currentFrame) {
-        if (currentCamera == nullptr)
-            return;
+        if (currentCamera == nullptr) { return; }
         if (skyboxRenderer != nullptr)
             skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
-        if (models.empty())
-            return;
+        if (models.empty()) { return; }
 
         GobalUniformBuffer globalUbo{
                 .projection           = currentCamera->getProjection(),
@@ -240,11 +245,6 @@ namespace z0 {
                     .color    = directionalLight->getColorAndIntensity(),
                     .specular = directionalLight->getSpecularIntensity(),
             };
-            if (enableShadowMapRenders) {
-                auto renderer = findShadowMapRenderer(directionalLight);
-                if (renderer != nullptr)
-                    renderer->getShadowMap()->setGlobalPosition(globalUbo.cameraPosition);
-            }
         }
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
@@ -255,7 +255,7 @@ namespace z0 {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
                 auto &shadowMap              = shadowMapRenderers[i]->getShadowMap();
-                shadowMapArray[i].lightSpace = shadowMap->getLightSpace();
+                shadowMapArray[i].lightSpace = shadowMap->getLightSpace(currentCamera->getPositionGlobal()); // XXX computed 2 times per frame !
                 shadowMapArray[i].lightPos   = shadowMap->getLightPosition();
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
@@ -490,8 +490,7 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->loadShaders();
+        if (skyboxRenderer != nullptr) { skyboxRenderer->loadShaders(); }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
@@ -707,23 +706,22 @@ namespace z0 {
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
-        auto it = std::find_if(shadowMapRenderers.begin(), shadowMapRenderers.end(),
+        const auto it = std::find_if(shadowMapRenderers.begin(), shadowMapRenderers.end(),
             [light](const shared_ptr<ShadowMapRenderer>& e) {
                 return e->getShadowMap()->getLight() == light;
         });
         return (it == shadowMapRenderers.end() ? nullptr : *it);
     }
 
-
     void SceneRenderer::enableLightShadowCasting(const Light* light) {
         if (enableShadowMapRenders &&
             (light->getCastShadows() &&
             (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
-            auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
+            const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
                     device,
                     shaderDirectory,
-                    light,
-                    currentCamera == nullptr ? VEC3ZERO : currentCamera->getPositionGlobal());
+                    light);
+            shadowMapRenderer->activateCamera(currentCamera);
             shadowMapRenderers.push_back(shadowMapRenderer);
             device.registerRenderer(shadowMapRenderer);
         }
@@ -731,8 +729,7 @@ namespace z0 {
 
     void SceneRenderer::disableLightShadowCasting(const Light* light) {
         if (enableShadowMapRenders) {
-            const auto renderer = findShadowMapRenderer(light);
-            if (renderer != nullptr) {
+            if (const auto renderer = findShadowMapRenderer(light); renderer != nullptr) {
                 device.unRegisterRenderer(renderer);
                 erase(shadowMapRenderers, renderer);
             }

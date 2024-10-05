@@ -66,7 +66,7 @@ namespace z0 {
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
     }
 
-    void PostprocessingRenderer::recordCommands(VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void PostprocessingRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         bindShaders(commandBuffer);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
@@ -88,7 +88,7 @@ namespace z0 {
         colorAttachmentHdr->createImagesResources();
     }
 
-    void PostprocessingRenderer::beginRendering(VkCommandBuffer commandBuffer) {
+    void PostprocessingRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
         device.transitionImageLayout(commandBuffer,
                                      colorAttachmentHdr->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
@@ -115,7 +115,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void PostprocessingRenderer::endRendering(VkCommandBuffer commandBuffer, const bool isLast) {
+    void PostprocessingRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer,
                                      colorAttachmentHdr->getImage(),

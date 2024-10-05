@@ -16,24 +16,26 @@ import :ShadowMapFrameBuffer;
 
 namespace z0 {
 
-    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const Light *spotLight, const vec3 position) :
+    ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const Light *spotLight) :
         SampledFrameBuffer{dev},
-        light(spotLight),
-        globalPosition(position) {
+        light{spotLight},
+        lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr},
+        size{static_cast<uint32_t>(lightIsDirectional ? 8192 : 2048)} {
         ShadowMapFrameBuffer::createImagesResources();
     }
 
-    mat4 ShadowMapFrameBuffer::getLightSpace() const {
+    mat4 ShadowMapFrameBuffer::getLightSpace(const vec3 cameraPosition) const {
         vec3 lightPosition;
         vec3 sceneCenter;
         mat4 lightProjection;
-        if (const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light)) {
-            auto lightDirection = normalize(
+        if (lightIsDirectional) {
+            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+            const auto lightDirection = normalize(
                     mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
-            constexpr auto limit    = 100.0f;
-            auto           sceneMin = vec3{-limit, -limit, -limit} + globalPosition;
-            auto           sceneMax = vec3{limit, limit, limit} + globalPosition;
+            constexpr auto limit    = 20.0f;
+            auto           sceneMin = vec3{-limit, -limit, -limit} + cameraPosition;
+            auto           sceneMax = vec3{limit, limit, limit} + cameraPosition;
             // Set up the orthographic projection matrix
             auto orthoWidth  = distance(sceneMin.x, sceneMax.x);
             auto orthoHeight = distance(sceneMin.y, sceneMax.y);
@@ -41,17 +43,14 @@ namespace z0 {
             sceneCenter      = (sceneMin + sceneMax) / 2.0f;
             lightPosition    = sceneCenter - lightDirection * (orthoDepth / 2.0f);
             // Position is scene center offset by light direction
-            lightProjection = ortho(-orthoWidth / 2,
-                                    orthoWidth / 2,
-                                    -orthoHeight / 2,
-                                    orthoHeight / 2,
-                                    zNear,
-                                    orthoDepth);
+            lightProjection = ortho(-orthoWidth / 2, orthoWidth / 2,
+                                    -orthoHeight / 2, orthoHeight / 2,
+                                    -orthoDepth/4, orthoDepth);
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
-            auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
             lightPosition       = light->getPositionGlobal();
             sceneCenter         = lightPosition + lightDirection;
-            lightProjection     = perspective(spotLight->getFov(), device.getAspectRatio(), zNear, zFar);
+            lightProjection     = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
         } else {
             return mat4{};
         }
@@ -62,7 +61,7 @@ namespace z0 {
     void ShadowMapFrameBuffer::createImagesResources() {
         // https://github.com/SaschaWillems/Vulkan/blob/master/examples/shadowmapping/shadowmapping.cpp#L192
         // For shadow mapping we only need a depth attachment
-        auto format = device.findImageTilingSupportedFormat(
+        const auto format = device.findImageTilingSupportedFormat(
                 {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D16_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT,},
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
@@ -75,7 +74,7 @@ namespace z0 {
                     VK_IMAGE_ASPECT_DEPTH_BIT);
         // Create sampler to sample from to depth attachment
         // Used to sample in the fragment shader for shadowed rendering
-        VkFilter shadowmap_filter = device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL)
+        const VkFilter shadowmap_filter = device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL)
                 ? VK_FILTER_LINEAR
                 : VK_FILTER_NEAREST;
         const VkSamplerCreateInfo samplerCreateInfo{

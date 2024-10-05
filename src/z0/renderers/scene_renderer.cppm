@@ -62,6 +62,8 @@ namespace z0 {
 
         void loadShadersMaterials(const ShaderMaterial *material);
 
+        void activateCamera(Camera *camera) override;
+
     private:
         struct DirectionalLightUniform {
             alignas(16) vec3 direction{0.0f, 0.0f, 0.0f};
@@ -220,6 +222,8 @@ namespace z0 {
         void disableLightShadowCasting(const Light* light);
 
     public:
+        shared_ptr<ShadowMapRenderer> _getShadowMapRenderer(const int index) const { return shadowMapRenderers[index]; }
+
         SceneRenderer(const SceneRenderer &) = delete;
 
         SceneRenderer &operator=(const SceneRenderer &) = delete;

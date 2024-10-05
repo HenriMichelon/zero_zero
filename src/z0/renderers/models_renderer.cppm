@@ -28,7 +28,7 @@ export namespace z0 {
         virtual void removeNode(const shared_ptr<Node> &node);
 
         // Change the active camera, disable the previous camera
-        void activateCamera(Camera *camera);
+        virtual void activateCamera(Camera *camera);
 
         inline void activateCamera(const shared_ptr<Camera> &camera) { activateCamera(camera.get()); }
 

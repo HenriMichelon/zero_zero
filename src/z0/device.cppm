@@ -103,11 +103,11 @@ export namespace z0 {
         [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
 
         void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+        list<shared_ptr<Renderer>> renderers;
 
     private:
         const Window &             window;
         VkInstance                 vkInstance;
-        list<shared_ptr<Renderer>> renderers;
 
         // Physical & logical device management
         VkSurfaceKHR                surface;

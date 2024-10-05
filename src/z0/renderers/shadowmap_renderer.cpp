@@ -18,10 +18,11 @@ import :ShadowMapRenderer;
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light,
-                                         const vec3 position) :
+    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
-        shadowMap{make_shared<ShadowMapFrameBuffer>(device, light, position)} {}
+        shadowMap{make_shared<ShadowMapFrameBuffer>(device, light)} {
+
+    }
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
@@ -35,10 +36,13 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
+    ShadowMapRenderer::~ShadowMapRenderer() {
+        ShadowMapRenderer::cleanup();
+    }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        const GobalUniformBuffer globalUbo{.lightSpace = shadowMap->getLightSpace()};
+        if (currentCamera == nullptr) { return; }
+        const GobalUniformBuffer globalUbo{.lightSpace = shadowMap->getLightSpace(currentCamera->getPositionGlobal())};
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         uint32_t modelIndex = 0;
@@ -51,7 +55,7 @@ namespace z0 {
         }
     }
 
-    void ShadowMapRenderer::recordCommands(VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         bindShaders(commandBuffer);
 
         constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
@@ -64,7 +68,7 @@ namespace z0 {
         vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
         vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS);
         vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
-        setViewport(commandBuffer, shadowMap->size, shadowMap->size);
+        setViewport(commandBuffer, shadowMap->getSize(), shadowMap->getSize());
 
         const auto vertexBinding   = Mesh::_getBindingDescription();
         const auto vertexAttribute = Mesh::_getAttributeDescription();
@@ -125,7 +129,7 @@ namespace z0 {
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
     }
 
-    void ShadowMapRenderer::createOrUpdateDescriptorSet(bool create) {
+    void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (!models.empty() && (modelUniformBufferCount != models.size())) {
             modelUniformBufferCount = models.size();
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
@@ -160,7 +164,7 @@ namespace z0 {
 
     void ShadowMapRenderer::recreateImagesResources() {}
 
-    void ShadowMapRenderer::beginRendering(VkCommandBuffer commandBuffer) {
+    void ShadowMapRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
         device.transitionImageLayout(commandBuffer,
                                      shadowMap->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
@@ -181,7 +185,8 @@ namespace z0 {
         };
         const VkRenderingInfo renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                             .pNext                = nullptr,
-                                            .renderArea           = {{0, 0}, {shadowMap->size, shadowMap->size}},
+                                            .renderArea           = {{0, 0},
+                                                                    {shadowMap->getSize(), shadowMap->getSize()}},
                                             .layerCount           = 1,
                                             .colorAttachmentCount = 0,
                                             .pColorAttachments    = nullptr,
@@ -190,7 +195,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void ShadowMapRenderer::endRendering(VkCommandBuffer commandBuffer, const bool isLast) {
+    void ShadowMapRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer,
                                      shadowMap->getImage(),

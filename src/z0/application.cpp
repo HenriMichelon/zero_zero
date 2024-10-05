@@ -22,6 +22,8 @@ import :Device;
 import :Material;
 import :SceneRenderer;
 import :VectorRenderer;
+import :SimplePostprocessingRenderer;
+import :ShadowMapRenderer;
 import :GManager;
 
 import :Camera;
@@ -44,11 +46,10 @@ namespace z0 {
 
 #ifndef NDEBUG
     // Redirect the Vulkan validation layers to the logging system
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-            VkDebugUtilsMessageSeverityFlagBitsEXT,
-            VkDebugUtilsMessageTypeFlagsEXT,
-            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-            void *) {
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
+                                                        VkDebugUtilsMessageTypeFlagsEXT,
+                                                        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                        void *) {
         log("validation layer: ", pCallbackData->pMessage);
         return VK_FALSE;
     }
@@ -56,11 +57,10 @@ namespace z0 {
     // vkCreateDebugUtilsMessengerEXT linker
     VkResult CreateDebugUtilsMessengerEXT(const VkInstance                          instance,
                                           const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                          const VkAllocationCallbacks *             pAllocator,
-                                          VkDebugUtilsMessengerEXT *                pDebugMessenger) {
-        const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
-                instance,
-                "vkCreateDebugUtilsMessengerEXT"));
+                                          const VkAllocationCallbacks              *pAllocator,
+                                          VkDebugUtilsMessengerEXT                 *pDebugMessenger) {
+        const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+                vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         }
@@ -68,11 +68,10 @@ namespace z0 {
     }
 
     // vkDestroyDebugUtilsMessengerEXT linker
-    void DestroyDebugUtilsMessengerEXT(VkInstance                   instance, VkDebugUtilsMessengerEXT debugMessenger,
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                        const VkAllocationCallbacks *pAllocator) {
-        const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
-                instance,
-                "vkDestroyDebugUtilsMessengerEXT"));
+        const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+                vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             func(instance, debugMessenger, pAllocator);
         }
@@ -80,9 +79,8 @@ namespace z0 {
 
 #endif
 
-    Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node):
-        applicationConfig{appConfig},
-        rootNode{node} {
+    Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
+        applicationConfig{appConfig}, rootNode{node} {
         assert(_instance == nullptr);
         assert(rootNode != nullptr);
         _instance = this;
@@ -130,21 +128,17 @@ namespace z0 {
 #endif
 
         // Use Vulkan 1.3.x
-        constexpr VkApplicationInfo applicationInfo{
-                .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                .apiVersion = VK_API_VERSION_1_3
-        };
+        constexpr VkApplicationInfo applicationInfo{.sType      = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                                                    .apiVersion = VK_API_VERSION_1_3};
         // Initialize Vulkan instances, extensions & layers
-        const VkInstanceCreateInfo createInfo = {
-                VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-                nullptr,
-                0,
-                &applicationInfo,
-                static_cast<uint32_t>(requestedLayers.size()),
-                requestedLayers.data(),
-                static_cast<uint32_t>(instanceExtensions.size()),
-                instanceExtensions.data()
-        };
+        const VkInstanceCreateInfo createInfo = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+                                                 nullptr,
+                                                 0,
+                                                 &applicationInfo,
+                                                 static_cast<uint32_t>(requestedLayers.size()),
+                                                 requestedLayers.data(),
+                                                 static_cast<uint32_t>(instanceExtensions.size()),
+                                                 instanceExtensions.data()};
         if (vkCreateInstance(&createInfo, nullptr, &vkInstance) != VK_SUCCESS)
             die("Failed to create Vulkan instance");
         volkLoadInstance(vkInstance);
@@ -152,24 +146,21 @@ namespace z0 {
         // The rendering window
         window = make_unique<Window>(applicationConfig);
         // Compute the scale ratios for the vector renderer
-        vectorRatio = vec2{
-                window->getWidth() / VECTOR_SCALE.x,
-                window->getHeight() / VECTOR_SCALE.y
-        };
+        vectorRatio = vec2{window->getWidth() / VECTOR_SCALE.x, window->getHeight() / VECTOR_SCALE.y};
         // The global Vulkan device helper
         device = make_unique<Device>(vkInstance, requestedLayers, applicationConfig, *window);
 
 #ifndef NDEBUG
         // Initialize validating layer for logging
         constexpr VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{
-                .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                .sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                 .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
                 .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-                | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
                 .pfnUserCallback = debugCallback,
-                .pUserData = nullptr,
+                .pUserData       = nullptr,
         };
         if (CreateDebugUtilsMessengerEXT(vkInstance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
             die("failed to set up debug messenger!");
@@ -181,9 +172,8 @@ namespace z0 {
         JPH::Factory::sInstance = new JPH::Factory();
         JPH::RegisterTypes();
         temp_allocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
-        job_system     = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs,
-                                                                    JPH::cMaxPhysicsBarriers,
-                                                                    JPH::thread::hardware_concurrency() - 1);
+        job_system     = std::make_unique<JPH::JobSystemThreadPool>(
+                JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
         constexpr uint32_t cMaxBodies             = 1024;
         constexpr uint32_t cNumBodyMutexes        = 0;
         constexpr uint32_t cMaxBodyPairs          = 1024;
@@ -199,7 +189,7 @@ namespace z0 {
 
         // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
-        sceneRenderer  = make_shared<SceneRenderer>(*device, shaderDir, applicationConfig.clearColor);
+        sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir, applicationConfig.clearColor);
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,
                                                      sceneRenderer->getColorAttachment());
@@ -230,7 +220,9 @@ namespace z0 {
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
         addedNodes.push_back(node);
-        if (node->isProcessed()) { node->_onEnterScene(); }
+        if (node->isProcessed()) {
+            node->_onEnterScene();
+        }
         for (const auto &child : node->_getChildren()) {
             _addNode(child);
         }
@@ -244,18 +236,17 @@ namespace z0 {
         }
         removedNodes.push_back(node);
         node->_setAddedToScene(false);
-        if (node->isProcessed()) { node->_onExitScene(); }
+        if (node->isProcessed()) {
+            node->_onExitScene();
+        }
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) const {
         assert(camera != nullptr);
-        sceneRenderer->activateCamera(camera);
+        sceneRenderer->activateCamera(camera.get());
     }
 
-    void Application::drawFrame() {
-        if (stopped)
-            return;
-
+    void Application::processDeferredUpdates() {
         // Process the deferred scene tree modifications
         sceneRenderer->preUpdateScene();
         windowManager->drawFrame();
@@ -279,9 +270,24 @@ namespace z0 {
         }
         sceneRenderer->postUpdateScene();
 
+        // if (postProcessingRenderer == nullptr) {
+        //     const string shaderDir{(applicationConfig.appDir / "shaders").string()};
+        //     postProcessingRenderer = make_shared<SimplePostprocessingRenderer>(
+        //         *device,
+        //         shaderDir,
+        //         "depth_test",
+        //         sceneRenderer->_getShadowMapRenderer(0)->getShadowMap().get());
+        //     device->renderers.push_back(postProcessingRenderer);
+        // }
+    }
+
+    void Application::drawFrame() {
+        if (stopped) { return; }
+        processDeferredUpdates();
+
         // https://gafferongames.com/post/fix_your_timestep/
-        double newTime = std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).
-                count();
+        double newTime =
+                std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double frameTime = newTime - currentTime;
         if (frameTime > 0.25)
             frameTime = 0.25; // Note: Max frame time to avoid spiral of death
@@ -308,7 +314,9 @@ namespace z0 {
     void Application::_onInput(InputEvent &inputEvent) {
         if (stopped)
             return;
-        if (windowManager->onInput(inputEvent)) { return; }
+        if (windowManager->onInput(inputEvent)) {
+            return;
+        }
         input(rootNode, inputEvent);
     }
 
@@ -348,7 +356,9 @@ namespace z0 {
 
     bool Application::input(const shared_ptr<Node> &node, InputEvent &inputEvent) {
         assert(node != nullptr);
-        if (!node->_isAddedToScene()) { return false; }
+        if (!node->_isAddedToScene()) {
+            return false;
+        }
         for (auto &child : node->_getChildren()) {
             if (input(child, inputEvent))
                 return true;
@@ -406,9 +416,7 @@ namespace z0 {
         node.reset();
     }
 
-    void Application::quit() const {
-        window->close();
-    }
+    void Application::quit() const { window->close(); }
 
     void Application::_mainLoop() {
         Input::_initInput();
@@ -463,13 +471,11 @@ namespace z0 {
         TypeRegistry::registerType<Viewport>("Viewport");
     }
 
-    void Application::setShadowCasting(const bool enable) const {
-        sceneRenderer->setShadowCasting(enable);
-    }
+    void Application::setShadowCasting(const bool enable) const { sceneRenderer->setShadowCasting(enable); }
 
     uint64_t Application::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
 
     const string &Application::getAdapterDescription() const { return device->getAdapterDescription(); }
 
     uint64_t Application::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
-}
+} // namespace z0

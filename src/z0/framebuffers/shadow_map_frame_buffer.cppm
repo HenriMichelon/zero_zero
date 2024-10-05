@@ -1,6 +1,6 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 export module z0:ShadowMapFrameBuffer;
 
@@ -15,13 +15,9 @@ export namespace z0 {
      */
     class ShadowMapFrameBuffer : public SampledFrameBuffer {
     public:
-        explicit ShadowMapFrameBuffer(const Device &dev, const Light *spotLight, vec3 position);
+        explicit ShadowMapFrameBuffer(const Device &dev, const Light *spotLight);
 
-        const float    zNear = 0.1f;
-        const float    zFar  = 50.0f;
-        const uint32_t size{4096};
-
-        [[nodiscard]] mat4 getLightSpace() const;
+        [[nodiscard]] mat4 getLightSpace(vec3 cameraPosition) const;
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
@@ -29,7 +25,7 @@ export namespace z0 {
 
         [[nodiscard]] inline const VkSampler &getSampler() const { return sampler; }
 
-        inline void setGlobalPosition(const vec3 position) { globalPosition = position; }
+        [[nodiscard]] inline uint32_t getSize() const { return size; }
 
         void createImagesResources() override;
 
@@ -37,7 +33,8 @@ export namespace z0 {
 
     private:
         const Light *light;
-        vec3   globalPosition;
+        bool         lightIsDirectional;
+        uint32_t     size;
     };
 
-}
+} // namespace z0

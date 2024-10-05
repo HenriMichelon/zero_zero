@@ -49,27 +49,25 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 float shadowFactor(int shadowMapIndex) {
     vec4 ShadowCoord = shadowMapsInfos.shadowMaps[shadowMapIndex].lightSpace * fs_in.GLOBAL_POSITION;
-
     vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
     if (projCoords.z > 1.0) return 1.0f;
-    // Remap xy to [0.0, 1.0]
     projCoords.xy = projCoords.xy * 0.5 + 0.5;
     const bool outOfView = (projCoords.x < 0.001f || projCoords.x > 0.999f || projCoords.y < 0.001f || projCoords.y > 0.999f);
     if (outOfView) return 1.0f;
-
-    float currentDepth = projCoords.z;
     float closestDepth = texture(shadowMaps[shadowMapIndex], projCoords.xy).r;
+    float currentDepth = projCoords.z;
 
+//    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
+//    return shadow;
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMaps[shadowMapIndex], 0);
     for(int x = -1; x <= 1; ++x)  {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(shadowMaps[shadowMapIndex], projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth > pcfDepth ? 1.0 : 0.0;
+            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
         }
     }
-    shadow /= 9.0;
-    return 1.0 - shadow;
+    return shadow /= 9.0;
 }
 
 vec4 fragmentColor(vec4 color, bool useColor) {
@@ -91,22 +89,21 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     }
     //return  vec4(normal, 1.0);
 
-    vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb;
+    vec3 ambient = global.ambient.w * global.ambient.rgb;
     vec3 diffuse = vec3(0, 0, 0);
     if (global.haveDirectionalLight) {
         diffuse = calcDirectionalLight(global.directionalLight, color, normal);
     }
 
-    vec3 result = ambient;
+    float shadow = 0;
     for (int i = 0; i < global.shadowMapsCount; i++) {
-        float shadows = shadowFactor(i);
-        result = (ambient + shadows) * result;
+        shadow += shadowFactor(i);
     }
 
     for(int i = 0; i < global.pointLightsCount; i++) {
         diffuse += calcPointLight(pointLights.lights[i], color, normal);
     }
-    result = result + diffuse;
+    vec3 result = (ambient + ( shadow) * (diffuse)) * color.rgb;
 
     return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

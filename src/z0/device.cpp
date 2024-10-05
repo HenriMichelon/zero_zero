@@ -280,7 +280,7 @@ namespace z0 {
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
         {
             vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-            for (auto &renderer : renderers) {
+            for (const auto &renderer : renderers) {
                 renderer->update(currentFrame);
             }
             constexpr VkCommandBufferBeginInfo beginInfo{
@@ -293,8 +293,8 @@ namespace z0 {
             }
 
             setInitialState(commandBuffers[currentFrame]);
-            auto lastRenderer = renderers.back();
-            for (auto &renderer : renderers) {
+            const auto& lastRenderer = renderers.back();
+            for (const auto &renderer : renderers) {
                 renderer->beginRendering(commandBuffers[currentFrame]);
                 renderer->recordCommands(commandBuffers[currentFrame], currentFrame);
                 renderer->endRendering(commandBuffers[currentFrame], renderer == lastRenderer);

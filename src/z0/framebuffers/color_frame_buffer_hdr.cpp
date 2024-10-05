@@ -25,7 +25,7 @@ namespace z0 {
 
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(device.getPhysicalDevice(), &properties);
-        VkSamplerCreateInfo samplerInfo{
+        const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 .magFilter = VK_FILTER_LINEAR,
                 .minFilter = VK_FILTER_LINEAR,

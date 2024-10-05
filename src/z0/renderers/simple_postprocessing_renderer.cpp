@@ -12,9 +12,9 @@ namespace z0 {
 
     SimplePostprocessingRenderer::SimplePostprocessingRenderer(Device &            device,
                                                                const string &      shaderDirectory,
-                                                               const string &      _shaderName,
+                                                               const string &      shaderName,
                                                                SampledFrameBuffer *inputColorAttachmentHdr):
-        PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{_shaderName} {
+        PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{shaderName} {
         createOrUpdateResources();
     }
 
