@@ -33,7 +33,7 @@ namespace z0 {
             const auto lightDirection = normalize(
                     mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
-            constexpr auto limit    = 20.0f;
+            constexpr auto limit    = 25.0f;
             auto           sceneMin = vec3{-limit, -limit, -limit} + cameraPosition;
             auto           sceneMax = vec3{limit, limit, limit} + cameraPosition;
             // Set up the orthographic projection matrix
@@ -45,7 +45,7 @@ namespace z0 {
             // Position is scene center offset by light direction
             lightProjection = ortho(-orthoWidth / 2, orthoWidth / 2,
                                     -orthoHeight / 2, orthoHeight / 2,
-                                    -orthoDepth/4, orthoDepth);
+                                    -orthoDepth/2, orthoDepth);
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
             lightPosition       = light->getPositionGlobal();

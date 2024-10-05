@@ -103,7 +103,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     for(int i = 0; i < global.pointLightsCount; i++) {
         diffuse += calcPointLight(pointLights.lights[i], color, normal);
     }
-    vec3 result = (ambient + ( shadow) * (diffuse)) * color.rgb;
+    vec3 result = (ambient + shadow * diffuse) * color.rgb;
 
     return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }
