@@ -54,8 +54,7 @@ namespace z0 {
             blankImage.reset();
             blankImageData.clear();
         }
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->cleanup();
+        if (skyboxRenderer != nullptr) skyboxRenderer->cleanup();
         for (const auto &shadowMapRenderer : shadowMapRenderers) {
             device.unRegisterRenderer(shadowMapRenderer);
             shadowMapRenderer->cleanup();
@@ -106,7 +105,7 @@ namespace z0 {
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
             if (directionalLight == light) {
                 disableLightShadowCasting(directionalLight);
-                directionalLight     = nullptr;
+                directionalLight = nullptr;
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             disableLightShadowCasting(omniLight);
@@ -117,8 +116,7 @@ namespace z0 {
 
     void SceneRenderer::preUpdateScene() {
         for (const auto &material : OutlineMaterials::_all()) {
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
-                continue;
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             material->_incrementReferenceCounter();
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
@@ -137,14 +135,12 @@ namespace z0 {
     }
 
     void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex) {
-        if (meshInstance->getMesh()->_getMaterials().empty())
-            die("Models without materials are not supported");
+        if (meshInstance->getMesh()->_getMaterials().empty()) die("Models without materials are not supported");
         opaquesModels.push_back(meshInstance);
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             material->_incrementReferenceCounter();
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
-                continue;
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
@@ -219,16 +215,15 @@ namespace z0 {
 
     void SceneRenderer::activateCamera(Camera *camera) {
         ModelsRenderer::activateCamera(camera);
-        for(const auto& renderer : shadowMapRenderers) {
+        for (const auto &renderer : shadowMapRenderers) {
             renderer->activateCamera(camera);
         }
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
-        if (currentCamera == nullptr) { return; }
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
-        if (models.empty()) { return; }
+        if (currentCamera == nullptr) return;
+        if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
+        if (models.empty()) return;
 
         GobalUniformBuffer globalUbo{
                 .projection           = currentCamera->getProjection(),
@@ -254,9 +249,9 @@ namespace z0 {
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                auto &shadowMap              = shadowMapRenderers[i]->getShadowMap();
-                shadowMapArray[i].lightSpace = shadowMap->getLightSpace(currentCamera->getPositionGlobal()); // XXX computed 2 times per frame !
-                shadowMapArray[i].lightPos   = shadowMap->getLightPosition();
+                auto &renderer               = shadowMapRenderers[i];
+                shadowMapArray[i].lightSpace = renderer->getLightSpace(); // XXX computed 2 times per frame !
+                shadowMapArray[i].lightPos   = renderer->getLightPosition();
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
@@ -324,8 +319,7 @@ namespace z0 {
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (currentCamera == nullptr)
-            return;
+        if (currentCamera == nullptr) return;
         setInitialState(commandBuffer);
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
@@ -333,8 +327,7 @@ namespace z0 {
             vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->recordCommands(commandBuffer, currentFrame);
+        if (skyboxRenderer != nullptr) skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
@@ -481,8 +474,7 @@ namespace z0 {
                                   .writeImage(5, shadowMapsInfo.data())
                                   .writeBuffer(6, &pointLightBufferInfo);
             if (create) {
-                if (!writer.build(descriptorSet[i]))
-                    die("Cannot allocate descriptor set");
+                if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
             } else {
                 writer.overwrite(descriptorSet[i]);
             }
@@ -490,7 +482,9 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        if (skyboxRenderer != nullptr) { skyboxRenderer->loadShaders(); }
+        if (skyboxRenderer != nullptr) {
+            skyboxRenderer->loadShaders();
+        }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
@@ -602,10 +596,8 @@ namespace z0 {
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image) {
         image->_incrementReferenceCounter();
-        if (find(images.begin(), images.end(), image.get()) != images.end())
-            return;
-        if (images.size() == MAX_IMAGES)
-            die("Maximum images count reached for the scene renderer");
+        if (find(images.begin(), images.end(), image.get()) != images.end()) return;
+        if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
         imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
         images.push_back(image.get());
     }
@@ -625,8 +617,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::drawModels(const VkCommandBuffer       commandBuffer,
-                                   const uint32_t currentFrame,
+    void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer, const uint32_t currentFrame,
                                    const list<MeshInstance *> &modelsToDraw) {
         bool shadersChanged{false};
         for (const auto &meshInstance : modelsToDraw) {
@@ -706,28 +697,23 @@ namespace z0 {
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
-        const auto it = std::find_if(shadowMapRenderers.begin(), shadowMapRenderers.end(),
-            [light](const shared_ptr<ShadowMapRenderer>& e) {
-                return e->getShadowMap()->getLight() == light;
-        });
+        const auto it = std::find_if(
+                shadowMapRenderers.begin(), shadowMapRenderers.end(), [light](const shared_ptr<ShadowMapRenderer> &e) {
+                    return e->getLight() == light;
+                });
         return (it == shadowMapRenderers.end() ? nullptr : *it);
     }
 
-    void SceneRenderer::enableLightShadowCasting(const Light* light) {
-        if (enableShadowMapRenders &&
-            (light->getCastShadows() &&
-            (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
-            const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(
-                    device,
-                    shaderDirectory,
-                    light);
+    void SceneRenderer::enableLightShadowCasting(const Light *light) {
+        if (enableShadowMapRenders && (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
+            const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
             shadowMapRenderer->activateCamera(currentCamera);
             shadowMapRenderers.push_back(shadowMapRenderer);
             device.registerRenderer(shadowMapRenderer);
         }
     }
 
-    void SceneRenderer::disableLightShadowCasting(const Light* light) {
+    void SceneRenderer::disableLightShadowCasting(const Light *light) {
         if (enableShadowMapRenders) {
             if (const auto renderer = findShadowMapRenderer(light); renderer != nullptr) {
                 device.unRegisterRenderer(renderer);

@@ -1,6 +1,8 @@
 module;
-#include <volk.h>
+#include <cstdlib>
 #include "z0/libraries.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <volk.h>
 
 module z0;
 
@@ -20,8 +22,9 @@ namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
+        light{light},
+        lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr},
         shadowMap{make_shared<ShadowMapFrameBuffer>(device, light)} {
-
     }
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
@@ -40,9 +43,43 @@ namespace z0 {
         ShadowMapRenderer::cleanup();
     }
 
+    mat4 ShadowMapRenderer::getLightSpace() const {
+        vec3 lightPosition;
+        vec3 sceneCenter;
+        mat4 lightProjection;
+        if (lightIsDirectional) {
+            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+            const auto lightDirection = normalize(
+                    mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
+            // Scene bounds
+            constexpr auto limit    = 20.0f;
+            auto           sceneMin = vec3{-limit, -limit, -limit} + currentCamera->getPositionGlobal();
+            auto           sceneMax = vec3{limit, limit, limit} + currentCamera->getPositionGlobal();
+            // Set up the orthographic projection matrix
+            auto orthoWidth  = distance(sceneMin.x, sceneMax.x);
+            auto orthoHeight = distance(sceneMin.y, sceneMax.y);
+            auto orthoDepth  = distance(sceneMin.z, sceneMax.z);
+            sceneCenter      = (sceneMin + sceneMax) / 2.0f;
+            lightPosition    = sceneCenter - lightDirection * (orthoDepth / 2.0f);
+            // Position is scene center offset by light direction
+            lightProjection = ortho(-orthoWidth / 2, orthoWidth / 2,
+                                    -orthoHeight / 2, orthoHeight / 2,
+                                    -orthoDepth/2, orthoDepth);
+        } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
+            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            lightPosition       = light->getPositionGlobal();
+            sceneCenter         = lightPosition + lightDirection;
+            lightProjection     = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+        } else {
+            return mat4{};
+        }
+        // Combine the projection and view matrix to form the light's space matrix
+        return lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+    }
+
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         if (currentCamera == nullptr) { return; }
-        const GobalUniformBuffer globalUbo{.lightSpace = shadowMap->getLightSpace(currentCamera->getPositionGlobal())};
+        const GobalUniformBuffer globalUbo{.lightSpace = getLightSpace()};
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         uint32_t modelIndex = 0;

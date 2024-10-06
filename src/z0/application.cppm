@@ -171,8 +171,8 @@ export namespace z0 {
         vector<shared_ptr<Node>> removedNodes{};
         // vector renderer size ratios
         vec2 vectorRatio;
-
-        shared_ptr<PostprocessingRenderer> postProcessingRenderer;
+        // Renders used in development to view depth buffers
+        shared_ptr<PostprocessingRenderer> depthBufferRenderer;
 
         /*
          * Main loop members
@@ -223,6 +223,7 @@ export namespace z0 {
         // Register all nodes types
         void registerTypes() const;
 
+        // Process scene updates before drawing a frame
         void processDeferredUpdates();
 
     public:

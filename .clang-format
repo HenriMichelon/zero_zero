@@ -9,6 +9,7 @@ AlignOperands: false
 AlignTrailingComments: false
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
+AllowShortIfStatementsOnASingleLine: true
 BraceWrapping: 
   AfterCaseLabel: false
   AfterClass: false

@@ -270,14 +270,15 @@ namespace z0 {
         }
         sceneRenderer->postUpdateScene();
 
-        // if (postProcessingRenderer == nullptr) {
+        // Preview the first shadow map depth buffer
+        // if (depthBufferRenderer == nullptr) {
         //     const string shaderDir{(applicationConfig.appDir / "shaders").string()};
-        //     postProcessingRenderer = make_shared<SimplePostprocessingRenderer>(
+        //     depthBufferRenderer = make_shared<SimplePostprocessingRenderer>(
         //         *device,
         //         shaderDir,
         //         "depth_test",
         //         sceneRenderer->_getShadowMapRenderer(0)->getShadowMap().get());
-        //     device->renderers.push_back(postProcessingRenderer);
+        //     device->renderers.push_back(depthBufferRenderer);
         // }
     }
 

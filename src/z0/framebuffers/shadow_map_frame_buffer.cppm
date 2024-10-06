@@ -8,20 +8,16 @@ import :Light;
 import :Device;
 import :SampledFrameBuffer;
 
-export namespace z0 {
+export namespace z0
+{
 
     /**
      * Offscreen frame buffer for rendering shadow, one per light
      */
-    class ShadowMapFrameBuffer : public SampledFrameBuffer {
+    class ShadowMapFrameBuffer : public SampledFrameBuffer
+    {
     public:
-        explicit ShadowMapFrameBuffer(const Device &dev, const Light *spotLight);
-
-        [[nodiscard]] mat4 getLightSpace(vec3 cameraPosition) const;
-
-        [[nodiscard]] inline const Light *getLight() const { return light; }
-
-        [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+        explicit ShadowMapFrameBuffer(const Device &dev, bool isCascaded);
 
         [[nodiscard]] inline const VkSampler &getSampler() const { return sampler; }
 
@@ -32,9 +28,7 @@ export namespace z0 {
         void cleanupImagesResources() override;
 
     private:
-        const Light *light;
-        bool         lightIsDirectional;
-        uint32_t     size;
+        uint32_t size;
     };
 
 } // namespace z0
