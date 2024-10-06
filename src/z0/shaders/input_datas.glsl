@@ -20,6 +20,7 @@ struct PointLight {
 struct ShadowMap {
     mat4 lightSpace;
     vec3 lightPos;
+    bool isCascaded;
 };
 
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
@@ -57,7 +58,7 @@ layout(set = 0, binding = 4) uniform ShadowMapArray {
     ShadowMap shadowMaps[1];
 } shadowMapsInfos;
 
-layout(set = 0, binding = 5) uniform sampler2D shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(set = 0, binding = 6) uniform PointLightArray {
     PointLight lights[1];

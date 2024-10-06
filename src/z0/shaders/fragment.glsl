@@ -48,22 +48,25 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
 
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 float shadowFactor(int shadowMapIndex) {
+    vec3 texelSize = 1.0 / textureSize(shadowMaps[shadowMapIndex], 0);
+
     vec4 ShadowCoord = shadowMapsInfos.shadowMaps[shadowMapIndex].lightSpace * fs_in.GLOBAL_POSITION;
     vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
     if (projCoords.z > 1.0) return 1.0f;
     projCoords.xy = projCoords.xy * 0.5 + 0.5;
     const bool outOfView = (projCoords.x < 0.001f || projCoords.x > 0.999f || projCoords.y < 0.001f || projCoords.y > 0.999f);
     if (outOfView) return 1.0f;
-    float closestDepth = texture(shadowMaps[shadowMapIndex], projCoords.xy).r;
+    // use the first image of the sampler2DArray
+    float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, 1.0f)).r;
     float currentDepth = projCoords.z;
 
 //    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
 //    return shadow;
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMaps[shadowMapIndex], 0);
     for(int x = -1; x <= 1; ++x)  {
         for(int y = -1; y <= 1; ++y) {
-            float pcfDepth = texture(shadowMaps[shadowMapIndex], projCoords.xy + vec2(x, y) * texelSize).r;
+            // use the first image of the sampler2DArray
+            float pcfDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy + vec2(x, y) * texelSize.xy, 1.0f)).r;
             shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
         }
     }

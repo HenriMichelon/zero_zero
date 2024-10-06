@@ -21,6 +21,7 @@ namespace z0 {
                      const string &                 name):
         Resource(name), device{device}, width{width}, height{height} {
         assert(data.size() == 6 && "Must have 6 images for a cubemap");
+        // Create staging buffer for CPU to GPU images copy
         Buffer textureStagingBuffer{
                 device,
                 imageSize,
@@ -31,10 +32,12 @@ namespace z0 {
         if (textureStagingBuffer.map() != VK_SUCCESS) {
             die("Failed to map Cubmap texture to GPU memory");
         }
+        // Copy the 6 images data into staging buffer
         for (int i = 0; i < 6; i++) {
             textureStagingBuffer.writeToBuffer(data[i], imageSize, textureStagingBuffer.getAlignmentSize() * i);
         }
 
+        // Create image in GPU memory, one image in memory for the 6 images of the cubemap
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
         device.createImage(width,
                            height,
@@ -50,6 +53,7 @@ namespace z0 {
                            VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
                            6);
 
+        // Define the cube map 6 images regions inside the single GPU image
         VkBufferImageCopy layerRegions[6] = {};
         for (uint32_t i = 0; i < 6; i++) {
             layerRegions[i].bufferOffset      = textureStagingBuffer.getAlignmentSize() * i;
@@ -68,6 +72,7 @@ namespace z0 {
                     1
             };
         }
+        // prepare for CPU to GPU transfert
         const VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
@@ -78,6 +83,7 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
+        // Copy the 6 images into the GPU
         vkCmdCopyBufferToImage(
                 commandBuffer,
                 textureStagingBuffer.getBuffer(),
@@ -86,6 +92,7 @@ namespace z0 {
                 6,
                 layerRegions
                 );
+        // End the transfert
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

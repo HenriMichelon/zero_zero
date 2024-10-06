@@ -26,6 +26,7 @@ import :Light;
 import :DirectionalLight;
 import :OmniLight;
 import :SpotLight;
+import :FrameBuffer;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
 import :Skybox;
@@ -88,9 +89,7 @@ namespace z0 {
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             omniLights.push_back(omniLight);
-            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                enableLightShadowCasting(spotLight);
-            }
+            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) { enableLightShadowCasting(spotLight); }
         }
         ModelsRenderer::addNode(node);
     }
@@ -99,9 +98,7 @@ namespace z0 {
         if (dynamic_cast<Skybox *>(node.get())) {
             skyboxRenderer.reset();
         } else if (const auto *environment = dynamic_cast<Environment *>(node.get())) {
-            if (currentEnvironment == environment) {
-                currentEnvironment = nullptr;
-            }
+            if (currentEnvironment == environment) { currentEnvironment = nullptr; }
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
             if (directionalLight == light) {
                 disableLightShadowCasting(directionalLight);
@@ -241,17 +238,15 @@ namespace z0 {
                     .specular = directionalLight->getSpecularIntensity(),
             };
         }
-        if (currentEnvironment != nullptr) {
-            globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
-        }
+        if (currentEnvironment != nullptr) { globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity(); }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                auto &renderer               = shadowMapRenderers[i];
-                shadowMapArray[i].lightSpace = renderer->getLightSpace(); // XXX computed 2 times per frame !
-                shadowMapArray[i].lightPos   = renderer->getLightPosition();
+                shadowMapArray[i].lightSpace = shadowMapRenderers[i]->getLightSpace();
+                shadowMapArray[i].lightPos   = shadowMapRenderers[i]->getLightPosition();
+                shadowMapArray[i].cascaded   = shadowMapRenderers[i]->isDirectionalLight();
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
@@ -447,7 +442,7 @@ namespace z0 {
             const auto &shadowMap      = shadowMapRenderer->getShadowMap();
             shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
                     .sampler     = shadowMap->getSampler(),
-                    .imageView   = shadowMap->getImageView(),
+                    .imageView   = shadowMap->FrameBuffer::getImageView(),
                     .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
             };
             imageIndex += 1;
@@ -482,9 +477,7 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        if (skyboxRenderer != nullptr) {
-            skyboxRenderer->loadShaders();
-        }
+        if (skyboxRenderer != nullptr) { skyboxRenderer->loadShaders(); }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
@@ -500,9 +493,7 @@ namespace z0 {
     }
 
     void SceneRenderer::cleanupImagesResources() {
-        if (depthFrameBuffer != nullptr) {
-            resolvedDepthFrameBuffer->cleanupImagesResources();
-        }
+        if (depthFrameBuffer != nullptr) { resolvedDepthFrameBuffer->cleanupImagesResources(); }
         colorFrameBufferHdr->cleanupImagesResources();
         colorFrameBufferMultisampled.cleanupImagesResources();
     }
@@ -511,9 +502,7 @@ namespace z0 {
         cleanupImagesResources();
         colorFrameBufferHdr->createImagesResources();
         colorFrameBufferMultisampled.createImagesResources();
-        if (depthFrameBuffer != nullptr) {
-            resolvedDepthFrameBuffer->createImagesResources();
-        }
+        if (depthFrameBuffer != nullptr) { resolvedDepthFrameBuffer->createImagesResources(); }
     }
 
     void SceneRenderer::beginRendering(VkCommandBuffer commandBuffer) {
@@ -697,10 +686,10 @@ namespace z0 {
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
-        const auto it = std::find_if(
-                shadowMapRenderers.begin(), shadowMapRenderers.end(), [light](const shared_ptr<ShadowMapRenderer> &e) {
-                    return e->getLight() == light;
-                });
+        const auto it =
+                std::find_if(shadowMapRenderers.begin(),
+                             shadowMapRenderers.end(),
+                             [light](const shared_ptr<ShadowMapRenderer> &e) { return e->getLight() == light; });
         return (it == shadowMapRenderers.end() ? nullptr : *it);
     }
 

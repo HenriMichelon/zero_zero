@@ -1,6 +1,6 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 export module z0:SceneRenderer;
 
@@ -72,19 +72,20 @@ namespace z0 {
         };
 
         struct GobalUniformBuffer {
-            mat4                                projection{1.0f};
-            mat4                                view{1.0f};
-            vec4                                ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
-            alignas(16) vec3                    cameraPosition;
+            mat4 projection{1.0f};
+            mat4 view{1.0f};
+            vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
+            alignas(16) vec3 cameraPosition;
             alignas(16) DirectionalLightUniform directionalLight;
-            alignas(4) bool                     haveDirectionalLight{false};
-            alignas(4) uint32_t                 pointLightsCount{0};
-            alignas(4) uint32_t                 shadowMapsCount{0};
+            alignas(4) bool haveDirectionalLight{false};
+            alignas(4) uint32_t pointLightsCount{0};
+            alignas(4) uint32_t shadowMapsCount{0};
         };
 
         struct ShadowMapUniformBuffer {
-            mat4             lightSpace;
+            mat4 lightSpace;
             alignas(16) vec3 lightPos;
+            alignas(4) bool cascaded;
         };
 
         struct ModelUniformBuffer {
@@ -92,17 +93,17 @@ namespace z0 {
         };
 
         struct MaterialUniformBuffer {
-            alignas(4) int     transparency{TRANSPARENCY_DISABLED};
-            alignas(4) float   alphaScissor{0.1f};
+            alignas(4) int transparency{TRANSPARENCY_DISABLED};
+            alignas(4) float alphaScissor{0.1f};
             alignas(4) int32_t diffuseIndex{-1};
             alignas(4) int32_t specularIndex{-1};
             alignas(4) int32_t normalIndex{-1};
-            alignas(16) vec4   albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
-            alignas(4) float   shininess{32.0f};
-            alignas(4) bool    hasTransform{false};
-            alignas(8) vec2    textureOffset{0.0f, 0.0f};
-            alignas(8) vec2    textureScale{1.0f, 1.0f};
-            alignas(16) vec4   parameters[ShaderMaterial::MAX_PARAMETERS];
+            alignas(16) vec4 albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
+            alignas(4) float shininess{32.0f};
+            alignas(4) bool hasTransform{false};
+            alignas(8) vec2 textureOffset{0.0f, 0.0f};
+            alignas(8) vec2 textureScale{1.0f, 1.0f};
+            alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
         struct PointLightUniformBuffer {
@@ -112,7 +113,7 @@ namespace z0 {
             alignas(4) float constant{1.0f};
             alignas(4) float linear{0.0f};
             alignas(4) float quadratic{0.0f};
-            alignas(4) bool  isSpot{false};
+            alignas(4) bool isSpot{false};
             alignas(16) vec3 direction{vec3{0.f, .0f, .0f}};
             alignas(4) float cutOff{cos(radians(10.0f))};
             alignas(4) float outerCutOff{cos(radians(15.0f))};
@@ -211,15 +212,13 @@ namespace z0 {
 
         void removeImage(const shared_ptr<Image> &image);
 
-        void drawModels(VkCommandBuffer             commandBuffer,
-                        uint32_t                    currentFrame,
-                        const list<MeshInstance *> &modelsToDraw);
+        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance *> &modelsToDraw);
 
         [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const;
 
-        void enableLightShadowCasting(const Light* light);
+        void enableLightShadowCasting(const Light *light);
 
-        void disableLightShadowCasting(const Light* light);
+        void disableLightShadowCasting(const Light *light);
 
     public:
         shared_ptr<ShadowMapRenderer> _getShadowMapRenderer(const int index) const { return shadowMapRenderers[index]; }
@@ -228,4 +227,4 @@ namespace z0 {
 
         SceneRenderer &operator=(const SceneRenderer &) = delete;
     };
-}
+} // namespace z0

@@ -1,8 +1,8 @@
 module;
 #include <cstdlib>
-#include "z0/libraries.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <volk.h>
+#include "z0/libraries.h"
 
 module z0;
 
@@ -21,11 +21,10 @@ import :ShadowMapRenderer;
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
-        light{light},
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, light{light},
         lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr},
-        shadowMap{make_shared<ShadowMapFrameBuffer>(device, light)} {
-    }
+        // Use a cascaded shadow map with layered image for directional light
+        shadowMap{make_shared<ShadowMapFrameBuffer>(device, lightIsDirectional)} {}
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
@@ -39,18 +38,16 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    ShadowMapRenderer::~ShadowMapRenderer() {
-        ShadowMapRenderer::cleanup();
-    }
+    ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
-    mat4 ShadowMapRenderer::getLightSpace() const {
+    void ShadowMapRenderer::computeLightSpace() {
         vec3 lightPosition;
         vec3 sceneCenter;
         mat4 lightProjection;
         if (lightIsDirectional) {
             const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-            const auto lightDirection = normalize(
-                    mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
+            const auto  lightDirection =
+                    normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
             // Scene bounds
             constexpr auto limit    = 20.0f;
             auto           sceneMin = vec3{-limit, -limit, -limit} + currentCamera->getPositionGlobal();
@@ -62,24 +59,24 @@ namespace z0 {
             sceneCenter      = (sceneMin + sceneMax) / 2.0f;
             lightPosition    = sceneCenter - lightDirection * (orthoDepth / 2.0f);
             // Position is scene center offset by light direction
-            lightProjection = ortho(-orthoWidth / 2, orthoWidth / 2,
-                                    -orthoHeight / 2, orthoHeight / 2,
-                                    -orthoDepth/2, orthoDepth);
+            lightProjection = ortho(
+                    -orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, -orthoDepth / 2, orthoDepth);
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
-            lightPosition       = light->getPositionGlobal();
-            sceneCenter         = lightPosition + lightDirection;
-            lightProjection     = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            lightPosition             = light->getPositionGlobal();
+            sceneCenter               = lightPosition + lightDirection;
+            lightProjection           = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
         } else {
-            return mat4{};
+            lightSpace = mat4{};
         }
         // Combine the projection and view matrix to form the light's space matrix
-        return lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+        lightSpace = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
     }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         if (currentCamera == nullptr) { return; }
-        const GobalUniformBuffer globalUbo{.lightSpace = getLightSpace()};
+        computeLightSpace();
+        const GobalUniformBuffer globalUbo{.lightSpace = lightSpace};
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         uint32_t modelIndex = 0;
@@ -194,9 +191,7 @@ namespace z0 {
     void ShadowMapRenderer::createImagesResources() { shadowMap->createImagesResources(); }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        if (shadowMap != nullptr) {
-            shadowMap->cleanupImagesResources();
-        }
+        if (shadowMap != nullptr) { shadowMap->cleanupImagesResources(); }
     }
 
     void ShadowMapRenderer::recreateImagesResources() {}
@@ -213,18 +208,17 @@ namespace z0 {
                                      VK_IMAGE_ASPECT_DEPTH_BIT);
         const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView   = shadowMap->getImageView(),
+                .imageView   = shadowMap->getImageView(1),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
                 .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
                 .clearValue  = depthClearValue,
         };
-        const VkRenderingInfo renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                                            .pNext                = nullptr,
-                                            .renderArea           = {{0, 0},
-                                                                    {shadowMap->getSize(), shadowMap->getSize()}},
-                                            .layerCount           = 1,
+        const VkRenderingInfo renderingInfo{.sType      = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                            .pNext      = nullptr,
+                                            .renderArea = {{0, 0}, {shadowMap->getSize(), shadowMap->getSize()}},
+                                            .layerCount = 1,
                                             .colorAttachmentCount = 0,
                                             .pColorAttachments    = nullptr,
                                             .pDepthAttachment     = &depthAttachmentInfo,

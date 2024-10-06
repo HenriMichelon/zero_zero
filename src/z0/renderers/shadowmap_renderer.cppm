@@ -14,24 +14,26 @@ import :Light;
 import :Buffer;
 import :Mesh;
 
-export namespace z0
-{
+export namespace z0 {
+
     class Camera;
+
     /**
      * Shadow map renderer, one per light
      */
-    class ShadowMapRenderer : public Renderpass, public Renderer
-    {
+    class ShadowMapRenderer : public Renderpass, public Renderer {
     public:
         ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light);
 
         void loadScene(const list<MeshInstance *> &meshes);
 
+        [[nodiscard]] inline mat4 getLightSpace() const { return lightSpace; }
+
         inline void activateCamera(Camera *camera) { currentCamera = camera; }
 
-        [[nodiscard]] mat4 getLightSpace() const;
-
         [[nodiscard]] inline const Light *getLight() const { return light; }
+
+        [[nodiscard]] inline bool isDirectionalLight() const { return lightIsDirectional; }
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
@@ -42,13 +44,11 @@ export namespace z0
         ~ShadowMapRenderer() override;
 
     private:
-        struct GobalUniformBuffer
-        {
+        struct GobalUniformBuffer {
             mat4 lightSpace;
         };
 
-        struct ModelUniformBuffer
-        {
+        struct ModelUniformBuffer {
             mat4 matrix;
         };
 
@@ -74,6 +74,10 @@ export namespace z0
         uint32_t modelUniformBufferCount{0};
         // The destination frame buffer
         shared_ptr<ShadowMapFrameBuffer> shadowMap;
+        // Last computed light space
+        mat4 lightSpace;
+
+        void computeLightSpace();
 
         void update(uint32_t currentFrame) override;
 
