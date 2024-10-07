@@ -56,21 +56,19 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
     projCoords.xy = projCoords.xy * 0.5 + 0.5;
     const bool outOfView = (projCoords.x < 0.001f || projCoords.x > 0.999f || projCoords.y < 0.001f || projCoords.y > 0.999f);
     if (outOfView) return 1.0f;
-    // use the first image of the sampler2DArray
     float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, float(cascadeIndex))).r;
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
-    return shadow;
-//    float shadow = 0.0;
-//    for(int x = -1; x <= 1; ++x)  {
-//        for(int y = -1; y <= 1; ++y) {
-//            // use the first image of the sampler2DArray
-//            float pcfDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy + vec2(x, y) * texelSize.xy, float(cascadeIndex))).r;
-//            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
-//        }
-//    }
-//    return shadow /= 9.0;
+//    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
+//    return shadow;
+    float shadow = 0.0;
+    for(int x = -1; x <= 1; ++x)  {
+        for(int y = -1; y <= 1; ++y) {
+            float pcfDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy + vec2(x, y) * texelSize.xy, float(cascadeIndex))).r;
+            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
+        }
+    }
+    return shadow /= 9.0;
 }
 
 vec4 fragmentColor(vec4 color, bool useColor) {
@@ -99,7 +97,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     }
 
     // Get cascade index for the current fragment's view position
-    uint cascadeIndex = 0;
+    int cascadeIndex = 0;
 //    if (shadowMapsInfos.shadowMaps[0].isCascaded) {
         for (int index = 0; index < 3; index++) {
             if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[index]) {
@@ -108,9 +106,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         }
 //    }
 
-    float shadow = 0.0;
+    float   shadow = 0.0;
     for (int i = 0; i < global.shadowMapsCount; i++) {
-        shadow += shadowFactor(i, 0);
+        shadow += shadowFactor(i, cascadeIndex);
     }
 
     for(int i = 0; i < global.pointLightsCount; i++) {

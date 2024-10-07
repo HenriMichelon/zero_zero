@@ -101,11 +101,11 @@ export namespace z0 {
 
         void cleanupImagesResources() override;
 
-        void recreateImagesResources() override;
+        void recreateImagesResources() override {};
 
-        void beginRendering(VkCommandBuffer commandBuffer) override;
+        void beginRendering(VkCommandBuffer commandBuffer) override {};
 
-        void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
+        void endRendering(VkCommandBuffer commandBuffer, bool isLast) override {};
 
     public:
         ShadowMapRenderer(const ShadowMapRenderer &) = delete;

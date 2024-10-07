@@ -22,8 +22,8 @@ struct CascadeSplitDepth {
 };
 
 struct ShadowMap {
-    mat4 lightSpace[4]; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
-    vec4 cascadeSplitDepth; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
+    mat4 lightSpace[3]; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
+    vec3 cascadeSplitDepth; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
 //    bool isCascaded;
 };
 
