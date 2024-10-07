@@ -12,14 +12,12 @@ import :Camera;
 
 namespace z0 {
 
-    Camera::Camera(const string &nodeName):
-        Node{nodeName, CAMERA} {
+    Camera::Camera(const string &nodeName) : Node{nodeName, CAMERA} {
         setPerspectiveProjection(fov, nearDistance, farDistance);
-        setViewDirection();
+        updateViewMatrix();
     }
 
-    void Camera::setOrthographicProjection(const float left, const float right,
-                                           const float top, const float  bottom,
+    void Camera::setOrthographicProjection(const float left, const float right, const float top, const float bottom,
                                            const float near, const float far) {
         projectionMatrix       = mat4{1.0f};
         projectionMatrix[0][0] = 2.f / (right - left);
@@ -31,11 +29,10 @@ namespace z0 {
     }
 
     void Camera::setPerspectiveProjection(const float fov, const float near, const float far) {
-        this->fov                = fov;
-        nearDistance             = near;
-        farDistance              = far;
-        usePerspectiveProjection = true;
-        const auto aspect        = Application::get()._getDevice().getAspectRatio();
+        this->fov         = fov;
+        nearDistance      = near;
+        farDistance       = far;
+        const auto aspect = Application::get()._getDevice().getAspectRatio();
         assert(glm::abs(aspect - numeric_limits<float>::epsilon()) > 0.0f);
         const auto tanHalfFovy = tan(radians(fov) / 2.f);
         projectionMatrix       = mat4{0.0f};
@@ -46,23 +43,14 @@ namespace z0 {
         projectionMatrix[3][2] = -(far * near) / (far - near);
     }
 
-    const mat4 &Camera::getProjection() {
-        if (usePerspectiveProjection) {
-            setPerspectiveProjection(fov, nearDistance, farDistance);
-        }
-        return projectionMatrix;
-    }
-
-    vec2 Camera::unproject(const vec3 worldCoords) {
+    vec2 Camera::unproject(const vec3 worldCoords) const {
         const vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
         const vec3 ndcCoords  = vec3(clipCoords) / clipCoords.w;
-        return {
-                (VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
-                VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)
-        };
+        return {(VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
+                VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)};
     }
 
-    void Camera::setViewDirection() {
+    void Camera::updateViewMatrix() {
         const auto  rotationQuaternion = toQuat(mat3(worldTransform));
         const auto  newDirection       = rotationQuaternion * direction;
         const auto &position           = getPositionGlobal();
@@ -89,12 +77,12 @@ namespace z0 {
 
     void Camera::_updateTransform(const mat4 &parentMatrix) {
         Node::_updateTransform(parentMatrix);
-        setViewDirection();
+        updateViewMatrix();
     }
 
     void Camera::_updateTransform() {
         Node::_updateTransform();
-        setViewDirection();
+        updateViewMatrix();
     }
 
-}
+} // namespace z0

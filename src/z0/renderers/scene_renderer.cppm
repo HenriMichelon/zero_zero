@@ -25,6 +25,7 @@ import :OmniLight;
 import :SpotLight;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
+import :ShadowMapFrameBuffer;
 import :Skybox;
 
 namespace z0 {
@@ -83,9 +84,9 @@ namespace z0 {
         };
 
         struct ShadowMapUniformBuffer {
-            mat4 lightSpace;
-            alignas(16) vec3 lightPos;
-            alignas(4) bool cascaded;
+            // mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            float cascadeSplitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            // alignas(4) bool isCascaded;
         };
 
         struct ModelUniformBuffer {

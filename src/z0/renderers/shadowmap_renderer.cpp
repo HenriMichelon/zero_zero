@@ -1,8 +1,8 @@
 module;
 #include <cstdlib>
-#include <glm/gtc/matrix_transform.hpp>
 #include <volk.h>
 #include "z0/libraries.h"
+#include <glm/gtx/quaternion.hpp>
 
 module z0;
 
@@ -21,10 +21,11 @@ import :ShadowMapRenderer;
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, light{light},
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
+        light{light},
         lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr},
-        // Use a cascaded shadow map with layered image for directional light
-        shadowMap{make_shared<ShadowMapFrameBuffer>(device, lightIsDirectional)} {}
+        cascaded{lightIsDirectional},
+        shadowMap{make_shared<ShadowMapFrameBuffer>(device, cascaded)} {}
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
@@ -40,44 +41,135 @@ namespace z0 {
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
-    void ShadowMapRenderer::computeLightSpace() {
-        vec3 lightPosition;
-        vec3 sceneCenter;
-        mat4 lightProjection;
+    void ShadowMapRenderer::updateLightSpace() {
         if (lightIsDirectional) {
-            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-            const auto  lightDirection =
-                    normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
-            // Scene bounds
-            constexpr auto limit    = 20.0f;
-            auto           sceneMin = vec3{-limit, -limit, -limit} + currentCamera->getPositionGlobal();
-            auto           sceneMax = vec3{limit, limit, limit} + currentCamera->getPositionGlobal();
-            // Set up the orthographic projection matrix
-            auto orthoWidth  = distance(sceneMin.x, sceneMax.x);
-            auto orthoHeight = distance(sceneMin.y, sceneMax.y);
-            auto orthoDepth  = distance(sceneMin.z, sceneMax.z);
-            sceneCenter      = (sceneMin + sceneMax) / 2.0f;
-            lightPosition    = sceneCenter - lightDirection * (orthoDepth / 2.0f);
-            // Position is scene center offset by light direction
-            lightProjection = ortho(
-                    -orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, -orthoDepth / 2, orthoDepth);
+            // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
+            // float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            //
+            // const auto nearClip = currentCamera->getNearClipDistance();
+            // const auto farClip = currentCamera->getFarClipDistance();
+            // const auto clipRange = farClip - nearClip;
+            //
+            // const auto minZ = nearClip;
+            // const auto maxZ = nearClip + clipRange;
+            //
+            // const auto range = maxZ - minZ;
+            // const auto ratio = maxZ / minZ;
+            //
+            // // Calculate split depths based on view camera frustum
+            // // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+            // for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+            //     float p = (i + 1) / static_cast<float>(ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
+            //     float log = minZ * std::pow(ratio, p);
+            //     float uniform = minZ + range * p;
+            //     float d = cascadeSplitLambda * (log - uniform) + uniform;
+            //     cascadeSplits[i] = (d - nearClip) / clipRange;
+            // }
+            //
+            // // Calculate orthographic projection matrix for each cascade
+            // float lastSplitDist = 0.0;
+            // for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+            //     float splitDist = cascadeSplits[i];
+            //
+            //     glm::vec3 frustumCorners[8] = {
+            //         glm::vec3(-1.0f,  1.0f, 0.0f),
+            //         glm::vec3( 1.0f,  1.0f, 0.0f),
+            //         glm::vec3( 1.0f, -1.0f, 0.0f),
+            //         glm::vec3(-1.0f, -1.0f, 0.0f),
+            //         glm::vec3(-1.0f,  1.0f,  1.0f),
+            //         glm::vec3( 1.0f,  1.0f,  1.0f),
+            //         glm::vec3( 1.0f, -1.0f,  1.0f),
+            //         glm::vec3(-1.0f, -1.0f,  1.0f),
+            //     };
+            //
+            //     // Project frustum corners into world space
+            //     glm::mat4 invCam = glm::inverse(currentCamera->getProjection() * currentCamera->getView());
+            //     for (uint32_t j = 0; j < 8; j++) {
+            //         glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[j], 1.0f);
+            //         frustumCorners[j] = invCorner / invCorner.w;
+            //     }
+            //
+            //     for (uint32_t j = 0; j < 4; j++) {
+            //         glm::vec3 dist = frustumCorners[j + 4] - frustumCorners[j];
+            //         frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
+            //         frustumCorners[j] = frustumCorners[j] + (dist * lastSplitDist);
+            //     }
+            //
+            //     // Get frustum center
+            //     glm::vec3 frustumCenter = glm::vec3(0.0f);
+            //     for (uint32_t j = 0; j < 8; j++) {
+            //         frustumCenter += frustumCorners[j];
+            //     }
+            //     frustumCenter /= 8.0f;
+            //
+            //     float radius = 0.0f;
+            //     for (uint32_t j = 0; j < 8; j++) {
+            //         float distance = glm::length(frustumCorners[j] - frustumCenter);
+            //         radius = glm::max(radius, distance);
+            //     }
+            //     radius = std::ceil(radius * 16.0f) / 16.0f;
+            //
+            //     glm::vec3 maxExtents = glm::vec3(radius);
+            //     glm::vec3 minExtents = -maxExtents;
+            //
+            //     glm::vec3 lightDir = normalize(-light->getPositionGlobal());
+            //     glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+            //     glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
+            //
+            //     // Store split distance and matrix in cascade
+            //     splitDepth[i] = (currentCamera->getNearClipDistance() + splitDist * clipRange) * -1.0f;
+            //     // if (i == 0) {
+            //     //     log(to_string(currentCamera->getPositionGlobal()));
+            //     //     log(to_string(frustumCorners[0]));
+            //     //     log(to_string(splitDepth[i]));
+            //     // }
+            //     lightSpace[i] = lightOrthoMatrix * lightViewMatrix;
+            //
+            //     lastSplitDist = cascadeSplits[i];
+            // }
+
+            // const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+            // const auto  lightDirection =
+            //         normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
+            // // Scene bounds
+            // const auto limit            = 10.0f * (cascadeLayer + 1.0f);
+            // auto       cameraPosition   = currentCamera->getPositionGlobal();
+            // const vec3 worldTranslation = toQuat(mat3(currentCamera->getTransformGlobal())) * (AXIS_FRONT * limit);
+            // cameraPosition += worldTranslation;
+            // auto sceneMin = vec3{-limit, -limit, -limit} + cameraPosition;
+            // auto sceneMax = vec3{limit, limit, limit} + cameraPosition;
+            // // Set up the orthographic projection matrix
+            // auto orthoWidth  = distance(sceneMin.x, sceneMax.x);
+            // auto orthoHeight = distance(sceneMin.y, sceneMax.y);
+            // auto orthoDepth  = distance(sceneMin.z, sceneMax.z);
+            // sceneCenter      = (sceneMin + sceneMax) / 2.0f;
+            // lightPosition    = sceneCenter - lightDirection * (orthoDepth / 2.0f);
+            // // Position is scene center offset by light direction
+            // lightProjection = ortho(
+            //         -orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, -orthoDepth*2, orthoDepth);
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
-            lightPosition             = light->getPositionGlobal();
-            sceneCenter               = lightPosition + lightDirection;
-            lightProjection           = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            const auto lightPosition             = light->getPositionGlobal();
+            const auto sceneCenter               = lightPosition + lightDirection;
+            const auto lightProjection           = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            // Combine the projection and view matrix to form the light's space matrix
+            lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
         } else {
-            lightSpace = mat4{};
+            lightSpace[0] = mat4{};
         }
-        // Combine the projection and view matrix to form the light's space matrix
-        lightSpace = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
     }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        if (currentCamera == nullptr) { return; }
-        computeLightSpace();
-        const GobalUniformBuffer globalUbo{.lightSpace = lightSpace};
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
+        if (currentCamera == nullptr) {
+            return;
+        }
+        updateLightSpace();
+        for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+            const GobalUniformBuffer globalUbo {
+                .lightSpace = lightSpace[i],
+            };
+            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
+        }
 
         uint32_t modelIndex = 0;
         for (const auto &meshInstance : models) {
@@ -112,30 +204,32 @@ namespace z0 {
                                vertexAttribute.size(),
                                vertexAttribute.data());
 
-        uint32_t modelIndex = 0;
-        for (const auto &meshInstance : models) {
-            if (meshInstance->isValid()) {
-                auto mesh = meshInstance->getMesh();
-                for (const auto &surface : mesh->getSurfaces()) {
-                    /*if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
-                         vkCmdSetCullMode(commandBuffer,
-                                     surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                     surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT :
-                    VK_CULL_MODE_FRONT_BIT); } else {
-                        //vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
-                    }*/
-                    vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
-                    array<uint32_t, 2> offsets = {
-                            0,
-                            // globalBuffers
+        const auto cascadeCount = 1; //cascaded ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
+        for (uint32_t cascadeIndex = 0; cascadeIndex < cascadeCount; cascadeIndex++) {
+            uint32_t modelIndex = 0;
+            for (const auto &meshInstance : models) {
+                if (meshInstance->isValid()) {
+                    auto mesh = meshInstance->getMesh();
+                    for (const auto &surface : mesh->getSurfaces()) {
+                        /*if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
+                             vkCmdSetCullMode(commandBuffer,
+                                         surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
+                                         surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT :
+                        VK_CULL_MODE_FRONT_BIT); } else {
+                            //vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
+                            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                        }*/
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
+                        array<uint32_t, 2> offsets = {
+                            cascadeIndex,
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
-                    };
-                    bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
-                    mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        };
+                        bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
+                        mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    }
                 }
+                modelIndex += 1;
             }
-            modelIndex += 1;
         }
         vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
     }
@@ -160,7 +254,7 @@ namespace z0 {
                             .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize, ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
     }
 
     void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
@@ -191,7 +285,9 @@ namespace z0 {
     void ShadowMapRenderer::createImagesResources() { shadowMap->createImagesResources(); }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        if (shadowMap != nullptr) { shadowMap->cleanupImagesResources(); }
+        if (shadowMap != nullptr) {
+            shadowMap->cleanupImagesResources();
+        }
     }
 
     void ShadowMapRenderer::recreateImagesResources() {}
@@ -208,7 +304,7 @@ namespace z0 {
                                      VK_IMAGE_ASPECT_DEPTH_BIT);
         const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView   = shadowMap->getImageView(1),
+                .imageView   = shadowMap->getImageView(0),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
                 .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,

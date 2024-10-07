@@ -45,7 +45,7 @@ export namespace z0 {
         /**
          * Returns the projection matrix
          */
-        [[nodiscard]] const mat4 &getProjection();
+        [[nodiscard]] const mat4 &getProjection() const { return projectionMatrix; }
 
         /**
          * Returns the view matrix
@@ -55,7 +55,17 @@ export namespace z0 {
         /**
          * Returns the 2D coordinates in the rendering window that maps to the given 3D point in world space.
          */
-        [[nodiscard]] vec2 unproject(vec3 worldCoords);
+        [[nodiscard]] vec2 unproject(vec3 worldCoords) const;
+
+        /**
+         * Returns the camera near clipping distance
+         */
+        [[nodiscard]] inline float getNearClipDistance() const { return nearDistance; }
+
+        /**
+         * Returns the camera far clipping distance
+         */
+        [[nodiscard]] inline float getFarClipDistance() const { return farDistance; }
 
     private:
         // Field of view in degrees
@@ -64,16 +74,13 @@ export namespace z0 {
         float nearDistance{0.1f};
         // furthest clipping distance
         float farDistance{100.1f};
-        // is the camera view is perspective or orthogonal ?
-        bool usePerspectiveProjection{false};
         // Camera projection matrix for the perspective and orthogonal 3D projections
         mat4       projectionMatrix{1.0f};
         mat4       viewMatrix{1.0f};
         const vec3 direction{0.0f, 0.0f, 1.0f};
         bool       active{false};
 
-        // Compute the view matrix
-        void setViewDirection();
+        void updateViewMatrix();
 
     public:
         inline void _setActive(const bool isActive) { active = isActive; }

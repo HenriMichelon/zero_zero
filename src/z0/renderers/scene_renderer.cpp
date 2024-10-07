@@ -27,6 +27,7 @@ import :DirectionalLight;
 import :OmniLight;
 import :SpotLight;
 import :FrameBuffer;
+import :ShadowMapFrameBuffer;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
 import :Skybox;
@@ -55,7 +56,8 @@ namespace z0 {
             blankImage.reset();
             blankImageData.clear();
         }
-        if (skyboxRenderer != nullptr) skyboxRenderer->cleanup();
+        if (skyboxRenderer != nullptr)
+            skyboxRenderer->cleanup();
         for (const auto &shadowMapRenderer : shadowMapRenderers) {
             device.unRegisterRenderer(shadowMapRenderer);
             shadowMapRenderer->cleanup();
@@ -89,7 +91,9 @@ namespace z0 {
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             omniLights.push_back(omniLight);
-            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) { enableLightShadowCasting(spotLight); }
+            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
+                enableLightShadowCasting(spotLight);
+            }
         }
         ModelsRenderer::addNode(node);
     }
@@ -98,7 +102,9 @@ namespace z0 {
         if (dynamic_cast<Skybox *>(node.get())) {
             skyboxRenderer.reset();
         } else if (const auto *environment = dynamic_cast<Environment *>(node.get())) {
-            if (currentEnvironment == environment) { currentEnvironment = nullptr; }
+            if (currentEnvironment == environment) {
+                currentEnvironment = nullptr;
+            }
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
             if (directionalLight == light) {
                 disableLightShadowCasting(directionalLight);
@@ -113,7 +119,8 @@ namespace z0 {
 
     void SceneRenderer::preUpdateScene() {
         for (const auto &material : OutlineMaterials::_all()) {
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
+                continue;
             material->_incrementReferenceCounter();
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
@@ -132,12 +139,14 @@ namespace z0 {
     }
 
     void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex) {
-        if (meshInstance->getMesh()->_getMaterials().empty()) die("Models without materials are not supported");
+        if (meshInstance->getMesh()->_getMaterials().empty())
+            die("Models without materials are not supported");
         opaquesModels.push_back(meshInstance);
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             material->_incrementReferenceCounter();
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) continue;
+            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
+                continue;
             materialsIndices[material->getId()] = materials.size();
             materials.push_back(material.get());
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
@@ -218,9 +227,12 @@ namespace z0 {
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
-        if (currentCamera == nullptr) return;
-        if (skyboxRenderer != nullptr) skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
-        if (models.empty()) return;
+        if (currentCamera == nullptr)
+            return;
+        if (skyboxRenderer != nullptr)
+            skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
+        if (models.empty())
+            return;
 
         GobalUniformBuffer globalUbo{
                 .projection           = currentCamera->getProjection(),
@@ -238,15 +250,19 @@ namespace z0 {
                     .specular = directionalLight->getSpecularIntensity(),
             };
         }
-        if (currentEnvironment != nullptr) { globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity(); }
+        if (currentEnvironment != nullptr) {
+            globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
+        }
         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                shadowMapArray[i].lightSpace = shadowMapRenderers[i]->getLightSpace();
-                shadowMapArray[i].lightPos   = shadowMapRenderers[i]->getLightPosition();
-                shadowMapArray[i].cascaded   = shadowMapRenderers[i]->isDirectionalLight();
+                // shadowMapArray[i].isCascaded = shadowMapRenderers[i]->isCascaded();
+                for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
+                    // shadowMapArray[i].lightSpace[cascadeIndex]   = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
+                    shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                }
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
@@ -314,7 +330,8 @@ namespace z0 {
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (currentCamera == nullptr) return;
+        if (currentCamera == nullptr)
+            return;
         setInitialState(commandBuffer);
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
@@ -322,7 +339,8 @@ namespace z0 {
             vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
-        if (skyboxRenderer != nullptr) skyboxRenderer->recordCommands(commandBuffer, currentFrame);
+        if (skyboxRenderer != nullptr)
+            skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
@@ -469,7 +487,8 @@ namespace z0 {
                                   .writeImage(5, shadowMapsInfo.data())
                                   .writeBuffer(6, &pointLightBufferInfo);
             if (create) {
-                if (!writer.build(descriptorSet[i])) die("Cannot allocate descriptor set");
+                if (!writer.build(descriptorSet[i]))
+                    die("Cannot allocate descriptor set");
             } else {
                 writer.overwrite(descriptorSet[i]);
             }
@@ -477,7 +496,9 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        if (skyboxRenderer != nullptr) { skyboxRenderer->loadShaders(); }
+        if (skyboxRenderer != nullptr) {
+            skyboxRenderer->loadShaders();
+        }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
@@ -493,7 +514,9 @@ namespace z0 {
     }
 
     void SceneRenderer::cleanupImagesResources() {
-        if (depthFrameBuffer != nullptr) { resolvedDepthFrameBuffer->cleanupImagesResources(); }
+        if (depthFrameBuffer != nullptr) {
+            resolvedDepthFrameBuffer->cleanupImagesResources();
+        }
         colorFrameBufferHdr->cleanupImagesResources();
         colorFrameBufferMultisampled.cleanupImagesResources();
     }
@@ -502,7 +525,9 @@ namespace z0 {
         cleanupImagesResources();
         colorFrameBufferHdr->createImagesResources();
         colorFrameBufferMultisampled.createImagesResources();
-        if (depthFrameBuffer != nullptr) { resolvedDepthFrameBuffer->createImagesResources(); }
+        if (depthFrameBuffer != nullptr) {
+            resolvedDepthFrameBuffer->createImagesResources();
+        }
     }
 
     void SceneRenderer::beginRendering(VkCommandBuffer commandBuffer) {
@@ -585,8 +610,10 @@ namespace z0 {
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image) {
         image->_incrementReferenceCounter();
-        if (find(images.begin(), images.end(), image.get()) != images.end()) return;
-        if (images.size() == MAX_IMAGES) die("Maximum images count reached for the scene renderer");
+        if (find(images.begin(), images.end(), image.get()) != images.end())
+            return;
+        if (images.size() == MAX_IMAGES)
+            die("Maximum images count reached for the scene renderer");
         imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
         images.push_back(image.get());
     }
@@ -663,15 +690,15 @@ namespace z0 {
                     }
                     const auto        &materialIndex = materialsIndices[surface->material->getId()];
                     array<uint32_t, 5> offsets       = {
-                            0,
                             // globalBuffers
+                            0,
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
                             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
                                                   materialIndex),
-                            0,
                             // shadowMapsBuffers
                             0,
                             // pointLightBuffers
+                            0,
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);

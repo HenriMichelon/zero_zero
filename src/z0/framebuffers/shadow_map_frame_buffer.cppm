@@ -15,7 +15,7 @@ export namespace z0{
      */
     class ShadowMapFrameBuffer : public SampledFrameBuffer {
     public:
-        static constexpr auto CASCADED_SHADOWMAP_LAYERS = 3;
+        static constexpr auto CASCADED_SHADOWMAP_LAYERS = 4;
 
         explicit ShadowMapFrameBuffer(const Device &dev, bool isCascaded);
 

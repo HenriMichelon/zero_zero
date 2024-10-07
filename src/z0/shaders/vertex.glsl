@@ -19,6 +19,7 @@ void vertexParameters(vec3 pos) {
         vs_out.UV = uv;
     }
     vs_out.GLOBAL_POSITION = model.matrix * vec4(pos, 1.0);
+    vs_out.VIEW_POSITION = (global.view * vs_out.GLOBAL_POSITION).xyz;
     vs_out.VIEW_DIRECTION = normalize(global.cameraPosition - vs_out.GLOBAL_POSITION.xyz);
     gl_Position = global.projection * global.view * vs_out.GLOBAL_POSITION;
 

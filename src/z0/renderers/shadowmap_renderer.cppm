@@ -27,15 +27,17 @@ export namespace z0 {
 
         void loadScene(const list<MeshInstance *> &meshes);
 
-        [[nodiscard]] inline mat4 getLightSpace() const { return lightSpace; }
+        [[nodiscard]] inline mat4 getLightSpace(const uint32_t index) const { return lightSpace[index]; }
 
         inline void activateCamera(Camera *camera) { currentCamera = camera; }
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
-        [[nodiscard]] inline bool isDirectionalLight() const { return lightIsDirectional; }
+        [[nodiscard]] inline bool isCascaded() const { return cascaded; }
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+
+        [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index) const { return splitDepth[index]; }
 
         void cleanup() override;
 
@@ -56,6 +58,8 @@ export namespace z0 {
         const Light *light;
         // The light is a DirectionalLight
         bool lightIsDirectional;
+        // It's a multi layer cascaded shadow map
+        bool cascaded;
         // Depth bias (and slope) are used to avoid shadowing artifacts
         // Constant depth bias factor (always applied)
         const float depthBiasConstant = 1.25f;
@@ -74,10 +78,13 @@ export namespace z0 {
         uint32_t modelUniformBufferCount{0};
         // The destination frame buffer
         shared_ptr<ShadowMapFrameBuffer> shadowMap;
-        // Last computed light space
-        mat4 lightSpace;
+        // Last computed light spaces for each cascade
+        mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+        // For cascaded shadow map, the last computed cascade split depth for each cascade
+        float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS] = { -10.0f, -40.0f, -100.0f, -400.0f };
+        static constexpr auto cascadeSplitLambda = 0.95f;
 
-        void computeLightSpace();
+        void updateLightSpace();
 
         void update(uint32_t currentFrame) override;
 

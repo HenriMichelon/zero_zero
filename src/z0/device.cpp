@@ -389,6 +389,8 @@ namespace z0 {
                         .baseMipLevel = 0,
                         .levelCount = mipLevels,
                         .baseArrayLayer = baseArrayLayer,
+                        // Note : VK_REMAINING_ARRAY_LAYERS does not work for VK_IMAGE_VIEW_TYPE_2D_ARRAY
+                        // we have to specify the exact number of layers or texture() only read the first layer
                         .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : layers
                 }
         };
