@@ -44,89 +44,88 @@ namespace z0 {
     void ShadowMapRenderer::updateLightSpace() {
         if (lightIsDirectional) {
             // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
-            // float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
-            //
-            // const auto nearClip = currentCamera->getNearClipDistance();
-            // const auto farClip = currentCamera->getFarClipDistance();
-            // const auto clipRange = farClip - nearClip;
-            //
-            // const auto minZ = nearClip;
-            // const auto maxZ = nearClip + clipRange;
-            //
-            // const auto range = maxZ - minZ;
-            // const auto ratio = maxZ / minZ;
-            //
-            // // Calculate split depths based on view camera frustum
-            // // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-            // for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-            //     float p = (i + 1) / static_cast<float>(ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
-            //     float log = minZ * std::pow(ratio, p);
-            //     float uniform = minZ + range * p;
-            //     float d = cascadeSplitLambda * (log - uniform) + uniform;
-            //     cascadeSplits[i] = (d - nearClip) / clipRange;
-            // }
-            //
-            // // Calculate orthographic projection matrix for each cascade
-            // float lastSplitDist = 0.0;
-            // for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-            //     float splitDist = cascadeSplits[i];
-            //
-            //     glm::vec3 frustumCorners[8] = {
-            //         glm::vec3(-1.0f,  1.0f, 0.0f),
-            //         glm::vec3( 1.0f,  1.0f, 0.0f),
-            //         glm::vec3( 1.0f, -1.0f, 0.0f),
-            //         glm::vec3(-1.0f, -1.0f, 0.0f),
-            //         glm::vec3(-1.0f,  1.0f,  1.0f),
-            //         glm::vec3( 1.0f,  1.0f,  1.0f),
-            //         glm::vec3( 1.0f, -1.0f,  1.0f),
-            //         glm::vec3(-1.0f, -1.0f,  1.0f),
-            //     };
-            //
-            //     // Project frustum corners into world space
-            //     glm::mat4 invCam = glm::inverse(currentCamera->getProjection() * currentCamera->getView());
-            //     for (uint32_t j = 0; j < 8; j++) {
-            //         glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[j], 1.0f);
-            //         frustumCorners[j] = invCorner / invCorner.w;
-            //     }
-            //
-            //     for (uint32_t j = 0; j < 4; j++) {
-            //         glm::vec3 dist = frustumCorners[j + 4] - frustumCorners[j];
-            //         frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
-            //         frustumCorners[j] = frustumCorners[j] + (dist * lastSplitDist);
-            //     }
-            //
-            //     // Get frustum center
-            //     glm::vec3 frustumCenter = glm::vec3(0.0f);
-            //     for (uint32_t j = 0; j < 8; j++) {
-            //         frustumCenter += frustumCorners[j];
-            //     }
-            //     frustumCenter /= 8.0f;
-            //
-            //     float radius = 0.0f;
-            //     for (uint32_t j = 0; j < 8; j++) {
-            //         float distance = glm::length(frustumCorners[j] - frustumCenter);
-            //         radius = glm::max(radius, distance);
-            //     }
-            //     radius = std::ceil(radius * 16.0f) / 16.0f;
-            //
-            //     glm::vec3 maxExtents = glm::vec3(radius);
-            //     glm::vec3 minExtents = -maxExtents;
-            //
-            //     glm::vec3 lightDir = normalize(-light->getPositionGlobal());
-            //     glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
-            //     glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
-            //
-            //     // Store split distance and matrix in cascade
-            //     splitDepth[i] = (currentCamera->getNearClipDistance() + splitDist * clipRange) * -1.0f;
-            //     // if (i == 0) {
-            //     //     log(to_string(currentCamera->getPositionGlobal()));
-            //     //     log(to_string(frustumCorners[0]));
-            //     //     log(to_string(splitDepth[i]));
-            //     // }
-            //     lightSpace[i] = lightOrthoMatrix * lightViewMatrix;
-            //
-            //     lastSplitDist = cascadeSplits[i];
-            // }
+            // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
+            float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+
+            const auto nearClip  = currentCamera->getNearClipDistance();
+            const auto farClip   = currentCamera->getFarClipDistance();
+            const auto clipRange = farClip - nearClip;
+
+            const auto minZ = nearClip;
+            const auto maxZ = nearClip + clipRange;
+
+            const auto range = maxZ - minZ;
+            const auto ratio = maxZ / minZ;
+
+            // Calculate split depths based on view camera frustum
+            // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+            for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+                float p          = (i + 1) / static_cast<float>(ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
+                float log        = minZ * std::pow(ratio, p);
+                float uniform    = minZ + range * p;
+                float d          = cascadeSplitLambda * (log - uniform) + uniform;
+                cascadeSplits[i] = (d - nearClip) / clipRange;
+            }
+
+            // Calculate orthographic projection matrix for each cascade
+            float lastSplitDist = 0.0;
+            for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+                float splitDist = cascadeSplits[i];
+
+                glm::vec3 frustumCorners[8] = {
+                        glm::vec3(-1.0f, 1.0f, -1.0f),
+                        glm::vec3(1.0f, 1.0f, -1.0f),
+                        glm::vec3(1.0f, -1.0f, -1.0f),
+                        glm::vec3(-1.0f, -1.0f, -1.0f),
+                        glm::vec3(-1.0f, 1.0f, 1.0f),
+                        glm::vec3(1.0f, 1.0f, 1.0f),
+                        glm::vec3(1.0f, -1.0f, 1.0f),
+                        glm::vec3(-1.0f, -1.0f, 1.0f),
+                };
+
+                // Project frustum corners into world space
+                glm::mat4 invCam = glm::inverse(currentCamera->getProjection() * currentCamera->getView());
+                for (uint32_t j = 0; j < 8; j++) {
+                    glm::vec4 invCorner = invCam * glm::vec4(frustumCorners[j], 1.0f);
+                    frustumCorners[j]   = invCorner / invCorner.w;
+                }
+
+                for (uint32_t j = 0; j < 4; j++) {
+                    glm::vec3 dist        = frustumCorners[j + 4] - frustumCorners[j];
+                    frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
+                    frustumCorners[j]     = frustumCorners[j] + (dist * lastSplitDist);
+                }
+
+                // Get frustum center
+                glm::vec3 frustumCenter = glm::vec3(0.0f);
+                for (uint32_t j = 0; j < 8; j++) {
+                    frustumCenter += frustumCorners[j];
+                }
+                frustumCenter /= 8.0f;
+
+                float radius = 0.0f;
+                for (uint32_t j = 0; j < 8; j++) {
+                    float distance = glm::length(frustumCorners[j] - frustumCenter);
+                    radius         = glm::max(radius, distance);
+                }
+                radius = std::ceil(radius * 16.0f) / 16.0f;
+
+                glm::vec3 maxExtents = glm::vec3(radius);
+                glm::vec3 minExtents = -maxExtents;
+
+                glm::vec3 lightDir        = normalize(-light->getPositionGlobal());
+                glm::mat4 lightViewMatrix = glm::lookAt(
+                        (frustumCenter - lightDir) * -minExtents.z, frustumCenter, AXIS_UP);
+                glm::mat4 lightOrthoMatrix = glm::ortho(
+                        minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f, maxExtents.z - minExtents.z);
+            lightSpace[i] = lightOrthoMatrix * lightViewMatrix;
+
+                // Store split distance and matrix in cascade
+                splitDepth[i] = (currentCamera->getNearClipDistance() + splitDist * clipRange);
+                // log(to_string(cascadeSplits[i]) + " / " + to_string(splitDepth[i]));
+
+                lastSplitDist = cascadeSplits[i];
+            }
 
             // const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
             // const auto  lightDirection =
@@ -148,10 +147,10 @@ namespace z0 {
             // lightProjection = ortho(
             //         -orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, -orthoDepth*2, orthoDepth);
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
-            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
-            const auto lightPosition             = light->getPositionGlobal();
-            const auto sceneCenter               = lightPosition + lightDirection;
-            const auto lightProjection           = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            const auto lightDirection  = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            const auto lightPosition   = light->getPositionGlobal();
+            const auto sceneCenter     = lightPosition + lightDirection;
+            const auto lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
             // Combine the projection and view matrix to form the light's space matrix
             lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
         } else {
@@ -165,8 +164,8 @@ namespace z0 {
         }
         updateLightSpace();
         for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-            const GobalUniformBuffer globalUbo {
-                .lightSpace = lightSpace[i],
+            const GobalUniformBuffer globalUbo{
+                    .lightSpace = lightSpace[i],
             };
             writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
         }
@@ -204,7 +203,7 @@ namespace z0 {
                                vertexAttribute.size(),
                                vertexAttribute.data());
 
-        const auto cascadeCount = 1; //cascaded ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
+        const auto cascadeCount = cascaded ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
         for (uint32_t cascadeIndex = 0; cascadeIndex < cascadeCount; cascadeIndex++) {
             uint32_t modelIndex = 0;
             for (const auto &meshInstance : models) {
@@ -221,8 +220,10 @@ namespace z0 {
                         }*/
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
                         array<uint32_t, 2> offsets = {
-                            cascadeIndex,
-                            static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
+                                static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
+                                                  cascadeIndex),
+                                static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
+                                                      modelIndex),
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                         mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
@@ -254,7 +255,8 @@ namespace z0 {
                             .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize, ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
+        createUniformBuffers(
+                globalUniformBuffers, globalUniformBufferSize, ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
     }
 
     void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {

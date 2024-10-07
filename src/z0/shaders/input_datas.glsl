@@ -22,7 +22,7 @@ struct CascadeSplitDepth {
 };
 
 struct ShadowMap {
-//    mat4 lightSpace[4]; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
+    mat4 lightSpace[4]; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
     vec4 cascadeSplitDepth; // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS
 //    bool isCascaded;
 };
@@ -74,7 +74,7 @@ struct VertexOut {
     vec4 GLOBAL_POSITION;
     vec3 POSITION;
     vec3 VIEW_DIRECTION;
-    vec3 VIEW_POSITION;
+    float CLIPSPACE_Z;
     mat3 TBN;
     vec4 tangent;
 };

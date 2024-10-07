@@ -81,8 +81,9 @@ export namespace z0 {
         // Last computed light spaces for each cascade
         mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
         // For cascaded shadow map, the last computed cascade split depth for each cascade
-        float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS] = { -10.0f, -40.0f, -100.0f, -400.0f };
-        static constexpr auto cascadeSplitLambda = 0.95f;
+        //const float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS] = { -10.0f, -40.0f, -100.0f, -400.0f };
+        float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+        static constexpr auto cascadeSplitLambda = 0.70f;
 
         void updateLightSpace();
 

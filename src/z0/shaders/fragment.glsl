@@ -47,21 +47,21 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
 }
 
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-//float shadowFactor(int shadowMapIndex, int cascadeIndex) {
-//    vec3 texelSize = 1.0 / textureSize(shadowMaps[shadowMapIndex], 0);
-//
-//    vec4 ShadowCoord = shadowMapsInfos.shadowMaps[shadowMapIndex].lightSpace[cascadeIndex] * fs_in.GLOBAL_POSITION;
-//    vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
-//    if (projCoords.z > 1.0) return 1.0f;
-//    projCoords.xy = projCoords.xy * 0.5 + 0.5;
-//    const bool outOfView = (projCoords.x < 0.001f || projCoords.x > 0.999f || projCoords.y < 0.001f || projCoords.y > 0.999f);
-//    if (outOfView) return 1.0f;
-//    // use the first image of the sampler2DArray
-//    float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, float(cascadeIndex))).r;
-//    float currentDepth = projCoords.z;
-//
-////    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
-////    return shadow;
+float shadowFactor(int shadowMapIndex, int cascadeIndex) {
+    vec3 texelSize = 1.0 / textureSize(shadowMaps[shadowMapIndex], 0);
+
+    vec4 ShadowCoord = shadowMapsInfos.shadowMaps[shadowMapIndex].lightSpace[cascadeIndex] * fs_in.GLOBAL_POSITION;
+    vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
+    if (projCoords.z > 1.0) return 1.0f;
+    projCoords.xy = projCoords.xy * 0.5 + 0.5;
+    const bool outOfView = (projCoords.x < 0.001f || projCoords.x > 0.999f || projCoords.y < 0.001f || projCoords.y > 0.999f);
+    if (outOfView) return 1.0f;
+    // use the first image of the sampler2DArray
+    float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, float(cascadeIndex))).r;
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
+    return shadow;
 //    float shadow = 0.0;
 //    for(int x = -1; x <= 1; ++x)  {
 //        for(int y = -1; y <= 1; ++y) {
@@ -71,7 +71,7 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
 //        }
 //    }
 //    return shadow /= 9.0;
-//}
+}
 
 vec4 fragmentColor(vec4 color, bool useColor) {
     if (!useColor) {
@@ -100,60 +100,41 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 
     // Get cascade index for the current fragment's view position
     uint cascadeIndex = 0;
-//    if (fs_in.GLOBAL_POSITION.z < shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[0]) {
-//        cascadeIndex = 1;
-//    }
-//    if (fs_in.GLOBAL_POSITION.z < shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[1]) {
-//        cascadeIndex = 2;
-//    }
-//    if (fs_in.GLOBAL_POSITION.z < shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[2]) {
-//        cascadeIndex = 4;
-//    }
-//    if (fs_in.GLOBAL_POSITION.z < -10) {
-//        cascadeIndex = 1;
-//    }
-//    if (fs_in.GLOBAL_POSITION.z < -40) {
-//        cascadeIndex = 2;
-//    }
-//    if (fs_in.GLOBAL_POSITION.z < -100) {
-//        cascadeIndex = 3;
-//    }
 //    if (shadowMapsInfos.shadowMaps[0].isCascaded) {
-        for (int index = 0; index < 2; ++index) {
-            if (fs_in.GLOBAL_POSITION.z < shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[index]) {
+        for (int index = 0; index < 3; index++) {
+            if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[index]) {
                 cascadeIndex = index + 1;
             }
         }
 //    }
 
-    float shadow = 1.0;
-//    for (int i = 0; i < global.shadowMapsCount; i++) {
-//        shadow += shadowFactor(i, 0);
-//    }
+    float shadow = 0.0;
+    for (int i = 0; i < global.shadowMapsCount; i++) {
+        shadow += shadowFactor(i, 0);
+    }
 
     for(int i = 0; i < global.pointLightsCount; i++) {
         diffuse += calcPointLight(pointLights.lights[i], color, normal);
     }
     vec3 result = (ambient + shadow * diffuse) * color.rgb;
 
-
-    switch(cascadeIndex) {
-    case 0 :
-        result.rgb *= vec3(1.0f, 0.25f, 0.25f);
-        break;
-    case 1 :
-        result.rgb *= vec3(0.25f, 1.0f, 0.25f);
-        break;
-    case 2 :
-        result.rgb *= vec3(0.25f, 0.25f, 1.0f);
-        break;
-    case 3 :
-        result.rgb *= vec3(1.0f, 1.0f, 0.25f);
-        break;
-    default :
-        result.rgb *= vec3(0.0f, 0.0f, 0.0f);
-        break;
-    }
+//    switch(cascadeIndex) {
+//    case 0 :
+//        result.rgb *= vec3(1.0f, 0.25f, 0.25f);
+//        break;
+//    case 1 :
+//        result.rgb *= vec3(0.25f, 1.0f, 0.25f);
+//        break;
+//    case 2 :
+//        result.rgb *= vec3(0.25f, 0.25f, 1.0f);
+//        break;
+//    case 3 :
+//        result.rgb *= vec3(1.0f, 1.0f, 0.25f);
+//        break;
+//    default :
+//        result.rgb *= vec3(0.0f, 0.0f, 0.0f);
+//        break;
+//    }
 
     return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

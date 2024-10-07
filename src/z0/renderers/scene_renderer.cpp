@@ -260,7 +260,6 @@ namespace z0 {
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
                 // shadowMapArray[i].isCascaded = shadowMapRenderers[i]->isCascaded();
                 for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
-                    // shadowMapArray[i].lightSpace[cascadeIndex]   = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
                     shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
                 }
             }

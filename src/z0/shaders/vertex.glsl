@@ -19,9 +19,10 @@ void vertexParameters(vec3 pos) {
         vs_out.UV = uv;
     }
     vs_out.GLOBAL_POSITION = model.matrix * vec4(pos, 1.0);
-    vs_out.VIEW_POSITION = (global.view * vs_out.GLOBAL_POSITION).xyz;
     vs_out.VIEW_DIRECTION = normalize(global.cameraPosition - vs_out.GLOBAL_POSITION.xyz);
     gl_Position = global.projection * global.view * vs_out.GLOBAL_POSITION;
+
+    vs_out.CLIPSPACE_Z = (global.view * vs_out.GLOBAL_POSITION).z;
 
     // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
     vec3 T = (vec3(model.matrix * vec4(tangent.xyz, 0.0)));
