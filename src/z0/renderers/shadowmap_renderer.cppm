@@ -47,7 +47,7 @@ export namespace z0 {
         ~ShadowMapRenderer() override;
 
         // used for debugging
-        shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
+        // shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
 
     private:
         struct GobalUniformBuffer {
@@ -86,6 +86,8 @@ export namespace z0 {
         mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
         // For cascaded shadow map, the last computed cascade split depth for each cascade
         float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+        // Lambda constant for split depth calculation :
+        // the closer to 1.0 the smaller the firsts splits
         static constexpr auto cascadeSplitLambda = 0.75f;
 
         void updateLightSpace();
