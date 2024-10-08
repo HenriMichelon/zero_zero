@@ -14,6 +14,8 @@ import :Light;
 import :Buffer;
 import :Mesh;
 
+// #define SHADOWMAP_RENDERER_DEBUG 1
+
 export namespace z0 {
     class ColorFrameBufferHDR;
 
@@ -34,7 +36,7 @@ export namespace z0 {
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
-        [[nodiscard]] inline bool isCascaded() const { return cascaded; }
+        [[nodiscard]] inline bool isCascaded() const { return lightIsDirectional; }
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
@@ -46,8 +48,9 @@ export namespace z0 {
 
         ~ShadowMapRenderer() override;
 
-        // used for debugging
+#ifdef SHADOWMAP_RENDERER_DEBUG
         shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
+#endif
 
     private:
         struct GobalUniformBuffer {
@@ -62,8 +65,6 @@ export namespace z0 {
         const Light *light;
         // The light is a DirectionalLight
         bool lightIsDirectional;
-        // It's a multi layer cascaded shadow map
-        bool cascaded;
         // Depth bias (and slope) are used to avoid shadowing artifacts
         // Constant depth bias factor (always applied)
         const float depthBiasConstant = 1.25f;

@@ -342,7 +342,6 @@ namespace z0 {
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
         if (skyboxRenderer != nullptr)

@@ -94,8 +94,6 @@ export namespace z0 {
         };
     }
 
-    mat4 perspective(float fovRadians, float near, float far);
-
 }
 
 export namespace std {

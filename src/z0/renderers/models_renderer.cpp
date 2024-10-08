@@ -82,7 +82,7 @@ import :ModelsRenderer;
     }
 
     // Set the initial states of the dynamic rendering
-    void ModelsRenderer::setInitialState(VkCommandBuffer commandBuffer) const {
+    void ModelsRenderer::setInitialState(const VkCommandBuffer commandBuffer) const {
         bindShaders(commandBuffer);
         if (currentViewport != nullptr) {
             const VkViewport viewport{
@@ -112,7 +112,6 @@ import :ModelsRenderer;
         }
 
         vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
-
         constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);

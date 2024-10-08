@@ -19,14 +19,15 @@ import :Mesh;
 import :ColorFrameBufferHDR;
 import :ShadowMapRenderer;
 
+// #define SHADOWMAP_RENDERER_DEBUG 1
+
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         light{light},
         lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr},
-        cascaded{lightIsDirectional},
-        shadowMap{make_shared<ShadowMapFrameBuffer>(device, cascaded)} {
+        shadowMap{make_shared<ShadowMapFrameBuffer>(device, lightIsDirectional)} {
         createImagesResources();
     }
 
@@ -134,36 +135,37 @@ namespace z0 {
                 lastSplitDist = cascadeSplits[i];
             }
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
-            auto lightDirection  = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
-            auto lightPosition          = light->getPositionGlobal();
-            auto target = lightPosition - lightDirection;
-            // target.z *= -1.0f;
-            // lightPosition.z *= -1.0f;
-            // lightPosition.y *= -1.0f;
-            // const auto lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 40.0f);
-            const auto lightProjection = perspective(spotLight->getFov(), 0.1f, 40.0f);
-            lightSpace[0] = lightProjection * lookAt(lightPosition, target, AXIS_UP);
+            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            const auto lightPosition       = light->getPositionGlobal();
+            const auto sceneCenter         = lightPosition + lightDirection;
+            const auto lightProjection     = glm::perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, -AXIS_UP);
         } else {
             lightSpace[0] = mat4{};
         }
     }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        if (currentCamera == nullptr) {
-            return;
-        }
+        if (currentCamera == nullptr) { return; }
         updateLightSpace();
-        for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-            const GobalUniformBuffer globalUbo{
+        if (isCascaded()) {
+            for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+                const GobalUniformBuffer globalUbo{
                     .lightSpace = lightSpace[i],
+                };
+                writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
+            }
+        } else {
+            const GobalUniformBuffer globalUbo{
+                .lightSpace = lightSpace[0],
             };
-            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
+            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, 0);
         }
 
         uint32_t modelIndex = 0;
         for (const auto &meshInstance : models) {
             ModelUniformBuffer modelUbo{
-                    .matrix = meshInstance->getTransformGlobal(),
+                    .matrix = meshInstance->getTransformGlobal()
             };
             writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
             modelIndex += 1;
@@ -171,7 +173,7 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        const auto cascades = cascaded ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
+        const auto cascades = lightIsDirectional ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
         for (int cascadeIndex = 0; cascadeIndex < cascades; cascadeIndex++) {
             device.transitionImageLayout(commandBuffer,
                                                 shadowMap->getImage(),
@@ -182,13 +184,14 @@ namespace z0 {
                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                 VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                                 VK_IMAGE_ASPECT_DEPTH_BIT);
-            // for debug
+#ifdef SHADOWMAP_RENDERER_DEBUG
             const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                                                            .imageView   = colorAttachmentHdr->getImageView(),
                                                            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                            .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                            .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
                                                            .clearValue  = clearColor};
+#endif
             const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView   = shadowMap->getImageView(cascadeIndex),
@@ -197,32 +200,29 @@ namespace z0 {
                 .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
                 .clearValue  = depthClearValue,
-        };
+            };
             const VkRenderingInfo renderingInfo{.sType      = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                                 .pNext      = nullptr,
                                                 .renderArea = {{0, 0}, {shadowMap->getSize(), shadowMap->getSize()}},
                                                 .layerCount = 1,
-                                                // .colorAttachmentCount = 0,
-                                                // .pColorAttachments    =  nullptr,
-                                                .colorAttachmentCount = 1, // for debug
-                                                .pColorAttachments    =  &colorAttachmentInfo, // for debug
+#ifdef SHADOWMAP_RENDERER_DEBUG
+                                                .colorAttachmentCount = 1,
+                                                .pColorAttachments    =  &colorAttachmentInfo,
+#else
+                                                .colorAttachmentCount = 0,
+                                                .pColorAttachments    =  nullptr,
+#endif
                                                 .pDepthAttachment     = &depthAttachmentInfo,
                                                 .pStencilAttachment   = nullptr};
             vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
             bindShaders(commandBuffer);
+            setViewport(commandBuffer, shadowMap->getSize(), shadowMap->getSize());
+            vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
 
             constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
             vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
             vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
-
-            vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-            vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS);
-            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
-            setViewport(commandBuffer, shadowMap->getSize(), shadowMap->getSize());
 
             const auto vertexBinding   = Mesh::_getBindingDescription();
             const auto vertexAttribute = Mesh::_getAttributeDescription();
@@ -231,6 +231,11 @@ namespace z0 {
                                    vertexBinding.data(),
                                    vertexAttribute.size(),
                                    vertexAttribute.data());
+
+            vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
 
             uint32_t modelIndex = 0;
             for (const auto &meshInstance : models) {
@@ -242,10 +247,9 @@ namespace z0 {
                                          surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
                                          surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT :
                         VK_CULL_MODE_FRONT_BIT); } else {
-                            //vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
                             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                         }*/
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT); // default avoid Peter panning
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                         array<uint32_t, 2> offsets = {
                             static_cast<uint32_t>(globalUniformBuffers[currentFrame]->getAlignmentSize() *
                                               cascadeIndex),
@@ -272,7 +276,7 @@ namespace z0 {
                                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                          // Before depth reads in the shader
                                          VK_IMAGE_ASPECT_DEPTH_BIT);
-            // for debug
+#ifdef SHADOWMAP_RENDERER_DEBUG
             device.transitionImageLayout(commandBuffer,
                                    colorAttachmentHdr->getImage(),
                                    VK_IMAGE_LAYOUT_UNDEFINED,
@@ -282,6 +286,7 @@ namespace z0 {
                                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                    VK_IMAGE_ASPECT_COLOR_BIT);
+#endif
         }
     }
 
@@ -332,17 +337,23 @@ namespace z0 {
 
     void ShadowMapRenderer::loadShaders() {
         vertShader = createShader("shadowmap.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
+#ifdef SHADOWMAP_RENDERER_DEBUG
         fragShader = createShader("shadowmap.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0); // for debug
+#endif
     }
 
     void ShadowMapRenderer::createImagesResources() {
-        colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device, shadowMap->getSize(), shadowMap->getSize()); // for debug
+#ifdef SHADOWMAP_RENDERER_DEBUG
+        colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device, shadowMap->getSize(), shadowMap->getSize());
+#endif
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
         if (shadowMap != nullptr) {
             shadowMap->cleanupImagesResources();
-            colorAttachmentHdr->cleanupImagesResources(); // for debug
+#ifdef SHADOWMAP_RENDERER_DEBUG
+            colorAttachmentHdr->cleanupImagesResources();
+#endif
         }
     }
 

@@ -271,17 +271,17 @@ namespace z0 {
         sceneRenderer->postUpdateScene();
 
         // Preview the first shadow map depth buffer
-        if (depthBufferRenderer == nullptr) {
-            const string shaderDir{(applicationConfig.appDir / "shaders").string()};
-            depthBufferRenderer = make_shared<SimplePostprocessingRenderer>(
-                *device,
-                shaderDir,
-                // "depth_test",
-                "pass-through",
-                sceneRenderer->_getShadowMapRenderer(0)->colorAttachmentHdr.get());
-                // sceneRenderer->_getShadowMapRenderer(0)->getShadowMap().get());
-            device->renderers.push_back(depthBufferRenderer);
-        }
+        // if (depthBufferRenderer == nullptr) {
+        //     const string shaderDir{(applicationConfig.appDir / "shaders").string()};
+        //     depthBufferRenderer = make_shared<SimplePostprocessingRenderer>(
+        //         *device,
+        //         shaderDir,
+        //         // "depth_test",
+        //         "pass-through",
+        //         sceneRenderer->_getShadowMapRenderer(0)->colorAttachmentHdr.get());
+        //         // sceneRenderer->_getShadowMapRenderer(0)->getShadowMap().get());
+        //     device->renderers.push_back(depthBufferRenderer);
+        // }
     }
 
     void Application::drawFrame() {

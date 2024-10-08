@@ -38,18 +38,22 @@ namespace z0 {
                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                             VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_IMAGE_ASPECT_DEPTH_BIT,
-                    // Use a cascaded shadow map with layered image for directional light
+                    // Use a cascaded shadow map with layered image for directional lights
                     isCascaded ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D,
                     isCascaded ? CASCADED_SHADOWMAP_LAYERS : 1);
-        // Create additional image views for the shadow map renderer
         if (isCascaded) {
+            // Create additional image views for the cascaded shadow map renderer
+            // One view for each shadow map split of the cascade
             for (int i = 0; i < CASCADED_SHADOWMAP_LAYERS; i++) {
                 cascadedImageViews[i] =
                         device.createImageView(image, format, VK_IMAGE_ASPECT_DEPTH_BIT, 1, VK_IMAGE_VIEW_TYPE_2D_ARRAY, i);
             }
+        } else {
+            // Use the image view created by createImage for non cascaded shadow maps
+            cascadedImageViews[0] = imageView;
         }
         // Create sampler for the depth attachment.
-        // Used to sample in the main fragment shader for shadowed rendering
+        // Used to sample in the main fragment shader for the shadow factore calculations
         const VkFilter shadowmap_filter =
                 device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
         const VkSamplerCreateInfo samplerCreateInfo{.sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,

@@ -59,8 +59,6 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
     float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, float(cascadeIndex))).r;
     float currentDepth = projCoords.z;
 
-//    float shadow = currentDepth > closestDepth  ? 0.0 : 1.0;
-//    return shadow;
     float shadow = 0.0;
     for(int x = -1; x <= 1; ++x)  {
         for(int y = -1; y <= 1; ++y) {
@@ -73,43 +71,66 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
 
 vec4 fragmentColor(vec4 color, bool useColor) {
     if (!useColor) {
+        // We don't use the color parameter : get the color from the material
         color = material.albedoColor;
         if (material.diffuseIndex != -1) {
+            // We have a texture : get the color from the texture
             color = color * texture(texSampler[material.diffuseIndex], fs_in.UV);
         }
     }
+    // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA
+    // discard the fragment if the alpha value < scissor value of the material
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
         discard;
     }
+
     vec3 normal;
     if (material.normalIndex != -1) {
+        // If we have a normal texture
         normal = texture(texSampler[material.normalIndex], fs_in.UV).rgb * 2.0 - 1.0;
         normal = normalize(fs_in.TBN * normal);
     } else {
+        // We don't have a texture, get the calculated normal
         normal = fs_in.NORMAL;
     }
-    //return  vec4(normal, 1.0);
+    //return  vec4(normal, 1.0); // debug normals
 
+    // The global ambient light, always applied
     vec3 ambient = global.ambient.w * global.ambient.rgb;
+
+    // Compute the diffuse light from the scene's lights
     vec3 diffuse = vec3(0, 0, 0);
     if (global.haveDirectionalLight) {
+        // We currently support only one directional light
         diffuse = calcDirectionalLight(global.directionalLight, color, normal);
     }
+    // Acculumate all other lights (spots & omnis)
     for(int i = 0; i < global.pointLightsCount; i++) {
         diffuse += calcPointLight(pointLights.lights[i], color, normal);
     }
 
+    // Compute the shadow factor, default to no shadow if not activated
+    // The shadow factor decrease the diffuse light
+    // 1.0 -> no effect, 0.0 -> no diffuse light (only ambient light)
     float shadow = 1.0f;
-    int cascadeIndex = 0;
     if (global.shadowMapsCount > 0) {
-        // Get cascade index for the current fragment's view position
-        // if we have a cascaded shadow map
         if (global.cascadedShadowMapIndex != -1) {
+            // We have a cascaded shadow map,
+            // get cascade index maps for the current fragment's view Z position
+            int cascadeIndex = 0;
             for (int index = 0; index < 2; index++) { // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS-1
                   if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[global.cascadedShadowMapIndex].cascadeSplitDepth[index]) {
                       cascadeIndex = index + 1;
                   }
             }
+            shadow = 0.0f;
+            // Get the shadow factor for the cascaded map only for the nearests maps
+            if (cascadeIndex <= 2) shadow += shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
+            // Accumulate the shadow factor for the others maps
+            for (int i = 0; i < global.shadowMapsCount; i++) {
+                if (i != global.cascadedShadowMapIndex) shadow += shadowFactor(i, 0);
+            }
+            // Display the cascade splits for debug
 //            switch(cascadeIndex) {
 //                case 0 :
 //                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
@@ -121,16 +142,15 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
 //                    break;
 //            }
-        }
-        shadow = 0.0f;
-        if (cascadeIndex <= 2) {
+        } else {
+            // We don't have any cascaded shadow map,
+            // accumulate the shadow factor of all maps
+            shadow = 0.0f;
             for (int i = 0; i < global.shadowMapsCount; i++) {
-                shadow += shadowFactor(i, cascadeIndex);
+                shadow += shadowFactor(i, 0);
             }
         }
     }
 
-    vec3 result = (ambient + shadow * diffuse) * color.rgb;
-
-    return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
+    return vec4((ambient + shadow * diffuse) * color.rgb, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

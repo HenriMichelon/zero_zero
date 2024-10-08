@@ -696,10 +696,10 @@ namespace z0 {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    void Device::setInitialState(VkCommandBuffer commandBuffer) const {
+    void Device::setInitialState(const VkCommandBuffer commandBuffer) const {
         // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/extensions/shader_object/shader_object.cpp
         vkCmdSetRasterizerDiscardEnable(commandBuffer, VK_FALSE);
-        const VkColorBlendEquationEXT colorBlendEquation{
+        constexpr VkColorBlendEquationEXT colorBlendEquation{
                 .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
                 .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
                 .colorBlendOp = VK_BLEND_OP_ADD,
@@ -721,7 +721,7 @@ namespace z0 {
 
         // Set depth state, the depth write. Don't enable depth bounds, bias, or stencil test.
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
-        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS);
+        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
         vkCmdSetDepthBoundsTestEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
         vkCmdSetStencilTestEnable(commandBuffer, VK_FALSE);
@@ -731,13 +731,11 @@ namespace z0 {
         vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);
 
         // Use RGBA color write mask
-        VkColorComponentFlags color_component_flags[] = {
+        constexpr VkColorComponentFlags color_component_flags[] = {
                 VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT |
                 VK_COLOR_COMPONENT_A_BIT
         };
         vkCmdSetColorWriteMaskEXT(commandBuffer, 0, 1, color_component_flags);
-
-        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
     }
 
     uint32_t Device::rateDeviceSuitability(VkPhysicalDevice            vkPhysicalDevice,
