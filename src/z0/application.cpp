@@ -277,6 +277,8 @@ namespace z0 {
         //         *device,
         //         shaderDir,
         //         "depth_test",
+        //         // "pass-through",
+        //         // sceneRenderer->_getShadowMapRenderer(0)->colorAttachmentHdr.get());
         //         sceneRenderer->_getShadowMapRenderer(0)->getShadowMap().get());
         //     device->renderers.push_back(depthBufferRenderer);
         // }

@@ -99,16 +99,20 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     // Get cascade index for the current fragment's view position
     int cascadeIndex = 0;
 //    if (shadowMapsInfos.shadowMaps[0].isCascaded) {
-        for (int index = 0; index < 3; index++) {
+        for (int index = 0; index < 2; index++) {
             if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[index]) {
                 cascadeIndex = index + 1;
             }
         }
 //    }
 
-    float   shadow = 0.0;
-    for (int i = 0; i < global.shadowMapsCount; i++) {
-        shadow += shadowFactor(i, cascadeIndex);
+    float  shadow = 0.0f;
+    if (cascadeIndex <= 2) {
+        for (int i = 0; i < global.shadowMapsCount; i++) {
+            shadow += shadowFactor(i, cascadeIndex);
+        }
+    } else {
+        shadow = 1.0f;
     }
 
     for(int i = 0; i < global.pointLightsCount; i++) {
@@ -125,12 +129,6 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //        break;
 //    case 2 :
 //        result.rgb *= vec3(0.25f, 0.25f, 1.0f);
-//        break;
-//    case 3 :
-//        result.rgb *= vec3(1.0f, 1.0f, 0.25f);
-//        break;
-//    default :
-//        result.rgb *= vec3(0.0f, 0.0f, 0.0f);
 //        break;
 //    }
 

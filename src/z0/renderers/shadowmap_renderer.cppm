@@ -15,6 +15,7 @@ import :Buffer;
 import :Mesh;
 
 export namespace z0 {
+    class ColorFrameBufferHDR;
 
     class Camera;
 
@@ -44,6 +45,9 @@ export namespace z0 {
         [[nodiscard]] inline const shared_ptr<ShadowMapFrameBuffer> &getShadowMap() const { return shadowMap; }
 
         ~ShadowMapRenderer() override;
+
+        // used for debugging
+        shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
 
     private:
         struct GobalUniformBuffer {
@@ -81,9 +85,8 @@ export namespace z0 {
         // Last computed light spaces for each cascade
         mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
         // For cascaded shadow map, the last computed cascade split depth for each cascade
-        //const float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS] = { -10.0f, -40.0f, -100.0f, -400.0f };
         float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
-        static constexpr auto cascadeSplitLambda = 0.70f;
+        static constexpr auto cascadeSplitLambda = 0.75f;
 
         void updateLightSpace();
 

@@ -10,13 +10,21 @@ import :ColorFrameBufferHDR;
 namespace z0 {
 
     ColorFrameBufferHDR::ColorFrameBufferHDR(const Device &dev) :
-        SampledFrameBuffer{dev} {
+        SampledFrameBuffer{dev},
+        width{device.getSwapChainExtent().width},
+        height{device.getSwapChainExtent().height} {
+        ColorFrameBufferHDR::createImagesResources();
+    }
+
+    ColorFrameBufferHDR::ColorFrameBufferHDR(const Device &dev, const uint32_t width, const uint32_t height) :
+        SampledFrameBuffer{dev},
+        width{width},
+        height{height} {
         ColorFrameBufferHDR::createImagesResources();
     }
 
     void ColorFrameBufferHDR::createImagesResources() {
-        createImage(device.getSwapChainExtent().width,
-                    device.getSwapChainExtent().height,
+        createImage(width, height,
                     renderFormat,
                     VK_SAMPLE_COUNT_1_BIT,
                     // Always resolved, only used for post-processing or display

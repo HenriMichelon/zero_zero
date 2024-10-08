@@ -19,10 +19,15 @@ export namespace z0 {
         static constexpr VkFormat renderFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 
         explicit ColorFrameBufferHDR(const Device &dev);
+        explicit ColorFrameBufferHDR(const Device &dev, uint32_t width, uint32_t height);
 
         void createImagesResources() override;
 
         void cleanupImagesResources() override;
+
+    private:
+        uint32_t width;
+        uint32_t height;
     };
 
 }

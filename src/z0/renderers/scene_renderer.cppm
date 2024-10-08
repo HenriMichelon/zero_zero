@@ -84,8 +84,8 @@ namespace z0 {
         };
 
         struct ShadowMapUniformBuffer {
-            mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
-            float cascadeSplitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            mat4 lightSpace[4]; // fixed at 4 for alignements
+            float cascadeSplitDepth[4]; // fixed at 4 for alignements
             // alignas(4) bool isCascaded;
         };
 
