@@ -5,6 +5,7 @@ module;
 
 module z0;
 
+import :Tools;
 import :Constants;
 import :Node;
 import :Application;
@@ -32,15 +33,7 @@ namespace z0 {
         this->fov         = fov;
         nearDistance      = near;
         farDistance       = far;
-        const auto aspect = Application::get()._getDevice().getAspectRatio();
-        assert(glm::abs(aspect - numeric_limits<float>::epsilon()) > 0.0f);
-        const auto tanHalfFovy = tan(radians(fov) / 2.f);
-        projectionMatrix       = mat4{0.0f};
-        projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
-        projectionMatrix[1][1] = 1.f / (tanHalfFovy);
-        projectionMatrix[2][2] = far / (far - near);
-        projectionMatrix[2][3] = 1.f;
-        projectionMatrix[3][2] = -(far * near) / (far - near);
+        projectionMatrix = perspective(fov, nearDistance, farDistance);
     }
 
     vec2 Camera::unproject(const vec3 worldCoords) const {
@@ -55,8 +48,7 @@ namespace z0 {
         const auto  newDirection       = rotationQuaternion * direction;
         const auto &position           = getPositionGlobal();
 
-        auto w{normalize(newDirection)};
-        w *= -1; // inverted Y axis for Vulkan
+        const auto w{normalize(newDirection)};
         const auto u{normalize(cross(w, AXIS_UP))};
         const auto v{cross(w, u)};
 

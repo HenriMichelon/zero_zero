@@ -3,6 +3,7 @@ module;
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include <cassert>
 #include "z0/libraries.h"
 
 module z0;
@@ -12,7 +13,18 @@ import :Window;
 
 namespace z0 {
 
-
+    mat4 perspective(float fovRadians, float nearDistance, float farDistance) {
+        const auto aspect = Application::get()._getDevice().getAspectRatio();
+        assert(glm::abs(aspect - numeric_limits<float>::epsilon()) > 0.0f);
+        const auto tanHalfFovy = tan(fovRadians / 2.f);
+        auto projectionMatrix       = mat4{0.0f};
+        projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
+        projectionMatrix[1][1] = 1.f / (tanHalfFovy);
+        projectionMatrix[2][2] = farDistance / (farDistance - nearDistance);
+        projectionMatrix[2][3] = 1.f;
+        projectionMatrix[3][2] = -(farDistance * nearDistance) / (farDistance - nearDistance);
+        return projectionMatrix;
+    }
 
     uint32_t randomi(const uint32_t max) {
         static std::random_device rd;

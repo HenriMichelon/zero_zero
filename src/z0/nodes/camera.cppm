@@ -3,6 +3,7 @@ module;
 
 export module z0:Camera;
 
+import :Constants;
 import :Node;
 
 export namespace z0 {
@@ -36,7 +37,7 @@ export namespace z0 {
 
         /**
          * Sets the camera projection to perspective mode.
-         * @param fov field of view angle in degrees
+         * @param fov field of view angle in radians
          * @param near nearest clip plane
          * @param far farthest clip plane
          */
@@ -69,7 +70,7 @@ export namespace z0 {
 
     private:
         // Field of view in degrees
-        float fov{75.0};
+        float fov{radians(75.0)};
         // nearest clipping distance
         float nearDistance{0.1f};
         // furthest clipping distance
@@ -77,7 +78,7 @@ export namespace z0 {
         // Camera projection matrix for the perspective and orthogonal 3D projections
         mat4       projectionMatrix{1.0f};
         mat4       viewMatrix{1.0f};
-        const vec3 direction{0.0f, 0.0f, 1.0f};
+        const vec3 direction{AXIS_FRONT};
         bool       active{false};
 
         void updateViewMatrix();

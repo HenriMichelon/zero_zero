@@ -25,7 +25,7 @@ vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
     float intensity = 1.0f;
     bool cutOff = light.isSpot;
 
-    if (light.isSpot) {
+    if (cutOff) {
         float theta = dot(lightDir, normalize(-light.direction));
         float epsilon = light.cutOff - light.outerCutOff;
         intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
@@ -95,42 +95,42 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     if (global.haveDirectionalLight) {
         diffuse = calcDirectionalLight(global.directionalLight, color, normal);
     }
-
-    // Get cascade index for the current fragment's view position
-    int cascadeIndex = 0;
-//    if (shadowMapsInfos.shadowMaps[0].isCascaded) {
-        for (int index = 0; index < 2; index++) {
-            if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[0].cascadeSplitDepth[index]) {
-                cascadeIndex = index + 1;
-            }
-        }
-//    }
-
-    float  shadow = 0.0f;
-    if (cascadeIndex <= 2) {
-        for (int i = 0; i < global.shadowMapsCount; i++) {
-            shadow += shadowFactor(i, cascadeIndex);
-        }
-    } else {
-        shadow = 1.0f;
-    }
-
     for(int i = 0; i < global.pointLightsCount; i++) {
         diffuse += calcPointLight(pointLights.lights[i], color, normal);
     }
-    vec3 result = (ambient + shadow * diffuse) * color.rgb;
 
-//    switch(cascadeIndex) {
-//    case 0 :
-//        result.rgb *= vec3(1.0f, 0.25f, 0.25f);
-//        break;
-//    case 1 :
-//        result.rgb *= vec3(0.25f, 1.0f, 0.25f);
-//        break;
-//    case 2 :
-//        result.rgb *= vec3(0.25f, 0.25f, 1.0f);
-//        break;
-//    }
+    float shadow = 1.0f;
+    int cascadeIndex = 0;
+    if (global.shadowMapsCount > 0) {
+        // Get cascade index for the current fragment's view position
+        // if we have a cascaded shadow map
+        if (global.cascadedShadowMapIndex != -1) {
+            for (int index = 0; index < 2; index++) { // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS-1
+                  if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[global.cascadedShadowMapIndex].cascadeSplitDepth[index]) {
+                      cascadeIndex = index + 1;
+                  }
+            }
+//            switch(cascadeIndex) {
+//                case 0 :
+//                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
+//                    break;
+//                case 1 :
+//                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
+//                    break;
+//                case 2 :
+//                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
+//                    break;
+//            }
+        }
+        shadow = 0.0f;
+        if (cascadeIndex <= 2) {
+            for (int i = 0; i < global.shadowMapsCount; i++) {
+                shadow += shadowFactor(i, cascadeIndex);
+            }
+        }
+    }
+
+    vec3 result = (ambient + shadow * diffuse) * color.rgb;
 
     return vec4(result, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

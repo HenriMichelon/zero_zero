@@ -253,19 +253,25 @@ namespace z0 {
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
 
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                // shadowMapArray[i].isCascaded = shadowMapRenderers[i]->isCascaded();
-                for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
-                    shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
-                    shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
+                    // Activate the first cascaded shadow map found
+                    globalUbo.cascadedShadowMapIndex = i;
+                    for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
+                        shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
+                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                    }
+                } else {
+                    // Just copy the light space matrix for non cascaded shadow maps
+                    shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0);
                 }
             }
             writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
         }
+        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo); // after the shadows maps for .cascadedShadowMapIndex
 
         if (globalUbo.pointLightsCount > 0) {
             auto pointLightsArray = make_unique<PointLightUniformBuffer[]>(globalUbo.pointLightsCount);

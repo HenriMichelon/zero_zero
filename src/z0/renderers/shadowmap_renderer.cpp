@@ -134,11 +134,15 @@ namespace z0 {
                 lastSplitDist = cascadeSplits[i];
             }
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
-            const auto lightDirection  = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
-            const auto lightPosition   = light->getPositionGlobal();
-            const auto sceneCenter     = lightPosition + lightDirection;
-            const auto lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
-            lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+            auto lightDirection  = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            auto lightPosition          = light->getPositionGlobal();
+            auto target = lightPosition - lightDirection;
+            // target.z *= -1.0f;
+            // lightPosition.z *= -1.0f;
+            // lightPosition.y *= -1.0f;
+            // const auto lightProjection = perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 40.0f);
+            const auto lightProjection = perspective(spotLight->getFov(), 0.1f, 40.0f);
+            lightSpace[0] = lightProjection * lookAt(lightPosition, target, AXIS_UP);
         } else {
             lightSpace[0] = mat4{};
         }
@@ -178,12 +182,13 @@ namespace z0 {
                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                                 VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                                 VK_IMAGE_ASPECT_DEPTH_BIT);
-            // const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-            //                                                .imageView   = colorAttachmentHdr->getImageView(),
-            //                                                .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            //                                                .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
-            //                                                .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
-            //                                                .clearValue  = clearColor};
+            // for debug
+            const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+                                                           .imageView   = colorAttachmentHdr->getImageView(),
+                                                           .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                           .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                                                           .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
+                                                           .clearValue  = clearColor};
             const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView   = shadowMap->getImageView(cascadeIndex),
@@ -197,10 +202,10 @@ namespace z0 {
                                                 .pNext      = nullptr,
                                                 .renderArea = {{0, 0}, {shadowMap->getSize(), shadowMap->getSize()}},
                                                 .layerCount = 1,
-                                                .colorAttachmentCount = 0,
-                                                .pColorAttachments    =  nullptr,
-                                                // .colorAttachmentCount = 1, // for debug
-                                                // .pColorAttachments    =  &colorAttachmentInfo, // for debug
+                                                // .colorAttachmentCount = 0,
+                                                // .pColorAttachments    =  nullptr,
+                                                .colorAttachmentCount = 1, // for debug
+                                                .pColorAttachments    =  &colorAttachmentInfo, // for debug
                                                 .pDepthAttachment     = &depthAttachmentInfo,
                                                 .pStencilAttachment   = nullptr};
             vkCmdBeginRendering(commandBuffer, &renderingInfo);
@@ -268,15 +273,15 @@ namespace z0 {
                                          // Before depth reads in the shader
                                          VK_IMAGE_ASPECT_DEPTH_BIT);
             // for debug
-            // device.transitionImageLayout(commandBuffer,
-            //                        colorAttachmentHdr->getImage(),
-            //                        VK_IMAGE_LAYOUT_UNDEFINED,
-            //                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-            //                        0,
-            //                        VK_ACCESS_SHADER_READ_BIT ,
-            //                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-            //                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            //                        VK_IMAGE_ASPECT_COLOR_BIT);
+            device.transitionImageLayout(commandBuffer,
+                                   colorAttachmentHdr->getImage(),
+                                   VK_IMAGE_LAYOUT_UNDEFINED,
+                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                   0,
+                                   VK_ACCESS_SHADER_READ_BIT ,
+                                   VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                   VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 
@@ -327,17 +332,17 @@ namespace z0 {
 
     void ShadowMapRenderer::loadShaders() {
         vertShader = createShader("shadowmap.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
-        // fragShader = createShader("shadowmap.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0); // for debug
+        fragShader = createShader("shadowmap.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0); // for debug
     }
 
     void ShadowMapRenderer::createImagesResources() {
-        // colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device, shadowMap->getSize(), shadowMap->getSize()); // for debug
+        colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device, shadowMap->getSize(), shadowMap->getSize()); // for debug
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
         if (shadowMap != nullptr) {
             shadowMap->cleanupImagesResources();
-            // colorAttachmentHdr->cleanupImagesResources(); // for debug
+            colorAttachmentHdr->cleanupImagesResources(); // for debug
         }
     }
 

@@ -17,14 +17,9 @@ struct PointLight {
     float outerCutOff;
 };
 
-struct CascadeSplitDepth {
-    float depth;
-};
-
 struct ShadowMap {
     mat4 lightSpace[4]; // fixed at 4 for alignements
     vec4 cascadeSplitDepth; // fixed at 4 for alignements
-//    bool isCascaded;
 };
 
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
@@ -35,6 +30,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     DirectionalLight directionalLight;
     bool haveDirectionalLight;
     int pointLightsCount;
+    int cascadedShadowMapIndex;
     int shadowMapsCount;
 } global;
 

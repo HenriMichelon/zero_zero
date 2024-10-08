@@ -80,13 +80,13 @@ namespace z0 {
             alignas(16) DirectionalLightUniform directionalLight;
             alignas(4) bool haveDirectionalLight{false};
             alignas(4) uint32_t pointLightsCount{0};
+            alignas(4) int32_t cascadedShadowMapIndex{-1};
             alignas(4) uint32_t shadowMapsCount{0};
         };
 
         struct ShadowMapUniformBuffer {
-            mat4 lightSpace[4]; // fixed at 4 for alignements
-            float cascadeSplitDepth[4]; // fixed at 4 for alignements
-            // alignas(4) bool isCascaded;
+            mat4 lightSpace[4]; // fixed at 4 for alignments, only [0] used on non cascaded shadow map
+            float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
         };
 
         struct ModelUniformBuffer {

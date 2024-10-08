@@ -3,6 +3,7 @@ module;
 
 export module z0:SpotLight;
 
+import :Constants;
 import :OmniLight;
 
 export namespace z0 {
@@ -19,7 +20,6 @@ export namespace z0 {
 
         /**
         * Create a SpotLight.
-        * @param direction the light direction
         * @param cutOffDegrees the inner cutoff angle that specifies the spotlight's radius, in degrees
         * @param outerCutOffDegrees the outer cutoff angle that specifies the spotlight's radius, in degrees. Everything outside this angle is not lit by the spotlight.
         * @param linear the linear term (see https://learnopengl.com/Lighting/Light-casters)
@@ -29,8 +29,7 @@ export namespace z0 {
         * @param specular intensity of the specular blob in objects affected by the light.
         * @param nodeName Node name
         */
-        explicit SpotLight(vec3          direction,
-                           float         cutOffDegrees,
+        explicit SpotLight(float         cutOffDegrees,
                            float         outerCutOffDegrees,
                            float         linear,
                            float         quadratic,
@@ -45,11 +44,6 @@ export namespace z0 {
          * Returns the direction of the light
         */
         [[nodiscard]] inline vec3 getDirection() const { return direction; }
-
-        /** 
-         * Sets the direction of the light
-        */
-        inline void setDirection(const vec3 lightDirection) { direction = lightDirection; }
 
         /**
          * Sets the inner cutoff angle that specifies the spotlight's radius, in degrees
@@ -77,7 +71,7 @@ export namespace z0 {
         [[nodiscard]] inline float getFov() const { return fov; }
 
     private:
-        vec3  direction{0.0f, 0.0f, 1.0f};
+        static constexpr vec3 direction{AXIS_FRONT};
         float fov{0.0f};
         float cutOff{cos(radians(10.f))};
         float outerCutOff{cos(radians(15.f))};

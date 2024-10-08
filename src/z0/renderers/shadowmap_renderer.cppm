@@ -47,7 +47,7 @@ export namespace z0 {
         ~ShadowMapRenderer() override;
 
         // used for debugging
-        // shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
+        shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
 
     private:
         struct GobalUniformBuffer {
