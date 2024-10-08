@@ -219,11 +219,9 @@ namespace z0 {
             bindShaders(commandBuffer);
             setViewport(commandBuffer, shadowMap->getSize(), shadowMap->getSize());
             vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-
             constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
             vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
             vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
-
             const auto vertexBinding   = Mesh::_getBindingDescription();
             const auto vertexAttribute = Mesh::_getAttributeDescription();
             vkCmdSetVertexInputEXT(commandBuffer,
@@ -231,25 +229,17 @@ namespace z0 {
                                    vertexBinding.data(),
                                    vertexAttribute.size(),
                                    vertexAttribute.data());
-
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
+            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
             uint32_t modelIndex = 0;
             for (const auto &meshInstance : models) {
                 if (meshInstance->isValid()) {
                     auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
-                        /*if (auto standardMaterial = dynamic_cast<StandardMaterial*>(surface->material.get())) {
-                             vkCmdSetCullMode(commandBuffer,
-                                         surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE :
-                                         surface->material->getCullMode() == CULLMODE_BACK ? VK_CULL_MODE_BACK_BIT :
-                        VK_CULL_MODE_FRONT_BIT); } else {
-                            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
-                        }*/
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
                         array<uint32_t, 2> offsets = {
                             static_cast<uint32_t>(globalUniformBuffers[currentFrame]->getAlignmentSize() *
                                               cascadeIndex),

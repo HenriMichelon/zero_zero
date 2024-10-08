@@ -709,25 +709,14 @@ namespace z0 {
         };
         vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
 
-        // Set the topology to triangles, don't restart primitives
         vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         vkCmdSetPrimitiveRestartEnableEXT(commandBuffer, VK_FALSE);
-
-        const VkSampleMask sample_mask = 0xffffffff;
+        constexpr VkSampleMask sample_mask = 0xffffffff;
         vkCmdSetSampleMaskEXT(commandBuffer, samples, &sample_mask);
-
         vkCmdSetPolygonModeEXT(commandBuffer, VK_POLYGON_MODE_FILL);
         vkCmdSetFrontFace(commandBuffer, VK_FRONT_FACE_COUNTER_CLOCKWISE);
-
-        // Set depth state, the depth write. Don't enable depth bounds, bias, or stencil test.
-        vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
-        vkCmdSetDepthBoundsTestEnable(commandBuffer, VK_FALSE);
-        vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
         vkCmdSetStencilTestEnable(commandBuffer, VK_FALSE);
-        vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
-
-        // Do not enable logic op
         vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);
 
         // Use RGBA color write mask
