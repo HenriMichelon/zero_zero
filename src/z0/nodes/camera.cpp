@@ -63,7 +63,7 @@ namespace z0 {
 
     void Camera::updateViewMatrix() {
         const auto  rotationQuaternion = toQuat(mat3(worldTransform));
-        const auto  newDirection       = rotationQuaternion * direction;
+        const auto  newDirection       = rotationQuaternion * AXIS_FRONT;
         const auto &position           = getPositionGlobal();
 
         auto w{normalize(newDirection)};

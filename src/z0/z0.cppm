@@ -30,6 +30,7 @@ export import :CollisionObject;
 export import :Environment;
 export import :DirectionalLight;
 export import :SpotLight;
+export import :OmniLight;
 export import :TypeRegistry;
 export import :Character;
 export import :CollisionArea;

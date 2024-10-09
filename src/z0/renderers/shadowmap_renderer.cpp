@@ -135,7 +135,7 @@ namespace z0 {
                 lastSplitDist = cascadeSplits[i];
             }
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
-            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * spotLight->getDirection());
+            const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
             const auto lightPosition       = light->getPositionGlobal();
             const auto sceneCenter         = lightPosition + lightDirection;
             const auto lightProjection     = glm::perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);

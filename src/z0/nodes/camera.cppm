@@ -72,13 +72,12 @@ export namespace z0 {
         // nearest clipping distance
         float nearDistance{0.1f};
         // furthest clipping distance
-        float farDistance{100.1f};
+        float farDistance{500.1f};
         // is the camera view is perspective or orthogonal ?
         bool usePerspectiveProjection{false};
         // Camera projection matrix for the perspective and orthogonal 3D projections
         mat4       projectionMatrix{1.0f};
         mat4       viewMatrix{1.0f};
-        const vec3 direction{AXIS_FRONT};
         bool       active{false};
 
         // Compute the view matrix

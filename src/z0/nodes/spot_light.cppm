@@ -40,11 +40,6 @@ export namespace z0 {
 
         ~SpotLight() override = default;
 
-        /** 
-         * Returns the direction of the light
-        */
-        [[nodiscard]] inline vec3 getDirection() const { return direction; }
-
         /**
          * Sets the inner cutoff angle that specifies the spotlight's radius, in degrees
          */
@@ -71,7 +66,6 @@ export namespace z0 {
         [[nodiscard]] inline float getFov() const { return fov; }
 
     private:
-        static constexpr vec3 direction{AXIS_FRONT};
         float fov{0.0f};
         float cutOff{cos(radians(10.f))};
         float outerCutOff{cos(radians(15.f))};

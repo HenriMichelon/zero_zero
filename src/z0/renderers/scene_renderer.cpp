@@ -285,7 +285,7 @@ namespace z0 {
                 pointLightsArray[i].quadratic = omniLight->getQuadratic();
                 if (auto *spot = dynamic_cast<SpotLight *>(omniLight)) {
                     pointLightsArray[i].isSpot    = true;
-                    pointLightsArray[i].direction = normalize(mat3{spot->getTransformGlobal()} * spot->getDirection());
+                    pointLightsArray[i].direction = normalize(mat3{spot->getTransformGlobal()} * AXIS_FRONT);
                     pointLightsArray[i].cutOff    = spot->getCutOff();
                     pointLightsArray[i].outerCutOff = spot->getOuterCutOff();
                 }
@@ -342,6 +342,7 @@ namespace z0 {
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
         if (skyboxRenderer != nullptr)
