@@ -43,7 +43,7 @@ namespace z0 {
 
     void Mesh::setSurfaceMaterial(const uint32_t surfaceIndex, shared_ptr<Material> material) {
         surfaces[surfaceIndex]->material = std::move(material);
-        _materials.insert(surfaces[surfaceIndex]->material);
+        materials.insert(surfaces[surfaceIndex]->material);
     }
 
     vector<VkVertexInputBindingDescription2EXT> Mesh::_getBindingDescription() {
@@ -93,11 +93,11 @@ namespace z0 {
         return attributeDescriptions;
     }
 
-    void Mesh::_draw(VkCommandBuffer commandBuffer, const uint32_t firstIndex, const uint32_t count) const {
+    void Mesh::_draw(const VkCommandBuffer commandBuffer, const uint32_t firstIndex, const uint32_t count) const {
         assert(vertexBuffer != nullptr && indexBuffer != nullptr);
         //////// Bind vertices & indices datas to command buffer
-        VkBuffer     buffers[] = {vertexBuffer->getBuffer()};
-        VkDeviceSize offsets[] = {0};
+        const VkBuffer         buffers[] = {vertexBuffer->getBuffer()};
+        constexpr VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         //////// Draw mesh
@@ -144,6 +144,13 @@ namespace z0 {
                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
         idxStagingBuffer.copyTo(*indexBuffer, sizeof (indices[0]) * indexCount);
+    }
+
+    bool Mesh::operator==(const Mesh &other) const {
+        return vertices == other.vertices &&
+                indices == other.indices &&
+                surfaces == other.surfaces &&
+                materials == other.materials;
     }
 
 }

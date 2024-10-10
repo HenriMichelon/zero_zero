@@ -37,6 +37,10 @@ export namespace z0 {
          */
         Color(const float r, const float g, const float b) { color = vec4{r, g, b, 1.0f}; }
 
+        inline bool operator == (const Color&other) const {
+            return color == other.color;
+        }
+
     };
 
 }

@@ -178,12 +178,16 @@ namespace z0 {
                                                             : CULLMODE_BACK);
             materials.push_back(material);
         }
+        log("Loader :", to_string(materials.size()), "materials");
         if (materials.empty()) {
             materials.push_back(std::make_shared<StandardMaterial>(""));
         }
 
-        vector<shared_ptr<Mesh>> meshes;
-        for (fastgltf::Mesh &glftMesh : gltf.meshes) {
+        auto meshes = vector<shared_ptr<Mesh>>(gltf.meshes.size());
+        auto meshesCount = 0;
+        for (size_t i = 0; i < gltf.meshes.size(); i++) {
+        // for (fastgltf::Mesh &glftMesh : gltf.meshes) {
+            const auto& glftMesh = gltf.meshes[i];
             auto  mesh     = std::make_shared<Mesh>(glftMesh.name.data());
             auto &vertices = mesh->getVertices();
             auto &indices  = mesh->getIndices();
@@ -265,8 +269,17 @@ namespace z0 {
                 }
                 mesh->getSurfaces().push_back(surface);
             }
-            meshes.push_back(mesh);
+            // Check if we already have a similar mesh
+            auto it = std::find(meshes.begin(), meshes.end(), mesh);
+            if (it != meshes.end()) {
+                // Don't use duplicate meshes
+                meshes[i] = *it;
+            } else {
+                meshes[i] = mesh;
+                meshesCount++;
+            }
         }
+        log("Loader :", to_string(meshes.size()), "meshes", to_string(meshesCount), "uniques meshes");
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;

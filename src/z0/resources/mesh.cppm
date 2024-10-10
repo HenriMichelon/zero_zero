@@ -22,7 +22,7 @@ export namespace z0 {
         vec4             tangent;
 
         inline bool operator==(const Vertex &other) const {
-            return position == other.position && normal == other.normal && uv == other.uv;
+            return position == other.position && normal == other.normal && uv == other.uv && tangent == other.tangent;
         }
     };
 
@@ -36,6 +36,14 @@ export namespace z0 {
 
         Surface( uint32_t firstIndex,
                  uint32_t count);
+
+        inline bool operator==(const Surface &other) const {
+            return firstVertexIndex == other.firstVertexIndex && indexCount == other.indexCount && material == other.material;
+        }
+
+        friend inline bool operator==(const shared_ptr<Surface>& a, const shared_ptr<Surface>& b) {
+            return *a == *b;
+        }
     };
 
     /**
@@ -66,16 +74,26 @@ export namespace z0 {
 
         [[nodiscard]] inline const vector<uint32_t> &getIndices() const { return indices; }
 
+        bool operator==(const Mesh &other) const;
+
+        friend inline bool operator==(const shared_ptr<Mesh>& a, const shared_ptr<Mesh>& b) {
+            return (a == nullptr) ? false : *a == *b;
+        }
+
+        friend inline bool operator<(const shared_ptr<Mesh>& a, const shared_ptr<Mesh>& b) {
+            return *a < *b;
+        }
+
     private:
         vector<Vertex>                      vertices;
         vector<uint32_t>                    indices;
         vector<shared_ptr<Surface>>         surfaces{};
-        unordered_set<shared_ptr<Material>> _materials{};
+        unordered_set<shared_ptr<Material>> materials{};
         unique_ptr<Buffer>                  vertexBuffer;
         unique_ptr<Buffer>                  indexBuffer;
 
     public:
-        [[nodiscard]] inline unordered_set<shared_ptr<Material>> &_getMaterials() { return _materials; }
+        [[nodiscard]] inline unordered_set<shared_ptr<Material>> &_getMaterials() { return materials; }
 
         [[nodiscard]] static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
 

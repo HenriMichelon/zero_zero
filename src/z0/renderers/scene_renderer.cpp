@@ -167,6 +167,7 @@ namespace z0 {
                 loadShadersMaterials(shaderMaterial);
             }
         }
+        opaquesModels.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
     }
 
     void SceneRenderer::removingModel(MeshInstance *meshInstance) {
@@ -649,6 +650,8 @@ namespace z0 {
             currentCamera->getNearClipDistance(),
             currentCamera->getFarClipDistance()
         };
+        auto lastCullMode = CULLMODE_BACK;
+        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
         for (const auto &meshInstance : modelsToDraw) {
             if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
@@ -685,11 +688,15 @@ namespace z0 {
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
 
-                    vkCmdSetCullMode(commandBuffer,
-                                     surface->material->getCullMode() == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                             : surface->material->getCullMode() == CULLMODE_BACK
-                                             ? VK_CULL_MODE_BACK_BIT
-                                             : VK_CULL_MODE_FRONT_BIT);
+                    auto cullMode = surface->material->getCullMode();
+                    if (cullMode != lastCullMode) {
+                        vkCmdSetCullMode(commandBuffer,
+                                         cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                                                 : cullMode == CULLMODE_BACK
+                                                 ? VK_CULL_MODE_BACK_BIT
+                                                 : VK_CULL_MODE_FRONT_BIT);
+                        lastCullMode = cullMode;
+                    }
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
                             Shader *material = materialShaders[shaderMaterial->getFragFileName()].get();

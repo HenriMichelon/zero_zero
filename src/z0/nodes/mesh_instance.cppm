@@ -3,6 +3,7 @@ module;
 
 export module z0:MeshInstance;
 
+import :Tools;
 import :Mesh;
 import :Material;
 import :Node;
@@ -48,6 +49,10 @@ namespace z0 {
          * Returns the current outlining material
          */
         [[nodiscard]] inline shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
+
+        friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
+            return a.mesh < b.mesh;
+        }
 
     protected:
         shared_ptr<Node> duplicateInstance() override;

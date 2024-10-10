@@ -29,6 +29,10 @@ export namespace z0 {
 
         inline bool operator==(const Resource &other) const { return id == other.id; }
 
+        inline bool operator<(const Resource &other) const { return id < other.id; }
+
+        inline bool operator>(const Resource &other) const { return id > other.id; }
+
     protected:
         string name;
 
