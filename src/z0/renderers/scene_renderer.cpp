@@ -341,7 +341,6 @@ namespace z0 {
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
         if (skyboxRenderer != nullptr)
@@ -648,9 +647,14 @@ namespace z0 {
             currentCamera->getNearClipDistance(),
             currentCamera->getFarClipDistance()
         };
+
+        // Used to reduce vkCmdSetCullMode calls
         auto lastCullMode = CULLMODE_BACK;
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
+
+        // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
         auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
+
         for (const auto &meshInstance : modelsToDraw) {
             if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
@@ -687,20 +691,15 @@ namespace z0 {
                             model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                             lastMeshId = model->getId();
                         }
-                        drawCount++;
+                        vkCmdSetCullMode(commandBuffer,
+                                        lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                                                : lastCullMode == CULLMODE_BACK
+                                                ? VK_CULL_MODE_BACK_BIT
+                                                : VK_CULL_MODE_FRONT_BIT);
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
 
-                    auto cullMode = surface->material->getCullMode();
-                    if (cullMode != lastCullMode) {
-                        vkCmdSetCullMode(commandBuffer,
-                                         cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                                 : cullMode == CULLMODE_BACK
-                                                 ? VK_CULL_MODE_BACK_BIT
-                                                 : VK_CULL_MODE_FRONT_BIT);
-                        lastCullMode = cullMode;
-                    }
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
                             Shader *material = materialShaders[shaderMaterial->getFragFileName()].get();
@@ -712,6 +711,15 @@ namespace z0 {
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
                             shadersChanged = true;
                         }
+                    }
+                    auto cullMode = surface->material->getCullMode();
+                    if (cullMode != lastCullMode) {
+                        vkCmdSetCullMode(commandBuffer,
+                                         cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                                                 : cullMode == CULLMODE_BACK
+                                                 ? VK_CULL_MODE_BACK_BIT
+                                                 : VK_CULL_MODE_FRONT_BIT);
+                        lastCullMode = cullMode;
                     }
                     const auto        &materialIndex = materialsIndices[surface->material->getId()];
                     array<uint32_t, 5> offsets       = {
@@ -726,7 +734,12 @@ namespace z0 {
                             0,
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
-                    model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    if (lastMeshId == model->getId()) {
+                        model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    } else {
+                        model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        lastMeshId = model->getId();
+                    }
                     drawCount++;
                     if (shadersChanged) {
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
