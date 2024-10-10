@@ -7,6 +7,7 @@ module;
 module z0;
 
 import :Tools;
+import :Resource;
 import :Renderer;
 import :Renderpass;
 import :Device;
@@ -34,6 +35,7 @@ namespace z0 {
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
+        models.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
         createOrUpdateResources();
     }
 
@@ -254,19 +256,25 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
-            uint32_t modelIndex = 0;
+            auto modelIndex = 0;
+            auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
             for (const auto &meshInstance : models) {
                 if (meshInstance->isValid() && frustum->isOnFrustum(meshInstance)) {
-                    auto mesh = meshInstance->getMesh();
+                    const auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
-                        array<uint32_t, 2> offsets = {
+                        array offsets = {
                             static_cast<uint32_t>(globalUniformBuffers[currentFrame]->getAlignmentSize() *
                                               cascadeIndex),
                             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
                                                   modelIndex),
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
-                        mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        if (lastMeshId == mesh->getId()) {
+                            mesh->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        } else {
+                            mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            lastMeshId = mesh->getId();
+                        }
                         draw_count++;
                     }
                 }

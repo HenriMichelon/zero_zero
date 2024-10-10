@@ -140,8 +140,6 @@ namespace z0 {
     }
 
     void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex) {
-        if (meshInstance->getMesh()->_getMaterials().empty())
-            die("Models without materials are not supported");
         opaquesModels.push_back(meshInstance);
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
@@ -652,6 +650,7 @@ namespace z0 {
         };
         auto lastCullMode = CULLMODE_BACK;
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
+        auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
         for (const auto &meshInstance : modelsToDraw) {
             if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
@@ -682,7 +681,12 @@ namespace z0 {
                                             materialShaders[material->getFragFileName()]->getStage(),
                                             materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-                        model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        if (lastMeshId == model->getId()) {
+                            model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        } else {
+                            model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            lastMeshId = model->getId();
+                        }
                         drawCount++;
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());

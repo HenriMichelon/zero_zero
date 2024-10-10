@@ -26,6 +26,8 @@ import :ModelsRenderer;
             }
         } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
             if (meshInstance->isValid()) {
+                if (meshInstance->getMesh()->_getMaterials().empty())
+                    die("Models without materials are not supported");
                 const auto index = models.size();
                 models.push_back(meshInstance);
                 addingModel(meshInstance, index);
@@ -40,13 +42,13 @@ import :ModelsRenderer;
     }
 
     void ModelsRenderer::removeNode(const shared_ptr<Node> &node) {
-        if (auto *camera = dynamic_cast<Camera *>(node.get())) {
+        if (const auto *camera = dynamic_cast<Camera *>(node.get())) {
             if (camera == currentCamera) {
                 currentCamera->_setActive(false);
                 currentCamera = nullptr;
             }
         } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
-            auto it = find(models.begin(), models.end(), meshInstance);
+            const auto it = find(models.begin(), models.end(), meshInstance);
             if (it != models.end()) {
                 models.erase(it);
                 removingModel(meshInstance);

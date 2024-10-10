@@ -101,6 +101,8 @@ export namespace z0 {
 
         void _draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
 
+        void _bindlessDraw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
+
         void _buildModel();
     };
 }

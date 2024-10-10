@@ -104,6 +104,11 @@ namespace z0 {
         vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
     }
 
+    void Mesh::_bindlessDraw(const VkCommandBuffer commandBuffer, const uint32_t firstIndex, const uint32_t count) const {
+        assert(vertexBuffer != nullptr && indexBuffer != nullptr);
+        vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
+    }
+
     void Mesh::_buildModel() {
         const auto &device = Application::get()._getDevice();
         ////////////// Create vertices buffer
