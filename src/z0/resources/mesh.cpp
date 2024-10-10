@@ -149,6 +149,22 @@ namespace z0 {
                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
         idxStagingBuffer.copyTo(*indexBuffer, sizeof (indices[0]) * indexCount);
+
+        ////////////// Create bounding box
+        auto min = vec3{numeric_limits<float>::max()};
+        auto max = vec3{numeric_limits<float>::lowest()};
+        for (const auto index : indices) {
+            const auto& position = vertices[index].position;
+            //Get the smallest vertex
+            min.x = std::min(min.x, position.x);    // Find smallest x value in model
+            min.y = std::min(min.y, position.y);    // Find smallest y value in model
+            min.z = std::min(min.z, position.z);    // Find smallest z value in model
+            //Get the largest vertex
+            max.x = std::max(max.x, position.x);    // Find largest x value in model
+            max.y = std::max(max.y, position.y);    // Find largest y value in model
+            max.z = std::max(max.z, position.z);    // Find largest z value in model
+        }
+        aabb = {min, max};
     }
 
     bool Mesh::operator==(const Mesh &other) const {

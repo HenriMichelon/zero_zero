@@ -30,6 +30,7 @@ export namespace z0 {
         VkPipelineLayout                pipelineLayout{VK_NULL_HANDLE};
         shared_ptr<DescriptorPool>      descriptorPool{};
         unique_ptr<DescriptorSetLayout> setLayout{};
+        VkPushConstantRange             *pushConstantRange{nullptr};
         vector<VkDescriptorSet>         descriptorSet{MAX_FRAMES_IN_FLIGHT};
         unique_ptr<Shader>              vertShader;
         unique_ptr<Shader>              fragShader;
@@ -52,7 +53,7 @@ export namespace z0 {
         static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
                                        const void *data);
 
-        void createOrUpdateResources();
+        void createOrUpdateResources(const VkPushConstantRange* = nullptr);
 
         void createUniformBuffers(vector<unique_ptr<Buffer>> &buffers, VkDeviceSize size, uint32_t count = 1) const;
 
@@ -68,11 +69,11 @@ export namespace z0 {
 
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
 
-        virtual void createDescriptorSetLayout() = 0;
+        virtual void createDescriptorSetLayout() {};
 
         virtual void createOrUpdateDescriptorSet(bool create) {}
 
-        virtual void createPipelineLayout();
+        virtual void createPipelineLayout(const VkPushConstantRange* = nullptr);
 
     private:
         void buildShader(Shader &shader) const;

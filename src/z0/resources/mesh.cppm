@@ -9,6 +9,7 @@ import :Resource;
 import :Buffer;
 import :Material;
 import :Tools;
+import :AABB;
 
 export namespace z0 {
 
@@ -74,6 +75,8 @@ export namespace z0 {
 
         [[nodiscard]] inline const vector<uint32_t> &getIndices() const { return indices; }
 
+        [[nodiscard]] inline const AABB &getAABB() const { return aabb; }
+
         bool operator==(const Mesh &other) const;
 
         friend inline bool operator==(const shared_ptr<Mesh>& a, const shared_ptr<Mesh>& b) {
@@ -85,6 +88,7 @@ export namespace z0 {
         }
 
     private:
+        AABB                                aabb;
         vector<Vertex>                      vertices;
         vector<uint32_t>                    indices;
         vector<shared_ptr<Surface>>         surfaces{};

@@ -41,6 +41,8 @@ export namespace z0 {
 
         [[nodiscard]] inline VkDescriptorSetLayout *getDescriptorSetLayout() { return &descriptorSetLayout; }
 
+        [[nodiscard]] inline bool isValid() const { return descriptorSetLayout != VK_NULL_HANDLE; }
+
     private:
         const Device &                                        device;
         VkDescriptorSetLayout                                 descriptorSetLayout;

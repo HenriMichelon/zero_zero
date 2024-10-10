@@ -30,9 +30,9 @@ namespace z0 {
         shaderCreateInfo.codeSize               = spirv.size() * sizeof(spirv[0]);
         shaderCreateInfo.pCode                  = spirv.data();
         shaderCreateInfo.pName                  = "main";
-        shaderCreateInfo.setLayoutCount         = 1;
+        shaderCreateInfo.setLayoutCount         = pSetLayouts != nullptr ? 1 : 0;
         shaderCreateInfo.pSetLayouts            = pSetLayouts;
-        shaderCreateInfo.pushConstantRangeCount = 0;
+        shaderCreateInfo.pushConstantRangeCount = pPushConstantRange != nullptr ? 1 : 0;
         shaderCreateInfo.pPushConstantRanges    = pPushConstantRange;
         shaderCreateInfo.pSpecializationInfo    = nullptr;
     }

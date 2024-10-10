@@ -54,12 +54,22 @@ export namespace z0 {
 #endif
 
     private:
-        struct GobalUniformBuffer {
-            mat4 lightSpace;
-        };
+        // struct GobalUniformBuffer {
+        //     mat4 lightSpace;
+        // };
+        //
+        // struct ModelUniformBuffer {
+        //     mat4 matrix;
+        // };
 
-        struct ModelUniformBuffer {
+        struct PushConstants {
+            mat4 lightSpace;
             mat4 matrix;
+        };
+        const VkPushConstantRange pushConstantRange {
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants) // LightSpace VP matrix  + Model matrix
         };
 
         // The light we render the shadow map for
@@ -79,11 +89,11 @@ export namespace z0 {
         list<MeshInstance *> models{};
         // Datas for all the models of the scene, one buffer for all the models
         // https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
-        vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        // vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         // Size of the model uniform buffer
-        static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
+        // static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
         // Currently allocated model uniform buffer count
-        uint32_t modelUniformBufferCount{0};
+        // uint32_t modelUniformBufferCount{0};
         // The destination frame buffer
         shared_ptr<ShadowMapFrameBuffer> shadowMap;
         // Last computed light spaces for each cascade
@@ -99,10 +109,6 @@ export namespace z0 {
         void update(uint32_t currentFrame) override;
 
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
-
-        void createDescriptorSetLayout() override;
-
-        void createOrUpdateDescriptorSet(bool create) override;
 
         void loadShaders() override;
 

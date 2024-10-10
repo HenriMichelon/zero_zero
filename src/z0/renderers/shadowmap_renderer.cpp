@@ -35,14 +35,14 @@ namespace z0 {
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
-        models.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
-        createOrUpdateResources();
+        models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
+        createOrUpdateResources(&pushConstantRange);
     }
 
     void ShadowMapRenderer::cleanup() {
         cleanupImagesResources();
         shadowMap.reset();
-        modelUniformBuffers.clear();
+        // modelUniformBuffers.clear();
         Renderpass::cleanup();
     }
 
@@ -168,32 +168,31 @@ namespace z0 {
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         if (currentCamera == nullptr) { return; }
         updateLightSpace();
-        if (isCascaded()) {
-            for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-                const GobalUniformBuffer globalUbo{
-                    .lightSpace = lightSpace[i],
-                };
-                writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
-            }
-        } else {
-            const GobalUniformBuffer globalUbo{
-                .lightSpace = lightSpace[0],
-            };
-            writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, 0);
-        }
-
-        uint32_t modelIndex = 0;
-        for (const auto &meshInstance : models) {
-            ModelUniformBuffer modelUbo{
-                    .matrix = meshInstance->getTransformGlobal()
-            };
-            writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
-            modelIndex += 1;
-        }
+        // if (isCascaded()) {
+        //     for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+        //         const GobalUniformBuffer globalUbo{
+        //             .lightSpace = lightSpace[i],
+        //         };
+        //         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
+        //     }
+        // } else {
+        //     const GobalUniformBuffer globalUbo{
+        //         .lightSpace = lightSpace[0],
+        //     };
+        //     writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, 0);
+        // }
+        //
+        // uint32_t modelIndex = 0;
+        // for (const auto &meshInstance : models) {
+        //     ModelUniformBuffer modelUbo{
+        //             .matrix = meshInstance->getTransformGlobal()
+        //     };
+        //     writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
+        //     modelIndex += 1;
+        // }7
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        auto draw_count = 0;
         const auto cascades = lightIsDirectional ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
         for (int cascadeIndex = 0; cascadeIndex < cascades; cascadeIndex++) {
             device.transitionImageLayout(commandBuffer,
@@ -256,26 +255,27 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
-            auto modelIndex = 0;
+            // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
+
+            auto pushConstants = PushConstants {
+                .lightSpace = lightSpace[cascadeIndex],
+            };
+
+            auto modelIndex = 0;
             for (const auto &meshInstance : models) {
                 if (meshInstance->isValid() && frustum->isOnFrustum(meshInstance)) {
                     const auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
-                        array offsets = {
-                            static_cast<uint32_t>(globalUniformBuffers[currentFrame]->getAlignmentSize() *
-                                              cascadeIndex),
-                            static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
-                                                  modelIndex),
-                        };
-                        bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
+                        pushConstants.matrix = meshInstance->getTransformGlobal();
+                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                            0, sizeof(PushConstants), &pushConstants);
                         if (lastMeshId == mesh->getId()) {
                             mesh->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         } else {
                             mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                             lastMeshId = mesh->getId();
                         }
-                        draw_count++;
                     }
                 }
                 modelIndex += 1;
@@ -305,52 +305,6 @@ namespace z0 {
                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                    VK_IMAGE_ASPECT_COLOR_BIT);
 #endif
-        }
-        // log(to_string(draw_count), " shadows draw calls");
-    }
-
-    void ShadowMapRenderer::createDescriptorSetLayout() {
-        descriptorPool =
-                DescriptorPool::Builder(device)
-                        .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // model UBO
-                        .build();
-
-        setLayout = DescriptorSetLayout::Builder(device)
-                            .addBinding(0,
-                                        // global UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                        VK_SHADER_STAGE_VERTEX_BIT)
-                            .addBinding(1,
-                                        // model UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                        VK_SHADER_STAGE_VERTEX_BIT)
-                            .build();
-
-        globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(
-                globalUniformBuffers, globalUniformBufferSize, ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
-    }
-
-    void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
-        if (!models.empty() && (modelUniformBufferCount != models.size())) {
-            modelUniformBufferCount = models.size();
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
-        }
-        if (modelUniformBufferCount == 0) {
-            modelUniformBufferCount = 1;
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
-        }
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto modelBufferInfo  = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
-            if (!DescriptorWriter(*setLayout, *descriptorPool)
-                         .writeBuffer(0, &globalBufferInfo)
-                         .writeBuffer(1, &modelBufferInfo)
-                         .build(descriptorSet[i])) {
-                die("Cannot allocate descriptor set for shadow maps");
-            }
         }
     }
 

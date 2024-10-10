@@ -36,21 +36,15 @@ namespace z0 {
         vertShader = createShader("quad.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
 
-    void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto imageInfo        = inputColorAttachmentHdr->imageInfo();
-            auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                  .writeBuffer(0, &globalBufferInfo)
-                                  .writeImage(1, &imageInfo);
-            if (create) {
-                if (!writer.build(descriptorSet[i])) {
-                    die("Cannot allocate descriptor set for BasePostprocessingRenderer");
-                }
-            } else {
-                writer.overwrite(descriptorSet[i]);
-            }
-        }
+    void PostprocessingRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+        bindShaders(commandBuffer);
+        vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
+        vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
+        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
+        vkCmdSetVertexInputEXT(commandBuffer, 0, nullptr, 0, nullptr);
+        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+        bindDescriptorSets(commandBuffer, currentFrame);
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
     }
 
     void PostprocessingRenderer::createDescriptorSetLayout() {
@@ -66,15 +60,21 @@ namespace z0 {
         createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
     }
 
-    void PostprocessingRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        bindShaders(commandBuffer);
-        vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-        vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
-        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
-        vkCmdSetVertexInputEXT(commandBuffer, 0, nullptr, 0, nullptr);
-        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
-        bindDescriptorSets(commandBuffer, currentFrame);
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
+        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+            auto imageInfo        = inputColorAttachmentHdr->imageInfo();
+            auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
+                                  .writeBuffer(0, &globalBufferInfo)
+                                  .writeImage(1, &imageInfo);
+            if (create) {
+                if (!writer.build(descriptorSet[i])) {
+                    die("Cannot allocate descriptor set for BasePostprocessingRenderer");
+                }
+            } else {
+                writer.overwrite(descriptorSet[i]);
+            }
+        }
     }
 
     void PostprocessingRenderer::createImagesResources() {

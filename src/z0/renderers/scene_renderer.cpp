@@ -639,7 +639,6 @@ namespace z0 {
 
     void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer, const uint32_t currentFrame,
                                    const list<MeshInstance *> &modelsToDraw) {
-        auto drawCount = 0;
         auto shadersChanged = false;
         const auto cameraFrustum = Frustum{
             currentCamera,
@@ -740,7 +739,6 @@ namespace z0 {
                         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         lastMeshId = model->getId();
                     }
-                    drawCount++;
                     if (shadersChanged) {
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
@@ -749,7 +747,6 @@ namespace z0 {
                 }
             }
         }
-        // log(to_string(drawCount), " draws calls");
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {

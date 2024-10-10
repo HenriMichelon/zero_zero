@@ -51,7 +51,7 @@ namespace z0 {
     // }
 
     bool Frustum::isOnFrustum(const MeshInstance* meshInstance) const {
-        const auto aabb = AABB{meshInstance->getMesh().get()}.toGlobal(meshInstance->getTransformGlobal());
+        const auto aabb = meshInstance->getMesh()->getAABB().toGlobal(meshInstance->getTransformGlobal());
         vec3 vmin, vmax;
         bool ret = true;
         for (int i = 0; i < 6; ++i) {

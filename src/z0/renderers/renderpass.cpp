@@ -80,8 +80,11 @@ namespace z0 {
         buffers[currentFrame]->writeToBuffer(data);
     }
 
-    void Renderpass::createOrUpdateResources() {
-        if (descriptorPool == nullptr) {
+    void Renderpass::createOrUpdateResources(const VkPushConstantRange* pushConstantRange) {
+        if (pipelineLayout == VK_NULL_HANDLE && (pushConstantRange != nullptr)) {
+            createPipelineLayout(pushConstantRange);
+            loadShaders();
+        } else if ((pipelineLayout == VK_NULL_HANDLE) && (descriptorPool == nullptr)) {
             descriptorSetNeedUpdate = false;
             createDescriptorSetLayout();
             createOrUpdateDescriptorSet(true);
@@ -149,19 +152,22 @@ namespace z0 {
                 next_stage,
                 filename,
                 code,
-                setLayout->getDescriptorSetLayout(),
-                nullptr);
+                setLayout != nullptr && setLayout->isValid() ? setLayout->getDescriptorSetLayout() : nullptr,
+                pushConstantRange);
         buildShader(*shader);
         return shader;
     }
 
-    void Renderpass::createPipelineLayout() {
+    void Renderpass::createPipelineLayout(const VkPushConstantRange* pushConstantRange) {
+        this->pushConstantRange = const_cast<VkPushConstantRange*>(pushConstantRange);
+        const uint32_t pushConstantRangeCount = (pushConstantRange != nullptr ? 1 : 0);
+        const uint32_t setLayoutCount = (setLayout != nullptr && setLayout->isValid() ? 1 : 0);
         const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-                .setLayoutCount = 1,
-                .pSetLayouts = setLayout->getDescriptorSetLayout(),
-                .pushConstantRangeCount = 0,
-                .pPushConstantRanges = nullptr
+                .setLayoutCount = setLayoutCount,
+                .pSetLayouts = setLayoutCount > 0 ? setLayout->getDescriptorSetLayout() : nullptr,
+                .pushConstantRangeCount = pushConstantRangeCount,
+                .pPushConstantRanges = pushConstantRange
         };
         if (vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
             die("failed to create pipeline layout!");
