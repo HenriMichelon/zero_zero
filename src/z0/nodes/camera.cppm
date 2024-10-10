@@ -77,7 +77,7 @@ export namespace z0 {
         // Nearest clipping distance
         float nearDistance{0.1f};
         // Furthest clipping distance
-        float farDistance{300.0f};
+        float farDistance{500.0f};
         // Is this the currently active camera ?
         bool active{false};
         // Projection matrix for the global UBO

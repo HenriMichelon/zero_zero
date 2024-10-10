@@ -48,22 +48,15 @@ namespace z0 {
 
     void ShadowMapRenderer::updateLightSpace() {
         if (lightIsDirectional) {
-            frustum = make_unique<Frustum>(
-                currentCamera,
-                currentCamera->getFov(),
-                currentCamera->getNearClipDistance(),
-                currentCamera->getFarClipDistance()
-            );
-
             const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
             const auto lightDirection = directionalLight->getFrontVector();
+            const auto nearClip  = currentCamera->getNearClipDistance();
+            const auto farClip   = currentCamera->getFarClipDistance();
 
             // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
             // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
             float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
 
-            const auto nearClip  = currentCamera->getNearClipDistance();
-            const auto farClip   = currentCamera->getFarClipDistance();
             const auto clipRange = farClip - nearClip;
 
             const auto minZ = nearClip;
@@ -84,6 +77,7 @@ namespace z0 {
 
             // Calculate orthographic projection matrix for each cascade
             float lastSplitDist = 0.0;
+            vec3 lightPosition;
             const auto invCam = inverse(currentCamera->getProjection() * currentCamera->getView());
             for (uint32_t i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
                 const auto splitDist = cascadeSplits[i];
@@ -132,7 +126,7 @@ namespace z0 {
                 auto maxExtents = vec3(radius);
                 auto minExtents = -maxExtents;
 
-                auto lightPosition  = frustumCenter - lightDirection * -minExtents.z;
+                lightPosition  = frustumCenter - lightDirection * -minExtents.z;
                 const auto depth = maxExtents.z - minExtents.z;
                 const auto lightProjection = ortho(
                     minExtents.x, maxExtents.x,
@@ -142,6 +136,13 @@ namespace z0 {
                 splitDepth[i] = (currentCamera->getNearClipDistance() + splitDist * clipRange);
                 lastSplitDist = cascadeSplits[i];
             }
+            frustum = make_unique<Frustum>(
+                directionalLight,
+                lightPosition,
+                currentCamera->getFov(),
+                nearClip,
+                glm::distance(lightPosition, currentCamera->getPositionGlobal())
+            );
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
             const auto lightPosition       = light->getPositionGlobal();
@@ -190,6 +191,7 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+        auto draw_count = 0;
         const auto cascades = lightIsDirectional ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
         for (int cascadeIndex = 0; cascadeIndex < cascades; cascadeIndex++) {
             device.transitionImageLayout(commandBuffer,
@@ -265,6 +267,7 @@ namespace z0 {
                         };
                         bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                         mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        draw_count++;
                     }
                 }
                 modelIndex += 1;
@@ -295,6 +298,7 @@ namespace z0 {
                                    VK_IMAGE_ASPECT_COLOR_BIT);
 #endif
         }
+        // log(to_string(draw_count), " shadows draw calls");
     }
 
     void ShadowMapRenderer::createDescriptorSetLayout() {

@@ -11,19 +11,26 @@ export namespace z0 {
     * A 3D axis-aligned bounding box.
     */
     struct AABB {
-        vec3 center{ 0.f, 0.f, 0.f };
-        vec3 extents{ 0.f, 0.f, 0.f };
+        vec3 min;
+        vec3 max;
 
-        inline AABB(const vec3& min, const vec3& max) :
-            center{ (max + min) * 0.5f },
-            extents{ max.x - center.x, max.y - center.y, max.z - center.z }
-        {}
+        // vec3 center{ 0.f, 0.f, 0.f };
+        // vec3 extents{ 0.f, 0.f, 0.f };
+        //
+        // inline AABB(const vec3& min, const vec3& max) :
+        //     center{ (max + min) * 0.5f },
+        //     extents{ max.x - center.x, max.y - center.y, max.z - center.z }
+        // {}
+        //
+        // inline AABB(const vec3& inCenter, const float iI, const float iJ, const float iK)
+        //     : center{ inCenter }, extents{ iI, iJ, iK }
+        // {}
 
-        inline AABB(const vec3& inCenter, const float iI, const float iJ, const float iK)
-            : center{ inCenter }, extents{ iI, iJ, iK }
-        {}
+        inline AABB(const vec3& min, const vec3& max) : min{min}, max{max} {}
 
         explicit AABB(const Mesh*);
+
+        AABB toGlobal(const mat4& transform) const;
 
     };
 }
