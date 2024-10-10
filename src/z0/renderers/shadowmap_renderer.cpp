@@ -56,7 +56,7 @@ namespace z0 {
             );
 
             const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-            const auto lightDirection = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
+            const auto lightDirection = directionalLight->getFrontVector();
 
             // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
             // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/

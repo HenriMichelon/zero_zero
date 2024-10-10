@@ -245,8 +245,7 @@ namespace z0 {
         };
         if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
-                    .direction =
-                            normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection()),
+                    .direction = directionalLight->getFrontVector(),
                     .color    = directionalLight->getColorAndIntensity(),
                     .specular = directionalLight->getSpecularIntensity(),
             };
@@ -726,7 +725,7 @@ namespace z0 {
                 }
             }
         }
-        // log(to_string(drawCount), " draws calls");
+        log(to_string(drawCount), " draws calls");
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {

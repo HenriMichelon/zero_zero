@@ -62,6 +62,10 @@ export namespace z0 {
 
         [[nodiscard]] inline vector<uint32_t> &getIndices() { return indices; }
 
+        [[nodiscard]] inline const vector<Vertex> &getVertices() const { return vertices; }
+
+        [[nodiscard]] inline const vector<uint32_t> &getIndices() const { return indices; }
+
     private:
         vector<Vertex>                      vertices;
         vector<uint32_t>                    indices;

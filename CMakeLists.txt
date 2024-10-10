@@ -37,6 +37,7 @@ add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_
 
 # engine modules
 set(PROJECT_FILES
+		${Z0_ENGINE_DIR}/aabb.cppm
 		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
 		${Z0_ENGINE_DIR}/buffer.cppm
@@ -132,6 +133,7 @@ set(PROJECT_FILES
 
 # engine library
 add_library(${Z0_TARGET} STATIC
+		${Z0_ENGINE_DIR}/aabb.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/buffer.cpp
 		${Z0_ENGINE_DIR}/descriptors.cpp
