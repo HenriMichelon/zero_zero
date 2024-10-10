@@ -32,6 +32,7 @@ import :ColorFrameBuffer;
 import :DepthFrameBuffer;
 import :Skybox;
 import :SceneRenderer;
+import :FrustumCulling;
 
 namespace z0 {
 
@@ -536,7 +537,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::beginRendering(VkCommandBuffer commandBuffer) {
+    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferMultisampled.getImage(),
@@ -641,9 +642,16 @@ namespace z0 {
 
     void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer, const uint32_t currentFrame,
                                    const list<MeshInstance *> &modelsToDraw) {
-        bool shadersChanged{false};
+        auto drawCount = 0;
+        auto shadersChanged = false;
+        const auto cameraFrustum = Frustum{
+            currentCamera,
+            currentCamera->getFov(),
+            currentCamera->getNearClipDistance(),
+            currentCamera->getFarClipDistance()
+        };
         for (const auto &meshInstance : modelsToDraw) {
-            if (meshInstance->isValid()) {
+            if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
@@ -673,6 +681,7 @@ namespace z0 {
                                             materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        drawCount++;
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
                     }
@@ -708,6 +717,7 @@ namespace z0 {
                     };
                     bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
                     model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    drawCount++;
                     if (shadersChanged) {
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
@@ -716,6 +726,7 @@ namespace z0 {
                 }
             }
         }
+        // log(to_string(drawCount), " draws calls");
     }
 
     [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {

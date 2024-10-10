@@ -13,6 +13,7 @@ import :MeshInstance;
 import :Light;
 import :Buffer;
 import :Mesh;
+import :FrustumCulling;
 
 // #define SHADOWMAP_RENDERER_DEBUG 1
 
@@ -71,7 +72,9 @@ export namespace z0 {
         // Slope depth bias factor, applied depending on polygon's slope
         const float depthBiasSlope = 1.75f;
         // Scene current camera
-        Camera *currentCamera{nullptr};
+        Camera* currentCamera{nullptr};
+        // Frustum of the camera or the spotlight
+        unique_ptr<Frustum> frustum;
         // All the models of the scene
         list<MeshInstance *> models{};
         // Datas for all the models of the scene, one buffer for all the models

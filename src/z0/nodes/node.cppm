@@ -296,7 +296,33 @@ export namespace z0 {
         /**
          * Returns the normalized right vector
          */
-        [[nodiscard]] vec3 getRightVector() const;
+        [[nodiscard]] inline vec3 getRightVector() const {  return normalize(mat3{worldTransform} * AXIS_RIGHT); }
+
+        /**
+         * Returns the normalized left vector
+         */
+        [[nodiscard]] inline vec3 getLeftVector() const {  return normalize(mat3{worldTransform} * AXIS_LEFT); }
+
+        /**
+         * Returns the normalized front vector
+         */
+        [[nodiscard]] inline vec3 getFrontVector() const {  return normalize(mat3{worldTransform} * AXIS_FRONT); }
+
+        /**
+         * Returns the normalized back vector
+         */
+        [[nodiscard]] inline vec3 getBackVector() const {  return normalize(mat3{worldTransform} * AXIS_BACK); }
+
+        /**
+         * Returns the normalized up vector
+         */
+        [[nodiscard]] inline vec3 getUpVector() const {  return normalize(mat3{worldTransform} * AXIS_UP); }
+
+        /**
+         * Returns the normalized down vector
+         */
+        [[nodiscard]] inline vec3 getDownVector() const {  return normalize(mat3{worldTransform} * AXIS_DOWN); }
+
 
         /**
          * Creates a Tween to tweens a property of the node between an `initial` value

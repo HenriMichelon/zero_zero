@@ -34,7 +34,6 @@ namespace z0 {
         this->fov                = fov;
         nearDistance             = near;
         farDistance              = far;
-        usePerspectiveProjection = true;
         const auto aspect        = Application::get()._getDevice().getAspectRatio();
         const auto tanHalfFovy = tan(radians(fov) / 2.f);
         projectionMatrix       = mat4{0.0f};
@@ -43,13 +42,6 @@ namespace z0 {
         projectionMatrix[2][2] = far / (far - near);
         projectionMatrix[2][3] = 1.f;
         projectionMatrix[3][2] = -(far * near) / (far - near);
-    }
-
-    const mat4 &Camera::getProjection() {
-        if (usePerspectiveProjection) {
-            setPerspectiveProjection(fov, nearDistance, farDistance);
-        }
-        return projectionMatrix;
     }
 
     vec2 Camera::unproject(const vec3 worldCoords) {
@@ -66,7 +58,7 @@ namespace z0 {
         const auto  newDirection       = rotationQuaternion * AXIS_FRONT;
         const auto &position           = getPositionGlobal();
 
-        auto w{normalize(newDirection)};
+        const auto w{normalize(newDirection)};
         const auto u{normalize(cross(w, AXIS_UP))};
         const auto v{cross(w, u)};
 
@@ -83,7 +75,70 @@ namespace z0 {
         viewMatrix[3][0] = -dot(u, position);
         viewMatrix[3][1] = -dot(v, position);
         viewMatrix[3][2] = -dot(w, position);
+
+
+        /* https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling */
+        // const auto camPos = position;
+        // const auto camFront = rotationQuaternion * AXIS_FRONT;
+        // const auto camUp = rotationQuaternion * AXIS_UP;
+        // const auto camRight = rotationQuaternion * AXIS_RIGHT;
+        //
+        // const auto zNear = nearDistance;
+        // const auto zFar = farDistance;
+        // const auto halfVSide = zFar * tanf(radians(fov) * .5f);
+        // const auto halfHSide = halfVSide * Application::get()._getDevice().getAspectRatio();
+        // const auto frontMultFar = zFar * camFront;
+        //
+        // frustum.nearFace = {camPos + zNear * camFront, camFront};
+        // frustum.farFace = {camPos + frontMultFar, -camFront};
+        // frustum.rightFace = {camPos, glm::cross(camUp, frontMultFar + camRight * halfHSide)};
+        // frustum.leftFace = {camPos, glm::cross(frontMultFar - camRight * halfHSide, camUp)};
+        // frustum.topFace = {camPos, glm::cross(frontMultFar + camUp * halfVSide, camRight)};
+        // frustum.bottomFace = {camPos, glm::cross(camRight, frontMultFar - camUp * halfVSide)};
     }
+
+    // glm::vec3 getTransformScale(const glm::mat4& transform) {
+    //     float sx = glm::length(glm::vec3{transform[0][0], transform[0][1], transform[0][2]});
+    //     float sy = glm::length(glm::vec3{transform[1][0], transform[1][1], transform[1][2]});
+    //     float sz = glm::length(glm::vec3{transform[2][0], transform[2][1], transform[2][2]});
+    //     return {sx, sy, sz};
+    // }
+    //
+    // // todo : calculate bounding sphere for meshinstance
+    // // Sphere calculateBoundingSphereWorld(
+    // //     const glm::mat4& transform,
+    // //     const Sphere& s) {
+    // //     const auto scale = getTransformScale(transform);
+    // //     float maxScale = std::max({scale.x, scale.y, scale.z});
+    // //     auto sphereWorld = s;
+    // //     sphereWorld.radius *= maxScale;
+    // //     sphereWorld.center = glm::vec3(transform * glm::vec4(sphereWorld.center, 1.f));
+    // //     return sphereWorld;
+    // // }
+    //
+    // bool Camera::_isOnFrustum(const Node* node) const {
+    //     //Get global scale is computed by doing the magnitude of
+    //     //X, Y and Z model matrix's column.
+    //     const glm::vec3 globalScale = getTransformScale(node->getTransformGlobal());
+    //
+    //     //Get our global center with process it with the global model matrix of our transform
+    //     const glm::vec3 globalCenter = node->getPositionGlobal();
+    //
+    //     //To wrap correctly our shape, we need the maximum scale scalar.
+    //     const float maxScale = std::max(std::max(globalScale.x, globalScale.y), globalScale.z);
+    //
+    //     //Max scale is assuming for the diameter. So, we need the half to apply it to our radius
+    //     Sphere globalSphere(globalCenter, 50.0f * (maxScale * 0.5f));
+    //
+    //     //Check Firstly the result that have the most chance
+    //     //to failure to avoid to call all functions.
+    //     return (globalSphere.isOnOrForwardPlane(frustum.leftFace) &&
+    //         globalSphere.isOnOrForwardPlane(frustum.rightFace) &&
+    //         globalSphere.isOnOrForwardPlane(frustum.farFace) &&
+    //         globalSphere.isOnOrForwardPlane(frustum.nearFace) &&
+    //         globalSphere.isOnOrForwardPlane(frustum.topFace) &&
+    //         globalSphere.isOnOrForwardPlane(frustum.bottomFace));
+    // }
 
     void Camera::_updateTransform(const mat4 &parentMatrix) {
         Node::_updateTransform(parentMatrix);

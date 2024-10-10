@@ -31,9 +31,9 @@ namespace z0 {
     }
 
     void Character::setShape(const shared_ptr<Shape> &shape) {
-        this->shape   = shape;
-        auto position = getPositionGlobal();
-        auto quat     = normalize(toQuat(mat3(worldTransform)));
+        this->shape         = shape;
+        const auto position = getPositionGlobal();
+        const auto quat     = normalize(toQuat(mat3(worldTransform)));
         // TODO : use a capsule shape
         const auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings *>(this->shape->_getShapeSettings())->
                 mHalfExtent;

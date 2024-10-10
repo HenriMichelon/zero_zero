@@ -42,9 +42,29 @@ export namespace z0 {
     constexpr vec3 AXIS_UP = AXIS_Y;
 
     /**
+     * DOWN Axis
+     */
+    constexpr vec3 AXIS_DOWN = -AXIS_Y;
+
+    /**
      * FRONT Axis
      */
     constexpr vec3 AXIS_FRONT = -AXIS_Z;
+
+    /**
+     * BACK Axis
+     */
+    constexpr vec3 AXIS_BACK = AXIS_Z;
+
+    /**
+     * RIGHT Axis
+     */
+    constexpr vec3 AXIS_RIGHT = AXIS_X;
+
+    /**
+     * LEFT Axis
+     */
+    constexpr vec3 AXIS_LEFT = -AXIS_X;
 
     /**
      * 2D zero initialized vector

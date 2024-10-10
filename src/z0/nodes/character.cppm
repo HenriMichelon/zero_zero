@@ -32,7 +32,7 @@ export namespace z0 {
                            const string &           name = "Character");
 
         /**
-         * Creates a Character withtout a collision `shape`,
+         * Creates a Character without a collision `shape`,
          */
         explicit Character(const string &name = "Character");
 

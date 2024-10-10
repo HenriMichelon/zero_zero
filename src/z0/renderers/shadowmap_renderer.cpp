@@ -18,6 +18,7 @@ import :Buffer;
 import :Mesh;
 import :ColorFrameBufferHDR;
 import :ShadowMapRenderer;
+import :FrustumCulling;
 
 // #define SHADOWMAP_RENDERER_DEBUG 1
 
@@ -47,6 +48,13 @@ namespace z0 {
 
     void ShadowMapRenderer::updateLightSpace() {
         if (lightIsDirectional) {
+            frustum = make_unique<Frustum>(
+                currentCamera,
+                currentCamera->getFov(),
+                currentCamera->getNearClipDistance(),
+                currentCamera->getFarClipDistance()
+            );
+
             const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
             const auto lightDirection = normalize(mat3{directionalLight->getTransformGlobal()} * directionalLight->getDirection());
 
@@ -138,10 +146,19 @@ namespace z0 {
             const auto lightDirection = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
             const auto lightPosition       = light->getPositionGlobal();
             const auto sceneCenter         = lightPosition + lightDirection;
-            const auto lightProjection     = glm::perspective(spotLight->getFov(), device.getAspectRatio(), 0.1f, 20.0f);
+            const auto lightProjection     = perspective(
+                spotLight->getFov(),
+                device.getAspectRatio(),
+                spotLight->getNearClipDistance(),
+                spotLight->getFarClipDistance());
             lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, -AXIS_UP);
+            frustum = make_unique<Frustum>(
+               spotLight,
+               spotLight->getFov(),
+               spotLight->getNearClipDistance(),
+               spotLight->getFarClipDistance());
         } else {
-            lightSpace[0] = mat4{};
+            assert(false);
         }
     }
 
@@ -237,7 +254,7 @@ namespace z0 {
 
             uint32_t modelIndex = 0;
             for (const auto &meshInstance : models) {
-                if (meshInstance->isValid()) {
+                if (meshInstance->isValid() && frustum->isOnFrustum(meshInstance)) {
                     auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
                         array<uint32_t, 2> offsets = {

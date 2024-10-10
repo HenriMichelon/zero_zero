@@ -65,10 +65,24 @@ export namespace z0 {
          */
         [[nodiscard]] inline float getFov() const { return fov; }
 
+        /**
+         * Returns the light near clipping distance
+         */
+        [[nodiscard]] inline float getNearClipDistance() const { return nearDistance; }
+
+        /**
+         * Returns the light far clipping distance
+         */
+        [[nodiscard]] inline float getFarClipDistance() const { return farDistance; }
+
     private:
         float fov{0.0f};
         float cutOff{cos(radians(10.f))};
         float outerCutOff{cos(radians(15.f))};
+        // Nearest clipping distance
+        float nearDistance{0.01f};
+        // Furthest clipping distance
+        float farDistance{20.0f};
 
         shared_ptr<Node> duplicateInstance() override;
     };

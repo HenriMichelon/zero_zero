@@ -44,6 +44,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/constants.cppm
 		${Z0_ENGINE_DIR}/descriptors.cppm
 		${Z0_ENGINE_DIR}/device.cppm
+		${Z0_ENGINE_DIR}/frustum_culling.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
@@ -135,6 +136,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/buffer.cpp
 		${Z0_ENGINE_DIR}/descriptors.cpp
 		${Z0_ENGINE_DIR}/device.cpp
+		${Z0_ENGINE_DIR}/frustum_culling.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/loader.cpp

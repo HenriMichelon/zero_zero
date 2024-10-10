@@ -174,10 +174,6 @@ namespace z0 {
         return dup;
     }
 
-    vec3 Node::getRightVector() const {
-        return normalize(mat3{worldTransform} * AXIS_X);
-    }
-
     void Node::killTween(const shared_ptr<Tween> &tween) {
         if (tween != nullptr) {
             tween->_kill();
