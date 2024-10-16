@@ -75,7 +75,7 @@ export namespace z0 {
 
         [[nodiscard]] inline const vector<uint32_t> &getIndices() const { return indices; }
 
-        [[nodiscard]] inline const AABB &getAABB() const { return aabb; }
+        [[nodiscard]] inline const AABB &getAABB() const { return localAABB; }
 
         bool operator==(const Mesh &other) const;
 
@@ -88,7 +88,7 @@ export namespace z0 {
         }
 
     private:
-        AABB                                aabb;
+        AABB                                localAABB;
         vector<Vertex>                      vertices;
         vector<uint32_t>                    indices;
         vector<shared_ptr<Surface>>         surfaces{};

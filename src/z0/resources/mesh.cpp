@@ -164,7 +164,7 @@ namespace z0 {
             max.y = std::max(max.y, position.y);    // Find largest y value in model
             max.z = std::max(max.z, position.z);    // Find largest z value in model
         }
-        aabb = {min, max};
+        localAABB = {min, max};
     }
 
     bool Mesh::operator==(const Mesh &other) const {

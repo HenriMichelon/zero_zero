@@ -42,16 +42,8 @@ namespace z0 {
         return plane.getSignedDistanceToPlane(position) > -.0f;
     }
 
-    // bool isOnOrForwardPlane(const Plane& plane, const AABB& aabb) {
-    //     // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-    //     const float r = aabb.extents.x * std::abs(plane.normal.x) +
-    //                 aabb.extents.y * std::abs(plane.normal.y) +
-    //                 aabb.extents.z * std::abs(plane.normal.z);
-    //     return -r <= plane.getSignedDistanceToPlane(aabb.center);
-    // }
-
     bool Frustum::isOnFrustum(const MeshInstance* meshInstance) const {
-        const auto aabb = meshInstance->getMesh()->getAABB().toGlobal(meshInstance->getTransformGlobal());
+        const auto & aabb = meshInstance->getAABB();
         vec3 vmin, vmax;
         bool ret = true;
         for (int i = 0; i < 6; ++i) {
@@ -88,39 +80,6 @@ namespace z0 {
             }
         }
         return ret;
-
-        // const auto center = meshInstance->getPositionGlobal();
-        //
-        // const auto right = meshInstance->getRightVector() * aabb.extents.x;
-        // const auto up = meshInstance->getUpVector() * aabb.extents.y;
-        // const auto forward = meshInstance->getFrontVector() * aabb.extents.z;
-        //
-        // const auto newIi = std::abs(glm::dot(AXIS_RIGHT, right)) +
-        //     std::abs(glm::dot(AXIS_RIGHT, up)) +
-        //     std::abs(glm::dot(AXIS_RIGHT, forward));
-        //
-        // const auto newIj = std::abs(glm::dot(AXIS_UP, right)) +
-        //     std::abs(glm::dot(AXIS_UP, up)) +
-        //     std::abs(glm::dot(AXIS_UP, forward));
-        //
-        // const auto newIk = std::abs(glm::dot(AXIS_FRONT, right)) +
-        //     std::abs(glm::dot(AXIS_FRONT, up)) +
-        //     std::abs(glm::dot(AXIS_FRONT, forward));
-        //
-        // //We not need to divide scale because it's based on the half extension of the AABB
-        // const auto globalAABB = AABB{center, newIi, newIj, newIk};
-        //
-        // return (isOnOrForwardPlane(leftFace, globalAABB) &&
-        //         isOnOrForwardPlane(rightFace, globalAABB) &&
-        //         isOnOrForwardPlane(topFace, globalAABB) &&
-        //         isOnOrForwardPlane(bottomFace, globalAABB) &&
-        //         isOnOrForwardPlane(nearFace, globalAABB) &&
-        //         isOnOrForwardPlane(farFace, globalAABB));
-
-        // const auto center = node->getPositionGlobal();
-        // return  (isOnOrForwardPlane(farFace, center) && isOnOrForwardPlane(nearFace, center) &&
-        //          isOnOrForwardPlane(leftFace, center) && isOnOrForwardPlane(rightFace, center) &&
-        //          isOnOrForwardPlane(topFace, center) && isOnOrForwardPlane(bottomFace, center));
     }
 
 

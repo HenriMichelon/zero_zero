@@ -7,10 +7,11 @@ import :Tools;
 import :Mesh;
 import :Material;
 import :Node;
+import :AABB;
 
 namespace z0 {
 
-    /**
+    /*https://alextardif.com/Bindless.html
      * Node that hold a Mesh.
      */
     export class MeshInstance : public Node {
@@ -49,6 +50,8 @@ namespace z0 {
          * Returns the current outlining material
          */
         [[nodiscard]] inline shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
+        
+        [[nodiscard]] inline const AABB &getAABB() const { return worldAABB; }
 
         friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
             return a.mesh < b.mesh;
@@ -58,9 +61,15 @@ namespace z0 {
         shared_ptr<Node> duplicateInstance() override;
 
     private:
+        AABB                       worldAABB;
         bool                       outlined{false};
         shared_ptr<Mesh>           mesh;
         shared_ptr<ShaderMaterial> outlineMaterial;
+        
+        void _updateTransform(const mat4 &parentMatrix) override; 
+
+        void _updateTransform() override;
+
     };
 
 }
