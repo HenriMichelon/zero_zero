@@ -18,64 +18,66 @@ import :ModelsRenderer;
 
  namespace z0 {
 
-    void ModelsRenderer::addNode(const shared_ptr<Node> &node) {
+    void ModelsRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (auto *camera = dynamic_cast<Camera *>(node.get())) {
-            if (currentCamera == nullptr) {
-                activateCamera(camera);
+            if (frameData[currentFrame].currentCamera == nullptr) {
+                activateCamera(camera, currentFrame);
                 //log("Using camera", currentCamera->toString());
             }
         } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
             if (meshInstance->isValid()) {
                 if (meshInstance->getMesh()->_getMaterials().empty())
                     die("Models without materials are not supported");
-                const auto index = models.size();
-                models.push_back(meshInstance);
-                addingModel(meshInstance, index);
+                const auto index = frameData[currentFrame].models.size();
+                frameData[currentFrame].models.push_back(meshInstance);
+                addingModel(meshInstance, index, currentFrame);
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
-                addedModel(meshInstance);
+                addedModel(meshInstance, currentFrame);
             }
         } else if (auto *viewport = dynamic_cast<Viewport *>(node.get())) {
-            currentViewport = viewport;
+            frameData[currentFrame].currentViewport = viewport;
             //log("Using viewport", currentViewport->toString());
         }
     }
 
-    void ModelsRenderer::removeNode(const shared_ptr<Node> &node) {
+    void ModelsRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (const auto *camera = dynamic_cast<Camera *>(node.get())) {
-            if (camera == currentCamera) {
-                currentCamera->_setActive(false);
-                currentCamera = nullptr;
+            if (camera == frameData[currentFrame].currentCamera) {
+                frameData[currentFrame].currentCamera->_setActive(false);
+                frameData[currentFrame].currentCamera = nullptr;
             }
         } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
-            const auto it = find(models.begin(), models.end(), meshInstance);
-            if (it != models.end()) {
-                models.erase(it);
-                removingModel(meshInstance);
+            const auto it = find(frameData[currentFrame].models.begin(), frameData[currentFrame].models.end(), meshInstance);
+            if (it != frameData[currentFrame].models.end()) {
+                frameData[currentFrame].models.erase(it);
+                removingModel(meshInstance, currentFrame);
             }
             descriptorSetNeedUpdate = true;
         } else if (const auto *viewport = dynamic_cast<Viewport *>(node.get())) {
-            if (currentViewport == viewport) {
-                currentViewport = nullptr;
+            if (frameData[currentFrame].currentViewport == viewport) {
+                frameData[currentFrame].currentViewport = nullptr;
             }
         }
     }
 
-    void ModelsRenderer::activateCamera(Camera *camera) {
-        if (currentCamera != nullptr)
-            currentCamera->_setActive(false);
+    void ModelsRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
+        if (frameData[currentFrame].currentCamera != nullptr)
+            frameData[currentFrame].currentCamera->_setActive(false);
         if (camera == nullptr) {
-            currentCamera = nullptr;
+            frameData[currentFrame].currentCamera = nullptr;
         } else {
-            currentCamera = camera;
-            currentCamera->_setActive(true);
+            frameData[currentFrame].currentCamera = camera;
+            frameData[currentFrame].currentCamera->_setActive(true);
         }
     }
 
     void ModelsRenderer::cleanup() {
-        depthFrameBuffer->cleanupImagesResources();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].depthFrameBuffer->cleanupImagesResources();
+            ModelsRenderer::frameData[i].modelUniformBuffer.reset();
+        }
         cleanupImagesResources();
-        modelUniformBuffers.clear();
         Renderpass::cleanup();
     }
 
@@ -84,9 +86,9 @@ import :ModelsRenderer;
     }
 
     // Set the initial states of the dynamic rendering
-    void ModelsRenderer::setInitialState(const VkCommandBuffer commandBuffer) const {
+    void ModelsRenderer::setInitialState(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) const {
         bindShaders(commandBuffer);
-        if (currentViewport != nullptr) {
+        if (frameData[currentFrame].currentViewport != nullptr) {
             const VkViewport viewport{
                     .x = 0.0f,
                     .y = 0.0f,
@@ -98,12 +100,12 @@ import :ModelsRenderer;
             vkCmdSetViewportWithCount(commandBuffer, 1, &viewport);
             const VkRect2D scissor{
                     .offset = {
-                            static_cast<int32_t>(currentViewport->getViewportPosition().x),
-                            static_cast<int32_t>(currentViewport->getViewportPosition().y)
+                            static_cast<int32_t>(frameData[currentFrame].currentViewport->getViewportPosition().x),
+                            static_cast<int32_t>(frameData[currentFrame].currentViewport->getViewportPosition().y)
                     },
                     .extent = {
-                            static_cast<uint32_t>(currentViewport->getViewportSize().x),
-                            static_cast<uint32_t>(currentViewport->getViewportSize().y)
+                            static_cast<uint32_t>(frameData[currentFrame].currentViewport->getViewportSize().x),
+                            static_cast<uint32_t>(frameData[currentFrame].currentViewport->getViewportSize().y)
                     },
             };
             vkCmdSetScissorWithCount(commandBuffer, 1, &scissor);

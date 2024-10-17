@@ -7,6 +7,7 @@ module;
 
 export module z0:Application;
 
+import :Constants;
 import :Object;
 import :ApplicationConfig;
 import :InputEvent;
@@ -103,7 +104,7 @@ export namespace z0 {
          * Changes the current camera
          * @param camera the camera to activate, must be in a scene
          */
-        void activateCamera(const shared_ptr<Camera> &camera) const;
+        void activateCamera(const shared_ptr<Camera> &camera);
 
         /**
          * Returns the physics system gravity
@@ -161,18 +162,25 @@ export namespace z0 {
         bool stopped{true};
         // Average FPS,
         uint32_t fps{0};
+        // The current frame in flight
+        uint32_t currentFrame{0};
         // The Main renderer
         shared_ptr<SceneRenderer> sceneRenderer;
         // The 2D vector renderer used for the UI
         shared_ptr<VectorRenderer> vectorRenderer;
-        // Deferred list of nodes added to the current scene, processed before each frame
-        vector<shared_ptr<Node>> addedNodes{};
-        // Deferred list of nodes removed from the current scene, processed before each frame
-        vector<shared_ptr<Node>> removedNodes{};
         // vector renderer size ratios
         vec2 vectorRatio;
         // Renders used in development to view depth buffers
-        shared_ptr<PostprocessingRenderer> depthBufferRenderer;
+        // shared_ptr<PostprocessingRenderer> depthBufferRenderer;
+
+        struct {
+            // Deferred list of nodes added to the current scene, processed before each frame
+            vector<shared_ptr<Node>> addedNodes{};
+            // Deferred list of nodes removed from the current scene, processed before each frame
+            vector<shared_ptr<Node>> removedNodes{};
+            // Camera to activate next frame
+            shared_ptr<Camera> activateCamera;
+        } frameData[MAX_FRAMES_IN_FLIGHT];
 
         /*
          * Main loop members
@@ -224,7 +232,7 @@ export namespace z0 {
         void registerTypes() const;
 
         // Process scene updates before drawing a frame
-        void processDeferredUpdates();
+        void processDeferredUpdates(uint32_t currentFrame);
 
     public:
         // The following members are accessed by global function WinMain

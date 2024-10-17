@@ -101,10 +101,6 @@ export namespace z0 {
 
         void recreateImagesResources() override {};
 
-        void beginRendering(VkCommandBuffer commandBuffer) override {};
-
-        void endRendering(VkCommandBuffer commandBuffer, bool isLast) override {};
-
     public:
         ShadowMapRenderer(const ShadowMapRenderer &) = delete;
 

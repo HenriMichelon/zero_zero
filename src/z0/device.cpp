@@ -200,7 +200,6 @@ namespace z0 {
 
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Command_buffers
         {
-            commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
             const VkCommandBufferAllocateInfo allocInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                     .commandPool = commandPool,
@@ -213,9 +212,6 @@ namespace z0 {
 
         //////////////////// Create sync objects
         {
-            imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-            renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-            inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
             constexpr VkSemaphoreCreateInfo semaphoreInfo{
                     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
             };
@@ -253,7 +249,7 @@ namespace z0 {
 #endif
     }
 
-    void Device::drawFrame() {
+    void Device::drawFrame(const uint32_t currentFrame) {
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the last frame.
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -287,9 +283,9 @@ namespace z0 {
             setInitialState(commandBuffers[currentFrame]);
             const auto &lastRenderer = renderers.back();
             for (const auto &renderer : renderers) {
-                renderer->beginRendering(commandBuffers[currentFrame]);
+                renderer->beginRendering(commandBuffers[currentFrame], currentFrame);
                 renderer->recordCommands(commandBuffers[currentFrame], currentFrame);
-                renderer->endRendering(commandBuffers[currentFrame], renderer == lastRenderer);
+                renderer->endRendering(commandBuffers[currentFrame], currentFrame, renderer == lastRenderer);
             }
 
             transitionImageLayout(
@@ -303,7 +299,7 @@ namespace z0 {
                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                     VK_IMAGE_ASPECT_COLOR_BIT);
             vkCmdBlitImage(commandBuffers[currentFrame],
-                           lastRenderer->getImage(),
+                           lastRenderer->getImage(currentFrame),
                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            swapChainImages[imageIndex],
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -364,7 +360,6 @@ namespace z0 {
             } else if (result != VK_SUCCESS) { die("failed to present swap chain image!"); }
         }
 
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     void Device::wait() const { vkDeviceWaitIdle(device); }

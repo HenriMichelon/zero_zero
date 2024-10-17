@@ -4,6 +4,7 @@ module;
 
 export module z0:PostprocessingRenderer;
 
+import :Constants;
 import :Renderer;
 import :Renderpass;
 import :Device;
@@ -12,22 +13,23 @@ import :ColorFrameBufferHDR;
 import :Descriptors;
 
 export namespace z0 {
+
     /**
      * Base class for post-processing effect renderers
      */
     class PostprocessingRenderer : public Renderpass, public Renderer {
     public:
-        PostprocessingRenderer(Device &            device,
-                               const string &      shaderDirectory,
-                               SampledFrameBuffer *inputColorAttachmentHdr);
+        PostprocessingRenderer(Device &                             device,
+                               const string &                       shaderDirectory,
+                               const vector<SampledFrameBuffer *> & inputColorAttachment);
 
-        void setInputColorAttachmentHdr(SampledFrameBuffer *input);
+        void setInputColorAttachments(const vector<SampledFrameBuffer *> &input);
 
-        [[nodiscard]] inline shared_ptr<ColorFrameBufferHDR> &getColorAttachment() { return colorAttachmentHdr; }
+        [[nodiscard]] inline vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() { return colorAttachmentHdr; }
 
-        [[nodiscard]] inline VkImage getImage() const override { return colorAttachmentHdr->getImage(); }
+        [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorAttachmentHdr[currentFrame]->getImage(); }
 
-        [[nodiscard]] inline VkImageView getImageView() const override { return colorAttachmentHdr->getImageView(); }
+        [[nodiscard]] inline VkImageView getImageView(const uint32_t currentFrame) const override { return colorAttachmentHdr[currentFrame]->getImageView(); }
 
         void cleanup() override;
 
@@ -45,13 +47,13 @@ export namespace z0 {
 
         void recreateImagesResources() override;
 
-        void beginRendering(VkCommandBuffer commandBuffer) override;
+        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
 
-        void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
+        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
 
     protected:
-        shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
-        SampledFrameBuffer *            inputColorAttachmentHdr;
+        vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
+        vector<SampledFrameBuffer *>            inputColorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
     };
 
 }

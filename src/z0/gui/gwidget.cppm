@@ -336,6 +336,6 @@ export namespace z0 {
 
         GWidget *setFocus(bool = true);
 
-        void _draw(VectorRenderer &) const;
+        void _draw(VectorRenderer &, uint32_t currentFrame) const;
     };
 }

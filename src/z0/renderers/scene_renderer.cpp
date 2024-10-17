@@ -44,259 +44,263 @@ namespace z0 {
     }
 
     SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
-        ModelsRenderer{device, shaderDirectory, clearColor},
-        colorFrameBufferMultisampled{device, true},
-        materialsIndicesAllocation(MAX_MATERIALS, Resource::INVALID_ID) {
+        ModelsRenderer{device, shaderDirectory, clearColor} {
         createImagesResources();
         OutlineMaterials::_initialize();
+        for(uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
+            frameData[i].materialsIndicesAllocation = vector<Resource::id_t>(MAX_MATERIALS, Resource::INVALID_ID);
+        }
         createOrUpdateResources(true, &pushConstantRange);
     }
 
     void SceneRenderer::cleanup() {
-        materialShaders.clear();
-        materialsBuffers.clear();
-        shadowMapsUniformBuffers.clear();
-        pointLightUniformBuffers.clear();
         if (blankImage != nullptr) {
             blankImage.reset();
             blankImageData.clear();
         }
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->cleanup();
-        for (const auto &shadowMapRenderer : shadowMapRenderers) {
-            device.unRegisterRenderer(shadowMapRenderer);
-            shadowMapRenderer->cleanup();
+        for(uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].materialShaders.clear();
+            frameData[i].materialsBuffer.reset();
+            frameData[i].shadowMapsUniformBuffer.reset();
+            frameData[i].pointLightUniformBuffer.reset();
+            if (frameData[i].skyboxRenderer != nullptr)
+                frameData[i].skyboxRenderer->cleanup();
+            for (const auto &shadowMapRenderer : frameData[i].shadowMapRenderers) {
+                device.unRegisterRenderer(shadowMapRenderer);
+                shadowMapRenderer->cleanup();
+            }
+            frameData[i].shadowMapRenderers.clear();
+            frameData[i].opaquesModels.clear();
+            frameData[i].omniLights.clear();
         }
-        shadowMapRenderers.clear();
-        opaquesModels.clear();
-        omniLights.clear();
         ModelsRenderer::cleanup();
     }
 
-    void SceneRenderer::addNode(const shared_ptr<Node> &node) {
+    void SceneRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (auto *skybox = dynamic_cast<Skybox *>(node.get())) {
-            skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory, clearColor);
-            skyboxRenderer->loadScene(skybox->getCubemap());
+            frameData[currentFrame].skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory, clearColor);
+            frameData[currentFrame].skyboxRenderer->loadScene(skybox->getCubemap(), currentFrame);
             return;
         }
-        if (currentEnvironment == nullptr) {
+        if (frameData[currentFrame].currentEnvironment == nullptr) {
             if (auto *environment = dynamic_cast<Environment *>(node.get())) {
-                currentEnvironment = environment;
+                frameData[currentFrame].currentEnvironment = environment;
                 // log("Using environment", environment->toString());
                 return;
             }
         }
-        if (directionalLight == nullptr) {
+        if (frameData[currentFrame].directionalLight == nullptr) {
             if (auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
-                directionalLight = light;
+                frameData[currentFrame].directionalLight = light;
                 // log("Using directional light", directionalLight->toString());
-                enableLightShadowCasting(directionalLight);
+                enableLightShadowCasting(frameData[currentFrame].directionalLight, currentFrame);
                 return;
             }
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
-            omniLights.push_back(omniLight);
+            frameData[currentFrame].omniLights.push_back(omniLight);
             if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                enableLightShadowCasting(spotLight);
+                enableLightShadowCasting(spotLight, currentFrame);
             }
         }
-        ModelsRenderer::addNode(node);
+        ModelsRenderer::addNode(node, currentFrame);
     }
 
-    void SceneRenderer::removeNode(const shared_ptr<Node> &node) {
+    void SceneRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (dynamic_cast<Skybox *>(node.get())) {
-            skyboxRenderer.reset();
+            frameData[currentFrame].skyboxRenderer.reset();
         } else if (const auto *environment = dynamic_cast<Environment *>(node.get())) {
-            if (currentEnvironment == environment) {
-                currentEnvironment = nullptr;
+            if (frameData[currentFrame].currentEnvironment == environment) {
+                frameData[currentFrame].currentEnvironment = nullptr;
             }
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
-            if (directionalLight == light) {
-                disableLightShadowCasting(directionalLight);
-                directionalLight = nullptr;
+            if (frameData[currentFrame].directionalLight == light) {
+                disableLightShadowCasting(frameData[currentFrame].directionalLight, currentFrame);
+                frameData[currentFrame].directionalLight = nullptr;
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
-            disableLightShadowCasting(omniLight);
-            omniLights.remove(omniLight);
+            disableLightShadowCasting(omniLight, currentFrame);
+            frameData[currentFrame].omniLights.remove(omniLight);
         } else {
-            ModelsRenderer::removeNode(node);
+            ModelsRenderer::removeNode(node, currentFrame);
         }
     }
 
-    void SceneRenderer::preUpdateScene() {
+    void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
         for (const auto &material : OutlineMaterials::_all()) {
             if (material->_getBufferIndex() == -1) {
                 material->_incrementReferenceCounter();
-                addMaterial(material);
+                addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
             }
         }
     }
 
-    void SceneRenderer::addMaterial(const shared_ptr<Material> &material) {
+    void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         // We have a new material, allocate the first free buffer index
-        const auto it = std::find_if(materialsIndicesAllocation.begin(), materialsIndicesAllocation.end(),
+        const auto it = std::find_if(frameData[currentFrame].materialsIndicesAllocation.begin(), frameData[currentFrame].materialsIndicesAllocation.end(),
             [&](const Resource::id_t &id) {
                 return id == Resource::INVALID_ID;
             });
-        if (it == materialsIndicesAllocation.end())
+        if (it == frameData[currentFrame].materialsIndicesAllocation.end())
             die("Maximum number of materials reached");
-        const auto index = it - materialsIndicesAllocation.begin();
+        const auto index = it - frameData[currentFrame].materialsIndicesAllocation.begin();
         material->_setBufferIndex(index);
-        materialsIndicesAllocation[index] = material->getId();
+        frameData[currentFrame].materialsIndicesAllocation[index] = material->getId();
         // Force material data to be written to GPU memory
         material->_setDirty();
-        materials.push_back(material);
+        frameData[currentFrame].materials.push_back(material);
     }
 
-    void SceneRenderer::removeMaterial(const shared_ptr<Material> &material) {
+    void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         if (material->_getBufferIndex() != -1) {
             // Check if we need to remove the material from the scene
             if (material->_decrementReferenceCounter()) {
                 // Try to remove the associated textures or shaders
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     if (standardMaterial->getAlbedoTexture() != nullptr)
-                        removeImage(standardMaterial->getAlbedoTexture()->getImage());
+                        removeImage(standardMaterial->getAlbedoTexture()->getImage(), currentFrame);
                     if (standardMaterial->getSpecularTexture() != nullptr)
-                        removeImage(standardMaterial->getSpecularTexture()->getImage());
+                        removeImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
                     if (standardMaterial->getNormalTexture() != nullptr)
-                        removeImage(standardMaterial->getNormalTexture()->getImage());
+                        removeImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
-                    const auto &shader = materialShaders[shaderMaterial->getFragFileName()];
+                    const auto &shader = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()];
                     if (shader->_decrementReferenceCounter()) {
-                        materialShaders.erase(shaderMaterial->getFragFileName());
+                        frameData[currentFrame].materialShaders.erase(shaderMaterial->getFragFileName());
                     }
                 }
                 // Free the material index and remove the material from the scene
-                materialsIndicesAllocation[material->_getBufferIndex()] = Resource::INVALID_ID;
+                frameData[currentFrame].materialsIndicesAllocation[material->_getBufferIndex()] = Resource::INVALID_ID;
                 material->_setBufferIndex(-1);
-                materials.remove(material);
+                frameData[currentFrame].materials.remove(material);
             }
         }
     }
 
-    void SceneRenderer::postUpdateScene() {
+    void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
         createOrUpdateResources(true, &pushConstantRange);
         for (const auto &material : OutlineMaterials::_all()) {
-            loadShadersMaterials(material.get());
+            loadShadersMaterials(material.get(), currentFrame);
         }
-        for (const auto &renderer : shadowMapRenderers) {
-            renderer->loadScene(models);
+        for (const auto &renderer : frameData[currentFrame].shadowMapRenderers) {
+            renderer->loadScene(ModelsRenderer::frameData[currentFrame].models);
         }
     }
 
-    void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex) {
-        opaquesModels.push_back(meshInstance);
-        modelsIndices[meshInstance->getId()] = modelIndex;
+    void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex, const uint32_t currentFrame) {
+        frameData[currentFrame].opaquesModels.push_back(meshInstance);
+        frameData[currentFrame].modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             material->_incrementReferenceCounter();
             if (material->_getBufferIndex() != -1) continue;
-            addMaterial(material);
+            addMaterial(material, currentFrame);
             // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture() != nullptr)
-                    addImage(standardMaterial->getAlbedoTexture()->getImage());
+                    addImage(standardMaterial->getAlbedoTexture()->getImage(), currentFrame);
                 if (standardMaterial->getSpecularTexture() != nullptr)
-                    addImage(standardMaterial->getSpecularTexture()->getImage());
+                    addImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
                 if (standardMaterial->getNormalTexture() != nullptr)
-                    addImage(standardMaterial->getNormalTexture()->getImage());
+                    addImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
             }
         }
     }
 
-    void SceneRenderer::addedModel(MeshInstance *meshInstance) {
+    void SceneRenderer::addedModel(MeshInstance *meshInstance, const uint32_t currentFrame) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
-                loadShadersMaterials(shaderMaterial);
+                loadShadersMaterials(shaderMaterial, currentFrame);
             }
         }
-        opaquesModels.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
+        frameData[currentFrame].opaquesModels.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
     }
 
-    void SceneRenderer::removingModel(MeshInstance *meshInstance) {
+    void SceneRenderer::removingModel(MeshInstance *meshInstance, const uint32_t currentFrame) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-           removeMaterial(material);
+           removeMaterial(material, currentFrame);
         }
 
-        const auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
-        if (it != opaquesModels.end()) {
-            opaquesModels.erase(it);
-            modelsIndices.erase(meshInstance->getId());
+        const auto it = find(frameData[currentFrame].opaquesModels.begin(), frameData[currentFrame].opaquesModels.end(), meshInstance);
+        if (it != frameData[currentFrame].opaquesModels.end()) {
+            frameData[currentFrame].opaquesModels.erase(it);
+            frameData[currentFrame].modelsIndices.erase(meshInstance->getId());
         }
     }
 
-    void SceneRenderer::loadShadersMaterials(const ShaderMaterial *material) {
-        if (!materialShaders.contains(material->getFragFileName())) {
+    void SceneRenderer::loadShadersMaterials(const ShaderMaterial *material, const uint32_t currentFrame) {
+        if (!frameData[currentFrame].materialShaders.contains(material->getFragFileName())) {
             if (!material->getVertFileName().empty()) {
-                materialShaders[material->getVertFileName()] = createShader(
+                frameData[currentFrame].materialShaders[material->getVertFileName()] = createShader(
                         material->getVertFileName(), VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-                materialShaders[material->getVertFileName()]->_incrementReferenceCounter();
+                frameData[currentFrame].materialShaders[material->getVertFileName()]->_incrementReferenceCounter();
             }
             if (!material->getFragFileName().empty()) {
-                materialShaders[material->getFragFileName()] =
+                frameData[currentFrame].materialShaders[material->getFragFileName()] =
                         createShader(material->getFragFileName(), VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-                materialShaders[material->getFragFileName()]->_incrementReferenceCounter();
+                frameData[currentFrame].materialShaders[material->getFragFileName()]->_incrementReferenceCounter();
             }
         }
     }
 
-    void SceneRenderer::activateCamera(Camera *camera) {
-        ModelsRenderer::activateCamera(camera);
-        for (const auto &renderer : shadowMapRenderers) {
+    void SceneRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
+        ModelsRenderer::activateCamera(camera, currentFrame);
+        for (const auto &renderer :frameData[currentFrame]. shadowMapRenderers) {
             renderer->activateCamera(camera);
         }
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
-        if (currentCamera == nullptr)
+        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr)
             return;
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->update(currentCamera, currentEnvironment, currentFrame);
-        if (models.empty())
+        if (frameData[currentFrame].skyboxRenderer != nullptr)
+            frameData[currentFrame].skyboxRenderer->update(ModelsRenderer::frameData[currentFrame].currentCamera, frameData[currentFrame].currentEnvironment, currentFrame);
+        if (ModelsRenderer::frameData[currentFrame].models.empty())
             return;
 
         GobalUniformBuffer globalUbo{
-                .projection           = currentCamera->getProjection(),
-                .view                 = currentCamera->getView(),
-                .cameraPosition       = currentCamera->getPositionGlobal(),
-                .haveDirectionalLight = directionalLight != nullptr,
-                .pointLightsCount     = static_cast<uint32_t>(omniLights.size()),
-                .shadowMapsCount      = static_cast<uint32_t>(shadowMapRenderers.size()),
+                .projection           = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
+                .view                 = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
+                .cameraPosition       = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
+                .haveDirectionalLight = frameData[currentFrame].directionalLight != nullptr,
+                .pointLightsCount     = static_cast<uint32_t>(frameData[currentFrame].omniLights.size()),
+                .shadowMapsCount      = static_cast<uint32_t>(frameData[currentFrame].shadowMapRenderers.size()),
         };
         if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
-                    .direction = directionalLight->getFrontVector(),
-                    .color    = directionalLight->getColorAndIntensity(),
-                    .specular = directionalLight->getSpecularIntensity(),
+                    .direction = frameData[currentFrame].directionalLight->getFrontVector(),
+                    .color    = frameData[currentFrame].directionalLight->getColorAndIntensity(),
+                    .specular = frameData[currentFrame].directionalLight->getSpecularIntensity(),
             };
         }
-        if (currentEnvironment != nullptr) {
-            globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
+        if (frameData[currentFrame].currentEnvironment != nullptr) {
+            globalUbo.ambient = frameData[currentFrame].currentEnvironment->getAmbientColorAndIntensity();
         }
 
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
+                if ((globalUbo.cascadedShadowMapIndex == -1) && frameData[currentFrame].shadowMapRenderers[i]->isCascaded()) {
                     // Activate the first cascaded shadow map found
                     globalUbo.cascadedShadowMapIndex = i;
                     for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
-                        shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
-                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                        shadowMapArray[i].lightSpace[cascadeIndex] = frameData[currentFrame].shadowMapRenderers[i]->getLightSpace(cascadeIndex);
+                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = frameData[currentFrame].shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
                     }
                 } else {
                     // Just copy the light space matrix for non cascaded shadow maps
-                    shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0);
+                    shadowMapArray[i].lightSpace[0] = frameData[currentFrame].shadowMapRenderers[i]->getLightSpace(0);
                 }
             }
-            writeUniformBuffer(shadowMapsUniformBuffers, currentFrame, shadowMapArray.get());
+            writeUniformBuffer(frameData[currentFrame].shadowMapsUniformBuffer, shadowMapArray.get());
         }
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo); // after the shadows maps for .cascadedShadowMapIndex
+        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo); // after the shadows maps for .cascadedShadowMapIndex
 
         if (globalUbo.pointLightsCount > 0) {
             auto pointLightsArray = make_unique<PointLightUniformBuffer[]>(globalUbo.pointLightsCount);
             auto lightIndex = 0;
-            for (const auto* omniLight : omniLights) {
+            for (const auto* omniLight : frameData[currentFrame].omniLights) {
                 pointLightsArray[lightIndex].position  = omniLight->getPositionGlobal();
                 pointLightsArray[lightIndex].color     = omniLight->getColorAndIntensity();
                 pointLightsArray[lightIndex].specular  = omniLight->getSpecularIntensity();
@@ -311,18 +315,18 @@ namespace z0 {
                 }
                 lightIndex += 1;
             }
-            writeUniformBuffer(pointLightUniformBuffers, currentFrame, pointLightsArray.get());
+            writeUniformBuffer(frameData[currentFrame].pointLightUniformBuffer,pointLightsArray.get());
         }
 
         uint32_t modelIndex = 0;
-        auto modelUBOArray = make_unique<ModelUniformBuffer[]>(models.size());
-        for (const auto &meshInstance : models) {
+        auto modelUBOArray = make_unique<ModelUniformBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
+        for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
             modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
-            writeUniformBuffer(modelUniformBuffers, currentFrame, modelUBOArray.get());
+            writeUniformBuffer(ModelsRenderer::frameData[currentFrame].modelUniformBuffer, modelUBOArray.get());
             modelIndex += 1;
         }
 
-        for (const auto& material : materials) {
+        for (const auto& material : frameData[currentFrame].materials) {
             if (material->_isDirty()) {
                 auto materialBuffer = MaterialUniformBuffer{};
                 materialBuffer.transparency = material->getTransparency();
@@ -330,7 +334,7 @@ namespace z0 {
                 if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     materialBuffer.albedoColor = standardMaterial->getAlbedoColor().color;
                     if (standardMaterial->getAlbedoTexture() != nullptr) {
-                        materialBuffer.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                        materialBuffer.diffuseIndex = frameData[currentFrame].imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
                         const auto &transform    = standardMaterial->getTextureTransform();
                         if (transform != nullptr) {
                             materialBuffer.hasTransform  = true;
@@ -340,10 +344,10 @@ namespace z0 {
                     }
                     if (standardMaterial->getSpecularTexture() != nullptr) {
                         materialBuffer.specularIndex =
-                                imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
+                                frameData[currentFrame].imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
                     }
                     if (standardMaterial->getNormalTexture() != nullptr) {
-                        materialBuffer.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                        materialBuffer.normalIndex = frameData[currentFrame].imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                     }
                 } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                     for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
@@ -351,7 +355,7 @@ namespace z0 {
                     }
                 }
                 material->_clearDirty();
-                materialsBuffers[currentFrame]->writeToBuffer(
+                frameData[currentFrame].materialsBuffer->writeToBuffer(
                     &materialBuffer,
                     materialBufferSize,
                     materialBufferSize * material->_getBufferIndex());
@@ -360,17 +364,17 @@ namespace z0 {
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (currentCamera == nullptr)
+        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr)
             return;
-        setInitialState(commandBuffer);
-        if (!models.empty()) {
+        setInitialState(commandBuffer, currentFrame);
+        if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
             bindDescriptorSets(commandBuffer, currentFrame);
-            drawModels(commandBuffer, currentFrame, opaquesModels);
+            drawModels(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels);
         }
-        if (skyboxRenderer != nullptr)
-            skyboxRenderer->recordCommands(commandBuffer, currentFrame);
+        if (frameData[currentFrame].skyboxRenderer != nullptr)
+            frameData[currentFrame].skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
@@ -439,80 +443,82 @@ namespace z0 {
         }
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+        }
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
-        if (!models.empty() && (modelUniformBufferCount != models.size())) {
-            modelUniformBufferCount = models.size();
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize * modelUniformBufferCount);
-        }
-        if (modelUniformBufferCount == 0) {
-            modelUniformBufferCount = 1;
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize);
-        }
-        if (materialsBuffers[0] == nullptr) {
-            createUniformBuffers(materialsBuffers, materialBufferSize * MAX_MATERIALS);
-        }
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (!ModelsRenderer::frameData[i].models.empty() && (frameData[i].modelUniformBufferCount != ModelsRenderer::frameData[i].models.size())) {
+                frameData[i].modelUniformBufferCount = ModelsRenderer::frameData[i].models.size();
+                ModelsRenderer::frameData[i].modelUniformBuffer = createUniformBuffer(modelUniformBufferSize * frameData[i].modelUniformBufferCount);
+            }
+            if (frameData[i].modelUniformBufferCount == 0) {
+                frameData[i].modelUniformBufferCount = 1;
+                ModelsRenderer::frameData[i].modelUniformBuffer = createUniformBuffer(modelUniformBufferSize);
+            }
+            if (frameData[i].materialsBuffer == nullptr) {
+                frameData[i].materialsBuffer = createUniformBuffer(materialBufferSize * MAX_MATERIALS);
+            }
 
-        if ((!shadowMapRenderers.empty()) && (shadowMapUniformBufferCount != shadowMapRenderers.size())) {
-            shadowMapUniformBufferCount = shadowMapRenderers.size();
-            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize * shadowMapUniformBufferCount);
-        }
-        if (shadowMapUniformBufferCount == 0) {
-            shadowMapUniformBufferCount = 1;
-            createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize);
-        }
-        if ((!omniLights.empty()) && (pointLightUniformBufferCount != omniLights.size())) {
-            pointLightUniformBufferCount = omniLights.size();
-            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize * pointLightUniformBufferCount);
-        }
-        if (pointLightUniformBufferCount == 0) {
-            pointLightUniformBufferCount = 1;
-            createUniformBuffers(pointLightUniformBuffers, pointLightUniformBufferSize);
-        }
+            if ((!frameData[i].shadowMapRenderers.empty()) && (frameData[i].shadowMapUniformBufferCount != frameData[i].shadowMapRenderers.size())) {
+                frameData[i].shadowMapUniformBufferCount = frameData[i].shadowMapRenderers.size();
+                frameData[i].shadowMapsUniformBuffer = createUniformBuffer(shadowMapUniformBufferSize * frameData[i].shadowMapUniformBufferCount);
+            }
+            if (frameData[i].shadowMapUniformBufferCount == 0) {
+                frameData[i].shadowMapUniformBufferCount = 1;
+                frameData[i].shadowMapsUniformBuffer = createUniformBuffer(shadowMapUniformBufferSize);
+            }
+            if ((!frameData[i].omniLights.empty()) && (frameData[i].pointLightUniformBufferCount != frameData[i].omniLights.size())) {
+                frameData[i].pointLightUniformBufferCount = frameData[i].omniLights.size();
+                frameData[i].pointLightUniformBuffer = createUniformBuffer(pointLightUniformBufferSize * frameData[i].pointLightUniformBufferCount);
+            }
+            if (frameData[i].pointLightUniformBufferCount == 0) {
+                frameData[i].pointLightUniformBufferCount = 1;
+                frameData[i].pointLightUniformBuffer = createUniformBuffer(pointLightUniformBufferSize);
+            }
 
-        uint32_t imageIndex = 0;
-        for (const auto &image : images) {
-            imagesInfo[imageIndex] = image->_getImageInfo();
-            imageIndex += 1;
-        }
-        // initialize the rest of the image info array with the blank image
-        for (uint32_t i = imageIndex; i < imagesInfo.size(); i++) {
-            imagesInfo[i] = blankImage->_getImageInfo();
-        }
+            uint32_t imageIndex = 0;
+            for (const auto &image : frameData[i].images) {
+                frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();
+                imageIndex += 1;
+            }
+            // initialize the rest of the image info array with the blank image
+            for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
+                frameData[i].imagesInfo[j] = blankImage->_getImageInfo();
+            }
 
-        imageIndex = 0;
-        for (const auto &shadowMapRenderer : shadowMapRenderers) {
-            const auto &shadowMap      = shadowMapRenderer->getShadowMap();
-            shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
-                    .sampler     = shadowMap->getSampler(),
-                    .imageView   = shadowMap->FrameBuffer::getImageView(),
-                    .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
-            };
-            imageIndex += 1;
-        }
-        // initialize the rest of the shadow map info array with the blank image
-        for (uint32_t i = imageIndex; i < shadowMapsInfo.size(); i++) {
-            shadowMapsInfo[i] = blankImage->_getImageInfo();
-        }
+            imageIndex = 0;
+            for (const auto &shadowMapRenderer : frameData[i].shadowMapRenderers) {
+                const auto &shadowMap      = shadowMapRenderer->getShadowMap();
+                frameData[i].shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
+                        .sampler     = shadowMap->getSampler(),
+                        .imageView   = shadowMap->FrameBuffer::getImageView(),
+                        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+                };
+                imageIndex += 1;
+            }
+            // initialize the rest of the shadow map info array with the blank image
+            for (uint32_t j = imageIndex; j < frameData[i].shadowMapsInfo.size(); j++) {
+                frameData[i].shadowMapsInfo[j] = blankImage->_getImageInfo();
+            }
 
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo     = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto modelBufferInfo      = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize *
-                                                                                modelUniformBufferCount);
-            auto materialBufferInfo   = materialsBuffers[i]->descriptorInfo(materialBufferSize * MAX_MATERIALS);
-            auto shadowMapBufferInfo  = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize *
-                                                                                   shadowMapUniformBufferCount);
-            auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize *
-                                                                                    pointLightUniformBufferCount);
+            auto modelBufferInfo      = ModelsRenderer::frameData[i].modelUniformBuffer->descriptorInfo(modelUniformBufferSize *
+                                                                                frameData[i].modelUniformBufferCount);
+            auto materialBufferInfo   = frameData[i].materialsBuffer->descriptorInfo(materialBufferSize * MAX_MATERIALS);
+            auto shadowMapBufferInfo  = frameData[i].shadowMapsUniformBuffer->descriptorInfo(shadowMapUniformBufferSize *
+                                                                                   frameData[i].shadowMapUniformBufferCount);
+            auto pointLightBufferInfo = frameData[i].pointLightUniformBuffer->descriptorInfo(pointLightUniformBufferSize *
+                                                                                   frameData[i].pointLightUniformBufferCount);
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
                                   .writeBuffer(0, &globalBufferInfo)
                                   .writeBuffer(1, &modelBufferInfo)
                                   .writeBuffer(2, &materialBufferInfo)
-                                  .writeImage(3, imagesInfo.data())
+                                  .writeImage(3, frameData[i].imagesInfo.data())
                                   .writeBuffer(4, &shadowMapBufferInfo)
-                                  .writeImage(5, shadowMapsInfo.data())
+                                  .writeImage(5, frameData[i].shadowMapsInfo.data())
                                   .writeBuffer(6, &pointLightBufferInfo);
             if (create) {
                 if (!writer.build(descriptorSet[i]))
@@ -524,44 +530,52 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        if (skyboxRenderer != nullptr) {
-            skyboxRenderer->loadShaders();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (frameData[i].skyboxRenderer != nullptr) {
+                frameData[i].skyboxRenderer->loadShaders();
+            }
         }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
     void SceneRenderer::createImagesResources() {
-        colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
-        if (depthFrameBuffer == nullptr) {
-            depthFrameBuffer         = make_shared<DepthFrameBuffer>(device, true);
-            resolvedDepthFrameBuffer = make_shared<DepthFrameBuffer>(device, false);
-        } else {
-            depthFrameBuffer->createImagesResources();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            colorFrameBufferHdr[i] = make_shared<ColorFrameBufferHDR>(device);
+            if (ModelsRenderer::frameData[i].depthFrameBuffer == nullptr) {
+                ModelsRenderer::frameData[i].depthFrameBuffer         = make_shared<DepthFrameBuffer>(device, true);
+                frameData[i].resolvedDepthFrameBuffer = make_shared<DepthFrameBuffer>(device, false);
+            } else {
+                ModelsRenderer::frameData[i].depthFrameBuffer->createImagesResources();
+            }
         }
     }
 
     void SceneRenderer::cleanupImagesResources() {
-        if (depthFrameBuffer != nullptr) {
-            resolvedDepthFrameBuffer->cleanupImagesResources();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
+                frameData[i].resolvedDepthFrameBuffer->cleanupImagesResources();
+            }
+            colorFrameBufferHdr[i]->cleanupImagesResources();
+            frameData[i].colorFrameBufferMultisampled->cleanupImagesResources();
         }
-        colorFrameBufferHdr->cleanupImagesResources();
-        colorFrameBufferMultisampled.cleanupImagesResources();
     }
 
     void SceneRenderer::recreateImagesResources() {
         cleanupImagesResources();
-        colorFrameBufferHdr->createImagesResources();
-        colorFrameBufferMultisampled.createImagesResources();
-        if (depthFrameBuffer != nullptr) {
-            resolvedDepthFrameBuffer->createImagesResources();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            colorFrameBufferHdr[i]->createImagesResources();
+             frameData[i].colorFrameBufferMultisampled->createImagesResources();
+            if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
+                 frameData[i].resolvedDepthFrameBuffer->createImagesResources();
+            }
         }
     }
 
-    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
+    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer, uint32_t currentFrame) {
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
-                                      colorFrameBufferMultisampled.getImage(),
+                                      frameData[currentFrame].colorFrameBufferMultisampled->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                       0,
@@ -570,7 +584,7 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         Device::transitionImageLayout(commandBuffer,
-                                      colorFrameBufferHdr->getImage(),
+                                      colorFrameBufferHdr[currentFrame]->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                       0,
@@ -582,10 +596,10 @@ namespace z0 {
         // Resolved into a non-multi sampled image
         const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView          = colorFrameBufferMultisampled.getImageView(),
+                .imageView          = frameData[currentFrame].colorFrameBufferMultisampled->getImageView(),
                 .imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
-                .resolveImageView   = colorFrameBufferHdr->getImageView(),
+                .resolveImageView   = colorFrameBufferHdr[currentFrame]->getImageView(),
                 .resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                 .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp            = VK_ATTACHMENT_STORE_OP_STORE,
@@ -593,10 +607,10 @@ namespace z0 {
         };
         const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView          = depthFrameBuffer->getImageView(),
+                .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
                 .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
-                .resolveImageView   = resolvedDepthFrameBuffer->getImageView(),
+                .resolveImageView   = frameData[currentFrame].resolvedDepthFrameBuffer->getImageView(),
                 .resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
                 .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -613,10 +627,10 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void SceneRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
+    void SceneRenderer::endRendering(const VkCommandBuffer commandBuffer, uint32_t currentFrame, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
-                                      colorFrameBufferHdr->getImage(),
+                                      colorFrameBufferHdr[currentFrame]->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
                                              : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -626,7 +640,7 @@ namespace z0 {
                                       isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         Device::transitionImageLayout(commandBuffer,
-                                      resolvedDepthFrameBuffer->getImage(),
+                                       frameData[currentFrame].resolvedDepthFrameBuffer->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
                                       0,
@@ -636,39 +650,40 @@ namespace z0 {
                                       VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
-    void SceneRenderer::addImage(const shared_ptr<Image> &image) {
+    void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         image->_incrementReferenceCounter();
-        if (find(images.begin(), images.end(), image.get()) != images.end())
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end())
             return;
-        if (images.size() == MAX_IMAGES)
+        if (frameData[currentFrame].images.size() == MAX_IMAGES)
             die("Maximum images count reached for the scene renderer");
-        imagesIndices[image->getId()] = static_cast<int32_t>(images.size());
-        images.push_back(image.get());
+        frameData[currentFrame].imagesIndices[image->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
+        frameData[currentFrame].images.push_back(image.get());
     }
 
-    void SceneRenderer::removeImage(const shared_ptr<Image> &image) {
-        if (find(images.begin(), images.end(), image.get()) != images.end()) {
+    void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end()) {
             if (image->_decrementReferenceCounter()) {
-                images.remove(image.get());
+                frameData[currentFrame].images.remove(image.get());
                 // Rebuild the image index
-                imagesIndices.clear();
+                frameData[currentFrame].imagesIndices.clear();
                 uint32_t imageIndex = 0;
-                for (const auto &img : images) {
-                    imagesIndices[img->getId()] = static_cast<int32_t>(imageIndex);
+                for (const auto &img : frameData[currentFrame].images) {
+                    frameData[currentFrame].imagesIndices[img->getId()] = static_cast<int32_t>(imageIndex);
                     imageIndex += 1;
                 }
             }
         }
     }
 
-    void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer, const uint32_t currentFrame,
+    void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer,
+                                   const uint32_t currentFrame,
                                    const list<MeshInstance *> &modelsToDraw) {
         auto shadersChanged = false;
         const auto cameraFrustum = Frustum{
-            currentCamera,
-            currentCamera->getFov(),
-            currentCamera->getNearClipDistance(),
-            currentCamera->getFarClipDistance()
+            ModelsRenderer::frameData[currentFrame].currentCamera,
+            ModelsRenderer::frameData[currentFrame].currentCamera->getFov(),
+            ModelsRenderer::frameData[currentFrame].currentCamera->getNearClipDistance(),
+            ModelsRenderer::frameData[currentFrame].currentCamera->getFarClipDistance()
         };
 
         // Used to reduce vkCmdSetCullMode calls
@@ -680,7 +695,7 @@ namespace z0 {
 
         for (const auto &meshInstance : modelsToDraw) {
             if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
-                const auto &modelIndex = modelsIndices[meshInstance->getId()];
+                const auto &modelIndex = frameData[currentFrame].modelsIndices[meshInstance->getId()];
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
@@ -691,12 +706,12 @@ namespace z0 {
                         };
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
-                                            materialShaders[material->getVertFileName()]->getStage(),
-                                            materialShaders["outline.vert"]->getShader());
+                                            frameData[currentFrame].materialShaders[material->getVertFileName()]->getStage(),
+                                            frameData[currentFrame].materialShaders["outline.vert"]->getShader());
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
-                                            materialShaders[material->getFragFileName()]->getStage(),
-                                            materialShaders["outline.frag"]->getShader());
+                                            frameData[currentFrame].materialShaders[material->getFragFileName()]->getStage(),
+                                            frameData[currentFrame].materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                             0, sizeof(PushConstants), &pushConstants);
@@ -717,12 +732,12 @@ namespace z0 {
 
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
-                            Shader *material = materialShaders[shaderMaterial->getFragFileName()].get();
+                            Shader *material = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()].get();
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
                             shadersChanged = true;
                         }
                         if (!shaderMaterial->getVertFileName().empty()) {
-                            Shader *material = materialShaders[shaderMaterial->getVertFileName()].get();
+                            Shader *material = frameData[currentFrame].materialShaders[shaderMaterial->getVertFileName()].get();
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
                             shadersChanged = true;
                         }
@@ -758,28 +773,28 @@ namespace z0 {
         }
     }
 
-    [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
+    [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light, const uint32_t currentFrame) const {
         const auto it =
-                std::find_if(shadowMapRenderers.begin(),
-                             shadowMapRenderers.end(),
+                std::find_if(frameData[currentFrame].shadowMapRenderers.begin(),
+                             frameData[currentFrame].shadowMapRenderers.end(),
                              [light](const shared_ptr<ShadowMapRenderer> &e) { return e->getLight() == light; });
-        return (it == shadowMapRenderers.end() ? nullptr : *it);
+        return (it == frameData[currentFrame].shadowMapRenderers.end() ? nullptr : *it);
     }
 
-    void SceneRenderer::enableLightShadowCasting(const Light *light) {
-        if (enableShadowMapRenders && (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
+    void SceneRenderer::enableLightShadowCasting(const Light *light, const uint32_t currentFrame) {
+        if (enableShadowMapRenders && (light->getCastShadows() && (frameData[currentFrame].shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
             const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
-            shadowMapRenderer->activateCamera(currentCamera);
-            shadowMapRenderers.push_back(shadowMapRenderer);
+            shadowMapRenderer->activateCamera(ModelsRenderer::frameData[currentFrame].currentCamera);
+            frameData[currentFrame].shadowMapRenderers.push_back(shadowMapRenderer);
             device.registerRenderer(shadowMapRenderer);
         }
     }
 
-    void SceneRenderer::disableLightShadowCasting(const Light *light) {
+    void SceneRenderer::disableLightShadowCasting(const Light *light, const uint32_t currentFrame) {
         if (enableShadowMapRenders) {
-            if (const auto renderer = findShadowMapRenderer(light); renderer != nullptr) {
+            if (const auto renderer = findShadowMapRenderer(light, currentFrame); renderer != nullptr) {
                 device.unRegisterRenderer(renderer);
-                erase(shadowMapRenderers, renderer);
+                erase(frameData[currentFrame].shadowMapRenderers, renderer);
             }
         }
     }

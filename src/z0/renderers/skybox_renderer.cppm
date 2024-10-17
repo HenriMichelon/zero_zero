@@ -4,6 +4,7 @@ module;
 
 export module z0:SkyboxRenderer;
 
+import :Constants;
 import :Renderpass;
 import :Device;
 import :Cubemap;
@@ -18,7 +19,7 @@ export namespace z0 {
     public:
         SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor);
 
-        void loadScene(const shared_ptr<Cubemap> &_cubemap);
+        void loadScene(const shared_ptr<Cubemap> &_cubemap, uint32_t currentFrame);
 
         void cleanup() override;
 
@@ -40,8 +41,8 @@ export namespace z0 {
         };
 
         uint32_t            vertexCount;
-        shared_ptr<Cubemap> cubemap;
         unique_ptr<Buffer>  vertexBuffer;
+        vector<shared_ptr<Cubemap>> cubemap{MAX_FRAMES_IN_FLIGHT};
     };
 
 }

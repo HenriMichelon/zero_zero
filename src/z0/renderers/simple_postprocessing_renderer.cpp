@@ -13,14 +13,14 @@ namespace z0 {
     SimplePostprocessingRenderer::SimplePostprocessingRenderer(Device &            device,
                                                                const string &      shaderDirectory,
                                                                const string &      shaderName,
-                                                               SampledFrameBuffer *inputColorAttachmentHdr):
+                                                                const vector<SampledFrameBuffer*>&inputColorAttachmentHdr):
         PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{shaderName} {
         createOrUpdateResources();
     }
 
     void SimplePostprocessingRenderer::update(const uint32_t currentFrame) {
         constexpr GobalUniformBufferObject globalUbo{};
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
+        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
     }
 
     void SimplePostprocessingRenderer::loadShaders() {

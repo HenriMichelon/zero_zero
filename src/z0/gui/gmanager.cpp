@@ -31,7 +31,7 @@ namespace z0 {
         windows.clear();
     }
 
-    void GManager::drawFrame() {
+    void GManager::drawFrame(const uint32_t currentFrame) {
         for(const auto&window : removedWindows) {
             window->windowManager = nullptr;
             if (window->isVisible()) { window->eventHide(); }
@@ -66,11 +66,11 @@ namespace z0 {
         }
         if (!needRedraw) { return; }
         needRedraw = false;
-        vectorRenderer->beginDraw();
+        vectorRenderer->beginDraw(currentFrame);
         for (const auto& window: windows) {
-            window->draw();
+            window->draw(currentFrame);
         }
-        vectorRenderer->endDraw();
+        vectorRenderer->endDraw(currentFrame);
     }
 
     void GManager::add(const shared_ptr<GWindow> &window) {

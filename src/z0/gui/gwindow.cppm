@@ -215,7 +215,7 @@ export namespace z0 {
 
         void unFreeze(shared_ptr<GWidget> &);
 
-        void draw() const;
+        void draw(uint32_t currentFrame) const;
 
         friend class GManager;
 

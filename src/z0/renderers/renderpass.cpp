@@ -66,18 +66,16 @@ namespace z0 {
         vkCmdSetScissorWithCount(commandBuffer, 1, &scissor);
     }
 
-    void Renderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers,
-                                        const uint32_t                    currentFrame,
+    void Renderpass::writeUniformBuffer(const unique_ptr<Buffer> &buffer,
                                         const void *                      data,
                                         const uint32_t                    index) {
-        const auto size = buffers[currentFrame]->getAlignmentSize();
-        buffers[currentFrame]->writeToBuffer(data, size, size * index);
+        const auto size = buffer->getAlignmentSize();
+        buffer->writeToBuffer(data, size, size * index);
     }
 
-    void Renderpass::writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers,
-                                        const uint32_t                    currentFrame,
+    void Renderpass::writeUniformBuffer(const unique_ptr<Buffer> &buffer,
                                         const void *                      data) {
-        buffers[currentFrame]->writeToBuffer(data);
+        buffer->writeToBuffer(data);
     }
 
     void Renderpass::createOrUpdateResources(const bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange) {
@@ -98,19 +96,17 @@ namespace z0 {
         }
     }
 
-    void Renderpass::createUniformBuffers(vector<unique_ptr<Buffer>> &buffers,
-                                          const VkDeviceSize          size,
-                                          const uint32_t              count) const {
-        for (auto &buffer : buffers) {
-            buffer = make_unique<Buffer>(
-                    device,
-                    size,
-                    count,
-                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
-                    );
-            if (buffer->map() != VK_SUCCESS) { die("Error mapping UBO to GPU memory"); }
-        }
+    unique_ptr<Buffer> Renderpass::createUniformBuffer(const VkDeviceSize          size,
+                                                       const uint32_t              count) const {
+        auto buffer = make_unique<Buffer>(
+                device,
+                size,
+                count,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
+                );
+        if (buffer->map() != VK_SUCCESS) { die("Error mapping UBO to GPU memory"); }
+        return std::move(buffer);
     }
 
     void Renderpass::bindDescriptorSets(const VkCommandBuffer commandBuffer,

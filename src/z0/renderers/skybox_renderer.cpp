@@ -16,7 +16,7 @@ import :SkyboxRenderer;
 
 namespace z0 {
 
-    SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor):
+    SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory, const VkClearValue clearColor):
         Renderpass{device, shaderDirectory, clearColor} {
         static constexpr float skyboxVertices[] = {
                 // positions
@@ -81,14 +81,14 @@ namespace z0 {
         stagingBuffer.copyTo(*vertexBuffer, bufferSize);
     }
 
-    void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &_cubemap) {
-        cubemap = _cubemap;
+    void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &_cubemap, uint32_t currentFrame) {
+        cubemap[currentFrame] = _cubemap;
         createOrUpdateResources();
     }
 
     void SkyboxRenderer::cleanup() {
         vertexBuffer.reset();
-        cubemap.reset();
+        cubemap.clear();
         Renderpass::cleanup();
     }
 
@@ -102,7 +102,7 @@ namespace z0 {
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
-        writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo);
+        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
     }
 
     void SkyboxRenderer::loadShaders() {
@@ -118,7 +118,9 @@ namespace z0 {
                          .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+        }
 
         setLayout = DescriptorSetLayout::Builder(device)
                     .addBinding(0,
@@ -133,9 +135,9 @@ namespace z0 {
 
     void SkyboxRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (create) {
-            for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-                auto imageInfo        = cubemap->_getImageInfo();
+                auto imageInfo        = cubemap[i]->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                                         .writeBuffer(0, &globalBufferInfo)
                                         .writeImage(1, &imageInfo);

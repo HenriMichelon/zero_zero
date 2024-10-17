@@ -4,6 +4,7 @@ module;
 
 module z0;
 
+import :Constants;
 import :Tools;
 import :Renderer;
 import :Renderpass;
@@ -16,12 +17,12 @@ import :PostprocessingRenderer;
 namespace z0 {
 
     PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
-                                                   SampledFrameBuffer *inputColorAttachmentHdr) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachmentHdr} {
+                                                   const vector<SampledFrameBuffer *> & inputColorAttachment) :
+        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
         createImagesResources();
     }
 
-    void PostprocessingRenderer::setInputColorAttachmentHdr(SampledFrameBuffer *input) {
+    void PostprocessingRenderer::setInputColorAttachments(const vector<SampledFrameBuffer *> &input) {
         inputColorAttachmentHdr = input;
         createOrUpdateDescriptorSet(false);
     }
@@ -57,13 +58,15 @@ namespace z0 {
                             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
-        createUniformBuffers(globalUniformBuffers, globalUniformBufferSize);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+        }
     }
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (uint32_t i = 0; i < descriptorSet.size(); i++) {
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto imageInfo        = inputColorAttachmentHdr->imageInfo();
+            auto imageInfo        = inputColorAttachmentHdr[i]->imageInfo();
             auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                                   .writeBuffer(0, &globalBufferInfo)
                                   .writeImage(1, &imageInfo);
@@ -78,19 +81,27 @@ namespace z0 {
     }
 
     void PostprocessingRenderer::createImagesResources() {
-        colorAttachmentHdr = make_shared<ColorFrameBufferHDR>(device);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            colorAttachmentHdr[i] = make_shared<ColorFrameBufferHDR>(device);
+        }
     }
 
-    void PostprocessingRenderer::cleanupImagesResources() { colorAttachmentHdr->cleanupImagesResources(); }
+    void PostprocessingRenderer::cleanupImagesResources() {
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            colorAttachmentHdr[i]->cleanupImagesResources();
+        }
+    }
 
     void PostprocessingRenderer::recreateImagesResources() {
-        colorAttachmentHdr->cleanupImagesResources();
-        colorAttachmentHdr->createImagesResources();
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            colorAttachmentHdr[i]->cleanupImagesResources();
+            colorAttachmentHdr[i]->createImagesResources();
+        }
     }
 
-    void PostprocessingRenderer::beginRendering(const VkCommandBuffer commandBuffer) {
+    void PostprocessingRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         device.transitionImageLayout(commandBuffer,
-                                     colorAttachmentHdr->getImage(),
+                                     colorAttachmentHdr[currentFrame]->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                      0,
@@ -99,7 +110,7 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
         const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                                                            .imageView   = colorAttachmentHdr->getImageView(),
+                                                            .imageView   = colorAttachmentHdr[currentFrame]->getImageView(),
                                                             .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                             .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                             .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
@@ -115,10 +126,10 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void PostprocessingRenderer::endRendering(const VkCommandBuffer commandBuffer, const bool isLast) {
+    void PostprocessingRenderer::endRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer,
-                                     colorAttachmentHdr->getImage(),
+                                     colorAttachmentHdr[currentFrame]->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                      isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
                                             : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,

@@ -47,15 +47,13 @@ export namespace z0 {
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
 
-        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
-                                       const void *data, uint32_t index);
+        static void writeUniformBuffer(const unique_ptr<Buffer> &buffer, const void *data, uint32_t index);
 
-        static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
-                                       const void *data);
+        static void writeUniformBuffer(const unique_ptr<Buffer> &buffer, const void *data);
 
         void createOrUpdateResources(bool descriptorsAndPushConstants = false, const VkPushConstantRange* = nullptr);
 
-        void createUniformBuffers(vector<unique_ptr<Buffer>> &buffers, VkDeviceSize size, uint32_t count = 1) const;
+        unique_ptr<Buffer> createUniformBuffer(VkDeviceSize size, uint32_t count = 1) const;
 
         void bindDescriptorSets(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t count = 0,
                                 const uint32_t *offsets = nullptr) const;

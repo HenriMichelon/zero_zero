@@ -57,7 +57,7 @@ export namespace z0 {
         bool                        resizingWindowOriginBorder{false};
         MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};
 
-        void drawFrame();
+        void drawFrame(uint32_t currentFrame);
 
         [[nodiscard]] bool onInput(InputEvent& inputEvent);
 

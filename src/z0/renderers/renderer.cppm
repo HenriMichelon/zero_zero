@@ -13,10 +13,10 @@ export namespace z0 {
         virtual ~Renderer() = default;
 
         // Returns the offscreen image buffer
-        [[nodiscard]] virtual VkImage getImage() const { return VK_NULL_HANDLE; }
+        [[nodiscard]] virtual VkImage getImage(uint32_t currentFrame) const { return VK_NULL_HANDLE; }
 
         // Returns the offscreen image buffer view
-        [[nodiscard]] virtual VkImageView getImageView() const { return VK_NULL_HANDLE; }
+        [[nodiscard]] virtual VkImageView getImageView(uint32_t currentFrame) const { return VK_NULL_HANDLE; }
 
         // Release all the Vulkan resources
         virtual void cleanup() = 0;
@@ -25,13 +25,13 @@ export namespace z0 {
         virtual void update(uint32_t currentFrame) = 0;
 
         // Start rendering one frame
-        virtual void beginRendering(VkCommandBuffer commandBuffer) = 0;
+        virtual void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) {};
 
         // Render one frame
         virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
 
         // End rendering one frame
-        virtual void endRendering(VkCommandBuffer commandBuffer, bool isLast) = 0;
+        virtual void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) {};
 
         // Create images, image views & buffers
         virtual void createImagesResources() = 0;

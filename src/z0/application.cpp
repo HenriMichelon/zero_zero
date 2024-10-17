@@ -192,8 +192,8 @@ namespace z0 {
         sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir, applicationConfig.clearColor);
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,
-                                                     sceneRenderer->getColorAttachment());
-        device->registerRenderer(vectorRenderer);
+                                                     sceneRenderer->getColorAttachments());
+        // device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager
@@ -219,7 +219,9 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
-        addedNodes.push_back(node);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].addedNodes.push_back(node);
+        }
         if (node->isProcessed()) {
             node->_onEnterScene();
         }
@@ -234,41 +236,49 @@ namespace z0 {
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
         }
-        removedNodes.push_back(node);
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].removedNodes.push_back(node);
+        }
         node->_setAddedToScene(false);
         if (node->isProcessed()) {
             node->_onExitScene();
         }
     }
 
-    void Application::activateCamera(const shared_ptr<Camera> &camera) const {
+    void Application::activateCamera(const shared_ptr<Camera> &camera) {
         assert(camera != nullptr);
-        sceneRenderer->activateCamera(camera.get());
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].activateCamera = camera;
+        }
     }
 
-    void Application::processDeferredUpdates() {
+    void Application::processDeferredUpdates(const uint32_t currentFrame) {
         // Process the deferred scene tree modifications
-        sceneRenderer->preUpdateScene();
-        windowManager->drawFrame();
-        if (!removedNodes.empty()) {
-            for (const auto &node : removedNodes) {
-                sceneRenderer->removeNode(node);
+        sceneRenderer->preUpdateScene(currentFrame);
+        windowManager->drawFrame(currentFrame);
+        if (!frameData[currentFrame].removedNodes.empty()) {
+            for (const auto &node : frameData[currentFrame].removedNodes) {
+                sceneRenderer->removeNode(node, currentFrame);
             }
-            removedNodes.clear();
-            if (sceneRenderer->getCamera() == nullptr) {
+            frameData[currentFrame].removedNodes.clear();
+            if (sceneRenderer->getCamera(currentFrame) == nullptr) {
                 const auto &camera = rootNode->findFirstChild<Camera>(true);
                 if (camera->isProcessed()) {
-                    sceneRenderer->activateCamera(camera);
+                    sceneRenderer->activateCamera(camera, currentFrame);
                 }
             }
         }
-        if (!addedNodes.empty()) {
-            for (const auto &node : addedNodes) {
-                sceneRenderer->addNode(node);
+        if (!frameData[currentFrame].addedNodes.empty()) {
+            for (const auto &node : frameData[currentFrame].addedNodes) {
+                sceneRenderer->addNode(node, currentFrame);
             }
-            addedNodes.clear();
+            frameData[currentFrame].addedNodes.clear();
         }
-        sceneRenderer->postUpdateScene();
+        if (frameData[currentFrame].activateCamera != nullptr) {
+            sceneRenderer->activateCamera(frameData[currentFrame].activateCamera.get(), currentFrame);
+            frameData[currentFrame].activateCamera = nullptr;
+        }
+        sceneRenderer->postUpdateScene(currentFrame);
 
         // Preview the first shadow map depth buffer
         // if (depthBufferRenderer == nullptr) {
@@ -286,7 +296,7 @@ namespace z0 {
 
     void Application::drawFrame() {
         if (stopped) { return; }
-        processDeferredUpdates();
+        processDeferredUpdates(currentFrame);
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime =
@@ -304,7 +314,7 @@ namespace z0 {
         }
         const double alpha = accumulator / dt;
         process(rootNode, static_cast<float>(alpha));
-        device->drawFrame();
+        device->drawFrame(currentFrame);
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
         if (elapsedSeconds >= 1.0) {
@@ -312,6 +322,7 @@ namespace z0 {
             frameCount     = 0;
             elapsedSeconds = 0;
         }
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     void Application::_onInput(InputEvent &inputEvent) {
