@@ -40,37 +40,35 @@ namespace z0 {
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false} {
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
+            frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr[i];
         }
         init();
     }
 
-    void VectorRenderer::drawLine(const vec2 start, const vec2 end, const uint32_t currentFrame) {
-        auto scaled_start = (start + frameData[currentFrame].translate) / VECTOR_SCALE;
-        auto scaled_end   = (end + frameData[currentFrame].translate) / VECTOR_SCALE;
-        frameData[currentFrame].vertices.emplace_back(scaled_start);
-        frameData[currentFrame].vertices.emplace_back(scaled_end);
-        auto color = vec4{vec3{frameData[currentFrame].penColor.color}, std::max(0.0f, frameData[currentFrame].penColor.color.a - frameData[currentFrame].transparency)};
-        frameData[currentFrame].commands.emplace_back(PRIMITIVE_LINE, 2, color);
+    void VectorRenderer::drawLine(const vec2 start, const vec2 end) {
+        auto scaled_start = (start + translate) / VECTOR_SCALE;
+        auto scaled_end   = (end + translate) / VECTOR_SCALE;
+        vertices.emplace_back(scaled_start);
+        vertices.emplace_back(scaled_end);
+        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
+        commands.emplace_back(PRIMITIVE_LINE, 2, color);
     }
 
-    void VectorRenderer::drawFilledRect(const Rect &rect, const float clip_w, const float clip_h, const uint32_t currentFrame) {
+    void VectorRenderer::drawFilledRect(const Rect &rect, const float clip_w, const float clip_h) {
         drawFilledRect(rect.x,
                        rect.y,
                        rect.width,
                        rect.height,
                        clip_w,
                        clip_h,
-                       nullptr,
-                       currentFrame);
+                       nullptr);
     }
 
     void VectorRenderer::drawFilledRect(const float              x, const float      y,
                                         const float              w, const float      h,
                                         const float              clip_w, const float clip_h,
-                                        const shared_ptr<Image> &texture,
-                                        const uint32_t currentFrame) {
-        const auto pos  = (vec2{x, y} + frameData[currentFrame].translate) / VECTOR_SCALE;
+                                        const shared_ptr<Image> &texture) {
+        const auto pos  = (vec2{x, y} + translate) / VECTOR_SCALE;
         vec2       size = vec2{w - 1.0f, h - 1.0f} / VECTOR_SCALE;
         /*
          * v1 ---- v3
@@ -83,70 +81,70 @@ namespace z0 {
         const Vertex v2{vec2{pos.x + size.x, pos.y}, vec2{1.0f, 1.0f}};
         const Vertex v3{vec2{pos.x + size.x, pos.y + size.y}, vec2{1.0f, 0.0f}};
         // First triangle
-        frameData[currentFrame].vertices.emplace_back(v0);
-        frameData[currentFrame].vertices.emplace_back(v1);
-        frameData[currentFrame].vertices.emplace_back(v2);
+        vertices.emplace_back(v0);
+        vertices.emplace_back(v1);
+        vertices.emplace_back(v2);
         // Second triangle
-        frameData[currentFrame].vertices.emplace_back(v1);
-        frameData[currentFrame].vertices.emplace_back(v3);
-        frameData[currentFrame].vertices.emplace_back(v2);
+        vertices.emplace_back(v1);
+        vertices.emplace_back(v3);
+        vertices.emplace_back(v2);
 
-        auto color = vec4{vec3{frameData[currentFrame].penColor.color}, std::max(0.0f, frameData[currentFrame].penColor.color.a - frameData[currentFrame].transparency)};
-        frameData[currentFrame].commands.emplace_back(PRIMITIVE_RECT, 6, color, texture, clip_w / w, clip_h / h);
+        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
+        commands.emplace_back(PRIMITIVE_RECT, 6, color, texture, clip_w / w, clip_h / h);
         if (texture != nullptr) {
-            addImage(texture, currentFrame);
+            addImage(texture);
         }
     }
 
-    void VectorRenderer::drawText(const string &text, shared_ptr<Font> &font, const Rect &rect, const float clip_w,
-                                  const float   clip_h, const uint32_t currentFrame) {
+    void VectorRenderer::drawText(const string &text, const shared_ptr<Font> &font, const Rect &rect, const float clip_w,
+                                  const float   clip_h) {
         //log(text, to_string(rect.width), to_string(clip_w));
-        drawText(text, font, rect.x, rect.y, rect.width, rect.height, clip_w, clip_h, currentFrame);
+        drawText(text, font, rect.x, rect.y, rect.width, rect.height, clip_w, clip_h);
     }
 
     void VectorRenderer::drawText(const string &text, const shared_ptr<Font> &font, const float x, const float y,
                                   const float   w,
                                   const float   h, const float clip_w,
-                                  const float   clip_h, const uint32_t currentFrame) {
-        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(device, text), currentFrame);
+                                  const float   clip_h) {
+        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(device, text));
     }
 
-    void VectorRenderer::beginDraw(const uint32_t currentFrame) {
-        frameData[currentFrame].vertices.clear();
-        frameData[currentFrame].commands.clear();
-        frameData[currentFrame].textures.clear();
-        frameData[currentFrame].texturesIndices.clear();
+    void VectorRenderer::beginDraw() {
+        vertices.clear();
+        commands.clear();
+        textures.clear();
+        texturesIndices.clear();
     }
 
-    void VectorRenderer::endDraw(const uint32_t currentFrame) {
+    void VectorRenderer::endDraw() {
         // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
-        frameData[currentFrame].oldBuffers.clear();
-        if (!frameData[currentFrame].vertices.empty()) {
+        oldBuffers.clear();
+        if (!vertices.empty()) {
             // Resize the buffers only if needed by recreating them
-            if ((frameData[currentFrame].vertexBuffer == VK_NULL_HANDLE) || (frameData[currentFrame].vertexCount != frameData[currentFrame].vertices.size())) {
+            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
                 // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
                 // and can't be destroyed now
-                frameData[currentFrame].oldBuffers.push_back(frameData[currentFrame].stagingBuffer);
-                frameData[currentFrame].oldBuffers.push_back(frameData[currentFrame].vertexBuffer);
+                oldBuffers.push_back(stagingBuffer);
+                oldBuffers.push_back(vertexBuffer);
                 // Allocate new buffers to change size
-                frameData[currentFrame].vertexCount      = frameData[currentFrame].vertices.size();
-                frameData[currentFrame].vertexBufferSize = frameData[currentFrame].vertexSize * frameData[currentFrame].vertexCount;
-                frameData[currentFrame].stagingBuffer    = make_shared<Buffer>(
+                vertexCount      = vertices.size();
+                vertexBufferSize = vertexSize * vertexCount;
+                stagingBuffer    = make_shared<Buffer>(
                         device,
-                        frameData[currentFrame].vertexSize,
-                        frameData[currentFrame].vertexCount,
+                        vertexSize,
+                        vertexCount,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT
                         );
-                frameData[currentFrame].vertexBuffer = make_shared<Buffer>(
+                vertexBuffer = make_shared<Buffer>(
                         device,
-                        frameData[currentFrame].vertexSize,
-                        frameData[currentFrame].vertexCount,
+                        vertexSize,
+                        vertexCount,
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                         );
             }
             // Push new vertices data to GPU memory
-            frameData[currentFrame].stagingBuffer->writeToBuffer(frameData[currentFrame].vertices.data());
-            frameData[currentFrame].stagingBuffer->copyTo(*(frameData[currentFrame].vertexBuffer), frameData[currentFrame].vertexBufferSize);
+            stagingBuffer->writeToBuffer(vertices.data());
+            stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
         }
         descriptorSetNeedUpdate = true;
         // Initialize or update pipeline layout & descriptors sets if needed
@@ -154,12 +152,12 @@ namespace z0 {
     }
 
     void VectorRenderer::update(const uint32_t currentFrame) {
-        if (frameData[currentFrame].vertices.empty()) { return; }
+        if (vertices.empty()) { return; }
         uint32_t commandIndex = 0;
-        for (const auto &command : frameData[currentFrame].commands) {
+        for (const auto &command : commands) {
             CommandUniformBuffer commandUBO{
                     .color = command.color,
-                    .textureIndex = (command.texture == nullptr ? -1 : frameData[currentFrame].texturesIndices[command.texture->getId()]),
+                    .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),
                     .clipX = command.clipW,
                     .clipY = 1.0f - command.clipH
             };
@@ -243,17 +241,17 @@ namespace z0 {
     }
 
     void VectorRenderer::cleanup() {
+        commands.clear();
+        textures.clear();
+        vertexBuffer.reset();
+        stagingBuffer.reset();
+        oldBuffers.clear();
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].commands.clear();
-            frameData[i].textures.clear();
-            frameData[i].vertexBuffer.reset();
-            frameData[i].stagingBuffer.reset();
-            frameData[i].oldBuffers.clear();
             frameData[i].commandUniformBuffer.reset();
-            if (internalColorFrameBuffer) {
-                for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                    frameData[i].colorFrameBufferHdr->cleanupImagesResources();
-                }
+        }
+        if (internalColorFrameBuffer) {
+            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+                frameData[i].colorFrameBufferHdr->cleanupImagesResources();
             }
         }
         if (blankImage != nullptr) {
@@ -298,7 +296,7 @@ namespace z0 {
     }
 
     void VectorRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (frameData[currentFrame].vertices.empty())
+        if (vertices.empty())
             return;
 
         bindShaders(commandBuffer);
@@ -317,18 +315,18 @@ namespace z0 {
                                attributeDescriptions.size(),
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-        const VkBuffer     buffers[]       = {frameData[currentFrame].vertexBuffer->getBuffer()};
+        const VkBuffer     buffers[]       = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
 
         uint32_t vertexIndex  = 0;
         uint32_t commandIndex = 0;
-        for (const auto &command : frameData[currentFrame].commands) {
+        for (const auto &command : commands) {
             vkCmdSetPrimitiveTopologyEXT(commandBuffer,
                                          command.primitive == PRIMITIVE_LINE
                                          ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
                                          : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-            array<uint32_t, 1> offsets = {
+            array offsets = {
                     static_cast<uint32_t>(frameData[currentFrame].commandUniformBuffer->getAlignmentSize() * commandIndex),
             };
             bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
@@ -340,8 +338,8 @@ namespace z0 {
 
     void VectorRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if ((!frameData[i].commands.empty()) && (frameData[i].commandUniformBufferCount != frameData[i].commands.size())) {
-                frameData[i].commandUniformBufferCount = frameData[i].commands.size();
+            if ((!commands.empty()) && (frameData[i].commandUniformBufferCount != commands.size())) {
+                frameData[i].commandUniformBufferCount = commands.size();
                 frameData[i].commandUniformBuffer = createUniformBuffer(commandUniformBufferSize, frameData[i].commandUniformBufferCount);
             }
             if (frameData[i].commandUniformBufferCount == 0) {
@@ -349,7 +347,7 @@ namespace z0 {
                 frameData[i].commandUniformBuffer = createUniformBuffer(commandUniformBufferSize, frameData[i].commandUniformBufferCount);
             }
             uint32_t imageIndex = 0;
-            for (const auto &image : frameData[i].textures) {
+            for (const auto &image : textures) {
                 frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();
                 imageIndex += 1;
             }
@@ -390,13 +388,13 @@ namespace z0 {
         });
     }
 
-    void VectorRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
-        if (std::find(frameData[currentFrame].textures.begin(), frameData[currentFrame].textures.end(), image.get()) != frameData[currentFrame].textures.end())
+    void VectorRenderer::addImage(const shared_ptr<Image> &image) {
+        if (std::find(textures.begin(), textures.end(), image.get()) != textures.end())
             return;
-        if (frameData[currentFrame].textures.size() == MAX_IMAGES)
+        if (textures.size() == MAX_IMAGES)
             die("Maximum images count reached for the vector renderer");
-        frameData[currentFrame].texturesIndices[image->getId()] = static_cast<int32_t>(frameData[currentFrame].textures.size());
-        frameData[currentFrame].textures.push_back(image.get());
+        texturesIndices[image->getId()] = static_cast<int32_t>(textures.size());
+        textures.push_back(image.get());
     }
 
 }

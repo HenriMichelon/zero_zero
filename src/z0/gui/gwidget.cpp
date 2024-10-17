@@ -21,13 +21,13 @@ namespace z0 {
         return Application::get();
     }
 
-    void GWidget::_draw(VectorRenderer& R, uint32_t currentFrame) const {
+    void GWidget::_draw(VectorRenderer& R) const {
         if (!isVisible()) return;
-        style->draw(*this, *resource, R, true, currentFrame);
+        style->draw(*this, *resource, R, true);
         for (auto& child : children) {
-            child->_draw(R, currentFrame);
+            child->_draw(R);
         }
-        style->draw(*this, *resource, R, false, currentFrame);
+        style->draw(*this, *resource, R, false);
     }
 
     bool GWidget::isVisible() const {

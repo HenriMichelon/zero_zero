@@ -24,12 +24,12 @@ namespace z0 {
         return Application::get();
     }
 
-    void GWindow::draw(uint32_t currentFrame) const {
+    void GWindow::draw() const {
         if (!isVisible())
             return;
-        windowManager->getRenderer().setTranslate({rect.x, rect.y}, currentFrame);
-        windowManager->getRenderer().setTransparency(1.0f - transparency, currentFrame);
-        widget->_draw(windowManager->getRenderer(), currentFrame);
+        windowManager->getRenderer().setTranslate({rect.x, rect.y});
+        windowManager->getRenderer().setTransparency(1.0f - transparency);
+        widget->_draw(windowManager->getRenderer());
     }
 
     void GWindow::unFreeze(shared_ptr<GWidget> &W) {

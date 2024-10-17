@@ -193,7 +193,7 @@ namespace z0 {
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,
                                                      sceneRenderer->getColorAttachments());
-        // device->registerRenderer(vectorRenderer);
+        device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager
@@ -255,7 +255,7 @@ namespace z0 {
     void Application::processDeferredUpdates(const uint32_t currentFrame) {
         // Process the deferred scene tree modifications
         sceneRenderer->preUpdateScene(currentFrame);
-        windowManager->drawFrame(currentFrame);
+        if (currentFrame == 0) windowManager->drawFrame();
         if (!frameData[currentFrame].removedNodes.empty()) {
             for (const auto &node : frameData[currentFrame].removedNodes) {
                 sceneRenderer->removeNode(node, currentFrame);
@@ -317,7 +317,7 @@ namespace z0 {
         device->drawFrame(currentFrame);
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
-        if (elapsedSeconds >= 1.0) {
+        if (elapsedSeconds >= 2.0) {
             fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);
             frameCount     = 0;
             elapsedSeconds = 0;

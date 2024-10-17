@@ -50,7 +50,7 @@ export namespace z0 {
           	GResource : resources used for drawing this widget
           	bool : TRUE = before drawing children, FALSE = after
         */
-        virtual void draw(const GWidget &, GResource &, VectorRenderer &, bool, uint32_t currentFrame) const = 0;
+        virtual void draw(const GWidget &, GResource &, VectorRenderer &, bool) const = 0;
 
         /* Resize a widget.
           	GWidget	: widget to draw
