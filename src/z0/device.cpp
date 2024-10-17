@@ -358,7 +358,7 @@ namespace z0 {
             result = vkQueuePresentKHR(presentQueue, &presentInfo);
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
                 recreateSwapChain();
-                for (auto &renderer : renderers) { renderer->recreateImagesResources(); }
+                for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
             } else if (result != VK_SUCCESS) { die("failed to present swap chain image!"); }
         }
 
@@ -558,7 +558,6 @@ namespace z0 {
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
-
     void Device::createSwapChain() {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain
         const SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
@@ -603,8 +602,7 @@ namespace z0 {
             createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : *oldSwapChain;
             // Need VK_KHR_SWAPCHAIN extension or it will crash (no validation error)
             if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
-                die(
-                        "Failed to create Vulkan swap chain!");
+                die("Failed to create Vulkan swap chain!");
         }
 
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
