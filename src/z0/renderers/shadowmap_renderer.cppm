@@ -54,14 +54,6 @@ export namespace z0 {
 #endif
 
     private:
-        // struct GobalUniformBuffer {
-        //     mat4 lightSpace;
-        // };
-        //
-        // struct ModelUniformBuffer {
-        //     mat4 matrix;
-        // };
-
         struct PushConstants {
             mat4 lightSpace;
             mat4 matrix;
@@ -87,13 +79,6 @@ export namespace z0 {
         unique_ptr<Frustum> frustum;
         // All the models of the scene
         list<MeshInstance *> models{};
-        // Datas for all the models of the scene, one buffer for all the models
-        // https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
-        // vector<unique_ptr<Buffer>> modelUniformBuffers{MAX_FRAMES_IN_FLIGHT};
-        // Size of the model uniform buffer
-        // static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
-        // Currently allocated model uniform buffer count
-        // uint32_t modelUniformBufferCount{0};
         // The destination frame buffer
         shared_ptr<ShadowMapFrameBuffer> shadowMap;
         // Last computed light spaces for each cascade
@@ -103,8 +88,6 @@ export namespace z0 {
         // Lambda constant for split depth calculation :
         // the closer to 1.0 the smaller the firsts splits
         static constexpr auto cascadeSplitLambda = 0.75f;
-
-        void updateLightSpace();
 
         void update(uint32_t currentFrame) override;
 

@@ -48,7 +48,8 @@ namespace z0 {
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
-    void ShadowMapRenderer::updateLightSpace() {
+    void ShadowMapRenderer::update(const uint32_t currentFrame) {
+        if (currentCamera == nullptr) { return; }
         if (lightIsDirectional) {
             const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
             const auto lightDirection = directionalLight->getFrontVector();
@@ -163,33 +164,6 @@ namespace z0 {
         } else {
             assert(false);
         }
-    }
-
-    void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        if (currentCamera == nullptr) { return; }
-        updateLightSpace();
-        // if (isCascaded()) {
-        //     for (int i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-        //         const GobalUniformBuffer globalUbo{
-        //             .lightSpace = lightSpace[i],
-        //         };
-        //         writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, i);
-        //     }
-        // } else {
-        //     const GobalUniformBuffer globalUbo{
-        //         .lightSpace = lightSpace[0],
-        //     };
-        //     writeUniformBuffer(globalUniformBuffers, currentFrame, &globalUbo, 0);
-        // }
-        //
-        // uint32_t modelIndex = 0;
-        // for (const auto &meshInstance : models) {
-        //     ModelUniformBuffer modelUbo{
-        //             .matrix = meshInstance->getTransformGlobal()
-        //     };
-        //     writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
-        //     modelIndex += 1;
-        // }7
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
