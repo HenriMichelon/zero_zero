@@ -1,7 +1,9 @@
 module;
 #include <cassert>
+#include <glm/detail/type_mat3x4.hpp>
 #include <json.hpp>
 #include <volk.h>
+
 #include "stb_image_write.h"
 #include "z0/libraries.h"
 
@@ -129,7 +131,7 @@ namespace z0 {
 
     void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
         for (const auto &material : OutlineMaterials::_all()) {
-            if (material->_getBufferIndex() == -1) {
+            if (!frameData[currentFrame].materialsIndices.contains(material->getId())) {
                 material->_incrementReferenceCounter();
                 addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
@@ -146,7 +148,7 @@ namespace z0 {
         if (it == frameData[currentFrame].materialsIndicesAllocation.end())
             die("Maximum number of materials reached");
         const auto index = it - frameData[currentFrame].materialsIndicesAllocation.begin();
-        material->_setBufferIndex(index);
+        frameData[currentFrame].materialsIndices[material->getId()] = index;
         frameData[currentFrame].materialsIndicesAllocation[index] = material->getId();
         // Force material data to be written to GPU memory
         material->_setDirty();
@@ -154,7 +156,7 @@ namespace z0 {
     }
 
     void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
-        if (material->_getBufferIndex() != -1) {
+        if (frameData[currentFrame].materialsIndices.contains(material->getId())) {
             // Check if we need to remove the material from the scene
             if (material->_decrementReferenceCounter()) {
                 // Try to remove the associated textures or shaders
@@ -172,8 +174,9 @@ namespace z0 {
                     }
                 }
                 // Free the material index and remove the material from the scene
-                frameData[currentFrame].materialsIndicesAllocation[material->_getBufferIndex()] = Resource::INVALID_ID;
-                material->_setBufferIndex(-1);
+                const auto index = frameData[currentFrame].materialsIndices[material->getId()];
+                frameData[currentFrame].materialsIndicesAllocation[index] = Resource::INVALID_ID;
+                frameData[currentFrame].materialsIndices.erase(material->getId());
                 frameData[currentFrame].materials.remove(material);
             }
         }
@@ -194,7 +197,7 @@ namespace z0 {
         frameData[currentFrame].modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             material->_incrementReferenceCounter();
-            if (material->_getBufferIndex() != -1) continue;
+            if (frameData[currentFrame].materialsIndices.contains(material->getId())) continue;
             addMaterial(material, currentFrame);
             // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
@@ -322,45 +325,48 @@ namespace z0 {
         auto modelUBOArray = make_unique<ModelUniformBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
         for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
             modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
-            writeUniformBuffer(ModelsRenderer::frameData[currentFrame].modelUniformBuffer, modelUBOArray.get());
             modelIndex += 1;
         }
+        writeUniformBuffer(ModelsRenderer::frameData[currentFrame].modelUniformBuffer, modelUBOArray.get());
 
+        auto materialIndex = 0;
+        auto materialUBOArray = make_unique<MaterialUniformBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
         for (const auto& material : frameData[currentFrame].materials) {
-            if (material->_isDirty()) {
-                auto materialBuffer = MaterialUniformBuffer{};
-                materialBuffer.transparency = material->getTransparency();
-                materialBuffer.alphaScissor = material->getAlphaScissor();
+            // if (material->_isDirty()) {
+                materialUBOArray[materialIndex].transparency = material->getTransparency();
+                materialUBOArray[materialIndex].alphaScissor = material->getAlphaScissor();
                 if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
-                    materialBuffer.albedoColor = standardMaterial->getAlbedoColor().color;
+                    materialUBOArray[materialIndex].albedoColor = standardMaterial->getAlbedoColor().color;
                     if (standardMaterial->getAlbedoTexture() != nullptr) {
-                        materialBuffer.diffuseIndex = frameData[currentFrame].imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                        materialUBOArray[materialIndex].diffuseIndex = frameData[currentFrame].imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
                         const auto &transform    = standardMaterial->getTextureTransform();
                         if (transform != nullptr) {
-                            materialBuffer.hasTransform  = true;
-                            materialBuffer.textureOffset = transform->offset;
-                            materialBuffer.textureScale  = transform->scale;
+                            materialUBOArray[materialIndex].hasTransform  = true;
+                            materialUBOArray[materialIndex].textureOffset = transform->offset;
+                            materialUBOArray[materialIndex].textureScale  = transform->scale;
                         }
                     }
                     if (standardMaterial->getSpecularTexture() != nullptr) {
-                        materialBuffer.specularIndex =
+                        materialUBOArray[materialIndex].specularIndex =
                                 frameData[currentFrame].imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
                     }
                     if (standardMaterial->getNormalTexture() != nullptr) {
-                        materialBuffer.normalIndex = frameData[currentFrame].imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                        materialUBOArray[materialIndex].normalIndex = frameData[currentFrame].imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                     }
                 } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                     for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
-                        materialBuffer.parameters[i] = shaderMaterial->getParameter(i);
+                        materialUBOArray[materialIndex].parameters[i] = shaderMaterial->getParameter(i);
                     }
                 }
-                material->_clearDirty();
-                frameData[currentFrame].materialsBuffer->writeToBuffer(
-                    &materialBuffer,
-                    materialBufferSize,
-                    materialBufferSize * material->_getBufferIndex());
-            }
+                materialIndex+= 1;
+                // material->_clearDirty();
+                // frameData[currentFrame].materialsBuffer->writeToBuffer(
+                //     &materialUBOArray[materialIndex],
+                //     materialBufferSize,
+                //     materialBufferSize * material->_getBufferIndex());
+            // }
         }
+        writeUniformBuffer(frameData[currentFrame].materialsBuffer, materialUBOArray.get());
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
@@ -699,10 +705,10 @@ namespace z0 {
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
-                        const auto &material      = meshInstance->getOutlineMaterial();
+                        const auto &material = meshInstance->getOutlineMaterial();
                         auto pushConstants = PushConstants {
                             .modelIndex = static_cast<int>(modelIndex),
-                            .materialIndex = material->_getBufferIndex()
+                            .materialIndex = frameData[currentFrame].materialsIndices[material->getId()]
                         };
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
@@ -753,7 +759,7 @@ namespace z0 {
                     }
                     auto pushConstants = PushConstants {
                         .modelIndex = static_cast<int>(modelIndex),
-                        .materialIndex = surface->material->_getBufferIndex()
+                        .materialIndex = frameData[currentFrame].materialsIndices[surface->material->getId()]
                     };
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, sizeof(PushConstants), &pushConstants);

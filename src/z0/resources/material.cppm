@@ -59,15 +59,11 @@ export namespace z0 {
         float        alphaScissor{0.1f};
         // The material parameters will be written in GPU memory next frame
         uint8_t      dirty{MAX_FRAMES_IN_FLIGHT};
-        // Index of the material parameter in the GPU memory buffer
-        int32_t      bufferIndex{-1};
 
     public:
         inline bool _isDirty() const { return dirty > 0; }
         inline void _setDirty() { this->dirty = MAX_FRAMES_IN_FLIGHT; }
         inline void _clearDirty() { this->dirty--; }
-        inline int32_t _getBufferIndex() const { return this->bufferIndex; }
-        inline void _setBufferIndex(const int32_t bufferIndex) { this->bufferIndex = bufferIndex; }
     };
 
     /**

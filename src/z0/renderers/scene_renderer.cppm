@@ -158,6 +158,8 @@ namespace z0 {
             list<shared_ptr<Material>> materials;
             // Vector to track free indices
             vector<Resource::id_t> materialsIndicesAllocation;
+            // Indices of each material in the buffer
+            map<Resource::id_t, int32_t> materialsIndices{};
             // Data for all the materials of the scene, one buffer for all the materials
             unique_ptr<Buffer> materialsBuffer;
 
@@ -177,7 +179,6 @@ namespace z0 {
             // Indices of each images in the descriptor binding
             map<Resource::id_t, int32_t> imagesIndices{};
             // Images infos for descriptor sets, pre-filled with blank images
-            // TODO use a vector of used indexes to remove images
             array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
             // For rendering an optional skybox
             unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};

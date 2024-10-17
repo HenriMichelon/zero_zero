@@ -175,9 +175,9 @@ export namespace z0 {
 
         struct {
             // Deferred list of nodes added to the current scene, processed before each frame
-            vector<shared_ptr<Node>> addedNodes{};
+            list<shared_ptr<Node>> addedNodes;
             // Deferred list of nodes removed from the current scene, processed before each frame
-            vector<shared_ptr<Node>> removedNodes{};
+            list<shared_ptr<Node>> removedNodes;
             // Camera to activate next frame
             shared_ptr<Camera> activateCamera;
         } frameData[MAX_FRAMES_IN_FLIGHT];
