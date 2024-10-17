@@ -49,23 +49,23 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
 } global;
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
-    mat4 model[1];
+    mat4 model[1000];  // arbitrary value for debug with RenderDoc
 } models;
 
 layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
-    Material material[200];
+    Material material[200]; // SceneRenderer::MAX_MATERIALS
 } materials;
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
 
 layout(set = 0, binding = 4) uniform ShadowMapArray {
-    ShadowMap shadowMaps[1];
+    ShadowMap shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
 } shadowMapsInfos;
 
-layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[100]; // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(set = 0, binding = 6) uniform PointLightArray {
-    PointLight lights[1];
+    PointLight lights[10]; // arbitrary value for debug with RenderDoc
 } pointLights;
 
 layout(push_constant) uniform PushConstants {

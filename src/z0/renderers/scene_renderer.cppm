@@ -141,10 +141,8 @@ namespace z0 {
 
         // Maximum number of materials supported by this renderer
         static constexpr uint32_t MAX_MATERIALS = 200;
-        // All the materials of the scene
-        list<Material *> materials;
-        // Indices of each material in the materials buffer
-        map<Resource::id_t, uint32_t> materialsIndices{};
+        // All materials used in the scene, used to update the buffer in GPU memory
+        list<shared_ptr<Material>> materials;
         // Vector to track free indices
         vector<Resource::id_t> materialsIndicesAllocation;
         // Datas for all the materials of the scene, one buffer for all the materials
@@ -163,7 +161,7 @@ namespace z0 {
         // Currently allocated material uniform buffer count
         uint32_t shadowMapUniformBufferCount{0};
         // Maximum number of shadow maps supported by this renderer
-        static constexpr uint32_t MAX_SHADOW_MAPS = 100;
+        static constexpr uint32_t MAX_SHADOW_MAPS = 10;
         // Images infos for descriptor sets, pre-filled with blank images
         array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;
 
@@ -190,7 +188,7 @@ namespace z0 {
         // One and only one directional light per scene
         DirectionalLight *directionalLight{nullptr};
         // Omni and Spotlights
-        vector<OmniLight *> omniLights;
+        list<const OmniLight *> omniLights;
         // Omni and Spotlights UBOs
         vector<unique_ptr<Buffer>> pointLightUniformBuffers{MAX_FRAMES_IN_FLIGHT};
         // Size of the above uniform buffers
@@ -222,6 +220,10 @@ namespace z0 {
         void beginRendering(VkCommandBuffer commandBuffer) override;
 
         void endRendering(VkCommandBuffer commandBuffer, bool isLast) override;
+
+        void addMaterial(const shared_ptr<Material> &material);
+
+        void removeMaterial(const shared_ptr<Material> &material);
 
         void addImage(const shared_ptr<Image> &image);
 

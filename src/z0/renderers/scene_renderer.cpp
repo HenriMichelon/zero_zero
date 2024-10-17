@@ -117,6 +117,7 @@ namespace z0 {
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             disableLightShadowCasting(omniLight);
+            omniLights.remove(omniLight);
         } else {
             ModelsRenderer::removeNode(node);
         }
@@ -124,12 +125,53 @@ namespace z0 {
 
     void SceneRenderer::preUpdateScene() {
         for (const auto &material : OutlineMaterials::_all()) {
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
-                continue;
-            material->_incrementReferenceCounter();
-            materialsIndices[material->getId()] = materials.size();
-            materials.push_back(material.get());
-            descriptorSetNeedUpdate = true;
+            if (material->_getBufferIndex() == -1) {
+                material->_incrementReferenceCounter();
+                addMaterial(material);
+                descriptorSetNeedUpdate = true;
+            }
+        }
+    }
+
+    void SceneRenderer::addMaterial(const shared_ptr<Material> &material) {
+        // We have a new material, allocate the first free buffer index
+        const auto it = std::find_if(materialsIndicesAllocation.begin(), materialsIndicesAllocation.end(),
+            [&](const Resource::id_t &id) {
+                return id == Resource::INVALID_ID;
+            });
+        if (it == materialsIndicesAllocation.end())
+            die("Maximum number of materials reached");
+        const auto index = it - materialsIndicesAllocation.begin();
+        material->_setBufferIndex(index);
+        materialsIndicesAllocation[index] = material->getId();
+        // Force material data to be written to GPU memory
+        material->_setDirty();
+        materials.push_back(material);
+    }
+
+    void SceneRenderer::removeMaterial(const shared_ptr<Material> &material) {
+        if (material->_getBufferIndex() != -1) {
+            // Check if we need to remove the material from the scene
+            if (material->_decrementReferenceCounter()) {
+                // Try to remove the associated textures or shaders
+                if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
+                    if (standardMaterial->getAlbedoTexture() != nullptr)
+                        removeImage(standardMaterial->getAlbedoTexture()->getImage());
+                    if (standardMaterial->getSpecularTexture() != nullptr)
+                        removeImage(standardMaterial->getSpecularTexture()->getImage());
+                    if (standardMaterial->getNormalTexture() != nullptr)
+                        removeImage(standardMaterial->getNormalTexture()->getImage());
+                } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
+                    const auto &shader = materialShaders[shaderMaterial->getFragFileName()];
+                    if (shader->_decrementReferenceCounter()) {
+                        materialShaders.erase(shaderMaterial->getFragFileName());
+                    }
+                }
+                // Free the material index and remove the material from the scene
+                materialsIndicesAllocation[material->_getBufferIndex()] = Resource::INVALID_ID;
+                material->_setBufferIndex(-1);
+                materials.remove(material);
+            }
         }
     }
 
@@ -148,22 +190,8 @@ namespace z0 {
         modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             material->_incrementReferenceCounter();
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end())
-                continue;
-            if (materials.size() >= MAX_MATERIALS)
-                die("Maximum number of materials reached");
-            // We have a new material, allocate the first free index
-            const auto it = std::find_if(materialsIndicesAllocation.begin(), materialsIndicesAllocation.end(),
-                [&](const Resource::id_t &id) {
-                    return id == Resource::INVALID_ID;
-                });
-            assert(it != materialsIndicesAllocation.end());
-            const auto index = it - materialsIndicesAllocation.begin();
-            materialsIndices[material->getId()] = index;
-            materialsIndicesAllocation[index] = material->getId();
-            materials.push_back(material.get());
-            // Force material data to be written to GPU memory
-            material->_setDirty();
+            if (material->_getBufferIndex() != -1) continue;
+            addMaterial(material);
             // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture() != nullptr)
@@ -187,26 +215,7 @@ namespace z0 {
 
     void SceneRenderer::removingModel(MeshInstance *meshInstance) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-            if (find(materials.begin(), materials.end(), material.get()) != materials.end()) {
-                if (material->_decrementReferenceCounter()) {
-                    if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
-                        if (standardMaterial->getAlbedoTexture() != nullptr)
-                            removeImage(standardMaterial->getAlbedoTexture()->getImage());
-                        if (standardMaterial->getSpecularTexture() != nullptr)
-                            removeImage(standardMaterial->getSpecularTexture()->getImage());
-                        if (standardMaterial->getNormalTexture() != nullptr)
-                            removeImage(standardMaterial->getNormalTexture()->getImage());
-                    } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
-                        const auto &shader = materialShaders[shaderMaterial->getFragFileName()];
-                        if (shader->_decrementReferenceCounter()) {
-                            materialShaders.erase(shaderMaterial->getFragFileName());
-                        }
-                    }
-                    materials.remove(material.get());
-                    // Free the material index
-                    materialsIndicesAllocation[materialsIndices[material->getId()]] = Resource::INVALID_ID;
-                }
-            }
+           removeMaterial(material);
         }
 
         const auto it = find(opaquesModels.begin(), opaquesModels.end(), meshInstance);
@@ -286,20 +295,21 @@ namespace z0 {
 
         if (globalUbo.pointLightsCount > 0) {
             auto pointLightsArray = make_unique<PointLightUniformBuffer[]>(globalUbo.pointLightsCount);
-            for (uint32_t i = 0; i < globalUbo.pointLightsCount; i++) {
-                auto *omniLight               = omniLights[i];
-                pointLightsArray[i].position  = omniLight->getPositionGlobal();
-                pointLightsArray[i].color     = omniLight->getColorAndIntensity();
-                pointLightsArray[i].specular  = omniLight->getSpecularIntensity();
-                pointLightsArray[i].constant  = omniLight->getAttenuation();
-                pointLightsArray[i].linear    = omniLight->getLinear();
-                pointLightsArray[i].quadratic = omniLight->getQuadratic();
-                if (auto *spot = dynamic_cast<SpotLight *>(omniLight)) {
-                    pointLightsArray[i].isSpot    = true;
-                    pointLightsArray[i].direction = normalize(mat3{spot->getTransformGlobal()} * AXIS_FRONT);
-                    pointLightsArray[i].cutOff    = spot->getCutOff();
-                    pointLightsArray[i].outerCutOff = spot->getOuterCutOff();
+            auto lightIndex = 0;
+            for (const auto* omniLight : omniLights) {
+                pointLightsArray[lightIndex].position  = omniLight->getPositionGlobal();
+                pointLightsArray[lightIndex].color     = omniLight->getColorAndIntensity();
+                pointLightsArray[lightIndex].specular  = omniLight->getSpecularIntensity();
+                pointLightsArray[lightIndex].constant  = omniLight->getAttenuation();
+                pointLightsArray[lightIndex].linear    = omniLight->getLinear();
+                pointLightsArray[lightIndex].quadratic = omniLight->getQuadratic();
+                if (const auto *spot = dynamic_cast<const SpotLight *>(omniLight)) {
+                    pointLightsArray[lightIndex].isSpot    = true;
+                    pointLightsArray[lightIndex].direction = normalize(mat3{spot->getTransformGlobal()} * AXIS_FRONT);
+                    pointLightsArray[lightIndex].cutOff    = spot->getCutOff();
+                    pointLightsArray[lightIndex].outerCutOff = spot->getOuterCutOff();
                 }
+                lightIndex += 1;
             }
             writeUniformBuffer(pointLightUniformBuffers, currentFrame, pointLightsArray.get());
         }
@@ -312,12 +322,12 @@ namespace z0 {
             modelIndex += 1;
         }
 
-        for (auto *material : materials) {
+        for (const auto& material : materials) {
             if (material->_isDirty()) {
                 auto materialBuffer = MaterialUniformBuffer{};
                 materialBuffer.transparency = material->getTransparency();
                 materialBuffer.alphaScissor = material->getAlphaScissor();
-                if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
+                if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     materialBuffer.albedoColor = standardMaterial->getAlbedoColor().color;
                     if (standardMaterial->getAlbedoTexture() != nullptr) {
                         materialBuffer.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
@@ -335,7 +345,7 @@ namespace z0 {
                     if (standardMaterial->getNormalTexture() != nullptr) {
                         materialBuffer.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                     }
-                } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material)) {
+                } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                     for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
                         materialBuffer.parameters[i] = shaderMaterial->getParameter(i);
                     }
@@ -344,7 +354,7 @@ namespace z0 {
                 materialsBuffers[currentFrame]->writeToBuffer(
                     &materialBuffer,
                     materialBufferSize,
-                    materialBufferSize * materialsIndices[material->getId()]);
+                    materialBufferSize * material->_getBufferIndex());
             }
         }
     }
@@ -674,14 +684,11 @@ namespace z0 {
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
-                        const auto        &material      = meshInstance->getOutlineMaterial();
-                        const auto        &materialIndex = materialsIndices[material->getId()];
+                        const auto &material      = meshInstance->getOutlineMaterial();
                         auto pushConstants = PushConstants {
                             .modelIndex = static_cast<int>(modelIndex),
-                            .materialIndex = static_cast<int>(materialIndex)
+                            .materialIndex = material->_getBufferIndex()
                         };
-                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
-                                            0, sizeof(PushConstants), &pushConstants);
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
                                             materialShaders[material->getVertFileName()]->getStage(),
@@ -691,6 +698,8 @@ namespace z0 {
                                             materialShaders[material->getFragFileName()]->getStage(),
                                             materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                                            0, sizeof(PushConstants), &pushConstants);
                         if (lastMeshId == model->getId()) {
                             model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         } else {
@@ -729,7 +738,7 @@ namespace z0 {
                     }
                     auto pushConstants = PushConstants {
                         .modelIndex = static_cast<int>(modelIndex),
-                        .materialIndex = static_cast<int>(materialsIndices[surface->material->getId()])
+                        .materialIndex = surface->material->_getBufferIndex()
                     };
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, sizeof(PushConstants), &pushConstants);

@@ -193,7 +193,7 @@ namespace z0 {
         vectorRenderer = make_shared<VectorRenderer>(*device,
                                                      shaderDir,
                                                      sceneRenderer->getColorAttachment());
-        // device->registerRenderer(vectorRenderer);
+        device->registerRenderer(vectorRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager
