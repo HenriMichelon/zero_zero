@@ -57,6 +57,12 @@ export namespace z0 {
         CullMode     cullMode{CULLMODE_BACK};
         Transparency transparency{TRANSPARENCY_DISABLED};
         float        alphaScissor{0.1f};
+        uint8_t      dirty{MAX_FRAMES_IN_FLIGHT};
+
+    public:
+        inline bool _isDirty() const { return dirty > 0; }
+        inline void _setDirty() { this->dirty = MAX_FRAMES_IN_FLIGHT; }
+        inline void _clearDirty() { this->dirty--; }
     };
 
     /**
@@ -95,7 +101,7 @@ export namespace z0 {
         /**
          * Sets the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        inline void setAlbedoTexture(const shared_ptr<ImageTexture> &texture) { albedoTexture = texture; }
+        void setAlbedoTexture(const shared_ptr<ImageTexture> &texture);
 
         /**
          * Return the specular texture
@@ -105,7 +111,7 @@ export namespace z0 {
         /**
          * Sets the specular texture
          */
-        inline void setSpecularTexture(const shared_ptr<ImageTexture> &texture) { specularTexture = texture; }
+        void setSpecularTexture(const shared_ptr<ImageTexture> &texture);
 
         /**
          * Return the normal texture
@@ -115,7 +121,7 @@ export namespace z0 {
         /**
          * Sets the normal texture
          */
-        inline void setNormalTexture(const shared_ptr<ImageTexture> &texture) { normalTexture = texture; }
+        void setNormalTexture(const shared_ptr<ImageTexture> &texture);
 
         /**
          * Returns the texture's UV transform.
@@ -127,9 +133,7 @@ export namespace z0 {
         /**
          * Sets the texture's UV transform.
          */
-        inline void setTextureTransform(const TextureTransform transform) {
-            textureTransform = make_shared<TextureTransform>(transform);
-        }
+        void setTextureTransform(const TextureTransform transform);
 
     private:
         Color                        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
@@ -177,16 +181,12 @@ export namespace z0 {
         /**
          * Sets a parameter value
          */
-        inline void setParameter(const int index, const vec4 value) {
-            parameters[index] = value;
-        }
+        void setParameter(const int index, const vec4 value);
 
         /**
          * Returns a parameter value
          */
-        [[nodiscard]] inline vec4 getParameter(const int index) const {
-            return parameters[index];
-        }
+        [[nodiscard]] inline vec4 getParameter(const int index) const { return parameters[index]; }
 
     private:
         const string fragFileName;

@@ -53,7 +53,7 @@ layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
 } models;
 
 layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
-    Material material[1];
+    Material material[200];
 } materials;
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES

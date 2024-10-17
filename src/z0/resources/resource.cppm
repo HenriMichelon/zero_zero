@@ -13,7 +13,8 @@ export namespace z0 {
      */
     class Resource : public Object {
     public:
-        using id_t = unsigned int;
+        using id_t = int64_t;
+        static constexpr id_t INVALID_ID = -1;
 
         explicit Resource(string name);
 

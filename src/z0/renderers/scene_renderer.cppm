@@ -90,7 +90,7 @@ namespace z0 {
         };
 
         struct ModelUniformBuffer {
-            mat4 matrix;
+            mat4 matrix{};
         };
 
         struct MaterialUniformBuffer {
@@ -138,16 +138,19 @@ namespace z0 {
         static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
         // Currently allocated model uniform buffer count
         uint32_t modelUniformBufferCount{0};
+
+        // Maximum number of materials supported by this renderer
+        static constexpr uint32_t MAX_MATERIALS = 200;
         // All the materials of the scene
         list<Material *> materials;
-        // Indices of each material in the materials uniform buffer
+        // Indices of each material in the materials buffer
         map<Resource::id_t, uint32_t> materialsIndices{};
+        // Vector to track free indices
+        vector<Resource::id_t> materialsIndicesAllocation;
         // Datas for all the materials of the scene, one buffer for all the materials
-        vector<unique_ptr<Buffer>> materialsUniformBuffers{MAX_FRAMES_IN_FLIGHT};
-        // Size of the above uniform buffers
-        static constexpr VkDeviceSize materialUniformBufferSize{sizeof(MaterialUniformBuffer)};
-        // Currently allocated material uniform buffer count
-        uint32_t materialUniformBufferCount{0};
+        vector<unique_ptr<Buffer>> materialsBuffers{MAX_FRAMES_IN_FLIGHT};
+        // Size of the above buffers
+        static constexpr VkDeviceSize materialBufferSize{sizeof(MaterialUniformBuffer)};
 
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
@@ -173,6 +176,7 @@ namespace z0 {
         // Maximum number of images supported by this renderer
         static constexpr uint32_t MAX_IMAGES = 200;
         // Images infos for descriptor sets, pre-filled with blank images
+        // TODO use a vector of used indexes to remove images
         array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
         // Default blank image
         unique_ptr<Image> blankImage{nullptr};

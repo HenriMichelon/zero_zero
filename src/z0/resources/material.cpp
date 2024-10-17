@@ -19,6 +19,26 @@ namespace z0 {
         Material(name) {
     }
 
+    void StandardMaterial::setAlbedoTexture(const shared_ptr<ImageTexture> &texture) {
+        albedoTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setSpecularTexture(const shared_ptr<ImageTexture> &texture) {
+        specularTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setNormalTexture(const shared_ptr<ImageTexture> &texture) {
+        normalTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setTextureTransform(const TextureTransform transform) {
+        textureTransform = make_shared<TextureTransform>(transform);
+        _setDirty();
+    }
+
     ShaderMaterial::ShaderMaterial(const shared_ptr<ShaderMaterial> &orig):
         Material{orig->name},
         fragFileName{orig->fragFileName},
@@ -34,6 +54,11 @@ namespace z0 {
         Material{name},
         fragFileName{std::move(fragShaderFileName)},
         vertFileName{std::move(vertShaderFileName)} {
+    }
+
+    void ShaderMaterial::setParameter(const int index, const vec4 value) {
+        parameters[index] = value;
+        _setDirty();
     }
 
     shared_ptr<ShaderMaterial> &OutlineMaterials::get(const int index) {

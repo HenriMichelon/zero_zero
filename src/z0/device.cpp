@@ -236,7 +236,7 @@ namespace z0 {
     }
 
     void Device::cleanup() {
-        for (auto &renderer : renderers) { renderer->cleanup(); }
+        for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -265,7 +265,7 @@ namespace z0 {
                                                 &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
-            for (auto &renderer : renderers) { renderer->recreateImagesResources(); }
+            for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
             return;
         }
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
@@ -758,7 +758,7 @@ namespace z0 {
         return score;
     }
 
-    Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) const {
+    Device::SwapChainSupportDetails Device::querySwapChainSupport(const VkPhysicalDevice vkPhysicalDevice) const {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Querying-details-of-swap-chain-support
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, surface, &details.capabilities);
@@ -780,7 +780,7 @@ namespace z0 {
         return details;
     }
 
-    Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const {
+    Device::QueueFamilyIndices Device::findQueueFamilies(const VkPhysicalDevice vkPhysicalDevice) const {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
         QueueFamilyIndices indices;
         uint32_t           queueFamilyCount = 0;

@@ -1,5 +1,6 @@
 module;
 #include <cassert>
+#include <json.hpp>
 #include <volk.h>
 #include "stb_image_write.h"
 #include "z0/libraries.h"
@@ -43,7 +44,9 @@ namespace z0 {
     }
 
     SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
-        ModelsRenderer{device, shaderDirectory, clearColor}, colorFrameBufferMultisampled{device, true} {
+        ModelsRenderer{device, shaderDirectory, clearColor},
+        colorFrameBufferMultisampled{device, true},
+        materialsIndicesAllocation(MAX_MATERIALS, Resource::INVALID_ID) {
         createImagesResources();
         OutlineMaterials::_initialize();
         createOrUpdateResources(true, &pushConstantRange);
@@ -51,7 +54,7 @@ namespace z0 {
 
     void SceneRenderer::cleanup() {
         materialShaders.clear();
-        materialsUniformBuffers.clear();
+        materialsBuffers.clear();
         shadowMapsUniformBuffers.clear();
         pointLightUniformBuffers.clear();
         if (blankImage != nullptr) {
@@ -147,8 +150,21 @@ namespace z0 {
             material->_incrementReferenceCounter();
             if (find(materials.begin(), materials.end(), material.get()) != materials.end())
                 continue;
-            materialsIndices[material->getId()] = materials.size();
+            if (materials.size() >= MAX_MATERIALS)
+                die("Maximum number of materials reached");
+            // We have a new material, allocate the first free index
+            const auto it = std::find_if(materialsIndicesAllocation.begin(), materialsIndicesAllocation.end(),
+                [&](const Resource::id_t &id) {
+                    return id == Resource::INVALID_ID;
+                });
+            assert(it != materialsIndicesAllocation.end());
+            const auto index = it - materialsIndicesAllocation.begin();
+            materialsIndices[material->getId()] = index;
+            materialsIndicesAllocation[index] = material->getId();
             materials.push_back(material.get());
+            // Force material data to be written to GPU memory
+            material->_setDirty();
+            // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture() != nullptr)
                     addImage(standardMaterial->getAlbedoTexture()->getImage());
@@ -187,13 +203,8 @@ namespace z0 {
                         }
                     }
                     materials.remove(material.get());
-                    // Rebuild the material index
-                    materialsIndices.clear();
-                    uint32_t materialIndex = 0;
-                    for (const auto &mat : materials) {
-                        materialsIndices[mat->getId()] = static_cast<int32_t>(materialIndex);
-                        materialIndex += 1;
-                    }
+                    // Free the material index
+                    materialsIndicesAllocation[materialsIndices[material->getId()]] = Resource::INVALID_ID;
                 }
             }
         }
@@ -301,36 +312,40 @@ namespace z0 {
             modelIndex += 1;
         }
 
-        uint32_t materialIndex = 0;
-        auto materialUBOArray = make_unique<MaterialUniformBuffer[]>(materials.size());
         for (auto *material : materials) {
-            materialUBOArray[materialIndex].transparency = material->getTransparency();
-            materialUBOArray[materialIndex].alphaScissor = material->getAlphaScissor();
-            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
-                materialUBOArray[materialIndex].albedoColor = standardMaterial->getAlbedoColor().color;
-                if (standardMaterial->getAlbedoTexture() != nullptr) {
-                    materialUBOArray[materialIndex].diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
-                    const auto &transform    = standardMaterial->getTextureTransform();
-                    if (transform != nullptr) {
-                        materialUBOArray[materialIndex].hasTransform  = true;
-                        materialUBOArray[materialIndex].textureOffset = transform->offset;
-                        materialUBOArray[materialIndex].textureScale  = transform->scale;
+            if (material->_isDirty()) {
+                auto materialBuffer = MaterialUniformBuffer{};
+                materialBuffer.transparency = material->getTransparency();
+                materialBuffer.alphaScissor = material->getAlphaScissor();
+                if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
+                    materialBuffer.albedoColor = standardMaterial->getAlbedoColor().color;
+                    if (standardMaterial->getAlbedoTexture() != nullptr) {
+                        materialBuffer.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                        const auto &transform    = standardMaterial->getTextureTransform();
+                        if (transform != nullptr) {
+                            materialBuffer.hasTransform  = true;
+                            materialBuffer.textureOffset = transform->offset;
+                            materialBuffer.textureScale  = transform->scale;
+                        }
+                    }
+                    if (standardMaterial->getSpecularTexture() != nullptr) {
+                        materialBuffer.specularIndex =
+                                imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
+                    }
+                    if (standardMaterial->getNormalTexture() != nullptr) {
+                        materialBuffer.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                    }
+                } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material)) {
+                    for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
+                        materialBuffer.parameters[i] = shaderMaterial->getParameter(i);
                     }
                 }
-                if (standardMaterial->getSpecularTexture() != nullptr) {
-                    materialUBOArray[materialIndex].specularIndex =
-                            imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
-                }
-                if (standardMaterial->getNormalTexture() != nullptr) {
-                    materialUBOArray[materialIndex].normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
-                }
-            } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material)) {
-                for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
-                    materialUBOArray[materialIndex].parameters[i] = shaderMaterial->getParameter(i);
-                }
+                material->_clearDirty();
+                materialsBuffers[currentFrame]->writeToBuffer(
+                    &materialBuffer,
+                    materialBufferSize,
+                    materialBufferSize * materialsIndices[material->getId()]);
             }
-            writeUniformBuffer(materialsUniformBuffers, currentFrame, materialUBOArray.get());
-            materialIndex += 1;
         }
     }
 
@@ -426,14 +441,10 @@ namespace z0 {
             modelUniformBufferCount = 1;
             createUniformBuffers(modelUniformBuffers, modelUniformBufferSize);
         }
-        if ((!materials.empty()) && (materialUniformBufferCount != materials.size())) {
-            materialUniformBufferCount = materials.size();
-            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize * materialUniformBufferCount);
+        if (materialsBuffers[0] == nullptr) {
+            createUniformBuffers(materialsBuffers, materialBufferSize * MAX_MATERIALS);
         }
-        if (materialUniformBufferCount == 0) {
-            materialUniformBufferCount = 1;
-            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize);
-        }
+
         if ((!shadowMapRenderers.empty()) && (shadowMapUniformBufferCount != shadowMapRenderers.size())) {
             shadowMapUniformBufferCount = shadowMapRenderers.size();
             createUniformBuffers(shadowMapsUniformBuffers, shadowMapUniformBufferSize * shadowMapUniformBufferCount);
@@ -480,8 +491,7 @@ namespace z0 {
             auto globalBufferInfo     = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo      = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize *
                                                                                 modelUniformBufferCount);
-            auto materialBufferInfo   = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize *
-                                                                                materialUniformBufferCount);
+            auto materialBufferInfo   = materialsBuffers[i]->descriptorInfo(materialBufferSize * MAX_MATERIALS);
             auto shadowMapBufferInfo  = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize *
                                                                                    shadowMapUniformBufferCount);
             auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize *
@@ -663,45 +673,38 @@ namespace z0 {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
-                    // if (meshInstance->isOutlined()) {
-                    //     const auto        &material      = meshInstance->getOutlineMaterial();
-                    //     const auto        &materialIndex = materialsIndices[material->getId()];
-                    //     array<uint32_t, 5> offsets2      = {
-                    //             // globalBuffers
-                    //             0,
-                    //             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
-                    //                                   modelIndex),
-                    //             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
-                    //                                   materialIndex),
-                    //             // shadowMapsBuffers
-                    //             0,
-                    //             // pointLightBuffers
-                    //             0,
-                    //     };
-                    //     bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
-                    //     vkCmdBindShadersEXT(commandBuffer,
-                    //                         1,
-                    //                         materialShaders[material->getVertFileName()]->getStage(),
-                    //                         materialShaders["outline.vert"]->getShader());
-                    //     vkCmdBindShadersEXT(commandBuffer,
-                    //                         1,
-                    //                         materialShaders[material->getFragFileName()]->getStage(),
-                    //                         materialShaders["outline.frag"]->getShader());
-                    //     vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-                    //     if (lastMeshId == model->getId()) {
-                    //         model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    //     } else {
-                    //         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    //         lastMeshId = model->getId();
-                    //     }
-                    //     vkCmdSetCullMode(commandBuffer,
-                    //                     lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                    //                             : lastCullMode == CULLMODE_BACK
-                    //                             ? VK_CULL_MODE_BACK_BIT
-                    //                             : VK_CULL_MODE_FRONT_BIT);
-                    //     vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                    //     vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
-                    // }
+                    if (meshInstance->isOutlined()) {
+                        const auto        &material      = meshInstance->getOutlineMaterial();
+                        const auto        &materialIndex = materialsIndices[material->getId()];
+                        auto pushConstants = PushConstants {
+                            .modelIndex = static_cast<int>(modelIndex),
+                            .materialIndex = static_cast<int>(materialIndex)
+                        };
+                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                                            0, sizeof(PushConstants), &pushConstants);
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            materialShaders[material->getVertFileName()]->getStage(),
+                                            materialShaders["outline.vert"]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            materialShaders[material->getFragFileName()]->getStage(),
+                                            materialShaders["outline.frag"]->getShader());
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                        if (lastMeshId == model->getId()) {
+                            model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        } else {
+                            model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            lastMeshId = model->getId();
+                        }
+                        vkCmdSetCullMode(commandBuffer,
+                                        lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                                                : lastCullMode == CULLMODE_BACK
+                                                ? VK_CULL_MODE_BACK_BIT
+                                                : VK_CULL_MODE_FRONT_BIT);
+                        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                    }
 
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
