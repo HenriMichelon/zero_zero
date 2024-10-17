@@ -255,7 +255,10 @@ namespace z0 {
 
     void Device::drawFrame() {
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
+        // wait until the GPU has finished rendering the last frame.
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
         uint32_t imageIndex;
         auto     result = vkAcquireNextImageKHR(device,
                                                 swapChain,
@@ -269,7 +272,6 @@ namespace z0 {
             return;
         }
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
         {
             vkResetCommandBuffer(commandBuffers[currentFrame], 0);
             for (const auto &renderer : renderers) { renderer->update(currentFrame); }

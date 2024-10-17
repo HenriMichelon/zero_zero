@@ -80,7 +80,7 @@ namespace z0 {
         buffers[currentFrame]->writeToBuffer(data);
     }
 
-    void Renderpass::createOrUpdateResources(bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange) {
+    void Renderpass::createOrUpdateResources(const bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange) {
         if (!descriptorsAndPushConstants && pipelineLayout == VK_NULL_HANDLE && (pushConstantRange != nullptr)) {
             createPipelineLayout(pushConstantRange);
             loadShaders();

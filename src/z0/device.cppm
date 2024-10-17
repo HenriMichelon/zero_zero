@@ -165,7 +165,7 @@ export namespace z0 {
         [[nodiscard]] static VkSurfaceFormatKHR chooseSwapSurfaceFormat(
                 const vector<VkSurfaceFormatKHR> &availableFormats);
 
-        // Get the swap chain present mode, default to MAILBOX, if not avaible FIFO (V-SYNC)
+        // Get the swap chain present mode, default to MAILBOX, if not available FIFO (V-SYNC)
         [[nodiscard]] static VkPresentModeKHR chooseSwapPresentMode(
                 const vector<VkPresentModeKHR> &availablePresentModes);
 
@@ -186,7 +186,7 @@ export namespace z0 {
             vector<VkPresentModeKHR>   presentModes;
         };
 
-        // Set the initiale state for the dynamic rendering
+        // Set the initial state for the dynamic rendering
         void setInitialState(VkCommandBuffer commandBuffer) const;
 
         // Rate physical device by properties to find the best suitable GPU

@@ -21,7 +21,7 @@ export namespace z0 {
         // Release all the Vulkan resources
         virtual void cleanup() = 0;
 
-        // Update frame datas
+        // Update frame data
         virtual void update(uint32_t currentFrame) = 0;
 
         // Start rendering one frame
@@ -33,13 +33,13 @@ export namespace z0 {
         // End rendering one frame
         virtual void endRendering(VkCommandBuffer commandBuffer, bool isLast) = 0;
 
-        // Create images, imageviews & buffers
+        // Create images, image views & buffers
         virtual void createImagesResources() = 0;
 
-        // Release images, imageviews & buffers
+        // Release images, image views & buffers
         virtual void cleanupImagesResources() = 0;
 
-        // Release and re-create images, imageviews & buffers, in needed
+        // Release and re-create images, image views & buffers, in needed
         virtual void recreateImagesResources() = 0;
     };
 
