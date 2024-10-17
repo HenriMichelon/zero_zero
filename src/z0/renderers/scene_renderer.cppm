@@ -120,6 +120,16 @@ namespace z0 {
             alignas(4) float outerCutOff{cos(radians(15.0f))};
         };
 
+        struct PushConstants {
+            alignas(4) int modelIndex;
+            alignas(4) int materialIndex;
+        };
+        const VkPushConstantRange pushConstantRange {
+            .stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        };
+
         // Indices of each model datas in the models uniform buffer
         map<Node::id_t, uint32_t> modelsIndices{};
         // All non-transparent models

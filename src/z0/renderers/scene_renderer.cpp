@@ -46,6 +46,7 @@ namespace z0 {
         ModelsRenderer{device, shaderDirectory, clearColor}, colorFrameBufferMultisampled{device, true} {
         createImagesResources();
         OutlineMaterials::_initialize();
+        createOrUpdateResources(true, &pushConstantRange);
     }
 
     void SceneRenderer::cleanup() {
@@ -130,7 +131,7 @@ namespace z0 {
     }
 
     void SceneRenderer::postUpdateScene() {
-        createOrUpdateResources();
+        createOrUpdateResources(true, &pushConstantRange);
         for (const auto &material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get());
         }
@@ -293,43 +294,42 @@ namespace z0 {
         }
 
         uint32_t modelIndex = 0;
+        auto modelUBOArray = make_unique<ModelUniformBuffer[]>(models.size());
         for (const auto &meshInstance : models) {
-            ModelUniformBuffer modelUbo{
-                    .matrix = meshInstance->getTransformGlobal(),
-            };
-            writeUniformBuffer(modelUniformBuffers, currentFrame, &modelUbo, modelIndex);
+            modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
+            writeUniformBuffer(modelUniformBuffers, currentFrame, modelUBOArray.get());
             modelIndex += 1;
         }
 
         uint32_t materialIndex = 0;
+        auto materialUBOArray = make_unique<MaterialUniformBuffer[]>(materials.size());
         for (auto *material : materials) {
-            MaterialUniformBuffer materialUbo{};
-            materialUbo.transparency = material->getTransparency();
-            materialUbo.alphaScissor = material->getAlphaScissor();
+            materialUBOArray[materialIndex].transparency = material->getTransparency();
+            materialUBOArray[materialIndex].alphaScissor = material->getAlphaScissor();
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material)) {
-                materialUbo.albedoColor = standardMaterial->getAlbedoColor().color;
+                materialUBOArray[materialIndex].albedoColor = standardMaterial->getAlbedoColor().color;
                 if (standardMaterial->getAlbedoTexture() != nullptr) {
-                    materialUbo.diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
+                    materialUBOArray[materialIndex].diffuseIndex = imagesIndices[standardMaterial->getAlbedoTexture()->getImage()->getId()];
                     const auto &transform    = standardMaterial->getTextureTransform();
                     if (transform != nullptr) {
-                        materialUbo.hasTransform  = true;
-                        materialUbo.textureOffset = transform->offset;
-                        materialUbo.textureScale  = transform->scale;
+                        materialUBOArray[materialIndex].hasTransform  = true;
+                        materialUBOArray[materialIndex].textureOffset = transform->offset;
+                        materialUBOArray[materialIndex].textureScale  = transform->scale;
                     }
                 }
                 if (standardMaterial->getSpecularTexture() != nullptr) {
-                    materialUbo.specularIndex =
+                    materialUBOArray[materialIndex].specularIndex =
                             imagesIndices[standardMaterial->getSpecularTexture()->getImage()->getId()];
                 }
                 if (standardMaterial->getNormalTexture() != nullptr) {
-                    materialUbo.normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
+                    materialUBOArray[materialIndex].normalIndex = imagesIndices[standardMaterial->getNormalTexture()->getImage()->getId()];
                 }
             } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material)) {
                 for (int i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
-                    materialUbo.parameters[i] = shaderMaterial->getParameter(i);
+                    materialUBOArray[materialIndex].parameters[i] = shaderMaterial->getParameter(i);
                 }
             }
-            writeUniformBuffer(materialsUniformBuffers, currentFrame, &materialUbo, materialIndex);
+            writeUniformBuffer(materialsUniformBuffers, currentFrame, materialUBOArray.get());
             materialIndex += 1;
         }
     }
@@ -341,6 +341,7 @@ namespace z0 {
         if (!models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            bindDescriptorSets(commandBuffer, currentFrame);
             drawModels(commandBuffer, currentFrame, opaquesModels);
         }
         if (skyboxRenderer != nullptr)
@@ -351,33 +352,34 @@ namespace z0 {
         descriptorPool =
                 DescriptorPool::Builder(device)
                         .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT) // global UBO
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
-                        // models UBO, indexed
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
-                        // materials UBO, indexed
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                        // global UBO
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        // models UBO, one array
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        // materials UBO, one array
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                         // images textures
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
-                        // shadow maps UBO, one array
                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                        // shadow maps UBO, one array
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                         // shadow maps
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
                         // pointlightarray UBO, one array
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
                             .addBinding(0,
                                         // global UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_ALL_GRAPHICS)
                             .addBinding(1,
                                         // models UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_VERTEX_BIT)
                             .addBinding(2,
                                         // materials UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_ALL_GRAPHICS)
                             .addBinding(3,
                                         // images textures
@@ -386,7 +388,7 @@ namespace z0 {
                                         MAX_IMAGES)
                             .addBinding(4,
                                         // shadow maps array UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(5,
                                         // shadow maps
@@ -395,7 +397,7 @@ namespace z0 {
                                         MAX_SHADOW_MAPS)
                             .addBinding(6,
                                         // PointLight array UBO
-                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .build();
 
@@ -418,7 +420,7 @@ namespace z0 {
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (!models.empty() && (modelUniformBufferCount != models.size())) {
             modelUniformBufferCount = models.size();
-            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize, modelUniformBufferCount);
+            createUniformBuffers(modelUniformBuffers, modelUniformBufferSize * modelUniformBufferCount);
         }
         if (modelUniformBufferCount == 0) {
             modelUniformBufferCount = 1;
@@ -426,7 +428,7 @@ namespace z0 {
         }
         if ((!materials.empty()) && (materialUniformBufferCount != materials.size())) {
             materialUniformBufferCount = materials.size();
-            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize, materialUniformBufferCount);
+            createUniformBuffers(materialsUniformBuffers, materialUniformBufferSize * materialUniformBufferCount);
         }
         if (materialUniformBufferCount == 0) {
             materialUniformBufferCount = 1;
@@ -476,8 +478,10 @@ namespace z0 {
 
         for (uint32_t i = 0; i < descriptorSet.size(); i++) {
             auto globalBufferInfo     = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto modelBufferInfo      = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize);
-            auto materialBufferInfo   = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize);
+            auto modelBufferInfo      = modelUniformBuffers[i]->descriptorInfo(modelUniformBufferSize *
+                                                                                modelUniformBufferCount);
+            auto materialBufferInfo   = materialsUniformBuffers[i]->descriptorInfo(materialUniformBufferSize *
+                                                                                materialUniformBufferCount);
             auto shadowMapBufferInfo  = shadowMapsUniformBuffers[i]->descriptorInfo(shadowMapUniformBufferSize *
                                                                                    shadowMapUniformBufferCount);
             auto pointLightBufferInfo = pointLightUniformBuffers[i]->descriptorInfo(pointLightUniformBufferSize *
@@ -659,45 +663,45 @@ namespace z0 {
                 const auto &modelIndex = modelsIndices[meshInstance->getId()];
                 const auto &model      = meshInstance->getMesh();
                 for (const auto &surface : model->getSurfaces()) {
-                    if (meshInstance->isOutlined()) {
-                        const auto        &material      = meshInstance->getOutlineMaterial();
-                        const auto        &materialIndex = materialsIndices[material->getId()];
-                        array<uint32_t, 5> offsets2      = {
-                                // globalBuffers
-                                0,
-                                static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
-                                                      modelIndex),
-                                static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
-                                                      materialIndex),
-                                // shadowMapsBuffers
-                                0,
-                                // pointLightBuffers
-                                0,
-                        };
-                        bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
-                        vkCmdBindShadersEXT(commandBuffer,
-                                            1,
-                                            materialShaders[material->getVertFileName()]->getStage(),
-                                            materialShaders["outline.vert"]->getShader());
-                        vkCmdBindShadersEXT(commandBuffer,
-                                            1,
-                                            materialShaders[material->getFragFileName()]->getStage(),
-                                            materialShaders["outline.frag"]->getShader());
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-                        if (lastMeshId == model->getId()) {
-                            model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        } else {
-                            model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                            lastMeshId = model->getId();
-                        }
-                        vkCmdSetCullMode(commandBuffer,
-                                        lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                                : lastCullMode == CULLMODE_BACK
-                                                ? VK_CULL_MODE_BACK_BIT
-                                                : VK_CULL_MODE_FRONT_BIT);
-                        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
-                    }
+                    // if (meshInstance->isOutlined()) {
+                    //     const auto        &material      = meshInstance->getOutlineMaterial();
+                    //     const auto        &materialIndex = materialsIndices[material->getId()];
+                    //     array<uint32_t, 5> offsets2      = {
+                    //             // globalBuffers
+                    //             0,
+                    //             static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() *
+                    //                                   modelIndex),
+                    //             static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
+                    //                                   materialIndex),
+                    //             // shadowMapsBuffers
+                    //             0,
+                    //             // pointLightBuffers
+                    //             0,
+                    //     };
+                    //     bindDescriptorSets(commandBuffer, currentFrame, offsets2.size(), offsets2.data());
+                    //     vkCmdBindShadersEXT(commandBuffer,
+                    //                         1,
+                    //                         materialShaders[material->getVertFileName()]->getStage(),
+                    //                         materialShaders["outline.vert"]->getShader());
+                    //     vkCmdBindShadersEXT(commandBuffer,
+                    //                         1,
+                    //                         materialShaders[material->getFragFileName()]->getStage(),
+                    //                         materialShaders["outline.frag"]->getShader());
+                    //     vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                    //     if (lastMeshId == model->getId()) {
+                    //         model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    //     } else {
+                    //         model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    //         lastMeshId = model->getId();
+                    //     }
+                    //     vkCmdSetCullMode(commandBuffer,
+                    //                     lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                    //                             : lastCullMode == CULLMODE_BACK
+                    //                             ? VK_CULL_MODE_BACK_BIT
+                    //                             : VK_CULL_MODE_FRONT_BIT);
+                    //     vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                    //     vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                    // }
 
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
@@ -720,19 +724,12 @@ namespace z0 {
                                                  : VK_CULL_MODE_FRONT_BIT);
                         lastCullMode = cullMode;
                     }
-                    const auto        &materialIndex = materialsIndices[surface->material->getId()];
-                    array<uint32_t, 5> offsets       = {
-                            // globalBuffers
-                            0,
-                            static_cast<uint32_t>(modelUniformBuffers[currentFrame]->getAlignmentSize() * modelIndex),
-                            static_cast<uint32_t>(materialsUniformBuffers[currentFrame]->getAlignmentSize() *
-                                                  materialIndex),
-                            // shadowMapsBuffers
-                            0,
-                            // pointLightBuffers
-                            0,
+                    auto pushConstants = PushConstants {
+                        .modelIndex = static_cast<int>(modelIndex),
+                        .materialIndex = static_cast<int>(materialsIndices[surface->material->getId()])
                     };
-                    bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
+                    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                                        0, sizeof(PushConstants), &pushConstants);
                     if (lastMeshId == model->getId()) {
                         model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                     } else {

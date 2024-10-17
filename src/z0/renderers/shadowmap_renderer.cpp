@@ -36,7 +36,7 @@ namespace z0 {
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
         models = meshes;
         models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
-        createOrUpdateResources(&pushConstantRange);
+        createOrUpdateResources(false, &pushConstantRange);
     }
 
     void ShadowMapRenderer::cleanup() {

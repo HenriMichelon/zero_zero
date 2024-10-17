@@ -80,8 +80,8 @@ namespace z0 {
         buffers[currentFrame]->writeToBuffer(data);
     }
 
-    void Renderpass::createOrUpdateResources(const VkPushConstantRange* pushConstantRange) {
-        if (pipelineLayout == VK_NULL_HANDLE && (pushConstantRange != nullptr)) {
+    void Renderpass::createOrUpdateResources(bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange) {
+        if (!descriptorsAndPushConstants && pipelineLayout == VK_NULL_HANDLE && (pushConstantRange != nullptr)) {
             createPipelineLayout(pushConstantRange);
             loadShaders();
         } else if ((pipelineLayout == VK_NULL_HANDLE) && (descriptorPool == nullptr)) {
@@ -89,7 +89,7 @@ namespace z0 {
             createDescriptorSetLayout();
             createOrUpdateDescriptorSet(true);
             if (setLayout != nullptr) {
-                createPipelineLayout();
+                createPipelineLayout(pushConstantRange);
                 loadShaders();
             }
         } else if (descriptorSetNeedUpdate) {

@@ -22,6 +22,20 @@ struct ShadowMap {
     vec4 cascadeSplitDepth; // fixed at 4 for alignements
 };
 
+struct Material  {
+    int transparency;
+    float alphaScissor;
+    int diffuseIndex;
+    int specularIndex;
+    int normalIndex;
+    vec4 albedoColor;
+    float shininess;
+    bool hasTextureTransform;
+    vec2 textureOffset;
+    vec2 textureScale;
+    vec4 parameters[4]; // ShaderMaterial::MAX_PARAMETERS
+};
+
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     mat4 projection;
     mat4 view;
@@ -35,22 +49,12 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
 } global;
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
-    mat4 matrix;
-} model;
+    mat4 model[1];
+} models;
 
 layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
-    int transparency;
-    float alphaScissor;
-    int diffuseIndex;
-    int specularIndex;
-    int normalIndex;
-    vec4 albedoColor;
-    float shininess;
-    bool hasTextureTransform;
-    vec2 textureOffset;
-    vec2 textureScale;
-    vec4 parameters[4]; // ShaderMaterial::MAX_PARAMETERS
-} material;
+    Material material[1];
+} materials;
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
 
@@ -63,6 +67,11 @@ layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[100]; // SceneRen
 layout(set = 0, binding = 6) uniform PointLightArray {
     PointLight lights[1];
 } pointLights;
+
+layout(push_constant) uniform PushConstants {
+    int modelIndex;
+    int materialIndex;
+} pushConstants;
 
 struct VertexOut {
     vec2 UV;

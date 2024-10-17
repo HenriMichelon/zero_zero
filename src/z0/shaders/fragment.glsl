@@ -3,7 +3,7 @@
 layout (location = 0) in VertexOut fs_in;
 layout (location = 0) out vec4 COLOR;
 
-vec3 calcDirectionalLight(DirectionalLight light, vec4 color, vec3 normal) {
+vec3 calcDirectionalLight(DirectionalLight light, vec4 color, vec3 normal, Material material) {
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * light.color.rgb * light.color.w * color.rgb;
@@ -18,7 +18,7 @@ vec3 calcDirectionalLight(DirectionalLight light, vec4 color, vec3 normal) {
     return diffuse;
 }
 
-vec3 calcPointLight(PointLight light, vec4 color, vec3 normal) {
+vec3 calcPointLight(PointLight light, vec4 color, vec3 normal, Material material) {
     float dist = length(light.position - fs_in.GLOBAL_POSITION.xyz);
     float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
     vec3 lightDir = normalize(light.position - fs_in.GLOBAL_POSITION.xyz);
@@ -70,6 +70,7 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
 }
 
 vec4 fragmentColor(vec4 color, bool useColor) {
+    Material material = materials.material[pushConstants.materialIndex];
     if (!useColor) {
         // We don't use the color parameter : get the color from the material
         color = material.albedoColor;
@@ -102,11 +103,11 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     vec3 diffuse = vec3(0, 0, 0);
     if (global.haveDirectionalLight) {
         // We currently support only one directional light
-        diffuse = calcDirectionalLight(global.directionalLight, color, normal);
+        diffuse = calcDirectionalLight(global.directionalLight, color, normal, material);
     }
     // Acculumate all other lights (spots & omnis)
     for(int i = 0; i < global.pointLightsCount; i++) {
-        diffuse += calcPointLight(pointLights.lights[i], color, normal);
+        diffuse += calcPointLight(pointLights.lights[i], color, normal, material);
     }
 
     // Compute the shadow factor, default to no shadow if not activated

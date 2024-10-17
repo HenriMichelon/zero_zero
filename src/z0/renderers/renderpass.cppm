@@ -53,7 +53,7 @@ export namespace z0 {
         static void writeUniformBuffer(const vector<unique_ptr<Buffer>> &buffers, uint32_t currentFrame,
                                        const void *data);
 
-        void createOrUpdateResources(const VkPushConstantRange* = nullptr);
+        void createOrUpdateResources(bool descriptorsAndPushConstants = false, const VkPushConstantRange* = nullptr);
 
         void createUniformBuffers(vector<unique_ptr<Buffer>> &buffers, VkDeviceSize size, uint32_t count = 1) const;
 
