@@ -42,6 +42,7 @@ namespace z0 {
     }
 
     void Mesh::setSurfaceMaterial(const uint32_t surfaceIndex, shared_ptr<Material> material) {
+        assert(surfaceIndex < surfaces.size());
         surfaces[surfaceIndex]->material = std::move(material);
         materials.insert(surfaces[surfaceIndex]->material);
     }

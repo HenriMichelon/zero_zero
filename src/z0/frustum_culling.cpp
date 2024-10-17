@@ -43,10 +43,11 @@ namespace z0 {
     }
 
     bool Frustum::isOnFrustum(const MeshInstance* meshInstance) const {
-        const auto & aabb = meshInstance->getAABB();
-        vec3 vmin, vmax;
+        const auto & aabb = meshInstance->getAABB(); // get the world space AABB
         bool ret = true;
         for (int i = 0; i < 6; ++i) {
+            vec3 vmin;
+            vec3 vmax;
             const auto& plane = getPlane(i);
             // X axis
             if (plane.normal.x < 0) {

@@ -50,7 +50,10 @@ namespace z0 {
          * Returns the current outlining material
          */
         [[nodiscard]] inline shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
-        
+
+        /**
+         * Returns the world space axis aligned bounding box
+         */
         [[nodiscard]] inline const AABB &getAABB() const { return worldAABB; }
 
         friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
