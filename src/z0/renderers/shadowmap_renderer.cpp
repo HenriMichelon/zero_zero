@@ -83,7 +83,7 @@ namespace z0 {
 
             // Calculate orthographic projection matrix for each cascade
             float lastSplitDist = 0.0;
-            vec3 lightPosition;
+            vec3 eye;
             const auto invCam = inverse(data.currentCamera->getProjection() * data.currentCamera->getView());
             for (auto i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
                 const auto splitDist = cascadeSplits[i];
@@ -132,20 +132,19 @@ namespace z0 {
                 auto maxExtents = vec3(radius);
                 auto minExtents = -maxExtents;
 
-                lightPosition  = frustumCenter - lightDirection * -minExtents.z;
-                // log(to_string(lightPosition));
+                eye  = frustumCenter - lightDirection * -minExtents.z ;
                 const auto depth = maxExtents.z - minExtents.z;
                 const auto lightProjection = ortho(
                     minExtents.x, maxExtents.x,
                         minExtents.y, maxExtents.y,
                         -depth, depth);
-                data.lightSpace[i] = lightProjection * lookAt(lightPosition, frustumCenter, AXIS_UP);
-                data.splitDepth[i] = (data.currentCamera->getNearClipDistance() + splitDist * clipRange);
+                data.lightSpace[i] = lightProjection * lookAt(eye, frustumCenter, AXIS_UP);
+                data.splitDepth[i] = (nearClip + splitDist * clipRange);
                 lastSplitDist = cascadeSplits[i];
             }
             data.frustum = make_unique<Frustum>(
                 directionalLight,
-                lightPosition,
+                eye,
                 90.0f,
                 0.1f,
                 1000.0f
@@ -230,7 +229,7 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
-                // if (meshInstance->isValid() && data.frustum->isOnFrustum(meshInstance)) {
+                if (meshInstance->isValid() && data.frustum->isOnFrustum(meshInstance)) {
                     const auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.matrix = meshInstance->getTransformGlobal();
@@ -248,7 +247,7 @@ namespace z0 {
                             lastMeshId = mesh->getId();
                         }
                     }
-                // }
+                }
                 modelIndex += 1;
             }
             vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);

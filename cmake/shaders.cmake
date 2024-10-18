@@ -19,6 +19,7 @@ function(add_shaders TARGET_NAME BUILD_DIR SHADER_INCLUDE_DIR)
         # Build command
         list(APPEND SHADER_COMMANDS COMMAND)
         list(APPEND SHADER_COMMANDS Vulkan::glslc)
+        list(APPEND SHADER_COMMANDS "-g")
         list(APPEND SHADER_COMMANDS "-I")
         list(APPEND SHADER_COMMANDS "${SHADER_INCLUDE_DIR}")
         list(APPEND SHADER_COMMANDS "${SHADER_SOURCE}")

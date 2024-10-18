@@ -1,3 +1,5 @@
+#extension GL_EXT_debug_printf: enable
+
 struct DirectionalLight {
     vec3 direction;
     vec4 color;

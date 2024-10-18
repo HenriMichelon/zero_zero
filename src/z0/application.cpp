@@ -121,10 +121,12 @@ namespace z0 {
         // that refers to a Win32 HWND
         instanceExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #endif
-        // for Vulkan Memory Allocator
+        // For Vulkan Memory Allocator
         instanceExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #ifndef NDEBUG
+        // To use a debug callback for validation message
         instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        // instanceExtensions.push_back(VK_EXT_LAYER_SETTINGS_EXTENSION_NAME);
 #endif
 
         // Use Vulkan 1.3.x

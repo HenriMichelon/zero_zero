@@ -55,7 +55,12 @@ namespace z0 {
                 // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
                 VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
                 // for Vulkan Memory Allocator
-                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
+                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+#ifndef NDEBUG
+                // To debugPrintEXT() from shaders :-)
+                // See shader_debug_env.cmd for setup with environment variables
+                VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME,
+#endif
         };
 
         // Use the better Vulkan physical device found

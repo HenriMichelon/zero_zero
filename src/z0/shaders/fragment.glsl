@@ -127,8 +127,8 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                   }
             }
             shadow = 0.0f;
-            // Get the shadow factor for the cascaded map only for the nearests maps
-            if (cascadeIndex <= 2) shadow += shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
+            // Get the shadow factor for the cascaded
+            shadow += shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
             // Accumulate the shadow factor for the others maps
             for (int i = 0; i < global.shadowMapsCount; i++) {
                 if (i != global.cascadedShadowMapIndex) shadow += shadowFactor(i, 0);
@@ -143,6 +143,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //                    break;
 //                case 2 :
 //                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
+//                    break;
+//                case 3 :
+//                    color.rgb *= vec3(1.0f, 0.25f, 1.0f);
 //                    break;
 //            }
         } else {
