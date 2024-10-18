@@ -4,7 +4,6 @@ module;
 #include <json.hpp>
 #include <volk.h>
 
-#include "stb_image_write.h"
 #include "z0/libraries.h"
 
 module z0;
@@ -39,12 +38,6 @@ import :FrustumCulling;
 
 namespace z0 {
 
-    void sc_stb_write_func(void *context, void *data, const int size) {
-        auto *buffer = static_cast<vector<unsigned char> *>(context);
-        auto *ptr    = static_cast<unsigned char *>(data);
-        buffer->insert(buffer->end(), ptr, ptr + size);
-    }
-
     SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
         ModelsRenderer{device, shaderDirectory, clearColor} {
         createImagesResources();
@@ -57,11 +50,8 @@ namespace z0 {
     }
 
     void SceneRenderer::cleanup() {
-        if (blankImage != nullptr) {
-            blankImage.reset();
-            blankImageData.clear();
-        }
-        for(uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        blankImage.reset();
+        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].materialShaders.clear();
             frameData[i].materialsBuffer.reset();
             frameData[i].shadowMapsUniformBuffer.reset();
@@ -438,15 +428,7 @@ namespace z0 {
 
         // Create an in-memory default blank image
         // and initialize the image info array with this image
-        if (blankImage == nullptr) {
-            const auto data = new unsigned char[1 * 1 * 3];
-            data[0]         = 0;
-            data[1]         = 0;
-            data[2]         = 0;
-            stbi_write_jpg_to_func(sc_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
-            delete[] data;
-            blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
-        }
+        if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
         for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {

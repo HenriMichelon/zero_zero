@@ -64,6 +64,8 @@ export namespace z0 {
          */
         [[nodiscard]] static shared_ptr<Image> loadFromFile(const string &filename);
 
+        [[nodiscard]] static unique_ptr<Image> createBlankImage();
+
     private:
         const Device & device;
         uint32_t       width;

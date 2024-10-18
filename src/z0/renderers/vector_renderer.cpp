@@ -1,5 +1,4 @@
 module;
-#include "stb_image_write.h"
 #include "z0/libraries.h"
 #include <volk.h>
 
@@ -21,11 +20,6 @@ import :Resource;
 import :VectorRenderer;
 
 namespace z0 {
-    void vr_stb_write_func(void *context, void *data, const int size) {
-        auto *buffer = static_cast<vector<unsigned char> *>(context);
-        auto *ptr    = static_cast<unsigned char *>(data);
-        buffer->insert(buffer->end(), ptr, ptr + size);
-    }
 
     VectorRenderer::VectorRenderer(Device &      device,
                                    const string &shaderDirectory) :
@@ -46,11 +40,11 @@ namespace z0 {
     }
 
     void VectorRenderer::drawLine(const vec2 start, const vec2 end) {
-        auto scaled_start = (start + translate) / VECTOR_SCALE;
-        auto scaled_end   = (end + translate) / VECTOR_SCALE;
+        const auto scaled_start = (start + translate) / VECTOR_SCALE;
+        const auto scaled_end   = (end + translate) / VECTOR_SCALE;
+        const auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         vertices.emplace_back(scaled_start);
         vertices.emplace_back(scaled_end);
-        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_LINE, 2, color);
     }
 
@@ -69,7 +63,7 @@ namespace z0 {
                                         const float              clip_w, const float clip_h,
                                         const shared_ptr<Image> &texture) {
         const auto pos  = (vec2{x, y} + translate) / VECTOR_SCALE;
-        vec2       size = vec2{w - 1.0f, h - 1.0f} / VECTOR_SCALE;
+        const vec2 size = vec2{w - 1.0f, h - 1.0f} / VECTOR_SCALE;
         /*
          * v1 ---- v3
          * |  \     |
@@ -89,7 +83,7 @@ namespace z0 {
         vertices.emplace_back(v3);
         vertices.emplace_back(v2);
 
-        auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
+        const auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
         commands.emplace_back(PRIMITIVE_RECT, 6, color, texture, clip_w / w, clip_h / h);
         if (texture != nullptr) {
             addImage(texture);
@@ -128,16 +122,16 @@ namespace z0 {
                 oldBuffers.push_back(vertexBuffer);
                 // Allocate new buffers to change size
                 vertexCount      = vertices.size();
-                vertexBufferSize = vertexSize * vertexCount;
+                vertexBufferSize = VERTEX_BUFFER_SIZE * vertexCount;
                 stagingBuffer    = make_shared<Buffer>(
                         device,
-                        vertexSize,
+                        VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT
                         );
                 vertexBuffer = make_shared<Buffer>(
                         device,
-                        vertexSize,
+                        VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                         );
@@ -154,24 +148,8 @@ namespace z0 {
         createOrUpdateResources();
     }
 
-    void VectorRenderer::update(const uint32_t currentFrame) {
-        if (vertices.empty()) { return; }
-        uint32_t commandIndex = 0;
-        for (const auto &command : frameData[currentFrame].commands) {
-            CommandUniformBuffer commandUBO{
-                    .color = command.color,
-                    .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),
-                    .clipX = command.clipW,
-                    .clipY = 1.0f - command.clipH
-            };
-            writeUniformBuffer(frameData[currentFrame].commandUniformBuffer, &commandUBO, commandIndex);
-            commandIndex += 1;
-        }
-    }
-
     void VectorRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (vertices.empty())
-            return;
+        if (vertices.empty()) { return; }
 
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
@@ -193,6 +171,7 @@ namespace z0 {
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
+        bindDescriptorSets(commandBuffer, currentFrame);
 
         auto vertexIndex{0};
         auto commandIndex{0};
@@ -201,11 +180,25 @@ namespace z0 {
                                          command.primitive == PRIMITIVE_LINE
                                          ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
                                          : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-            const auto offsets = array{
-                    static_cast<uint32_t>(frameData[currentFrame].commandUniformBuffer->getAlignmentSize() * commandIndex),
+            const auto pushConstants = PushConstants{
+                .color = command.color,
+                .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),
+                .clipX = command.clipW,
+                .clipY = 1.0f - command.clipH
             };
-            bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
-            vkCmdDraw(commandBuffer, command.count, 1, vertexIndex, 0);
+            vkCmdPushConstants(
+                commandBuffer,
+                pipelineLayout,
+                VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                PUSH_CONSTANTS_SIZE,
+                &pushConstants);
+            vkCmdDraw(
+                commandBuffer,
+                command.count,
+                1,
+                vertexIndex,
+                0);
             vertexIndex += command.count;
             commandIndex += 1;
         }
@@ -291,18 +284,12 @@ namespace z0 {
         vertexBuffer.reset();
         stagingBuffer.reset();
         oldBuffers.clear();
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].commandUniformBuffer.reset();
-        }
         if (internalColorFrameBuffer) {
             for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 frameData[i].colorFrameBufferHdr->cleanupImagesResources();
             }
         }
-        if (blankImage != nullptr) {
-            blankImage.reset();
-            blankImageData.clear();
-        }
+        blankImage.reset();
         Renderpass::cleanup();
     }
 
@@ -314,42 +301,19 @@ namespace z0 {
     void VectorRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
                          .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MAX_FRAMES_IN_FLIGHT)
                          .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
                          .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
                     .addBinding(0,
-                                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-                                VK_SHADER_STAGE_FRAGMENT_BIT)
-                    .addBinding(1,
                                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                 VK_SHADER_STAGE_FRAGMENT_BIT,
                                 MAX_IMAGES)
                     .build();
-
-        // Create an in-memory default blank image
-        if (blankImage == nullptr) {
-            const auto data = new unsigned char[1 * 1 * 3];
-            data[0]   = 0;
-            data[1]   = 0;
-            data[2]   = 0;
-            stbi_write_jpg_to_func(vr_stb_write_func, &blankImageData, 1, 1, 3, data, 100);
-            delete[] data;
-            blankImage = make_unique<Image>(device, "Blank", 1, 1, blankImageData.size(), blankImageData.data());
-        }
     }
 
     void VectorRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if ((!commands.empty()) && (frameData[i].commandUniformBufferCount != commands.size())) {
-                frameData[i].commandUniformBufferCount = commands.size();
-                frameData[i].commandUniformBuffer = createUniformBuffer(commandUniformBufferSize, frameData[i].commandUniformBufferCount);
-            }
-            if (frameData[i].commandUniformBufferCount == 0) {
-                frameData[i].commandUniformBufferCount = 1;
-                frameData[i].commandUniformBuffer = createUniformBuffer(commandUniformBufferSize, frameData[i].commandUniformBufferCount);
-            }
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {
                 frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();
@@ -359,10 +323,8 @@ namespace z0 {
             for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
                 frameData[i].imagesInfo[j] = blankImage->_getImageInfo();
             }
-            auto commandBufferInfo = frameData[i].commandUniformBuffer->descriptorInfo(commandUniformBufferSize);
-            auto writer            = DescriptorWriter(*setLayout, *descriptorPool)
-                          .writeBuffer(0, &commandBufferInfo)
-                          .writeImage(1, frameData[i].imagesInfo.data());
+            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                          .writeImage(0, frameData[i].imagesInfo.data());
             if (create) {
                 if (!writer.build(descriptorSet[i]))
                     die("Cannot allocate descriptor set");
@@ -390,6 +352,9 @@ namespace z0 {
                 VK_FORMAT_R32G32_SFLOAT,
                 offsetof(Vertex, uv)
         });
+        // Create an in-memory default blank image
+        if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
+        createOrUpdateResources(true, &pushConstantRange);
     }
 
     void VectorRenderer::addImage(const shared_ptr<Image> &image) {

@@ -36,8 +36,8 @@ namespace z0 {
                        const string &shaderDirectory);
 
         // Used when this renderer is in a renderer chain
-        VectorRenderer(Device &                               device,
-                       const string &                         shaderDirectory,
+        VectorRenderer(Device &                                     device,
+                       const string &                               shaderDirectory,
                        const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr);
 
         // Draw a 1-fragment width line
@@ -58,6 +58,7 @@ namespace z0 {
                       float             clip_w,
                       float             clip_h);
 
+        // Draw a rectangle filled with a text
         void drawText(const string &text, const shared_ptr<Font> &font,
                       float         x, float                      y,
                       float         w, float                      h,
@@ -79,28 +80,6 @@ namespace z0 {
         void endDraw();
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return frameData[currentFrame].colorFrameBufferHdr->getImage(); }
-
-        void update(uint32_t currentFrame) override;
-
-        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
-
-        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
-
-        void createImagesResources() override;
-
-        void cleanupImagesResources() override;
-
-        void recreateImagesResources() override;
-
-        void cleanup() override;
-
-        void loadShaders() override;
-
-        void createDescriptorSetLayout() override;
-
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
-
-        void createOrUpdateDescriptorSet(bool create) override;
 
     private:
         // Drawing commands primitives
@@ -126,28 +105,32 @@ namespace z0 {
             alignas(16) vec2 uv;
         };
 
-        struct CommandUniformBuffer {
+        struct PushConstants {
             vec4             color;
             alignas(4) int   textureIndex;
             alignas(4) float clipX;
             alignas(4) float clipY;
         };
 
-        // For vkCmdSetVertexInputEXT
-        const VkVertexInputBindingDescription2EXT bindingDescription{
-                .sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
-                .binding = 0,
-                .stride = sizeof(Vertex),
-                .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-                .divisor = 1,
-        };
-
+        // Size of the push constants data
+        static constexpr uint32_t PUSH_CONSTANTS_SIZE{sizeof(PushConstants)};
         // Maximum number of images supported by this renderer
-        static constexpr uint32_t MAX_IMAGES = 100;
-        // Size of the commands uniform buffers
-        static constexpr VkDeviceSize commandUniformBufferSize{sizeof(CommandUniformBuffer)};
+        static constexpr uint32_t MAX_IMAGES{100};
         // For vertex buffers allocations
-        static constexpr uint32_t vertexSize{sizeof(Vertex)};
+        static constexpr uint32_t VERTEX_BUFFER_SIZE{sizeof(Vertex)};
+        static constexpr VkPushConstantRange pushConstantRange {
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = PUSH_CONSTANTS_SIZE
+        };
+        // For vkCmdSetVertexInputEXT
+        static constexpr VkVertexInputBindingDescription2EXT bindingDescription{
+            .sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
+            .binding = 0,
+            .stride = sizeof(Vertex),
+            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+            .divisor = 1,
+        };
 
         // Fragment color for the next drawing commands
         Color penColor{1.0f, 1.0f, 1.0f, 1.0f};
@@ -182,10 +165,6 @@ namespace z0 {
             shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
-            // Currently allocated command uniform buffer count
-            uint32_t commandUniformBufferCount{0};
-            // Data for all the commands of the scene, one buffer for all the commands
-            unique_ptr<Buffer> commandUniformBuffer;
         } frameData[MAX_FRAMES_IN_FLIGHT];
 
         // For vkCmdSetVertexInputEXT
@@ -194,11 +173,29 @@ namespace z0 {
         bool internalColorFrameBuffer;
         // Default blank image
         unique_ptr<Image> blankImage{nullptr};
-        // Default blank image raw data
-        vector<unsigned char> blankImageData;
 
         void init();
 
         void addImage(const shared_ptr<Image> &image);
+
+        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+
+        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
+
+        void createImagesResources() override;
+
+        void cleanupImagesResources() override;
+
+        void recreateImagesResources() override;
+
+        void cleanup() override;
+
+        void loadShaders() override;
+
+        void createDescriptorSetLayout() override;
+
+        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+
+        void createOrUpdateDescriptorSet(bool create) override;
     };
 }

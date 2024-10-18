@@ -22,7 +22,7 @@ export namespace z0 {
         virtual void cleanup() = 0;
 
         // Update frame data
-        virtual void update(uint32_t currentFrame) = 0;
+        virtual void update(uint32_t currentFrame) {};
 
         // Start rendering one frame
         virtual void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) {};

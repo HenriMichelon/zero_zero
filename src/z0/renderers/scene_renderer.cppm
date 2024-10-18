@@ -203,8 +203,6 @@ namespace z0 {
         bool enableShadowMapRenders{true};
         // Default blank image
         unique_ptr<Image> blankImage{nullptr};
-        // Default blank image raw data
-        vector<unsigned char> blankImageData;
 
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr{MAX_FRAMES_IN_FLIGHT};
 
