@@ -166,8 +166,6 @@ namespace z0 {
             // Data for all the materials of the scene, one buffer for all the materials
             unique_ptr<Buffer> materialsBuffer;
 
-            // One renderer per shadow map
-            vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
             // One buffer per shadow map with light information
             unique_ptr<Buffer> shadowMapsUniformBuffer;
             // Currently allocated material uniform buffer count
@@ -204,6 +202,8 @@ namespace z0 {
 
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
+        // One renderer per shadow map
+        vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image
         unique_ptr<Image> blankImage{nullptr};
 
@@ -239,15 +239,15 @@ namespace z0 {
 
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance *> &modelsToDraw);
 
-        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light, uint32_t currentFrame) const;
+        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const;
 
-        void enableLightShadowCasting(const Light *light, uint32_t currentFrame);
+        void enableLightShadowCasting(const Light *light);
 
-        void disableLightShadowCasting(const Light *light, uint32_t currentFrame);
+        void disableLightShadowCasting(const Light *light);
 
     public:
-        shared_ptr<ShadowMapRenderer> _getShadowMapRenderer(const int index, uint32_t currentFrame) const {
-            return frameData[currentFrame].shadowMapRenderers[index];
+        shared_ptr<ShadowMapRenderer> _getShadowMapRenderer(const int index) const {
+            return shadowMapRenderers[index];
         }
 
         SceneRenderer(const SceneRenderer &) = delete;

@@ -59,14 +59,14 @@ namespace z0 {
             frameData[i].pointLightUniformBuffer.reset();
             if (frameData[i].skyboxRenderer != nullptr)
                 frameData[i].skyboxRenderer->cleanup();
-            for (const auto &shadowMapRenderer : frameData[i].shadowMapRenderers) {
-                device.unRegisterRenderer(shadowMapRenderer);
-                shadowMapRenderer->cleanup();
-            }
-            frameData[i].shadowMapRenderers.clear();
             frameData[i].opaquesModels.clear();
             frameData[i].omniLights.clear();
         }
+        for (const auto &shadowMapRenderer : shadowMapRenderers) {
+            device.unRegisterRenderer(shadowMapRenderer);
+            shadowMapRenderer->cleanup();
+        }
+        shadowMapRenderers.clear();
         ModelsRenderer::cleanup();
     }
 
@@ -85,14 +85,14 @@ namespace z0 {
         if (frameData[currentFrame].directionalLight == nullptr) {
             if (auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
                 frameData[currentFrame].directionalLight = light;
-                enableLightShadowCasting(frameData[currentFrame].directionalLight, currentFrame);
+                enableLightShadowCasting(frameData[currentFrame].directionalLight);
                 return;
             }
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             frameData[currentFrame].omniLights.push_back(omniLight);
             if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                enableLightShadowCasting(spotLight, currentFrame);
+                enableLightShadowCasting(spotLight);
             }
         }
         ModelsRenderer::addNode(node, currentFrame);
@@ -107,11 +107,11 @@ namespace z0 {
             }
         } else if (const auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
             if (frameData[currentFrame].directionalLight == light) {
-                disableLightShadowCasting(frameData[currentFrame].directionalLight, currentFrame);
+                disableLightShadowCasting(frameData[currentFrame].directionalLight);
                 frameData[currentFrame].directionalLight = nullptr;
             }
         } else if (const auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
-            disableLightShadowCasting(omniLight, currentFrame);
+            disableLightShadowCasting(omniLight);
             frameData[currentFrame].omniLights.remove(omniLight);
         } else {
             ModelsRenderer::removeNode(node, currentFrame);
@@ -176,8 +176,10 @@ namespace z0 {
         for (const auto &material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get(), currentFrame);
         }
-        for (const auto &renderer : frameData[currentFrame].shadowMapRenderers) {
-            renderer->loadScene(ModelsRenderer::frameData[currentFrame].models);
+        if (currentFrame == 0) {
+            for (const auto &renderer : shadowMapRenderers) {
+                renderer->loadScene(ModelsRenderer::frameData[currentFrame].models);
+            }
         }
     }
 
@@ -238,8 +240,10 @@ namespace z0 {
 
     void SceneRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
         ModelsRenderer::activateCamera(camera, currentFrame);
-        for (const auto &renderer :frameData[currentFrame]. shadowMapRenderers) {
-            renderer->activateCamera(camera);
+        if (currentFrame == 0) {
+            for (const auto &renderer : shadowMapRenderers) {
+                renderer->activateCamera(camera);
+            }
         }
     }
 
@@ -257,7 +261,7 @@ namespace z0 {
                 .cameraPosition       = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
                 .haveDirectionalLight = frameData[currentFrame].directionalLight != nullptr,
                 .pointLightsCount     = static_cast<uint32_t>(frameData[currentFrame].omniLights.size()),
-                .shadowMapsCount      = static_cast<uint32_t>(frameData[currentFrame].shadowMapRenderers.size()),
+                .shadowMapsCount      = static_cast<uint32_t>(shadowMapRenderers.size()),
         };
         if (globalUbo.haveDirectionalLight) {
             globalUbo.directionalLight = {
@@ -273,16 +277,16 @@ namespace z0 {
         if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
             auto shadowMapArray = make_unique<ShadowMapUniformBuffer[]>(globalUbo.shadowMapsCount);
             for (uint32_t i = 0; i < globalUbo.shadowMapsCount; i++) {
-                if ((globalUbo.cascadedShadowMapIndex == -1) && frameData[currentFrame].shadowMapRenderers[i]->isCascaded()) {
+                if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
                     // Activate the first cascaded shadow map found
                     globalUbo.cascadedShadowMapIndex = i;
                     for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
-                        shadowMapArray[i].lightSpace[cascadeIndex] = frameData[currentFrame].shadowMapRenderers[i]->getLightSpace(cascadeIndex);
-                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = frameData[currentFrame].shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                        shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
+                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
                     }
                 } else {
                     // Just copy the light space matrix for non cascaded shadow maps
-                    shadowMapArray[i].lightSpace[0] = frameData[currentFrame].shadowMapRenderers[i]->getLightSpace(0);
+                    shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0);
                 }
             }
             writeUniformBuffer(frameData[currentFrame].shadowMapsUniformBuffer, shadowMapArray.get());
@@ -449,8 +453,8 @@ namespace z0 {
                 frameData[i].materialsBuffer = createUniformBuffer(materialBufferSize * MAX_MATERIALS);
             }
 
-            if ((!frameData[i].shadowMapRenderers.empty()) && (frameData[i].shadowMapUniformBufferCount != frameData[i].shadowMapRenderers.size())) {
-                frameData[i].shadowMapUniformBufferCount = frameData[i].shadowMapRenderers.size();
+            if ((!shadowMapRenderers.empty()) && (frameData[i].shadowMapUniformBufferCount != shadowMapRenderers.size())) {
+                frameData[i].shadowMapUniformBufferCount = shadowMapRenderers.size();
                 frameData[i].shadowMapsUniformBuffer = createUniformBuffer(shadowMapUniformBufferSize * frameData[i].shadowMapUniformBufferCount);
             }
             if (frameData[i].shadowMapUniformBufferCount == 0) {
@@ -477,7 +481,7 @@ namespace z0 {
             }
 
             imageIndex = 0;
-            for (const auto &shadowMapRenderer : frameData[i].shadowMapRenderers) {
+            for (const auto &shadowMapRenderer : shadowMapRenderers) {
                 const auto &shadowMap      = shadowMapRenderer->getShadowMap();
                 frameData[i].shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
                         .sampler     = shadowMap->getSampler(),
@@ -760,28 +764,32 @@ namespace z0 {
         }
     }
 
-    [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light, const uint32_t currentFrame) const {
+    [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
         const auto it =
-                std::find_if(frameData[currentFrame].shadowMapRenderers.begin(),
-                             frameData[currentFrame].shadowMapRenderers.end(),
+                std::find_if(shadowMapRenderers.begin(),
+                             shadowMapRenderers.end(),
                              [light](const shared_ptr<ShadowMapRenderer> &e) { return e->getLight() == light; });
-        return (it == frameData[currentFrame].shadowMapRenderers.end() ? nullptr : *it);
+        return (it == shadowMapRenderers.end() ? nullptr : *it);
     }
 
-    void SceneRenderer::enableLightShadowCasting(const Light *light, const uint32_t currentFrame) {
-        if (enableShadowMapRenders && (light->getCastShadows() && (frameData[currentFrame].shadowMapRenderers.size() < MAX_SHADOW_MAPS))) {
-            const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
-            shadowMapRenderer->activateCamera(ModelsRenderer::frameData[currentFrame].currentCamera);
-            frameData[currentFrame].shadowMapRenderers.push_back(shadowMapRenderer);
-            device.registerRenderer(shadowMapRenderer);
+    void SceneRenderer::enableLightShadowCasting(const Light *light) {
+        if (enableShadowMapRenders) {
+            if (const auto renderer = findShadowMapRenderer(light); renderer == nullptr) {
+                if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+                    const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
+                    shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera);
+                    shadowMapRenderers.push_back(shadowMapRenderer);
+                    device.registerRenderer(shadowMapRenderer);
+                }
+            }
         }
     }
 
-    void SceneRenderer::disableLightShadowCasting(const Light *light, const uint32_t currentFrame) {
+    void SceneRenderer::disableLightShadowCasting(const Light *light) {
         if (enableShadowMapRenders) {
-            if (const auto renderer = findShadowMapRenderer(light, currentFrame); renderer != nullptr) {
+            if (const auto renderer = findShadowMapRenderer(light); renderer != nullptr) {
                 device.unRegisterRenderer(renderer);
-                erase(frameData[currentFrame].shadowMapRenderers, renderer);
+                erase(shadowMapRenderers, renderer);
             }
         }
     }
