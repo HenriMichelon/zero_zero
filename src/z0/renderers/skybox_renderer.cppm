@@ -19,11 +19,11 @@ export namespace z0 {
     public:
         SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor);
 
-        void loadScene(const shared_ptr<Cubemap> &_cubemap, uint32_t currentFrame);
+        void loadScene(const shared_ptr<Cubemap> &cubemap);
 
         void cleanup() override;
 
-        void update(Camera *currentCamera, const Environment *currentEnvironment, uint32_t currentFrame);
+        void update(const Camera *currentCamera, const Environment *currentEnvironment, uint32_t currentFrame);
 
         void loadShaders() override;
 
@@ -40,9 +40,9 @@ export namespace z0 {
             vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
         };
 
-        uint32_t            vertexCount;
-        unique_ptr<Buffer>  vertexBuffer;
-        vector<shared_ptr<Cubemap>> cubemap{MAX_FRAMES_IN_FLIGHT};
+        uint32_t                    vertexCount;
+        unique_ptr<Buffer>          vertexBuffer;
+        shared_ptr<Cubemap>         cubemap;
     };
 
 }

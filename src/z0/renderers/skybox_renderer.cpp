@@ -63,8 +63,8 @@ namespace z0 {
             1.0f, -1.0f, 1.0f
         };
         vertexCount                   = 108 / 3;
-        uint32_t           vertexSize = sizeof(float) * 3;
-        const VkDeviceSize bufferSize = vertexSize * vertexCount;
+        uint32_t           vertexSize{sizeof(float) * 3};
+        const VkDeviceSize bufferSize{vertexSize * vertexCount};
         const Buffer       stagingBuffer{
                 device,
                 vertexSize,
@@ -81,20 +81,20 @@ namespace z0 {
         stagingBuffer.copyTo(*vertexBuffer, bufferSize);
     }
 
-    void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &_cubemap, uint32_t currentFrame) {
-        cubemap[currentFrame] = _cubemap;
+    void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &cubemap) {
+        this->cubemap = cubemap;
         createOrUpdateResources();
     }
 
     void SkyboxRenderer::cleanup() {
         vertexBuffer.reset();
-        cubemap.clear();
+        cubemap.reset();
         Renderpass::cleanup();
     }
 
-    void SkyboxRenderer::update(Camera *       currentCamera,
-                                const Environment *currentEnvironment,
-                                const uint32_t currentFrame) {
+    void SkyboxRenderer::update(const Camera *      currentCamera,
+                                const Environment * currentEnvironment,
+                                const uint32_t      currentFrame) {
         GobalUniformBuffer globalUbo{
                 .projection = currentCamera->getProjection(),
                 .view = mat4(mat3(currentCamera->getView()))
@@ -137,7 +137,7 @@ namespace z0 {
         if (create) {
             for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-                auto imageInfo        = cubemap[i]->_getImageInfo();
+                auto imageInfo        = cubemap->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                                         .writeBuffer(0, &globalBufferInfo)
                                         .writeImage(1, &imageInfo);
@@ -147,19 +147,19 @@ namespace z0 {
         }
     }
 
-    void SkyboxRenderer::recordCommands(VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void SkyboxRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         bindShaders(commandBuffer);
         vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
         vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
-        VkVertexInputBindingDescription2EXT bindingDescription{
-                .sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
-                .binding = 0,
-                .stride = 3 * sizeof(float),
+        constexpr VkVertexInputBindingDescription2EXT bindingDescription{
+                .sType     = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
+                .binding   = 0,
+                .stride    = 3 * sizeof(float),
                 .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-                .divisor = 1,
+                .divisor   = 1,
         };
-        VkVertexInputAttributeDescription2EXT attributeDescription{
+        constexpr VkVertexInputAttributeDescription2EXT attributeDescription{
                 VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
                 nullptr,
                 0,

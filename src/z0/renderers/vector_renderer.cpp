@@ -167,6 +167,7 @@ namespace z0 {
                                attributeDescriptions.size(),
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+        vkCmdSetPrimitiveTopologyEXT(commandBuffer,VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
 
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
@@ -175,11 +176,15 @@ namespace z0 {
 
         auto vertexIndex{0};
         auto commandIndex{0};
+        auto lastPrimitive = PRIMITIVE_LINE;
         for (const auto &command : frameData[currentFrame].commands) {
-            vkCmdSetPrimitiveTopologyEXT(commandBuffer,
-                                         command.primitive == PRIMITIVE_LINE
-                                         ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
-                                         : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+            if (lastPrimitive != command.primitive) {
+                vkCmdSetPrimitiveTopologyEXT(commandBuffer,
+                                             command.primitive == PRIMITIVE_LINE
+                                             ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+                                             : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                lastPrimitive = command.primitive;
+            }
             const auto pushConstants = PushConstants{
                 .color = command.color,
                 .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),

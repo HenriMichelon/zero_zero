@@ -72,20 +72,18 @@ namespace z0 {
     void SceneRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (auto *skybox = dynamic_cast<Skybox *>(node.get())) {
             frameData[currentFrame].skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory, clearColor);
-            frameData[currentFrame].skyboxRenderer->loadScene(skybox->getCubemap(), currentFrame);
+            frameData[currentFrame].skyboxRenderer->loadScene(skybox->getCubemap());
             return;
         }
         if (frameData[currentFrame].currentEnvironment == nullptr) {
             if (auto *environment = dynamic_cast<Environment *>(node.get())) {
                 frameData[currentFrame].currentEnvironment = environment;
-                // log("Using environment", environment->toString());
                 return;
             }
         }
         if (frameData[currentFrame].directionalLight == nullptr) {
             if (auto *light = dynamic_cast<DirectionalLight *>(node.get())) {
                 frameData[currentFrame].directionalLight = light;
-                // log("Using directional light", directionalLight->toString());
                 enableLightShadowCasting(frameData[currentFrame].directionalLight, currentFrame);
                 return;
             }
