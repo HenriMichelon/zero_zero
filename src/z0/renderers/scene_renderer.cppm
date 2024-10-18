@@ -87,16 +87,16 @@ namespace z0 {
             alignas(4) uint32_t shadowMapsCount{0};
         };
 
-        struct ShadowMapUniformBuffer {
+        struct ShadowMapBuffer {
             mat4 lightSpace[4]; // fixed at 4 for alignments, only [0] used on non cascaded shadow map
             float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
         };
 
-        struct ModelUniformBuffer {
+        struct ModelBuffer {
             mat4 matrix{};
         };
 
-        struct MaterialUniformBuffer {
+        struct MaterialBuffer {
             alignas(4) int transparency{TRANSPARENCY_DISABLED};
             alignas(4) float alphaScissor{0.1f};
             alignas(4) int32_t diffuseIndex{-1};
@@ -110,7 +110,7 @@ namespace z0 {
             alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
-        struct PointLightUniformBuffer {
+        struct PointLightBuffer {
             alignas(16) vec3 position{0.0f, 0.0f, 0.0f};
             alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(4) float specular{1.0f};
@@ -127,10 +127,11 @@ namespace z0 {
             alignas(4) int modelIndex;
             alignas(4) int materialIndex;
         };
-        const VkPushConstantRange pushConstantRange {
+        static constexpr uint32_t PUSHCONSTANTS_SIZE{sizeof(PushConstants)};
+        static constexpr VkPushConstantRange pushConstantRange {
             .stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS,
             .offset = 0,
-            .size = sizeof(PushConstants)
+            .size = PUSHCONSTANTS_SIZE
         };
 
         // Maximum number of materials supported by this renderer
@@ -141,13 +142,13 @@ namespace z0 {
         static constexpr uint32_t MAX_IMAGES{200};
 
         // Size of each model matrix buffer
-        static constexpr VkDeviceSize modelUniformBufferSize{sizeof(ModelUniformBuffer)};
+        static constexpr VkDeviceSize MODEL_BUFFER_SIZE{sizeof(ModelBuffer)};
         // Size of each material buffer
-        static constexpr VkDeviceSize materialBufferSize{sizeof(MaterialUniformBuffer)};
+        static constexpr VkDeviceSize MATERIAL_BUFFER_SIZE{sizeof(MaterialBuffer)};
         // Size of the point light uniform buffers
-        static constexpr VkDeviceSize pointLightUniformBufferSize{sizeof(PointLightUniformBuffer)};
+        static constexpr VkDeviceSize POINTLIGHT_BUFFER_SIZE{sizeof(PointLightBuffer)};
         // Size of the shadow map uniform buffers
-        static constexpr VkDeviceSize shadowMapUniformBufferSize{sizeof(ShadowMapUniformBuffer)};
+        static constexpr VkDeviceSize SHADOWMAP_BUFFER_SIZE{sizeof(ShadowMapBuffer)};
 
         struct {
             // Indices of each model data in the models uniform buffer

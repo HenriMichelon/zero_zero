@@ -34,10 +34,10 @@ export namespace z0 {
 
         inline bool operator>(const Resource &other) const { return id > other.id; }
 
+        [[nodiscard]] inline string toString() const override { return name; }
+
     protected:
         string name;
-
-        [[nodiscard]] inline string toString() const override { return name; }
 
     private:
         id_t        id;
