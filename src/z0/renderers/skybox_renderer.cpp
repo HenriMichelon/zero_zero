@@ -149,9 +149,7 @@ namespace z0 {
 
     void SkyboxRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         bindShaders(commandBuffer);
-        vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
         vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
-        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
         constexpr VkVertexInputBindingDescription2EXT bindingDescription{
                 .sType     = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT,
                 .binding   = 0,
