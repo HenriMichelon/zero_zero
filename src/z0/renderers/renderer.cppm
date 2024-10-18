@@ -34,13 +34,13 @@ export namespace z0 {
         virtual void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) {};
 
         // Create images, image views & buffers
-        virtual void createImagesResources() = 0;
+        virtual void createImagesResources() {};
 
         // Release images, image views & buffers
-        virtual void cleanupImagesResources() = 0;
+        virtual void cleanupImagesResources() {};
 
         // Release and re-create images, image views & buffers, in needed
-        virtual void recreateImagesResources() = 0;
+        virtual void recreateImagesResources() {};
     };
 
 }

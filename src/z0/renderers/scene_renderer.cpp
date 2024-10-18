@@ -129,8 +129,7 @@ namespace z0 {
     }
 
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
-        log("add material", material->toString());
-        // We have a new material, allocate the first free buffer index
+        // Allocate the first free buffer index
         const auto it = std::find_if(frameData[currentFrame].materialsIndicesAllocation.begin(), frameData[currentFrame].materialsIndicesAllocation.end(),
             [&](const Resource::id_t &id) {
                 return id == Resource::INVALID_ID;
@@ -241,10 +240,8 @@ namespace z0 {
 
     void SceneRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
         ModelsRenderer::activateCamera(camera, currentFrame);
-        if (currentFrame == 0) {
-            for (const auto &renderer : shadowMapRenderers) {
-                renderer->activateCamera(camera);
-            }
+        for (const auto &renderer : shadowMapRenderers) {
+            renderer->activateCamera(camera, currentFrame);
         }
     }
 
@@ -282,12 +279,12 @@ namespace z0 {
                     // Activate the first cascaded shadow map found
                     globalUbo.cascadedShadowMapIndex = i;
                     for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
-                        shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex);
-                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex);
+                        shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex, currentFrame);
+                        shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex, currentFrame);
                     }
                 } else {
                     // Just copy the light space matrix for non cascaded shadow maps
-                    shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0);
+                    shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0, currentFrame);
                 }
             }
             writeUniformBuffer(data.shadowMapsUniformBuffer, shadowMapArray.get());
@@ -439,53 +436,53 @@ namespace z0 {
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (!ModelsRenderer::frameData[i].models.empty() && (frameData[i].modelUniformBufferCount != ModelsRenderer::frameData[i].models.size())) {
-                frameData[i].modelUniformBufferCount = ModelsRenderer::frameData[i].models.size();
-                ModelsRenderer::frameData[i].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE * frameData[i].modelUniformBufferCount);
+        for (auto frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; frameIndex++) {
+            if (!ModelsRenderer::frameData[frameIndex].models.empty() && (frameData[frameIndex].modelUniformBufferCount != ModelsRenderer::frameData[frameIndex].models.size())) {
+                frameData[frameIndex].modelUniformBufferCount = ModelsRenderer::frameData[frameIndex].models.size();
+                ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE * frameData[frameIndex].modelUniformBufferCount);
             }
-            if (frameData[i].modelUniformBufferCount == 0) {
-                frameData[i].modelUniformBufferCount = 1;
-                ModelsRenderer::frameData[i].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE);
+            if (frameData[frameIndex].modelUniformBufferCount == 0) {
+                frameData[frameIndex].modelUniformBufferCount = 1;
+                ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE);
             }
-            if (frameData[i].materialsBuffer == nullptr) {
-                frameData[i].materialsBuffer = createUniformBuffer(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
+            if (frameData[frameIndex].materialsBuffer == nullptr) {
+                frameData[frameIndex].materialsBuffer = createUniformBuffer(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
                 // Initialize materials buffers in GPU memory
                 auto materialUBOArray = make_unique<MaterialBuffer[]>(MAX_MATERIALS);
-                writeUniformBuffer(frameData[i].materialsBuffer, materialUBOArray.get());
+                writeUniformBuffer(frameData[frameIndex].materialsBuffer, materialUBOArray.get());
             }
 
-            if ((!shadowMapRenderers.empty()) && (frameData[i].shadowMapUniformBufferCount != shadowMapRenderers.size())) {
-                frameData[i].shadowMapUniformBufferCount = shadowMapRenderers.size();
-                frameData[i].shadowMapsUniformBuffer = createUniformBuffer(SHADOWMAP_BUFFER_SIZE * frameData[i].shadowMapUniformBufferCount);
+            if ((!shadowMapRenderers.empty()) && (frameData[frameIndex].shadowMapUniformBufferCount != shadowMapRenderers.size())) {
+                frameData[frameIndex].shadowMapUniformBufferCount = shadowMapRenderers.size();
+                frameData[frameIndex].shadowMapsUniformBuffer = createUniformBuffer(SHADOWMAP_BUFFER_SIZE * frameData[frameIndex].shadowMapUniformBufferCount);
             }
-            if (frameData[i].shadowMapUniformBufferCount == 0) {
-                frameData[i].shadowMapUniformBufferCount = 1;
-                frameData[i].shadowMapsUniformBuffer = createUniformBuffer(SHADOWMAP_BUFFER_SIZE);
+            if (frameData[frameIndex].shadowMapUniformBufferCount == 0) {
+                frameData[frameIndex].shadowMapUniformBufferCount = 1;
+                frameData[frameIndex].shadowMapsUniformBuffer = createUniformBuffer(SHADOWMAP_BUFFER_SIZE);
             }
-            if ((!frameData[i].omniLights.empty()) && (frameData[i].pointLightUniformBufferCount != frameData[i].omniLights.size())) {
-                frameData[i].pointLightUniformBufferCount = frameData[i].omniLights.size();
-                frameData[i].pointLightUniformBuffer = createUniformBuffer(POINTLIGHT_BUFFER_SIZE * frameData[i].pointLightUniformBufferCount);
+            if ((!frameData[frameIndex].omniLights.empty()) && (frameData[frameIndex].pointLightUniformBufferCount != frameData[frameIndex].omniLights.size())) {
+                frameData[frameIndex].pointLightUniformBufferCount = frameData[frameIndex].omniLights.size();
+                frameData[frameIndex].pointLightUniformBuffer = createUniformBuffer(POINTLIGHT_BUFFER_SIZE * frameData[frameIndex].pointLightUniformBufferCount);
             }
-            if (frameData[i].pointLightUniformBufferCount == 0) {
-                frameData[i].pointLightUniformBufferCount = 1;
-                frameData[i].pointLightUniformBuffer = createUniformBuffer(POINTLIGHT_BUFFER_SIZE);
+            if (frameData[frameIndex].pointLightUniformBufferCount == 0) {
+                frameData[frameIndex].pointLightUniformBufferCount = 1;
+                frameData[frameIndex].pointLightUniformBuffer = createUniformBuffer(POINTLIGHT_BUFFER_SIZE);
             }
 
             uint32_t imageIndex = 0;
-            for (const auto &image : frameData[i].images) {
-                frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();
+            for (const auto &image : frameData[frameIndex].images) {
+                frameData[frameIndex].imagesInfo[imageIndex] = image->_getImageInfo();
                 imageIndex += 1;
             }
             // initialize the rest of the image info array with the blank image
-            for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
-                frameData[i].imagesInfo[j] = blankImage->_getImageInfo();
+            for (uint32_t j = imageIndex; j < frameData[frameIndex].imagesInfo.size(); j++) {
+                frameData[frameIndex].imagesInfo[j] = blankImage->_getImageInfo();
             }
 
             imageIndex = 0;
             for (const auto &shadowMapRenderer : shadowMapRenderers) {
-                const auto &shadowMap      = shadowMapRenderer->getShadowMap();
-                frameData[i].shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
+                const auto &shadowMap      = shadowMapRenderer->getShadowMap(frameIndex);
+                frameData[frameIndex].shadowMapsInfo[imageIndex] = VkDescriptorImageInfo{
                         .sampler     = shadowMap->getSampler(),
                         .imageView   = shadowMap->FrameBuffer::getImageView(),
                         .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
@@ -493,31 +490,31 @@ namespace z0 {
                 imageIndex += 1;
             }
             // initialize the rest of the shadow map info array with the blank image
-            for (uint32_t j = imageIndex; j < frameData[i].shadowMapsInfo.size(); j++) {
-                frameData[i].shadowMapsInfo[j] = blankImage->_getImageInfo();
+            for (uint32_t j = imageIndex; j < frameData[frameIndex].shadowMapsInfo.size(); j++) {
+                frameData[frameIndex].shadowMapsInfo[j] = blankImage->_getImageInfo();
             }
 
-            auto globalBufferInfo     = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-            auto modelBufferInfo      = ModelsRenderer::frameData[i].modelUniformBuffer->descriptorInfo(MODEL_BUFFER_SIZE *
-                                                                                frameData[i].modelUniformBufferCount);
-            auto materialBufferInfo   = frameData[i].materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
-            auto shadowMapBufferInfo  = frameData[i].shadowMapsUniformBuffer->descriptorInfo(SHADOWMAP_BUFFER_SIZE *
-                                                                                   frameData[i].shadowMapUniformBufferCount);
-            auto pointLightBufferInfo = frameData[i].pointLightUniformBuffer->descriptorInfo(POINTLIGHT_BUFFER_SIZE *
-                                                                                   frameData[i].pointLightUniformBufferCount);
+            auto globalBufferInfo     = globalUniformBuffers[frameIndex]->descriptorInfo(globalUniformBufferSize);
+            auto modelBufferInfo      = ModelsRenderer::frameData[frameIndex].modelUniformBuffer->descriptorInfo(MODEL_BUFFER_SIZE *
+                                                                                frameData[frameIndex].modelUniformBufferCount);
+            auto materialBufferInfo   = frameData[frameIndex].materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
+            auto shadowMapBufferInfo  = frameData[frameIndex].shadowMapsUniformBuffer->descriptorInfo(SHADOWMAP_BUFFER_SIZE *
+                                                                                   frameData[frameIndex].shadowMapUniformBufferCount);
+            auto pointLightBufferInfo = frameData[frameIndex].pointLightUniformBuffer->descriptorInfo(POINTLIGHT_BUFFER_SIZE *
+                                                                                   frameData[frameIndex].pointLightUniformBufferCount);
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
                                   .writeBuffer(0, &globalBufferInfo)
                                   .writeBuffer(1, &modelBufferInfo)
                                   .writeBuffer(2, &materialBufferInfo)
-                                  .writeImage(3, frameData[i].imagesInfo.data())
+                                  .writeImage(3, frameData[frameIndex].imagesInfo.data())
                                   .writeBuffer(4, &shadowMapBufferInfo)
-                                  .writeImage(5, frameData[i].shadowMapsInfo.data())
+                                  .writeImage(5, frameData[frameIndex].shadowMapsInfo.data())
                                   .writeBuffer(6, &pointLightBufferInfo);
             if (create) {
-                if (!writer.build(descriptorSet[i]))
+                if (!writer.build(descriptorSet[frameIndex]))
                     die("Cannot allocate descriptor set");
             } else {
-                writer.overwrite(descriptorSet[i]);
+                writer.overwrite(descriptorSet[frameIndex]);
             }
         }
     }
@@ -779,7 +776,9 @@ namespace z0 {
             if (const auto renderer = findShadowMapRenderer(light); renderer == nullptr) {
                 if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
                     const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
-                    shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera);
+                    for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+                        shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera, i);
+                    }
                     shadowMapRenderers.push_back(shadowMapRenderer);
                     device.registerRenderer(shadowMapRenderer);
                 }

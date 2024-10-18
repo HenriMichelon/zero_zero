@@ -4,6 +4,7 @@ module;
 
 export module z0:ShadowMapRenderer;
 
+import :Constants;
 import :Renderer;
 import :Renderpass;
 import :Device;
@@ -14,8 +15,6 @@ import :Light;
 import :Buffer;
 import :Mesh;
 import :FrustumCulling;
-
-// #define SHADOWMAP_RENDERER_DEBUG 1
 
 export namespace z0 {
     class ColorFrameBufferHDR;
@@ -31,9 +30,13 @@ export namespace z0 {
 
         void loadScene(const list<MeshInstance *> &meshes);
 
-        [[nodiscard]] inline mat4 getLightSpace(const uint32_t index) const { return lightSpace[index]; }
+        [[nodiscard]] inline mat4 getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
+            return frameData[currentFrame].lightSpace[index];
+        }
 
-        inline void activateCamera(Camera *camera) { currentCamera = camera; }
+        inline void activateCamera(Camera *camera, const uint32_t currentFrame) {
+            frameData[currentFrame].currentCamera = camera;
+        }
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
@@ -41,53 +44,58 @@ export namespace z0 {
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
-        [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index) const { return splitDepth[index]; }
+        [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
+            return frameData[currentFrame].splitDepth[index];
+        }
+
+        [[nodiscard]] inline const shared_ptr<ShadowMapFrameBuffer> &getShadowMap(const uint32_t currentFrame) const {
+            return frameData[currentFrame].shadowMap;
+        }
 
         void cleanup() override;
 
-        [[nodiscard]] inline const shared_ptr<ShadowMapFrameBuffer> &getShadowMap() const { return shadowMap; }
-
         ~ShadowMapRenderer() override;
-
-#ifdef SHADOWMAP_RENDERER_DEBUG
-        shared_ptr<ColorFrameBufferHDR> colorAttachmentHdr;
-#endif
 
     private:
         struct PushConstants {
             mat4 lightSpace;
             mat4 matrix;
         };
-        const VkPushConstantRange pushConstantRange {
+        static constexpr auto PUSHCONSTANTS_SIZE{sizeof(PushConstants)};
+        static constexpr  VkPushConstantRange pushConstantRange {
             .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
             .offset = 0,
-            .size = sizeof(PushConstants) // LightSpace VP matrix  + Model matrix
+            .size = PUSHCONSTANTS_SIZE
         };
+
+        // Depth bias (and slope) are used to avoid shadowing artifacts
+        // Constant depth bias factor (always applied)
+        static constexpr float depthBiasConstant = 1.25f;
+        // Slope depth bias factor, applied depending on polygon's slope
+        static constexpr  float depthBiasSlope = 1.75f;
+        // Lambda constant for split depth calculation :
+        // the closer to 1.0 the smaller the firsts splits
+        static constexpr auto cascadeSplitLambda = 0.75f;
 
         // The light we render the shadow map for
         const Light *light;
         // The light is a DirectionalLight
         bool lightIsDirectional;
-        // Depth bias (and slope) are used to avoid shadowing artifacts
-        // Constant depth bias factor (always applied)
-        const float depthBiasConstant = 1.25f;
-        // Slope depth bias factor, applied depending on polygon's slope
-        const float depthBiasSlope = 1.75f;
-        // Scene current camera
-        Camera* currentCamera{nullptr};
-        // Frustum of the camera or the spotlight
-        unique_ptr<Frustum> frustum;
-        // All the models of the scene
-        list<MeshInstance *> models{};
-        // The destination frame buffer
-        shared_ptr<ShadowMapFrameBuffer> shadowMap;
-        // Last computed light spaces for each cascade
-        mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
-        // For cascaded shadow map, the last computed cascade split depth for each cascade
-        float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
-        // Lambda constant for split depth calculation :
-        // the closer to 1.0 the smaller the firsts splits
-        static constexpr auto cascadeSplitLambda = 0.75f;
+
+        struct {
+            // Scene current camera
+            Camera* currentCamera{nullptr};
+            // Frustum of light
+            unique_ptr<Frustum> frustum;
+            // All the models of the scene
+            list<MeshInstance *> models{};
+            // The destination frame buffer
+            shared_ptr<ShadowMapFrameBuffer> shadowMap;
+            // Last computed light spaces for each cascade
+            mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            // For cascaded shadow map, the last computed cascade split depth for each cascade
+            float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+        } frameData[MAX_FRAMES_IN_FLIGHT];
 
         void update(uint32_t currentFrame) override;
 
@@ -95,11 +103,7 @@ export namespace z0 {
 
         void loadShaders() override;
 
-        void createImagesResources() override;
-
         void cleanupImagesResources() override;
-
-        void recreateImagesResources() override {};
 
     public:
         ShadowMapRenderer(const ShadowMapRenderer &) = delete;

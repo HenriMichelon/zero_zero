@@ -59,11 +59,13 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
     float closestDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy, float(cascadeIndex))).r;
     float currentDepth = projCoords.z;
 
+    const float bias = 0.0005;
     float shadow = 0.0;
     for(int x = -1; x <= 1; ++x)  {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy + vec2(x, y) * texelSize.xy, float(cascadeIndex))).r;
-            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
+//            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
+            shadow += (currentDepth - bias) > pcfDepth ? 0.0 : 1.0;
         }
     }
     return shadow /= 9.0;

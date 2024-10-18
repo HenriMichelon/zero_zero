@@ -82,7 +82,7 @@ export namespace z0 {
         // Nearest clipping distance
         float nearDistance{0.01f};
         // Furthest clipping distance
-        float farDistance{20.0f};
+        float farDistance{50.0f}; // TODO to be calculated
 
         shared_ptr<Node> duplicateInstance() override;
     };

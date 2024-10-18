@@ -188,7 +188,7 @@ namespace z0 {
             const auto rot = to_vec3(value);
             setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
         } else if (property == "process_mode") {
-            auto v = to_lower(value);
+            const auto v = to_lower(value);
             if (v == "inherit") {
                 setProcessMode(PROCESS_MODE_INHERIT);
             } else if (v == "pausable") {
