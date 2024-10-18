@@ -27,6 +27,7 @@ import :ColorFrameBuffer;
 import :DepthFrameBuffer;
 import :ShadowMapFrameBuffer;
 import :Skybox;
+import :SampledFrameBuffer;
 
 namespace z0 {
 
@@ -38,6 +39,8 @@ namespace z0 {
         SceneRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
+
+        [[nodiscard]] vector<ColorFrameBufferHDR*> getSampledAttachments() const;
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImage(); }
 

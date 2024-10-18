@@ -35,6 +35,7 @@ import :DepthFrameBuffer;
 import :Skybox;
 import :SceneRenderer;
 import :FrustumCulling;
+import :SampledFrameBuffer;
 
 namespace z0 {
 
@@ -783,6 +784,14 @@ namespace z0 {
                 erase(frameData[currentFrame].shadowMapRenderers, renderer);
             }
         }
+    }
+
+    vector<ColorFrameBufferHDR*> SceneRenderer::getSampledAttachments() const {
+        auto result = vector<ColorFrameBufferHDR*>{MAX_FRAMES_IN_FLIGHT};
+        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            result[i] = colorFrameBufferHdr[i].get();
+        }
+        return result;
     }
 
 } // namespace z0

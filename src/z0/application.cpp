@@ -189,11 +189,22 @@ namespace z0 {
 
         // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
-        sceneRenderer = make_shared<SceneRenderer>(*device, shaderDir, applicationConfig.clearColor);
-        vectorRenderer = make_shared<VectorRenderer>(*device,
-                                                     shaderDir,
-                                                     sceneRenderer->getColorAttachments());
+        sceneRenderer = make_shared<SceneRenderer>(
+            *device,
+            shaderDir,
+            applicationConfig.clearColor);
+        // postprocessingRenderer = make_shared<SimplePostprocessingRenderer>(
+        //     *device,
+        //     shaderDir,
+        //     "grayscale",
+        //     sceneRenderer->getSampledAttachments());
+        vectorRenderer = make_shared<VectorRenderer>(
+            *device,
+            shaderDir,
+            sceneRenderer->getColorAttachments());
+
         device->registerRenderer(vectorRenderer);
+        // device->registerRenderer(postprocessingRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager

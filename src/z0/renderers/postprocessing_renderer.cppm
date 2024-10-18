@@ -8,7 +8,6 @@ import :Constants;
 import :Renderer;
 import :Renderpass;
 import :Device;
-import :SampledFrameBuffer;
 import :ColorFrameBufferHDR;
 import :Descriptors;
 
@@ -21,9 +20,9 @@ export namespace z0 {
     public:
         PostprocessingRenderer(Device &                             device,
                                const string &                       shaderDirectory,
-                               const vector<SampledFrameBuffer *> & inputColorAttachment);
+                               const vector<ColorFrameBufferHDR *> & inputColorAttachment);
 
-        void setInputColorAttachments(const vector<SampledFrameBuffer *> &input);
+        void setInputColorAttachments(const vector<ColorFrameBufferHDR *> &input);
 
         [[nodiscard]] inline vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() { return colorAttachmentHdr; }
 
@@ -53,7 +52,7 @@ export namespace z0 {
 
     protected:
         vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
-        vector<SampledFrameBuffer *>            inputColorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
+        vector<ColorFrameBufferHDR *>            inputColorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
     };
 
 }

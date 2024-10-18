@@ -9,7 +9,6 @@ import :Tools;
 import :Renderer;
 import :Renderpass;
 import :Device;
-import :SampledFrameBuffer;
 import :ColorFrameBufferHDR;
 import :Descriptors;
 import :PostprocessingRenderer;
@@ -17,12 +16,12 @@ import :PostprocessingRenderer;
 namespace z0 {
 
     PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
-                                                   const vector<SampledFrameBuffer *> & inputColorAttachment) :
+                                                   const vector<ColorFrameBufferHDR *> & inputColorAttachment) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
         createImagesResources();
     }
 
-    void PostprocessingRenderer::setInputColorAttachments(const vector<SampledFrameBuffer *> &input) {
+    void PostprocessingRenderer::setInputColorAttachments(const vector<ColorFrameBufferHDR *> &input) {
         inputColorAttachmentHdr = input;
         createOrUpdateDescriptorSet(false);
     }

@@ -170,8 +170,8 @@ export namespace z0 {
         shared_ptr<VectorRenderer> vectorRenderer;
         // vector renderer size ratios
         vec2 vectorRatio;
-        // Renders used in development to view depth buffers
-        // shared_ptr<PostprocessingRenderer> depthBufferRenderer;
+        // Renderer used in development
+        // shared_ptr<PostprocessingRenderer> postprocessingRenderer;
 
         struct {
             // Deferred list of nodes added to the current scene, processed before each frame

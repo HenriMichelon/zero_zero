@@ -5,7 +5,7 @@ module z0;
 
 import :PostprocessingRenderer;
 import :Device;
-import :SampledFrameBuffer;
+import :ColorFrameBufferHDR;
 import :SimplePostprocessingRenderer;
 
 namespace z0 {
@@ -13,7 +13,7 @@ namespace z0 {
     SimplePostprocessingRenderer::SimplePostprocessingRenderer(Device &            device,
                                                                const string &      shaderDirectory,
                                                                const string &      shaderName,
-                                                                const vector<SampledFrameBuffer*>&inputColorAttachmentHdr):
+                                                                const vector<ColorFrameBufferHDR*>&inputColorAttachmentHdr):
         PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{shaderName} {
         createOrUpdateResources();
     }
