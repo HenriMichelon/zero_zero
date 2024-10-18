@@ -1,7 +1,10 @@
 module;
+#include <mutex>
+
+
+#include <volk.h>
 #include "stb_image_write.h"
 #include "z0/libraries.h"
-#include <volk.h>
 
 export module z0:VectorRenderer;
 
@@ -173,6 +176,8 @@ namespace z0 {
         map<Resource::id_t, int32_t> texturesIndices{};
 
         struct {
+            // Read only copy of the commands we have to draw
+            list<Command> commands;
             // The color attachment for rendering
             shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
             // Images infos for descriptor sets, pre-filled with blank images

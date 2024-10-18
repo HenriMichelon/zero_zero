@@ -219,7 +219,7 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].addedNodes.push_back(node);
         }
         if (node->isProcessed()) {
@@ -236,7 +236,7 @@ namespace z0 {
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
         }
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].removedNodes.push_back(node);
         }
         node->_setAddedToScene(false);
@@ -247,7 +247,7 @@ namespace z0 {
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
         assert(camera != nullptr);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].activateCamera = camera;
         }
     }
@@ -255,7 +255,7 @@ namespace z0 {
     void Application::processDeferredUpdates(const uint32_t currentFrame) {
         // Process the deferred scene tree modifications
         sceneRenderer->preUpdateScene(currentFrame);
-        if (currentFrame == 0) windowManager->drawFrame();
+        windowManager->drawFrame();
         if (!frameData[currentFrame].removedNodes.empty()) {
             for (const auto &node : frameData[currentFrame].removedNodes) {
                 sceneRenderer->removeNode(node, currentFrame);
@@ -317,7 +317,7 @@ namespace z0 {
         device->drawFrame(currentFrame);
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
-        if (elapsedSeconds >= 2.0) {
+        if (elapsedSeconds >= 1.0) {
             fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);
             frameCount     = 0;
             elapsedSeconds = 0;

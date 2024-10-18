@@ -118,7 +118,7 @@ namespace z0 {
                          .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
 
@@ -135,7 +135,7 @@ namespace z0 {
 
     void SkyboxRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (create) {
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
                 auto imageInfo        = cubemap[i]->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)

@@ -73,7 +73,7 @@ import :ModelsRenderer;
     }
 
     void ModelsRenderer::cleanup() {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].depthFrameBuffer->cleanupImagesResources();
             ModelsRenderer::frameData[i].modelUniformBuffer.reset();
         }

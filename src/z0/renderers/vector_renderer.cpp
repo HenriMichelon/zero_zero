@@ -39,7 +39,7 @@ namespace z0 {
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false} {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr[i];
         }
         init();
@@ -146,15 +146,18 @@ namespace z0 {
             stagingBuffer->writeToBuffer(vertices.data());
             stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
         }
-        descriptorSetNeedUpdate = true;
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            frameData[i].commands = commands;
+        }
         // Initialize or update pipeline layout & descriptors sets if needed
+        descriptorSetNeedUpdate = true;
         createOrUpdateResources();
     }
 
     void VectorRenderer::update(const uint32_t currentFrame) {
         if (vertices.empty()) { return; }
         uint32_t commandIndex = 0;
-        for (const auto &command : commands) {
+        for (const auto &command : frameData[currentFrame].commands) {
             CommandUniformBuffer commandUBO{
                     .color = command.color,
                     .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),
@@ -162,6 +165,48 @@ namespace z0 {
                     .clipY = 1.0f - command.clipH
             };
             writeUniformBuffer(frameData[currentFrame].commandUniformBuffer, &commandUBO, commandIndex);
+            commandIndex += 1;
+        }
+    }
+
+    void VectorRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+        if (vertices.empty())
+            return;
+
+        bindShaders(commandBuffer);
+        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
+
+        vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
+        constexpr VkBool32 color_blend_enables[] = {VK_TRUE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
+
+        vkCmdSetLineWidth(commandBuffer, 1);
+        // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+        vkCmdSetVertexInputEXT(commandBuffer,
+                               1,
+                               &bindingDescription,
+                               attributeDescriptions.size(),
+                               attributeDescriptions.data());
+        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+
+        const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
+        constexpr VkDeviceSize vertexOffsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
+
+        auto vertexIndex{0};
+        auto commandIndex{0};
+        for (const auto &command : frameData[currentFrame].commands) {
+            vkCmdSetPrimitiveTopologyEXT(commandBuffer,
+                                         command.primitive == PRIMITIVE_LINE
+                                         ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+                                         : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+            const auto offsets = array{
+                    static_cast<uint32_t>(frameData[currentFrame].commandUniformBuffer->getAlignmentSize() * commandIndex),
+            };
+            bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
+            vkCmdDraw(commandBuffer, command.count, 1, vertexIndex, 0);
+            vertexIndex += command.count;
             commandIndex += 1;
         }
     }
@@ -217,7 +262,7 @@ namespace z0 {
 
     void VectorRenderer::createImagesResources() {
         if (internalColorFrameBuffer) {
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 frameData[i].colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
             }
         }
@@ -225,7 +270,7 @@ namespace z0 {
 
     void VectorRenderer::cleanupImagesResources() {
         if (internalColorFrameBuffer) {
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 frameData[i].colorFrameBufferHdr->cleanupImagesResources();
             }
         }
@@ -234,7 +279,7 @@ namespace z0 {
     void VectorRenderer::recreateImagesResources() {
         cleanupImagesResources();
         if (internalColorFrameBuffer) {
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 frameData[i].colorFrameBufferHdr->createImagesResources();
             }
         }
@@ -246,11 +291,11 @@ namespace z0 {
         vertexBuffer.reset();
         stagingBuffer.reset();
         oldBuffers.clear();
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             frameData[i].commandUniformBuffer.reset();
         }
         if (internalColorFrameBuffer) {
-            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 frameData[i].colorFrameBufferHdr->cleanupImagesResources();
             }
         }
@@ -295,49 +340,8 @@ namespace z0 {
         }
     }
 
-    void VectorRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (vertices.empty())
-            return;
-
-        bindShaders(commandBuffer);
-        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
-
-        vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-        constexpr VkBool32 color_blend_enables[] = {VK_TRUE};
-        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
-        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
-
-        vkCmdSetLineWidth(commandBuffer, 1);
-        // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
-        vkCmdSetVertexInputEXT(commandBuffer,
-                               1,
-                               &bindingDescription,
-                               attributeDescriptions.size(),
-                               attributeDescriptions.data());
-        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-        const VkBuffer     buffers[]       = {vertexBuffer->getBuffer()};
-        constexpr VkDeviceSize vertexOffsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
-
-        uint32_t vertexIndex  = 0;
-        uint32_t commandIndex = 0;
-        for (const auto &command : commands) {
-            vkCmdSetPrimitiveTopologyEXT(commandBuffer,
-                                         command.primitive == PRIMITIVE_LINE
-                                         ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
-                                         : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-            array offsets = {
-                    static_cast<uint32_t>(frameData[currentFrame].commandUniformBuffer->getAlignmentSize() * commandIndex),
-            };
-            bindDescriptorSets(commandBuffer, currentFrame, offsets.size(), offsets.data());
-            vkCmdDraw(commandBuffer, command.count, 1, vertexIndex, 0);
-            vertexIndex += command.count;
-            commandIndex += 1;
-        }
-    }
-
     void VectorRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if ((!commands.empty()) && (frameData[i].commandUniformBufferCount != commands.size())) {
                 frameData[i].commandUniformBufferCount = commands.size();
                 frameData[i].commandUniformBuffer = createUniformBuffer(commandUniformBufferSize, frameData[i].commandUniformBufferCount);

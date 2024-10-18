@@ -449,13 +449,13 @@ namespace z0 {
         }
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if (!ModelsRenderer::frameData[i].models.empty() && (frameData[i].modelUniformBufferCount != ModelsRenderer::frameData[i].models.size())) {
                 frameData[i].modelUniformBufferCount = ModelsRenderer::frameData[i].models.size();
                 ModelsRenderer::frameData[i].modelUniformBuffer = createUniformBuffer(modelUniformBufferSize * frameData[i].modelUniformBufferCount);
@@ -536,7 +536,7 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if (frameData[i].skyboxRenderer != nullptr) {
                 frameData[i].skyboxRenderer->loadShaders();
             }
@@ -546,7 +546,7 @@ namespace z0 {
     }
 
     void SceneRenderer::createImagesResources() {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             colorFrameBufferHdr[i] = make_shared<ColorFrameBufferHDR>(device);
             if (ModelsRenderer::frameData[i].depthFrameBuffer == nullptr) {
                 ModelsRenderer::frameData[i].depthFrameBuffer         = make_shared<DepthFrameBuffer>(device, true);
@@ -558,7 +558,7 @@ namespace z0 {
     }
 
     void SceneRenderer::cleanupImagesResources() {
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
                 frameData[i].resolvedDepthFrameBuffer->cleanupImagesResources();
             }
@@ -569,7 +569,7 @@ namespace z0 {
 
     void SceneRenderer::recreateImagesResources() {
         cleanupImagesResources();
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             colorFrameBufferHdr[i]->createImagesResources();
              frameData[i].colorFrameBufferMultisampled->createImagesResources();
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
