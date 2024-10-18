@@ -75,7 +75,7 @@ export namespace z0 {
         static constexpr  float depthBiasSlope = 1.75f;
         // Lambda constant for split depth calculation :
         // the closer to 1.0 the smaller the firsts splits
-        static constexpr auto cascadeSplitLambda = 0.5f;
+        static constexpr auto cascadeSplitLambda = 0.65f;
 
         // The light we render the shadow map for
         const Light *light;

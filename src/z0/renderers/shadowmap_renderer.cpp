@@ -145,7 +145,7 @@ namespace z0 {
             data.frustum = make_unique<Frustum>(
                 directionalLight,
                 eye,
-                90.0f,
+                75.0f,
                 0.1f,
                 1000.0f
             );
