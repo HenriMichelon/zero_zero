@@ -1,4 +1,5 @@
 #include "input_datas.glsl"
+#extension GL_EXT_debug_printf: enable
 
 layout (location = 0) in VertexOut fs_in;
 layout (location = 0) out vec4 COLOR;
@@ -121,15 +122,26 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             // We have a cascaded shadow map,
             // get cascade index maps for the current fragment's view Z position
             int cascadeIndex = 0;
-            for (int index = 0; index < 2; index++) { // ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS-1
+            for (int index = 0; index < global.cascadesCount; index++) {
                   if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[global.cascadedShadowMapIndex].cascadeSplitDepth[index]) {
                       cascadeIndex = index + 1;
                   }
             }
             shadow = 0.0f;
-            // Get the shadow factor for the cascaded
-            shadow += shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
-            // Accumulate the shadow factor for the others maps
+            // Get the shadow factor for the cascade
+            float factor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
+            // If no shadow try the next cascades (for objets behind the light position in the cascade)
+            if ((factor >= 1.0f) && (cascadeIndex < global.cascadesCount)) {
+                float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +1);
+                if (nextFactor < 0.2f) factor = nextFactor;
+            }
+            if ((factor >= 1.0f) && ((cascadeIndex+1) < global.cascadesCount)) {
+                float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +2);
+                if (nextFactor < 0.2f) factor = nextFactor;
+            }
+            shadow = factor;
+
+            // Accumulate the shadow factor for the others lights
             for (int i = 0; i < global.shadowMapsCount; i++) {
                 if (i != global.cascadedShadowMapIndex) shadow += shadowFactor(i, 0);
             }
@@ -145,7 +157,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                     color.rgb *= vec3(0.25f, 0.25f, 1.0f);
                     break;
                 case 3 :
-                    color.rgb *= vec3(1.0f, 0.25f, 1.0f);
+                    color.rgb *= vec3(1.0f, 1.0f, 0.25f);
                     break;
             }
         } else {

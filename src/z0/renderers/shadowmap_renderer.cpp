@@ -166,7 +166,7 @@ namespace z0 {
                 eye,
                 90.0f,
                 0.1f,
-                farClip * 2
+                glm::distance(eye, data.currentCamera->getPositionGlobal())
             );
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);

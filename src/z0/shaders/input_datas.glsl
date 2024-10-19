@@ -1,5 +1,16 @@
 #extension GL_EXT_debug_printf: enable
 
+struct VertexOut {
+    vec2 UV;
+    vec3 NORMAL;
+    vec4 GLOBAL_POSITION;
+    vec3 POSITION;
+    vec3 VIEW_DIRECTION;
+    float CLIPSPACE_Z;
+    mat3 TBN;
+    vec4 tangent;
+};
+
 struct DirectionalLight {
     vec3 direction;
     vec4 color;
@@ -47,6 +58,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     bool haveDirectionalLight;
     int pointLightsCount;
     int cascadedShadowMapIndex;
+    int cascadesCount;
     int shadowMapsCount;
 } global;
 
@@ -74,14 +86,3 @@ layout(push_constant) uniform PushConstants {
     int modelIndex;
     int materialIndex;
 } pushConstants;
-
-struct VertexOut {
-    vec2 UV;
-    vec3 NORMAL;
-    vec4 GLOBAL_POSITION;
-    vec3 POSITION;
-    vec3 VIEW_DIRECTION;
-    float CLIPSPACE_Z;
-    mat3 TBN;
-    vec4 tangent;
-};

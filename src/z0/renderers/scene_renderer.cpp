@@ -278,7 +278,8 @@ namespace z0 {
                 if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
                     // Activate the first cascaded shadow map found
                     globalUbo.cascadedShadowMapIndex = i;
-                    for (int cascadeIndex = 0; cascadeIndex < shadowMapRenderers[i]->getCascadesCount(currentFrame); cascadeIndex++) {
+                    globalUbo.cascadesCount = shadowMapRenderers[i]->getCascadesCount(currentFrame);
+                    for (int cascadeIndex = 0; cascadeIndex < globalUbo.cascadesCount; cascadeIndex++) {
                         shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex, currentFrame);
                         shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex, currentFrame);
                     }

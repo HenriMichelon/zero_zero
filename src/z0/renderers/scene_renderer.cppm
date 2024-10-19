@@ -84,6 +84,7 @@ namespace z0 {
             alignas(4) bool haveDirectionalLight{false};
             alignas(4) uint32_t pointLightsCount{0};
             alignas(4) int32_t cascadedShadowMapIndex{-1};
+            alignas(4) uint32_t cascadesCount{0};
             alignas(4) uint32_t shadowMapsCount{0};
         };
 
