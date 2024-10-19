@@ -161,13 +161,6 @@ namespace z0 {
                 data.splitDepth[i] = (nearClip + splitDist * clipRange);
                 lastSplitDist = cascadeSplits[i];
             }
-            data.frustum = make_unique<Frustum>(
-                directionalLight,
-                eye,
-                90.0f,
-                0.1f,
-                glm::distance(eye, data.currentCamera->getPositionGlobal())
-            );
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
             const auto lightPosition                   = light->getPositionGlobal();
@@ -178,11 +171,6 @@ namespace z0 {
                 spotLight->getNearClipDistance(),
                 spotLight->getFarClipDistance());
             data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
-            data.frustum = make_unique<Frustum>(
-               spotLight,
-               spotLight->getFov(),
-               spotLight->getNearClipDistance(),
-               spotLight->getFarClipDistance());
         } else {
             assert(false);
         }
@@ -247,7 +235,6 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
-                if (meshInstance->isValid() && data.frustum->isOnFrustum(meshInstance)) {
                     const auto mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.matrix = meshInstance->getTransformGlobal();
@@ -265,7 +252,6 @@ namespace z0 {
                             lastMeshId = mesh->getId();
                         }
                     }
-                }
                 modelIndex += 1;
             }
             vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);

@@ -90,8 +90,6 @@ export namespace z0 {
         struct {
             // Scene current camera
             Camera* currentCamera{nullptr};
-            // Frustum of light
-            unique_ptr<Frustum> frustum;
             // All the models of the scene
             list<MeshInstance *> models{};
             // The destination frame buffer
