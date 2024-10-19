@@ -21,11 +21,16 @@ namespace z0 {
                    const vector<const char *> &requestedLayers,
                    const ApplicationConfig &   applicationConfig,
                    const Window &              theWindow):
+        framesInFlight{applicationConfig.framesInFlight},
+        samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)},
         vkInstance{instance},
-        window{theWindow},
-        samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)} {
-        //////////////////// Find the best GPU
+        window{theWindow} {
+        commandBuffers.resize(framesInFlight);
+        imageAvailableSemaphores.resize(framesInFlight);
+        renderFinishedSemaphores.resize(framesInFlight);
+        inFlightFences.resize(framesInFlight);
 
+        //////////////////// Find the best GPU
         // Check for at least one supported Vulkan physical device
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Selecting-a-physical-device
         uint32_t deviceCount = 0;
@@ -224,7 +229,7 @@ namespace z0 {
                     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                     .flags = VK_FENCE_CREATE_SIGNALED_BIT
             };
-            for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (size_t i = 0; i < framesInFlight; i++) {
                 if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS
                     ||
                     vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS
@@ -239,7 +244,7 @@ namespace z0 {
     void Device::cleanup() {
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < framesInFlight; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(device, inFlightFences[i], nullptr);

@@ -112,13 +112,13 @@ namespace z0 {
 
     void SkyboxRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
-                         .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                         .setMaxSets(device.getFramesInFlight())
+                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
+                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                          .build();
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
 
@@ -135,7 +135,7 @@ namespace z0 {
 
     void SkyboxRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (create) {
-            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            for (auto i = 0; i < device.getFramesInFlight(); i++) {
                 auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
                 auto imageInfo        = cubemap->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)

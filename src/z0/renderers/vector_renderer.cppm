@@ -158,14 +158,15 @@ namespace z0 {
         // Indices of each images in the descriptor binding
         map<Resource::id_t, int32_t> texturesIndices{};
 
-        struct {
+        struct FrameData {
             // Read only copy of the commands we have to draw
             list<Command> commands;
             // The color attachment for rendering
             shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
-        } frameData[MAX_FRAMES_IN_FLIGHT];
+        };
+        vector<FrameData> frameData;
 
         // For vkCmdSetVertexInputEXT
         vector<VkVertexInputAttributeDescription2EXT> attributeDescriptions{};

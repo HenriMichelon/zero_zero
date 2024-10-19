@@ -41,7 +41,7 @@ export namespace z0 {
         [[nodiscard]] inline Camera *getCamera(const uint32_t currentFrame) const { return frameData[currentFrame].currentCamera; }
 
     protected:
-        struct {
+        struct FrameData {
             // Currently active camera, first camera added to the scene or the last activated
             Camera *currentCamera{nullptr};
             // All the models of the scene
@@ -53,7 +53,8 @@ export namespace z0 {
             shared_ptr<DepthFrameBuffer> depthFrameBuffer;
             // Current viewport to reset the viewport size if removed from the scene tree
             Viewport *currentViewport{nullptr};
-        } frameData[MAX_FRAMES_IN_FLIGHT];
+        };
+        vector<FrameData> frameData;
 
         ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
 

@@ -12,7 +12,12 @@ import :Material;
 namespace z0 {
 
     Material::Material(const string &name):
-        Resource(name) {
+        Resource(name),
+        dirty{Application::get().getConfig().framesInFlight}{
+    }
+
+    void Material::_setDirty() {
+        dirty = Application::get().getConfig().framesInFlight;
     }
 
     StandardMaterial::StandardMaterial(const string &name):

@@ -84,6 +84,7 @@ namespace z0 {
         assert(_instance == nullptr);
         assert(rootNode != nullptr);
         _instance = this;
+        frameData.resize(applicationConfig.framesInFlight);
 
         // https://github.com/zeux/volk
         if (volkInitialize() != VK_SUCCESS) { die("Failed to initialize Volk"); }
@@ -257,8 +258,8 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].addedNodes.push_back(node);
+        for (auto& frame : frameData) {
+            frame.addedNodes.push_back(node);
         }
         if (node->isProcessed()) {
             node->_onEnterScene();
@@ -274,8 +275,8 @@ namespace z0 {
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
         }
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].removedNodes.push_back(node);
+        for (auto& frame : frameData) {
+            frame.removedNodes.push_back(node);
         }
         node->_setAddedToScene(false);
         if (node->isProcessed()) {
@@ -285,8 +286,8 @@ namespace z0 {
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
         assert(camera != nullptr);
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].activateCamera = camera;
+        for (auto& frame : frameData) {
+            frame.activateCamera = camera;
         }
     }
 
@@ -360,7 +361,7 @@ namespace z0 {
             frameCount     = 0;
             elapsedSeconds = 0;
         }
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        currentFrame = (currentFrame + 1) % applicationConfig.framesInFlight;
     }
 
     void Application::_onInput(InputEvent &inputEvent) {

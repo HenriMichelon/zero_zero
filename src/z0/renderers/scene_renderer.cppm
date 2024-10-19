@@ -151,7 +151,7 @@ namespace z0 {
         // Size of the shadow map uniform buffers
         static constexpr VkDeviceSize SHADOWMAP_BUFFER_SIZE{sizeof(ShadowMapBuffer)};
 
-        struct {
+        struct FrameData {
             // Indices of each model data in the models uniform buffer
             map<Node::id_t, uint32_t> modelsIndices{};
             // All non-transparent models
@@ -200,7 +200,8 @@ namespace z0 {
             // Offscreen frame buffers attachments
             unique_ptr<ColorFrameBuffer>    colorFrameBufferMultisampled;
             shared_ptr<DepthFrameBuffer>    resolvedDepthFrameBuffer;
-        } frameData[MAX_FRAMES_IN_FLIGHT];
+        };
+        vector<FrameData> frameData;
 
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
@@ -209,7 +210,7 @@ namespace z0 {
         // Default blank image
         unique_ptr<Image> blankImage{nullptr};
 
-        vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr{MAX_FRAMES_IN_FLIGHT};
+        vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
 
         void update(uint32_t currentFrame) override;
 

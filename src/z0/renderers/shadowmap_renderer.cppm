@@ -87,7 +87,7 @@ export namespace z0 {
         // The light is a DirectionalLight
         const DirectionalLight* directionalLight{nullptr};
 
-        struct {
+        struct FrameData {
             // Scene current camera
             Camera* currentCamera{nullptr};
             // All the models of the scene
@@ -100,7 +100,8 @@ export namespace z0 {
             mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
             // For cascaded shadow map, the last computed cascade split depth for each cascade
             float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
-        } frameData[MAX_FRAMES_IN_FLIGHT];
+        };
+        vector<FrameData> frameData;
 
         void update(uint32_t currentFrame) override;
 

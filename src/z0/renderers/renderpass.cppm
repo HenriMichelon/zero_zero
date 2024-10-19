@@ -31,17 +31,17 @@ export namespace z0 {
         shared_ptr<DescriptorPool>      descriptorPool{};
         unique_ptr<DescriptorSetLayout> setLayout{};
         VkPushConstantRange             *pushConstantRange{nullptr};
-        vector<VkDescriptorSet>         descriptorSet{MAX_FRAMES_IN_FLIGHT};
+        vector<VkDescriptorSet>         descriptorSet;
         unique_ptr<Shader>              vertShader;
         unique_ptr<Shader>              fragShader;
         VkDeviceSize                    globalUniformBufferSize{0};
-        vector<unique_ptr<Buffer>>      globalUniformBuffers{MAX_FRAMES_IN_FLIGHT};
+        vector<unique_ptr<Buffer>>      globalUniformBuffers;
         bool                            descriptorSetNeedUpdate{false};
         VkClearValue                    clearColor;
 
         const VkClearValue depthClearValue{.depthStencil = {1.0f, 0}};
 
-        Renderpass(Device &dev, string shaderDir, vec3 clearColor);
+        Renderpass(Device &dev, const string &shaderDir, vec3 clearColor);
         Renderpass(Device &dev, string shaderDir, VkClearValue clearColor);
 
         // Helpers function for children classes

@@ -173,14 +173,15 @@ export namespace z0 {
         // Renderer used in development
         // shared_ptr<PostprocessingRenderer> postprocessingRenderer;
 
-        struct {
+        struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame
             list<shared_ptr<Node>> addedNodes;
             // Deferred list of nodes removed from the current scene, processed before each frame
             list<shared_ptr<Node>> removedNodes;
             // Camera to activate next frame
             shared_ptr<Camera> activateCamera;
-        } frameData[MAX_FRAMES_IN_FLIGHT];
+        };
+        vector<FrameData> frameData;
 
         /*
          * Main loop members

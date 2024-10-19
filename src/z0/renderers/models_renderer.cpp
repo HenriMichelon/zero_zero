@@ -73,9 +73,9 @@ import :ModelsRenderer;
     }
 
     void ModelsRenderer::cleanup() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].depthFrameBuffer->cleanupImagesResources();
-            ModelsRenderer::frameData[i].modelUniformBuffer.reset();
+        for(auto& frame: frameData) {
+            frame.depthFrameBuffer->cleanupImagesResources();
+            frame.modelUniformBuffer.reset();
         }
         cleanupImagesResources();
         Renderpass::cleanup();
@@ -83,6 +83,7 @@ import :ModelsRenderer;
 
     ModelsRenderer::ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor):
         Renderpass(device, shaderDirectory, clearColor) {
+        frameData.resize(device.getFramesInFlight());
     }
 
     // Set the initial states of the dynamic rendering

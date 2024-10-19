@@ -58,11 +58,11 @@ export namespace z0 {
         Transparency transparency{TRANSPARENCY_DISABLED};
         float        alphaScissor{0.1f};
         // The material parameters will be written in GPU memory next frame
-        uint8_t      dirty{MAX_FRAMES_IN_FLIGHT};
+        uint32_t     dirty;
 
     public:
         inline bool _isDirty() const { return dirty > 0; }
-        inline void _setDirty() { this->dirty = MAX_FRAMES_IN_FLIGHT; }
+        void _setDirty();
         inline void _clearDirty() { this->dirty--; }
     };
 

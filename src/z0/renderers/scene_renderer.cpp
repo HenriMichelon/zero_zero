@@ -41,26 +41,28 @@ namespace z0 {
 
     SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
         ModelsRenderer{device, shaderDirectory, clearColor} {
+        frameData.resize(device.getFramesInFlight());
+        colorFrameBufferHdr.resize(device.getFramesInFlight());
         createImagesResources();
         OutlineMaterials::_initialize();
-        for(uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
-            frameData[i].materialsIndicesAllocation = vector<Resource::id_t>(MAX_MATERIALS, Resource::INVALID_ID);
+        for(auto& frame: frameData) {
+            frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
+            frame.materialsIndicesAllocation = vector<Resource::id_t>(MAX_MATERIALS, Resource::INVALID_ID);
         }
         createOrUpdateResources(true, &pushConstantRange);
     }
 
     void SceneRenderer::cleanup() {
         blankImage.reset();
-        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].materialShaders.clear();
-            frameData[i].materialsBuffer.reset();
-            frameData[i].shadowMapsUniformBuffer.reset();
-            frameData[i].pointLightUniformBuffer.reset();
-            if (frameData[i].skyboxRenderer != nullptr)
-                frameData[i].skyboxRenderer->cleanup();
-            frameData[i].opaquesModels.clear();
-            frameData[i].omniLights.clear();
+        for(auto& frame: frameData) {
+            frame.materialShaders.clear();
+            frame.materialsBuffer.reset();
+            frame.shadowMapsUniformBuffer.reset();
+            frame.pointLightUniformBuffer.reset();
+            if (frame.skyboxRenderer != nullptr)
+                frame.skyboxRenderer->cleanup();
+            frame.opaquesModels.clear();
+            frame.omniLights.clear();
         }
         for (const auto &shadowMapRenderer : shadowMapRenderers) {
             device.unRegisterRenderer(shadowMapRenderer);
@@ -376,21 +378,21 @@ namespace z0 {
     void SceneRenderer::createDescriptorSetLayout() {
         descriptorPool =
                 DescriptorPool::Builder(device)
-                        .setMaxSets(MAX_FRAMES_IN_FLIGHT)
+                        .setMaxSets(device.getFramesInFlight())
                         // global UBO
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                         // models UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                         // materials UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                         // images textures
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                         // shadow maps UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                         // shadow maps
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                         // pointlightarray UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -431,13 +433,13 @@ namespace z0 {
         if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
 
         globalUniformBufferSize = sizeof(GobalUniformBuffer);
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (auto frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; frameIndex++) {
+        for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
             if (!ModelsRenderer::frameData[frameIndex].models.empty() && (frameData[frameIndex].modelUniformBufferCount != ModelsRenderer::frameData[frameIndex].models.size())) {
                 frameData[frameIndex].modelUniformBufferCount = ModelsRenderer::frameData[frameIndex].models.size();
                 ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE * frameData[frameIndex].modelUniformBufferCount);
@@ -521,9 +523,9 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (frameData[i].skyboxRenderer != nullptr) {
-                frameData[i].skyboxRenderer->loadShaders();
+        for (auto& frame : frameData) {
+            if (frame.skyboxRenderer != nullptr) {
+                frame.skyboxRenderer->loadShaders();
             }
         }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -531,7 +533,7 @@ namespace z0 {
     }
 
     void SceneRenderer::createImagesResources() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorFrameBufferHdr[i] = make_shared<ColorFrameBufferHDR>(device);
             if (ModelsRenderer::frameData[i].depthFrameBuffer == nullptr) {
                 ModelsRenderer::frameData[i].depthFrameBuffer         = make_shared<DepthFrameBuffer>(device, true);
@@ -543,7 +545,7 @@ namespace z0 {
     }
 
     void SceneRenderer::cleanupImagesResources() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
                 frameData[i].resolvedDepthFrameBuffer->cleanupImagesResources();
             }
@@ -554,7 +556,7 @@ namespace z0 {
 
     void SceneRenderer::recreateImagesResources() {
         cleanupImagesResources();
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorFrameBufferHdr[i]->createImagesResources();
              frameData[i].colorFrameBufferMultisampled->createImagesResources();
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
@@ -777,7 +779,7 @@ namespace z0 {
             if (const auto renderer = findShadowMapRenderer(light); renderer == nullptr) {
                 if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
                     const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
-                    for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+                    for(auto i = 0; i < device.getFramesInFlight(); i++) {
                         shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera, i);
                     }
                     shadowMapRenderers.push_back(shadowMapRenderer);
@@ -797,8 +799,8 @@ namespace z0 {
     }
 
     vector<ColorFrameBufferHDR*> SceneRenderer::getSampledAttachments() const {
-        auto result = vector<ColorFrameBufferHDR*>{MAX_FRAMES_IN_FLIGHT};
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        auto result = vector<ColorFrameBufferHDR*>(device.getFramesInFlight());
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             result[i] = colorFrameBufferHdr[i].get();
         }
         return result;

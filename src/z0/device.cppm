@@ -51,6 +51,8 @@ export namespace z0 {
 
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
+        [[nodiscard]] inline uint32_t getFramesInFlight() const { return framesInFlight; }
+
         void drawFrame(uint32_t currentFrame);
 
         void wait() const;
@@ -137,10 +139,11 @@ export namespace z0 {
         VmaAllocator allocator;
 
         // Drawing a frame
-        vector<VkCommandBuffer> commandBuffers{MAX_FRAMES_IN_FLIGHT};
-        vector<VkSemaphore>     imageAvailableSemaphores{MAX_FRAMES_IN_FLIGHT};
-        vector<VkSemaphore>     renderFinishedSemaphores{MAX_FRAMES_IN_FLIGHT};
-        vector<VkFence>         inFlightFences{MAX_FRAMES_IN_FLIGHT};
+        const uint32_t          framesInFlight;
+        vector<VkCommandBuffer> commandBuffers;
+        vector<VkSemaphore>     imageAvailableSemaphores;
+        vector<VkSemaphore>     renderFinishedSemaphores;
+        vector<VkFence>         inFlightFences;
         VkImageBlit             colorImageBlit{};
 
         // Swap chain management

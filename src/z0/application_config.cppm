@@ -13,28 +13,30 @@ export namespace z0 {
      */
     struct ApplicationConfig {
         //! Name to display in the window title bar
-        string           appName         = "MyApp";
+        string           appName           = "MyApp";
         //! Directory to search for resources and compiled shaders
-        filesystem::path appDir          = ".";
+        filesystem::path appDir            = ".";
         //! Initial state of the display window
-        WindowMode       windowMode      = WINDOW_MODE_WINDOWED;
+        WindowMode       windowMode        = WINDOW_MODE_WINDOWED;
         //! Initial width in pixels of the display window
-        uint32_t         windowWidth     = 1920;
+        uint32_t         windowWidth       = 1920;
         //! Initial height in pixels of the display window
-        uint32_t         windowHeight    = 1080;
-        //! Default font name, the file must exists in the path
-        string           defaultFontName = "DefaultFont.ttf";
+        uint32_t         windowHeight      = 1080;
+        //! Default font name, the file must exist in the path
+        string           defaultFontName   = "DefaultFont.ttf";
         //! Default font size. See the Font class for the details.
-        uint32_t         defaultFontSize = 20;
+        uint32_t         defaultFontSize   = 20;
         //! Where to log message using log()
-        uint32_t        loggingMode     = LOGGING_NONE;
+        uint32_t        loggingMode        = LOGGING_NONE;
         //! Default MSAA parameter. Note that MSAA is mandatory
-        MSAA             msaa            = MSAA_AUTO;
+        MSAA             msaa              = MSAA_AUTO;
         //! Gamma correction value for the tone mapping renderer
-        float            gamma           = 1.0f;
+        float            gamma             = 1.0f;
         //! Exposure correction value for the tone mapping renderer
-        float            exposure        = 1.0f;
+        float            exposure          = 1.0f;
         //! Window clear color
-        vec3             clearColor       = WINDOW_CLEAR_COLOR;
+        vec3             clearColor        = WINDOW_CLEAR_COLOR;
+        //! Number of simultaneous frames during rendering
+        uint32_t         framesInFlight    = 3;
     };
 }

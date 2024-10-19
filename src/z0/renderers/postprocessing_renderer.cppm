@@ -51,8 +51,8 @@ export namespace z0 {
         void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
 
     protected:
-        vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
-        vector<ColorFrameBufferHDR *>            inputColorAttachmentHdr{MAX_FRAMES_IN_FLIGHT};
+        vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr;
+        vector<ColorFrameBufferHDR *>           inputColorAttachmentHdr;
     };
 
 }

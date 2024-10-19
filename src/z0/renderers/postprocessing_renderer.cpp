@@ -18,6 +18,8 @@ namespace z0 {
     PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
                                                    const vector<ColorFrameBufferHDR *> & inputColorAttachment) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
+        colorAttachmentHdr.resize(device.getFramesInFlight());
+        inputColorAttachmentHdr.resize(device.getFramesInFlight());
         createImagesResources();
     }
 
@@ -49,21 +51,21 @@ namespace z0 {
 
     void PostprocessingRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
-                                 .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT)
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                                 .setMaxSets(device.getFramesInFlight())
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                                  .build();
         setLayout = DescriptorSetLayout::Builder(device)
                             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
     }
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto imageInfo        = inputColorAttachmentHdr[i]->imageInfo();
             auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
@@ -80,19 +82,19 @@ namespace z0 {
     }
 
     void PostprocessingRenderer::createImagesResources() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorAttachmentHdr[i] = make_shared<ColorFrameBufferHDR>(device);
         }
     }
 
     void PostprocessingRenderer::cleanupImagesResources() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorAttachmentHdr[i]->cleanupImagesResources();
         }
     }
 
     void PostprocessingRenderer::recreateImagesResources() {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorAttachmentHdr[i]->cleanupImagesResources();
             colorAttachmentHdr[i]->createImagesResources();
         }

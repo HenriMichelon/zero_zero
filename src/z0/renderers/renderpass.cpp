@@ -28,22 +28,20 @@ namespace z0 {
         descriptorPool.reset();
     }
 
-    Renderpass::Renderpass(Device &dev, string shaderDir, const vec3 clearColor) :
-        device{dev},
-        vkDevice{dev.getDevice()},
-        shaderDirectory(std::move(shaderDir)) {
-        this->clearColor = {{{
-                clearColor.r / 256.0f,
-                clearColor.g / 256.0f,
-                clearColor.b / 256.0f,
-                1.0f}}};
-    }
+    Renderpass::Renderpass(Device &dev, const string &shaderDir, const vec3 clearColor) :
+        Renderpass(dev, shaderDir, {
+    clearColor.r / 256.0f,
+    clearColor.g / 256.0f,
+    clearColor.b / 256.0f,
+    1.0f}) {}
 
     Renderpass::Renderpass(Device &dev, string shaderDir, const VkClearValue clearColor) :
         device{dev},
         vkDevice{dev.getDevice()},
         shaderDirectory(std::move(shaderDir)),
         clearColor{clearColor} {
+        descriptorSet.resize(dev.getFramesInFlight());
+        globalUniformBuffers.resize(dev.getFramesInFlight());
     }
 
     void Renderpass::setViewport(const VkCommandBuffer commandBuffer,

@@ -25,6 +25,7 @@ namespace z0 {
                                    const string &shaderDirectory) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{true} {
+        frameData.resize(device.getFramesInFlight());
         init();
     }
 
@@ -33,7 +34,8 @@ namespace z0 {
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false} {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        frameData.resize(device.getFramesInFlight());
+        for (auto i = 0; i < frameData.size(); i++) {
             frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr[i];
         }
         init();
@@ -140,8 +142,8 @@ namespace z0 {
             stagingBuffer->writeToBuffer(vertices.data());
             stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
         }
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].commands = commands;
+        for (auto& frame: frameData) {
+            frame.commands = commands;
         }
         // Initialize or update pipeline layout & descriptors sets if needed
         descriptorSetNeedUpdate = true;
@@ -260,16 +262,16 @@ namespace z0 {
 
     void VectorRenderer::createImagesResources() {
         if (internalColorFrameBuffer) {
-            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                frameData[i].colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
+            for (auto& frame: frameData) {
+                frame.colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
             }
         }
     }
 
     void VectorRenderer::cleanupImagesResources() {
         if (internalColorFrameBuffer) {
-            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                frameData[i].colorFrameBufferHdr->cleanupImagesResources();
+            for (auto& frame: frameData) {
+                frame.colorFrameBufferHdr->cleanupImagesResources();
             }
         }
     }
@@ -277,8 +279,8 @@ namespace z0 {
     void VectorRenderer::recreateImagesResources() {
         cleanupImagesResources();
         if (internalColorFrameBuffer) {
-            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                frameData[i].colorFrameBufferHdr->createImagesResources();
+            for (auto& frame: frameData) {
+                frame.colorFrameBufferHdr->createImagesResources();
             }
         }
     }
@@ -290,8 +292,8 @@ namespace z0 {
         stagingBuffer.reset();
         oldBuffers.clear();
         if (internalColorFrameBuffer) {
-            for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                frameData[i].colorFrameBufferHdr->cleanupImagesResources();
+            for (auto& frame: frameData) {
+                frame.colorFrameBufferHdr->cleanupImagesResources();
             }
         }
         blankImage.reset();
@@ -305,8 +307,8 @@ namespace z0 {
 
     void VectorRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
-                         .setMaxSets(MAX_FRAMES_IN_FLIGHT)
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT)
+                         .setMaxSets(device.getFramesInFlight())
+                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                          .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -318,7 +320,7 @@ namespace z0 {
     }
 
     void VectorRenderer::createOrUpdateDescriptorSet(const bool create) {
-        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {
                 frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();

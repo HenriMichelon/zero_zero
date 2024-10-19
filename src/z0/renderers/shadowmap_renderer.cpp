@@ -27,24 +27,25 @@ namespace z0 {
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         light{light},
         directionalLight{dynamic_cast<const DirectionalLight *>(light)} {
-        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded());
-            if (isCascaded()) { frameData[i].cascadesCount = directionalLight->getShadowMapCascadesCount(); }
+        frameData.resize(device.getFramesInFlight());
+        for(auto& frame: frameData) {
+            frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded());
+            if (isCascaded()) { frame.cascadesCount = directionalLight->getShadowMapCascadesCount(); }
         }
     }
 
     void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
-        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].models = meshes;
-            frameData[i].models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
+        for(auto& frame: frameData) {
+            frame.models = meshes;
+            frame.models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
         }
         createOrUpdateResources(false, &pushConstantRange);
     }
 
     void ShadowMapRenderer::cleanup() {
         cleanupImagesResources();
-        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].shadowMap.reset();
+        for(auto& frame: frameData) {
+            frame.shadowMap.reset();
         }
         Renderpass::cleanup();
     }
@@ -277,9 +278,9 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (frameData[i].shadowMap != nullptr) {
-                frameData[i].shadowMap->cleanupImagesResources();
+        for(auto& frame: frameData) {
+            if (frame.shadowMap != nullptr) {
+                frame.shadowMap->cleanupImagesResources();
             }
         }
     }
