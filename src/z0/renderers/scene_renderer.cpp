@@ -278,7 +278,7 @@ namespace z0 {
                 if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
                     // Activate the first cascaded shadow map found
                     globalUbo.cascadedShadowMapIndex = i;
-                    for (int cascadeIndex = 0; cascadeIndex < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; cascadeIndex++) {
+                    for (int cascadeIndex = 0; cascadeIndex < shadowMapRenderers[i]->getCascadesCount(currentFrame); cascadeIndex++) {
                         shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex, currentFrame);
                         shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex, currentFrame);
                     }
@@ -672,8 +672,8 @@ namespace z0 {
         const auto cameraFrustum = Frustum{
             ModelsRenderer::frameData[currentFrame].currentCamera,
             ModelsRenderer::frameData[currentFrame].currentCamera->getFov(),
-            ModelsRenderer::frameData[currentFrame].currentCamera->getNearClipDistance(),
-            ModelsRenderer::frameData[currentFrame].currentCamera->getFarClipDistance()
+            ModelsRenderer::frameData[currentFrame].currentCamera->getNearDistance(),
+            ModelsRenderer::frameData[currentFrame].currentCamera->getFarDistance()
         };
 
         // Used to reduce vkCmdSetCullMode calls

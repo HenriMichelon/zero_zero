@@ -1,5 +1,5 @@
 #version 460
-//#extension GL_EXT_debug_printf: enable
+#extension GL_EXT_debug_printf: enable
 
 layout (location = 0) in vec3 position;
 layout (location = 2) in vec2 uv;
@@ -13,7 +13,6 @@ layout(push_constant) uniform PushConstants {
 } pushConstants;
 
 void main() {
-//    debugPrintfEXT("Hello, World!\n");
     UV = uv;
     gl_Position = pushConstants.lightSpace * pushConstants.matrix * vec4(position, 1.0);
 }

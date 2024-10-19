@@ -18,9 +18,25 @@ namespace z0 {
         updateViewMatrix();
     }
 
+    void Camera::setNearDistance(const float distance) {
+        nearDistance = distance;
+        if (perspectiveProjection) setPerspectiveProjection(fov, nearDistance, farDistance);
+    }
+
+    void Camera::setFarDistance(const float distance) {
+        farDistance = distance;
+        if (perspectiveProjection) setPerspectiveProjection(fov, nearDistance, farDistance);
+    }
+
+    void Camera::setFov(const float fov) {
+        this->fov = fov;
+        if (perspectiveProjection) setPerspectiveProjection(fov, nearDistance, farDistance);
+    }
+
     void Camera::setOrthographicProjection(const float left, const float right,
                                            const float top, const float  bottom,
                                            const float near, const float far) {
+        perspectiveProjection  = false;
         projectionMatrix       = mat4{1.0f};
         projectionMatrix[0][0] = 2.f / (right - left);
         projectionMatrix[1][1] = 2.f / (bottom - top);
@@ -31,6 +47,7 @@ namespace z0 {
     }
 
     void Camera::setPerspectiveProjection(const float fov, const float near, const float far) {
+        perspectiveProjection    = true;
         this->fov                = fov;
         nearDistance             = near;
         farDistance              = far;

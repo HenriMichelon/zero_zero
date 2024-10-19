@@ -12,6 +12,7 @@ import :ShadowMapFrameBuffer;
 import :Descriptors;
 import :MeshInstance;
 import :Light;
+import :DirectionalLight;
 import :Buffer;
 import :Mesh;
 import :FrustumCulling;
@@ -40,9 +41,13 @@ export namespace z0 {
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
-        [[nodiscard]] inline bool isCascaded() const { return lightIsDirectional; }
+        [[nodiscard]] inline bool isCascaded() const { return directionalLight != nullptr; }
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+
+        [[nodiscard]] inline float getCascadesCount(const uint32_t currentFrame) const {
+            return frameData[currentFrame].cascadesCount;
+        }
 
         [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
             return frameData[currentFrame].splitDepth[index];
@@ -75,12 +80,12 @@ export namespace z0 {
         static constexpr  float depthBiasSlope = 1.75f;
         // Lambda constant for split depth calculation :
         // the closer to 1.0 the smaller the firsts splits
-        static constexpr auto cascadeSplitLambda = 0.65f;
+        static constexpr auto cascadeSplitLambda = 0.95f;
 
         // The light we render the shadow map for
         const Light *light;
         // The light is a DirectionalLight
-        bool lightIsDirectional;
+        const DirectionalLight* directionalLight{nullptr};
 
         struct {
             // Scene current camera
@@ -91,10 +96,12 @@ export namespace z0 {
             list<MeshInstance *> models{};
             // The destination frame buffer
             shared_ptr<ShadowMapFrameBuffer> shadowMap;
+            // Number of cascades
+            uint32_t cascadesCount{1};
             // Last computed light spaces for each cascade
-            mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
             // For cascaded shadow map, the last computed cascade split depth for each cascade
-            float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
         } frameData[MAX_FRAMES_IN_FLIGHT];
 
         void update(uint32_t currentFrame) override;

@@ -59,17 +59,32 @@ export namespace z0 {
         /**
          * Returns the camera near clipping distance
          */
-        [[nodiscard]] inline float getNearClipDistance() const { return nearDistance; }
+        [[nodiscard]] inline float getNearDistance() const { return nearDistance; }
+
+        /**
+         * Sets the near clipping distance
+         */
+        void setNearDistance(float distance);
 
         /**
          * Returns the camera far clipping distance
          */
-        [[nodiscard]] inline float getFarClipDistance() const { return farDistance; }
+        [[nodiscard]] inline float getFarDistance() const { return farDistance; }
+
+        /**
+         * Sets the far clipping distance
+         */
+        void setFarDistance(float distance);
 
         /**
          * Returns the camera FOV in degrees
          */
         [[nodiscard]] inline float getFov() const { return fov; }
+
+        /**
+         * Sets the camera FOV in degrees
+        */
+        void setFov(float fov);
 
     private:
         // Field of view in degrees
@@ -77,9 +92,11 @@ export namespace z0 {
         // Nearest clipping distance
         float nearDistance{0.1f};
         // Furthest clipping distance
-        float farDistance{500.0f};
+        float farDistance{100.0f};
         // Is this the currently active camera ?
         bool active{false};
+        // Is the projection is perspective ?
+        bool perspectiveProjection{true};
         // Projection matrix for the global UBO
         mat4 projectionMatrix{1.0f};
         // View matrix for the global UBO

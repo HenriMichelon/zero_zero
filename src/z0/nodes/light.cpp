@@ -21,4 +21,15 @@ namespace z0 {
         this->castShadows = castShadows;
     }
 
+    void Light::setProperty(const string &property, const string &value) {
+        Node::setProperty(property, value);
+        if (property == "color") {
+            setColorAndIntensity(to_vec4(value));
+        } else if (property == "specular") {
+            setSpecularIntensity(stof(value));
+        } else if (property == "cast_shadow") {
+            setCastShadows(value == "true");
+        }
+    }
+
 }

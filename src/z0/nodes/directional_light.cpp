@@ -3,6 +3,8 @@ module;
 
 module z0;
 
+import :ShadowMapFrameBuffer;
+
 namespace z0 {
 
     DirectionalLight::DirectionalLight(const vec4    color,
@@ -11,14 +13,14 @@ namespace z0 {
         Light{color, specular, nodeName, DIRECTIONAL_LIGHT}
     { }
 
+    void DirectionalLight::setShadowMapCascadesCount(const uint32_t cascadesCount) {
+        shadowMapCascadesCount = std::max(static_cast<uint32_t>(2), std::min(cascadesCount, ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS));
+    }
+
     void DirectionalLight::setProperty(const string &property, const string &value) {
-        Node::setProperty(property, value);
-        if (property == "color") {
-            setColorAndIntensity(to_vec4(value));
-        } else if (property == "specular") {
-            setSpecularIntensity(stof(value));
-        } else if (property == "cast_shadow") {
-            setCastShadows(value == "true");
+        Light::setProperty(property, value);
+        if (property == "shadow_map_cascade_count") {
+            setShadowMapCascadesCount(stoi(value));
         }
     }
 

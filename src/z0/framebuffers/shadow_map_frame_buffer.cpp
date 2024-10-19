@@ -16,6 +16,9 @@ namespace z0 {
 
     ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const bool isCascaded) :
         SampledFrameBuffer{dev}, isCascaded{isCascaded} {
+        // 4x resolution for shadow maps
+        width = dev.getSwapChainExtent().width * 4;
+        height = dev.getSwapChainExtent().height * 4;
         ShadowMapFrameBuffer::createImagesResources();
     }
 
@@ -31,8 +34,8 @@ namespace z0 {
                 },
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-        createImage(size,
-                    size,
+        createImage(width,
+                    height,
                     format,
                     VK_SAMPLE_COUNT_1_BIT,
                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
@@ -40,11 +43,11 @@ namespace z0 {
                     VK_IMAGE_ASPECT_DEPTH_BIT,
                     // Use a cascaded shadow map with layered image for directional lights
                     isCascaded ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D,
-                    isCascaded ? CASCADED_SHADOWMAP_LAYERS : 1);
+                    isCascaded ? CASCADED_SHADOWMAP_MAX_LAYERS : 1);
         if (isCascaded) {
             // Create additional image views for the cascaded shadow map renderer
             // One view for each shadow map split of the cascade
-            for (int i = 0; i < CASCADED_SHADOWMAP_LAYERS; i++) {
+            for (auto i = 0; i < CASCADED_SHADOWMAP_MAX_LAYERS; i++) {
                 cascadedImageViews[i] =
                         device.createImageView(image, format, VK_IMAGE_ASPECT_DEPTH_BIT, 1, VK_IMAGE_VIEW_TYPE_2D_ARRAY, i);
             }
@@ -54,11 +57,11 @@ namespace z0 {
         }
         // Create sampler for the depth attachment.
         // Used to sample in the main fragment shader for the shadow factore calculations
-        const VkFilter shadowmap_filter =
+        const VkFilter shadowmapFilter =
                 device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
         const VkSamplerCreateInfo samplerCreateInfo{.sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                                                    .magFilter     = shadowmap_filter,
-                                                    .minFilter     = shadowmap_filter,
+                                                    .magFilter     = shadowmapFilter,
+                                                    .minFilter     = shadowmapFilter,
                                                     .mipmapMode    = VK_SAMPLER_MIPMAP_MODE_LINEAR,
                                                     .addressModeU  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                                                     .addressModeV  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,

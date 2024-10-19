@@ -26,9 +26,10 @@ namespace z0 {
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         light{light},
-        lightIsDirectional{dynamic_cast<const DirectionalLight *>(light) != nullptr} {
+        directionalLight{dynamic_cast<const DirectionalLight *>(light)} {
         for(auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            frameData[i].shadowMap = make_shared<ShadowMapFrameBuffer>(device, lightIsDirectional);
+            frameData[i].shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded());
+            if (isCascaded()) { frameData[i].cascadesCount = directionalLight->getShadowMapCascadesCount(); }
         }
     }
 
@@ -50,31 +51,49 @@ namespace z0 {
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
+
+    std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view) {
+        const auto inv = glm::inverse(proj * view);
+        std::vector<glm::vec4> frustumCorners;
+        for (unsigned int x = 0; x < 2; ++x) {
+            for (unsigned int y = 0; y < 2; ++y) {
+                for (unsigned int z = 0; z < 2; ++z) {
+                    const glm::vec4 pt =
+                        inv * glm::vec4(
+                            2.0f * x - 1.0f,
+                            2.0f * y - 1.0f,
+                            2.0f * z - 1.0f,
+                            1.0f);
+                    frustumCorners.push_back(pt / pt.w);
+                }
+            }
+        }
+        return frustumCorners;
+    }
+
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
         if (data.currentCamera == nullptr) { return; }
-        if (lightIsDirectional) {
-            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-            const auto lightDirection = directionalLight->getFrontVector();
-            const auto nearClip  = data.currentCamera->getNearClipDistance();
-            const auto farClip   = data.currentCamera->getFarClipDistance();
-
+        if (isCascaded()) {
             // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
             // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
-            float cascadeSplits[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS];
+            // https://learnopengl.com/Guest-Articles/2021/CSM
 
+            auto cascadeSplits = vector<float>(data.cascadesCount);
+            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+            const auto lightDirection = directionalLight->getFrontVector();
+            const auto nearClip  = data.currentCamera->getNearDistance();
+            const auto farClip   = data.currentCamera->getFarDistance();
             const auto clipRange = farClip - nearClip;
-
             const auto minZ = nearClip;
             const auto maxZ = nearClip + clipRange;
-
             const auto range = maxZ - minZ;
             const auto ratio = maxZ / minZ;
 
             // Calculate split depths based on view camera frustum
             // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-            for (auto i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
-                float p          = (i + 1) / static_cast<float>(ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS);
+            for (auto i = 0; i < data.cascadesCount; i++) {
+                float p          = (i + 1) / static_cast<float>(data.cascadesCount);
                 float log        = minZ * std::pow(ratio, p);
                 float uniform    = minZ + range * p;
                 float d          = cascadeSplitLambda * (log - uniform) + uniform;
@@ -85,7 +104,7 @@ namespace z0 {
             float lastSplitDist = 0.0;
             vec3 eye;
             const auto invCam = inverse(data.currentCamera->getProjection() * data.currentCamera->getView());
-            for (auto i = 0; i < ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS; i++) {
+            for (auto i = 0; i < data.cascadesCount; i++) {
                 const auto splitDist = cascadeSplits[i];
 
                 // Camera frustum corners in NDC space
@@ -109,7 +128,7 @@ namespace z0 {
 
                 // Adjust the coordinates of near and far planes for this specific cascade
                 for (auto j = 0; j < 4; j++) {
-                    const auto dist        = frustumCorners[j + 4] - frustumCorners[j];
+                    const auto dist = frustumCorners[j + 4] - frustumCorners[j];
                     frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
                     frustumCorners[j]     = frustumCorners[j] + (dist * lastSplitDist);
                 }
@@ -132,12 +151,12 @@ namespace z0 {
                 auto maxExtents = vec3(radius);
                 auto minExtents = -maxExtents;
 
-                eye  = frustumCenter - lightDirection * -minExtents.z ;
+                eye = frustumCenter - lightDirection * -minExtents.z ;
                 const auto depth = maxExtents.z - minExtents.z;
                 const auto lightProjection = ortho(
                     minExtents.x, maxExtents.x,
-                        minExtents.y, maxExtents.y,
-                        -depth, depth);
+                    minExtents.y, maxExtents.y,
+                    -depth, depth);
                 data.lightSpace[i] = lightProjection * lookAt(eye, frustumCenter, AXIS_UP);
                 data.splitDepth[i] = (nearClip + splitDist * clipRange);
                 lastSplitDist = cascadeSplits[i];
@@ -145,9 +164,9 @@ namespace z0 {
             data.frustum = make_unique<Frustum>(
                 directionalLight,
                 eye,
-                75.0f,
+                90.0f,
                 0.1f,
-                1000.0f
+                farClip * 2
             );
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
@@ -171,8 +190,7 @@ namespace z0 {
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         const auto& data = frameData[currentFrame];
-        const auto cascades = lightIsDirectional ? ShadowMapFrameBuffer::CASCADED_SHADOWMAP_LAYERS : 1;
-        for (int cascadeIndex = 0; cascadeIndex < cascades; cascadeIndex++) {
+        for (int cascadeIndex = 0; cascadeIndex < data.cascadesCount; cascadeIndex++) {
             device.transitionImageLayout(commandBuffer,
                                                 data.shadowMap->getImage(),
                                                 VK_IMAGE_LAYOUT_UNDEFINED,
@@ -195,7 +213,7 @@ namespace z0 {
                                                 .pNext      = nullptr,
                                                 .renderArea = {
                                                             {0, 0},
-                                                            {data.shadowMap->getSize(), data.shadowMap->getSize()}
+                                                            {data.shadowMap->getWidth(), data.shadowMap->getHeight()}
                                                 },
                                                 .layerCount = 1,
                                                 .colorAttachmentCount = 0,
@@ -205,7 +223,7 @@ namespace z0 {
             vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
             bindShaders(commandBuffer);
-            setViewport(commandBuffer, data.shadowMap->getSize(), data.shadowMap->getSize());
+            setViewport(commandBuffer, data.shadowMap->getWidth(), data.shadowMap->getHeight());
             vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
             constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
             vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);

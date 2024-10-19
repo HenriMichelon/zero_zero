@@ -24,7 +24,22 @@ export namespace z0 {
 
         ~DirectionalLight() override = default;
 
+        /**
+         * Sets the number of cascades for the shadow map (between 2 and ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS).<br>
+         * *must* be called before adding the light to the scene since this value is used when instancing the shadow map
+         * renderer for this light.
+         */
+        void setShadowMapCascadesCount(uint32_t cascadesCount);
+
+        /**
+         * Returns the number of cascades for the shadow map
+         */
+        [[nodiscard]] inline uint32_t getShadowMapCascadesCount() const { return shadowMapCascadesCount; }
+
         void setProperty(const string &property, const string &value) override;
+
+    private:
+        uint32_t shadowMapCascadesCount{3};
     };
 
 }

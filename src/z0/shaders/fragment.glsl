@@ -134,20 +134,20 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                 if (i != global.cascadedShadowMapIndex) shadow += shadowFactor(i, 0);
             }
             // Display the cascade splits for debug
-//            switch(cascadeIndex) {
-//                case 0 :
-//                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
-//                    break;
-//                case 1 :
-//                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
-//                    break;
-//                case 2 :
-//                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
-//                    break;
-//                case 3 :
-//                    color.rgb *= vec3(1.0f, 0.25f, 1.0f);
-//                    break;
-//            }
+            switch(cascadeIndex) {
+                case 0 :
+                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
+                    break;
+                case 1 :
+                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
+                    break;
+                case 2 :
+                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
+                    break;
+                case 3 :
+                    color.rgb *= vec3(1.0f, 0.25f, 1.0f);
+                    break;
+            }
         } else {
             // We don't have any cascaded shadow map,
             // accumulate the shadow factor of all maps

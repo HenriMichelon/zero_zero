@@ -86,17 +86,20 @@ namespace z0 {
         _instance = this;
 
         // https://github.com/zeux/volk
-        if (volkInitialize() != VK_SUCCESS)
-            die("Failed to initialize Volk");
+        if (volkInitialize() != VK_SUCCESS) { die("Failed to initialize Volk"); }
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
+
+#ifndef NDEBUG
+        const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
+#endif
 
         // Check if all the requested Vulkan layers are supported by the Vulkan instance
         const vector<const char *> requestedLayers = {
 #ifndef NDEBUG
-                "VK_LAYER_KHRONOS_validation"
+            validationLayerName
 #endif
-        };
+    };
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
         vector<VkLayerProperties> availableLayers(layerCount);
@@ -126,7 +129,29 @@ namespace z0 {
 #ifndef NDEBUG
         // To use a debug callback for validation message
         instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        // instanceExtensions.push_back(VK_EXT_LAYER_SETTINGS_EXTENSION_NAME);
+
+        // https://docs.vulkan.org/samples/latest/samples/extensions/shader_debugprintf/README.html
+        // Use run/debug config with environment variables (cf. shader_debug_env.cmd)
+        /*instanceExtensions.push_back(VK_EXT_LAYER_SETTINGS_EXTENSION_NAME);
+        const char *setting_debug_action[] = {"VK_DBG_LAYER_ACTION_LOG_MSG"};
+        const char *setting_validate_gpu_based[] = {"GPU_BASED_DEBUG_PRINTF"};
+        constexpr VkBool32 setting_enable_printf_to_stdout{VK_TRUE};
+
+        const auto layerSettings = array{
+                VkLayerSettingEXT{validationLayerName, "debug_action",
+                    VK_LAYER_SETTING_TYPE_STRING_EXT, 1, setting_debug_action},
+                VkLayerSettingEXT{validationLayerName, "validate_gpu_based",
+                    VK_LAYER_SETTING_TYPE_STRING_EXT, 1, setting_validate_gpu_based},
+                VkLayerSettingEXT{validationLayerName, "printf_to_stdout",
+                    VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_enable_printf_to_stdout},
+        };
+        const auto layerSettingsCreateInfo = VkLayerSettingsCreateInfoEXT {
+            .sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
+            .pNext = nullptr,
+            .settingCount = layerSettings.size(),
+            .pSettings = layerSettings.data()
+        };*/
+
 #endif
 
         // Use Vulkan 1.3.x
