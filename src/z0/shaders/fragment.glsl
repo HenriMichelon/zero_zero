@@ -131,13 +131,13 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             // Get the shadow factor for the cascade
             float factor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
             // If no shadow try the next cascades (for objets behind the light position in the cascade)
-            if ((factor >= 1.0f) && (cascadeIndex < global.cascadesCount)) {
+            if ((factor >= 0.1f) && (cascadeIndex < global.cascadesCount)) {
                 float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +1);
-                if (nextFactor < 0.2f) factor = nextFactor;
+                if (nextFactor < 0.1f) factor = nextFactor;
             }
-            if ((factor >= 1.0f) && ((cascadeIndex+1) < global.cascadesCount)) {
+            if ((factor >= 0.1f) && ((cascadeIndex+1) < global.cascadesCount)) {
                 float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +2);
-                if (nextFactor < 0.2f) factor = nextFactor;
+                if (nextFactor < 0.1f) factor = nextFactor;
             }
             shadow = factor;
 
@@ -146,20 +146,20 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                 if (i != global.cascadedShadowMapIndex) shadow += shadowFactor(i, 0);
             }
             // Display the cascade splits for debug
-            switch(cascadeIndex) {
-                case 0 :
-                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
-                    break;
-                case 1 :
-                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
-                    break;
-                case 2 :
-                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
-                    break;
-                case 3 :
-                    color.rgb *= vec3(1.0f, 1.0f, 0.25f);
-                    break;
-            }
+//            switch(cascadeIndex) {
+//                case 0 :
+//                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
+//                    break;
+//                case 1 :
+//                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
+//                    break;
+//                case 2 :
+//                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
+//                    break;
+//                case 3 :
+//                    color.rgb *= vec3(1.0f, 1.0f, 0.25f);
+//                    break;
+//            }
         } else {
             // We don't have any cascaded shadow map,
             // accumulate the shadow factor of all maps
