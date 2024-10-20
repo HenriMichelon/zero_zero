@@ -16,9 +16,6 @@ namespace z0 {
 
     ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const bool isCascaded) :
         SampledFrameBuffer{dev}, isCascaded{isCascaded} {
-        // 4x resolution for shadow maps
-        width = dev.getSwapChainExtent().width * 4;
-        height = dev.getSwapChainExtent().height * 4;
         ShadowMapFrameBuffer::createImagesResources();
     }
 

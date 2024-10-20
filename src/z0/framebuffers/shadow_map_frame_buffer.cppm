@@ -32,8 +32,8 @@ export namespace z0{
 
     private:
         const bool isCascaded;
-        uint32_t width{0};
-        uint32_t height{0};
+        uint32_t width{4096};
+        uint32_t height{4096};
         VkImageView cascadedImageViews[CASCADED_SHADOWMAP_MAX_LAYERS];
     };
 

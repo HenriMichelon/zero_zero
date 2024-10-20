@@ -72,6 +72,35 @@ namespace z0 {
         return frustumCorners;
     }
 
+
+    glm::vec3 Transform(const glm::vec3& point, const glm::mat4& matrix)
+    {
+        glm::vec4 temp(point, 1.0f);  // Create a 4D vector from the 3D point with w = 1
+        glm::vec4 temp2 = matrix * temp;  // Matrix-vector multiplication
+
+        // Divide by W to perform perspective division
+        glm::vec3 result(temp2.x / temp2.w, temp2.y / temp2.w, temp2.z / temp2.w);
+
+        return result;
+    }
+
+    glm::vec3 TransformTransposed(const glm::vec3& point, const glm::mat4& matrix)
+    {
+        glm::vec4 temp(point, 1.0f);  // Create a 4D vector from the 3D point with w = 1
+        glm::vec4 temp2;
+
+        // Perform the multiplication using the transposed matrix layout
+        temp2.x = temp.x * matrix[0][0] + temp.y * matrix[1][0] + temp.z * matrix[2][0] + temp.w * matrix[3][0];
+        temp2.y = temp.x * matrix[0][1] + temp.y * matrix[1][1] + temp.z * matrix[2][1] + temp.w * matrix[3][1];
+        temp2.z = temp.x * matrix[0][2] + temp.y * matrix[1][2] + temp.z * matrix[2][2] + temp.w * matrix[3][2];
+        temp2.w = temp.x * matrix[0][3] + temp.y * matrix[1][3] + temp.z * matrix[2][3] + temp.w * matrix[3][3];
+
+        // Divide by W to perform perspective division
+        glm::vec3 result(temp2.x / temp2.w, temp2.y / temp2.w, temp2.z / temp2.w);
+
+        return result;
+    }
+
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
         if (data.currentCamera == nullptr) { return; }
@@ -103,13 +132,12 @@ namespace z0 {
 
             // Calculate orthographic projection matrix for each cascade
             float lastSplitDist = 0.0;
-            vec3 eye;
             const auto invCam = inverse(data.currentCamera->getProjection() * data.currentCamera->getView());
-            for (auto i = 0; i < data.cascadesCount; i++) {
-                const auto splitDist = cascadeSplits[i];
+            for (auto cascadeIndex = 0; cascadeIndex < data.cascadesCount; cascadeIndex++) {
+                const auto splitDist = cascadeSplits[cascadeIndex];
 
                 // Camera frustum corners in NDC space
-                vec3 frustumCorners[8] = {
+                vec3 frustumCorners[] = {
                         vec3(-1.0f, 1.0f, -1.0f),
                         vec3(1.0f, 1.0f, -1.0f),
                         vec3(1.0f, -1.0f, -1.0f),
@@ -149,18 +177,42 @@ namespace z0 {
                 }
                 radius = std::ceil(radius * 16.0f) / 16.0f;
 
-                auto maxExtents = vec3(radius);
-                auto minExtents = -maxExtents;
+                // Snap the frustum center to the nearest texel grid
+                const auto shadowMapResolution = static_cast<float>(data.shadowMap->getWidth());
+                const float worldUnitsPerTexel = (2.0f * radius) / shadowMapResolution;
+                frustumCenter.x = std::floor(frustumCenter.x / worldUnitsPerTexel) * worldUnitsPerTexel;
+                frustumCenter.y = std::floor(frustumCenter.y / worldUnitsPerTexel) * worldUnitsPerTexel;
+                frustumCenter.z = std::floor(frustumCenter.z / worldUnitsPerTexel) * worldUnitsPerTexel;
 
-                eye = frustumCenter - lightDirection * -minExtents.z ;
+                // Split bounding box
+                const auto maxExtents = vec3(radius);
+                const auto minExtents = -maxExtents;
                 const auto depth = maxExtents.z - minExtents.z;
-                const auto lightProjection = ortho(
+
+                // View & projection matrices
+                const auto eye = frustumCenter - lightDirection * -minExtents.z ;
+                const auto viewMatrix = lookAt(eye, frustumCenter, AXIS_UP);
+                auto lightProjection = ortho(
                     minExtents.x, maxExtents.x,
                     minExtents.y, maxExtents.y,
                     -depth, depth);
-                data.lightSpace[i] = lightProjection * lookAt(eye, frustumCenter, AXIS_UP);
-                data.splitDepth[i] = (nearClip + splitDist * clipRange);
-                lastSplitDist = cascadeSplits[i];
+
+                // https://stackoverflow.com/questions/33499053/cascaded-shadow-map-shimmering
+                // Create the rounding matrix, by projecting the world-space origin and determining
+                // the fractional offset in texel space
+                const auto shadowMatrix = lightProjection * viewMatrix;
+                const auto shadowOrigin = (shadowMatrix * vec4{0.0f, 0.0f, 0.0f, 1.0f}) * (shadowMapResolution / 2.0f);
+                const auto roundedOrigin = round(shadowOrigin);
+                auto roundOffset = roundedOrigin - shadowOrigin;
+                roundOffset = roundOffset *  2.0f / shadowMapResolution;
+                roundOffset.z = 0.0f;
+                roundOffset.w = 0.0f;
+                lightProjection[3] += roundOffset;
+
+                // Store the results in the frame data
+                data.lightSpace[cascadeIndex] = lightProjection * viewMatrix;
+                data.splitDepth[cascadeIndex] = (nearClip + splitDist * clipRange);
+                lastSplitDist = cascadeSplits[cascadeIndex];
             }
         } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
             const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
