@@ -13,6 +13,8 @@ import :Descriptors;
 import :MeshInstance;
 import :Light;
 import :DirectionalLight;
+import :OmniLight;
+import :SpotLight;
 import :Buffer;
 import :Mesh;
 import :FrustumCulling;
@@ -42,6 +44,8 @@ export namespace z0 {
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
         [[nodiscard]] inline bool isCascaded() const { return directionalLight != nullptr; }
+
+        [[nodiscard]] inline bool isCubemap() const { return directionalLight == nullptr && spotLight == nullptr; }
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
@@ -86,6 +90,10 @@ export namespace z0 {
         const Light *light;
         // The light is a DirectionalLight
         const DirectionalLight* directionalLight{nullptr};
+        // The light is an OmniLight
+        const OmniLight* omniLight{nullptr};
+        // The light is a SpotLight
+        const SpotLight* spotLight{nullptr};
 
         struct FrameData {
             // Scene current camera
@@ -96,8 +104,8 @@ export namespace z0 {
             shared_ptr<ShadowMapFrameBuffer> shadowMap;
             // Number of cascades
             uint32_t cascadesCount{1};
-            // Last computed light spaces for each cascade
-            mat4 lightSpace[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
+            // Last computed light spaces for each cascade / cubemap face
+            mat4 lightSpace[6];
             // For cascaded shadow map, the last computed cascade split depth for each cascade
             float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
         };

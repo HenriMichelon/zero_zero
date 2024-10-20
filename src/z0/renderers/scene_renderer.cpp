@@ -93,9 +93,7 @@ namespace z0 {
         }
         if (auto *omniLight = dynamic_cast<OmniLight *>(node.get())) {
             frameData[currentFrame].omniLights.push_back(omniLight);
-            if (const auto *spotLight = dynamic_cast<SpotLight *>(omniLight)) {
-                enableLightShadowCasting(spotLight);
-            }
+            enableLightShadowCasting(omniLight);
         }
         ModelsRenderer::addNode(node, currentFrame);
     }
@@ -284,6 +282,12 @@ namespace z0 {
                     for (int cascadeIndex = 0; cascadeIndex < globalUbo.cascadesCount; cascadeIndex++) {
                         shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex, currentFrame);
                         shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex, currentFrame);
+                    }
+                } else if (shadowMapRenderers[i]->isCubemap()) {
+                    for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
+                        shadowMapArray[i].lightSpace[faceIndex] = shadowMapRenderers[i]->getLightSpace(faceIndex, currentFrame);
+                        shadowMapArray[i].isCubemap = true;
+                        shadowMapArray[i].lightPosition = shadowMapRenderers[i]->getLightPosition();
                     }
                 } else {
                     // Just copy the light space matrix for non cascaded shadow maps

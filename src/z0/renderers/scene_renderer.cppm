@@ -89,8 +89,10 @@ namespace z0 {
         };
 
         struct ShadowMapBuffer {
-            mat4 lightSpace[4]; // fixed at 4 for alignments, only [0] used on non cascaded shadow map
+            mat4 lightSpace[8]; // fixed at 8 for alignments
             float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
+            alignas(4) bool isCubemap{false};
+            alignas(16) vec3 lightPosition{};
         };
 
         struct ModelBuffer {
