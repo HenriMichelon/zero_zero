@@ -52,55 +52,6 @@ namespace z0 {
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
-
-    std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view) {
-        const auto inv = glm::inverse(proj * view);
-        std::vector<glm::vec4> frustumCorners;
-        for (unsigned int x = 0; x < 2; ++x) {
-            for (unsigned int y = 0; y < 2; ++y) {
-                for (unsigned int z = 0; z < 2; ++z) {
-                    const glm::vec4 pt =
-                        inv * glm::vec4(
-                            2.0f * x - 1.0f,
-                            2.0f * y - 1.0f,
-                            2.0f * z - 1.0f,
-                            1.0f);
-                    frustumCorners.push_back(pt / pt.w);
-                }
-            }
-        }
-        return frustumCorners;
-    }
-
-
-    glm::vec3 Transform(const glm::vec3& point, const glm::mat4& matrix)
-    {
-        glm::vec4 temp(point, 1.0f);  // Create a 4D vector from the 3D point with w = 1
-        glm::vec4 temp2 = matrix * temp;  // Matrix-vector multiplication
-
-        // Divide by W to perform perspective division
-        glm::vec3 result(temp2.x / temp2.w, temp2.y / temp2.w, temp2.z / temp2.w);
-
-        return result;
-    }
-
-    glm::vec3 TransformTransposed(const glm::vec3& point, const glm::mat4& matrix)
-    {
-        glm::vec4 temp(point, 1.0f);  // Create a 4D vector from the 3D point with w = 1
-        glm::vec4 temp2;
-
-        // Perform the multiplication using the transposed matrix layout
-        temp2.x = temp.x * matrix[0][0] + temp.y * matrix[1][0] + temp.z * matrix[2][0] + temp.w * matrix[3][0];
-        temp2.y = temp.x * matrix[0][1] + temp.y * matrix[1][1] + temp.z * matrix[2][1] + temp.w * matrix[3][1];
-        temp2.z = temp.x * matrix[0][2] + temp.y * matrix[1][2] + temp.z * matrix[2][2] + temp.w * matrix[3][2];
-        temp2.w = temp.x * matrix[0][3] + temp.y * matrix[1][3] + temp.z * matrix[2][3] + temp.w * matrix[3][3];
-
-        // Divide by W to perform perspective division
-        glm::vec3 result(temp2.x / temp2.w, temp2.y / temp2.w, temp2.z / temp2.w);
-
-        return result;
-    }
-
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
         if (data.currentCamera == nullptr) { return; }
