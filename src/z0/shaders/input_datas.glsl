@@ -31,8 +31,10 @@ struct PointLight {
 };
 
 struct ShadowMap {
-    mat4 lightSpace[4]; // fixed at 4 for alignements
+    mat4 lightSpace[8]; // fixed at 8 for alignements
     vec4 cascadeSplitDepth; // fixed at 4 for alignements
+    bool isCubemap;
+    vec3 lightPosition;
 };
 
 struct Material  {
@@ -77,6 +79,8 @@ layout(set = 0, binding = 4) uniform ShadowMapArray {
 } shadowMapsInfos;
 
 layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
+
+layout(set = 0, binding = 7) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(set = 0, binding = 6) uniform PointLightArray {
     PointLight lights[10]; // arbitrary value for debug with RenderDoc

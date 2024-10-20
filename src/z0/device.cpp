@@ -423,7 +423,7 @@ namespace z0 {
         const VkImageCreateInfo imageInfo{
                 .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
                 .flags = flags,
-                .imageType = VK_IMAGE_TYPE_2D,
+                .imageType =  VK_IMAGE_TYPE_2D,
                 .format = format,
                 .extent = {width, height, 1},
                 .mipLevels = mipLevels,

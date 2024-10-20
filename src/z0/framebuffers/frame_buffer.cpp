@@ -24,9 +24,10 @@ namespace z0 {
                                   const VkFormat              format,
                                   const VkSampleCountFlagBits samples,
                                   const VkImageUsageFlags     usage,
-                                  const VkImageAspectFlags    flags,
+                                  const VkImageAspectFlags    imageViewFlags,
                                   const VkImageViewType       type,
-                                  const uint32_t              layers) {
+                                  const uint32_t              layers,
+                                  const VkImageCreateFlags    imageFlags) {
         device.createImage(width,
                            height,
                            1,
@@ -37,9 +38,9 @@ namespace z0 {
                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                            image,
                            imageMemory,
-                           0,
+                           imageFlags,
                            layers);
-        imageView = device.createImageView(image, format, flags, 1, type, 0, layers);
+        imageView = device.createImageView(image, format, imageViewFlags, 1, type, 0, layers);
     }
 
 }

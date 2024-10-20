@@ -74,6 +74,8 @@ export namespace z0 {
          */
         [[nodiscard]] inline uint32_t getHeight() const { return height; }
 
+        [[nodiscard]] static unique_ptr<Cubemap> createBlankCubemap();
+
     private:
         const Device & device;
         uint32_t       width, height;

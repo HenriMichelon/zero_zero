@@ -65,11 +65,25 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
     for(int x = -1; x <= 1; ++x)  {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(shadowMaps[shadowMapIndex], vec3(projCoords.xy + vec2(x, y) * texelSize.xy, float(cascadeIndex))).r;
-//            shadow += currentDepth > pcfDepth ? 0.0 : 1.0;
             shadow += (currentDepth - bias) > pcfDepth ? 0.0 : 1.0;
         }
     }
     return shadow /= 9.0;
+}
+
+float shadowFactorCubemap(int shadowMapIndex) {
+    // get vector between fragment position and light position
+    vec3 pos = fs_in.GLOBAL_POSITION.xyz;
+    vec3 fragToLight = pos - shadowMapsInfos.shadowMaps[shadowMapIndex].lightPosition;
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // use the light to fragment vector to sample from the depth map
+    float closestDepth = texture(shadowMapsCubemap[shadowMapIndex], fragToLight).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= 100.0f; // far plane
+    const float bias = 0.005;
+    float shadow = currentDepth -  bias > closestDepth ? 0.0 : 1.0;
+    return shadow;
 }
 
 vec4 fragmentColor(vec4 color, bool useColor) {
@@ -166,7 +180,11 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             // accumulate the shadow factor of all maps
             shadow = 0.0f;
             for (int i = 0; i < global.shadowMapsCount; i++) {
-                shadow += shadowFactor(i, 0);
+                if (shadowMapsInfos.shadowMaps[i].isCubemap) {
+                    shadow += shadowFactorCubemap(i);
+                } else {
+                    shadow += shadowFactor(i, 0);
+                }
             }
         }
     }

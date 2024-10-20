@@ -36,7 +36,8 @@ export namespace z0 {
                          VkImageUsageFlags     usage,
                          VkImageAspectFlags    flags = VK_IMAGE_ASPECT_COLOR_BIT,
                          VkImageViewType       type = VK_IMAGE_VIEW_TYPE_2D,
-                         uint32_t              layers = 1);
+                         uint32_t              layers = 1,
+                         VkImageCreateFlags    imageFlags = 0);
 
     public:
         inline virtual ~FrameBuffer() = default;

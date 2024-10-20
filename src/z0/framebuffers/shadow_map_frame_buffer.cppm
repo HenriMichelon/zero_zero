@@ -17,11 +17,11 @@ export namespace z0{
     public:
         static constexpr uint32_t CASCADED_SHADOWMAP_MAX_LAYERS = 4;
 
-        explicit ShadowMapFrameBuffer(const Device &dev, bool isCascaded);
+        explicit ShadowMapFrameBuffer(const Device &dev, bool isCascaded, bool isCubemap);
 
         [[nodiscard]] inline const VkSampler &getSampler() const { return sampler; }
 
-        [[nodiscard]] inline const VkImageView &getImageView(const uint32_t layer) const { return cascadedImageViews[layer]; };
+        [[nodiscard]] inline const VkImageView &getCascadedImageView(const uint32_t layer) const { return cascadedImageViews[layer]; };
 
         [[nodiscard]] inline uint32_t getWidth() const { return width; }
         [[nodiscard]] inline uint32_t getHeight() const { return height; }
@@ -32,9 +32,10 @@ export namespace z0{
 
     private:
         const bool isCascaded;
-        uint32_t width{4096};
-        uint32_t height{4096};
-        VkImageView cascadedImageViews[CASCADED_SHADOWMAP_MAX_LAYERS];
+        const bool isCubemap;
+        uint32_t width{};
+        uint32_t height{};
+        VkImageView cascadedImageViews[6];
     };
 
 } // namespace z0

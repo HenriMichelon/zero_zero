@@ -19,6 +19,7 @@ import :Resource;
 import :Buffer;
 import :Shader;
 import :Image;
+import :Cubemap;
 import :Light;
 import :DirectionalLight;
 import :OmniLight;
@@ -89,8 +90,10 @@ namespace z0 {
         };
 
         struct ShadowMapBuffer {
-            mat4 lightSpace[4]; // fixed at 4 for alignments, only [0] used on non cascaded shadow map
+            mat4 lightSpace[8]; // fixed at 8 for alignments
             float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
+            alignas(4) bool isCubemap{false};
+            alignas(16) vec3 lightPosition{};
         };
 
         struct ModelBuffer {
@@ -178,6 +181,8 @@ namespace z0 {
             uint32_t shadowMapUniformBufferCount{0};
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;
+            // Images infos for descriptor sets, pre-filled with blank cubemaps
+            array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsCubemapInfo;
 
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;
@@ -211,8 +216,10 @@ namespace z0 {
         bool enableShadowMapRenders{true};
         // One renderer per shadow map
         vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
-        // Default blank image
+        // Default blank image (for textures and shadow mapping)
         unique_ptr<Image> blankImage{nullptr};
+        // Default blank cubemap (for omni shadow mapping)
+        unique_ptr<Cubemap> blankCubemap{nullptr};
 
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
 

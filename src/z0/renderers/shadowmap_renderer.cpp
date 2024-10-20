@@ -15,6 +15,8 @@ import :ShadowMapFrameBuffer;
 import :Descriptors;
 import :MeshInstance;
 import :Light;
+import :OmniLight;
+import :SpotLight;
 import :Buffer;
 import :Mesh;
 import :ColorFrameBufferHDR;
@@ -26,10 +28,12 @@ namespace z0 {
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         light{light},
-        directionalLight{dynamic_cast<const DirectionalLight *>(light)} {
+        directionalLight{dynamic_cast<const DirectionalLight *>(light)} ,
+        omniLight{dynamic_cast<const OmniLight *>(light)},
+        spotLight{dynamic_cast<const SpotLight *>(light)} {
         frameData.resize(device.getFramesInFlight());
         for(auto& frame: frameData) {
-            frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded());
+            frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
             if (isCascaded()) { frame.cascadesCount = directionalLight->getShadowMapCascadesCount(); }
         }
     }
@@ -51,6 +55,18 @@ namespace z0 {
     }
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
+
+    mat4 persp(const float fov, const float near, const float far) {
+        const auto aspect        = Application::get()._getDevice().getAspectRatio();
+        const auto tanHalfFovy = tan(radians(fov) / 2.f);
+        auto projectionMatrix       = mat4{0.0f};
+        projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
+        projectionMatrix[1][1] = 1.f / (tanHalfFovy);
+        projectionMatrix[2][2] = far / (far - near);
+        projectionMatrix[2][3] = 1.f;
+        projectionMatrix[3][2] = -(far * near) / (far - near);
+        return  projectionMatrix;
+    }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
@@ -89,15 +105,15 @@ namespace z0 {
 
                 // Camera frustum corners in NDC space
                 vec3 frustumCorners[] = {
-                        vec3(-1.0f, 1.0f, -1.0f),
-                        vec3(1.0f, 1.0f, -1.0f),
-                        vec3(1.0f, -1.0f, -1.0f),
-                        vec3(-1.0f, -1.0f, -1.0f),
+                    vec3(-1.0f, 1.0f, -1.0f),
+                    vec3(1.0f, 1.0f, -1.0f),
+                    vec3(1.0f, -1.0f, -1.0f),
+                    vec3(-1.0f, -1.0f, -1.0f),
 
-                        vec3(-1.0f, 1.0f, 1.0f),
-                        vec3(1.0f, 1.0f, 1.0f),
-                        vec3(1.0f, -1.0f, 1.0f),
-                        vec3(-1.0f, -1.0f, 1.0f),
+                    vec3(-1.0f, 1.0f, 1.0f),
+                    vec3(1.0f, 1.0f, 1.0f),
+                    vec3(1.0f, -1.0f, 1.0f),
+                    vec3(-1.0f, -1.0f, 1.0f),
                 };
 
                 // Camera frustum corners into world space
@@ -165,7 +181,22 @@ namespace z0 {
                 data.splitDepth[cascadeIndex] = (nearClip + splitDist * clipRange);
                 lastSplitDist = cascadeSplits[cascadeIndex];
             }
-        } else if (auto *spotLight = dynamic_cast<const SpotLight *>(light)) {
+        } else if (isCubemap()) {
+            const auto lightPos  = light->getPositionGlobal();
+            // const auto lightProj = persp(
+            //     90.0f,
+            //     0.1f, 100.f); // TODO compute them from light distance
+            const auto lightProj = perspective(
+                radians(90.0f),
+                device.getAspectRatio(),
+                0.1f, 100.f); // TODO compute them from light distance
+            data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
+            data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
+            data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
+            data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
+            data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
+            data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
+        } else {
             const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
             const auto lightPosition                   = light->getPositionGlobal();
             const auto sceneCenter              = lightPosition + lightDirection;
@@ -173,16 +204,15 @@ namespace z0 {
                 spotLight->getFov(),
                 device.getAspectRatio(),
                 spotLight->getNearClipDistance(),
-                spotLight->getFarClipDistance());
+                spotLight->getFarClipDistance());// TODO compute them from light distance
             data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
-        } else {
-            assert(false);
         }
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         const auto& data = frameData[currentFrame];
-        for (int cascadeIndex = 0; cascadeIndex < data.cascadesCount; cascadeIndex++) {
+        const auto passCount = isCubemap() ? 6 : data.cascadesCount;
+        for (int passIndex = 0; passIndex < passCount; passIndex++) {
             device.transitionImageLayout(commandBuffer,
                                                 data.shadowMap->getImage(),
                                                 VK_IMAGE_LAYOUT_UNDEFINED,
@@ -194,7 +224,7 @@ namespace z0 {
                                                 VK_IMAGE_ASPECT_DEPTH_BIT);
             const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView   = data.shadowMap->getImageView(cascadeIndex),
+                .imageView   = isCascaded() || isCubemap() ? data.shadowMap->getCascadedImageView(passIndex) : data.shadowMap->getImageView(),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
                 .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
@@ -204,8 +234,8 @@ namespace z0 {
             const VkRenderingInfo renderingInfo{.sType      = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                                 .pNext      = nullptr,
                                                 .renderArea = {
-                                                            {0, 0},
-                                                            {data.shadowMap->getWidth(), data.shadowMap->getHeight()}
+                                                    {0, 0},
+                                                    {data.shadowMap->getWidth(), data.shadowMap->getHeight()}
                                                 },
                                                 .layerCount = 1,
                                                 .colorAttachmentCount = 0,
@@ -234,7 +264,9 @@ namespace z0 {
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
             auto pushConstants = PushConstants {
-                .lightSpace = data.lightSpace[cascadeIndex],
+                .lightSpace = data.lightSpace[passIndex],
+                .lightPosition = isCubemap() ? omniLight->getPositionGlobal() : VEC3ZERO,
+                .farPlane = 100.0f // TODO like above
             };
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
@@ -245,7 +277,7 @@ namespace z0 {
                         vkCmdPushConstants(
                             commandBuffer,
                             pipelineLayout,
-                            VK_SHADER_STAGE_VERTEX_BIT,
+                            VK_SHADER_STAGE_ALL_GRAPHICS,
                             0,
                             PUSHCONSTANTS_SIZE,
                             &pushConstants);
@@ -258,7 +290,6 @@ namespace z0 {
                     }
                 modelIndex += 1;
             }
-            vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
 
             vkCmdEndRendering(commandBuffer);
             device.transitionImageLayout(commandBuffer,
@@ -277,7 +308,12 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::loadShaders() {
-        vertShader = createShader("shadowmap.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
+        if (isCubemap()) {
+            vertShader = createShader("shadowmap_cubemap.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
+            fragShader = createShader("shadowmap_cubemap.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        } else {
+            vertShader = createShader("shadowmap.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
+        }
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
