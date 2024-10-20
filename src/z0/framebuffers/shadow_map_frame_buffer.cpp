@@ -25,7 +25,7 @@ namespace z0 {
     void ShadowMapFrameBuffer::createImagesResources() {
         // https://github.com/SaschaWillems/Vulkan/blob/master/examples/shadowmapping/shadowmapping.cpp#L192
         // For shadow mapping we only need a depth attachment
-        const auto format = device.findImageTilingSupportedFormat(
+        const auto format = device.findImageSupportedFormat(
                 {
                         VK_FORMAT_D32_SFLOAT,
                         VK_FORMAT_D16_UNORM,

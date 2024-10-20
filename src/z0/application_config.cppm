@@ -28,8 +28,10 @@ export namespace z0 {
         uint32_t         defaultFontSize   = 20;
         //! Where to log message using log()
         uint32_t        loggingMode        = LOGGING_NONE;
-        //! Default MSAA parameter. Note that MSAA is mandatory
+        //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa              = MSAA_AUTO;
+        //! Depth frame buffer format
+        DEPTH_FORMAT     depthFormat       = DEPTH_FORMAT_AUTO;
         //! Gamma correction value for the tone mapping renderer
         float            gamma             = 1.0f;
         //! Exposure correction value for the tone mapping renderer

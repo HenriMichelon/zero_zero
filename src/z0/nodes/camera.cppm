@@ -90,7 +90,7 @@ export namespace z0 {
         // Field of view in degrees
         float fov{75.0};
         // Nearest clipping distance
-        float nearDistance{0.1f};
+        float nearDistance{1.0f};
         // Furthest clipping distance
         float farDistance{100.0f};
         // Is this the currently active camera ?

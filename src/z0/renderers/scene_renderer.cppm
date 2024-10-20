@@ -141,6 +141,10 @@ namespace z0 {
         static constexpr uint32_t MAX_SHADOW_MAPS{10};
         // Maximum number of images supported by this renderer
         static constexpr uint32_t MAX_IMAGES{200};
+        // Constant depth bias factor (always applied)
+        static constexpr float depthBiasConstant = 0.0f;
+        // Slope depth bias factor, applied depending on polygon's slope
+        static constexpr float depthBiasSlope = 1.0f;
 
         // Size of each model matrix buffer
         static constexpr VkDeviceSize MODEL_BUFFER_SIZE{sizeof(ModelBuffer)};

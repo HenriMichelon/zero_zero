@@ -368,6 +368,8 @@ namespace z0 {
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
             drawModels(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels);
         }

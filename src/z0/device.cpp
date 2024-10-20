@@ -516,9 +516,9 @@ namespace z0 {
         return false;
     }
 
-    VkFormat Device::findImageTilingSupportedFormat(const vector<VkFormat> &   candidates,
-                                                    const VkImageTiling        tiling,
-                                                    const VkFormatFeatureFlags features) const {
+    VkFormat Device::findImageSupportedFormat(const vector<VkFormat> &   candidates,
+                                              const VkImageTiling        tiling,
+                                              const VkFormatFeatureFlags features) const {
         // https://vulkan-tutorial.com/Depth_buffering#page_Depth-image-and-view
         for (const auto format : candidates) {
             VkFormatProperties props;
@@ -529,7 +529,7 @@ namespace z0 {
                 return format;
             }
         }
-        die("failed to find supported format for the depth buffer");
+        die("failed to find supported format");
         return candidates.at(0);
     }
 
@@ -813,9 +813,6 @@ namespace z0 {
         vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
         VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
                 physicalDeviceProperties.limits.framebufferDepthSampleCounts;
-        /*if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
-        if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
-        if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }*/
         if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
         if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
         if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }

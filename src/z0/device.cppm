@@ -99,7 +99,7 @@ export namespace z0 {
         [[nodiscard]] VkBool32 formatIsFilterable(VkFormat format, VkImageTiling tiling) const;
 
         // Find a suitable IMAGE_TILING format (for the Depth buffering image)
-        [[nodiscard]] VkFormat findImageTilingSupportedFormat(const vector<VkFormat> &candidates,
+        [[nodiscard]] VkFormat findImageSupportedFormat(const vector<VkFormat> &candidates,
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 

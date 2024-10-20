@@ -172,6 +172,7 @@ namespace z0 {
                                1,
                                &attributeDescription);
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
+        vkCmdSetDepthCompareOp(commandBuffer, VK_COMPARE_OP_LESS_OR_EQUAL);
         bindDescriptorSets(commandBuffer, currentFrame);
         const VkBuffer         buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize offsets[] = {0};

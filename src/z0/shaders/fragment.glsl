@@ -82,6 +82,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             color = color * texture(texSampler[material.diffuseIndex], fs_in.UV);
         }
     }
+//    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);
     // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA
     // discard the fragment if the alpha value < scissor value of the material
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
@@ -97,7 +98,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         // We don't have a texture, get the calculated normal
         normal = fs_in.NORMAL;
     }
-    //return  vec4(normal, 1.0); // debug normals
+//    return  vec4(normal, 1.0); // debug normals
 
     // The global ambient light, always applied
     vec3 ambient = global.ambient.w * global.ambient.rgb;

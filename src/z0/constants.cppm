@@ -156,14 +156,34 @@ export namespace z0 {
      * MSAA samples
      */
     enum MSAA {
-        //! Select the best MSAA sample count
+        //! Select the best MSAA sample count between 2x and 8x
         MSAA_AUTO = 0,
         //! 2x MSAA
-        MSAA_2X = VK_SAMPLE_COUNT_2_BIT,
+        MSAA_2X   = VK_SAMPLE_COUNT_2_BIT,
         //! 4x MSAA
-        MSAA_4X = VK_SAMPLE_COUNT_4_BIT,
+        MSAA_4X   = VK_SAMPLE_COUNT_4_BIT,
         //! 8x MSAA
-        MSAA_8X = VK_SAMPLE_COUNT_8_BIT,
+        MSAA_8X   = VK_SAMPLE_COUNT_8_BIT,
+        //! 16x MSAA
+        MSAA_16X   = VK_SAMPLE_COUNT_16_BIT,
+        //! 32x MSAA
+        MSAA_32X   = VK_SAMPLE_COUNT_32_BIT,
+        //! 64x MSAA
+        MSAA_64X   = VK_SAMPLE_COUNT_64_BIT
+    };
+
+    /**
+     * Depth frame buffers precision
+     */
+    enum DEPTH_FORMAT {
+        //! Selection the best depth format available
+        DEPTH_FORMAT_AUTO   = 0,
+        //! 16-bit unsigned normalized
+        DEPTH_FORMAT_16BIT  = 1,
+        //! 24-bit unsigned normalized with or without stencil component
+        DEPTH_FORMAT_24BIT  = 2,
+        //! 32-bit signed float with or without stencil component
+        DEPTH_FORMAT_32BIT  = 3,
     };
 
     /**
@@ -174,9 +194,9 @@ export namespace z0 {
         //! No face culling is performed; both the front face and back face will be visible.
         CULLMODE_DISABLED = 0,
         //! Default cull mode. The back of the object is culled when not visible. Back face triangles will be culled when facing the camera. This results in only the front side of triangles being drawn. For closed-surface meshes, this means that only the exterior of the mesh will be visible.
-        CULLMODE_BACK = 1,
+        CULLMODE_BACK     = 1,
         //! Front face triangles will be culled when facing the camera. This results in only the back side of triangles being drawn. For closed-surface meshes, this means that the interior of the mesh will be drawn instead of the exterior.
-        CULLMODE_FRONT = 2,
+        CULLMODE_FRONT    = 2,
     };
 
     /*
