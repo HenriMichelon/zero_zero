@@ -70,6 +70,34 @@ float shadowFactor(int shadowMapIndex, int cascadeIndex) {
     }
     return shadow /= 9.0;
 }
+int getCubemapFaceIndex(vec3 direction) {
+    vec3 absDir = abs(direction);
+
+    // Find the largest component (which axis to project onto)
+    if (absDir.x > absDir.y && absDir.x > absDir.z) {
+        return direction.x > 0.0 ? 0 : 1; // Positive X or Negative X
+    } else if (absDir.y > absDir.x && absDir.y > absDir.z) {
+        return direction.y > 0.0 ? 2 : 3; // Positive Y or Negative Y
+    } else {
+        return direction.z > 0.0 ? 5 : 4; // Positive Z or Negative Z
+    }
+}
+
+float shadowFactorCubemap(int shadowMapIndex) {
+    // get vector between fragment position and light position
+    vec3 fragToLight = fs_in.GLOBAL_POSITION.xyz - shadowMapsInfos.shadowMaps[shadowMapIndex].lightPosition;
+    // use the light to fragment vector to sample from the depth map
+    float closestDepth = texture(shadowMapsCubemap[shadowMapIndex], fragToLight).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= 100.0f; // far plane
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // now test for shadows
+    float bias = 0.05;
+    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 float shadowFactorCubemap(int shadowMapIndex) {
     // get vector between fragment position and light position

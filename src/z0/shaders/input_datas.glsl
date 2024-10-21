@@ -79,6 +79,7 @@ layout(set = 0, binding = 4) uniform ShadowMapArray {
 } shadowMapsInfos;
 
 layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = 0, binding = 5) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(set = 0, binding = 7) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
 
