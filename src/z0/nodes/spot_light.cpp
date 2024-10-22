@@ -13,13 +13,11 @@ namespace z0 {
 
     SpotLight::SpotLight(const float   cutOffDegrees,
                          const float   outerCutOffDegrees,
-                         const float   linear,
-                         const float   quadratic,
-                         const float   attenuation,
+                         const float   range,
                          const vec4    color,
                          const float   specular,
                          const string &nodeName):
-        OmniLight{linear, quadratic, attenuation, color, specular, nodeName, SPOT_LIGHT},
+        OmniLight{range, color, specular, nodeName, SPOT_LIGHT},
         fov{radians(outerCutOffDegrees)},
         cutOff{cos(radians(cutOffDegrees))},
         outerCutOff{cos(fov)} {

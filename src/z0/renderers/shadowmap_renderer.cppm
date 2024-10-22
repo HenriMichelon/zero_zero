@@ -47,7 +47,7 @@ export namespace z0 {
 
         [[nodiscard]] inline bool isCubemap() const { return light->getLightType() == Light::LIGHT_OMNI; }
 
-        [[nodiscard]] inline const vec3& getLightPosition() const { return light->getPositionGlobal(); }
+        [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
         [[nodiscard]] inline float getCascadesCount(const uint32_t currentFrame) const {
             return frameData[currentFrame].cascadesCount;

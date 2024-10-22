@@ -5,41 +5,41 @@ layout (location = 0) in VertexOut fs_in;
 layout (location = 0) out vec4 COLOR;
 
 vec3 calcDirectionalLight(Light light, vec4 color, vec3 normal, Material material) {
-    vec3 lightDir = normalize(-light.direction);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color.rgb * light.color.w * color.rgb;
+    const vec3 lightDir = normalize(-light.direction);
+    const float diff = max(dot(normal, lightDir), 0.0);
+    const vec3 diffuse = diff * light.color.rgb * light.color.w * color.rgb;
     if (material.specularIndex != -1) {
         // Blinn-Phong
         // https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
-        vec3 halfwayDir = normalize(lightDir + fs_in.VIEW_DIRECTION);
-        float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess*3);
-        vec3 specular = light.specular * spec * light.color.rgb * texture(texSampler[material.specularIndex], fs_in.UV).rgb;
+        const vec3 halfwayDir = normalize(lightDir + fs_in.VIEW_DIRECTION);
+        const float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess*3);
+        const vec3 specular = light.specular * spec * light.color.rgb * texture(texSampler[material.specularIndex], fs_in.UV).rgb;
         return diffuse + specular;
     }
     return diffuse;
 }
 
 vec3 calcPointLight(Light light, vec4 color, vec3 normal, Material material) {
-    float dist = length(light.position - fs_in.GLOBAL_POSITION.xyz);
-    float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
-    vec3 lightDir = normalize(light.position - fs_in.GLOBAL_POSITION.xyz);
+    const float dist = length(light.position - fs_in.GLOBAL_POSITION.xyz);
+    const float attenuation = clamp(1.0 - dist/light.range, 0.0, 1.0);
+    const vec3 lightDir = normalize(light.position - fs_in.GLOBAL_POSITION.xyz);
     float intensity = 1.0f;
     bool cutOff = light.type == LIGHT_SPOT;
 
     if (cutOff) {
-        float theta = dot(lightDir, normalize(-light.direction));
-        float epsilon = light.cutOff - light.outerCutOff;
+        const float theta = dot(lightDir, normalize(-light.direction));
+        const float epsilon = light.cutOff - light.outerCutOff;
         intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
         cutOff = theta <= light.outerCutOff;
     }
 
     if (!cutOff) {
-        float diff = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = intensity * attenuation * diff * light.color.rgb * light.color.w * color.rgb;
+        const float diff = max(dot(normal, lightDir), 0.0);
+        const vec3 diffuse = intensity * attenuation * diff * light.color.rgb * light.color.w * color.rgb;
         if (material.specularIndex != -1) {
-            vec3 halfwayDir = normalize(lightDir + fs_in.VIEW_DIRECTION);
-            float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess*3);
-            vec3 specular = intensity * attenuation * light.specular * spec * light.color.rgb * texture(texSampler[material.specularIndex], fs_in.UV).rgb;
+            const vec3 halfwayDir = normalize(lightDir + fs_in.VIEW_DIRECTION);
+            const float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess*3);
+            const vec3 specular = intensity * attenuation * light.specular * spec * light.color.rgb * texture(texSampler[material.specularIndex], fs_in.UV).rgb;
             return diffuse + specular;
         }
         return diffuse;

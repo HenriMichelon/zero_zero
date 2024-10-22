@@ -11,15 +11,12 @@ namespace z0 {
         Light{name, type} {
     }
 
-    OmniLight::OmniLight(const float   linear,
-                         const float   quadratic,
-                         const float   attenuation,
+    OmniLight::OmniLight(const float   range,
                          const vec4    color,
                          const float   specular,
                          const string &nodeName,
                          const Type    type):
-        Light{color, specular, nodeName, type},
-        attenuation{attenuation}, linear{linear}, quadratic{quadratic} {
+        Light{color, specular, nodeName, type}, range{range} {
     }
 
 }

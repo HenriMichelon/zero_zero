@@ -23,9 +23,7 @@ struct Light {
     vec3 direction;
     vec4 color;
     float specular;
-    float constant;
-    float linear;
-    float quadratic;
+    float range;
     float cutOff;
     float outerCutOff;
     // shadow map params

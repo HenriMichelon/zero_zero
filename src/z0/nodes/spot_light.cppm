@@ -31,9 +31,7 @@ export namespace z0 {
         */
         explicit SpotLight(float         cutOffDegrees,
                            float         outerCutOffDegrees,
-                           float         linear,
-                           float         quadratic,
-                           float         attenuation = 1.0f,
+                           float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},
                            float         specular    = 1.0f,
                            const string &nodeName    = "SpotLight");

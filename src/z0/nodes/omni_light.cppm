@@ -19,16 +19,12 @@ export namespace z0 {
 
         /**
          * Create an OmniLight.
-         * @param linear the linear term (see https://learnopengl.com/Lighting/Light-casters)
-         * @param quadratic the quadratic term (see https://learnopengl.com/Lighting/Light-casters)
-         * @param attenuation the attenuation factor
+         * @param range The light's radius
          * @param color the RGB color and intensity
          * @param specular intensity of the specular blob in objects affected by the light.
          * @param nodeName Node name
          */
-        explicit OmniLight(float         linear,
-                           float         quadratic,
-                           float         attenuation = 1.0f,
+        explicit OmniLight(float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},
                            float         specular    = 1.0f,
                            const string &nodeName    = "OmniLight",
@@ -37,34 +33,14 @@ export namespace z0 {
         ~OmniLight() override = default;
 
         /**
-         * Returns the linear term
+         * Returns the light range
          */
-        [[nodiscard]] inline float getLinear() const { return linear; }
+        [[nodiscard]] inline float getRange() const { return range; }
 
         /**
-         * Sets the linear term
+         * Sets the light range
          */
-        inline void setLinear(const float linear) { this->linear = linear; }
-
-        /**
-         * Returns the quadratic term
-         */
-        [[nodiscard]] inline float getQuadratic() const { return quadratic; }
-
-        /**
-         * Sets the quadratic term
-         */
-        inline void setQuadratic(const float quadratic) { this->quadratic = quadratic; }
-
-        /**
-         * Returns the attenuation factor
-         */
-        [[nodiscard]] inline float getAttenuation() const { return attenuation; }
-
-        /**
-         * Sets the attenuation factor
-         */
-        inline void setAttenuation(const float attenuation) { this->attenuation = attenuation; }
+        inline void setRange(const float range) { this->range = range; }
 
         /**
          * Returns the light near clipping distance
@@ -74,17 +50,14 @@ export namespace z0 {
         /**
          * Returns the light far clipping distance
          */
-        [[nodiscard]] inline float getFarClipDistance() const { return farDistance; }
+        [[nodiscard]] inline float getFarClipDistance() const { return range; }
 
 
     protected:
-        float attenuation{1.0};
-        float linear{0.14};
-        float quadratic{0.07};
-        // Nearest clipping distance
+        // Maximum distance of lighting
+        float range{0.0f};
+        // Nearest clipping distance for shadows
         float nearDistance{0.1f};
-        // Furthest clipping distance
-        float farDistance{100.0f}; // TODO compute them from light distance
     };
 
 }

@@ -103,9 +103,7 @@ namespace z0 {
             alignas(16) vec3 direction{0.0f};
             alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(4) float specular{1.0f};
-            alignas(4) float constant{1.0f};
-            alignas(4) float linear{0.0f};
-            alignas(4) float quadratic{0.0f};
+            alignas(4) float range{0.0f};
             alignas(4) float cutOff{0.0f};
             alignas(4) float outerCutOff{0.0f};
             // shadow map params

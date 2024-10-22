@@ -277,9 +277,7 @@ namespace z0 {
                     }
                     case Light::LIGHT_OMNI: {
                         const auto* omniLight = dynamic_cast<const OmniLight*>(light);
-                        lightsArray[lightIndex].constant  = omniLight->getAttenuation();
-                        lightsArray[lightIndex].linear    = omniLight->getLinear();
-                        lightsArray[lightIndex].quadratic = omniLight->getQuadratic();
+                        lightsArray[lightIndex].range  = omniLight->getRange();
                         break;
                     }
                     default:
