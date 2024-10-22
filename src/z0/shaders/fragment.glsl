@@ -142,7 +142,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         Light light = lights.light[i];
         float factor = 1.0f;
         switch (light.type) {
-        case LIGHT_DIRECTIONAL: {
+            case LIGHT_DIRECTIONAL: {
                 if (light.mapIndex != -1) {
                     // We have a cascaded shadow map,
                     // get cascade index maps for the current fragment's view Z position
@@ -163,18 +163,33 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                         float nextFactor = shadowFactor(light, cascadeIndex +2);
                         if (nextFactor < 0.1f) factor = nextFactor;
                     }
+                    // Display the cascade splits for debug
+//                    switch (cascadeIndex) {
+//                        case 0 :
+//                        color.rgb *= vec3(1.0f, 0.25f, 0.25f);
+//                        break;
+//                        case 1 :
+//                        color.rgb *= vec3(0.25f, 1.0f, 0.25f);
+//                        break;
+//                        case 2 :
+//                        color.rgb *= vec3(0.25f, 0.25f, 1.0f);
+//                        break;
+//                        case 3 :
+//                        color.rgb *= vec3(1.0f, 1.0f, 0.25f);
+//                        break;
+//                    }
                 }
                 diffuse += factor * calcDirectionalLight(light, color, normal, material);
                 break;
             }
-        case LIGHT_SPOT: {
+            case LIGHT_SPOT: {
                 if (light.mapIndex != -1) {
                     factor = shadowFactor(light, 0);
                 }
                 diffuse += factor * calcPointLight(light, color, normal, material);
                 break;
             }
-        case LIGHT_OMNI: {
+            case LIGHT_OMNI: {
                 if (light.mapIndex != -1) {
                     factor = shadowFactorCubemap(light);
                 }
@@ -182,64 +197,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                 break;
             }
         }
-
-//        if (global.cascadedShadowMapIndex != -1) {
-//            // We have a cascaded shadow map,
-//            // get cascade index maps for the current fragment's view Z position
-//            int cascadeIndex = 0;
-//            for (int index = 0; index < global.cascadesCount; index++) {
-//                if (fs_in.CLIPSPACE_Z > shadowMapsInfos.shadowMaps[global.cascadedShadowMapIndex].cascadeSplitDepth[index]) {
-//                    cascadeIndex = index + 1;
-//                }
-//            }
-//            // Get the shadow factor for the cascade
-//            factor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex);
-//            // If no shadow try the next cascades (for objets behind the light position in the cascade)
-//            if ((factor >= 0.1f) && (cascadeIndex < global.cascadesCount)) {
-//                float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +1);
-//                if (nextFactor < 0.1f) factor = nextFactor;
-//            }
-//            if ((factor >= 0.1f) && ((cascadeIndex+1) < global.cascadesCount)) {
-//                float nextFactor = shadowFactor(global.cascadedShadowMapIndex, cascadeIndex +2);
-//                if (nextFactor < 0.1f) factor = nextFactor;
-//            }
-//            // Display the cascade splits for debug
-////            switch(cascadeIndex) {
-////                case 0 :
-////                    color.rgb *= vec3(1.0f, 0.25f, 0.25f);
-////                    break;
-////                case 1 :
-////                    color.rgb *= vec3(0.25f, 1.0f, 0.25f);
-////                    break;
-////                case 2 :
-////                    color.rgb *= vec3(0.25f, 0.25f, 1.0f);
-////                    break;
-////                case 3 :
-////                    color.rgb *= vec3(1.0f, 1.0f, 0.25f);
-////                    break;
-////            }
-//        }
-//        diffuse = factor * calcDirectionalLight(global.directionalLight, color, normal, material);
     }
-
-    // Acculumate all other lights (spots & omnis)
-//    for(int i = 0; i < global.pointLightsCount; i++) {
-//        diffuse += calcPointLight(pointLights.lights[i], color, normal, material);
-//    }
-//
-//    float shadow = 1.0f;
-//    if (global.shadowMapsCount > 0) {
-//        shadow = 0.0f;
-//        for (int i = 0; i < global.shadowMapsCount; i++) {
-//            if (global.cascadedShadowMapIndex != i) {
-//                if (shadowMapsInfos.shadowMaps[i].isCubemap) {
-//                    shadow += shadowFactorCubemap(i);
-//                } else {
-//                    shadow += shadowFactor(i, 0);
-//                }
-//            }
-//        }
-//    }
 
     return vec4((ambient + diffuse) * color.rgb, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }
