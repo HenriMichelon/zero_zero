@@ -27,14 +27,11 @@ namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
-        light{light},
-        directionalLight{dynamic_cast<const DirectionalLight *>(light)} ,
-        omniLight{dynamic_cast<const OmniLight *>(light)},
-        spotLight{dynamic_cast<const SpotLight *>(light)} {
+        light{light} {
         frameData.resize(device.getFramesInFlight());
         for(auto& frame: frameData) {
             frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
-            if (isCascaded()) { frame.cascadesCount = directionalLight->getShadowMapCascadesCount(); }
+            if (isCascaded()) { frame.cascadesCount = reinterpret_cast<const DirectionalLight*>(light)->getShadowMapCascadesCount(); }
         }
     }
 
@@ -56,160 +53,163 @@ namespace z0 {
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
-    mat4 persp(const float fov, const float near, const float far) {
-        const auto aspect        = Application::get()._getDevice().getAspectRatio();
-        const auto tanHalfFovy = tan(radians(fov) / 2.f);
-        auto projectionMatrix       = mat4{0.0f};
-        projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
-        projectionMatrix[1][1] = 1.f / (tanHalfFovy);
-        projectionMatrix[2][2] = far / (far - near);
-        projectionMatrix[2][3] = 1.f;
-        projectionMatrix[3][2] = -(far * near) / (far - near);
-        return  projectionMatrix;
-    }
-
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
         if (data.currentCamera == nullptr) { return; }
-        if (isCascaded()) {
-            // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
-            // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
-            // https://learnopengl.com/Guest-Articles/2021/CSM
+        switch (light->getLightType()) {
+            case Light::LIGHT_DIRECTIONAL: {
+                // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
+                // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
+                // https://learnopengl.com/Guest-Articles/2021/CSM
 
-            auto cascadeSplits = vector<float>(data.cascadesCount);
-            const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-            const auto lightDirection = directionalLight->getFrontVector();
-            const auto nearClip  = data.currentCamera->getNearDistance();
-            const auto farClip   = data.currentCamera->getFarDistance();
-            const auto clipRange = farClip - nearClip;
-            const auto minZ = nearClip;
-            const auto maxZ = nearClip + clipRange;
-            const auto range = maxZ - minZ;
-            const auto ratio = maxZ / minZ;
+                auto cascadeSplits = vector<float>(data.cascadesCount);
+                const auto *directionalLight = reinterpret_cast<const DirectionalLight *>(light);
+                const auto lightDirection = directionalLight->getFrontVector();
+                const auto nearClip  = data.currentCamera->getNearDistance();
+                const auto farClip   = data.currentCamera->getFarDistance();
+                const auto clipRange = farClip - nearClip;
+                const auto minZ = nearClip;
+                const auto maxZ = nearClip + clipRange;
+                const auto range = maxZ - minZ;
+                const auto ratio = maxZ / minZ;
 
-            // Calculate split depths based on view camera frustum
-            // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-            for (auto i = 0; i < data.cascadesCount; i++) {
-                float p          = (i + 1) / static_cast<float>(data.cascadesCount);
-                float log        = minZ * std::pow(ratio, p);
-                float uniform    = minZ + range * p;
-                float d          = cascadeSplitLambda * (log - uniform) + uniform;
-                cascadeSplits[i] = (d - nearClip) / clipRange;
+                // Calculate split depths based on view camera frustum
+                // Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+                for (auto i = 0; i < data.cascadesCount; i++) {
+                    float p          = (i + 1) / static_cast<float>(data.cascadesCount);
+                    float log        = minZ * std::pow(ratio, p);
+                    float uniform    = minZ + range * p;
+                    float d          = cascadeSplitLambda * (log - uniform) + uniform;
+                    cascadeSplits[i] = (d - nearClip) / clipRange;
+                }
+
+                // Calculate orthographic projection matrix for each cascade
+                float lastSplitDist = 0.0;
+                const auto invCam = inverse(data.currentCamera->getProjection() * data.currentCamera->getView());
+                for (auto cascadeIndex = 0; cascadeIndex < data.cascadesCount; cascadeIndex++) {
+                    const auto splitDist = cascadeSplits[cascadeIndex];
+
+                    // Camera frustum corners in NDC space
+                    vec3 frustumCorners[] = {
+                        vec3(-1.0f, 1.0f, -1.0f),
+                        vec3(1.0f, 1.0f, -1.0f),
+                        vec3(1.0f, -1.0f, -1.0f),
+                        vec3(-1.0f, -1.0f, -1.0f),
+
+                        vec3(-1.0f, 1.0f, 1.0f),
+                        vec3(1.0f, 1.0f, 1.0f),
+                        vec3(1.0f, -1.0f, 1.0f),
+                        vec3(-1.0f, -1.0f, 1.0f),
+                    };
+
+                    // Camera frustum corners into world space
+                    for (auto j = 0; j < 8; j++) {
+                        const auto invCorner = invCam * vec4(frustumCorners[j], 1.0f);
+                        frustumCorners[j]   = invCorner / invCorner.w;
+                    }
+
+                    // Adjust the coordinates of near and far planes for this specific cascade
+                    for (auto j = 0; j < 4; j++) {
+                        const auto dist = frustumCorners[j + 4] - frustumCorners[j];
+                        frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
+                        frustumCorners[j]     = frustumCorners[j] + (dist * lastSplitDist);
+                    }
+
+                    // Frustum center for this cascade split, in world space
+                    auto frustumCenter = VEC3ZERO;
+                    for (auto j = 0; j < 8; j++) {
+                        frustumCenter += frustumCorners[j];
+                    }
+                    frustumCenter /= 8.0f;
+
+                    // Radius of the cascade split
+                    auto radius = 0.0f;
+                    for (auto j = 0; j < 8; j++) {
+                        const auto distance = length(frustumCorners[j] - frustumCenter);
+                        radius         = glm::max(radius, distance);
+                    }
+                    radius = std::ceil(radius * 16.0f) / 16.0f;
+
+                    // Snap the frustum center to the nearest texel grid
+                    const auto shadowMapResolution = static_cast<float>(data.shadowMap->getWidth());
+                    const float worldUnitsPerTexel = (2.0f * radius) / shadowMapResolution;
+                    frustumCenter.x = std::floor(frustumCenter.x / worldUnitsPerTexel) * worldUnitsPerTexel;
+                    frustumCenter.y = std::floor(frustumCenter.y / worldUnitsPerTexel) * worldUnitsPerTexel;
+                    frustumCenter.z = std::floor(frustumCenter.z / worldUnitsPerTexel) * worldUnitsPerTexel;
+
+                    // Split bounding box
+                    const auto maxExtents = vec3(radius);
+                    const auto minExtents = -maxExtents;
+                    const auto depth = maxExtents.z - minExtents.z;
+
+                    // View & projection matrices
+                    const auto eye = frustumCenter - lightDirection * -minExtents.z ;
+                    const auto viewMatrix = lookAt(eye, frustumCenter, AXIS_UP);
+                    auto lightProjection = ortho(
+                        minExtents.x, maxExtents.x,
+                        minExtents.y, maxExtents.y,
+                        -depth, depth);
+
+                    // https://stackoverflow.com/questions/33499053/cascaded-shadow-map-shimmering
+                    // Create the rounding matrix, by projecting the world-space origin and determining
+                    // the fractional offset in texel space
+                    const auto shadowMatrix = lightProjection * viewMatrix;
+                    const auto shadowOrigin = (shadowMatrix * vec4{0.0f, 0.0f, 0.0f, 1.0f}) * (shadowMapResolution / 2.0f);
+                    const auto roundedOrigin = round(shadowOrigin);
+                    auto roundOffset = roundedOrigin - shadowOrigin;
+                    roundOffset = roundOffset *  2.0f / shadowMapResolution;
+                    roundOffset.z = 0.0f;
+                    roundOffset.w = 0.0f;
+                    lightProjection[3] += roundOffset;
+
+                    // Store the results in the frame data
+                    data.lightSpace[cascadeIndex] = lightProjection * viewMatrix;
+                    data.splitDepth[cascadeIndex] = (nearClip + splitDist * clipRange);
+                    lastSplitDist = cascadeSplits[cascadeIndex];
+                }
+                break;
             }
-
-            // Calculate orthographic projection matrix for each cascade
-            float lastSplitDist = 0.0;
-            const auto invCam = inverse(data.currentCamera->getProjection() * data.currentCamera->getView());
-            for (auto cascadeIndex = 0; cascadeIndex < data.cascadesCount; cascadeIndex++) {
-                const auto splitDist = cascadeSplits[cascadeIndex];
-
-                // Camera frustum corners in NDC space
-                vec3 frustumCorners[] = {
-                    vec3(-1.0f, 1.0f, -1.0f),
-                    vec3(1.0f, 1.0f, -1.0f),
-                    vec3(1.0f, -1.0f, -1.0f),
-                    vec3(-1.0f, -1.0f, -1.0f),
-
-                    vec3(-1.0f, 1.0f, 1.0f),
-                    vec3(1.0f, 1.0f, 1.0f),
-                    vec3(1.0f, -1.0f, 1.0f),
-                    vec3(-1.0f, -1.0f, 1.0f),
-                };
-
-                // Camera frustum corners into world space
-                for (auto j = 0; j < 8; j++) {
-                    const auto invCorner = invCam * vec4(frustumCorners[j], 1.0f);
-                    frustumCorners[j]   = invCorner / invCorner.w;
-                }
-
-                // Adjust the coordinates of near and far planes for this specific cascade
-                for (auto j = 0; j < 4; j++) {
-                    const auto dist = frustumCorners[j + 4] - frustumCorners[j];
-                    frustumCorners[j + 4] = frustumCorners[j] + (dist * splitDist);
-                    frustumCorners[j]     = frustumCorners[j] + (dist * lastSplitDist);
-                }
-
-                // Frustum center for this cascade split, in world space
-                auto frustumCenter = VEC3ZERO;
-                for (auto j = 0; j < 8; j++) {
-                    frustumCenter += frustumCorners[j];
-                }
-                frustumCenter /= 8.0f;
-
-                // Radius of the cascade split
-                auto radius = 0.0f;
-                for (auto j = 0; j < 8; j++) {
-                    const auto distance = length(frustumCorners[j] - frustumCenter);
-                    radius         = glm::max(radius, distance);
-                }
-                radius = std::ceil(radius * 16.0f) / 16.0f;
-
-                // Snap the frustum center to the nearest texel grid
-                const auto shadowMapResolution = static_cast<float>(data.shadowMap->getWidth());
-                const float worldUnitsPerTexel = (2.0f * radius) / shadowMapResolution;
-                frustumCenter.x = std::floor(frustumCenter.x / worldUnitsPerTexel) * worldUnitsPerTexel;
-                frustumCenter.y = std::floor(frustumCenter.y / worldUnitsPerTexel) * worldUnitsPerTexel;
-                frustumCenter.z = std::floor(frustumCenter.z / worldUnitsPerTexel) * worldUnitsPerTexel;
-
-                // Split bounding box
-                const auto maxExtents = vec3(radius);
-                const auto minExtents = -maxExtents;
-                const auto depth = maxExtents.z - minExtents.z;
-
-                // View & projection matrices
-                const auto eye = frustumCenter - lightDirection * -minExtents.z ;
-                const auto viewMatrix = lookAt(eye, frustumCenter, AXIS_UP);
-                auto lightProjection = ortho(
-                    minExtents.x, maxExtents.x,
-                    minExtents.y, maxExtents.y,
-                    -depth, depth);
-
-                // https://stackoverflow.com/questions/33499053/cascaded-shadow-map-shimmering
-                // Create the rounding matrix, by projecting the world-space origin and determining
-                // the fractional offset in texel space
-                const auto shadowMatrix = lightProjection * viewMatrix;
-                const auto shadowOrigin = (shadowMatrix * vec4{0.0f, 0.0f, 0.0f, 1.0f}) * (shadowMapResolution / 2.0f);
-                const auto roundedOrigin = round(shadowOrigin);
-                auto roundOffset = roundedOrigin - shadowOrigin;
-                roundOffset = roundOffset *  2.0f / shadowMapResolution;
-                roundOffset.z = 0.0f;
-                roundOffset.w = 0.0f;
-                lightProjection[3] += roundOffset;
-
-                // Store the results in the frame data
-                data.lightSpace[cascadeIndex] = lightProjection * viewMatrix;
-                data.splitDepth[cascadeIndex] = (nearClip + splitDist * clipRange);
-                lastSplitDist = cascadeSplits[cascadeIndex];
+            case Light::LIGHT_OMNI: {
+                const auto *omniLight = reinterpret_cast<const OmniLight *>(light);
+                const auto lightPos  = omniLight->getPositionGlobal();
+                const auto lightProj = perspective(
+                    radians(90.0f),
+                    data.shadowMap->getRatio(),
+                    omniLight->getNearClipDistance(),
+                    omniLight->getFarClipDistance());
+                data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
+                data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
+                data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
+                data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
+                data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
+                data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
+                break;
             }
-        } else if (isCubemap()) {
-            const auto lightPos  = omniLight->getPositionGlobal();
-            const auto lightProj = perspective(
-                radians(90.0f),
-                data.shadowMap->getRatio(),
-                omniLight->getNearClipDistance(),
-                omniLight->getFarClipDistance());
-            data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
-            data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
-            data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
-            data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
-            data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
-            data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
-        } else {
-            const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
-            const auto lightPosition                   = light->getPositionGlobal();
-            const auto sceneCenter              = lightPosition + lightDirection;
-            const auto lightProjection = perspective(
-                spotLight->getFov(),
-                data.shadowMap->getRatio(),
-                spotLight->getNearClipDistance(),
-                spotLight->getFarClipDistance());
-            data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+            case Light::LIGHT_SPOT: {
+                const auto *spotLight = reinterpret_cast<const SpotLight *>(light);
+                const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
+                const auto lightPosition                   = light->getPositionGlobal();
+                const auto sceneCenter              = lightPosition + lightDirection;
+                const auto lightProjection = perspective(
+                    spotLight->getFov(),
+                    data.shadowMap->getRatio(),
+                    spotLight->getNearClipDistance(),
+                    spotLight->getFarClipDistance());
+                data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+                break;
+            }
         }
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         const auto& data = frameData[currentFrame];
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
+        auto pushConstants = PushConstants {};
+        if (light->getLightType() == Light::LIGHT_OMNI) {
+            const auto* omniLight = reinterpret_cast<const OmniLight*>(light);
+            pushConstants.lightPosition = omniLight->getPositionGlobal();
+            pushConstants.farPlane =  omniLight->getFarClipDistance();
+        };
         for (int passIndex = 0; passIndex < passCount; passIndex++) {
             device.transitionImageLayout(commandBuffer,
                                                 data.shadowMap->getImage(),
@@ -261,11 +261,7 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
-            auto pushConstants = PushConstants {
-                .lightSpace = data.lightSpace[passIndex],
-                .lightPosition = isCubemap() ? omniLight->getPositionGlobal() : VEC3ZERO,
-                .farPlane =  isCubemap() ? omniLight->getFarClipDistance() : 0.0f
-            };
+            pushConstants.lightSpace = data.lightSpace[passIndex];
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {

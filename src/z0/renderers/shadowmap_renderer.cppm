@@ -43,11 +43,11 @@ export namespace z0 {
 
         [[nodiscard]] inline const Light *getLight() const { return light; }
 
-        [[nodiscard]] inline bool isCascaded() const { return directionalLight != nullptr; }
+        [[nodiscard]] inline bool isCascaded() const { return light->getLightType() == Light::LIGHT_DIRECTIONAL; }
 
-        [[nodiscard]] inline bool isCubemap() const { return directionalLight == nullptr && spotLight == nullptr; }
+        [[nodiscard]] inline bool isCubemap() const { return light->getLightType() == Light::LIGHT_OMNI; }
 
-        [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+        [[nodiscard]] inline const vec3& getLightPosition() const { return light->getPositionGlobal(); }
 
         [[nodiscard]] inline float getCascadesCount(const uint32_t currentFrame) const {
             return frameData[currentFrame].cascadesCount;
@@ -90,15 +90,6 @@ export namespace z0 {
         // the closer to 1.0 the smaller the firsts splits
         static constexpr auto cascadeSplitLambda = 0.95f;
 
-        // The light we render the shadow map for
-        const Light *light;
-        // The light is a DirectionalLight
-        const DirectionalLight* directionalLight{nullptr};
-        // The light is an OmniLight
-        const OmniLight* omniLight{nullptr};
-        // The light is a SpotLight
-        const SpotLight* spotLight{nullptr};
-
         struct FrameData {
             // Scene current camera
             Camera* currentCamera{nullptr};
@@ -114,6 +105,9 @@ export namespace z0 {
             float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
         };
         vector<FrameData> frameData;
+
+        // The light we render the shadow map for
+        const Light *light;
 
         void update(uint32_t currentFrame) override;
 
