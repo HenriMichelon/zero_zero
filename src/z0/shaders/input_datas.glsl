@@ -1,14 +1,14 @@
 #extension GL_EXT_debug_printf: enable
 
 struct VertexOut {
-    vec2 UV;
-    vec3 NORMAL;
-    vec4 GLOBAL_POSITION;
-    vec3 POSITION;
-    vec3 VIEW_DIRECTION;
-    float CLIPSPACE_Z;
-    mat3 TBN;
-    vec4 tangent;
+    vec2    UV;
+    vec3    NORMAL;
+    vec4    GLOBAL_POSITION;
+    vec3    POSITION;
+    vec3    VIEW_DIRECTION;
+    float   CLIPSPACE_Z;
+    mat3    TBN;
+    vec4    TANGENT;
 };
 
 // Light::LightType
@@ -18,34 +18,34 @@ struct VertexOut {
 
 struct Light {
     // light params
-    int type; // Light::LightType
-    vec3 position;
-    vec3 direction;
-    vec4 color;
-    float specular;
-    float range;
-    float cutOff;
-    float outerCutOff;
+    int     type; // Light::LightType
+    vec3    position;
+    vec3    direction;
+    vec4    color;
+    float   specular;
+    float   range;
+    float   cutOff;
+    float   outerCutOff;
     // shadow map params
-    int mapIndex;
-    float farPlane;
-    uint cascadesCount;
-    vec4 cascadeSplitDepth;
-    mat4 lightSpace[6];
+    int     mapIndex;
+    float   farPlane;
+    uint    cascadesCount;
+    vec4    cascadeSplitDepth;
+    mat4    lightSpace[6];
 };
 
 struct Material  {
-    int transparency;
-    float alphaScissor;
-    int diffuseIndex;
-    int specularIndex;
-    int normalIndex;
-    vec4 albedoColor;
-    float shininess;
-    bool hasTextureTransform;
-    vec2 textureOffset;
-    vec2 textureScale;
-    vec4 parameters[4]; // ShaderMaterial::MAX_PARAMETERS
+    int     transparency;
+    float   alphaScissor;
+    int     diffuseIndex;
+    int     specularIndex;
+    int     normalIndex;
+    vec4    albedoColor;
+    float   shininess;
+    bool    hasTextureTransform;
+    vec2    textureOffset;
+    vec2    textureScale;
+    vec4    parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 };
 
 layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
