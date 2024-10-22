@@ -175,7 +175,7 @@ export namespace z0 {
     /**
      * Depth frame buffers precision
      */
-    enum DEPTH_FORMAT {
+    enum DepthFormat {
         //! Selection the best depth format available
         DEPTH_FORMAT_AUTO   = 0,
         //! 16-bit unsigned normalized
@@ -205,13 +205,27 @@ export namespace z0 {
     */
     enum Transparency {
         //! The material will not use transparency. This is the fastest to render.
-        TRANSPARENCY_DISABLED = 0,
+        TRANSPARENCY_DISABLED      = 0,
         //! The material will use the texture's alpha values for transparency.
-        TRANSPARENCY_ALPHA = 1,
+        TRANSPARENCY_ALPHA         = 1,
         //! The material will cut off all values below a threshold, the rest will remain opaque.
-        TRANSPARENCY_SCISSOR = 2,
+        TRANSPARENCY_SCISSOR       = 2,
         //! The material will cut off all values below a threshold, the rest will use the texture's alpha values for transparency.
         TRANSPARENCY_SCISSOR_ALPHA = 3,
+    };
+
+    /**
+     * Specifies the channel of the texture in which the information is stored
+     */
+    enum TextureChannel {
+        //! Used to read from the red channel of a texture.
+        TEXTURE_CHANNEL_RED   = 0,
+        //! Used to read from the green channel of a texture.
+        TEXTURE_CHANNEL_GREEN = 1,
+        //! Used to read from the blue channel of a texture.
+        TEXTURE_CHANNEL_BLUE  = 2,
+        //! Used to read from the alpha channel of a texture.
+        TEXTURE_CHANNEL_ALPHA  = 3,
     };
 
     /**

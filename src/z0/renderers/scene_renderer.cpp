@@ -146,6 +146,10 @@ namespace z0 {
                         removeImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
                     if (standardMaterial->getNormalTexture() != nullptr)
                         removeImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
+                    if (standardMaterial->getMetallicTexture() != nullptr)
+                        removeImage(standardMaterial->getMetallicTexture()->getImage(), currentFrame);
+                    if (standardMaterial->getRoughnessTexture() != nullptr)
+                        removeImage(standardMaterial->getRoughnessTexture()->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                     const auto &shader = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()];
                     if (shader->_decrementReferenceCounter()) {
@@ -188,6 +192,10 @@ namespace z0 {
                     addImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
                 if (standardMaterial->getNormalTexture() != nullptr)
                     addImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
+                if (standardMaterial->getMetallicTexture() != nullptr)
+                    addImage(standardMaterial->getMetallicTexture()->getImage(), currentFrame);
+                if (standardMaterial->getRoughnessTexture() != nullptr)
+                    addImage(standardMaterial->getRoughnessTexture()->getImage(), currentFrame);
             }
         }
     }
@@ -330,9 +338,13 @@ namespace z0 {
             materialUBO.alphaScissor = material->getAlphaScissor();
             if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 materialUBO.albedoColor = standardMaterial->getAlbedoColor().color;
+                materialUBO.metallicFactor = standardMaterial->getMetallic();
+                materialUBO.roughnessFactor = standardMaterial->getRoughness();
+                materialUBO.metallicChannel = standardMaterial->getMetallicTextureChannel();
+                materialUBO.roughnessChannel = standardMaterial->getRoughnessTextureChannel();
                 if (standardMaterial->getAlbedoTexture() != nullptr) {
                     materialUBO.diffuseIndex = frame.imagesIndices.at(standardMaterial->getAlbedoTexture()->getImage()->getId());
-                    const auto &transform    = standardMaterial->getTextureTransform();
+                    const auto &transform = standardMaterial->getTextureTransform();
                     if (transform != nullptr) {
                         materialUBO.hasTransform  = true;
                         materialUBO.textureOffset = transform->offset;
@@ -344,7 +356,13 @@ namespace z0 {
                            frame.imagesIndices.at(standardMaterial->getSpecularTexture()->getImage()->getId());
                 }
                 if (standardMaterial->getNormalTexture() != nullptr) {
-                    materialUBO.normalIndex =frame.imagesIndices.at(standardMaterial->getNormalTexture()->getImage()->getId());
+                    materialUBO.normalIndex = frame.imagesIndices.at(standardMaterial->getNormalTexture()->getImage()->getId());
+                }
+                if (standardMaterial->getMetallicTexture() != nullptr) {
+                    materialUBO.metallicIndex = frame.imagesIndices.at(standardMaterial->getMetallicTexture()->getImage()->getId());
+                }
+                if (standardMaterial->getRoughnessTexture() != nullptr) {
+                    materialUBO.roughnessIndex = frame.imagesIndices.at(standardMaterial->getRoughnessTexture()->getImage()->getId());
                 }
             } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                 for (auto i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {

@@ -39,8 +39,43 @@ namespace z0 {
         _setDirty();
     }
 
+    void StandardMaterial::setMetallicTexture(const shared_ptr<ImageTexture> &texture) {
+        metallicTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setRoughnessTexture(const shared_ptr<ImageTexture> &texture) {
+        roughnessTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setOcclusionTexture(const shared_ptr<ImageTexture> &texture) {
+        occlusionTexture = texture;
+        _setDirty();
+    }
+
     void StandardMaterial::setTextureTransform(const TextureTransform transform) {
         textureTransform = make_shared<TextureTransform>(transform);
+        _setDirty();
+    }
+
+    // void StandardMaterial::setMetallicTextureChannel(const TextureChannel channel) {
+    //     metallicTextureChannel = channel;
+    //     _setDirty();
+    // }
+    //
+    // void StandardMaterial::setRoughnessTextureChannel(const TextureChannel channel) {
+    //     roughnessTextureChannel = channel;
+    //     _setDirty();
+    // }
+
+    void StandardMaterial::setMetallic(const float metallic) {
+        this->metallic = metallic;
+        _setDirty();
+    }
+
+    void StandardMaterial::setRoughness(const float roughness) {
+        this->roughness = roughness;
         _setDirty();
     }
 

@@ -35,13 +35,18 @@ struct Light {
 };
 
 struct Material  {
+    vec4    albedoColor;
     int     transparency;
     float   alphaScissor;
+    float   metallicFactor;
+    float   roughnessFactor;
     int     diffuseIndex;
     int     specularIndex;
     int     normalIndex;
-    vec4    albedoColor;
-    float   shininess;
+    int     metallicIndex;
+    int     roughnessIndex;
+    uint    metallicChannel;
+    uint    roughnessChannel;
     bool    hasTextureTransform;
     vec2    textureOffset;
     vec2    textureScale;

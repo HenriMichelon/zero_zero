@@ -31,7 +31,7 @@ export namespace z0 {
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa              = MSAA_AUTO;
         //! Depth frame buffer format
-        DEPTH_FORMAT     depthFormat       = DEPTH_FORMAT_AUTO;
+        DepthFormat     depthFormat       = DEPTH_FORMAT_AUTO;
         //! Gamma correction value for the tone mapping renderer
         float            gamma             = 1.0f;
         //! Exposure correction value for the tone mapping renderer

@@ -134,11 +134,57 @@ export namespace z0 {
         /**
          * Sets the texture's UV transform.
          */
-        void setTextureTransform(const TextureTransform transform);
+        void setTextureTransform(TextureTransform transform);
+
+        [[nodiscard]] inline float getMetallic() const { return metallic; }
+
+        void setMetallic(const float metallic);
+
+        [[nodiscard]] inline TextureChannel getMetallicTextureChannel() const { return metallicTextureChannel; }
+
+        // void setMetallicTextureChannel(TextureChannel channel);
+
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getMetallicTexture() const { return metallicTexture; }
+
+        void setMetallicTexture(const shared_ptr<ImageTexture> &texture);
+
+        [[nodiscard]] inline float getRoughness() const { return roughness; }
+
+        void setRoughness(float roughness);
+
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getRoughnessTexture() const { return roughnessTexture; }
+
+        void setRoughnessTexture(const shared_ptr<ImageTexture> &texture);
+
+        [[nodiscard]] inline TextureChannel getRoughnessTextureChannel() const { return roughnessTextureChannel; }
+
+        // void setRoughnessTextureChannel(TextureChannel channel);
+
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getOcclusionTexture() const { return occlusionTexture; }
+
+        void setOcclusionTexture(const shared_ptr<ImageTexture> &texture);
+
+        [[nodiscard]] inline TextureChannel getOcclusionTextureChannel() const { return occlusionTextureChannel; }
+
 
     private:
         Color                        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
         shared_ptr<ImageTexture>     albedoTexture{nullptr};
+
+        float                        metallic{0.0f};
+        shared_ptr<ImageTexture>     metallicTexture{nullptr};
+        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
+        TextureChannel               metallicTextureChannel{TEXTURE_CHANNEL_BLUE};
+
+        float                        roughness{1.0f};
+        shared_ptr<ImageTexture>     roughnessTexture{nullptr};
+        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
+        TextureChannel               roughnessTextureChannel{TEXTURE_CHANNEL_GREEN};
+
+        shared_ptr<ImageTexture>     occlusionTexture{nullptr};
+        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
+        TextureChannel               occlusionTextureChannel{TEXTURE_CHANNEL_RED};
+
         shared_ptr<ImageTexture>     specularTexture{nullptr};
         shared_ptr<ImageTexture>     normalTexture{nullptr};
         shared_ptr<TextureTransform> textureTransform{nullptr};

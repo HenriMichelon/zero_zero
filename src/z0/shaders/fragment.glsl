@@ -36,10 +36,10 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //    return  vec4(normal, 1.0); // debug normals
 
     // The global ambient light, always applied
-    vec3 ambient = global.ambient.w * global.ambient.rgb;
+    vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb;
 
     // Compute the diffuse light from the scene's lights
-    vec3 diffuse = vec3(0, 0, 0);
+    vec3 diffuse = vec3(0.0f);
     for(uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
         float factor = 1.0f;
@@ -81,7 +81,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //                        break;
 //                    }
                 }
-                diffuse += factor * calcDirectionalLight(light, color, normal, material, fs_in.VIEW_DIRECTION, fs_in.UV);
+                diffuse += calcDirectionalLight(light, color.rgb, normal, material, fs_in.VIEW_DIRECTION, fs_in.UV, factor);
                 break;
             }
             case LIGHT_SPOT: {
@@ -101,5 +101,10 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         }
     }
 
-    return vec4((ambient + diffuse) * color.rgb, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
+    diffuse = ambient + diffuse;
+
+    diffuse = diffuse / (diffuse + vec3(1.0));
+    diffuse = pow(diffuse, vec3(1.0/2.2));
+
+    return vec4(diffuse, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
 }

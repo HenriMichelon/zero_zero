@@ -83,13 +83,18 @@ namespace z0 {
         };
 
         struct MaterialBuffer {
+            alignas(16) vec4 albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
             alignas(4) int transparency{TRANSPARENCY_DISABLED};
             alignas(4) float alphaScissor{0.1f};
+            alignas(4) float metallicFactor{0.0f};
+            alignas(4) float roughnessFactor{1.0f};
             alignas(4) int32_t diffuseIndex{-1};
             alignas(4) int32_t specularIndex{-1};
             alignas(4) int32_t normalIndex{-1};
-            alignas(16) vec4 albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
-            alignas(4) float shininess{32.0f};
+            alignas(4) int32_t metallicIndex{-1};
+            alignas(4) int32_t roughnessIndex{-1};
+            alignas(4) uint32_t metallicChannel{TEXTURE_CHANNEL_BLUE};
+            alignas(4) uint32_t roughnessChannel{TEXTURE_CHANNEL_GREEN};
             alignas(4) bool hasTransform{false};
             alignas(8) vec2 textureOffset{0.0f, 0.0f};
             alignas(8) vec2 textureScale{1.0f, 1.0f};

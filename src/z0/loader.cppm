@@ -16,11 +16,11 @@ export namespace z0 {
          * Load a glTF scene
          * @param filepath path of the glTF file, relative to the application path
          * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double-sided (default is CULLMODE_DISABLED for double sided materials)
-         * @param commandLineMode do not load image
+         * @param loadTextures do not load image
          */
         [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const filesystem::path &filepath,
                                                                 bool                    forceBackFaceCulling = false,
-                                                                bool                    commandLineMode      = false);
+                                                                bool                    loadTextures         = true);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
@@ -28,7 +28,7 @@ export namespace z0 {
          * @param filepath path of the glTF file, relative to the application path
          * @param editorMode disable all nodes
          **/
-        static void addSceneFromFile(Node *parent, const filesystem::path &filepath, bool editorMode = false);
+        static void addSceneFromFile(Node *parent, const filesystem::path &filepath, bool loadTextures = true);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
@@ -37,7 +37,7 @@ export namespace z0 {
          * @param editorMode disable all nodes
          **/
         static void addSceneFromFile(shared_ptr<Node> &parent, const filesystem::path &filepath,
-                                     bool              editorMode = false);
+                                     bool              loadTextures = true);
 
         // Node description inside a JSON file
         struct SceneNode {
@@ -64,7 +64,7 @@ export namespace z0 {
                             map<string, shared_ptr<Node>> &nodeTree,
                             map<string, SceneNode> &       sceneTree,
                             const SceneNode &              nodeDesc,
-                            bool                           editorMode);
+                            bool                           loadTextures);
     };
 
 }

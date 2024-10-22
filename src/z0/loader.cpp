@@ -109,8 +109,8 @@ namespace z0 {
     // https://fastgltf.readthedocs.io/v0.7.x/overview.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Node> Loader::loadModelFromFile(const filesystem::path &filename, bool forceBackFaceCulling,
-                                               bool commandLineMode) {
-        filesystem::path filepath = commandLineMode ? filename : (Application::get().getConfig().appDir / filename);
+                                               bool loadTextures) {
+        filesystem::path filepath = loadTextures ? (Application::get().getConfig().appDir / filename): filename;
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform};
         constexpr auto   gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble |
@@ -129,25 +129,14 @@ namespace z0 {
         vector<std::shared_ptr<StandardMaterial>> materials{};
         for (fastgltf::Material &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
-            if (!commandLineMode && mat.pbrData.baseColorTexture.has_value()) {
-                const auto imageIndex =
-                        gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
-                auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
-                material->setAlbedoTexture(make_shared<ImageTexture>(image));
-                // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/README.md
-                // We apply the albedo texture transform to all the textures (specular, normal, ...)
-                const auto &transform = mat.pbrData.baseColorTexture.value().transform;
-                if (transform != nullptr) {
-                    material->setTextureTransform({.offset = {transform->uvOffset[0], transform->uvOffset[1]},
-                                                   .scale  = {transform->uvScale[0], transform->uvScale[1]}});
-                }
-            }
             material->setAlbedoColor(Color{
                     mat.pbrData.baseColorFactor[0],
                     mat.pbrData.baseColorFactor[1],
                     mat.pbrData.baseColorFactor[2],
                     mat.pbrData.baseColorFactor[3],
             });
+            material->setMetallic(mat.pbrData.metallicFactor);
+            material->setRoughness(mat.pbrData.roughnessFactor);
             switch (mat.alphaMode) {
             case fastgltf::AlphaMode::Blend:
                 material->setTransparency(TRANSPARENCY_ALPHA);
@@ -159,19 +148,48 @@ namespace z0 {
             default:
                 break;
             }
-            if (mat.specular != nullptr) {
-                if (!commandLineMode && mat.specular->specularColorTexture.has_value()) {
-                    auto imageIndex =
-                            gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.value();
+            if (loadTextures) {
+                if (mat.pbrData.baseColorTexture.has_value()) {
+                    const auto imageIndex =
+                            gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
                     auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
-                    material->setSpecularTexture(std::make_shared<ImageTexture>(image));
+                    material->setAlbedoTexture(make_shared<ImageTexture>(image));
+                    // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/README.md
+                    // We apply the albedo texture transform to all the textures (specular, normal, ...)
+                    const auto &transform = mat.pbrData.baseColorTexture.value().transform;
+                    if (transform != nullptr) {
+                        material->setTextureTransform({.offset = {transform->uvOffset[0], transform->uvOffset[1]},
+                                                       .scale  = {transform->uvScale[0], transform->uvScale[1]}});
+                    }
                 }
-            }
-            if (!commandLineMode && mat.normalTexture.has_value()) {
-                auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
-                // https://www.reddit.com/r/vulkan/comments/wksa4z/comment/jd7504e/
-                auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
-                material->setNormalTexture(std::make_shared<ImageTexture>(image));
+                if (mat.pbrData.metallicRoughnessTexture.has_value()) {
+                    const auto imageIndex =
+                            gltf.textures[mat.pbrData.metallicRoughnessTexture.value().textureIndex].imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
+                    const auto texture = make_shared<ImageTexture>(image);
+                    material->setMetallicTexture(texture);
+                    material->setRoughnessTexture(texture);
+                }
+                if (mat.occlusionTexture.has_value()) {
+                    const auto imageIndex =
+                            gltf.textures[mat.occlusionTexture.value().textureIndex].imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                    material->setOcclusionTexture(make_shared<ImageTexture>(image));
+                }
+                if (mat.specular != nullptr) {
+                    if (mat.specular->specularColorTexture.has_value()) {
+                        auto imageIndex =
+                                gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.value();
+                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                        material->setSpecularTexture(std::make_shared<ImageTexture>(image));
+                    }
+                }
+                if (mat.normalTexture.has_value()) {
+                    auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
+                    // https://www.reddit.com/r/vulkan/comments/wksa4z/comment/jd7504e/
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
+                    material->setNormalTexture(std::make_shared<ImageTexture>(image));
+                }
             }
             material->setCullMode(forceBackFaceCulling      ? CULLMODE_BACK
                                           : mat.doubleSided ? CULLMODE_DISABLED
@@ -290,8 +308,7 @@ namespace z0 {
             // MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
-                if (!commandLineMode)
-                    mesh->_buildModel();
+                if (loadTextures) { mesh->_buildModel(); }
                 newNode = std::make_shared<MeshInstance>(mesh, name);
             } else {
                 newNode = std::make_shared<Node>(name);
@@ -343,7 +360,7 @@ namespace z0 {
     }
 
     void Loader::addNode(Node *parent, map<string, shared_ptr<Node>> &nodeTree, map<string, SceneNode> &sceneTree,
-                         const SceneNode &nodeDesc, const bool editorMode) {
+                         const SceneNode &nodeDesc, const bool loadTextures) {
         constexpr auto log_name{"Scene loader :"};
         if (nodeTree.contains(nodeDesc.id))
             die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
@@ -408,7 +425,7 @@ namespace z0 {
                         node->addChild(childNode);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child, editorMode);
+                    addNode(node.get(), nodeTree, sceneTree, child, loadTextures);
                 }
             }
             for (const auto &prop : nodeDesc.properties) {
@@ -416,23 +433,23 @@ namespace z0 {
             }
             node->_setParent(nullptr);
             parent->addChild(node);
-            if (editorMode) {
+            if (!loadTextures) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
             }
         }
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(shared_ptr<Node> &parent, const filesystem::path &filename, const bool editorMode) {
-        addSceneFromFile(parent.get(), filename, editorMode);
+    void Loader::addSceneFromFile(shared_ptr<Node> &parent, const filesystem::path &filename, const bool loadTextures) {
+        addSceneFromFile(parent.get(), filename, loadTextures);
     }
 
-    void Loader::addSceneFromFile(Node *parent, const filesystem::path &filename, const bool editorMode) {
+    void Loader::addSceneFromFile(Node *parent, const filesystem::path &filename, const bool loadTextures) {
         filesystem::path              filepath = Application::get().getConfig().appDir / filename;
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneFromJSON(filepath)) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc, editorMode);
+            addNode(parent, nodeTree, sceneTree, nodeDesc, loadTextures);
         }
     }
 
