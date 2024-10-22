@@ -66,10 +66,25 @@ export namespace z0 {
          */
         inline void setAttenuation(const float attenuation) { this->attenuation = attenuation; }
 
-    private:
+        /**
+         * Returns the light near clipping distance
+         */
+        [[nodiscard]] inline float getNearClipDistance() const { return nearDistance; }
+
+        /**
+         * Returns the light far clipping distance
+         */
+        [[nodiscard]] inline float getFarClipDistance() const { return farDistance; }
+
+
+    protected:
         float attenuation{1.0};
         float linear{0.14};
         float quadratic{0.07};
+        // Nearest clipping distance
+        float nearDistance{0.1f};
+        // Furthest clipping distance
+        float farDistance{50.0f}; // // TODO compute them from light distance
     };
 
 }

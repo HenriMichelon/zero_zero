@@ -83,7 +83,17 @@ int getCubemapFaceIndex(vec3 direction) {
     }
 }
 
+vec3 sampleOffsetDirections[20] = vec3[] (
+    vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1),
+    vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+    vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+    vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+    vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);
+
 float shadowFactorCubemap(int shadowMapIndex) {
+    //https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
+
     // get vector between fragment position and light position
     vec3 fragToLight = fs_in.GLOBAL_POSITION.xyz - shadowMapsInfos.shadowMaps[shadowMapIndex].lightPosition;
     // use the light to fragment vector to sample from the depth map
@@ -92,25 +102,20 @@ float shadowFactorCubemap(int shadowMapIndex) {
     closestDepth *= 100.0f; // far plane
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
-    // now test for shadows
-    float bias = 0.05;
-    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
 
-    return shadow;
-}
+    //PCF
 
-float shadowFactorCubemap(int shadowMapIndex) {
-    // get vector between fragment position and light position
-    vec3 pos = fs_in.GLOBAL_POSITION.xyz;
-    vec3 fragToLight = pos - shadowMapsInfos.shadowMaps[shadowMapIndex].lightPosition;
-    // now get current linear depth as the length between the fragment and light position
-    float currentDepth = length(fragToLight);
-    // use the light to fragment vector to sample from the depth map
-    float closestDepth = texture(shadowMapsCubemap[shadowMapIndex], fragToLight).r;
-    // it is currently in linear range between [0,1]. Re-transform back to original value
-    closestDepth *= 100.0f; // far plane
-    const float bias = 0.005;
-    float shadow = currentDepth -  bias > closestDepth ? 0.0 : 1.0;
+    float shadow = 0.0;
+    float bias   = 0.15;
+    int samples  = 20;
+    float viewDistance = length(global.cameraPosition - fs_in.GLOBAL_POSITION.xyz);
+    float diskRadius = (1.0 + (viewDistance / 100.0f)) / 25.0;
+    for(int i = 0; i < samples; ++i) {
+        float closestDepth = texture(shadowMapsCubemap[shadowMapIndex], fragToLight + sampleOffsetDirections[i] * diskRadius).r;
+        closestDepth *= 100.0f;   // undo mapping [0;1]
+        shadow += (currentDepth - bias) > closestDepth ? 0.0 : 1.0;
+    }
+    shadow /= float(samples);
     return shadow;
 }
 
@@ -125,6 +130,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         }
     }
 //    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);
+
     // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA
     // discard the fragment if the alpha value < scissor value of the material
     if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {

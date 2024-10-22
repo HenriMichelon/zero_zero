@@ -18,6 +18,8 @@ namespace z0 {
         SampledFrameBuffer{dev}, isCascaded{isCascaded}, isCubemap{isCubemap} {
         if (isCascaded) {
             width = height = 4096;
+        } if (isCubemap) {
+            width = height = 1024;
         } else {
             width = height = 1024;
         }

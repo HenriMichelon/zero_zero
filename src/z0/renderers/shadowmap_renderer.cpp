@@ -182,14 +182,12 @@ namespace z0 {
                 lastSplitDist = cascadeSplits[cascadeIndex];
             }
         } else if (isCubemap()) {
-            const auto lightPos  = light->getPositionGlobal();
-            // const auto lightProj = persp(
-            //     90.0f,
-            //     0.1f, 100.f); // TODO compute them from light distance
+            const auto lightPos  = omniLight->getPositionGlobal();
             const auto lightProj = perspective(
                 radians(90.0f),
-                device.getAspectRatio(),
-                0.1f, 100.f); // TODO compute them from light distance
+                data.shadowMap->getRatio(),
+                omniLight->getNearClipDistance(),
+                omniLight->getFarClipDistance());
             data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
             data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
             data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
@@ -202,9 +200,9 @@ namespace z0 {
             const auto sceneCenter              = lightPosition + lightDirection;
             const auto lightProjection = perspective(
                 spotLight->getFov(),
-                device.getAspectRatio(),
+                data.shadowMap->getRatio(),
                 spotLight->getNearClipDistance(),
-                spotLight->getFarClipDistance());// TODO compute them from light distance
+                spotLight->getFarClipDistance());
             data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
         }
     }

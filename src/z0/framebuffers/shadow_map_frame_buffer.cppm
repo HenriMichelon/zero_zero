@@ -24,7 +24,10 @@ export namespace z0{
         [[nodiscard]] inline const VkImageView &getCascadedImageView(const uint32_t layer) const { return cascadedImageViews[layer]; };
 
         [[nodiscard]] inline uint32_t getWidth() const { return width; }
+
         [[nodiscard]] inline uint32_t getHeight() const { return height; }
+
+        [[nodiscard]] inline float getRatio() const { return static_cast<float>(width) / static_cast<float>(height); }
 
         void createImagesResources() override;
 
