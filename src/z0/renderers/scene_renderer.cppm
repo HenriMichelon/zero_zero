@@ -70,7 +70,7 @@ namespace z0 {
         void activateCamera(Camera *camera, uint32_t currentFrame) override;
 
     private:
-        struct GobalUniformBuffer {
+        struct GobalBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
             vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
@@ -110,10 +110,10 @@ namespace z0 {
             alignas(4) float outerCutOff{0.0f};
             // shadow map params
             alignas(4) int32_t mapIndex{-1};
-            alignas(4) float farPlane{0.0}; // for cubemaps shadow maps
+            alignas(4) float farPlane{0.0};
             alignas(4) uint32_t cascadesCount{0};
-            mat4 lightSpace[8]; // fixed at 8 for alignments
-            float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
+            alignas(16) vec4 cascadeSplitDepth;
+            mat4 lightSpace[6];
         };
 
         struct PushConstants {
@@ -151,7 +151,7 @@ namespace z0 {
             // All non-transparent models
             list<MeshInstance *> opaquesModels{};
             // Currently allocated model uniform buffer count
-            uint32_t modelUniformBufferCount{0};
+            uint32_t modelBufferCount{0};
 
             // All materials used in the scene, used to update the buffer in GPU memory
             list<shared_ptr<Material>> materials;
@@ -183,9 +183,9 @@ namespace z0 {
             // All lights
             vector<const Light *> lights;
             // Lights & shadow maps UBO
-            unique_ptr<Buffer> lightUniformBuffer;
+            unique_ptr<Buffer> lightBuffer;
             // Currently allocated point light uniform buffer count
-            uint32_t lightUniformBufferCount{0};
+            uint32_t lightBufferCount{0};
 
             // Offscreen frame buffers attachments
             unique_ptr<ColorFrameBuffer>    colorFrameBufferMultisampled;
@@ -196,7 +196,7 @@ namespace z0 {
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
         // One renderer per shadow map
-        vector<shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
+        map<const Light*, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures and shadow mapping)
         unique_ptr<Image> blankImage{nullptr};
         // Default blank cubemap (for omni shadow mapping)
@@ -234,17 +234,15 @@ namespace z0 {
 
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance *> &modelsToDraw);
 
-        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const;
+        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const {
+            return shadowMapRenderers.at(light);
+        }
 
         void enableLightShadowCasting(const Light *light);
 
         void disableLightShadowCasting(const Light *light);
 
     public:
-        shared_ptr<ShadowMapRenderer> _getShadowMapRenderer(const int index) const {
-            return shadowMapRenderers[index];
-        }
-
         SceneRenderer(const SceneRenderer &) = delete;
 
         SceneRenderer &operator=(const SceneRenderer &) = delete;

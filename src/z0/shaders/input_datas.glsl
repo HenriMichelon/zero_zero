@@ -32,8 +32,8 @@ struct Light {
     int mapIndex;
     float farPlane;
     uint cascadesCount;
-    mat4 lightSpace[8]; // fixed at 8 for alignements
-    vec4 cascadeSplitDepth; // fixed at 4 for alignements
+    vec4 cascadeSplitDepth;
+    mat4 lightSpace[6];
 };
 
 struct Material  {

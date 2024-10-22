@@ -39,6 +39,12 @@ export namespace z0{
         uint32_t width{};
         uint32_t height{};
         VkImageView cascadedImageViews[6];
+        // index in the uniform buffer array of textures/cubemaps
+        int32_t bufferIndex{-1};
+
+    public:
+        [[nodiscard]] inline int32_t _getBufferIndex() const { return bufferIndex; }
+        inline void _setBufferIndex(const int32_t bufferIndex) { this->bufferIndex = bufferIndex; }
     };
 
 } // namespace z0

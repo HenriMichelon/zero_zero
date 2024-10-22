@@ -59,15 +59,15 @@ namespace z0 {
         for(auto& frame: frameData) {
             frame.materialShaders.clear();
             frame.materialsBuffer.reset();
-            frame.lightUniformBuffer.reset();
+            frame.lightBuffer.reset();
             if (frame.skyboxRenderer != nullptr)
                 frame.skyboxRenderer->cleanup();
             frame.opaquesModels.clear();
             frame.lights.clear();
         }
-        for (const auto &shadowMapRenderer : shadowMapRenderers) {
-            device.unRegisterRenderer(shadowMapRenderer);
-            shadowMapRenderer->cleanup();
+        for (const auto &pair : shadowMapRenderers) {
+            device.unRegisterRenderer(pair.second);
+            pair.second->cleanup();
         }
         shadowMapRenderers.clear();
         ModelsRenderer::cleanup();
@@ -85,7 +85,7 @@ namespace z0 {
                 return;
             }
         }
-        if (auto *light = dynamic_cast<Light *>(node.get())) {
+        if (const auto *light = dynamic_cast<const Light *>(node.get())) {
             frameData[currentFrame].lights.push_back(light);
             descriptorSetNeedUpdate = true;
             enableLightShadowCasting(light);
@@ -167,8 +167,8 @@ namespace z0 {
             loadShadersMaterials(material.get(), currentFrame);
         }
         if (currentFrame == 0) {
-            for (const auto &renderer : shadowMapRenderers) {
-                renderer->loadScene(ModelsRenderer::frameData[currentFrame].models);
+            for (const auto &pair : shadowMapRenderers) {
+                pair.second->loadScene(ModelsRenderer::frameData[currentFrame].models);
             }
         }
     }
@@ -230,8 +230,8 @@ namespace z0 {
 
     void SceneRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
         ModelsRenderer::activateCamera(camera, currentFrame);
-        for (const auto &renderer : shadowMapRenderers) {
-            renderer->activateCamera(camera, currentFrame);
+        for (const auto &pair : shadowMapRenderers) {
+            pair.second->activateCamera(camera, currentFrame);
         }
     }
 
@@ -243,7 +243,7 @@ namespace z0 {
         }
         if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
 
-        GobalUniformBuffer globalUbo{
+        GobalBuffer globalUbo{
                 .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
                 .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
                 .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
@@ -254,33 +254,6 @@ namespace z0 {
         }
         writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
 
-        // if (enableShadowMapRenders && (globalUbo.shadowMapsCount > 0)) {
-        //     auto shadowMapArray = make_unique<ShadowMapBuffer[]>(globalUbo.shadowMapsCount);
-        //     for (auto i = 0; i < globalUbo.shadowMapsCount; i++) {
-        //         if ((globalUbo.cascadedShadowMapIndex == -1) && shadowMapRenderers[i]->isCascaded()) {
-        //             // Activate the first cascaded shadow map found
-        //             globalUbo.cascadedShadowMapIndex = i;
-        //             globalUbo.cascadesCount = shadowMapRenderers[i]->getCascadesCount(currentFrame);
-        //             for (int cascadeIndex = 0; cascadeIndex < globalUbo.cascadesCount; cascadeIndex++) {
-        //                 shadowMapArray[i].lightSpace[cascadeIndex] = shadowMapRenderers[i]->getLightSpace(cascadeIndex, currentFrame);
-        //                 shadowMapArray[i].cascadeSplitDepth[cascadeIndex] = shadowMapRenderers[i]->getCascadeSplitDepth(cascadeIndex, currentFrame);
-        //             }
-        //         } else if (shadowMapRenderers[i]->isCubemap()) {
-        //             for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
-        //                 shadowMapArray[i].lightSpace[faceIndex] = shadowMapRenderers[i]->getLightSpace(faceIndex, currentFrame);
-        //                 shadowMapArray[i].isCubemap = true;
-        //                 shadowMapArray[i].lightPosition = shadowMapRenderers[i]->getLightPosition();
-        //                 shadowMapArray[i].farPlane = shadowMapRenderers[i]->getFarPlane();
-        //             }
-        //         } else {
-        //             // Just copy the light space matrix for non cascaded shadow maps
-        //             shadowMapArray[i].lightSpace[0] = shadowMapRenderers[i]->getLightSpace(0, currentFrame);
-        //         }
-        //     }
-        //     writeUniformBuffer(frame.shadowMapsUniformBuffer, shadowMapArray.get());
-        // }
-        // writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo); // after the shadows maps for .cascadedShadowMapIndex
-
         if (globalUbo.lightsCount > 0) {
             auto lightsArray = make_unique<LightBuffer[]>(globalUbo.lightsCount);
             auto lightIndex = 0;
@@ -290,31 +263,57 @@ namespace z0 {
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();
                 lightsArray[lightIndex].specular  = light->getSpecularIntensity();
                 switch (light->getLightType()) {
-                case Light::LIGHT_DIRECTIONAL: {
-                    const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
-                    lightsArray[lightIndex].direction = normalize(mat3{directionalLight->getTransformGlobal()} * AXIS_FRONT);
-                    break;
+                    case Light::LIGHT_DIRECTIONAL: {
+                        const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+                        lightsArray[lightIndex].direction = normalize(mat3{directionalLight->getTransformGlobal()} * AXIS_FRONT);
+                        break;
+                    }
+                    case Light::LIGHT_SPOT: {
+                        const auto *spotLight = dynamic_cast<const SpotLight *>(light);
+                        lightsArray[lightIndex].direction = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
+                        lightsArray[lightIndex].cutOff    = spotLight->getCutOff();
+                        lightsArray[lightIndex].outerCutOff = spotLight->getOuterCutOff();
+                        // a spot is also an omni
+                    }
+                    case Light::LIGHT_OMNI: {
+                        const auto* omniLight = dynamic_cast<const OmniLight*>(light);
+                        lightsArray[lightIndex].constant  = omniLight->getAttenuation();
+                        lightsArray[lightIndex].linear    = omniLight->getLinear();
+                        lightsArray[lightIndex].quadratic = omniLight->getQuadratic();
+                        break;
+                    }
+                    default:
+                        assert(false);
                 }
-                case Light::LIGHT_SPOT: {
-                    const auto *spotLight = dynamic_cast<const SpotLight *>(light);
-                    lightsArray[lightIndex].direction = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
-                    lightsArray[lightIndex].cutOff    = spotLight->getCutOff();
-                    lightsArray[lightIndex].outerCutOff = spotLight->getOuterCutOff();
-                    // a spot is also an omni
-                }
-                case Light::LIGHT_OMNI: {
-                    const auto* omniLight = dynamic_cast<const OmniLight*>(light);
-                    lightsArray[lightIndex].constant  = omniLight->getAttenuation();
-                    lightsArray[lightIndex].linear    = omniLight->getLinear();
-                    lightsArray[lightIndex].quadratic = omniLight->getQuadratic();
-                    break;
-                }
-                default:
-                    assert(false);
+                if (shadowMapRenderers.contains(light)) {
+                    const auto& shadowMapRenderer = shadowMapRenderers.at(light);
+                    lightsArray[lightIndex].mapIndex = shadowMapRenderer->getShadowMap(currentFrame)->_getBufferIndex();
+                    switch (light->getLightType()) {
+                        case Light::LIGHT_DIRECTIONAL: {
+                            lightsArray[lightIndex].cascadesCount = shadowMapRenderer->getCascadesCount(currentFrame);
+                            for (int cascadeIndex = 0; cascadeIndex < lightsArray[lightIndex].cascadesCount ; cascadeIndex++) {
+                                    lightsArray[lightIndex].lightSpace[cascadeIndex] = shadowMapRenderer->getLightSpace(cascadeIndex, currentFrame);
+                                    lightsArray[lightIndex].cascadeSplitDepth[cascadeIndex] = shadowMapRenderer->getCascadeSplitDepth(cascadeIndex, currentFrame);
+                            }
+                            break;
+                        }
+                        case Light::LIGHT_SPOT: {
+                            // Just copy the light space matrix for non cascaded shadow maps
+                            lightsArray[lightIndex].lightSpace[0] = shadowMapRenderer->getLightSpace(0, currentFrame);
+                            break;
+                        }
+                        case Light::LIGHT_OMNI: {
+                            lightsArray[lightIndex].farPlane = shadowMapRenderer->getFarPlane();
+                            for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
+                                lightsArray[lightIndex].lightSpace[faceIndex] =shadowMapRenderer->getLightSpace(faceIndex, currentFrame);
+                            }
+                            break;
+                        }
+                    }
                 }
                 lightIndex += 1;
             }
-            writeUniformBuffer(frame.lightUniformBuffer, lightsArray.get());
+            writeUniformBuffer(frame.lightBuffer, lightsArray.get());
         }
 
         uint32_t modelIndex = 0;
@@ -439,7 +438,7 @@ namespace z0 {
         if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
         if (blankCubemap == nullptr) { blankCubemap = Cubemap::createBlankCubemap(); }
 
-        globalUniformBufferSize = sizeof(GobalUniformBuffer);
+        globalUniformBufferSize = sizeof(GobalBuffer);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
         }
@@ -448,12 +447,12 @@ namespace z0 {
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
             auto& frame = frameData[frameIndex];
-            if (!ModelsRenderer::frameData[frameIndex].models.empty() && (frame.modelUniformBufferCount != ModelsRenderer::frameData[frameIndex].models.size())) {
-                frame.modelUniformBufferCount = ModelsRenderer::frameData[frameIndex].models.size();
-                ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE * frame.modelUniformBufferCount);
+            if (!ModelsRenderer::frameData[frameIndex].models.empty() && (frame.modelBufferCount != ModelsRenderer::frameData[frameIndex].models.size())) {
+                frame.modelBufferCount = ModelsRenderer::frameData[frameIndex].models.size();
+                ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE * frame.modelBufferCount);
             }
-            if (frame.modelUniformBufferCount == 0) {
-                frame.modelUniformBufferCount = 1;
+            if (frame.modelBufferCount == 0) {
+                frame.modelBufferCount = 1;
                 ModelsRenderer::frameData[frameIndex].modelUniformBuffer = createUniformBuffer(MODEL_BUFFER_SIZE);
             }
             if (frame.materialsBuffer == nullptr) {
@@ -463,13 +462,13 @@ namespace z0 {
                 writeUniformBuffer(frame.materialsBuffer, materialUBOArray.get());
             }
 
-            if ((!frame.lights.empty()) && (frame.lightUniformBufferCount != frame.lights.size())) {
-                frame.lightUniformBufferCount = frame.lights.size();
-                frame.lightUniformBuffer = createUniformBuffer(LIGHT_BUFFER_SIZE * frame.lightUniformBufferCount);
+            if ((!frame.lights.empty()) && (frame.lightBufferCount != frame.lights.size())) {
+                frame.lightBufferCount = frame.lights.size();
+                frame.lightBuffer = createUniformBuffer(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
             }
-            if (frame.lightUniformBufferCount == 0) {
-                frame.lightUniformBufferCount = 1;
-                frame.lightUniformBuffer = createUniformBuffer(LIGHT_BUFFER_SIZE);
+            if (frame.lightBufferCount == 0) {
+                frame.lightBufferCount = 1;
+                frame.lightBuffer = createUniformBuffer(LIGHT_BUFFER_SIZE);
             }
 
             uint32_t imageIndex = 0;
@@ -486,14 +485,15 @@ namespace z0 {
                 frame.shadowMapsCubemapInfo[j] = blankCubemap->_getImageInfo();
             }
             imageIndex = 0;
-            for (const auto &shadowMapRenderer : shadowMapRenderers) {
-                const auto &shadowMap      = shadowMapRenderer->getShadowMap(frameIndex);
+            for (const auto &pair : shadowMapRenderers) {
+                const auto &shadowMap      = pair.second->getShadowMap(frameIndex);
+                shadowMap->_setBufferIndex(imageIndex);
                 const auto shadowMapInfo = VkDescriptorImageInfo{
                     .sampler     = shadowMap->getSampler(),
                     .imageView   = shadowMap->getImageView(),
                     .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                 };
-                if (shadowMapRenderer->isCubemap()) {
+                if (pair.second->isCubemap()) {
                     frame.shadowMapsCubemapInfo[imageIndex] = shadowMapInfo;
                 } else {
                     frame.shadowMapsInfo[imageIndex] = shadowMapInfo;
@@ -503,10 +503,10 @@ namespace z0 {
 
             auto globalBufferInfo     = globalUniformBuffers[frameIndex]->descriptorInfo(globalUniformBufferSize);
             auto modelBufferInfo      = ModelsRenderer::frameData[frameIndex].modelUniformBuffer->descriptorInfo(MODEL_BUFFER_SIZE *
-                                                                                frame.modelUniformBufferCount);
+                                                                                frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
-            auto pointLightBufferInfo = frame.lightUniformBuffer->descriptorInfo(LIGHT_BUFFER_SIZE *
-                                                                                   frame.lightUniformBufferCount);
+            auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE *
+                                                                                   frame.lightBufferCount);
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
                                   .writeBuffer(0, &globalBufferInfo)
                                   .writeBuffer(1, &modelBufferInfo)
@@ -768,23 +768,15 @@ namespace z0 {
         }
     }
 
-    [[nodiscard]] shared_ptr<ShadowMapRenderer> SceneRenderer::findShadowMapRenderer(const Light *light) const {
-        const auto it =
-                std::find_if(shadowMapRenderers.begin(),
-                             shadowMapRenderers.end(),
-                             [light](const shared_ptr<ShadowMapRenderer> &e) { return e->getLight() == light; });
-        return (it == shadowMapRenderers.end() ? nullptr : *it);
-    }
-
     void SceneRenderer::enableLightShadowCasting(const Light *light) {
         if (enableShadowMapRenders) {
-            if (const auto renderer = findShadowMapRenderer(light); renderer == nullptr) {
+            if (!shadowMapRenderers.contains(light)) {
                 if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
                     const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
                     for(auto i = 0; i < device.getFramesInFlight(); i++) {
                         shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera, i);
                     }
-                    shadowMapRenderers.push_back(shadowMapRenderer);
+                    shadowMapRenderers[light] = shadowMapRenderer;
                     device.registerRenderer(shadowMapRenderer);
                 }
             }
@@ -793,9 +785,9 @@ namespace z0 {
 
     void SceneRenderer::disableLightShadowCasting(const Light *light) {
         if (enableShadowMapRenders) {
-            if (const auto renderer = findShadowMapRenderer(light); renderer != nullptr) {
-                device.unRegisterRenderer(renderer);
-                erase(shadowMapRenderers, renderer);
+            if (!shadowMapRenderers.contains(light)) {
+                device.unRegisterRenderer(shadowMapRenderers.at(light));
+                shadowMapRenderers.erase(light);
             }
         }
     }
