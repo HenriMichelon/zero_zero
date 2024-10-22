@@ -61,6 +61,8 @@ export namespace z0 {
             return frameData[currentFrame].shadowMap;
         }
 
+        [[nodiscard]] inline float getFarPlane() const { return reinterpret_cast<const OmniLight*>(light)->getFarClipDistance(); }
+
         void cleanup() override;
 
         ~ShadowMapRenderer() override;

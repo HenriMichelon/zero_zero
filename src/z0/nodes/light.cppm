@@ -12,6 +12,15 @@ export namespace z0 {
      */
     class Light : public Node {
     public:
+
+        // For the fragment shader
+        enum LightType {
+            LIGHT_UNKNOWN     = -1,
+            LIGHT_DIRECTIONAL = 0,
+            LIGHT_OMNI        = 1,
+            LIGHT_SPOT        = 2
+        };
+
         ~Light() override = default;
 
         /**
@@ -49,6 +58,8 @@ export namespace z0 {
          */
         void setCastShadows(bool castShadows);
 
+        [[nodiscard]] inline int32_t getLightType() const { return lightType; }
+
         void setProperty(const string &property, const string &value) override;
 
     protected:
@@ -57,6 +68,7 @@ export namespace z0 {
         explicit Light(vec4 color, float specular, const string &nodeName, Type type = LIGHT);
 
     private:
+        const LightType lightType{LIGHT_UNKNOWN};
         vec4  colorAndIntensity{1.0f, 1.0f, 1.0f, 1.0f};
         float specularIntensity{1.0f};
         bool  castShadows{false};

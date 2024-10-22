@@ -84,7 +84,7 @@ export namespace z0 {
         // Nearest clipping distance
         float nearDistance{0.1f};
         // Furthest clipping distance
-        float farDistance{50.0f}; // // TODO compute them from light distance
+        float farDistance{100.0f}; // TODO compute them from light distance
     };
 
 }

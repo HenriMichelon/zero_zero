@@ -8,13 +8,15 @@ import :Light;
 namespace z0 {
 
     Light::Light(const string &nodeName, const Type type) :
-        Node{nodeName, type} {
+        Node{nodeName, type},
+        lightType{type == DIRECTIONAL_LIGHT ? LIGHT_DIRECTIONAL : type == SPOT_LIGHT ? LIGHT_SPOT : LIGHT_OMNI} {
     }
 
     Light::Light(const vec4 color, const float specular, const string &nodeName, const Type type):
         Node{nodeName, type},
         colorAndIntensity{color},
-        specularIntensity{specular} {
+        specularIntensity{specular},
+        lightType{type == DIRECTIONAL_LIGHT ? LIGHT_DIRECTIONAL : type == SPOT_LIGHT ? LIGHT_SPOT : LIGHT_OMNI} {
     }
 
     void Light::setCastShadows(const bool castShadows) {

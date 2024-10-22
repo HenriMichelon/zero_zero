@@ -11,30 +11,29 @@ struct VertexOut {
     vec4 tangent;
 };
 
-struct DirectionalLight {
-    vec3 direction;
-    vec4 color;
-    float specular;
-};
+// Light::LightType
+#define LIGHT_DIRECTIONAL 0
+#define LIGHT_OMNI        1
+#define LIGHT_SPOT        2
 
-struct PointLight {
+struct Light {
+    // light params
+    int type; // Light::LightType
     vec3 position;
+    vec3 direction;
     vec4 color;
     float specular;
     float constant;
     float linear;
     float quadratic;
-    bool isSpot;
-    vec3 direction;
     float cutOff;
     float outerCutOff;
-};
-
-struct ShadowMap {
+    // shadow map params
+    int mapIndex;
+    float farPlane;
+    uint cascadesCount;
     mat4 lightSpace[8]; // fixed at 8 for alignements
     vec4 cascadeSplitDepth; // fixed at 4 for alignements
-    bool isCubemap;
-    vec3 lightPosition;
 };
 
 struct Material  {
@@ -56,12 +55,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBuffer  {
     mat4 view;
     vec4 ambient;
     vec3 cameraPosition;
-    DirectionalLight directionalLight;
-    bool haveDirectionalLight;
-    int pointLightsCount;
-    int cascadedShadowMapIndex;
-    int cascadesCount;
-    int shadowMapsCount;
+    uint lightsCount;
 } global;
 
 layout(set = 0, binding = 1) uniform ModelUniformBuffer  {
@@ -74,17 +68,13 @@ layout(set = 0, binding = 2) uniform MaterialUniformBuffer  {
 
 layout(set = 0, binding = 3) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
 
-layout(set = 0, binding = 4) uniform ShadowMapArray {
-    ShadowMap shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
-} shadowMapsInfos;
+layout(set = 0, binding = 4) uniform lightArray {
+    Light light[10]; // arbitrary value for debug with RenderDoc
+} lights;
 
 layout(set = 0, binding = 5) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
 
-layout(set = 0, binding = 7) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
-
-layout(set = 0, binding = 6) uniform PointLightArray {
-    PointLight lights[10]; // arbitrary value for debug with RenderDoc
-} pointLights;
+layout(set = 0, binding = 6) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
 
 layout(push_constant) uniform PushConstants {
     int modelIndex;

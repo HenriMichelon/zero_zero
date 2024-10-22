@@ -70,30 +70,12 @@ namespace z0 {
         void activateCamera(Camera *camera, uint32_t currentFrame) override;
 
     private:
-        struct DirectionalLightUniform {
-            alignas(16) vec3 direction{0.0f, 0.0f, 0.0f};
-            alignas(16) vec4 color{0.0f, 0.0f, 0.0f, 0.0f}; // RGB + Intensity;
-            alignas(4) float specular{1.0f};
-        };
-
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
             vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(16) vec3 cameraPosition;
-            alignas(16) DirectionalLightUniform directionalLight;
-            alignas(4) bool haveDirectionalLight{false};
-            alignas(4) uint32_t pointLightsCount{0};
-            alignas(4) int32_t cascadedShadowMapIndex{-1};
-            alignas(4) uint32_t cascadesCount{0};
-            alignas(4) uint32_t shadowMapsCount{0};
-        };
-
-        struct ShadowMapBuffer {
-            mat4 lightSpace[8]; // fixed at 8 for alignments
-            float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
-            alignas(4) bool isCubemap{false};
-            alignas(16) vec3 lightPosition{};
+            alignas(4) uint32_t lightsCount{0};
         };
 
         struct ModelBuffer {
@@ -114,17 +96,24 @@ namespace z0 {
             alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
-        struct PointLightBuffer {
+        struct LightBuffer {
+            // light params
+            alignas(4) int32_t type{Light::LIGHT_UNKNOWN}; // Light::LightType
             alignas(16) vec3 position{0.0f, 0.0f, 0.0f};
+            alignas(16) vec3 direction{0.0f};
             alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(4) float specular{1.0f};
             alignas(4) float constant{1.0f};
             alignas(4) float linear{0.0f};
             alignas(4) float quadratic{0.0f};
-            alignas(4) bool isSpot{false};
-            alignas(16) vec3 direction{vec3{0.f, .0f, .0f}};
-            alignas(4) float cutOff{cos(radians(10.0f))};
-            alignas(4) float outerCutOff{cos(radians(15.0f))};
+            alignas(4) float cutOff{0.0f};
+            alignas(4) float outerCutOff{0.0f};
+            // shadow map params
+            alignas(4) int32_t mapIndex{-1};
+            alignas(4) float farPlane{0.0}; // for cubemaps shadow maps
+            alignas(4) uint32_t cascadesCount{0};
+            mat4 lightSpace[8]; // fixed at 8 for alignments
+            float cascadeSplitDepth[4]; // fixed at 4 for alignments, not used on non cascaded shadow map
         };
 
         struct PushConstants {
@@ -154,9 +143,7 @@ namespace z0 {
         // Size of each material buffer
         static constexpr VkDeviceSize MATERIAL_BUFFER_SIZE{sizeof(MaterialBuffer)};
         // Size of the point light uniform buffers
-        static constexpr VkDeviceSize POINTLIGHT_BUFFER_SIZE{sizeof(PointLightBuffer)};
-        // Size of the shadow map uniform buffers
-        static constexpr VkDeviceSize SHADOWMAP_BUFFER_SIZE{sizeof(ShadowMapBuffer)};
+        static constexpr VkDeviceSize LIGHT_BUFFER_SIZE{sizeof(LightBuffer)};
 
         struct FrameData {
             // Indices of each model data in the models uniform buffer
@@ -175,10 +162,6 @@ namespace z0 {
             // Data for all the materials of the scene, one buffer for all the materials
             unique_ptr<Buffer> materialsBuffer;
 
-            // One buffer per shadow map with light information
-            unique_ptr<Buffer> shadowMapsUniformBuffer;
-            // Currently allocated material uniform buffer count
-            uint32_t shadowMapUniformBufferCount{0};
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;
             // Images infos for descriptor sets, pre-filled with blank cubemaps
@@ -197,14 +180,12 @@ namespace z0 {
             // Environment parameters for the current scene
             Environment *currentEnvironment{nullptr};
 
-            // One and only one directional light per scene
-            DirectionalLight *directionalLight{nullptr};
-            // Omni and Spotlights
-            list<const OmniLight *> omniLights;
-            // Omni and Spotlights UBOs
-            unique_ptr<Buffer> pointLightUniformBuffer;
+            // All lights
+            vector<const Light *> lights;
+            // Lights & shadow maps UBO
+            unique_ptr<Buffer> lightUniformBuffer;
             // Currently allocated point light uniform buffer count
-            uint32_t pointLightUniformBufferCount{0};
+            uint32_t lightUniformBufferCount{0};
 
             // Offscreen frame buffers attachments
             unique_ptr<ColorFrameBuffer>    colorFrameBufferMultisampled;

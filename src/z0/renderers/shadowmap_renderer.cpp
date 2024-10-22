@@ -264,7 +264,7 @@ namespace z0 {
             auto pushConstants = PushConstants {
                 .lightSpace = data.lightSpace[passIndex],
                 .lightPosition = isCubemap() ? omniLight->getPositionGlobal() : VEC3ZERO,
-                .farPlane = 100.0f // TODO like above
+                .farPlane =  isCubemap() ? omniLight->getFarClipDistance() : 0.0f
             };
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
