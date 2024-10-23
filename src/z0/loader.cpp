@@ -135,15 +135,18 @@ namespace z0 {
                     mat.pbrData.baseColorFactor[2],
                     mat.pbrData.baseColorFactor[3],
             });
-            material->setMetallic(mat.pbrData.metallicFactor);
-            material->setRoughness(mat.pbrData.roughnessFactor);
+            material->setMetallicFactor(mat.pbrData.metallicFactor);
+            material->setRoughnessFactor(mat.pbrData.roughnessFactor);
+            if (!mat.emissiveFactor.empty()) {
+                material->setEmissiveFactor(vec3{mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]});
+            }
             switch (mat.alphaMode) {
             case fastgltf::AlphaMode::Blend:
                 material->setTransparency(TRANSPARENCY_ALPHA);
-                material->setAlphaScissor(mat.alphaCutoff);
                 break;
             case fastgltf::AlphaMode::Mask:
                 material->setTransparency(TRANSPARENCY_SCISSOR);
+                material->setAlphaScissor(mat.alphaCutoff);
                 break;
             default:
                 break;
@@ -174,7 +177,7 @@ namespace z0 {
                     const auto imageIndex =
                             gltf.textures[mat.occlusionTexture.value().textureIndex].imageIndex.value();
                     auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
-                    material->setOcclusionTexture(make_shared<ImageTexture>(image));
+                    material->setAmbientOcclusionTexture(make_shared<ImageTexture>(image));
                 }
                 if (mat.specular != nullptr) {
                     if (mat.specular->specularColorTexture.has_value()) {
@@ -188,6 +191,12 @@ namespace z0 {
                     auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
                     auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
                     material->setNormalTexture(std::make_shared<ImageTexture>(image));
+                }
+                if (mat.emissiveTexture.has_value()) {
+                    auto imageIndex = gltf.textures[mat.emissiveTexture->textureIndex].imageIndex.value();
+                    // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                    material->setEmissiveTexture(std::make_shared<ImageTexture>(image));
                 }
             }
             material->setCullMode(forceBackFaceCulling      ? CULLMODE_BACK

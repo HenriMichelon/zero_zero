@@ -49,8 +49,13 @@ namespace z0 {
         _setDirty();
     }
 
-    void StandardMaterial::setOcclusionTexture(const shared_ptr<ImageTexture> &texture) {
-        occlusionTexture = texture;
+    void StandardMaterial::setAmbientOcclusionTexture(const shared_ptr<ImageTexture> &texture) {
+        ambientOcclusionTexture = texture;
+        _setDirty();
+    }
+
+    void StandardMaterial::setEmissiveTexture(const shared_ptr<ImageTexture>& texture) {
+        emissiveTexture = texture;
         _setDirty();
     }
 
@@ -69,13 +74,18 @@ namespace z0 {
     //     _setDirty();
     // }
 
-    void StandardMaterial::setMetallic(const float metallic) {
-        this->metallic = metallic;
+    void StandardMaterial::setMetallicFactor(const float metallic) {
+        this->metallicFactor = metallic;
         _setDirty();
     }
 
-    void StandardMaterial::setRoughness(const float roughness) {
-        this->roughness = roughness;
+    void StandardMaterial::setRoughnessFactor(const float roughness) {
+        this->roughnessFactor = roughness;
+        _setDirty();
+    }
+
+    void StandardMaterial::setEmissiveFactor(const vec3& factor) {
+        emissiveFactor = factor;
         _setDirty();
     }
 

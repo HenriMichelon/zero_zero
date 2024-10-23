@@ -17,6 +17,7 @@ layout(push_constant) uniform PushConstants {
 void main() {
     UV = uv;
     if (pushConstants.transparency != 0) {
+        // discard in case of transparency, any mode
         gl_Position = vec4(0);
     } else {
         gl_Position = pushConstants.lightSpace * pushConstants.model * vec4(position, 1.0);

@@ -12,10 +12,16 @@ layout(push_constant) uniform PushConstants {
     mat4  model;
     vec3  lightPosition;
     float farPlane;
+    uint  transparency;
 } pushConstants;
 
 void main() {
     UV = uv;
-    WORLD_POSITION = pushConstants.model * vec4(position, 1.0f);
-    gl_Position = pushConstants.lightSpace * WORLD_POSITION;
+    if (pushConstants.transparency != 0) {
+        // discard in case of transparency, any mode
+        gl_Position = vec4(0);
+    } else {
+        WORLD_POSITION = pushConstants.model * vec4(position, 1.0f);
+        gl_Position = pushConstants.lightSpace * WORLD_POSITION;
+    }
 }

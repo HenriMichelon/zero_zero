@@ -136,9 +136,9 @@ export namespace z0 {
          */
         void setTextureTransform(TextureTransform transform);
 
-        [[nodiscard]] inline float getMetallic() const { return metallic; }
+        [[nodiscard]] inline float getMetallicFactor() const { return metallicFactor; }
 
-        void setMetallic(const float metallic);
+        void setMetallicFactor(const float metallic);
 
         [[nodiscard]] inline TextureChannel getMetallicTextureChannel() const { return metallicTextureChannel; }
 
@@ -148,9 +148,9 @@ export namespace z0 {
 
         void setMetallicTexture(const shared_ptr<ImageTexture> &texture);
 
-        [[nodiscard]] inline float getRoughness() const { return roughness; }
+        [[nodiscard]] inline float getRoughnessFactor() const { return roughnessFactor; }
 
-        void setRoughness(float roughness);
+        void setRoughnessFactor(float roughness);
 
         [[nodiscard]] inline const shared_ptr<ImageTexture>& getRoughnessTexture() const { return roughnessTexture; }
 
@@ -160,30 +160,40 @@ export namespace z0 {
 
         // void setRoughnessTextureChannel(TextureChannel channel);
 
-        [[nodiscard]] inline const shared_ptr<ImageTexture>& getOcclusionTexture() const { return occlusionTexture; }
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getAmbientOcclusionTexture() const { return ambientOcclusionTexture; }
 
-        void setOcclusionTexture(const shared_ptr<ImageTexture> &texture);
+        void setAmbientOcclusionTexture(const shared_ptr<ImageTexture> &texture);
 
-        [[nodiscard]] inline TextureChannel getOcclusionTextureChannel() const { return occlusionTextureChannel; }
+        [[nodiscard]] inline TextureChannel getAmbientOcclusionTextureChannel() const { return ambientOcclusionTextureChannel; }
 
+        [[nodiscard]] inline const shared_ptr<ImageTexture>& getEmissiveTexture() const { return emissiveTexture; }
+
+        [[nodiscard]] inline vec3 getEmissiveFactor() const { return emissiveFactor; }
+
+        void setEmissiveFactor(const vec3& emissive);
+
+        void setEmissiveTexture(const shared_ptr<ImageTexture>& texture);
 
     private:
         Color                        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
         shared_ptr<ImageTexture>     albedoTexture{nullptr};
 
-        float                        metallic{0.0f};
+        float                        metallicFactor{0.0f};
         shared_ptr<ImageTexture>     metallicTexture{nullptr};
         // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
         TextureChannel               metallicTextureChannel{TEXTURE_CHANNEL_BLUE};
 
-        float                        roughness{1.0f};
+        float                        roughnessFactor{1.0f};
         shared_ptr<ImageTexture>     roughnessTexture{nullptr};
         // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
         TextureChannel               roughnessTextureChannel{TEXTURE_CHANNEL_GREEN};
 
-        shared_ptr<ImageTexture>     occlusionTexture{nullptr};
+        vec3                         emissiveFactor{0.0f};
+        shared_ptr<ImageTexture>     emissiveTexture{nullptr};
+
+        shared_ptr<ImageTexture>     ambientOcclusionTexture{nullptr};
         // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
-        TextureChannel               occlusionTextureChannel{TEXTURE_CHANNEL_RED};
+        TextureChannel               ambientOcclusionTextureChannel{TEXTURE_CHANNEL_RED};
 
         shared_ptr<ImageTexture>     specularTexture{nullptr};
         shared_ptr<ImageTexture>     normalTexture{nullptr};

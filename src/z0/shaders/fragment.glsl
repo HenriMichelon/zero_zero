@@ -36,12 +36,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     }
 //    return  vec4(normal, 1.0); // debug normals
 
-    // The global ambient light, always applied
-    vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb;
-
     // Compute the diffuse light from the scene's lights
-    float metallic  = material.metallicFactor * texture(texSampler[material.metallicIndex], fs_in.UV).b;
-    float roughness = material.roughnessFactor * texture(texSampler[material.roughnessIndex], fs_in.UV).g;
+    float metallic  = material.metallicIndex == -1 ? 0.0f : material.metallicFactor * texture(texSampler[material.metallicIndex], fs_in.UV).b;
+    float roughness = material.roughnessIndex == -1 ? 1.0f : material.roughnessFactor * texture(texSampler[material.roughnessIndex], fs_in.UV).g;
     vec3 diffuse = vec3(0.0f);
     for(uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
@@ -103,6 +100,14 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             }
         }
     }
+
+    if (material.emissiveIndex != -1) {
+        diffuse += material.emissiveFactor * texture(texSampler[material.emissiveIndex], fs_in.UV).rgb;
+    }
+
+    // The global ambient light, always applied
+    float ambientOcclusion  = material.ambientOcclusionIndex == -1 ? 1.0f : texture(texSampler[material.ambientOcclusionIndex], fs_in.UV).b;
+    vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb * ambientOcclusion;
 
     return vec4(ambient + diffuse, transparency);
 }

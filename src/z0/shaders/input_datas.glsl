@@ -45,13 +45,17 @@ struct Material  {
     float   alphaScissor;
     float   metallicFactor;
     float   roughnessFactor;
+    vec3    emissiveFactor;
     int     diffuseIndex;
     int     specularIndex;
     int     normalIndex;
     int     metallicIndex;
     int     roughnessIndex;
+    int     emissiveIndex;
+    int     ambientOcclusionIndex;
     uint    metallicChannel;
     uint    roughnessChannel;
+    uint    ambientOcclusionChannel;
     bool    hasTextureTransform;
     vec2    textureOffset;
     vec2    textureScale;
