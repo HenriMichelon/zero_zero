@@ -68,11 +68,15 @@ export namespace z0 {
         ~ShadowMapRenderer() override;
 
     private:
-        struct PushConstants {
-            mat4 lightSpace;
-            mat4 matrix;
+        struct GlobalBuffer {
             alignas(16) vec3 lightPosition;
             alignas(4) float farPlane;
+            mat4 lightSpace[6];
+        };
+
+        struct PushConstants {
+            mat4 model;
+            alignas(4) uint32_t lightSpaceIndex;
             alignas(4) uint32_t transparency;
         };
         static constexpr auto PUSHCONSTANTS_SIZE{sizeof(PushConstants)};
@@ -117,6 +121,10 @@ export namespace z0 {
         void loadShaders() override;
 
         void cleanupImagesResources() override;
+
+        void createDescriptorSetLayout() override;
+
+        void createOrUpdateDescriptorSet(bool create) override;
 
     public:
         ShadowMapRenderer(const ShadowMapRenderer &) = delete;

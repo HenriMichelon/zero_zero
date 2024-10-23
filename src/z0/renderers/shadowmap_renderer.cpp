@@ -40,7 +40,7 @@ namespace z0 {
             frame.models = meshes;
             frame.models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
         }
-        createOrUpdateResources(false, &pushConstantRange);
+        createOrUpdateResources(true, &pushConstantRange);
     }
 
     void ShadowMapRenderer::cleanup() {
@@ -55,6 +55,7 @@ namespace z0 {
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
+        auto globalUBO = GlobalBuffer{};
         if (data.currentCamera == nullptr) { return; }
         switch (light->getLightType()) {
             case Light::LIGHT_DIRECTIONAL: {
@@ -183,6 +184,8 @@ namespace z0 {
                 data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
                 data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
                 data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
+                globalUBO.lightPosition = omniLight->getPositionGlobal();
+                globalUBO.farPlane =  omniLight->getFarClipDistance();
                 break;
             }
             case Light::LIGHT_SPOT: {
@@ -199,17 +202,16 @@ namespace z0 {
                 break;
             }
         }
+        for(auto i = 0; i < 6; i++) {
+            globalUBO.lightSpace[i] = data.lightSpace[i];
+        }
+        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUBO);
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         const auto& data = frameData[currentFrame];
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
         auto pushConstants = PushConstants {};
-        if (light->getLightType() == Light::LIGHT_OMNI) {
-            const auto* omniLight = reinterpret_cast<const OmniLight*>(light);
-            pushConstants.lightPosition = omniLight->getPositionGlobal();
-            pushConstants.farPlane =  omniLight->getFarClipDistance();
-        };
         for (int passIndex = 0; passIndex < passCount; passIndex++) {
             device.transitionImageLayout(commandBuffer,
                                                 data.shadowMap->getImage(),
@@ -261,13 +263,15 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
-            pushConstants.lightSpace = data.lightSpace[passIndex];
+            bindDescriptorSets(commandBuffer, currentFrame);
+
+            pushConstants.lightSpaceIndex = passIndex;
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
                     const auto& mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
-                        pushConstants.matrix = meshInstance->getTransformGlobal();
+                        pushConstants.model = meshInstance->getTransformGlobal();
                         pushConstants.transparency = surface->material->getTransparency();
                         vkCmdPushConstants(
                             commandBuffer,
@@ -315,6 +319,41 @@ namespace z0 {
         for(auto& frame: frameData) {
             if (frame.shadowMap != nullptr) {
                 frame.shadowMap->cleanupImagesResources();
+            }
+        }
+    }
+
+    void ShadowMapRenderer::createDescriptorSetLayout() {
+        descriptorPool =
+                DescriptorPool::Builder(device)
+                        .setMaxSets(device.getFramesInFlight())
+                        // global UBO
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
+                        .build();
+
+        setLayout = DescriptorSetLayout::Builder(device)
+                            .addBinding(0,
+                                        // global UBO
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                        VK_SHADER_STAGE_ALL_GRAPHICS)
+                            .build();
+
+        globalUniformBufferSize = sizeof(GlobalBuffer);
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
+            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+        }
+    }
+
+    void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
+        for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
+            auto globalBufferInfo     = globalUniformBuffers[frameIndex]->descriptorInfo(globalUniformBufferSize);
+            auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
+                                 .writeBuffer(0, &globalBufferInfo);
+            if (create) {
+                if (!writer.build(descriptorSet[frameIndex]))
+                    die("Cannot allocate descriptor set");
+            } else {
+                writer.overwrite(descriptorSet[frameIndex]);
             }
         }
     }
