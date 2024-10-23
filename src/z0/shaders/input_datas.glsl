@@ -16,6 +16,11 @@ struct VertexOut {
 #define LIGHT_OMNI        1
 #define LIGHT_SPOT        2
 
+#define TRANSPARENCY_DISABLED      0
+#define TRANSPARENCY_ALPHA         1
+#define TRANSPARENCY_SCISSOR       2
+#define TRANSPARENCY_SCISSOR_ALPHA 3
+
 struct Light {
     // light params
     int     type; // Light::LightType

@@ -20,9 +20,10 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 
     // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA
     // discard the fragment if the alpha value < scissor value of the material
-    if (((material.transparency == 2) || (material.transparency == 3)) && (color.a < material.alphaScissor)) {
+    if (((material.transparency == TRANSPARENCY_SCISSOR) || (material.transparency == TRANSPARENCY_SCISSOR_ALPHA)) && (color.a < material.alphaScissor)) {
         discard;
     }
+    const float transparency = (material.transparency == TRANSPARENCY_ALPHA || material.transparency == TRANSPARENCY_SCISSOR_ALPHA) ? color.a : 1.0f;
 
     vec3 normal;
     if (material.normalIndex != -1) {
@@ -39,6 +40,8 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     vec3 ambient = global.ambient.w * global.ambient.rgb * color.rgb;
 
     // Compute the diffuse light from the scene's lights
+    float metallic  = material.metallicFactor * texture(texSampler[material.metallicIndex], fs_in.UV).b;
+    float roughness = material.roughnessFactor * texture(texSampler[material.roughnessIndex], fs_in.UV).g;
     vec3 diffuse = vec3(0.0f);
     for(uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
@@ -81,30 +84,25 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //                        break;
 //                    }
                 }
-                diffuse += calcDirectionalLight(light, color.rgb, normal, material, fs_in.VIEW_DIRECTION, fs_in.UV, factor);
+                diffuse += factor * calcDirectionalLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION);
                 break;
             }
             case LIGHT_SPOT: {
                 if (light.mapIndex != -1) {
                     factor = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
                 }
-                diffuse += factor * calcPointLight(light, color, normal, material, fs_in.GLOBAL_POSITION.xyz, fs_in.VIEW_DIRECTION, fs_in.UV);
+                diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz);
                 break;
             }
             case LIGHT_OMNI: {
                 if (light.mapIndex != -1) {
                     factor = shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
                 }
-                diffuse += factor * calcPointLight(light, color, normal, material, fs_in.GLOBAL_POSITION.xyz, fs_in.VIEW_DIRECTION, fs_in.UV);
+                diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz);
                 break;
             }
         }
     }
 
-    diffuse = ambient + diffuse;
-
-    diffuse = diffuse / (diffuse + vec3(1.0));
-    diffuse = pow(diffuse, vec3(1.0/2.2));
-
-    return vec4(diffuse, material.transparency == 1 || material.transparency == 3 ? color.a : 1.0);
+    return vec4(ambient + diffuse, transparency);
 }

@@ -60,11 +60,11 @@ namespace z0 {
         }
         // Create sampler for the depth attachment.
         // Used to sample in the main fragment shader for the shadow factor calculations
-        const VkFilter shadowmapFilter =
-                device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+        // const VkFilter shadowmapFilter =
+                // device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
         const VkSamplerCreateInfo samplerCreateInfo{.sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                                                    .magFilter     = shadowmapFilter,
-                                                    .minFilter     = shadowmapFilter,
+                                                    .magFilter     = VK_FILTER_NEAREST,
+                                                    .minFilter     = VK_FILTER_NEAREST,
                                                     .mipmapMode    = VK_SAMPLER_MIPMAP_MODE_LINEAR,
                                                     .addressModeU  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                                                     .addressModeV  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,

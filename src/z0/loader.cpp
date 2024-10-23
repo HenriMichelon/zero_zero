@@ -173,20 +173,19 @@ namespace z0 {
                 if (mat.occlusionTexture.has_value()) {
                     const auto imageIndex =
                             gltf.textures[mat.occlusionTexture.value().textureIndex].imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
                     material->setOcclusionTexture(make_shared<ImageTexture>(image));
                 }
                 if (mat.specular != nullptr) {
                     if (mat.specular->specularColorTexture.has_value()) {
                         auto imageIndex =
                                 gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.value();
-                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
                         material->setSpecularTexture(std::make_shared<ImageTexture>(image));
                     }
                 }
                 if (mat.normalTexture.has_value()) {
                     auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
-                    // https://www.reddit.com/r/vulkan/comments/wksa4z/comment/jd7504e/
                     auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
                     material->setNormalTexture(std::make_shared<ImageTexture>(image));
                 }

@@ -73,6 +73,7 @@ namespace z0 {
                                   VK_FORMAT_R8G8B8A8_SRGB,
                                   VK_IMAGE_TILING_OPTIMAL,
                                   VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+                                  VK_FILTER_LINEAR,
                                   // don't repeat texture
                                   false);
     }

@@ -27,6 +27,7 @@ namespace z0 {
                  const VkFormat             format,
                  const VkImageTiling        tiling,
                  const VkSamplerAddressMode samplerAddressMode,
+                 const VkFilter             samplerFilter,
                  const bool                 noMipmaps):
         Resource(name),
         device{device},
@@ -91,7 +92,7 @@ namespace z0 {
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
         if (!noMipmaps) { generateMipmaps(format); }
-        createTextureSampler(samplerAddressMode);
+        createTextureSampler(samplerFilter, samplerAddressMode);
     }
 
     Image::~Image() {
@@ -141,12 +142,12 @@ namespace z0 {
         return image;
     }
 
-    void Image::createTextureSampler(const VkSamplerAddressMode samplerAddressMode) {
+    void Image::createTextureSampler(const VkFilter samplerFilter, const VkSamplerAddressMode samplerAddressMode) {
         // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Samplers
         const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                .magFilter = VK_FILTER_LINEAR,
-                .minFilter = VK_FILTER_LINEAR,
+                .magFilter = samplerFilter,
+                .minFilter = samplerFilter,
                 .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
                 .addressModeU = samplerAddressMode,
                 .addressModeV = samplerAddressMode,

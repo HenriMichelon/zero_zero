@@ -191,7 +191,7 @@ namespace z0 {
                 const auto lightPosition                   = light->getPositionGlobal();
                 const auto sceneCenter              = lightPosition + lightDirection;
                 const auto lightProjection = perspective(
-                    spotLight->getFov(),
+                    spotLight->getFov() * 1.5f,
                     data.shadowMap->getRatio(),
                     spotLight->getNearClipDistance(),
                     spotLight->getFarClipDistance());
@@ -265,9 +265,10 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
-                    const auto mesh = meshInstance->getMesh();
+                    const auto& mesh = meshInstance->getMesh();
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.matrix = meshInstance->getTransformGlobal();
+                        pushConstants.transparency = surface->material->getTransparency();
                         vkCmdPushConstants(
                             commandBuffer,
                             pipelineLayout,

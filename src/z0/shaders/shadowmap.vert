@@ -7,13 +7,18 @@ layout (location = 2) in vec2 uv;
 layout (location = 0) out vec2 UV;
 
 layout(push_constant) uniform PushConstants {
-    mat4 lightSpace;
+    mat4  lightSpace;
     mat4  model;
     vec3  lightPosition;
     float farPlane;
+    uint  transparency;
 } pushConstants;
 
 void main() {
     UV = uv;
-    gl_Position = pushConstants.lightSpace * pushConstants.model * vec4(position, 1.0);
+    if (pushConstants.transparency != 0) {
+        gl_Position = vec4(0);
+    } else {
+        gl_Position = pushConstants.lightSpace * pushConstants.model * vec4(position, 1.0);
+    }
 }

@@ -73,6 +73,7 @@ export namespace z0 {
             mat4 matrix;
             alignas(16) vec3 lightPosition;
             alignas(4) float farPlane;
+            alignas(4) uint32_t transparency;
         };
         static constexpr auto PUSHCONSTANTS_SIZE{sizeof(PushConstants)};
         static constexpr  VkPushConstantRange pushConstantRange {

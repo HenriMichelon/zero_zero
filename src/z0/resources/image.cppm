@@ -39,6 +39,7 @@ export namespace z0 {
                        VkFormat             format             = VK_FORMAT_R8G8B8A8_SRGB,
                        VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
                        VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                       VkFilter             samplerFilter      = VK_FILTER_LINEAR,
                        bool                 noMipmaps          = false);
 
         ~Image() override;
@@ -76,7 +77,7 @@ export namespace z0 {
         VkImageView    textureImageView;
         VkSampler      textureSampler;
 
-        void createTextureSampler(VkSamplerAddressMode samplerAddressMode);
+        void createTextureSampler(VkFilter samplerFilter, VkSamplerAddressMode samplerAddressMode);
 
         void generateMipmaps(VkFormat imageFormat) const;
 
