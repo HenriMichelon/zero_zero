@@ -2,7 +2,7 @@
 const float PI = 3.1415926535897932384626433832795;
 
 float distributionGGX (vec3 N, vec3 H, float roughness){
-    const float a2    = roughness * roughness;
+    const float a2    = roughness * roughness * roughness * roughness;
     const float NdotH = max (dot (N, H), 0.0);
     const float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
     return a2 / (PI * denom * denom);
