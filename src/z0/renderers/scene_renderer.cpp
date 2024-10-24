@@ -58,6 +58,7 @@ namespace z0 {
         blankImage.reset();
         blankCubemap.reset();
         for(auto& frame: frameData) {
+            frame.globalBuffer.reset();
             frame.materialShaders.clear();
             frame.materialsBuffer.reset();
             frame.lightBuffer.reset();
@@ -260,7 +261,7 @@ namespace z0 {
         }
         if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
 
-        GobalBuffer globalUbo{
+        GlobalBuffer globalUbo{
                 .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
                 .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
                 .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
@@ -269,7 +270,7 @@ namespace z0 {
         if (frame.currentEnvironment != nullptr) {
             globalUbo.ambient = frame.currentEnvironment->getAmbientColorAndIntensity();
         }
-        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
+        writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         if (globalUbo.lightsCount > 0) {
             auto lightsArray = make_unique<LightBuffer[]>(globalUbo.lightsCount);
@@ -463,9 +464,8 @@ namespace z0 {
         if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
         if (blankCubemap == nullptr) { blankCubemap = Cubemap::createBlankCubemap(); }
 
-        globalUniformBufferSize = sizeof(GobalBuffer);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+            frameData[i].globalBuffer = createUniformBuffer(GLOBAL_BUFFER_SIZE);
         }
     }
 
@@ -526,7 +526,7 @@ namespace z0 {
                 imageIndex += 1;
             }
 
-            auto globalBufferInfo     = globalUniformBuffers[frameIndex]->descriptorInfo(globalUniformBufferSize);
+            auto globalBufferInfo     = frame.globalBuffer->descriptorInfo(GLOBAL_BUFFER_SIZE);
             auto modelBufferInfo      = ModelsRenderer::frameData[frameIndex].modelUniformBuffer->descriptorInfo(MODEL_BUFFER_SIZE *
                                                                                 frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);

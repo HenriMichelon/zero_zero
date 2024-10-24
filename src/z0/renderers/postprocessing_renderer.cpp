@@ -52,29 +52,18 @@ namespace z0 {
     void PostprocessingRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
                                  .setMaxSets(device.getFramesInFlight())
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
                                  .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                                  .build();
         setLayout = DescriptorSetLayout::Builder(device)
-                            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
-        if (globalUniformBufferSize > 0) {
-            for (auto i = 0; i < device.getFramesInFlight(); i++) {
-                globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
-            }
-        }
     }
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             auto imageInfo        = inputColorAttachmentHdr[i]->imageInfo();
             auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                      .writeImage(1, &imageInfo);
-            if (globalUniformBufferSize > 0) {
-                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
-                writer.writeBuffer(0, &globalBufferInfo);
-            } else {}
+                                      .writeImage(0, &imageInfo);
             if (create) {
                 if (!writer.build(descriptorSet[i])) {
                     die("Cannot allocate descriptor set for BasePostprocessingRenderer");

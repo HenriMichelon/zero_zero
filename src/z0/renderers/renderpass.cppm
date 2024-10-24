@@ -34,8 +34,6 @@ export namespace z0 {
         vector<VkDescriptorSet>         descriptorSet;
         unique_ptr<Shader>              vertShader;
         unique_ptr<Shader>              fragShader;
-        VkDeviceSize                    globalUniformBufferSize{0};
-        vector<unique_ptr<Buffer>>      globalUniformBuffers;
         bool                            descriptorSetNeedUpdate{false};
         VkClearValue                    clearColor;
 

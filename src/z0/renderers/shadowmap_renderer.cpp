@@ -46,6 +46,7 @@ namespace z0 {
     void ShadowMapRenderer::cleanup() {
         cleanupImagesResources();
         for(auto& frame: frameData) {
+            frame.globalBuffer.reset();
             frame.shadowMap.reset();
         }
         Renderpass::cleanup();
@@ -205,7 +206,7 @@ namespace z0 {
         for(auto i = 0; i < 6; i++) {
             globalUBO.lightSpace[i] = data.lightSpace[i];
         }
-        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUBO);
+        writeUniformBuffer(data.globalBuffer, &globalUBO);
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
@@ -338,15 +339,14 @@ namespace z0 {
                                         VK_SHADER_STAGE_ALL_GRAPHICS)
                             .build();
 
-        globalUniformBufferSize = sizeof(GlobalBuffer);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+            frameData[i].globalBuffer = createUniformBuffer(sizeof(GlobalBuffer));
         }
     }
 
     void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
-            auto globalBufferInfo     = globalUniformBuffers[frameIndex]->descriptorInfo(globalUniformBufferSize);
+            auto globalBufferInfo     = frameData[frameIndex].globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
                                  .writeBuffer(0, &globalBufferInfo);
             if (create) {

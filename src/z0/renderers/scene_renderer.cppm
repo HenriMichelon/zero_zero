@@ -70,13 +70,14 @@ namespace z0 {
         void activateCamera(Camera *camera, uint32_t currentFrame) override;
 
     private:
-        struct GobalBuffer {
+        struct GlobalBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
             vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(16) vec3 cameraPosition;
             alignas(4) uint32_t lightsCount{0};
         };
+        static constexpr auto GLOBAL_BUFFER_SIZE = sizeof(GlobalBuffer);
 
         struct ModelBuffer {
             mat4 matrix{};
@@ -195,7 +196,10 @@ namespace z0 {
             uint32_t lightBufferCount{0};
 
             // Offscreen frame buffers attachments
-            unique_ptr<ColorFrameBuffer>    colorFrameBufferMultisampled;
+            unique_ptr<ColorFrameBuffer> colorFrameBufferMultisampled;
+
+            // Global UBO in GPU memory
+            unique_ptr<Buffer> globalBuffer;
         };
         vector<FrameData> frameData;
 

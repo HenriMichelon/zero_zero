@@ -108,6 +108,8 @@ export namespace z0 {
             mat4 lightSpace[6];
             // For cascaded shadow map, the last computed cascade split depth for each cascade
             float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
+            // Global UBO in GPU memory
+            unique_ptr<Buffer> globalBuffer;
         };
         vector<FrameData> frameData;
 

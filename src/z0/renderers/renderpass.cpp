@@ -15,7 +15,7 @@ import :Renderpass;
 namespace z0 {
 
     void Renderpass::cleanup() {
-        globalUniformBuffers.clear();
+        // globalUniformBuffers.clear();
         if (vertShader != nullptr)
             vertShader.reset();
         if (fragShader != nullptr)
@@ -41,7 +41,7 @@ namespace z0 {
         shaderDirectory(std::move(shaderDir)),
         clearColor{clearColor} {
         descriptorSet.resize(dev.getFramesInFlight());
-        globalUniformBuffers.resize(dev.getFramesInFlight());
+        // globalUniformBuffers.resize(dev.getFramesInFlight());
     }
 
     void Renderpass::setViewport(const VkCommandBuffer commandBuffer,

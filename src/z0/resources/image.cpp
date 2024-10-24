@@ -68,7 +68,7 @@ namespace z0 {
                 .imageOffset = {0, 0, 0},
                 .imageExtent = {width, height, 1},
         };
-        const VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
+        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -87,7 +87,7 @@ namespace z0 {
                 1,
                 &region
                 );
-        device.endSingleTimeCommands(commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
         //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
@@ -177,7 +177,7 @@ namespace z0 {
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
             die("texture image format does not support linear blitting!"); // TODO
         }
-        const VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
+        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
 
         VkImageMemoryBarrier barrier{
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -270,7 +270,7 @@ namespace z0 {
                              1,
                              &barrier);
 
-        device.endSingleTimeCommands(commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
     }
 
 }

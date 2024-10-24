@@ -533,7 +533,7 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    VkCommandBuffer Device::beginSingleTimeCommands() const {
+    VkCommandBuffer Device::beginOneTimeCommandBuffer() const {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
         const VkCommandBufferAllocateInfo allocInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -552,7 +552,7 @@ namespace z0 {
         return commandBuffer;
     }
 
-    void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) const {
+    void Device::endOneTimeCommandBuffer(VkCommandBuffer commandBuffer) const {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
         vkEndCommandBuffer(commandBuffer);
         const VkSubmitInfo submitInfo{

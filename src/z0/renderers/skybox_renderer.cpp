@@ -18,6 +18,7 @@ namespace z0 {
 
     SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory, const VkClearValue clearColor):
         Renderpass{device, shaderDirectory, clearColor} {
+        globalBuffer.resize(device.getFramesInFlight());
         static constexpr float skyboxVertices[] = {
                 // positions
             -1.0f, 1.0f, -1.0f,
@@ -87,6 +88,7 @@ namespace z0 {
     }
 
     void SkyboxRenderer::cleanup() {
+        globalBuffer.clear();
         vertexBuffer.reset();
         cubemap.reset();
         Renderpass::cleanup();
@@ -102,7 +104,7 @@ namespace z0 {
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
-        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
+        writeUniformBuffer(globalBuffer[currentFrame], &globalUbo);
     }
 
     void SkyboxRenderer::loadShaders() {
@@ -117,9 +119,8 @@ namespace z0 {
                          .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
                          .build();
 
-        globalUniformBufferSize = sizeof(GobalUniformBuffer);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+            globalBuffer[i] = createUniformBuffer(sizeof(GobalUniformBuffer));
         }
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -136,7 +137,7 @@ namespace z0 {
     void SkyboxRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (create) {
             for (auto i = 0; i < device.getFramesInFlight(); i++) {
-                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+                auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GobalUniformBuffer));
                 auto imageInfo        = cubemap->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                                         .writeBuffer(0, &globalBufferInfo)

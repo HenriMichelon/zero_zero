@@ -103,9 +103,10 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer() const;
 
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+        void endOneTimeCommandBuffer(VkCommandBuffer commandBuffer) const;
+
         list<shared_ptr<Renderer>> renderers;
 
     private:

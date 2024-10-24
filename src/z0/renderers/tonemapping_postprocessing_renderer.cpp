@@ -20,15 +20,21 @@ namespace z0 {
             const vector<shared_ptr<DepthFrameBuffer>>& depthBuffer):
         PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr},
         resolvedDepthBuffer{depthBuffer} {
+        globalBuffer.resize(device.getFramesInFlight());
         createOrUpdateResources();
     }
 
+    void TonemappingPostprocessingRenderer::cleanup() {
+        globalBuffer.clear();
+        PostprocessingRenderer::cleanup();
+    }
+
     void TonemappingPostprocessingRenderer::update(const uint32_t currentFrame) {
-        const GlobalUniformBufferObject globalUbo {
+        const GlobalUniformBuffer globalUbo {
             .gamma = Application::get().getConfig().gamma,
             .exposure = Application::get().getConfig().exposure,
         };
-        writeUniformBuffer(globalUniformBuffers[currentFrame], &globalUbo);
+        writeUniformBuffer(globalBuffer[currentFrame], &globalUbo);
     }
 
     void TonemappingPostprocessingRenderer::createDescriptorSetLayout() {
@@ -45,15 +51,14 @@ namespace z0 {
                             // source depth attachment
                             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
-        globalUniformBufferSize = sizeof(GlobalUniformBufferObject);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+            globalBuffer[i] = createUniformBuffer(sizeof(GlobalUniformBuffer));
         }
     }
 
     void TonemappingPostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+            auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GlobalUniformBuffer));
             auto colorInfo        = inputColorAttachmentHdr[i]->imageInfo();
             auto depthInfo        = VkDescriptorImageInfo {
                 .sampler = colorInfo.sampler,

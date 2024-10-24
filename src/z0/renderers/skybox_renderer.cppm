@@ -40,6 +40,7 @@ export namespace z0 {
             vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
         };
 
+        vector<unique_ptr<Buffer>>  globalBuffer;
         uint32_t                    vertexCount;
         unique_ptr<Buffer>          vertexBuffer;
         shared_ptr<Cubemap>         cubemap;
