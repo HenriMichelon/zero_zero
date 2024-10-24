@@ -1,24 +1,41 @@
 #include "pbr.glsl"
 
-vec3 calcPBRLight(Light light, vec3 albedo, vec3 N, vec3 L, float attenuation, float metallic, float roughness, vec3 V) {
+vec3 calcPBRLight(Light light, vec3 albedo, vec3 N, vec3 Lo, float attenuation, float metallic, float roughness, vec3 Li) {
+    // Fresnel reflectance at normal incidence (for metals use albedo color).
+    vec3 F0 = mix(Fdielectric, albedo, metallic);
+    // Angle between surface normal and outgoing light direction.
+    float cosLo = max(0.0, dot(N, Lo));
+
     // https://learnopengl.com/PBR/Theory
-    const vec3 radiance = light.color.rgb * light.color.w * attenuation;
-    const vec3 H = normalize(V + L);
-    const vec3 F0 = mix (vec3 (0.04), albedo, metallic);
+    // Half-vector between Li and Lo.
+    vec3 Lh = normalize(Li + Lo);
 
-    // Cook-Torrance BRDF
-    const float NDF = distributionGGX(N, H, roughness);
-    const float G   = geometrySmith(N, V, L, roughness);
-    const vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);
-    vec3  kD  = vec3(1.0) - F;
-    kD *= 1.0 - metallic;
+    // Calculate angles between surface normal and various light vectors.
+    float cosLi = max(0.0, dot(N, Li));
+    float cosLh = max(0.0, dot(N, Lh));
 
-    const vec3  numerator   = NDF * G * F;
-    const float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-    const vec3  specular    = numerator / denominator;
+    // Calculate Fresnel term for direct lighting.
+    vec3 F  = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
+    // Calculate normal distribution for specular BRDF.
+    float D = ndfGGX(cosLh, roughness);
+    // Calculate geometric attenuation for specular BRDF.
+    float G = gaSchlickGGX(cosLi, cosLo, roughness);
 
-    const float NdotL = max(dot(N, L), 0.0);
-    return radiance * (kD * albedo / PI + specular) * NdotL;
+    // Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
+    // Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
+    // To be energy conserving we must scale diffuse BRDF contribution based on Fresnel factor & metalness.
+    vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metallic);
+
+    // Lambert diffuse BRDF.
+    // We don't scale by 1/PI for lighting & material units to be more convenient.
+    // See: https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+    vec3 diffuseBRDF = kd * albedo;
+
+    // Cook-Torrance specular microfacet BRDF.
+    vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
+
+    // Total contribution for this light.
+    return (diffuseBRDF + specularBRDF) * light.color.rgb * light.color.w * cosLi;
 }
 
 vec3 calcDirectionalLight(Light light, vec3 albedo, vec3 normal, float metallic, float roughness, vec3 viewDirection) {

@@ -1,24 +1,38 @@
 // https://learnopengl.com/PBR/Theory
 const float PI = 3.1415926535897932384626433832795;
+const float Epsilon = 0.00001;
 
-float distributionGGX (vec3 N, vec3 H, float roughness){
-    const float a2    = roughness * roughness * roughness * roughness;
-    const float NdotH = max (dot (N, H), 0.0);
-    const float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
-    return a2 / (PI * denom * denom);
+// Constant normal incidence Fresnel factor for all dielectrics.
+const vec3 Fdielectric = vec3(0.04);
+
+
+// GGX/Towbridge-Reitz normal distribution function.
+// Uses Disney's reparametrization of alpha = roughness^2.
+float ndfGGX(float cosLh, float roughness)
+{
+    float alpha   = roughness * roughness;
+    float alphaSq = alpha * alpha;
+
+    float denom = (cosLh * cosLh) * (alphaSq - 1.0) + 1.0;
+    return alphaSq / (PI * denom * denom);
 }
 
-float geometrySchlickGGX (float NdotV, float roughness){
-    const float r = (roughness + 1.0);
-    const float k = (r * r) / 8.0;
-    return NdotV / (NdotV * (1.0 - k) + k);
+// Single term for separable Schlick-GGX below.
+float gaSchlickG1(float cosTheta, float k)
+{
+    return cosTheta / (cosTheta * (1.0 - k) + k);
 }
 
-float geometrySmith (vec3 N, vec3 V, vec3 L, float roughness){
-    return geometrySchlickGGX (max (dot (N, L), 0.0), roughness) *
-    geometrySchlickGGX (max (dot (N, V), 0.0), roughness);
+// Schlick-GGX approximation of geometric attenuation function using Smith's method.
+float gaSchlickGGX(float cosLi, float cosLo, float roughness)
+{
+    float r = roughness + 1.0;
+    float k = (r * r) / 8.0; // Epic suggests using this roughness remapping for analytic lights.
+    return gaSchlickG1(cosLi, k) * gaSchlickG1(cosLo, k);
 }
 
-vec3 fresnelSchlick (float cosTheta, vec3 F0){
-    return F0 + (1.0 - F0) * pow (1.0 - cosTheta, 5.0);
+// Shlick's approximation of the Fresnel factor.
+vec3 fresnelSchlick(vec3 F0, float cosTheta)
+{
+    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
