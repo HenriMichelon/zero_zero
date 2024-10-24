@@ -91,23 +91,24 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
 		${Z0_ENGINE_DIR}/resources/texture.cppm
 
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cppm
-		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cppm
+		${Z0_ENGINE_DIR}/framebuffers/color.cppm
+		${Z0_ENGINE_DIR}/framebuffers/color_hdr.cppm
+		${Z0_ENGINE_DIR}/framebuffers/depth.cppm
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cppm
+		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cppm
 
-		${Z0_ENGINE_DIR}/renderers/models_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/postprocessing_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/equirect2cubemap.cppm
+		${Z0_ENGINE_DIR}/renderers/models.cppm
+		${Z0_ENGINE_DIR}/renderers/postprocessing.cppm
 		${Z0_ENGINE_DIR}/renderers/renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/renderpass.cppm
-		${Z0_ENGINE_DIR}/renderers/scene_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/tonemapping_postprocessing_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/vector_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/scene.cppm
+		${Z0_ENGINE_DIR}/renderers/shadowmap.cppm
+		${Z0_ENGINE_DIR}/renderers/simple_postprocessing.cppm
+		${Z0_ENGINE_DIR}/renderers/tonemapping.cppm
+		${Z0_ENGINE_DIR}/renderers/skybox.cppm
+		${Z0_ENGINE_DIR}/renderers/vector.cppm
 
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle.cppm
@@ -181,21 +182,21 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer.cpp
-		${Z0_ENGINE_DIR}/framebuffers/color_frame_buffer_hdr.cpp
-		${Z0_ENGINE_DIR}/framebuffers/depth_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/color.cpp
+		${Z0_ENGINE_DIR}/framebuffers/color_hdr.cpp
+		${Z0_ENGINE_DIR}/framebuffers/depth.cpp
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
-		${Z0_ENGINE_DIR}/framebuffers/shadow_map_frame_buffer.cpp
+		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cpp
 
-		${Z0_ENGINE_DIR}/renderers/models_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/models.cpp
+		${Z0_ENGINE_DIR}/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/renderers/renderpass.cpp
-		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/tonemapping_postprocessing_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
-		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/scene.cpp
+		${Z0_ENGINE_DIR}/renderers/shadowmap.cpp
+		${Z0_ENGINE_DIR}/renderers/simple_postprocessing.cpp
+		${Z0_ENGINE_DIR}/renderers/tonemapping.cpp
+		${Z0_ENGINE_DIR}/renderers/skybox.cpp
+		${Z0_ENGINE_DIR}/renderers/vector.cpp
 
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp
