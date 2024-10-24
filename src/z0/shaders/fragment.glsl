@@ -38,7 +38,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 
     // Compute the diffuse light from the scene's lights
     float metallic  = material.metallicIndex == -1 ? 0.0f : material.metallicFactor * texture(texSampler[material.metallicIndex], fs_in.UV).b;
-    float roughness = material.roughnessIndex == -1 ? 1.0f : material.roughnessFactor * texture(texSampler[material.roughnessIndex], fs_in.UV).g;
+    float roughness = material.roughnessIndex == -1 ? 1.0f : material.roughnessFactor * (texture(texSampler[material.roughnessIndex], fs_in.UV).g);
     vec3 diffuse = vec3(0.0f);
     for(uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];

@@ -229,10 +229,10 @@ namespace z0 {
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
             shaderDir,
-            tonemappingRenderer->getColorAttachments());
+            sceneRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
-        device->registerRenderer(tonemappingRenderer);
+        // device->registerRenderer(tonemappingRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager
