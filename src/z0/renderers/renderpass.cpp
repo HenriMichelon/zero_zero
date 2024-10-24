@@ -29,10 +29,11 @@ namespace z0 {
 
     Renderpass::Renderpass(Device &dev, const string &shaderDir, const vec3 clearColor) :
         Renderpass(dev, shaderDir, {
-    clearColor.r / 256.0f,
-    clearColor.g / 256.0f,
-    clearColor.b / 256.0f,
-    1.0f}) {}
+            clearColor.r / 256.0f,
+            clearColor.g / 256.0f,
+            clearColor.b / 256.0f,
+            1.0f}) {
+    }
 
     Renderpass::Renderpass(Device &dev, string shaderDir, const VkClearValue clearColor) :
         device{dev},

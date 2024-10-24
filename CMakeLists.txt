@@ -188,6 +188,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cpp
 
+		${Z0_ENGINE_DIR}/renderers/equirect2cubemap.cpp
 		${Z0_ENGINE_DIR}/renderers/models.cpp
 		${Z0_ENGINE_DIR}/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/renderers/renderpass.cpp
