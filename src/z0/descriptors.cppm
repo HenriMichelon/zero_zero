@@ -109,9 +109,9 @@ export namespace z0 {
     public:
         DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool);
 
-        [[nodiscard]] DescriptorWriter &writeBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
+        DescriptorWriter &writeBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
 
-        [[nodiscard]] DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);
+        DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);
 
         [[nodiscard]] bool build(VkDescriptorSet &set);
 

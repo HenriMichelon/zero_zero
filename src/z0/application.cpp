@@ -23,7 +23,7 @@ import :Material;
 import :SceneRenderer;
 import :VectorRenderer;
 import :SimplePostprocessingRenderer;
-import :ShadowMapRenderer;
+import :TonemappingPostprocessingRenderer;
 import :GManager;
 
 import :Camera;
@@ -221,18 +221,18 @@ namespace z0 {
             *device,
             shaderDir,
             applicationConfig.clearColor);
-        // postprocessingRenderer = make_shared<SimplePostprocessingRenderer>(
-        //     *device,
-        //     shaderDir,
-        //     "grayscale",
-        //     sceneRenderer->getSampledAttachments());
+        tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
+            *device,
+            shaderDir,
+            sceneRenderer->getColorAttachments(),
+            sceneRenderer->getDepthAttachments());
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
             shaderDir,
-            sceneRenderer->getColorAttachments());
+            tonemappingRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
-        // device->registerRenderer(postprocessingRenderer);
+        device->registerRenderer(tonemappingRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager

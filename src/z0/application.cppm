@@ -23,12 +23,15 @@ export namespace z0 {
     class SceneRenderer;
     class VectorRenderer;
     class PostprocessingRenderer;
+    class TonemappingPostprocessingRenderer;
     class Camera;
 
     /**
      * Global application.
      * Automatically instantiated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
-     * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html) and the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html)
+     * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html),
+     * the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html) and the
+     * various renderes.
      */
     class Application final : public Object {
     public:
@@ -170,8 +173,8 @@ export namespace z0 {
         shared_ptr<VectorRenderer> vectorRenderer;
         // vector renderer size ratios
         vec2 vectorRatio;
-        // Renderer used in development
-        // shared_ptr<PostprocessingRenderer> postprocessingRenderer;
+        // HDR & Gamma correction renderer
+        shared_ptr<TonemappingPostprocessingRenderer> tonemappingRenderer;
 
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame

@@ -1,10 +1,9 @@
-// https://learnopengl.com/PBR/Theory
+// http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
 const float PI = 3.1415926535897932384626433832795;
 const float Epsilon = 0.00001;
 
 // Constant normal incidence Fresnel factor for all dielectrics.
 const vec3 Fdielectric = vec3(0.04);
-
 
 // GGX/Towbridge-Reitz normal distribution function.
 // Uses Disney's reparametrization of alpha = roughness^2.

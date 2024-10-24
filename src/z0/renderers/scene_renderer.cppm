@@ -41,7 +41,7 @@ namespace z0 {
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
 
-        [[nodiscard]] vector<ColorFrameBufferHDR*> getSampledAttachments() const;
+        [[nodiscard]] inline const vector<shared_ptr<DepthFrameBuffer>> &getDepthAttachments() const { return resolvedDepthFrameBuffer; }
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImage(); }
 
@@ -196,7 +196,6 @@ namespace z0 {
 
             // Offscreen frame buffers attachments
             unique_ptr<ColorFrameBuffer>    colorFrameBufferMultisampled;
-            shared_ptr<DepthFrameBuffer>    resolvedDepthFrameBuffer;
         };
         vector<FrameData> frameData;
 
@@ -210,6 +209,7 @@ namespace z0 {
         unique_ptr<Cubemap> blankCubemap{nullptr};
 
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
+        vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
 
         void update(uint32_t currentFrame) override;
 

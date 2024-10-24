@@ -18,11 +18,11 @@ export namespace z0 {
      */
     class PostprocessingRenderer : public Renderpass, public Renderer {
     public:
-        PostprocessingRenderer(Device &                             device,
-                               const string &                       shaderDirectory,
-                               const vector<ColorFrameBufferHDR *> & inputColorAttachment);
+        PostprocessingRenderer(Device &                                        device,
+                               const string &                                  shaderDirectory,
+                               const vector<shared_ptr<ColorFrameBufferHDR>> & inputColorAttachment);
 
-        void setInputColorAttachments(const vector<ColorFrameBufferHDR *> &input);
+        void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
 
         [[nodiscard]] inline vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() { return colorAttachmentHdr; }
 
@@ -52,7 +52,7 @@ export namespace z0 {
 
     protected:
         vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr;
-        vector<ColorFrameBufferHDR *>           inputColorAttachmentHdr;
+        vector<shared_ptr<ColorFrameBufferHDR>> inputColorAttachmentHdr;
     };
 
 }

@@ -17,19 +17,11 @@ export namespace z0 {
         SimplePostprocessingRenderer(Device& device,
                                      const string& shaderDirectory,
                                      const string& shaderName,
-                                     const vector<ColorFrameBufferHDR*>& inputColorAttachmentHdr);
-
-        void update( uint32_t currentFrame) override ;
+                                     const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr);
 
         void loadShaders() override;
 
-        void createDescriptorSetLayout() override;
-
     private:
-        struct GobalUniformBufferObject {
-            alignas(4) float dummy;
-        };
-
         const string shaderName;
     };
 }

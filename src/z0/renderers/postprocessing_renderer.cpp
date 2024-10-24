@@ -16,14 +16,14 @@ import :PostprocessingRenderer;
 namespace z0 {
 
     PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
-                                                   const vector<ColorFrameBufferHDR *> & inputColorAttachment) :
+                                                   const vector<shared_ptr<ColorFrameBufferHDR>> & inputColorAttachment) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
         colorAttachmentHdr.resize(device.getFramesInFlight());
         inputColorAttachmentHdr.resize(device.getFramesInFlight());
         createImagesResources();
     }
 
-    void PostprocessingRenderer::setInputColorAttachments(const vector<ColorFrameBufferHDR *> &input) {
+    void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
         inputColorAttachmentHdr = input;
         createOrUpdateDescriptorSet(false);
     }
@@ -59,18 +59,22 @@ namespace z0 {
                             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
-        for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+        if (globalUniformBufferSize > 0) {
+            for (auto i = 0; i < device.getFramesInFlight(); i++) {
+                globalUniformBuffers[i] = createUniformBuffer(globalUniformBufferSize);
+            }
         }
     }
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
             auto imageInfo        = inputColorAttachmentHdr[i]->imageInfo();
             auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                  .writeBuffer(0, &globalBufferInfo)
-                                  .writeImage(1, &imageInfo);
+                                      .writeImage(1, &imageInfo);
+            if (globalUniformBufferSize > 0) {
+                auto globalBufferInfo = globalUniformBuffers[i]->descriptorInfo(globalUniformBufferSize);
+                writer.writeBuffer(0, &globalBufferInfo);
+            } else {}
             if (create) {
                 if (!writer.build(descriptorSet[i])) {
                     die("Cannot allocate descriptor set for BasePostprocessingRenderer");

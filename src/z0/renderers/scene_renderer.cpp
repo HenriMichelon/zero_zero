@@ -44,11 +44,12 @@ namespace z0 {
         ModelsRenderer{device, shaderDirectory, clearColor} {
         frameData.resize(device.getFramesInFlight());
         colorFrameBufferHdr.resize(device.getFramesInFlight());
+        resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
         createImagesResources();
         OutlineMaterials::_initialize();
         for(auto& frame: frameData) {
             frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
-            frame.materialsIndicesAllocation = vector<Resource::id_t>(MAX_MATERIALS, Resource::INVALID_ID);
+            frame.materialsIndicesAllocation = vector(MAX_MATERIALS, Resource::INVALID_ID);
         }
         createOrUpdateResources(true, &pushConstantRange);
     }
@@ -562,8 +563,8 @@ namespace z0 {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             colorFrameBufferHdr[i] = make_shared<ColorFrameBufferHDR>(device);
             if (ModelsRenderer::frameData[i].depthFrameBuffer == nullptr) {
-                ModelsRenderer::frameData[i].depthFrameBuffer         = make_shared<DepthFrameBuffer>(device, true);
-                frameData[i].resolvedDepthFrameBuffer = make_shared<DepthFrameBuffer>(device, false);
+                ModelsRenderer::frameData[i].depthFrameBuffer = make_shared<DepthFrameBuffer>(device, true);
+                resolvedDepthFrameBuffer[i] = make_shared<DepthFrameBuffer>(device, false);
             } else {
                 ModelsRenderer::frameData[i].depthFrameBuffer->createImagesResources();
             }
@@ -573,7 +574,7 @@ namespace z0 {
     void SceneRenderer::cleanupImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
-                frameData[i].resolvedDepthFrameBuffer->cleanupImagesResources();
+                resolvedDepthFrameBuffer[i]->cleanupImagesResources();
             }
             colorFrameBufferHdr[i]->cleanupImagesResources();
             frameData[i].colorFrameBufferMultisampled->cleanupImagesResources();
@@ -586,7 +587,7 @@ namespace z0 {
             colorFrameBufferHdr[i]->createImagesResources();
              frameData[i].colorFrameBufferMultisampled->createImagesResources();
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
-                 frameData[i].resolvedDepthFrameBuffer->createImagesResources();
+                 resolvedDepthFrameBuffer[i]->createImagesResources();
             }
         }
     }
@@ -629,7 +630,7 @@ namespace z0 {
                 .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
                 .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
-                .resolveImageView   = frameData[currentFrame].resolvedDepthFrameBuffer->getImageView(),
+                .resolveImageView   = resolvedDepthFrameBuffer[currentFrame]->getImageView(),
                 .resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
                 .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -659,7 +660,7 @@ namespace z0 {
                                       isLast ? VK_PIPELINE_STAGE_TRANSFER_BIT : VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         Device::transitionImageLayout(commandBuffer,
-                                       frameData[currentFrame].resolvedDepthFrameBuffer->getImage(),
+                                       resolvedDepthFrameBuffer[currentFrame]->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
                                       0,
@@ -814,14 +815,6 @@ namespace z0 {
                 shadowMapRenderers.erase(light);
             }
         }
-    }
-
-    vector<ColorFrameBufferHDR*> SceneRenderer::getSampledAttachments() const {
-        auto result = vector<ColorFrameBufferHDR*>(device.getFramesInFlight());
-        for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            result[i] = colorFrameBufferHdr[i].get();
-        }
-        return result;
     }
 
 } // namespace z0

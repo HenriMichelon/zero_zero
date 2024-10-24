@@ -105,6 +105,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/renderers/scene_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cppm
+		${Z0_ENGINE_DIR}/renderers/tonemapping_postprocessing_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cppm
 		${Z0_ENGINE_DIR}/renderers/vector_renderer.cppm
 
@@ -192,6 +193,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/renderers/scene_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/shadowmap_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/simple_postprocessing_renderer.cpp
+		${Z0_ENGINE_DIR}/renderers/tonemapping_postprocessing_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/skybox_renderer.cpp
 		${Z0_ENGINE_DIR}/renderers/vector_renderer.cpp
 
