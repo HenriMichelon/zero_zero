@@ -34,6 +34,12 @@ export namespace z0 {
                 const vector<unsigned char *> &data,
                 const string &                 name = "Cubemap");
 
+        Cubemap(const Device &                 device,
+                uint32_t                       width,
+                uint32_t                       height,
+                VkDeviceSize                   imageSize,
+                const string &                 name = "Cubemap");
+
         ~Cubemap() override;
 
         /**
@@ -65,6 +71,12 @@ export namespace z0 {
         [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename);
 
         /**
+         * Loads the cubemap from a single HDRi.
+         * @param filename path of the image
+         */
+        [[nodiscard]] static shared_ptr<Cubemap> loadFromHDRi(const string &filename);
+
+        /**
          * Returns the width in pixels of each image
          */
         [[nodiscard]] inline uint32_t getWidth() const { return width; }
@@ -85,6 +97,8 @@ export namespace z0 {
         VkSampler      textureSampler;
 
         void createTextureSampler();
+
+        static constexpr auto DEFAULT_SIZE{1024};
 
         [[nodiscard]] static unsigned char *extractImage(unsigned char *source,
                                                          int            x, int y,

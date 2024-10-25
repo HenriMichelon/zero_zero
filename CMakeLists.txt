@@ -32,6 +32,7 @@ include(cmake/shaders.cmake)
 file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 		"${Z0_SHADERS_DIR}/*.frag"
 		"${Z0_SHADERS_DIR}/*.vert"
+		"${Z0_SHADERS_DIR}/*.comp"
 )
 add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
@@ -98,7 +99,8 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
 		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cppm
 
-		${Z0_ENGINE_DIR}/renderers/equirect2cubemap.cppm
+		${Z0_ENGINE_DIR}/pipelines/equirect2cubemap.cppm
+
 		${Z0_ENGINE_DIR}/renderers/models.cppm
 		${Z0_ENGINE_DIR}/renderers/postprocessing.cppm
 		${Z0_ENGINE_DIR}/renderers/renderer.cppm
@@ -188,7 +190,8 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
 		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cpp
 
-		${Z0_ENGINE_DIR}/renderers/equirect2cubemap.cpp
+		${Z0_ENGINE_DIR}/pipelines/equirect2cubemap.cpp
+
 		${Z0_ENGINE_DIR}/renderers/models.cpp
 		${Z0_ENGINE_DIR}/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/renderers/renderpass.cpp

@@ -9,8 +9,10 @@ module z0;
 
 import :Buffer;
 import :Application;
+import :Image;
 import :Cubemap;
 import :Device;
+import :Equirect2CubemapPipeline;
 
 namespace z0 {
 
@@ -113,6 +115,35 @@ namespace z0 {
         createTextureSampler();
     }
 
+    Cubemap::Cubemap(const Device &                 device,
+                     const uint32_t                 width,
+                     const uint32_t                 height,
+                     const VkDeviceSize             imageSize,
+                     const string &                 name):
+        Resource(name), device{device}, width{width}, height{height} {
+        // Create image in GPU memory, one image in memory for the 6 images of the cubemap
+        constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+        device.createImage(width,
+                           height,
+                           1,
+                           VK_SAMPLE_COUNT_1_BIT,
+                           format,
+                           VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                           VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                           textureImage,
+                           textureImageMemory,
+                           VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
+                           6);
+        textureImageView = device.createImageView(textureImage,
+                                                  format,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT,
+                                                  1,
+                                                  VK_IMAGE_VIEW_TYPE_CUBE);
+        createTextureSampler();
+    }
+
     Cubemap::~Cubemap() {
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);
@@ -159,6 +190,21 @@ namespace z0 {
         for (int i = 0; i < 6; i++) {
             stbi_image_free(data[i]);
         }
+        return cubemap;
+    }
+
+    shared_ptr<Cubemap> Cubemap::loadFromHDRi(const string &filename) {
+        const auto hdriImage = Image::loadFromFile(filename);
+        const auto convertPipeline = Equirect2CubemapPipeline{
+            Application::get()._getDevice(),
+            };
+        auto cubemap = make_shared<Cubemap>(
+            Application::get()._getDevice(),
+            DEFAULT_SIZE,
+            DEFAULT_SIZE,
+            static_cast<VkDeviceSize>(DEFAULT_SIZE * DEFAULT_SIZE * 4)// RGBA
+        );
+        convertPipeline.convert(hdriImage, cubemap);
         return cubemap;
     }
 
