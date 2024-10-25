@@ -6,8 +6,6 @@ module z0;
 
 import :Constants;
 import :Tools;
-import :Renderer;
-import :Renderpass;
 import :Device;
 import :Image;
 import :Cubemap;
@@ -16,13 +14,11 @@ import :Descriptors;
 
 namespace z0 {
 
-    Equirect2CubemapPipeline::Equirect2CubemapPipeline(Device &device) :
-        device{device} {
+    Equirect2CubemapPipeline::Equirect2CubemapPipeline(Device &device) : Pipeline{device} {
         descriptorPool =  DescriptorPool::Builder(device)
-                            .setMaxSets(2)
-                            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1) // HDRi input image
-                            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1) // Cubemap output image
-                            .build();
+                           .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1) // HDRi input image
+                           .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1) // Cubemap output image
+                           .build();
         descriptorSetLayout = DescriptorSetLayout::Builder(device)
                    .addBinding(0,
                                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -34,10 +30,6 @@ namespace z0 {
                                1)
                    .build();
         pipelineLayout = createPipelineLayout(*descriptorSetLayout->getDescriptorSetLayout());
-    }
-
-    Equirect2CubemapPipeline::~Equirect2CubemapPipeline() {
-        vkDestroyPipelineLayout(device.getDevice(), pipelineLayout, nullptr);
     }
 
     void Equirect2CubemapPipeline::convert(const shared_ptr<Image>&   hdrFile,
@@ -53,7 +45,7 @@ namespace z0 {
             .build(descriptorSet))
             die("Cannot allocate compute descriptor set");
         const auto shaderModule = createShaderModule(readFile("equirect2cube.comp"));
-        const auto pipeline = createPipeline(pipelineLayout, shaderModule);
+        const auto pipeline = createPipeline(shaderModule);
 
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
         {
@@ -89,7 +81,7 @@ namespace z0 {
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
             vkCmdDispatch(commandBuffer, cubemap->getWidth()/32, cubemap->getWidth()/32, 6);
 
-            const auto posComputeBarrier = array{VkImageMemoryBarrier {
+            const auto postComputeBarrier = array{VkImageMemoryBarrier {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                 .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
                 .dstAccessMask = 0,
@@ -114,74 +106,10 @@ namespace z0 {
                  nullptr,
                  0,
                  nullptr,
-                 static_cast<uint32_t>(posComputeBarrier.size()),
-                 posComputeBarrier.data());
+                 static_cast<uint32_t>(postComputeBarrier.size()),
+                 postComputeBarrier.data());
         }
         device.endOneTimeCommandBuffer(commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
-    }
-
-    VkPipeline Equirect2CubemapPipeline::createPipeline(const VkPipelineLayout layout, const VkShaderModule shader) const {
-        const auto shaderStage = VkPipelineShaderStageCreateInfo {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = 0,
-            .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-            .module = shader,
-            .pName = "main",
-            .pSpecializationInfo = nullptr,
-        };
-        const auto createInfo = VkComputePipelineCreateInfo {
-            .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
-            .stage = shaderStage,
-            .layout = layout,
-        };
-        auto pipeline = VkPipeline{VK_NULL_HANDLE};
-        if(vkCreateComputePipelines(device.getDevice(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &pipeline) != VK_SUCCESS)
-            die("Failed to create compute pipeline");
-        vkDestroyShaderModule(device.getDevice(), shader, nullptr);
-        return pipeline;
-    }
-
-    VkPipelineLayout Equirect2CubemapPipeline::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) const {
-        const auto pipelineSetLayouts = array{ descriptorSetLayout };
-        const auto createInfo = VkPipelineLayoutCreateInfo {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-            .setLayoutCount = pipelineSetLayouts.size(),
-            .pSetLayouts = pipelineSetLayouts.data(),
-        };
-        auto computePipelineLayout = VkPipelineLayout{VK_NULL_HANDLE};
-        if(vkCreatePipelineLayout(device.getDevice(), &createInfo, nullptr, &computePipelineLayout) != VK_SUCCESS) {
-            die("Failed to create pipeline layout");
-        }
-        return  computePipelineLayout;
-    }
-
-    VkShaderModule Equirect2CubemapPipeline::createShaderModule(const vector<char>& code) const {
-        const auto createInfo = VkShaderModuleCreateInfo {
-            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            .codeSize = code.size(),
-            .pCode    = reinterpret_cast<const uint32_t*>(&code[0])
-        };
-        auto shaderModule = VkShaderModule{VK_NULL_HANDLE};
-        if(vkCreateShaderModule(device.getDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-            die("Failed to create shader module");
-        return shaderModule;
-    }
-
-    vector<char> Equirect2CubemapPipeline::readFile(const string &fileName) const {
-        filesystem::path filepath = (Application::get().getConfig().appDir / "shaders").string();
-        filepath /= fileName;
-        filepath += ".spv";
-        ifstream file{filepath, std::ios::ate | std::ios::binary};
-        if (!file.is_open()) {
-            die("failed to open file : ", filepath.string());
-        }
-        const size_t fileSize = file.tellg();
-        vector<char> buffer(fileSize);
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-        file.close();
-        return buffer;
     }
 } // namespace z0
