@@ -37,7 +37,6 @@ export namespace z0 {
         Cubemap(const Device &                 device,
                 uint32_t                       width,
                 uint32_t                       height,
-                VkDeviceSize                   imageSize,
                 const string &                 name = "Cubemap");
 
         ~Cubemap() override;
@@ -45,12 +44,12 @@ export namespace z0 {
         /**
          * Returns the Vulkan image resource
          */
-        [[nodiscard]] inline VkImage &getImage() { return textureImage; }
+        [[nodiscard]] inline VkImage getImage() const { return textureImage; }
 
         /**
          * Returns the Vulkan image view resource
          */
-        [[nodiscard]] inline VkImageView &getImageView() { return textureImageView; }
+        [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
 
         /**
          * Loads a cubemap from 6 RGBA images files.

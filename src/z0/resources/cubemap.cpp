@@ -118,11 +118,10 @@ namespace z0 {
     Cubemap::Cubemap(const Device &                 device,
                      const uint32_t                 width,
                      const uint32_t                 height,
-                     const VkDeviceSize             imageSize,
                      const string &                 name):
         Resource(name), device{device}, width{width}, height{height} {
         // Create image in GPU memory, one image in memory for the 6 images of the cubemap
-        constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT; // for HDRi cubemaps
         device.createImage(width,
                            height,
                            1,
@@ -130,7 +129,8 @@ namespace z0 {
                            format,
                            VK_IMAGE_TILING_OPTIMAL,
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                           VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_IMAGE_USAGE_SAMPLED_BIT |
+                           VK_IMAGE_USAGE_STORAGE_BIT, // for compute shaders (convert from HDRi)
                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                            textureImage,
                            textureImageMemory,
@@ -201,8 +201,7 @@ namespace z0 {
         auto cubemap = make_shared<Cubemap>(
             Application::get()._getDevice(),
             DEFAULT_SIZE,
-            DEFAULT_SIZE,
-            static_cast<VkDeviceSize>(DEFAULT_SIZE * DEFAULT_SIZE * 4)// RGBA
+            DEFAULT_SIZE
         );
         convertPipeline.convert(hdriImage, cubemap);
         return cubemap;

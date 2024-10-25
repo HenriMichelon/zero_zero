@@ -67,6 +67,8 @@ export namespace z0 {
 
         [[nodiscard]] static unique_ptr<Image> createBlankImage();
 
+        [[nodiscard]] inline VkImage getImage() const { return textureImage; }
+
     private:
         const Device & device;
         uint32_t       width;
@@ -90,6 +92,7 @@ export namespace z0 {
                     .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             };
         }
+
     };
 
 }
