@@ -16,7 +16,7 @@ namespace z0 {
     Skybox::Skybox(const string &filename):
         Node{filename, SKYBOX} {
         if (filename.ends_with(".hdr")) {
-            cubemap = Cubemap::loadFromHDRi(filename);
+            cubemap = EnvironmentCubemap::loadFromHDRi(filename);
         } else {
             cubemap = Cubemap::loadFromFile(filename);
         }

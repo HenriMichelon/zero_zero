@@ -18,6 +18,11 @@ export namespace z0 {
      */
     class Cubemap : public Resource {
     public:
+        enum Type {
+            TYPE_STANDARD    = 0,
+            TYPE_ENVIRONMENT = 1
+        };
+
         /**
          * Creates a Cubemap from 6 images stored in CPU memory.
          * The images **must** have the same sizes
@@ -71,12 +76,6 @@ export namespace z0 {
         [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename);
 
         /**
-         * Loads the cubemap from a single HDRi.
-         * @param filename path of the image
-         */
-        [[nodiscard]] static shared_ptr<Cubemap> loadFromHDRi(const string &filename);
-
-        /**
          * Returns the width in pixels of each image
          */
         [[nodiscard]] inline uint32_t getWidth() const { return width; }
@@ -88,10 +87,10 @@ export namespace z0 {
 
         [[nodiscard]] static unique_ptr<Cubemap> createBlankCubemap();
 
-        static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
-        static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+        [[nodiscard]] Type getCubemapType() const { return type; }
 
-    private:
+    protected:
+        Type           type{TYPE_STANDARD};
         const Device & device;
         uint32_t       width, height;
         VkImage        textureImage;
@@ -115,6 +114,23 @@ export namespace z0 {
                     .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             };
         }
+    };
+
+    class EnvironmentCubemap : public Cubemap {
+    public:
+        static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
+        static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+
+        EnvironmentCubemap(const Device &  device,
+                           uint32_t        width,
+                           uint32_t        height,
+                           const string &  name = "EnvironmentCubemap");
+
+        /**
+          * Loads the cubemap from a single HDRi.
+          * @param filename path of the image
+          */
+        [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename);
     };
 
 }

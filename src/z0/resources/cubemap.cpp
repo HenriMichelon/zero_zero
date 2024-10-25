@@ -120,28 +120,6 @@ namespace z0 {
                      const uint32_t                 height,
                      const string &                 name):
         Resource(name), device{device}, width{width}, height{height} {
-        // Create image in GPU memory, one image in memory for the 6 images of the cubemap
-        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT; // for HDRi cubemaps
-        device.createImage(width,
-                           height,
-                           1,
-                           VK_SAMPLE_COUNT_1_BIT,
-                           format,
-                           VK_IMAGE_TILING_OPTIMAL,
-                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                           VK_IMAGE_USAGE_SAMPLED_BIT |
-                           VK_IMAGE_USAGE_STORAGE_BIT, // for compute shaders (convert from HDRi)
-                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                           textureImage,
-                           textureImageMemory,
-                           VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
-                           6);
-        textureImageView = device.createImageView(textureImage,
-                                                  format,
-                                                  VK_IMAGE_ASPECT_COLOR_BIT,
-                                                  1,
-                                                  VK_IMAGE_VIEW_TYPE_CUBE);
-        createTextureSampler();
     }
 
     Cubemap::~Cubemap() {
@@ -190,20 +168,6 @@ namespace z0 {
         for (int i = 0; i < 6; i++) {
             stbi_image_free(data[i]);
         }
-        return cubemap;
-    }
-
-    shared_ptr<Cubemap> Cubemap::loadFromHDRi(const string &filename) {
-        const auto hdriImage = Image::loadFromFile(filename);
-        const auto iblPipeline = IBLPipeline{
-            Application::get()._getDevice(),
-            };
-        auto cubemap = make_shared<Cubemap>(
-            Application::get()._getDevice(),
-            ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_SIZE
-        );
-        iblPipeline.convert(hdriImage, cubemap);
         return cubemap;
     }
 
@@ -318,5 +282,49 @@ namespace z0 {
         }
         return extractedImage;
     }
+
+    EnvironmentCubemap::EnvironmentCubemap(const Device &  device,
+                                           const uint32_t  width,
+                                           const uint32_t  height,
+                                           const string &  name):
+        Cubemap{device, width, height, name} {
+        // Create image in GPU memory, one image in memory for the 6 images of the cubemap
+        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT; // for HDRi cubemaps
+        device.createImage(width,
+                           height,
+                           1,
+                           VK_SAMPLE_COUNT_1_BIT,
+                           format,
+                           VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                           VK_IMAGE_USAGE_SAMPLED_BIT |
+                           VK_IMAGE_USAGE_STORAGE_BIT, // for compute shaders (convert from HDRi)
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                           textureImage,
+                           textureImageMemory,
+                           VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
+                           6);
+        textureImageView = device.createImageView(textureImage,
+                                                  format,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT,
+                                                  1,
+                                                  VK_IMAGE_VIEW_TYPE_CUBE);
+        createTextureSampler();
+    }
+
+    shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename) {
+        const auto hdriImage = Image::loadFromFile(filename);
+        const auto iblPipeline = IBLPipeline{
+            Application::get()._getDevice(),
+            };
+        auto cubemap = make_shared<EnvironmentCubemap>(
+            Application::get()._getDevice(),
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_SIZE
+        );
+        iblPipeline.convert(hdriImage, cubemap);
+        return cubemap;
+    }
+
 
 }

@@ -18,7 +18,7 @@ namespace z0 {
         descriptorPool =  DescriptorPool::Builder(device)
                            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1) // HDRi input image
                            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1) // Cubemap image
-                           .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, Cubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1) // Env maps
+                           .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1) // Env maps
                            .build();
         descriptorSetLayout = DescriptorSetLayout::Builder(device)
                     // HDRi input image
@@ -35,7 +35,7 @@ namespace z0 {
                     .addBinding(2,
                                 VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
                                 VK_SHADER_STAGE_COMPUTE_BIT,
-                                Cubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS-1)
+                                EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS-1)
                    .build();
         pipelineLayout = createPipelineLayout(*descriptorSetLayout->getDescriptorSetLayout());
     }
