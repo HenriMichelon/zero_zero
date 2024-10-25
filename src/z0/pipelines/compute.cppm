@@ -18,7 +18,7 @@ export namespace z0 {
         ~ComputePipeline() override = default;
 
     protected:
-        VkPipeline createPipeline(VkShaderModule shader) const;
+        VkPipeline createPipeline(VkShaderModule shader, const VkSpecializationInfo* specializationInfo = nullptr) const;
     };
 
 }

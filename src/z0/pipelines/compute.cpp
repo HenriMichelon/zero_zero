@@ -12,7 +12,8 @@ namespace z0 {
 
     ComputePipeline::ComputePipeline(Device &device) : Pipeline{device} {}
 
-    VkPipeline ComputePipeline::createPipeline(const VkShaderModule shader) const {
+    VkPipeline ComputePipeline::createPipeline(const VkShaderModule shader,
+                                               const VkSpecializationInfo* specializationInfo) const {
         const auto shaderStage = VkPipelineShaderStageCreateInfo {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext = nullptr,
@@ -20,7 +21,7 @@ namespace z0 {
             .stage = VK_SHADER_STAGE_COMPUTE_BIT,
             .module = shader,
             .pName = "main",
-            .pSpecializationInfo = nullptr,
+            .pSpecializationInfo = specializationInfo,
         };
         const auto createInfo = VkComputePipelineCreateInfo {
             .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,

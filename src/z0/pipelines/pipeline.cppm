@@ -23,7 +23,9 @@ export namespace z0 {
 
         vector<char> readFile(const string &fileName) const;
 
-        VkPipelineLayout createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) const;
+        VkPipelineLayout createPipelineLayout(
+            VkDescriptorSetLayout descriptorSetLayout,
+                                              const VkPushConstantRange * pushConstants = nullptr) const;
 
         VkShaderModule createShaderModule(const vector<char>& code) const;
 

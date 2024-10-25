@@ -67,7 +67,8 @@ export namespace z0 {
                                                   uint32_t           mipLevels = 1,
                                                   VkImageViewType    type      = VK_IMAGE_VIEW_TYPE_2D,
                                                   uint32_t           baseArrayLayer = 0,
-                                                  uint32_t           layers = 1) const;
+                                                  uint32_t           layers = 1,
+                                                  uint32_t           baseMipLevel = 0) const;
 
         void createImage(uint32_t              width,
                          uint32_t              height,

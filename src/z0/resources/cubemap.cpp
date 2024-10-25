@@ -286,13 +286,15 @@ namespace z0 {
     EnvironmentCubemap::EnvironmentCubemap(const Device &  device,
                                            const uint32_t  width,
                                            const uint32_t  height,
+                                           const uint32_t  levels,
                                            const string &  name):
         Cubemap{device, width, height, name} {
         // Create image in GPU memory, one image in memory for the 6 images of the cubemap
         constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT; // for HDRi cubemaps
+        const auto mipslevels = (levels > 0) ? levels : numMipmapLevels(width, height);
         device.createImage(width,
                            height,
-                           1,
+                           mipslevels,
                            VK_SAMPLE_COUNT_1_BIT,
                            format,
                            VK_IMAGE_TILING_OPTIMAL,
@@ -307,23 +309,37 @@ namespace z0 {
         textureImageView = device.createImageView(textureImage,
                                                   format,
                                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                                  1,
+                                                  mipslevels,
                                                   VK_IMAGE_VIEW_TYPE_CUBE);
         createTextureSampler();
     }
 
     shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename) {
+        // Load equirectangular environment map
         const auto hdriImage = Image::loadFromFile(filename);
         const auto iblPipeline = IBLPipeline{
             Application::get()._getDevice(),
             };
-        auto cubemap = make_shared<EnvironmentCubemap>(
+
+        // Create empty cubemap
+        const auto unfilteredCubemap = make_shared<EnvironmentCubemap>(
             Application::get()._getDevice(),
             ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_SIZE
+            ENVIRONMENT_MAP_SIZE,
+            0
         );
-        iblPipeline.convert(hdriImage, cubemap);
-        return cubemap;
+        // Convert equirectangular environment map to cubemap texture
+        iblPipeline.convert(hdriImage, unfilteredCubemap);
+
+        // Compute pre-filtered specular environment map.
+        auto envCubemap = make_shared<EnvironmentCubemap>(
+            Application::get()._getDevice(),
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_SIZE,
+            0
+        );
+        iblPipeline.preComputeSpecular(unfilteredCubemap, envCubemap);
+        return envCubemap;
     }
 
 

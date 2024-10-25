@@ -61,13 +61,18 @@ namespace z0 {
             barriers.data());
     }
 
-    VkPipelineLayout Pipeline::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) const {
+    VkPipelineLayout Pipeline::createPipelineLayout(const VkDescriptorSetLayout descriptorSetLayout,
+                                                    const VkPushConstantRange  * pushConstants) const {
         const auto pipelineSetLayouts = array{ descriptorSetLayout };
-        const auto createInfo = VkPipelineLayoutCreateInfo {
+        auto createInfo = VkPipelineLayoutCreateInfo {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .setLayoutCount = pipelineSetLayouts.size(),
             .pSetLayouts = pipelineSetLayouts.data(),
         };
+        if (pushConstants != nullptr) {
+            createInfo.pushConstantRangeCount = 1;
+            createInfo.pPushConstantRanges = pushConstants;
+        }
         auto computePipelineLayout = VkPipelineLayout{VK_NULL_HANDLE};
         if(vkCreatePipelineLayout(device.getDevice(), &createInfo, nullptr, &computePipelineLayout) != VK_SUCCESS) {
             die("Failed to create pipeline layout");

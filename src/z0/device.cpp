@@ -384,7 +384,8 @@ namespace z0 {
                                         const uint32_t           mipLevels,
                                         const VkImageViewType    type,
                                         const uint32_t           baseArrayLayer,
-                                        const uint32_t           layers) const {
+                                        const uint32_t           layers,
+                                        const uint32_t           baseMipLevel) const {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Image_views
         const VkImageViewCreateInfo viewInfo{
                 .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -393,7 +394,7 @@ namespace z0 {
                 .format = format,
                 .subresourceRange = {
                         .aspectMask = aspectFlags,
-                        .baseMipLevel = 0,
+                        .baseMipLevel = baseMipLevel,
                         .levelCount = mipLevels,
                         .baseArrayLayer = baseArrayLayer,
                         // Note : VK_REMAINING_ARRAY_LAYERS does not work for VK_IMAGE_VIEW_TYPE_2D_ARRAY
