@@ -94,6 +94,14 @@ export namespace z0 {
         };
     }
 
+    template<typename T> constexpr T numMipmapLevels(const T width, const T height) {
+        T levels = 1;
+        while((width|height) >> levels) {
+            ++levels;
+        }
+        return levels;
+    }
+
 }
 
 export namespace std {

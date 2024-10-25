@@ -6,6 +6,7 @@ module;
 
 export module z0:Cubemap;
 
+import :Tools;
 import :Resource;
 import :Device;
 
@@ -87,6 +88,9 @@ export namespace z0 {
 
         [[nodiscard]] static unique_ptr<Cubemap> createBlankCubemap();
 
+        static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
+        static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+
     private:
         const Device & device;
         uint32_t       width, height;
@@ -96,8 +100,6 @@ export namespace z0 {
         VkSampler      textureSampler;
 
         void createTextureSampler();
-
-        static constexpr auto DEFAULT_SIZE{1024};
 
         [[nodiscard]] static unsigned char *extractImage(unsigned char *source,
                                                          int            x, int y,

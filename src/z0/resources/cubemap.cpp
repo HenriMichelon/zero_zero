@@ -12,7 +12,7 @@ import :Application;
 import :Image;
 import :Cubemap;
 import :Device;
-import :Equirect2CubemapPipeline;
+import :IBLPipeline;
 
 namespace z0 {
 
@@ -195,15 +195,15 @@ namespace z0 {
 
     shared_ptr<Cubemap> Cubemap::loadFromHDRi(const string &filename) {
         const auto hdriImage = Image::loadFromFile(filename);
-        const auto convertPipeline = Equirect2CubemapPipeline{
+        const auto iblPipeline = IBLPipeline{
             Application::get()._getDevice(),
             };
         auto cubemap = make_shared<Cubemap>(
             Application::get()._getDevice(),
-            DEFAULT_SIZE,
-            DEFAULT_SIZE
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_SIZE
         );
-        convertPipeline.convert(hdriImage, cubemap);
+        iblPipeline.convert(hdriImage, cubemap);
         return cubemap;
     }
 

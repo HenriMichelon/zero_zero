@@ -5,6 +5,7 @@ module;
 export module z0:Pipeline;
 
 import :Device;
+import :Image;
 
 export namespace z0 {
 
@@ -25,6 +26,20 @@ export namespace z0 {
         VkPipelineLayout createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) const;
 
         VkShaderModule createShaderModule(const vector<char>& code) const;
+
+        VkImageMemoryBarrier imageMemoryBarrier(
+            VkImage image,
+            VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask,
+            VkImageLayout oldLayout, VkImageLayout newLayout,
+            uint32_t baseMipLevel = 0,
+            uint32_t levelCount = VK_REMAINING_MIP_LEVELS
+        ) const;
+
+        void pipelineBarrier(
+            VkCommandBuffer commandBuffer,
+            VkPipelineStageFlags srcStageMask,
+            VkPipelineStageFlags dstStageMask,
+            const vector<VkImageMemoryBarrier>& barriers) const;
     };
 
 }

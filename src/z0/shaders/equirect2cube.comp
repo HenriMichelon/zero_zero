@@ -14,8 +14,7 @@ layout(set=0, binding=1, rgba16f) restrict writeonly uniform imageCube outputTex
 // This is essentially "inverse-sampling": we reconstruct what the sampling vector would be if we wanted it to "hit"
 // this particular fragment in a cubemap.
 // See: OpenGL core profile specs, section 8.13.
-vec3 getSamplingVector()
-{
+vec3 getSamplingVector() {
     vec2 st = gl_GlobalInvocationID.xy/vec2(imageSize(outputTexture));
     vec2 uv = 2.0 * vec2(st.x, 1.0-st.y) - vec2(1.0);
 
@@ -32,17 +31,13 @@ vec3 getSamplingVector()
 }
 
 layout(local_size_x=32, local_size_y=32, local_size_z=1) in;
-void main(void)
-{
+void main(void) {
     vec3 v = getSamplingVector();
-
     // Convert Cartesian direction vector to spherical coordinates.
     float phi   = atan(v.z, v.x);
     float theta = acos(v.y);
-
     // Sample equirectangular texture.
     vec4 color = texture(inputTexture, vec2(phi/TwoPI, theta/PI));
-
     // Write out color to output cubemap.
     imageStore(outputTexture, ivec3(gl_GlobalInvocationID), color);
 }

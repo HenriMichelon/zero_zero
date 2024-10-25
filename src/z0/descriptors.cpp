@@ -191,7 +191,6 @@ namespace z0 {
             write.dstSet = set;
         }
         vkUpdateDescriptorSets(pool.device.getDevice(), writes.size(), writes.data(), 0, nullptr);
-
     }
 
 }

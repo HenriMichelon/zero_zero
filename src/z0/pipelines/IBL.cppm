@@ -2,7 +2,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:Equirect2CubemapPipeline;
+export module z0:IBLPipeline;
 
 import :Device;
 import :ComputePipeline;
@@ -15,10 +15,10 @@ export namespace z0 {
     /**
      * Pipeline to converts equirectangular projection texture into a cubemap.
      */
-    class Equirect2CubemapPipeline : public ComputePipeline {
+    class IBLPipeline : public ComputePipeline {
     public:
-        Equirect2CubemapPipeline(Device &device);
-        ~Equirect2CubemapPipeline() override = default;
+        explicit IBLPipeline(Device &device);
+        ~IBLPipeline() override = default;
 
         void convert(const shared_ptr<Image>&   hdrFile,
                      const shared_ptr<Cubemap>& cubemap) const;

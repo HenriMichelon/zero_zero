@@ -100,7 +100,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cppm
 
 		${Z0_ENGINE_DIR}/pipelines/compute.cppm
-		${Z0_ENGINE_DIR}/pipelines/equirect2cubemap.cppm
+		${Z0_ENGINE_DIR}/pipelines/IBL.cppm
 		${Z0_ENGINE_DIR}/pipelines/pipeline.cppm
 
 		${Z0_ENGINE_DIR}/renderers/models.cppm
@@ -193,7 +193,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cpp
 
 		${Z0_ENGINE_DIR}/pipelines/compute.cpp
-		${Z0_ENGINE_DIR}/pipelines/equirect2cubemap.cpp
+		${Z0_ENGINE_DIR}/pipelines/IBL.cpp
 		${Z0_ENGINE_DIR}/pipelines/pipeline.cpp
 
 		${Z0_ENGINE_DIR}/renderers/models.cpp
