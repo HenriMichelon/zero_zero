@@ -25,8 +25,6 @@ export namespace z0 {
         VkPipelineLayout createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) const;
 
         VkShaderModule createShaderModule(const vector<char>& code) const;
-
-        VkPipeline createPipeline(VkShaderModule shader) const;
     };
 
 }

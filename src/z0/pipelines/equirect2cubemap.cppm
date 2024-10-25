@@ -5,7 +5,7 @@ module;
 export module z0:Equirect2CubemapPipeline;
 
 import :Device;
-import :Pipeline;
+import :ComputePipeline;
 import :Descriptors;
 import :Image;
 import :Cubemap;
@@ -15,7 +15,7 @@ export namespace z0 {
     /**
      * Pipeline to converts equirectangular projection texture into a cubemap.
      */
-    class Equirect2CubemapPipeline : public Pipeline {
+    class Equirect2CubemapPipeline : public ComputePipeline {
     public:
         Equirect2CubemapPipeline(Device &device);
         ~Equirect2CubemapPipeline() override = default;

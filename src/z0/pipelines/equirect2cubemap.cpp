@@ -14,7 +14,7 @@ import :Descriptors;
 
 namespace z0 {
 
-    Equirect2CubemapPipeline::Equirect2CubemapPipeline(Device &device) : Pipeline{device} {
+    Equirect2CubemapPipeline::Equirect2CubemapPipeline(Device &device) : ComputePipeline{device} {
         descriptorPool =  DescriptorPool::Builder(device)
                            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1) // HDRi input image
                            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1) // Cubemap output image
