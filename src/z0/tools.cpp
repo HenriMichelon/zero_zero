@@ -45,6 +45,12 @@ namespace z0 {
 
 namespace std {
 
+    string to_hexstring(const void* ptr) {
+        stringstream ss;
+        ss << "0x" << std::hex << reinterpret_cast<uint64_t>(ptr);
+        return ss.str();
+    }
+
     string to_string(const vec3 vec) {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
     }

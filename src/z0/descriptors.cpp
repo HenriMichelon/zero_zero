@@ -24,13 +24,15 @@ namespace z0 {
     DescriptorSetLayout::Builder &DescriptorSetLayout::Builder::addBinding(const uint32_t           binding,
                                                                            const VkDescriptorType   descriptorType,
                                                                            const VkShaderStageFlags stageFlags,
-                                                                           const uint32_t           count) {
+                                                                           const uint32_t           count,
+                                                                           const VkSampler*         immutableSampler) {
         assert(bindings.count(binding) == 0 && "Binding already in use");
         const VkDescriptorSetLayoutBinding layoutBinding{
                 .binding = binding,
                 .descriptorType = descriptorType,
                 .descriptorCount = count == 0 ? 1 : count,
                 .stageFlags = stageFlags,
+                .pImmutableSamplers = immutableSampler
         };
         bindings[binding] = layoutBinding;
         return *this;

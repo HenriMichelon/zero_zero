@@ -1,7 +1,7 @@
 #version 450 core
 // Physically Based Rendering
 // Copyright (c) 2017-2018 Michał Siejak
-// https://raw.githubusercontent.com/Nadrin/PBR/refs/heads/master/data/shaders/glsl/equirect2cube_cs.glsl
+
 // Converts equirectangular (lat-long) projection texture into a proper cubemap.
 
 const float PI = 3.1415926535897932384626433832795;

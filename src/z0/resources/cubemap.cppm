@@ -36,21 +36,11 @@ export namespace z0 {
         Cubemap(const Device &                 device,
                 uint32_t                       width,
                 uint32_t                       height,
-                VkDeviceSize                   imageSize,
+                uint32_t                       imageSize,
                 const vector<unsigned char *> &data,
                 const string &                 name = "Cubemap");
 
         ~Cubemap() override;
-
-        /**
-         * Returns the Vulkan image resource
-         */
-        [[nodiscard]] inline VkImage getImage() const { return textureImage; }
-
-        /**
-         * Returns the Vulkan image view resource
-         */
-        [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
 
         /**
          * Loads a cubemap from 6 RGBA images files.
@@ -111,18 +101,21 @@ export namespace z0 {
     public:
         inline VkDescriptorImageInfo _getImageInfo() const {
             return VkDescriptorImageInfo{
-                    .sampler = textureSampler,
-                    .imageView = textureImageView,
-                    .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                .sampler = textureSampler,
+                .imageView = textureImageView,
+                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             };
         }
         [[nodiscard]] VkFormat _getFormat() const { return textureFormat; }
+        [[nodiscard]] inline VkImage _getImage() const { return textureImage; }
+        [[nodiscard]] inline VkImageView _getImageView() const { return textureImageView; }
     };
 
     class EnvironmentCubemap : public Cubemap {
     public:
         static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
         static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+        static constexpr auto IRRADIANCE_MAP_SIZE{32};
 
         EnvironmentCubemap(const Device &  device,
                            uint32_t        width,
@@ -135,6 +128,12 @@ export namespace z0 {
           * @param filename path of the image
           */
         [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename);
+
+    private:
+        shared_ptr<Cubemap> irradianceCubemap;
+
+    public:
+        [[nodiscard]] inline shared_ptr<Cubemap> _getIrradianceCubemap() const { return irradianceCubemap; }
     };
 
 }

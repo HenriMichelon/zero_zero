@@ -20,7 +20,8 @@ export namespace z0 {
             Builder &addBinding(uint32_t           binding,
                                 VkDescriptorType   descriptorType,
                                 VkShaderStageFlags stageFlags,
-                                uint32_t           count = 1);
+                                uint32_t           count = 1,
+                                const VkSampler*   immutableSampler = VK_NULL_HANDLE);
 
             unique_ptr<DescriptorSetLayout> build() const;
 

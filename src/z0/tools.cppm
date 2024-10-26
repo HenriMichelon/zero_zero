@@ -107,6 +107,11 @@ export namespace z0 {
 export namespace std {
 
     /**
+     * Helper to log a memory address in hexadecimal
+     */
+    string to_hexstring(const void* ptr);
+
+    /**
      * Helper to log a vec3 (std lib code convention)
      */
     string to_string(vec3 vec);

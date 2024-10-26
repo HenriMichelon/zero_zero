@@ -18,11 +18,13 @@ export namespace z0 {
     class IBLPipeline : public ComputePipeline {
     public:
         explicit IBLPipeline(Device &device);
-        ~IBLPipeline() override = default;
+        ~IBLPipeline() override;
 
         void convert(const shared_ptr<Image>&   hdrFile,
                      const shared_ptr<Cubemap>& cubemap) const;
         void preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const;
+        void preComputeIrradiance(const shared_ptr<Cubemap>& cubemap, const shared_ptr<Cubemap>& irradianceCubemap) const;
+
     private:
         struct SpecularFilterPushConstants {
             alignas(4) uint32_t level;
@@ -32,6 +34,7 @@ export namespace z0 {
         unique_ptr<DescriptorPool> descriptorPool;
         unique_ptr<DescriptorSetLayout> descriptorSetLayout;
         VkDescriptorSet descriptorSet{VK_NULL_HANDLE};
+        VkSampler computeSampler{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};
         static constexpr auto BINDING_OUTPUT_CUBEMAP{1};

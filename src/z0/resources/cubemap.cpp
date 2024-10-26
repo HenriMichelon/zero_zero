@@ -19,7 +19,7 @@ namespace z0 {
     Cubemap::Cubemap(const Device &                 device,
                      const uint32_t                 width,
                      const uint32_t                 height,
-                     const VkDeviceSize             imageSize,
+                     const uint32_t                 imageSize,
                      const vector<unsigned char *> &data,
                      const string &                 name):
         Resource(name), device{device}, width{width}, height{height}, textureFormat{VK_FORMAT_R8G8B8A8_SRGB} {
@@ -317,7 +317,7 @@ namespace z0 {
         const auto hdriImage = Image::loadFromFile(filename);
         const auto iblPipeline = IBLPipeline{
             Application::get()._getDevice(),
-            };
+        };
 
         // Create empty cubemap
         const auto unfilteredCubemap = make_shared<EnvironmentCubemap>(
@@ -336,6 +336,14 @@ namespace z0 {
             ENVIRONMENT_MAP_MIPMAP_LEVELS
         );
         iblPipeline.preComputeSpecular(unfilteredCubemap, envCubemap);
+
+        // Compute diffuse irradiance cubemap
+        envCubemap->irradianceCubemap = make_shared<EnvironmentCubemap>(
+            Application::get()._getDevice(),
+            IRRADIANCE_MAP_SIZE,
+            IRRADIANCE_MAP_SIZE
+        );
+        iblPipeline.preComputeIrradiance(envCubemap, envCubemap->irradianceCubemap);
         return envCubemap;
     }
 
