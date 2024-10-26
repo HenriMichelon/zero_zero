@@ -29,6 +29,24 @@ namespace z0 {
                  const VkSamplerAddressMode samplerAddressMode,
                  const VkFilter             samplerFilter,
                  const bool                 noMipmaps):
+        Image(device, name, width, height, imageSize, data, format,
+            samplerFilter, samplerFilter, samplerAddressMode, samplerAddressMode,
+            tiling, noMipmaps) {
+    }
+
+    Image::Image(const Device &           device,
+               const string &             name,
+               const uint32_t             width,
+               const uint32_t             height,
+               const VkDeviceSize         imageSize,
+               const void *               data,
+               const VkFormat             format,
+               const VkFilter             magFiter,
+               const VkFilter             minFiler,
+               const VkSamplerAddressMode samplerAddressModeU,
+               const VkSamplerAddressMode samplerAddressModeV,
+               const VkImageTiling        tiling,
+               const bool                 noMipmaps) :
         Resource(name),
         device{device},
         width{width},
@@ -92,7 +110,7 @@ namespace z0 {
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
         if (!noMipmaps) { generateMipmaps(format); }
-        createTextureSampler(samplerFilter, samplerAddressMode);
+        createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
     }
 
     Image::Image(const Device &       device,
@@ -172,16 +190,20 @@ namespace z0 {
         return image;
     }
 
-    void Image::createTextureSampler(const VkFilter samplerFilter, const VkSamplerAddressMode samplerAddressMode, const VkBool32 anisotropyEnable) {
+    void Image::createTextureSampler(
+        const VkFilter magFilter,
+        const VkFilter minFilter,
+        const VkSamplerAddressMode samplerAddressModeU,
+        const VkSamplerAddressMode samplerAddressModeV,
+        const VkBool32 anisotropyEnable) {
         // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Samplers
         const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                .magFilter = samplerFilter,
-                .minFilter = samplerFilter,
+                .magFilter = magFilter,
+                .minFilter = minFilter,
                 .mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-                .addressModeU = samplerAddressMode,
-                .addressModeV = samplerAddressMode,
-                .addressModeW = samplerAddressMode,
+                .addressModeU = samplerAddressModeU,
+                .addressModeV = samplerAddressModeV,
                 .mipLodBias = 0.0f,
                 .anisotropyEnable = anisotropyEnable,
                 // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Anisotropy-device-feature

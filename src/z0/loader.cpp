@@ -19,6 +19,7 @@ import :Texture;
 import :Color;
 import :Mesh;
 import :Node;
+import :Resource;
 import :MeshInstance;
 import :TypeRegistry;
 import :Loader;
@@ -27,7 +28,14 @@ namespace z0 {
 
     // https://fastgltf.readthedocs.io/v0.7.x/tools.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
-    shared_ptr<Image> loadImage(fastgltf::Asset &asset, fastgltf::Image &image, VkFormat format) {
+    shared_ptr<Image> loadImage(
+        fastgltf::Asset &asset,
+        fastgltf::Image &image,
+        VkFormat format,
+        VkFilter magFilter,
+        VkFilter minFilter,
+        VkSamplerAddressMode addressModeU,
+        VkSamplerAddressMode addressModeV) {
         const auto       &device = Application::get()._getDevice();
         shared_ptr<Image> newImage;
         int               width, height, nrChannels;
@@ -42,7 +50,8 @@ namespace z0 {
                           auto        *data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
                           if (data) {
                               VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format);
+                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format,
+                                  magFilter, minFilter, addressModeU, addressModeV);
                               stbi_image_free(data);
                           }
                       },
@@ -55,7 +64,8 @@ namespace z0 {
                                                              STBI_rgb_alpha);
                           if (data) {
                               VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format);
+                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format,
+                                    magFilter, minFilter, addressModeU, addressModeV);
                               stbi_image_free(data);
                           }
                       },
@@ -64,42 +74,44 @@ namespace z0 {
                           auto &buffer     = asset.buffers[bufferView.bufferIndex];
 
                           visit(fastgltf::visitor{
-                                        // We only care about VectorWithMime here, because we
-                                        // specify LoadExternalBuffers, meaning all buffers
-                                        // are already loaded into a vector.
-                                        [](auto &arg) {},
-                                        [&](fastgltf::sources::Vector &vector) {
-                                            auto *data =
-                                                    stbi_load_from_memory(vector.bytes.data() + bufferView.byteOffset,
-                                                                          static_cast<int>(bufferView.byteLength),
-                                                                          &width,
-                                                                          &height,
-                                                                          &nrChannels,
-                                                                          STBI_rgb_alpha);
-                                            if (data) {
-                                                VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                                newImage               = make_shared<Image>(
-                                                        device, name, width, height, imageSize, data, format);
-                                                stbi_image_free(data);
-                                            }
-                                        },
-                                        [&](fastgltf::sources::Array &array) {
-                                            auto *data =
-                                                    stbi_load_from_memory(array.bytes.data() + bufferView.byteOffset,
-                                                                          static_cast<int>(bufferView.byteLength),
-                                                                          &width,
-                                                                          &height,
-                                                                          &nrChannels,
-                                                                          STBI_rgb_alpha);
-                                            if (data) {
-                                                VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                                newImage               = make_shared<Image>(
-                                                        device, name, width, height, imageSize, data, format);
-                                                stbi_image_free(data);
-                                            }
-                                        },
-                                },
-                                buffer.data);
+                                    // We only care about VectorWithMime here, because we
+                                    // specify LoadExternalBuffers, meaning all buffers
+                                    // are already loaded into a vector.
+                                    [](auto &arg) {},
+                                    [&](fastgltf::sources::Vector &vector) {
+                                        auto *data =
+                                                stbi_load_from_memory(vector.bytes.data() + bufferView.byteOffset,
+                                                                      static_cast<int>(bufferView.byteLength),
+                                                                      &width,
+                                                                      &height,
+                                                                      &nrChannels,
+                                                                      STBI_rgb_alpha);
+                                        if (data) {
+                                            VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
+                                            newImage               = make_shared<Image>(
+                                                    device, name, width, height, imageSize, data, format,
+                                                    magFilter, minFilter, addressModeU, addressModeV);
+                                            stbi_image_free(data);
+                                        }
+                                    },
+                                    [&](fastgltf::sources::Array &array) {
+                                        auto *data =
+                                                stbi_load_from_memory(array.bytes.data() + bufferView.byteOffset,
+                                                                      static_cast<int>(bufferView.byteLength),
+                                                                      &width,
+                                                                      &height,
+                                                                      &nrChannels,
+                                                                      STBI_rgb_alpha);
+                                        if (data) {
+                                            VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
+                                            newImage               = make_shared<Image>(
+                                                    device, name, width, height, imageSize, data, format,
+                                                    magFilter, minFilter, addressModeU, addressModeV);
+                                            stbi_image_free(data);
+                                        }
+                                    },
+                            },
+                            buffer.data);
                       },
               },
               image.data);
@@ -127,6 +139,7 @@ namespace z0 {
 
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
+        map<Resource::id_t, int> materialsTextCoords;
         for (fastgltf::Material &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
             material->setAlbedoColor(Color{
@@ -152,10 +165,35 @@ namespace z0 {
                 break;
             }
             if (loadTextures) {
+                auto magFilter = VK_FILTER_LINEAR;
+                auto minFilter = VK_FILTER_LINEAR;
+                auto wrapU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                auto wrapV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                auto convertSamplerData = [&](const fastgltf::Texture &texture) {
+                    const auto& sampler = gltf.samplers[texture.samplerIndex.value()];
+                    if (sampler.magFilter.has_value())
+                        magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                    if (sampler.minFilter.has_value()) {
+                        const auto v = sampler.minFilter.value();
+                        minFilter = (v==fastgltf::Filter::Linear || v==fastgltf::Filter::LinearMipMapLinear || v==fastgltf::Filter::LinearMipMapNearest) ?
+                            VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                    }
+                    wrapU = sampler.wrapS ==
+                        fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
+                            sampler.wrapS == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
+                                VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+                    wrapV = sampler.wrapT ==
+                        fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
+                            sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
+                                VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+                };
                 if (mat.pbrData.baseColorTexture.has_value()) {
-                    const auto imageIndex =
-                            gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex].imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                    const auto& texture = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex];
+                    materialsTextCoords[material->getId()] = mat.pbrData.baseColorTexture.value().texCoordIndex;
+                    if (texture.samplerIndex.has_value())
+                        convertSamplerData(texture);
+                    const auto imageIndex = texture.imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB, magFilter, minFilter, wrapU, wrapV);
                     material->setAlbedoTexture(make_shared<ImageTexture>(image));
                     // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/README.md
                     // We apply the albedo texture transform to all the textures (specular, normal, ...)
@@ -166,36 +204,48 @@ namespace z0 {
                     }
                 }
                 if (mat.pbrData.metallicRoughnessTexture.has_value()) {
-                    const auto imageIndex =
-                            gltf.textures[mat.pbrData.metallicRoughnessTexture.value().textureIndex].imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
-                    const auto texture = make_shared<ImageTexture>(image);
-                    material->setMetallicTexture(texture);
-                    material->setRoughnessTexture(texture);
+                    const auto& texture = gltf.textures[mat.pbrData.metallicRoughnessTexture.value().textureIndex];
+                    if (texture.samplerIndex.has_value())
+                        convertSamplerData(texture);
+                    const auto imageIndex = texture.imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
+                    const auto textureImage = make_shared<ImageTexture>(image);
+                    material->setMetallicTexture(textureImage);
+                    material->setRoughnessTexture(textureImage);
                 }
                 if (mat.occlusionTexture.has_value()) {
-                    const auto imageIndex =
-                            gltf.textures[mat.occlusionTexture.value().textureIndex].imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
+                    const auto& texture = gltf.textures[mat.occlusionTexture.value().textureIndex];
+                    if (texture.samplerIndex.has_value())
+                        convertSamplerData(texture);
+                    const auto imageIndex = texture.imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
                     material->setAmbientOcclusionTexture(make_shared<ImageTexture>(image));
                 }
                 if (mat.specular != nullptr) {
                     if (mat.specular->specularColorTexture.has_value()) {
-                        auto imageIndex =
-                                gltf.textures[mat.specular->specularColorTexture.value().textureIndex].imageIndex.value();
-                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
+                        const auto& texture = gltf.textures[mat.specular->specularColorTexture.value().textureIndex];
+                        if (texture.samplerIndex.has_value())
+                            convertSamplerData(texture);
+                        const auto imageIndex = texture.imageIndex.value();
+                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
                         material->setSpecularTexture(std::make_shared<ImageTexture>(image));
                     }
                 }
                 if (mat.normalTexture.has_value()) {
-                    auto imageIndex = gltf.textures[mat.normalTexture->textureIndex].imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM);
+                    const auto& texture = gltf.textures[mat.normalTexture.value().textureIndex];
+                    if (texture.samplerIndex.has_value())
+                        convertSamplerData(texture);
+                    const auto imageIndex = texture.imageIndex.value();
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
                     material->setNormalTexture(std::make_shared<ImageTexture>(image));
                 }
                 if (mat.emissiveTexture.has_value()) {
-                    auto imageIndex = gltf.textures[mat.emissiveTexture->textureIndex].imageIndex.value();
+                    const auto& texture = gltf.textures[mat.emissiveTexture.value().textureIndex];
+                    if (texture.samplerIndex.has_value())
+                        convertSamplerData(texture);
+                    const auto imageIndex = texture.imageIndex.value();
                     // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB);
+                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB, magFilter, minFilter, wrapU, wrapV);
                     material->setEmissiveTexture(std::make_shared<ImageTexture>(image));
                 }
             }
@@ -204,7 +254,6 @@ namespace z0 {
                                                             : CULLMODE_BACK);
             materials.push_back(material);
         }
-        log("Loader :", to_string(materials.size()), "materials");
         if (materials.empty()) {
             materials.push_back(std::make_shared<StandardMaterial>(""));
         }
@@ -212,7 +261,6 @@ namespace z0 {
         auto meshes = vector<shared_ptr<Mesh>>(gltf.meshes.size());
         auto meshesCount = 0;
         for (size_t i = 0; i < gltf.meshes.size(); i++) {
-        // for (fastgltf::Mesh &glftMesh : gltf.meshes) {
             const auto& glftMesh = gltf.meshes[i];
             auto  mesh     = std::make_shared<Mesh>(glftMesh.name.data());
             auto &vertices = mesh->getVertices();
@@ -222,7 +270,7 @@ namespace z0 {
                         static_cast<uint32_t>(indices.size()),
                         static_cast<uint32_t>(gltf.accessors[p.indicesAccessor.value()].count));
                 auto initial_vtx  = vertices.size();
-                auto   haveTangents = false;
+                auto haveTangents = false;
                 // load indexes
                 {
                     auto &indexaccessor = gltf.accessors[p.indicesAccessor.value()];
@@ -249,14 +297,6 @@ namespace z0 {
                                 vertices[index + initial_vtx].normal = v;
                             });
                 }
-                // load UVs
-                auto uv = p.findAttribute("TEXCOORD_0");
-                if (uv != p.attributes.end()) {
-                    fastgltf::iterateAccessorWithIndex<glm::vec2>(
-                            gltf, gltf.accessors[(*uv).second], [&](vec2 v, size_t index) {
-                                vertices[index + initial_vtx].uv = {v.x, v.y};
-                            });
-                }
                 auto tangents = p.findAttribute("TANGENT");
                 if (tangents != p.attributes.end()) {
                     haveTangents = true;
@@ -270,6 +310,19 @@ namespace z0 {
                     auto material     = materials[p.materialIndex.value()];
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
+                    // load UVs
+                    if (materialsTextCoords.contains(material->getId())) {
+                        stringstream textCoord;
+                        textCoord << "TEXCOORD_" << materialsTextCoords.at(material->getId());
+                        log(material->getName(), "texCoord", textCoord.str());
+                        auto uv = p.findAttribute(textCoord.str());
+                        if (uv != p.attributes.end()) {
+                            fastgltf::iterateAccessorWithIndex<glm::vec2>(
+                                    gltf, gltf.accessors[(*uv).second], [&](vec2 v, size_t index) {
+                                        vertices[index + initial_vtx].uv = {v.x, v.y};
+                                    });
+                        }
+                    }
                 }
                 // calculate tangent for each triangle
                 if (!haveTangents) {

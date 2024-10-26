@@ -51,7 +51,19 @@ export namespace z0 {
         VkImageView    textureImageView;
         VkSampler      textureSampler;
 
-        void createTextureSampler(VkFilter samplerFilter, VkSamplerAddressMode samplerAddressMode, VkBool32 anisotropyEnable = VK_TRUE);
+        void createTextureSampler(
+            VkFilter magFilter,
+            VkFilter minFilter,
+            VkSamplerAddressMode samplerAddressModeU,
+            VkSamplerAddressMode samplerAddressModeV,
+            VkBool32 anisotropyEnable = VK_TRUE);
+
+        inline void createTextureSampler(
+            const VkFilter filter,
+            const VkSamplerAddressMode samplerAddressMode,
+            const VkBool32 anisotropyEnable = VK_TRUE) {
+            createTextureSampler(filter, filter, samplerAddressMode, samplerAddressMode, anisotropyEnable);
+        }
 
         void generateMipmaps(VkFormat imageFormat) const;
 
@@ -68,21 +80,7 @@ export namespace z0 {
         [[nodiscard]] inline VkImage _getImage() const { return textureImage; }
         [[nodiscard]] inline VkImageView _getImageView() const { return textureImageView; }
 
-        /*
-        * Creates an Image resource and store the image data in GPU memory.
-        * Use loadFromFile(const string& filepath) to load a image from a file.
-        * @param device : the GPU where the image will be stored
-        * @param name : resource name. Informational only.
-        * @param width : width in pixels
-        * @param height : height in pixels
-        * @param imageSize : data size in bytes
-        * @param data : the source bitmap stored in CPU memory
-        * @param format : data format of the bitmap (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkFormat.html)
-        * @param tiling : image tiling arrangment (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageTiling.html)
-        * @param samplerAddressMode : texture sampler mode (https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSamplerAddressMode.html)
-        * @param noMipmaps : do not generate mipmaps
-       */
-        Image(const Device &       device,
+        Image(const Device &        device,
                const string &       name,
                uint32_t             width,
                uint32_t             height,
@@ -92,6 +90,20 @@ export namespace z0 {
                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
                VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
                VkFilter             samplerFilter      = VK_FILTER_LINEAR,
+               bool                 noMipmaps          = false);
+
+        Image(const Device &        device,
+               const string &       name,
+               uint32_t             width,
+               uint32_t             height,
+               VkDeviceSize         imageSize,
+               const void *         data,
+               VkFormat             format,
+               VkFilter             magFiter,
+               VkFilter             minFiler,
+               VkSamplerAddressMode samplerAddressModeU,
+               VkSamplerAddressMode samplerAddressModeV,
+               VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
                bool                 noMipmaps          = false);
 
         Image(const Device &       device,
