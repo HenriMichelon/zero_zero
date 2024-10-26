@@ -22,9 +22,6 @@ export namespace z0 {
         * Create a SpotLight.
         * @param cutOffDegrees the inner cutoff angle that specifies the spotlight's radius, in degrees
         * @param outerCutOffDegrees the outer cutoff angle that specifies the spotlight's radius, in degrees. Everything outside this angle is not lit by the spotlight.
-        * @param linear the linear term (see https://learnopengl.com/Lighting/Light-casters)
-        * @param quadratic the quadratic term (see https://learnopengl.com/Lighting/Light-casters)
-        * @param attenuation the attenuation factor
         * @param color the RGB color and intensity
         * @param specular intensity of the specular blob in objects affected by the light.
         * @param nodeName Node name

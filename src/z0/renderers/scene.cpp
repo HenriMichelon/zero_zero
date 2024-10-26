@@ -176,8 +176,8 @@ namespace z0 {
         for (const auto &material : OutlineMaterials::_all()) {
             loadShadersMaterials(material.get(), currentFrame);
         }
-        if (currentFrame == 0) {
-            for (const auto &pair : shadowMapRenderers) {
+        for (const auto &pair : shadowMapRenderers) {
+            if (!pair.second->isInitialized()) {
                 pair.second->loadScene(ModelsRenderer::frameData[currentFrame].models);
             }
         }
@@ -266,7 +266,7 @@ namespace z0 {
             .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
             .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
             .lightsCount     = static_cast<uint32_t>(frame.lights.size()),
-            .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{0.0f},
+            .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
         };
         writeUniformBuffer(frame.globalBuffer, &globalUbo);

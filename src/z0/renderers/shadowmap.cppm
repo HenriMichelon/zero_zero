@@ -63,6 +63,8 @@ export namespace z0 {
 
         [[nodiscard]] inline float getFarPlane() const { return reinterpret_cast<const OmniLight*>(light)->getFarClipDistance(); }
 
+        [[nodiscard]] inline bool isInitialized() const { return setLayout != nullptr; }
+
         void cleanup() override;
 
         ~ShadowMapRenderer() override;

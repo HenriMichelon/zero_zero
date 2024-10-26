@@ -109,7 +109,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     }
 
     // The global ambient light, always applied
-    const float ambientOcclusion  = material.ambientOcclusionIndex == -1 ? 1.0f : texture(texSampler[material.ambientOcclusionIndex], fs_in.UV).b;
+    const float ambientOcclusion  = 1.0; //material.ambientOcclusionIndex == -1 ? 1.0f : texture(texSampler[material.ambientOcclusionIndex], fs_in.UV).b;
     vec3 ambient = color.rgb;
     if (global.ambientIBL) {
         ambient = Ambient(ambient, normal, fs_in.VIEW_DIRECTION, metallic, roughness, F0);

@@ -56,8 +56,8 @@ namespace z0 {
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
-        auto globalUBO = GlobalBuffer{};
         if (data.currentCamera == nullptr) { return; }
+        auto globalUBO = GlobalBuffer{};
         switch (light->getLightType()) {
             case Light::LIGHT_DIRECTIONAL: {
                 // https://www.saschawillems.de/blog/2017/12/30/new-vulkan-example-cascaded-shadow-mapping/
