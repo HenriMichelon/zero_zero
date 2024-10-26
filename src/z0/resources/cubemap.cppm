@@ -9,6 +9,7 @@ export module z0:Cubemap;
 import :Tools;
 import :Resource;
 import :Device;
+import :Image;
 
 export namespace z0 {
 
@@ -111,11 +112,15 @@ export namespace z0 {
         [[nodiscard]] inline VkImageView _getImageView() const { return textureImageView; }
     };
 
+    /**
+     * Environment cubemap (with pre-filtered mip chain)
+     */
     class EnvironmentCubemap : public Cubemap {
     public:
         static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
         static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
         static constexpr auto IRRADIANCE_MAP_SIZE{32};
+        static constexpr auto BRDFLUT_SIZE{256};
 
         EnvironmentCubemap(const Device &  device,
                            uint32_t        width,
@@ -130,10 +135,14 @@ export namespace z0 {
         [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename);
 
     private:
+        // Irradiance map
         shared_ptr<Cubemap> irradianceCubemap;
+        // 2D LUT for split-sum approximation
+        shared_ptr<Image> brdfLut;
 
     public:
         [[nodiscard]] inline shared_ptr<Cubemap> _getIrradianceCubemap() const { return irradianceCubemap; }
+        [[nodiscard]] inline shared_ptr<Image> _getBRDFLut() const { return brdfLut; }
     };
 
 }

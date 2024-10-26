@@ -313,15 +313,13 @@ namespace z0 {
     }
 
     shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename) {
+        auto& device = Application::get()._getDevice();
         // Load equirectangular environment map
         const auto hdriImage = Image::loadFromFile(filename);
-        const auto iblPipeline = IBLPipeline{
-            Application::get()._getDevice(),
-        };
+        const auto iblPipeline = IBLPipeline{device};
 
         // Create empty cubemap
-        const auto unfilteredCubemap = make_shared<EnvironmentCubemap>(
-            Application::get()._getDevice(),
+        const auto unfilteredCubemap = make_shared<EnvironmentCubemap>(device,
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_SIZE
         );
@@ -329,8 +327,7 @@ namespace z0 {
         iblPipeline.convert(hdriImage, unfilteredCubemap);
 
         // Compute pre-filtered specular environment while adding mip-maps levels
-        auto envCubemap = make_shared<EnvironmentCubemap>(
-            Application::get()._getDevice(),
+        auto envCubemap = make_shared<EnvironmentCubemap>(device,
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_MIPMAP_LEVELS
@@ -338,12 +335,21 @@ namespace z0 {
         iblPipeline.preComputeSpecular(unfilteredCubemap, envCubemap);
 
         // Compute diffuse irradiance cubemap
-        envCubemap->irradianceCubemap = make_shared<EnvironmentCubemap>(
-            Application::get()._getDevice(),
+        envCubemap->irradianceCubemap = make_shared<EnvironmentCubemap>(device,
             IRRADIANCE_MAP_SIZE,
             IRRADIANCE_MAP_SIZE
         );
         iblPipeline.preComputeIrradiance(envCubemap, envCubemap->irradianceCubemap);
+
+        envCubemap->brdfLut = make_shared<Image>(device,
+            BRDFLUT_SIZE,
+            BRDFLUT_SIZE,
+            1,
+            VK_FORMAT_R16G16_SFLOAT,
+            1,
+            VK_IMAGE_USAGE_STORAGE_BIT
+        );
+        iblPipeline.preComputeDRDF(envCubemap->brdfLut);
         return envCubemap;
     }
 

@@ -95,6 +95,32 @@ namespace z0 {
         createTextureSampler(samplerFilter, samplerAddressMode);
     }
 
+    Image::Image(const Device &       device,
+              const uint32_t             width,
+              const uint32_t             height,
+              const uint32_t             layers,
+              const VkFormat             format,
+              const uint32_t             mipLevels,
+              const VkImageUsageFlags    additionalUsage) :
+        Resource("Image"),
+        device{device},
+        width{width},
+        height{height} {
+        device.createImage(width,
+                           height,
+                           mipLevels,
+                           VK_SAMPLE_COUNT_1_BIT,
+                           format,
+                           VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | additionalUsage,
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                           textureImage,
+                           textureImageMemory,
+                        (layers == 6) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0,
+                            layers);
+        textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+    }
+
     Image::~Image() {
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);

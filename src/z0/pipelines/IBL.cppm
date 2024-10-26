@@ -24,6 +24,7 @@ export namespace z0 {
                      const shared_ptr<Cubemap>& cubemap) const;
         void preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const;
         void preComputeIrradiance(const shared_ptr<Cubemap>& cubemap, const shared_ptr<Cubemap>& irradianceCubemap) const;
+        void preComputeDRDF(const shared_ptr<Image>& brdfLut) const;
 
     private:
         struct SpecularFilterPushConstants {
@@ -37,8 +38,8 @@ export namespace z0 {
         VkSampler computeSampler{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};
-        static constexpr auto BINDING_OUTPUT_CUBEMAP{1};
-        static constexpr auto BINDING_OUTPUT_CUBEMAP_MIPS{2};
+        static constexpr auto BINDING_OUTPUT_TEXTURE{1};
+        static constexpr auto BINDING_OUTPUT_MIPMAPS{2};
 
         static constexpr auto specializationMap = VkSpecializationMapEntry { 0, 0, sizeof(uint32_t) };
         static constexpr uint32_t specializationData[]{ EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1 };
