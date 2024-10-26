@@ -114,7 +114,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     if (global.ambientIBL) {
         ambient = Ambient(ambient, normal, fs_in.VIEW_DIRECTION, metallic, roughness, F0);
     }
-    ambient *= global.ambient.w * global.ambient.rgb;
+    ambient *= global.ambient.w * global.ambient.rgb * ambientOcclusion;
 
-    return vec4((ambient * ambientOcclusion) + diffuse, transparency);
+    return vec4(ambient + diffuse, transparency);
 }
