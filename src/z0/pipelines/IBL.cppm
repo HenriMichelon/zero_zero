@@ -36,9 +36,8 @@ export namespace z0 {
         static constexpr auto BINDING_OUTPUT_CUBEMAP{1};
         static constexpr auto BINDING_OUTPUT_CUBEMAP_MIPS{2};
 
-        static constexpr uint32_t numMipTailLevels{EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1};
         static constexpr auto specializationMap = VkSpecializationMapEntry { 0, 0, sizeof(uint32_t) };
-        static constexpr uint32_t specializationData[]{ numMipTailLevels };
+        static constexpr uint32_t specializationData[]{ EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1 };
         static constexpr auto specializationInfo = VkSpecializationInfo{ 1, &specializationMap, sizeof(specializationData), specializationData };
     };
 

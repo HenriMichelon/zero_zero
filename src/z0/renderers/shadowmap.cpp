@@ -346,15 +346,11 @@ namespace z0 {
 
     void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
-            auto globalBufferInfo     = frameData[frameIndex].globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
-            auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
-                                 .writeBuffer(0, &globalBufferInfo);
-            if (create) {
-                if (!writer.build(descriptorSet[frameIndex]))
-                    die("Cannot allocate descriptor set");
-            } else {
-                writer.overwrite(descriptorSet[frameIndex]);
-            }
+            auto globalBufferInfo  = frameData[frameIndex].globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
+            auto writer            = DescriptorWriter(*setLayout, *descriptorPool)
+                .writeBuffer(0, &globalBufferInfo);
+            if (!writer.build(descriptorSet[frameIndex], create))
+                die("Cannot allocate descriptor set for shadow map renderer");
         }
     }
 

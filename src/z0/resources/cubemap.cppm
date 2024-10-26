@@ -40,11 +40,6 @@ export namespace z0 {
                 const vector<unsigned char *> &data,
                 const string &                 name = "Cubemap");
 
-        Cubemap(const Device &                 device,
-                uint32_t                       width,
-                uint32_t                       height,
-                const string &                 name = "Cubemap");
-
         ~Cubemap() override;
 
         /**
@@ -97,6 +92,13 @@ export namespace z0 {
         VkDeviceMemory textureImageMemory;
         VkImageView    textureImageView;
         VkSampler      textureSampler;
+        const VkFormat textureFormat;
+
+        Cubemap(const Device &                 device,
+                uint32_t                       width,
+                uint32_t                       height,
+                VkFormat                       format,
+                const string &                 name = "Cubemap");
 
         void createTextureSampler();
 
@@ -114,6 +116,7 @@ export namespace z0 {
                     .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             };
         }
+        [[nodiscard]] VkFormat _getFormat() const { return textureFormat; }
     };
 
     class EnvironmentCubemap : public Cubemap {
@@ -124,7 +127,7 @@ export namespace z0 {
         EnvironmentCubemap(const Device &  device,
                            uint32_t        width,
                            uint32_t        height,
-                           uint32_t        levels,
+                           uint32_t        levels = 1,
                            const string &  name = "EnvironmentCubemap");
 
         /**

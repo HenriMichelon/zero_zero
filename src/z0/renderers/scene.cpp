@@ -527,25 +527,21 @@ namespace z0 {
             }
 
             auto globalBufferInfo     = frame.globalBuffer->descriptorInfo(GLOBAL_BUFFER_SIZE);
-            auto modelBufferInfo      = ModelsRenderer::frameData[frameIndex].modelUniformBuffer->descriptorInfo(MODEL_BUFFER_SIZE *
-                                                                                frame.modelBufferCount);
+            auto modelBufferInfo      = ModelsRenderer::frameData[frameIndex].modelUniformBuffer->descriptorInfo(
+                 MODEL_BUFFER_SIZE *
+                 frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
-            auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE *
-                                                                                   frame.lightBufferCount);
+            auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
-                                  .writeBuffer(0, &globalBufferInfo)
-                                  .writeBuffer(1, &modelBufferInfo)
-                                  .writeBuffer(2, &materialBufferInfo)
-                                  .writeImage(3, frame.imagesInfo.data())
-                                  .writeBuffer(4, &pointLightBufferInfo)
-                                  .writeImage(5, frame.shadowMapsInfo.data())
-                                  .writeImage(6, frame.shadowMapsCubemapInfo.data());
-            if (create) {
-                if (!writer.build(descriptorSet[frameIndex]))
-                    die("Cannot allocate descriptor set");
-            } else {
-                writer.overwrite(descriptorSet[frameIndex]);
-            }
+                  .writeBuffer(0, &globalBufferInfo)
+                  .writeBuffer(1, &modelBufferInfo)
+                  .writeBuffer(2, &materialBufferInfo)
+                  .writeImage(3, frame.imagesInfo.data())
+                  .writeBuffer(4, &pointLightBufferInfo)
+                  .writeImage(5, frame.shadowMapsInfo.data())
+                  .writeImage(6, frame.shadowMapsCubemapInfo.data());
+            if (!writer.build(descriptorSet[frameIndex], create))
+                die("Cannot allocate descriptor set for scene renderer");
         }
     }
 

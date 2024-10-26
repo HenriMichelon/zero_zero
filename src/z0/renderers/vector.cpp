@@ -331,13 +331,9 @@ namespace z0 {
                 frameData[i].imagesInfo[j] = blankImage->_getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                          .writeImage(0, frameData[i].imagesInfo.data());
-            if (create) {
-                if (!writer.build(descriptorSet[i]))
-                    die("Cannot allocate descriptor set");
-            } else {
-                writer.overwrite(descriptorSet[i]);
-            }
+                .writeImage(0, frameData[i].imagesInfo.data());
+            if (!writer.build(descriptorSet[i], create))
+                die("Cannot allocate descriptor set for vector renderer");
         }
     }
 

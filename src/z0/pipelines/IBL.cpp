@@ -56,7 +56,7 @@ namespace z0 {
         if (!DescriptorWriter(*descriptorSetLayout, *descriptorPool)
             .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
             .writeImage(BINDING_OUTPUT_CUBEMAP, &outputInfo)
-            .build(descriptorSet))
+            .build(descriptorSet, true))
             die("Cannot allocate compute descriptor set");
 
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
@@ -66,8 +66,7 @@ namespace z0 {
                 imageMemoryBarrier(
                     cubemap->getImage(),
                     0, VK_ACCESS_SHADER_WRITE_BIT,
-                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL,
-                    0, 1)
+                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
@@ -78,8 +77,7 @@ namespace z0 {
                        imageMemoryBarrier(
                            cubemap->getImage(),
                            VK_ACCESS_SHADER_WRITE_BIT, 0,
-                           VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           0, 1)
+                           VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
         });
         device.endOneTimeCommandBuffer(commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
@@ -99,8 +97,7 @@ namespace z0 {
                     imageMemoryBarrier(
                         unfilteredCubemap->getImage(),
                         0, VK_ACCESS_TRANSFER_READ_BIT,
-                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        0, 1),
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL),
                     imageMemoryBarrier(
                         cubemap->getImage(),
                         0, VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -126,8 +123,7 @@ namespace z0 {
                     imageMemoryBarrier(
                        unfilteredCubemap->getImage(),
                        VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
-                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                       0, 1),
+                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
                    imageMemoryBarrier(
                        cubemap->getImage(),
                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_WRITE_BIT,
@@ -135,21 +131,22 @@ namespace z0 {
             });
         }
         // Pre-filter rest of the mip-chain.
-        auto envTextureMipTailViews = vector<VkImageView>{numMipTailLevels};
+       auto envTextureMipTailViews = vector<VkImageView>{};
         {
-            const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, unfilteredCubemap->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-            auto outputInfo = vector<VkDescriptorImageInfo>{numMipTailLevels};
-            for(auto level = 0; level < numMipTailLevels; ++level) {
-                envTextureMipTailViews[level] = device.createImageView(cubemap->getImage(),
-                                                  VK_FORMAT_R16G16B16A16_SFLOAT,
+            const auto inputInfo = unfilteredCubemap->_getImageInfo();
+            auto outputInfo = vector<VkDescriptorImageInfo>{};
+            for(auto level = 1; level < EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS; level++) {
+                envTextureMipTailViews.push_back(device.createImageView(cubemap->getImage(),
+                                                  cubemap->_getFormat(),
                                                   VK_IMAGE_ASPECT_COLOR_BIT,
                                                   1,
-                                                  VK_IMAGE_VIEW_TYPE_CUBE, // 2D ??
+                                                  VK_IMAGE_VIEW_TYPE_CUBE,
                                                   0,
                                                   VK_REMAINING_ARRAY_LAYERS,
-                                                  level);
-                outputInfo[level] = VkDescriptorImageInfo{ VK_NULL_HANDLE, envTextureMipTailViews[level], VK_IMAGE_LAYOUT_GENERAL };
+                                                  level));
+                outputInfo.push_back(VkDescriptorImageInfo{ VK_NULL_HANDLE, envTextureMipTailViews[level-1], VK_IMAGE_LAYOUT_GENERAL });
             }
+            log(to_string(outputInfo.size()) + " mip-tail levels");
 
             auto descriptorSet = VkDescriptorSet{VK_NULL_HANDLE};
             if (!descriptorPool->allocateDescriptor(*descriptorSetLayout->getDescriptorSetLayout(), descriptorSet))
@@ -157,14 +154,15 @@ namespace z0 {
             if (!DescriptorWriter(*descriptorSetLayout, *descriptorPool)
                 .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
                 .writeImage(BINDING_OUTPUT_CUBEMAP_MIPS, outputInfo.data())
-                .build(descriptorSet))
+                .build(descriptorSet, true))
                 die("Cannot allocate compute descriptor set");
 
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-            vkCmdBindDescriptorSets(
-                    commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
+                                    0, 1, &descriptorSet,
+                                    0, nullptr);
 
-            constexpr auto deltaRoughness = 1.0f / std::max(static_cast<float>(numMipTailLevels), 1.0f);
+            constexpr auto deltaRoughness = 1.0f / std::max(static_cast<float>(EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1), 1.0f);
             for(uint32_t level = 1, size = EnvironmentCubemap::ENVIRONMENT_MAP_SIZE/2; level<EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS; ++level, size /= 2) {
                 const auto numGroups = std::max<uint32_t>(1, size/32);
                 const auto pushConstants = SpecularFilterPushConstants{ level-1, level * deltaRoughness };

@@ -22,7 +22,7 @@ namespace z0 {
                      const VkDeviceSize             imageSize,
                      const vector<unsigned char *> &data,
                      const string &                 name):
-        Resource(name), device{device}, width{width}, height{height} {
+        Resource(name), device{device}, width{width}, height{height}, textureFormat{VK_FORMAT_R8G8B8A8_SRGB} {
         assert(data.size() == 6 && "Must have 6 images for a cubemap");
         // Create staging buffer for CPU to GPU images copy
         Buffer textureStagingBuffer{
@@ -41,12 +41,11 @@ namespace z0 {
         }
 
         // Create image in GPU memory, one image in memory for the 6 images of the cubemap
-        constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
         device.createImage(width,
                            height,
                            1,
                            VK_SAMPLE_COUNT_1_BIT,
-                           format,
+                           textureFormat,
                            VK_IMAGE_TILING_OPTIMAL,
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                            VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -108,18 +107,19 @@ namespace z0 {
         device.endOneTimeCommandBuffer(commandBuffer);
 
         textureImageView = device.createImageView(textureImage,
-                                                  format,
+                                                  textureFormat,
                                                   VK_IMAGE_ASPECT_COLOR_BIT,
                                                   1,
                                                   VK_IMAGE_VIEW_TYPE_CUBE);
         createTextureSampler();
     }
 
-    Cubemap::Cubemap(const Device &                 device,
-                     const uint32_t                 width,
-                     const uint32_t                 height,
-                     const string &                 name):
-        Resource(name), device{device}, width{width}, height{height} {
+    Cubemap::Cubemap(const Device &  device,
+                     const uint32_t  width,
+                     const uint32_t  height,
+                     const VkFormat  format,
+                     const string &  name):
+        Resource(name), device{device}, width{width}, height{height}, textureFormat{format} {
     }
 
     Cubemap::~Cubemap() {
@@ -288,15 +288,13 @@ namespace z0 {
                                            const uint32_t  height,
                                            const uint32_t  levels,
                                            const string &  name):
-        Cubemap{device, width, height, name} {
+        Cubemap{device, width, height, VK_FORMAT_R16G16B16A16_SFLOAT, name} {
         // Create image in GPU memory, one image in memory for the 6 images of the cubemap
-        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT; // for HDRi cubemaps
-        const auto mipslevels = (levels > 0) ? levels : numMipmapLevels(width, height);
         device.createImage(width,
                            height,
-                           mipslevels,
+                           levels,
                            VK_SAMPLE_COUNT_1_BIT,
-                           format,
+                           textureFormat,
                            VK_IMAGE_TILING_OPTIMAL,
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                            VK_IMAGE_USAGE_SAMPLED_BIT |
@@ -307,9 +305,9 @@ namespace z0 {
                            VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
                            6);
         textureImageView = device.createImageView(textureImage,
-                                                  format,
+                                                  textureFormat,
                                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                                  mipslevels,
+                                                  levels,
                                                   VK_IMAGE_VIEW_TYPE_CUBE);
         createTextureSampler();
     }
@@ -325,18 +323,17 @@ namespace z0 {
         const auto unfilteredCubemap = make_shared<EnvironmentCubemap>(
             Application::get()._getDevice(),
             ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_SIZE,
-            0
+            ENVIRONMENT_MAP_SIZE
         );
         // Convert equirectangular environment map to cubemap texture
         iblPipeline.convert(hdriImage, unfilteredCubemap);
 
-        // Compute pre-filtered specular environment map.
+        // Compute pre-filtered specular environment while adding mip-maps levels
         auto envCubemap = make_shared<EnvironmentCubemap>(
             Application::get()._getDevice(),
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_SIZE,
-            0
+            ENVIRONMENT_MAP_MIPMAP_LEVELS
         );
         iblPipeline.preComputeSpecular(unfilteredCubemap, envCubemap);
         return envCubemap;

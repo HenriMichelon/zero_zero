@@ -177,20 +177,16 @@ namespace z0 {
         return *this;
     }
 
-    bool DescriptorWriter::build(VkDescriptorSet &set) {
-        const auto success = pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set);
-        if (!success) {
+    bool DescriptorWriter::build(VkDescriptorSet &set, const bool allocate) {
+        if (allocate && (!pool.allocateDescriptor(*setLayout.getDescriptorSetLayout(), set)))
             return false;
-        }
-        overwrite(set);
-        return true;
-    }
-
-    void DescriptorWriter::overwrite(const VkDescriptorSet &set) {
         for (auto &write : writes) {
             write.dstSet = set;
         }
-        vkUpdateDescriptorSets(pool.device.getDevice(), writes.size(), writes.data(), 0, nullptr);
+        vkUpdateDescriptorSets(pool.device.getDevice(),
+            writes.size(), writes.data(),
+            0, nullptr);
+        return true;
     }
 
 }

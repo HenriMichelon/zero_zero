@@ -65,17 +65,12 @@ namespace z0 {
                 .imageView = resolvedDepthBuffer[i]->getImageView(),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
             };
-            auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                        .writeBuffer(0, &globalBufferInfo)
-                                        .writeImage(1, &colorInfo)
-                                        .writeImage(2, &depthInfo);
-            if (create) {
-                if (!writer.build(descriptorSet[i])) {
-                    die("Cannot allocate descriptor set for BasePostprocessingRenderer");
-                }
-            } else {
-                writer.overwrite(descriptorSet[i]);
-            }
+            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
+                .writeBuffer(0, &globalBufferInfo)
+                .writeImage(1, &colorInfo)
+                .writeImage(2, &depthInfo);
+            if (!writer.build(descriptorSet[i], create))
+                die("Cannot allocate descriptor set for TonemappingPostprocessingRenderer");
         }
     }
 

@@ -140,9 +140,9 @@ namespace z0 {
                 auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GobalUniformBuffer));
                 auto imageInfo        = cubemap->_getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                        .writeBuffer(0, &globalBufferInfo)
-                                        .writeImage(1, &imageInfo);
-                if (!writer.build(descriptorSet[i]))
+                    .writeBuffer(0, &globalBufferInfo)
+                    .writeImage(1, &imageInfo);
+                if (!writer.build(descriptorSet[i], create))
                     die("Cannot allocate skybox renderer descriptor set");
             }
         }

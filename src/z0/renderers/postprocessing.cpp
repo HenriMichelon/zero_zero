@@ -61,16 +61,11 @@ namespace z0 {
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            auto imageInfo        = inputColorAttachmentHdr[i]->imageInfo();
-            auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
-                                      .writeImage(0, &imageInfo);
-            if (create) {
-                if (!writer.build(descriptorSet[i])) {
-                    die("Cannot allocate descriptor set for BasePostprocessingRenderer");
-                }
-            } else {
-                writer.overwrite(descriptorSet[i]);
-            }
+            auto imageInfo = inputColorAttachmentHdr[i]->imageInfo();
+            auto writer    = DescriptorWriter(*setLayout, *descriptorPool)
+                .writeImage(0, &imageInfo);
+            if (!writer.build(descriptorSet[i], create))
+                die("Cannot allocate descriptor set for PostprocessingRenderer");
         }
     }
 
