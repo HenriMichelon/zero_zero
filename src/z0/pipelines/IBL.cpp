@@ -41,6 +41,8 @@ namespace z0 {
             VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(SpecularFilterPushConstants),
         };
         pipelineLayout = createPipelineLayout(*descriptorSetLayout->getDescriptorSetLayout(), &pipelinePushConstantRanges);
+        if (!descriptorPool->allocateDescriptor(*descriptorSetLayout->getDescriptorSetLayout(), descriptorSet))
+            die("Cannot allocate descriptor set");
     }
 
     void IBLPipeline::convert(const shared_ptr<Image>&   hdrFile,
@@ -50,14 +52,10 @@ namespace z0 {
 
         const auto inputInfo = hdrFile->_getImageInfo();
         const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, cubemap->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
-        auto descriptorSet = VkDescriptorSet{VK_NULL_HANDLE};
-        if (!descriptorPool->allocateDescriptor(*descriptorSetLayout->getDescriptorSetLayout(), descriptorSet))
-            die("Cannot allocate descriptor set");
-        if (!DescriptorWriter(*descriptorSetLayout, *descriptorPool)
+        DescriptorWriter(*descriptorSetLayout, *descriptorPool)
             .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
             .writeImage(BINDING_OUTPUT_CUBEMAP, &outputInfo)
-            .build(descriptorSet, true))
-            die("Cannot allocate compute descriptor set");
+            .update(descriptorSet);
 
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
         pipelineBarrier(commandBuffer,
@@ -84,7 +82,7 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const {
-        const auto shaderModule = createShaderModule(readFile("equirect2cube.comp"));
+        const auto shaderModule = createShaderModule(readFile("specular_map.comp"));
         const auto pipeline = createPipeline(shaderModule, &specializationInfo);
 
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
@@ -146,16 +144,11 @@ namespace z0 {
                                                   level));
                 outputInfo.push_back(VkDescriptorImageInfo{ VK_NULL_HANDLE, envTextureMipTailViews[level-1], VK_IMAGE_LAYOUT_GENERAL });
             }
-            log(to_string(outputInfo.size()) + " mip-tail levels");
 
-            auto descriptorSet = VkDescriptorSet{VK_NULL_HANDLE};
-            if (!descriptorPool->allocateDescriptor(*descriptorSetLayout->getDescriptorSetLayout(), descriptorSet))
-                die("Cannot allocate descriptor set");
-            if (!DescriptorWriter(*descriptorSetLayout, *descriptorPool)
+            DescriptorWriter(*descriptorSetLayout, *descriptorPool)
                 .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
                 .writeImage(BINDING_OUTPUT_CUBEMAP_MIPS, outputInfo.data())
-                .build(descriptorSet, true))
-                die("Cannot allocate compute descriptor set");
+                .update(descriptorSet);
 
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,

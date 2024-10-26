@@ -6,7 +6,7 @@ layout (location = 1) in vec4 AMBIENT;
 layout (location = 0) out vec4 COLOR;
 
 void main() {
-    vec4 color = texture(skybox, vec3(UV.x, UV.y, -UV.z));
+    vec4 color = textureLod(skybox, vec3(UV.x, UV.y, -UV.z), 0); // If multiple mip maps level only use the first (for env. cubemap)
     COLOR =  vec4(color.rgb, 1.0);
     //COLOR = vec4(UV.x, UV.y, -UV.z, 1.0);
 }

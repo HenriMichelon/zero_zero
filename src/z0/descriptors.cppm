@@ -113,7 +113,9 @@ export namespace z0 {
 
         DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);
 
-        [[nodiscard]] bool build(VkDescriptorSet &set, bool allocate);
+        [[nodiscard]] bool build(VkDescriptorSet &set, bool create);
+
+        void update(const VkDescriptorSet &set);
 
     private:
         DescriptorSetLayout &        setLayout;

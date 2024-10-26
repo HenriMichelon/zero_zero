@@ -31,6 +31,7 @@ export namespace z0 {
 
         unique_ptr<DescriptorPool> descriptorPool;
         unique_ptr<DescriptorSetLayout> descriptorSetLayout;
+        VkDescriptorSet descriptorSet{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};
         static constexpr auto BINDING_OUTPUT_CUBEMAP{1};
