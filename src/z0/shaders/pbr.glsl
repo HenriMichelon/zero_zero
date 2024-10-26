@@ -32,3 +32,10 @@ float gaSchlickGGX(float cosLi, float cosLo, float roughness) {
 vec3 fresnelSchlick(vec3 F0, float cosTheta) {
     return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
+
+// Roughness remapping for direct lighting (See Brian Karis's PBR Note)
+float alphaDirectLighting(float roughness) {
+    float r = (roughness + 1.0);
+    float alpha = (r * r) / 8.0;
+    return alpha;
+}

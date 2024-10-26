@@ -521,28 +521,33 @@ namespace z0 {
                  frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
             auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
-            auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
+
+            VkDescriptorImageInfo specularInfo;
+            VkDescriptorImageInfo irradianceInfo;
+            VkDescriptorImageInfo brdfInfo;
+            if ((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT)) {
+                const auto& environmentCubemap = reinterpret_cast<const shared_ptr<EnvironmentCubemap>&>(frame.skyboxRenderer->getCubemap());
+                specularInfo = environmentCubemap->_getImageInfo();
+                irradianceInfo = environmentCubemap->_getIrradianceCubemap()->_getImageInfo();
+                brdfInfo = environmentCubemap->_getBRDFLut()->_getImageInfo();
+            } else {
+                specularInfo = blankCubemap->_getImageInfo();
+                irradianceInfo = blankCubemap->_getImageInfo();
+                brdfInfo = blankImage->_getImageInfo();
+            }
+            auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                   .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
                   .writeBuffer(BINDING_MODELS_BUFFER, &modelBufferInfo)
                   .writeBuffer(BINDING_MATERIALS_BUFFER, &materialBufferInfo)
                   .writeImage(BINDING_MATERIALS_TEXTURES, frame.imagesInfo.data())
                   .writeBuffer(BINDING_LIGHTS_BUFFER, &pointLightBufferInfo)
                   .writeImage(BINDING_SHADOW_MAPS, frame.shadowMapsInfo.data())
-                  .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data());
+                  .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data())
+                  .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
+                  .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
+                  .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo);
             if (!writer.build(descriptorSet[frameIndex], create))
                 die("Cannot allocate descriptor set for scene renderer");
-
-            if ((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT)) {
-                const auto& environmentCubemap = reinterpret_cast<const shared_ptr<EnvironmentCubemap>&>(frame.skyboxRenderer->getCubemap());
-                auto specularInfo = environmentCubemap->_getImageInfo();
-                auto irradianceInfo = environmentCubemap->_getIrradianceCubemap()->_getImageInfo();
-                auto brdfInfo = environmentCubemap->_getBRDFLut()->_getImageInfo();
-                DescriptorWriter(*setLayout, *descriptorPool)
-                        .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
-                        .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
-                        .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo)
-                        .update(descriptorSet[frameIndex]);
-            }
         }
     }
 
