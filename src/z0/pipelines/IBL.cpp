@@ -231,7 +231,7 @@ namespace z0 {
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeDRDF(const shared_ptr<Image>& brdfLut) const {
+    void IBLPipeline::preComputeBRDF(const shared_ptr<Image>& brdfLut) const {
         const auto shaderModule = createShaderModule(readFile("brdf.comp"));
         const auto pipeline = createPipeline(shaderModule);
         const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, brdfLut->_getImageView(), VK_IMAGE_LAYOUT_GENERAL };

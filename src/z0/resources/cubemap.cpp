@@ -119,7 +119,7 @@ namespace z0 {
                      const uint32_t  height,
                      const VkFormat  format,
                      const string &  name):
-        Resource(name), device{device}, width{width}, height{height}, textureFormat{format} {
+        Resource(name), type{TYPE_ENVIRONMENT}, device{device}, width{width}, height{height}, textureFormat{format}  {
     }
 
     Cubemap::~Cubemap() {
@@ -241,7 +241,6 @@ namespace z0 {
         return cubemap;
     }
 
-
     void Cubemap::createTextureSampler() {
         VkSamplerCreateInfo samplerInfo{};
         samplerInfo.sType        = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -347,9 +346,12 @@ namespace z0 {
             1,
             VK_FORMAT_R16G16_SFLOAT,
             1,
-            VK_IMAGE_USAGE_STORAGE_BIT
+            VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            VK_FILTER_LINEAR,
+            VK_FALSE
         );
-        iblPipeline.preComputeDRDF(envCubemap->brdfLut);
+        iblPipeline.preComputeBRDF(envCubemap->brdfLut);
         return envCubemap;
     }
 

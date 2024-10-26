@@ -372,7 +372,13 @@ namespace z0 {
 
     }
 
-    void Device::wait() const { vkDeviceWaitIdle(device); }
+    void Device::wait() const {
+        for(auto i = 0; i < getFramesInFlight(); i++) {
+            vkWaitForFences(device, 1, &inFlightFences[i], VK_TRUE, UINT64_MAX);
+        }
+        vkQueueWaitIdle(graphicsQueue);
+        vkDeviceWaitIdle(device);
+    }
 
     void Device::registerRenderer(const shared_ptr<Renderer> &renderer) { renderers.push_front(renderer); }
 

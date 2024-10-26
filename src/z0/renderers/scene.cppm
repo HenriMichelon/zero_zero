@@ -73,14 +73,28 @@ namespace z0 {
         struct GlobalBuffer {
             mat4 projection{1.0f};
             mat4 view{1.0f};
-            vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
             alignas(16) vec3 cameraPosition;
-            alignas(4) uint32_t lightsCount{0};
+            alignas(4) uint32_t lightsCount;
+            alignas(16) vec4 ambient; // RGB + Intensity;
+            alignas(4) uint32_t ambientIBL; // Only if HDRi skybox
         };
         static constexpr auto GLOBAL_BUFFER_SIZE = sizeof(GlobalBuffer);
 
         struct ModelBuffer {
             mat4 matrix{};
+        };
+
+        enum Bindings : uint32_t {
+            BINDING_GLOBAL_BUFFER      =  0,
+            BINDING_MODELS_BUFFER      = 1,
+            BINDING_MATERIALS_BUFFER   = 2,
+            BINDING_MATERIALS_TEXTURES = 3,
+            BINDING_LIGHTS_BUFFER      = 4,
+            BINDING_SHADOW_MAPS        = 5,
+            BINDING_SHADOW_CUBEMAPS    = 6,
+            BINDING_PBR_ENV_MAP        = 7,
+            BINDING_PBR_IRRADIANCE_MAP = 8,
+            BINDING_PBR_BRDF_LUT       = 9,
         };
 
         struct MaterialBuffer {

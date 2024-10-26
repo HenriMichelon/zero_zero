@@ -51,7 +51,7 @@ export namespace z0 {
         VkImageView    textureImageView;
         VkSampler      textureSampler;
 
-        void createTextureSampler(VkFilter samplerFilter, VkSamplerAddressMode samplerAddressMode);
+        void createTextureSampler(VkFilter samplerFilter, VkSamplerAddressMode samplerAddressMode, VkBool32 anisotropyEnable = VK_TRUE);
 
         void generateMipmaps(VkFormat imageFormat) const;
 
@@ -100,7 +100,11 @@ export namespace z0 {
                uint32_t             layers,
                VkFormat             format,
                uint32_t             numMipLevels,
-               VkImageUsageFlags    additionalUsage);
+               VkImageUsageFlags    additionalUsage,
+               VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT ,
+               VkFilter             samplerFilter      = VK_FILTER_LINEAR,
+               VkBool32             anisotropyEnable   = VK_TRUE
+               );
 
 
     };

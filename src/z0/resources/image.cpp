@@ -101,7 +101,10 @@ namespace z0 {
               const uint32_t             layers,
               const VkFormat             format,
               const uint32_t             mipLevels,
-              const VkImageUsageFlags    additionalUsage) :
+              const VkImageUsageFlags    additionalUsage,
+              const VkSamplerAddressMode samplerAddressMode,
+              const VkFilter             samplerFilter,
+              const VkBool32             anisotropyEnable) :
         Resource("Image"),
         device{device},
         width{width},
@@ -119,6 +122,7 @@ namespace z0 {
                         (layers == 6) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0,
                             layers);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        createTextureSampler(samplerFilter, samplerAddressMode, anisotropyEnable);
     }
 
     Image::~Image() {
@@ -168,7 +172,7 @@ namespace z0 {
         return image;
     }
 
-    void Image::createTextureSampler(const VkFilter samplerFilter, const VkSamplerAddressMode samplerAddressMode) {
+    void Image::createTextureSampler(const VkFilter samplerFilter, const VkSamplerAddressMode samplerAddressMode, const VkBool32 anisotropyEnable) {
         // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Samplers
         const VkSamplerCreateInfo samplerInfo{
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -179,8 +183,7 @@ namespace z0 {
                 .addressModeV = samplerAddressMode,
                 .addressModeW = samplerAddressMode,
                 .mipLodBias = 0.0f,
-                // Optional
-                .anisotropyEnable = VK_TRUE,
+                .anisotropyEnable = anisotropyEnable,
                 // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler#page_Anisotropy-device-feature
                 .maxAnisotropy = device.getDeviceProperties().limits.maxSamplerAnisotropy,
                 .compareEnable = VK_FALSE,

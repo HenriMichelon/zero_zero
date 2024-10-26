@@ -479,8 +479,8 @@ namespace z0 {
             drawFrame();
         }
         stopped = true;
-        Input::_closeInput();
         device->wait();
+        Input::_closeInput();
         windowManager.reset();
         cleanup(rootNode);
 #ifdef _WIN32

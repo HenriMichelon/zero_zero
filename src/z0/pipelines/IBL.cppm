@@ -24,7 +24,7 @@ export namespace z0 {
                      const shared_ptr<Cubemap>& cubemap) const;
         void preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const;
         void preComputeIrradiance(const shared_ptr<Cubemap>& cubemap, const shared_ptr<Cubemap>& irradianceCubemap) const;
-        void preComputeDRDF(const shared_ptr<Image>& brdfLut) const;
+        void preComputeBRDF(const shared_ptr<Image>& brdfLut) const;
 
     private:
         struct SpecularFilterPushConstants {

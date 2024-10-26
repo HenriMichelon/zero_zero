@@ -262,14 +262,13 @@ namespace z0 {
         if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
 
         GlobalBuffer globalUbo{
-                .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
-                .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
-                .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
-                .lightsCount     = static_cast<uint32_t>(frame.lights.size()),
+            .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
+            .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
+            .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
+            .lightsCount     = static_cast<uint32_t>(frame.lights.size()),
+            .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{0.0f},
+            .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
         };
-        if (frame.currentEnvironment != nullptr) {
-            globalUbo.ambient = frame.currentEnvironment->getAmbientColorAndIntensity();
-        }
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         if (globalUbo.lightsCount > 0) {
@@ -408,56 +407,46 @@ namespace z0 {
         descriptorPool =
                 DescriptorPool::Builder(device)
                         .setMaxSets(device.getFramesInFlight())
-                        // global UBO
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
-                        // models UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
-                        // materials UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
-                        // images textures
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
-                        // shadow maps UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
-                        // shadow maps
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
-                        // pointlightarray UBO, one array
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, device.getFramesInFlight())
-                        // shadow maps cubemaps
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
+                        // global, models, materials, shadow maps & lights UBOs
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 5 * device.getFramesInFlight())
+                        // textures, shadow maps, shadow cubemap & PBR*3
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 * device.getFramesInFlight())
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
-                            .addBinding(0,
-                                        // global UBO
+                            .addBinding(BINDING_GLOBAL_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_ALL_GRAPHICS)
-                            .addBinding(1,
-                                        // models UBO
+                            .addBinding(BINDING_MODELS_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_VERTEX_BIT)
-                            .addBinding(2,
-                                        // materials UBO
+                            .addBinding(BINDING_MATERIALS_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_ALL_GRAPHICS)
-                            .addBinding(3,
-                                        // images textures
+                            .addBinding(BINDING_MATERIALS_TEXTURES,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT,
                                         MAX_IMAGES)
-                            .addBinding(4,
-                                        // light array UBO
+                            .addBinding(BINDING_LIGHTS_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
-                            .addBinding(5,
-                                        // shadow maps (2D and 2D array)
+                            .addBinding(BINDING_SHADOW_MAPS,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT,
                                         MAX_SHADOW_MAPS)
-                            .addBinding(6,
-                                        // Shadow maps (Cubemap)
+                            .addBinding(BINDING_SHADOW_CUBEMAPS,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT,
                                         MAX_SHADOW_MAPS)
+                            .addBinding(BINDING_PBR_ENV_MAP,
+                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_PBR_IRRADIANCE_MAP,
+                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_PBR_BRDF_LUT,
+                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
                             .build();
 
         // Create an in-memory default blank images
@@ -533,15 +522,27 @@ namespace z0 {
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
             auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
             auto writer               = DescriptorWriter(*setLayout, *descriptorPool)
-                  .writeBuffer(0, &globalBufferInfo)
-                  .writeBuffer(1, &modelBufferInfo)
-                  .writeBuffer(2, &materialBufferInfo)
-                  .writeImage(3, frame.imagesInfo.data())
-                  .writeBuffer(4, &pointLightBufferInfo)
-                  .writeImage(5, frame.shadowMapsInfo.data())
-                  .writeImage(6, frame.shadowMapsCubemapInfo.data());
+                  .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
+                  .writeBuffer(BINDING_MODELS_BUFFER, &modelBufferInfo)
+                  .writeBuffer(BINDING_MATERIALS_BUFFER, &materialBufferInfo)
+                  .writeImage(BINDING_MATERIALS_TEXTURES, frame.imagesInfo.data())
+                  .writeBuffer(BINDING_LIGHTS_BUFFER, &pointLightBufferInfo)
+                  .writeImage(BINDING_SHADOW_MAPS, frame.shadowMapsInfo.data())
+                  .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data());
             if (!writer.build(descriptorSet[frameIndex], create))
                 die("Cannot allocate descriptor set for scene renderer");
+
+            if ((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT)) {
+                const auto& environmentCubemap = reinterpret_cast<const shared_ptr<EnvironmentCubemap>&>(frame.skyboxRenderer->getCubemap());
+                auto specularInfo = environmentCubemap->_getImageInfo();
+                auto irradianceInfo = environmentCubemap->_getIrradianceCubemap()->_getImageInfo();
+                auto brdfInfo = environmentCubemap->_getBRDFLut()->_getImageInfo();
+                DescriptorWriter(*setLayout, *descriptorPool)
+                        .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
+                        .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
+                        .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo)
+                        .update(descriptorSet[frameIndex]);
+            }
         }
     }
 

@@ -33,6 +33,8 @@ export namespace z0 {
 
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
 
+        [[nodiscard]] inline const shared_ptr<Cubemap>& getCubemap() const { return cubemap; }
+
     private:
         struct GobalUniformBuffer {
             mat4 projection{1.0f};
