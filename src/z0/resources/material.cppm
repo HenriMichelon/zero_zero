@@ -154,6 +154,11 @@ export namespace z0 {
 
         void setEmissiveTexture(const TextureInfo& texture);
 
+        [[nodiscard]] inline float getEmissiveStrength() const { return emissiveStrength; }
+
+        void setEmissiveStrength(float emissive);
+
+
     private:
         Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
         TextureInfo  albedoTexture{};
@@ -161,11 +166,12 @@ export namespace z0 {
         TextureInfo  metallicTexture{.channel = TEXTURE_CHANNEL_BLUE}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
         float        roughnessFactor{1.0f};
         TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
-        vec3         emissiveFactor{0.0f};
-        TextureInfo  emissiveTexture;
+        vec3         emissiveFactor{0.0f}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivefactor
+        float        emissiveStrength{1.0f}; // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
+        TextureInfo  emissiveTexture; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
         TextureInfo  ambientOcclusionTexture{.channel =TEXTURE_CHANNEL_RED}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
         TextureInfo  specularTexture{};
-        TextureInfo  normalTexture{};
+        TextureInfo  normalTexture{}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltexture
     };
 
     /**

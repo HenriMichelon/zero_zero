@@ -74,6 +74,11 @@ namespace z0 {
         _setDirty();
     }
 
+    void StandardMaterial::setEmissiveStrength(const float strength) {
+        emissiveStrength = strength;
+        _setDirty();
+    }
+
     ShaderMaterial::ShaderMaterial(const shared_ptr<ShaderMaterial> &orig):
         Material{orig->name},
         fragFileName{orig->fragFileName},

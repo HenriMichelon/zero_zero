@@ -34,11 +34,11 @@ struct VertexOut {
 #define TRANSPARENCY_SCISSOR       2
 #define TRANSPARENCY_SCISSOR_ALPHA 3
 
-#define TEXTURE_CHANNEL_NONE   0
-#define TEXTURE_CHANNEL_RED    1
-#define TEXTURE_CHANNEL_GREEN  2
-#define TEXTURE_CHANNEL_BLUE   3
-#define TEXTURE_CHANNEL_ALPHA  4
+#define TEXTURE_CHANNEL_RED    0
+#define TEXTURE_CHANNEL_GREEN  1
+#define TEXTURE_CHANNEL_BLUE   2
+#define TEXTURE_CHANNEL_ALPHA  3
+#define TEXTURE_CHANNEL_NONE   4
 
 struct Light {
     // light params
@@ -65,6 +65,7 @@ struct Material  {
     float       metallicFactor;
     float       roughnessFactor;
     vec3        emissiveFactor;
+    float       emissiveStrength;
     vec4        parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 };
 

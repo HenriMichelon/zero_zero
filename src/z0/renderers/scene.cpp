@@ -352,6 +352,7 @@ namespace z0 {
                 materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
                 materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
                 materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
+                materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
                 auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
                     dest.channel = static_cast<uint32_t>(texInfo.channel);
                     dest.offset = texInfo.offset;

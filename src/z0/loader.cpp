@@ -124,7 +124,8 @@ namespace z0 {
                                                bool loadTextures) {
         filesystem::path filepath = loadTextures ? (Application::get().getConfig().appDir / filename): filename;
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
-                                fastgltf::Extensions::KHR_texture_transform};
+                                fastgltf::Extensions::KHR_texture_transform |
+                                fastgltf::Extensions::KHR_materials_emissive_strength};
         constexpr auto   gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble |
                 fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
         fastgltf::GltfDataBuffer data;
@@ -152,6 +153,7 @@ namespace z0 {
             material->setRoughnessFactor(mat.pbrData.roughnessFactor);
             if (!mat.emissiveFactor.empty()) {
                 material->setEmissiveFactor(vec3{mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]});
+                material->setEmissiveStrength(mat.emissiveStrength);
             }
             switch (mat.alphaMode) {
             case fastgltf::AlphaMode::Blend:
