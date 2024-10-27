@@ -186,6 +186,8 @@ namespace z0 {
             list<shared_ptr<Material>> materials;
             // Vector to track free indices
             vector<Resource::id_t> materialsIndicesAllocation;
+            // Material reference counter
+            map<Resource::id_t, uint32_t> materialsRefCounter;
             // Indices of each material & texture in the buffers
             map<Resource::id_t, int32_t> materialsIndices{};
             // Data for all the materials of the scene, one buffer for all the materials
@@ -204,6 +206,8 @@ namespace z0 {
             list<Image *> images;
             // Indices of each images in the descriptor binding
             map<Resource::id_t, int32_t> imagesIndices{};
+            // Images reference counter
+            map<Resource::id_t, uint32_t> imagesRefCounter;
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
             // For rendering an optional skybox

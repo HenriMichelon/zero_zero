@@ -17,6 +17,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             color *= texture(texSampler[tex.diffuseTexture.index], uvTransform(tex.diffuseTexture, fs_in.UV));
         }
     }
+//    return color;
 //    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);
 
     // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA

@@ -9,7 +9,6 @@ export namespace z0 {
 
     /**
      * Base class for resources.
-     * All resources have a reference counter that *can* be used by the renderers to manage the resources of the scene.
      */
     class Resource : public Object {
     public:
@@ -41,16 +40,7 @@ export namespace z0 {
 
     private:
         id_t        id;
-        uint32_t    refCount{0};
         static id_t currentId;
-
-    public:
-        inline void _incrementReferenceCounter() { refCount += 1; }
-
-        [[nodiscard]] inline bool _decrementReferenceCounter() {
-            refCount -= 1;
-            return refCount == 0;
-        }
     };
 
 }

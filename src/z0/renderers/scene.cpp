@@ -113,7 +113,6 @@ namespace z0 {
     void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
         for (const auto &material : OutlineMaterials::_all()) {
             if (!frameData[currentFrame].materialsIndices.contains(material->getId())) {
-                material->_incrementReferenceCounter();
                 addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
             }
@@ -122,7 +121,9 @@ namespace z0 {
 
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         // Allocate the first free buffer index
-        const auto it = std::find_if(frameData[currentFrame].materialsIndicesAllocation.begin(), frameData[currentFrame].materialsIndicesAllocation.end(),
+        const auto it = std::find_if(
+            frameData[currentFrame].materialsIndicesAllocation.begin(),
+            frameData[currentFrame].materialsIndicesAllocation.end(),
             [&](const Resource::id_t &id) {
                 return id == Resource::INVALID_ID;
             });
@@ -134,18 +135,18 @@ namespace z0 {
         // Force material data to be written to GPU memory
         material->_setDirty();
         frameData[currentFrame].materials.push_back(material);
+        frameData[currentFrame].materialsRefCounter[material->getId()]++;
+        log("frame ", to_string(currentFrame), "add mat ", material->getName());
     }
 
     void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         if (frameData[currentFrame].materialsIndices.contains(material->getId())) {
             // Check if we need to remove the material from the scene
-            if (material->_decrementReferenceCounter()) {
+            if (--frameData[currentFrame].materialsRefCounter[material->getId()] == 0) {
                 // Try to remove the associated textures or shaders
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     if (standardMaterial->getAlbedoTexture().texture != nullptr)
                         removeImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
-                    // if (standardMaterial->getSpecularTexture().texture != nullptr)
-                        // removeImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getNormalTexture().texture != nullptr)
                         removeImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getMetallicTexture().texture != nullptr)
@@ -167,6 +168,7 @@ namespace z0 {
                 frameData[currentFrame].materialsIndicesAllocation[index] = Resource::INVALID_ID;
                 frameData[currentFrame].materialsIndices.erase(material->getId());
                 frameData[currentFrame].materials.remove(material);
+                log("frame ", to_string(currentFrame), "rem mat ", material->getName());
             }
         }
     }
@@ -187,15 +189,15 @@ namespace z0 {
         frameData[currentFrame].opaquesModels.push_back(meshInstance);
         frameData[currentFrame].modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-            material->_incrementReferenceCounter();
-            if (frameData[currentFrame].materialsIndices.contains(material->getId())) continue;
+            if (frameData[currentFrame].materialsIndices.contains(material->getId())) {
+                frameData[currentFrame].materialsRefCounter[material->getId()]++;
+                continue;
+            }
             addMaterial(material, currentFrame);
             // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture().texture != nullptr)
                     addImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
-                // if (standardMaterial->getSpecularTexture().texture != nullptr)
-                    // addImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getNormalTexture().texture != nullptr)
                     addImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getMetallicTexture().texture != nullptr)
@@ -680,7 +682,7 @@ namespace z0 {
     }
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
-        image->_incrementReferenceCounter();
+        frameData[currentFrame].imagesRefCounter[image->getId()]++;
         if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end())
             return;
         if (frameData[currentFrame].images.size() == MAX_IMAGES)
@@ -691,7 +693,7 @@ namespace z0 {
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end()) {
-            if (image->_decrementReferenceCounter()) {
+            if (--frameData[currentFrame].imagesRefCounter[image->getId()] == 0) {
                 frameData[currentFrame].images.remove(image.get());
                 // Rebuild the image index
                 frameData[currentFrame].imagesIndices.clear();
