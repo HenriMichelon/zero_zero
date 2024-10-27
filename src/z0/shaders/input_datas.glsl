@@ -79,7 +79,6 @@ struct TextureInfo {
 
 struct Texture  {
     TextureInfo diffuseTexture;
-    TextureInfo specularTexture;
     TextureInfo normalTexture;
     TextureInfo metallicTexture;
     TextureInfo roughnessTexture;

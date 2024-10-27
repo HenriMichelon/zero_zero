@@ -29,11 +29,6 @@ namespace z0 {
         _setDirty();
     }
 
-    void StandardMaterial::setSpecularTexture(const TextureInfo &texture) {
-        specularTexture = texture;
-        _setDirty();
-    }
-
     void StandardMaterial::setNormalTexture(const TextureInfo &texture) {
         normalTexture = texture;
         _setDirty();

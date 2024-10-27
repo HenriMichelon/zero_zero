@@ -144,8 +144,8 @@ namespace z0 {
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     if (standardMaterial->getAlbedoTexture().texture != nullptr)
                         removeImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
-                    if (standardMaterial->getSpecularTexture().texture != nullptr)
-                        removeImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
+                    // if (standardMaterial->getSpecularTexture().texture != nullptr)
+                        // removeImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getNormalTexture().texture != nullptr)
                         removeImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getMetallicTexture().texture != nullptr)
@@ -194,8 +194,8 @@ namespace z0 {
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                 if (standardMaterial->getAlbedoTexture().texture != nullptr)
                     addImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
-                if (standardMaterial->getSpecularTexture().texture != nullptr)
-                    addImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
+                // if (standardMaterial->getSpecularTexture().texture != nullptr)
+                    // addImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getNormalTexture().texture != nullptr)
                     addImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getMetallicTexture().texture != nullptr)
@@ -364,7 +364,7 @@ namespace z0 {
                 };
                 auto textureUBO = TextureBuffer{};
                 convert(textureUBO.albedoTexture, standardMaterial->getAlbedoTexture());
-                convert(textureUBO.specularTexture, standardMaterial->getSpecularTexture());
+                // convert(textureUBO.specularTexture, standardMaterial->getSpecularTexture());
                 convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
                 convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
                 convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());

@@ -32,11 +32,11 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     Material material = materials.material[pushConstants.materialIndex];
     Texture tex = textures.texture[pushConstants.materialIndex];
     if (!useColor) {
-        // We don't use the color parameter : get the color from the material
+        // Get the color from the material base color factor
         color = material.albedoColor;
         if (tex.diffuseTexture.index != -1) {
-            // We have a texture : get the color from the texture
-            color = texture(texSampler[tex.diffuseTexture.index], uvTransform(tex.diffuseTexture));
+            // We have a texture : apply the color from the texture
+            color *= texture(texSampler[tex.diffuseTexture.index], uvTransform(tex.diffuseTexture));
         }
     }
 //    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);

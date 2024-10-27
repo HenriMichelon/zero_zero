@@ -119,7 +119,6 @@ namespace z0 {
         };
         struct TextureBuffer {
             alignas(16) TextureInfo  albedoTexture{};
-            alignas(16) TextureInfo  specularTexture{};
             alignas(16) TextureInfo  normalTexture{};
             alignas(16) TextureInfo  metallicTexture{.channel = TEXTURE_CHANNEL_BLUE};
             alignas(16) TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN};

@@ -107,16 +107,6 @@ export namespace z0 {
         void setAlbedoTexture(const TextureInfo &texture);
 
         /**
-         * Return the specular texture
-         */
-        [[nodiscard]] inline const TextureInfo &getSpecularTexture() const { return specularTexture; }
-
-        /**
-         * Sets the specular texture
-         */
-        void setSpecularTexture(const TextureInfo &texture);
-
-        /**
          * Return the normal texture
          */
         [[nodiscard]] inline const TextureInfo &getNormalTexture() const { return normalTexture; }
@@ -174,7 +164,6 @@ export namespace z0 {
         float        emissiveStrength{1.0f}; // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
         TextureInfo  emissiveTexture; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
         TextureInfo  ambientOcclusionTexture{.channel =TEXTURE_CHANNEL_RED}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
-        TextureInfo  specularTexture{};
         TextureInfo  normalTexture{}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltexture
         float        normalScale{1.0f}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
     };
