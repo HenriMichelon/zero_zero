@@ -421,7 +421,7 @@ namespace z0 {
                                         VK_SHADER_STAGE_VERTEX_BIT)
                             .addBinding(BINDING_MATERIALS_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                                        VK_SHADER_STAGE_ALL_GRAPHICS)
                             .addBinding(BINDING_TEXTURES_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)

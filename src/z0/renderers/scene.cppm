@@ -102,7 +102,7 @@ namespace z0 {
             alignas(16) vec4 albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
             alignas(4) int   transparency{TRANSPARENCY_DISABLED};
             alignas(4) float alphaScissor{0.1f};
-            alignas(4) float metallicFactor{0.0f};
+            alignas(4) float metallicFactor{-1.0f}; // -1.0f -> non PBR material
             alignas(4) float roughnessFactor{1.0f};
             alignas(16) vec3 emissiveFactor{0.0f};
             alignas(4) float emissiveStrength{1.0f};

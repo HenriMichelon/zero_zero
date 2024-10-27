@@ -154,7 +154,7 @@ export namespace z0 {
     private:
         Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
         TextureInfo  albedoTexture{};
-        float        metallicFactor{0.0f};
+        float        metallicFactor{-1.0f}; // -1 -> non PBR material
         TextureInfo  metallicTexture{};
         float        roughnessFactor{1.0f};
         TextureInfo  roughnessTexture{};
