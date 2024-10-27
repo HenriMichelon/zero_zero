@@ -85,23 +85,17 @@ namespace z0 {
         };
 
         enum Bindings : uint32_t {
-            BINDING_GLOBAL_BUFFER      =  0,
+            BINDING_GLOBAL_BUFFER      = 0,
             BINDING_MODELS_BUFFER      = 1,
             BINDING_MATERIALS_BUFFER   = 2,
-            BINDING_MATERIALS_TEXTURES = 3,
+            BINDING_TEXTURES_BUFFER    = 3,
             BINDING_LIGHTS_BUFFER      = 4,
-            BINDING_SHADOW_MAPS        = 5,
-            BINDING_SHADOW_CUBEMAPS    = 6,
-            BINDING_PBR_ENV_MAP        = 7,
-            BINDING_PBR_IRRADIANCE_MAP = 8,
-            BINDING_PBR_BRDF_LUT       = 9,
-        };
-
-        struct TextureInfo {
-            alignas(4) int32_t  index{-1};
-            alignas(4) uint32_t channel{TEXTURE_CHANNEL_NONE};
-            alignas(8) vec2     offset{0.0f, 0.0f};
-            alignas(8) vec2     scale{1.0f, 1.0f};
+            BINDING_TEXTURES           = 5,
+            BINDING_SHADOW_MAPS        = 6,
+            BINDING_SHADOW_CUBEMAPS    = 7,
+            BINDING_PBR_ENV_MAP        = 8,
+            BINDING_PBR_IRRADIANCE_MAP = 9,
+            BINDING_PBR_BRDF_LUT       = 10,
         };
 
         struct MaterialBuffer {
@@ -111,6 +105,17 @@ namespace z0 {
             alignas(4) float        metallicFactor{0.0f};
             alignas(4) float        roughnessFactor{1.0f};
             alignas(16) vec3        emissiveFactor{0.0f};
+            alignas(16) vec4        parameters[ShaderMaterial::MAX_PARAMETERS];
+        };
+
+        // Material & Texture infos are split in two buffers because of the 64kb buffer limit on some GPU/drivers
+        struct TextureInfo {
+            alignas(4) int32_t  index{-1};
+            alignas(4) uint32_t channel{TEXTURE_CHANNEL_NONE};
+            alignas(8) vec2     offset{0.0f, 0.0f};
+            alignas(8) vec2     scale{1.0f, 1.0f};
+        };
+        struct TextureBuffer {
             alignas(16) TextureInfo  albedoTexture{};
             alignas(16) TextureInfo  specularTexture{};
             alignas(16) TextureInfo  normalTexture{};
@@ -118,7 +123,6 @@ namespace z0 {
             alignas(16) TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN};
             alignas(16) TextureInfo  emissiveTexture{.channel = TEXTURE_CHANNEL_RED};
             alignas(16) TextureInfo  ambientOcclusionTexture{};
-            alignas(16) vec4        parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
         struct LightBuffer {
@@ -165,6 +169,8 @@ namespace z0 {
         static constexpr VkDeviceSize MODEL_BUFFER_SIZE{sizeof(ModelBuffer)};
         // Size of each material buffer
         static constexpr VkDeviceSize MATERIAL_BUFFER_SIZE{sizeof(MaterialBuffer)};
+        // Size of each material textures buffer
+        static constexpr VkDeviceSize TEXTURE_BUFFER_SIZE{sizeof(TextureBuffer)};
         // Size of the point light uniform buffers
         static constexpr VkDeviceSize LIGHT_BUFFER_SIZE{sizeof(LightBuffer)};
 
@@ -180,10 +186,12 @@ namespace z0 {
             list<shared_ptr<Material>> materials;
             // Vector to track free indices
             vector<Resource::id_t> materialsIndicesAllocation;
-            // Indices of each material in the buffer
+            // Indices of each material & texture in the buffers
             map<Resource::id_t, int32_t> materialsIndices{};
             // Data for all the materials of the scene, one buffer for all the materials
             unique_ptr<Buffer> materialsBuffer;
+            // Data for all the materials textures of the scene, one buffer for all the textures
+            unique_ptr<Buffer> texturesBuffer;
 
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;

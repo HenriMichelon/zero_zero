@@ -342,10 +342,16 @@ namespace z0 {
         // Update in GPU memory only the materials modified since the last frame
         for (const auto& material : frame.materials) {
             if (!material->_isDirty()) { continue; }
-            auto materialUBO = MaterialBuffer();
-            materialUBO.transparency = material->getTransparency();
-            materialUBO.alphaScissor = material->getAlphaScissor();
+            auto materialUBO = MaterialBuffer{
+                .transparency = material->getTransparency(),
+                .alphaScissor = material->getAlphaScissor()
+            };
+            const auto materialIndex = frame.materialsIndices.at(material->getId());
             if (const auto *standardMaterial = dynamic_cast<const StandardMaterial *>(material.get())) {
+                materialUBO.albedoColor = standardMaterial->getAlbedoColor().color;
+                materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
+                materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
+                materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
                 auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
                     dest.channel = static_cast<uint32_t>(texInfo.channel);
                     dest.offset = texInfo.offset;
@@ -354,23 +360,23 @@ namespace z0 {
                         dest.index = frame.imagesIndices.at(texInfo.texture->getImage()->getId());
                     }
                 };
-                materialUBO.albedoColor = standardMaterial->getAlbedoColor().color;
-                materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
-                materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
-                materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
-                convert(materialUBO.albedoTexture, standardMaterial->getAlbedoTexture());
-                convert(materialUBO.specularTexture, standardMaterial->getSpecularTexture());
-                convert(materialUBO.normalTexture, standardMaterial->getNormalTexture());
-                convert(materialUBO.metallicTexture, standardMaterial->getMetallicTexture());
-                convert(materialUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
-                convert(materialUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
-                convert(materialUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
+                auto textureUBO = TextureBuffer{};
+                convert(textureUBO.albedoTexture, standardMaterial->getAlbedoTexture());
+                convert(textureUBO.specularTexture, standardMaterial->getSpecularTexture());
+                convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
+                convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
+                convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
+                convert(textureUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
+                convert(textureUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
+                frame.texturesBuffer->writeToBuffer(
+                    &textureUBO,
+                    TEXTURE_BUFFER_SIZE,
+                    TEXTURE_BUFFER_SIZE * materialIndex);
             } else if (const auto *shaderMaterial = dynamic_cast<const ShaderMaterial *>(material.get())) {
                 for (auto i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
                    materialUBO.parameters[i] = shaderMaterial->getParameter(i);
                 }
             }
-            const auto materialIndex = frame.materialsIndices.at(material->getId());
             frame.materialsBuffer->writeToBuffer(
                 &materialUBO,
                 MATERIAL_BUFFER_SIZE,
@@ -399,8 +405,8 @@ namespace z0 {
         descriptorPool =
                 DescriptorPool::Builder(device)
                         .setMaxSets(device.getFramesInFlight())
-                        // global, models, materials, shadow maps & lights UBOs
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 5 * device.getFramesInFlight())
+                        // global, models, materials+textures, shadow maps & lights UBOs
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 6 * device.getFramesInFlight())
                         // textures, shadow maps, shadow cubemap & PBR*3
                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 * device.getFramesInFlight())
                         .build();
@@ -414,8 +420,11 @@ namespace z0 {
                                         VK_SHADER_STAGE_VERTEX_BIT)
                             .addBinding(BINDING_MATERIALS_BUFFER,
                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                        VK_SHADER_STAGE_ALL_GRAPHICS)
-                            .addBinding(BINDING_MATERIALS_TEXTURES,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_TEXTURES_BUFFER,
+                                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_TEXTURES,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT,
                                         MAX_IMAGES)
@@ -463,9 +472,12 @@ namespace z0 {
             }
             if (frame.materialsBuffer == nullptr) {
                 frame.materialsBuffer = createUniformBuffer(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
-                // Initialize materials buffers in GPU memory
+                frame.texturesBuffer = createUniformBuffer(TEXTURE_BUFFER_SIZE * MAX_MATERIALS);
+                // Initialize all materials & textures buffers in GPU memory
                 auto materialUBOArray = make_unique<MaterialBuffer[]>(MAX_MATERIALS);
                 writeUniformBuffer(frame.materialsBuffer, materialUBOArray.get());
+                auto textureUBOArray = make_unique<TextureBuffer[]>(MAX_MATERIALS);
+                writeUniformBuffer(frame.texturesBuffer, textureUBOArray.get());
             }
 
             if ((!frame.lights.empty()) && (frame.lightBufferCount != frame.lights.size())) {
@@ -512,6 +524,7 @@ namespace z0 {
                  MODEL_BUFFER_SIZE *
                  frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
+            auto textureBufferInfo   = frame.texturesBuffer->descriptorInfo(TEXTURE_BUFFER_SIZE * MAX_MATERIALS);
             auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
 
             VkDescriptorImageInfo specularInfo;
@@ -528,16 +541,17 @@ namespace z0 {
                 brdfInfo = blankImage->_getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                  .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
-                  .writeBuffer(BINDING_MODELS_BUFFER, &modelBufferInfo)
-                  .writeBuffer(BINDING_MATERIALS_BUFFER, &materialBufferInfo)
-                  .writeImage(BINDING_MATERIALS_TEXTURES, frame.imagesInfo.data())
-                  .writeBuffer(BINDING_LIGHTS_BUFFER, &pointLightBufferInfo)
-                  .writeImage(BINDING_SHADOW_MAPS, frame.shadowMapsInfo.data())
-                  .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data())
-                  .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
-                  .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
-                  .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo);
+                .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
+                .writeBuffer(BINDING_MODELS_BUFFER, &modelBufferInfo)
+                .writeBuffer(BINDING_MATERIALS_BUFFER, &materialBufferInfo)
+                .writeBuffer(BINDING_TEXTURES_BUFFER, &textureBufferInfo)
+                .writeBuffer(BINDING_LIGHTS_BUFFER, &pointLightBufferInfo)
+                .writeImage(BINDING_TEXTURES, frame.imagesInfo.data())
+                .writeImage(BINDING_SHADOW_MAPS, frame.shadowMapsInfo.data())
+                .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data())
+                .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
+                .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
+                .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo);
             if (!writer.build(descriptorSet[frameIndex], create))
                 die("Cannot allocate descriptor set for scene renderer");
         }

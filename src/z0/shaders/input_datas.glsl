@@ -1,15 +1,17 @@
 #extension GL_EXT_debug_printf: enable
 
+#define SCENE_SET                  0
 #define BINDING_GLOBAL_BUFFER      0
 #define BINDING_MODELS_BUFFER      1
 #define BINDING_MATERIALS_BUFFER   2
-#define BINDING_MATERIALS_TEXTURES 3
+#define BINDING_TEXTURES_BUFFER    3
 #define BINDING_LIGHTS_BUFFER      4
-#define BINDING_SHADOW_MAPS        5
-#define BINDING_SHADOW_CUBEMAPS    6
-#define BINDING_PBR_ENV_MAP        7
-#define BINDING_PBR_IRRADIANCE_MAP 8
-#define BINDING_PBR_BRDF_LUT       9
+#define BINDING_TEXTURES           5
+#define BINDING_SHADOW_MAPS        6
+#define BINDING_SHADOW_CUBEMAPS    7
+#define BINDING_PBR_ENV_MAP        8
+#define BINDING_PBR_IRRADIANCE_MAP 9
+#define BINDING_PBR_BRDF_LUT       10
 
 struct VertexOut {
     vec2    UV;
@@ -56,13 +58,6 @@ struct Light {
     mat4    lightSpace[6];
 };
 
-struct TextureInfo {
-    int   index;
-    uint  channel;
-    vec2  offset;
-    vec2  scale;
-};
-
 struct Material  {
     vec4        albedoColor;
     int         transparency;
@@ -70,6 +65,17 @@ struct Material  {
     float       metallicFactor;
     float       roughnessFactor;
     vec3        emissiveFactor;
+    vec4        parameters[4]; // ShaderMaterial::MAX_PARAMETERS
+};
+
+struct TextureInfo {
+    int   index;
+    uint  channel;
+    vec2  offset;
+    vec2  scale;
+};
+
+struct Texture  {
     TextureInfo diffuseTexture;
     TextureInfo specularTexture;
     TextureInfo normalTexture;
@@ -77,7 +83,6 @@ struct Material  {
     TextureInfo roughnessTexture;
     TextureInfo emissiveTexture;
     TextureInfo ambientOcclusionTexture;
-    vec4        parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 };
 
 layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {
@@ -89,26 +94,30 @@ layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {
     bool ambientIBL;
 } global;
 
-layout(set = 0, binding = BINDING_MODELS_BUFFER) uniform ModelUniformBuffer  {
+layout(set = SCENE_SET, binding = BINDING_MODELS_BUFFER) uniform ModelUniformBuffer  {
     mat4 model[1000];  // arbitrary value for debug with RenderDoc
 } models;
 
-layout(set = 0, binding = BINDING_MATERIALS_BUFFER) uniform MaterialUniformBuffer  {
+layout(set = SCENE_SET, binding = BINDING_MATERIALS_BUFFER) uniform MaterialUniformBuffer  {
     Material material[200]; // SceneRenderer::MAX_MATERIALS
 } materials;
 
-layout(set = 0, binding = BINDING_MATERIALS_TEXTURES) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
+layout(set = SCENE_SET, binding = BINDING_TEXTURES_BUFFER) uniform TextureUniformBuffer  {
+    Texture texture[200]; // SceneRenderer::MAX_MATERIALS
+} textures;
 
-layout(set = 0, binding = BINDING_LIGHTS_BUFFER) uniform lightArray {
+layout(set = SCENE_SET, binding = BINDING_TEXTURES) uniform sampler2D texSampler[200]; // SceneRenderer::MAX_IMAGES
+
+layout(set = SCENE_SET, binding = BINDING_LIGHTS_BUFFER) uniform lightArray {
     Light light[10]; // arbitrary value for debug with RenderDoc
 } lights;
 
-layout(set = 0, binding = BINDING_SHADOW_MAPS) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
-layout(set = 0, binding = BINDING_SHADOW_CUBEMAPS) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = SCENE_SET, binding = BINDING_SHADOW_MAPS) uniform sampler2DArray shadowMaps[10]; // SceneRenderer::MAX_SHADOW_MAPS
+layout(set = SCENE_SET, binding = BINDING_SHADOW_CUBEMAPS) uniform samplerCube shadowMapsCubemap[10];  // SceneRenderer::MAX_SHADOW_MAPS
 
-layout(set = 0, binding = BINDING_PBR_ENV_MAP) uniform samplerCube specularTexture;
-layout(set = 0, binding = BINDING_PBR_IRRADIANCE_MAP) uniform samplerCube irradianceTexture;
-layout(set = 0, binding = BINDING_PBR_BRDF_LUT) uniform sampler2D specularBRDF_LUT;
+layout(set = SCENE_SET, binding = BINDING_PBR_ENV_MAP) uniform samplerCube specularTexture;
+layout(set = SCENE_SET, binding = BINDING_PBR_IRRADIANCE_MAP) uniform samplerCube irradianceTexture;
+layout(set = SCENE_SET, binding = BINDING_PBR_BRDF_LUT) uniform sampler2D specularBRDF_LUT;
 
 layout(push_constant) uniform PushConstants {
     int modelIndex;

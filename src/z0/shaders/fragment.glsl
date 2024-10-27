@@ -14,12 +14,13 @@ vec2 uvTransform(TextureInfo texture) {
 
 vec4 fragmentColor(vec4 color, bool useColor) {
     Material material = materials.material[pushConstants.materialIndex];
+    Texture tex = textures.texture[pushConstants.materialIndex];
     if (!useColor) {
         // We don't use the color parameter : get the color from the material
         color = material.albedoColor;
-        if (material.diffuseTexture.index != -1) {
+        if (tex.diffuseTexture.index != -1) {
             // We have a texture : get the color from the texture
-            color = texture(texSampler[material.diffuseTexture.index], uvTransform(material.diffuseTexture));
+            color = texture(texSampler[tex.diffuseTexture.index], uvTransform(tex.diffuseTexture));
         }
     }
 //    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);
@@ -32,9 +33,9 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     const float transparency = (material.transparency == TRANSPARENCY_ALPHA || material.transparency == TRANSPARENCY_SCISSOR_ALPHA) ? color.a : 1.0f;
 
     vec3 normal;
-    if (material.normalTexture.index != -1) {
+    if (tex.normalTexture.index != -1) {
         // If we have a normal texture
-        normal = texture(texSampler[material.normalTexture.index], uvTransform(material.normalTexture)).rgb * 2.0 - 1.0;
+        normal = texture(texSampler[tex.normalTexture.index], uvTransform(tex.normalTexture)).rgb * 2.0 - 1.0;
         normal = normalize(fs_in.TBN * normal);
     } else {
         // We don't have a texture, get the calculated normal
@@ -43,12 +44,12 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //    return  vec4(normal, 1.0); // debug normals
 
     // Material properties
-    const float metallic  = material.metallicTexture.index == -1 ?
+    const float metallic  = tex.metallicTexture.index == -1 ?
             material.metallicFactor :
-            material.metallicFactor * texture(texSampler[material.metallicTexture.index], uvTransform(material.metallicTexture)).b;
-    const float roughness = material.roughnessTexture.index == -1 ?
+            material.metallicFactor * texture(texSampler[tex.metallicTexture.index], uvTransform(tex.metallicTexture)).b;
+    const float roughness = tex.roughnessTexture.index == -1 ?
             material.roughnessFactor :
-            material.roughnessFactor * (texture(texSampler[material.roughnessTexture.index], uvTransform(material.roughnessTexture)).g);
+            material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture)).g);
     // Fresnel reflectance at normal incidence (for metals use albedo color).
     const vec3 F0 = mix(Fdielectric, color.rgb, metallic);
     // Calculate the diffuse light from the scene's lights
@@ -114,14 +115,14 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         }
     }
 
-    if (material.emissiveTexture.index != -1) {
-        diffuse += material.emissiveFactor * texture(texSampler[material.emissiveTexture.index], uvTransform(material.emissiveTexture)).rgb;
+    if (tex.emissiveTexture.index != -1) {
+        diffuse += material.emissiveFactor * texture(texSampler[tex.emissiveTexture.index], uvTransform(tex.emissiveTexture)).rgb;
     }
 
     // The global ambient light, always applied
-    const float ambientOcclusion = material.ambientOcclusionTexture.index == -1 ?
+    const float ambientOcclusion = tex.ambientOcclusionTexture.index == -1 ?
             1.0f :
-            texture(texSampler[material.ambientOcclusionTexture.index], uvTransform(material.ambientOcclusionTexture)).b;
+            texture(texSampler[tex.ambientOcclusionTexture.index], uvTransform(tex.ambientOcclusionTexture)).b;
     vec3 ambient = color.rgb;
     if (global.ambientIBL) {
         ambient = Ambient(ambient, normal, fs_in.VIEW_DIRECTION, metallic, roughness, F0);
