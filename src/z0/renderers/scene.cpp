@@ -355,7 +355,6 @@ namespace z0 {
                 materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
                 materialUBO.normalScale = standardMaterial->getNormaleScale();
                 auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
-                    dest.channel = static_cast<uint32_t>(texInfo.channel);
                     dest.offset = texInfo.offset;
                     dest.scale = texInfo.scale;
                     if (texInfo.texture != nullptr) {

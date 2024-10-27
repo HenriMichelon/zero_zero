@@ -215,22 +215,6 @@ export namespace z0 {
     };
 
     /**
-     * Specifies the channel of the texture in which the information is stored
-     */
-    enum TextureChannel {
-        //! Used to read from the red channel of a texture.
-        TEXTURE_CHANNEL_RED   = 0,
-        //! Used to read from the green channel of a texture.
-        TEXTURE_CHANNEL_GREEN = 1,
-        //! Used to read from the blue channel of a texture.
-        TEXTURE_CHANNEL_BLUE  = 2,
-        //! Used to read from the alpha channel of a texture.
-        TEXTURE_CHANNEL_ALPHA = 3,
-        //! No specific channel used by this texture
-        TEXTURE_CHANNEL_NONE  = 4,
-    };
-
-    /**
      * A Tween transition type
      */
     enum TransitionType {

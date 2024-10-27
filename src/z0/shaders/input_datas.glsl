@@ -34,12 +34,6 @@ struct VertexOut {
 #define TRANSPARENCY_SCISSOR       2
 #define TRANSPARENCY_SCISSOR_ALPHA 3
 
-#define TEXTURE_CHANNEL_RED    0
-#define TEXTURE_CHANNEL_GREEN  1
-#define TEXTURE_CHANNEL_BLUE   2
-#define TEXTURE_CHANNEL_ALPHA  3
-#define TEXTURE_CHANNEL_NONE   4
-
 struct Light {
     // light params
     int     type; // Light::LightType
@@ -72,7 +66,6 @@ struct Material  {
 
 struct TextureInfo {
     int   index;
-    uint  channel;
     vec2  offset;
     vec2  scale;
 };

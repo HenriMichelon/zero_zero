@@ -76,7 +76,6 @@ export namespace z0 {
          */
         struct TextureInfo {
             shared_ptr<ImageTexture> texture{nullptr};
-            TextureChannel           channel{TEXTURE_CHANNEL_NONE};
             vec2                     offset{0.0f, 0.0f};
             vec2                     scale{1.0f, 1.0f};
         };
@@ -152,20 +151,19 @@ export namespace z0 {
 
         void setNormaleScale(float scale);
 
-
     private:
         Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
         TextureInfo  albedoTexture{};
         float        metallicFactor{0.0f};
-        TextureInfo  metallicTexture{.channel = TEXTURE_CHANNEL_BLUE}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
+        TextureInfo  metallicTexture{};
         float        roughnessFactor{1.0f};
-        TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
-        vec3         emissiveFactor{0.0f}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivefactor
-        float        emissiveStrength{1.0f}; // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
-        TextureInfo  emissiveTexture; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
-        TextureInfo  ambientOcclusionTexture{.channel =TEXTURE_CHANNEL_RED}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
-        TextureInfo  normalTexture{}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltexture
-        float        normalScale{1.0f}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
+        TextureInfo  roughnessTexture{};
+        vec3         emissiveFactor{0.0f};
+        float        emissiveStrength{1.0f};
+        TextureInfo  emissiveTexture;
+        TextureInfo  ambientOcclusionTexture{};
+        TextureInfo  normalTexture{};
+        float        normalScale{1.0f};
     };
 
     /**
