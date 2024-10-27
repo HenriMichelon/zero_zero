@@ -47,6 +47,9 @@ export namespace z0 {
             return os;
         }
 
+        template<typename T>
+        static constexpr Signal::Handler SignalHandler(const T handler) { return reinterpret_cast<Signal::Handler>(handler); }
+
     private:
         map<string, Signal> signals;
     };
