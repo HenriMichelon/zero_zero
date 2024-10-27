@@ -216,8 +216,6 @@ namespace z0 {
                 }
                 if (mat.occlusionTexture.has_value())
                     material->setAmbientOcclusionTexture(loadTexture(mat.occlusionTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
-                // if ((mat.specular != nullptr) && mat.specular->specularColorTexture.has_value())
-                    // material->setSpecularTexture(loadTexture(mat.specular->specularColorTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
                 if (mat.normalTexture.has_value())
                     material->setNormalTexture(loadTexture(mat.normalTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
                 if (mat.emissiveTexture.has_value()) {
