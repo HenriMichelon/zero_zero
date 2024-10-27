@@ -1,7 +1,6 @@
-#include "input_datas.glsl"
-#include "lighting.glsl"
-#include "shadows.glsl"
 #include "utils.glsl"
+#include "pbr/lighting.glsl"
+#include "shadows/shadows.glsl"
 #extension GL_EXT_debug_printf: enable
 
 layout (location = 0) in VertexOut fs_in;

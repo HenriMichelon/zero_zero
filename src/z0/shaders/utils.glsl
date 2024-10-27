@@ -1,3 +1,13 @@
+#include "input_datas.glsl"
+
+float near = 0.1; // cf ShadowMapFrameBuffer
+float far  = 50.0; // cf ShadowMapFrameBuffer
+
+float LinearizeDepth(float depth) {
+    float z = depth * 2.0 - 1.0; // back to NDC
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
 // Apply texture UV transforms
 vec2 uvTransform(const TextureInfo texture, const vec2 UV) {
     const mat3 translation = mat3(1,0,0, 0,1,0, texture.offset.x, texture.offset.y, 1);
