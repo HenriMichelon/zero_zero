@@ -106,6 +106,7 @@ namespace z0 {
             alignas(4) float roughnessFactor{1.0f};
             alignas(16) vec3 emissiveFactor{0.0f};
             alignas(4) float emissiveStrength{1.0f};
+            alignas(4) float normalScale{1.0f};
             alignas(16) vec4 parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 

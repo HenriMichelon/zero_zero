@@ -66,6 +66,7 @@ struct Material  {
     float       roughnessFactor;
     vec3        emissiveFactor;
     float       emissiveStrength;
+    float       normalScale;
     vec4        parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 };
 

@@ -293,7 +293,6 @@ namespace z0 {
                     }
                     stringstream stextCoord;
                     stextCoord << "TEXCOORD_" << textCoord;
-                    log(material->getName(), "texCoord", stextCoord.str());
                     auto uv = p.findAttribute(stextCoord.str());
                     if (uv != p.attributes.end()) {
                         fastgltf::iterateAccessorWithIndex<glm::vec2>(

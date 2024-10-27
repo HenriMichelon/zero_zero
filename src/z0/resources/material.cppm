@@ -158,6 +158,10 @@ export namespace z0 {
 
         void setEmissiveStrength(float emissive);
 
+        [[nodiscard]] inline float getNormaleScale() const { return normalScale; }
+
+        void setNormaleScale(float scale);
+
 
     private:
         Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
@@ -172,6 +176,7 @@ export namespace z0 {
         TextureInfo  ambientOcclusionTexture{.channel =TEXTURE_CHANNEL_RED}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
         TextureInfo  specularTexture{};
         TextureInfo  normalTexture{}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltexture
+        float        normalScale{1.0f}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
     };
 
     /**

@@ -79,6 +79,11 @@ namespace z0 {
         _setDirty();
     }
 
+    void StandardMaterial::setNormaleScale(const float scale) {
+        normalScale = scale;
+        _setDirty();
+    }
+
     ShaderMaterial::ShaderMaterial(const shared_ptr<ShaderMaterial> &orig):
         Material{orig->name},
         fragFileName{orig->fragFileName},

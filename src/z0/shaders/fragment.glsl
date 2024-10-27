@@ -52,7 +52,8 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     if (tex.normalTexture.index != -1) {
         // If we have a normal texture
         normal = texture(texSampler[tex.normalTexture.index], uvTransform(tex.normalTexture)).rgb * 2.0 - 1.0;
-        normal = normalize(fs_in.TBN * normal);
+        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
+        normal = normalize(fs_in.TBN * normal * 2.0 - 1.0) * vec3(material.normalScale, material.normalScale, 1.0f);
     } else {
         // We don't have a texture, get the calculated normal
         normal = fs_in.NORMAL;
