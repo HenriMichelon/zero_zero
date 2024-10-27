@@ -72,11 +72,13 @@ export namespace z0 {
     class StandardMaterial : public Material {
     public:
         /**
-         * Textures UV locals transforms
+         * References and properties of a texture
          */
-        struct TextureTransform {
-            vec2 offset{0.0f, 0.0f};
-            vec2 scale{1.0f, 1.0f};
+        struct TextureInfo {
+            shared_ptr<ImageTexture> texture{nullptr};
+            TextureChannel           channel{TEXTURE_CHANNEL_NONE};
+            vec2                     offset{0.0f, 0.0f};
+            vec2                     scale{1.0f, 1.0f};
         };
 
         /**
@@ -97,107 +99,73 @@ export namespace z0 {
         /**
          * Returns the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        [[nodiscard]] inline const shared_ptr<ImageTexture> &getAlbedoTexture() const { return albedoTexture; }
+        [[nodiscard]] inline const TextureInfo &getAlbedoTexture() const { return albedoTexture; }
 
         /**
          * Sets the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        void setAlbedoTexture(const shared_ptr<ImageTexture> &texture);
+        void setAlbedoTexture(const TextureInfo &texture);
 
         /**
          * Return the specular texture
          */
-        [[nodiscard]] inline const shared_ptr<ImageTexture> &getSpecularTexture() const { return specularTexture; }
+        [[nodiscard]] inline const TextureInfo &getSpecularTexture() const { return specularTexture; }
 
         /**
          * Sets the specular texture
          */
-        void setSpecularTexture(const shared_ptr<ImageTexture> &texture);
+        void setSpecularTexture(const TextureInfo &texture);
 
         /**
          * Return the normal texture
          */
-        [[nodiscard]] inline const shared_ptr<ImageTexture> &getNormalTexture() const { return normalTexture; }
+        [[nodiscard]] inline const TextureInfo &getNormalTexture() const { return normalTexture; }
 
         /**
          * Sets the normal texture
          */
-        void setNormalTexture(const shared_ptr<ImageTexture> &texture);
-
-        /**
-         * Returns the texture's UV transform.
-         */
-        [[nodiscard]] inline const shared_ptr<TextureTransform> &getTextureTransform() const {
-            return textureTransform;
-        }
-
-        /**
-         * Sets the texture's UV transform.
-         */
-        void setTextureTransform(TextureTransform transform);
+        void setNormalTexture(const TextureInfo &texture);
 
         [[nodiscard]] inline float getMetallicFactor() const { return metallicFactor; }
 
-        void setMetallicFactor(const float metallic);
+        void setMetallicFactor(float metallic);
 
-        [[nodiscard]] inline TextureChannel getMetallicTextureChannel() const { return metallicTextureChannel; }
+        [[nodiscard]] inline const TextureInfo& getMetallicTexture() const { return metallicTexture; }
 
-        // void setMetallicTextureChannel(TextureChannel channel);
-
-        [[nodiscard]] inline const shared_ptr<ImageTexture>& getMetallicTexture() const { return metallicTexture; }
-
-        void setMetallicTexture(const shared_ptr<ImageTexture> &texture);
+        void setMetallicTexture(const TextureInfo &texture);
 
         [[nodiscard]] inline float getRoughnessFactor() const { return roughnessFactor; }
 
         void setRoughnessFactor(float roughness);
 
-        [[nodiscard]] inline const shared_ptr<ImageTexture>& getRoughnessTexture() const { return roughnessTexture; }
+        [[nodiscard]] inline const TextureInfo& getRoughnessTexture() const { return roughnessTexture; }
 
-        void setRoughnessTexture(const shared_ptr<ImageTexture> &texture);
+        void setRoughnessTexture(const TextureInfo &texture);
 
-        [[nodiscard]] inline TextureChannel getRoughnessTextureChannel() const { return roughnessTextureChannel; }
+        [[nodiscard]] inline const TextureInfo& getAmbientOcclusionTexture() const { return ambientOcclusionTexture; }
 
-        // void setRoughnessTextureChannel(TextureChannel channel);
+        void setAmbientOcclusionTexture(const TextureInfo &texture);
 
-        [[nodiscard]] inline const shared_ptr<ImageTexture>& getAmbientOcclusionTexture() const { return ambientOcclusionTexture; }
-
-        void setAmbientOcclusionTexture(const shared_ptr<ImageTexture> &texture);
-
-        [[nodiscard]] inline TextureChannel getAmbientOcclusionTextureChannel() const { return ambientOcclusionTextureChannel; }
-
-        [[nodiscard]] inline const shared_ptr<ImageTexture>& getEmissiveTexture() const { return emissiveTexture; }
+        [[nodiscard]] inline const TextureInfo& getEmissiveTexture() const { return emissiveTexture; }
 
         [[nodiscard]] inline vec3 getEmissiveFactor() const { return emissiveFactor; }
 
         void setEmissiveFactor(const vec3& emissive);
 
-        void setEmissiveTexture(const shared_ptr<ImageTexture>& texture);
+        void setEmissiveTexture(const TextureInfo& texture);
 
     private:
-        Color                        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
-        shared_ptr<ImageTexture>     albedoTexture{nullptr};
-
-        float                        metallicFactor{0.0f};
-        shared_ptr<ImageTexture>     metallicTexture{nullptr};
-        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
-        TextureChannel               metallicTextureChannel{TEXTURE_CHANNEL_BLUE};
-
-        float                        roughnessFactor{1.0f};
-        shared_ptr<ImageTexture>     roughnessTexture{nullptr};
-        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
-        TextureChannel               roughnessTextureChannel{TEXTURE_CHANNEL_GREEN};
-
-        vec3                         emissiveFactor{0.0f};
-        shared_ptr<ImageTexture>     emissiveTexture{nullptr};
-
-        shared_ptr<ImageTexture>     ambientOcclusionTexture{nullptr};
-        // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
-        TextureChannel               ambientOcclusionTextureChannel{TEXTURE_CHANNEL_RED};
-
-        shared_ptr<ImageTexture>     specularTexture{nullptr};
-        shared_ptr<ImageTexture>     normalTexture{nullptr};
-        shared_ptr<TextureTransform> textureTransform{nullptr};
+        Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
+        TextureInfo  albedoTexture{};
+        float        metallicFactor{0.0f};
+        TextureInfo  metallicTexture{.channel = TEXTURE_CHANNEL_BLUE}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
+        float        roughnessFactor{1.0f};
+        TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_pbrmetallicroughness_metallicroughnesstexture
+        vec3         emissiveFactor{0.0f};
+        TextureInfo  emissiveTexture;
+        TextureInfo  ambientOcclusionTexture{.channel =TEXTURE_CHANNEL_RED}; // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
+        TextureInfo  specularTexture{};
+        TextureInfo  normalTexture{};
     };
 
     /**

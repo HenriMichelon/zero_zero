@@ -187,66 +187,39 @@ namespace z0 {
                             sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
                                 VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
                 };
-                if (mat.pbrData.baseColorTexture.has_value()) {
-                    const auto& texture = gltf.textures[mat.pbrData.baseColorTexture.value().textureIndex];
-                    materialsTextCoords[material->getId()] = mat.pbrData.baseColorTexture.value().texCoordIndex;
-                    if (texture.samplerIndex.has_value())
-                        convertSamplerData(texture);
-                    const auto imageIndex = texture.imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB, magFilter, minFilter, wrapU, wrapV);
-                    material->setAlbedoTexture(make_shared<ImageTexture>(image));
-                    // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/README.md
-                    // We apply the albedo texture transform to all the textures (specular, normal, ...)
-                    const auto &transform = mat.pbrData.baseColorTexture.value().transform;
+                auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
+                    const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
+                    materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
+                    if (texture.samplerIndex.has_value()) convertSamplerData(texture);
+                    auto image = loadImage(
+                        gltf, gltf.images[sourceTextureInfo.textureIndex],
+                        format, magFilter, minFilter, wrapU, wrapV);
+                    auto texInfo = StandardMaterial::TextureInfo {
+                        .texture = make_shared<ImageTexture>(image)
+                    };
+                    const auto& transform = sourceTextureInfo.transform;
                     if (transform != nullptr) {
-                        material->setTextureTransform({.offset = {transform->uvOffset[0], transform->uvOffset[1]},
-                                                       .scale  = {transform->uvScale[0], transform->uvScale[1]}});
+                        texInfo.offset = vec2{transform->uvOffset[0], transform->uvOffset[1]};
+                        texInfo.scale  = vec2{transform->uvScale[0], transform->uvScale[1]};
                     }
-                }
+                    return texInfo;
+                };
+                if (mat.pbrData.baseColorTexture.has_value())
+                    material->setAlbedoTexture(loadTexture(mat.pbrData.baseColorTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
                 if (mat.pbrData.metallicRoughnessTexture.has_value()) {
-                    const auto& texture = gltf.textures[mat.pbrData.metallicRoughnessTexture.value().textureIndex];
-                    if (texture.samplerIndex.has_value())
-                        convertSamplerData(texture);
-                    const auto imageIndex = texture.imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
-                    const auto textureImage = make_shared<ImageTexture>(image);
-                    material->setMetallicTexture(textureImage);
-                    material->setRoughnessTexture(textureImage);
+                    const auto& textInfo = loadTexture(mat.pbrData.metallicRoughnessTexture.value(), VK_FORMAT_R8G8B8A8_UNORM);
+                    material->setMetallicTexture(textInfo);
+                    material->setRoughnessTexture(textInfo);
                 }
-                if (mat.occlusionTexture.has_value()) {
-                    const auto& texture = gltf.textures[mat.occlusionTexture.value().textureIndex];
-                    if (texture.samplerIndex.has_value())
-                        convertSamplerData(texture);
-                    const auto imageIndex = texture.imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
-                    material->setAmbientOcclusionTexture(make_shared<ImageTexture>(image));
-                }
-                if (mat.specular != nullptr) {
-                    if (mat.specular->specularColorTexture.has_value()) {
-                        const auto& texture = gltf.textures[mat.specular->specularColorTexture.value().textureIndex];
-                        if (texture.samplerIndex.has_value())
-                            convertSamplerData(texture);
-                        const auto imageIndex = texture.imageIndex.value();
-                        auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
-                        material->setSpecularTexture(std::make_shared<ImageTexture>(image));
-                    }
-                }
-                if (mat.normalTexture.has_value()) {
-                    const auto& texture = gltf.textures[mat.normalTexture.value().textureIndex];
-                    if (texture.samplerIndex.has_value())
-                        convertSamplerData(texture);
-                    const auto imageIndex = texture.imageIndex.value();
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_UNORM, magFilter, minFilter, wrapU, wrapV);
-                    material->setNormalTexture(std::make_shared<ImageTexture>(image));
-                }
+                if (mat.occlusionTexture.has_value())
+                    material->setAmbientOcclusionTexture(loadTexture(mat.occlusionTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
+                if ((mat.specular != nullptr) && mat.specular->specularColorTexture.has_value())
+                    material->setSpecularTexture(loadTexture(mat.specular->specularColorTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
+                if (mat.normalTexture.has_value())
+                    material->setNormalTexture(loadTexture(mat.normalTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
                 if (mat.emissiveTexture.has_value()) {
-                    const auto& texture = gltf.textures[mat.emissiveTexture.value().textureIndex];
-                    if (texture.samplerIndex.has_value())
-                        convertSamplerData(texture);
-                    const auto imageIndex = texture.imageIndex.value();
                     // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
-                    auto image = loadImage(gltf, gltf.images[imageIndex], VK_FORMAT_R8G8B8A8_SRGB, magFilter, minFilter, wrapU, wrapV);
-                    material->setEmissiveTexture(std::make_shared<ImageTexture>(image));
+                    material->setEmissiveTexture(loadTexture(mat.emissiveTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
                 }
             }
             material->setCullMode(forceBackFaceCulling      ? CULLMODE_BACK
@@ -257,6 +230,7 @@ namespace z0 {
         if (materials.empty()) {
             materials.push_back(std::make_shared<StandardMaterial>(""));
         }
+        log(to_string(materials.size()), " materials");
 
         auto meshes = vector<shared_ptr<Mesh>>(gltf.meshes.size());
         auto meshesCount = 0;
@@ -311,17 +285,19 @@ namespace z0 {
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
                     // load UVs
+                    auto textCoord = 0;
                     if (materialsTextCoords.contains(material->getId())) {
-                        stringstream textCoord;
-                        textCoord << "TEXCOORD_" << materialsTextCoords.at(material->getId());
-                        log(material->getName(), "texCoord", textCoord.str());
-                        auto uv = p.findAttribute(textCoord.str());
-                        if (uv != p.attributes.end()) {
-                            fastgltf::iterateAccessorWithIndex<glm::vec2>(
-                                    gltf, gltf.accessors[(*uv).second], [&](vec2 v, size_t index) {
-                                        vertices[index + initial_vtx].uv = {v.x, v.y};
-                                    });
-                        }
+                        textCoord = materialsTextCoords.at(material->getId());
+                    }
+                    stringstream stextCoord;
+                    stextCoord << "TEXCOORD_" << textCoord;
+                    log(material->getName(), "texCoord", stextCoord.str());
+                    auto uv = p.findAttribute(stextCoord.str());
+                    if (uv != p.attributes.end()) {
+                        fastgltf::iterateAccessorWithIndex<glm::vec2>(
+                                gltf, gltf.accessors[(*uv).second], [&](vec2 v, size_t index) {
+                                    vertices[index + initial_vtx].uv = {v.x, v.y};
+                                });
                     }
                 }
                 // calculate tangent for each triangle

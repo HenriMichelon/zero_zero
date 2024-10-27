@@ -32,6 +32,12 @@ struct VertexOut {
 #define TRANSPARENCY_SCISSOR       2
 #define TRANSPARENCY_SCISSOR_ALPHA 3
 
+#define TEXTURE_CHANNEL_NONE   0
+#define TEXTURE_CHANNEL_RED    1
+#define TEXTURE_CHANNEL_GREEN  2
+#define TEXTURE_CHANNEL_BLUE   3
+#define TEXTURE_CHANNEL_ALPHA  4
+
 struct Light {
     // light params
     int     type; // Light::LightType
@@ -50,27 +56,28 @@ struct Light {
     mat4    lightSpace[6];
 };
 
+struct TextureInfo {
+    int   index;
+    uint  channel;
+    vec2  offset;
+    vec2  scale;
+};
+
 struct Material  {
-    vec4    albedoColor;
-    int     transparency;
-    float   alphaScissor;
-    float   metallicFactor;
-    float   roughnessFactor;
-    vec3    emissiveFactor;
-    int     diffuseIndex;
-    int     specularIndex;
-    int     normalIndex;
-    int     metallicIndex;
-    int     roughnessIndex;
-    int     emissiveIndex;
-    int     ambientOcclusionIndex;
-    uint    metallicChannel;
-    uint    roughnessChannel;
-    uint    ambientOcclusionChannel;
-    bool    hasTextureTransform;
-    vec2    textureOffset;
-    vec2    textureScale;
-    vec4    parameters[4]; // ShaderMaterial::MAX_PARAMETERS
+    vec4        albedoColor;
+    int         transparency;
+    float       alphaScissor;
+    float       metallicFactor;
+    float       roughnessFactor;
+    vec3        emissiveFactor;
+    TextureInfo diffuseTexture;
+    TextureInfo specularTexture;
+    TextureInfo normalTexture;
+    TextureInfo metallicTexture;
+    TextureInfo roughnessTexture;
+    TextureInfo emissiveTexture;
+    TextureInfo ambientOcclusionTexture;
+    vec4        parameters[4]; // ShaderMaterial::MAX_PARAMETERS
 };
 
 layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {

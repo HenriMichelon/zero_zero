@@ -24,55 +24,40 @@ namespace z0 {
         Material(name) {
     }
 
-    void StandardMaterial::setAlbedoTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setAlbedoTexture(const TextureInfo &texture) {
         albedoTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setSpecularTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setSpecularTexture(const TextureInfo &texture) {
         specularTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setNormalTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setNormalTexture(const TextureInfo &texture) {
         normalTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setMetallicTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setMetallicTexture(const TextureInfo &texture) {
         metallicTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setRoughnessTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setRoughnessTexture(const TextureInfo &texture) {
         roughnessTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setAmbientOcclusionTexture(const shared_ptr<ImageTexture> &texture) {
+    void StandardMaterial::setAmbientOcclusionTexture(const TextureInfo &texture) {
         ambientOcclusionTexture = texture;
         _setDirty();
     }
 
-    void StandardMaterial::setEmissiveTexture(const shared_ptr<ImageTexture>& texture) {
+    void StandardMaterial::setEmissiveTexture(const TextureInfo &texture) {
         emissiveTexture = texture;
         _setDirty();
     }
-
-    void StandardMaterial::setTextureTransform(const TextureTransform transform) {
-        textureTransform = make_shared<TextureTransform>(transform);
-        _setDirty();
-    }
-
-    // void StandardMaterial::setMetallicTextureChannel(const TextureChannel channel) {
-    //     metallicTextureChannel = channel;
-    //     _setDirty();
-    // }
-    //
-    // void StandardMaterial::setRoughnessTextureChannel(const TextureChannel channel) {
-    //     roughnessTextureChannel = channel;
-    //     _setDirty();
-    // }
 
     void StandardMaterial::setMetallicFactor(const float metallic) {
         this->metallicFactor = metallic;

@@ -12,14 +12,14 @@ void vertexParameters(vec3 pos) {
     Material material = materials.material[pushConstants.materialIndex];
     vs_out.POSITION = pos;
     vs_out.NORMAL = normalize(mat3(transpose(inverse(model))) * normal);
-    if (material.hasTextureTransform) {
-        mat3 translation = mat3(1,0,0, 0,1,0, material.textureOffset.x, material.textureOffset.y, 1);
-        mat3 scale = mat3(material.textureScale.x,0,0, 0,material.textureScale.y,0, 0,0,1);
-        mat3 matrix = translation * scale;
-        vs_out.UV = (matrix * vec3(uv.xy, 1)).xy;
-    } else {
-        vs_out.UV = uv;
-    }
+//    if (material.hasTextureTransform) {
+//        mat3 translation = mat3(1,0,0, 0,1,0, material.textureOffset.x, material.textureOffset.y, 1);
+//        mat3 scale = mat3(material.textureScale.x,0,0, 0,material.textureScale.y,0, 0,0,1);
+//        mat3 matrix = translation * scale;
+//        vs_out.UV = (matrix * vec3(uv.xy, 1)).xy;
+//    } else {
+//    }
+    vs_out.UV = uv;
     vs_out.GLOBAL_POSITION = model * vec4(pos, 1.0);
     vs_out.CLIPSPACE_Z = (global.view * vs_out.GLOBAL_POSITION).z;
     vs_out.VIEW_DIRECTION = normalize(global.cameraPosition - vs_out.GLOBAL_POSITION.xyz);

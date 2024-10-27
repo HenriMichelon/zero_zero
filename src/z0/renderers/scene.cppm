@@ -97,27 +97,28 @@ namespace z0 {
             BINDING_PBR_BRDF_LUT       = 9,
         };
 
+        struct TextureInfo {
+            alignas(4) int32_t  index{-1};
+            alignas(4) uint32_t channel{TEXTURE_CHANNEL_NONE};
+            alignas(8) vec2     offset{0.0f, 0.0f};
+            alignas(8) vec2     scale{1.0f, 1.0f};
+        };
+
         struct MaterialBuffer {
-            alignas(16) vec4    albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
-            alignas(4) int      transparency{TRANSPARENCY_DISABLED};
-            alignas(4) float    alphaScissor{0.1f};
-            alignas(4) float    metallicFactor{0.0f};
-            alignas(4) float    roughnessFactor{1.0f};
-            alignas(16) vec3    emissiveFactor{0.0f};
-            alignas(4) int32_t  diffuseIndex{-1};
-            alignas(4) int32_t  specularIndex{-1};
-            alignas(4) int32_t  normalIndex{-1};
-            alignas(4) int32_t  metallicIndex{-1};
-            alignas(4) int32_t  roughnessIndex{-1};
-            alignas(4) int32_t  emissiveIndex{-1};
-            alignas(4) int32_t  ambientOcclusionIndex{-1};
-            alignas(4) uint32_t metallicChannel{TEXTURE_CHANNEL_BLUE};
-            alignas(4) uint32_t roughnessChannel{TEXTURE_CHANNEL_GREEN};
-            alignas(4) uint32_t ambientOcclusionChannel{TEXTURE_CHANNEL_RED};
-            alignas(4) bool     hasTransform{false};
-            alignas(8) vec2     textureOffset{0.0f, 0.0f};
-            alignas(8) vec2     textureScale{1.0f, 1.0f};
-            alignas(16) vec4    parameters[ShaderMaterial::MAX_PARAMETERS];
+            alignas(16) vec4        albedoColor{0.5f, 0.5f, 0.5f, 1.0f};
+            alignas(4) int          transparency{TRANSPARENCY_DISABLED};
+            alignas(4) float        alphaScissor{0.1f};
+            alignas(4) float        metallicFactor{0.0f};
+            alignas(4) float        roughnessFactor{1.0f};
+            alignas(16) vec3        emissiveFactor{0.0f};
+            alignas(16) TextureInfo  albedoTexture{};
+            alignas(16) TextureInfo  specularTexture{};
+            alignas(16) TextureInfo  normalTexture{};
+            alignas(16) TextureInfo  metallicTexture{.channel = TEXTURE_CHANNEL_BLUE};
+            alignas(16) TextureInfo  roughnessTexture{.channel = TEXTURE_CHANNEL_GREEN};
+            alignas(16) TextureInfo  emissiveTexture{.channel = TEXTURE_CHANNEL_RED};
+            alignas(16) TextureInfo  ambientOcclusionTexture{};
+            alignas(16) vec4        parameters[ShaderMaterial::MAX_PARAMETERS];
         };
 
         struct LightBuffer {

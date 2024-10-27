@@ -142,20 +142,20 @@ namespace z0 {
             if (material->_decrementReferenceCounter()) {
                 // Try to remove the associated textures or shaders
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
-                    if (standardMaterial->getAlbedoTexture() != nullptr)
-                        removeImage(standardMaterial->getAlbedoTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getSpecularTexture() != nullptr)
-                        removeImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getNormalTexture() != nullptr)
-                        removeImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getMetallicTexture() != nullptr)
-                        removeImage(standardMaterial->getMetallicTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getRoughnessTexture() != nullptr)
-                        removeImage(standardMaterial->getRoughnessTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getAmbientOcclusionTexture() != nullptr)
-                        removeImage(standardMaterial->getAmbientOcclusionTexture()->getImage(), currentFrame);
-                    if (standardMaterial->getEmissiveTexture() != nullptr)
-                        removeImage(standardMaterial->getEmissiveTexture()->getImage(), currentFrame);
+                    if (standardMaterial->getAlbedoTexture().texture != nullptr)
+                        removeImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getSpecularTexture().texture != nullptr)
+                        removeImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getNormalTexture().texture != nullptr)
+                        removeImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getMetallicTexture().texture != nullptr)
+                        removeImage(standardMaterial->getMetallicTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getRoughnessTexture().texture != nullptr)
+                        removeImage(standardMaterial->getRoughnessTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getAmbientOcclusionTexture().texture != nullptr)
+                        removeImage(standardMaterial->getAmbientOcclusionTexture().texture->getImage(), currentFrame);
+                    if (standardMaterial->getEmissiveTexture().texture != nullptr)
+                        removeImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
                     const auto &shader = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()];
                     if (shader->_decrementReferenceCounter()) {
@@ -192,20 +192,20 @@ namespace z0 {
             addMaterial(material, currentFrame);
             // Load textures for standards materials
             if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
-                if (standardMaterial->getAlbedoTexture() != nullptr)
-                    addImage(standardMaterial->getAlbedoTexture()->getImage(), currentFrame);
-                if (standardMaterial->getSpecularTexture() != nullptr)
-                    addImage(standardMaterial->getSpecularTexture()->getImage(), currentFrame);
-                if (standardMaterial->getNormalTexture() != nullptr)
-                    addImage(standardMaterial->getNormalTexture()->getImage(), currentFrame);
-                if (standardMaterial->getMetallicTexture() != nullptr)
-                    addImage(standardMaterial->getMetallicTexture()->getImage(), currentFrame);
-                if (standardMaterial->getRoughnessTexture() != nullptr)
-                    addImage(standardMaterial->getRoughnessTexture()->getImage(), currentFrame);
-                if (standardMaterial->getAmbientOcclusionTexture() != nullptr)
-                    addImage(standardMaterial->getAmbientOcclusionTexture()->getImage(), currentFrame);
-                if (standardMaterial->getEmissiveTexture() != nullptr)
-                    addImage(standardMaterial->getEmissiveTexture()->getImage(), currentFrame);
+                if (standardMaterial->getAlbedoTexture().texture != nullptr)
+                    addImage(standardMaterial->getAlbedoTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getSpecularTexture().texture != nullptr)
+                    addImage(standardMaterial->getSpecularTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getNormalTexture().texture != nullptr)
+                    addImage(standardMaterial->getNormalTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getMetallicTexture().texture != nullptr)
+                    addImage(standardMaterial->getMetallicTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getRoughnessTexture().texture != nullptr)
+                    addImage(standardMaterial->getRoughnessTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getAmbientOcclusionTexture().texture != nullptr)
+                    addImage(standardMaterial->getAmbientOcclusionTexture().texture->getImage(), currentFrame);
+                if (standardMaterial->getEmissiveTexture().texture != nullptr)
+                    addImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
             }
         }
     }
@@ -345,35 +345,27 @@ namespace z0 {
             auto materialUBO = MaterialBuffer();
             materialUBO.transparency = material->getTransparency();
             materialUBO.alphaScissor = material->getAlphaScissor();
-            if (auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
+            if (const auto *standardMaterial = dynamic_cast<const StandardMaterial *>(material.get())) {
+                auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
+                    dest.channel = static_cast<uint32_t>(texInfo.channel);
+                    dest.offset = texInfo.offset;
+                    dest.scale = texInfo.scale;
+                    if (texInfo.texture != nullptr) {
+                        dest.index = frame.imagesIndices.at(texInfo.texture->getImage()->getId());
+                    }
+                };
                 materialUBO.albedoColor = standardMaterial->getAlbedoColor().color;
                 materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
                 materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
                 materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
-                materialUBO.metallicChannel = standardMaterial->getMetallicTextureChannel();
-                materialUBO.roughnessChannel = standardMaterial->getRoughnessTextureChannel();
-                if (standardMaterial->getAlbedoTexture() != nullptr) {
-                    materialUBO.diffuseIndex = frame.imagesIndices.at(standardMaterial->getAlbedoTexture()->getImage()->getId());
-                    const auto &transform = standardMaterial->getTextureTransform();
-                    if (transform != nullptr) {
-                        materialUBO.hasTransform  = true;
-                        materialUBO.textureOffset = transform->offset;
-                        materialUBO.textureScale  = transform->scale;
-                    }
-                }
-                if (standardMaterial->getSpecularTexture() != nullptr)
-                    materialUBO.specularIndex = frame.imagesIndices.at(standardMaterial->getSpecularTexture()->getImage()->getId());
-                if (standardMaterial->getNormalTexture() != nullptr)
-                    materialUBO.normalIndex = frame.imagesIndices.at(standardMaterial->getNormalTexture()->getImage()->getId());
-                if (standardMaterial->getMetallicTexture() != nullptr)
-                    materialUBO.metallicIndex = frame.imagesIndices.at(standardMaterial->getMetallicTexture()->getImage()->getId());
-                if (standardMaterial->getRoughnessTexture() != nullptr)
-                    materialUBO.roughnessIndex = frame.imagesIndices.at(standardMaterial->getRoughnessTexture()->getImage()->getId());
-                if (standardMaterial->getAmbientOcclusionTexture() != nullptr)
-                    materialUBO.ambientOcclusionIndex = frame.imagesIndices.at(standardMaterial->getAmbientOcclusionTexture()->getImage()->getId());
-                if (standardMaterial->getEmissiveTexture() != nullptr)
-                    materialUBO.emissiveIndex = frame.imagesIndices.at(standardMaterial->getEmissiveTexture()->getImage()->getId());
-            } else if (auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
+                convert(materialUBO.albedoTexture, standardMaterial->getAlbedoTexture());
+                convert(materialUBO.specularTexture, standardMaterial->getSpecularTexture());
+                convert(materialUBO.normalTexture, standardMaterial->getNormalTexture());
+                convert(materialUBO.metallicTexture, standardMaterial->getMetallicTexture());
+                convert(materialUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
+                convert(materialUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
+                convert(materialUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
+            } else if (const auto *shaderMaterial = dynamic_cast<const ShaderMaterial *>(material.get())) {
                 for (auto i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
                    materialUBO.parameters[i] = shaderMaterial->getParameter(i);
                 }
