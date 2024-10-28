@@ -412,7 +412,7 @@ namespace z0 {
                 // the model is part of another, already loaded, model
                 if (nodeTree.contains(nodeDesc.resource)) {
                     // get the parent resource
-                    auto &resource = nodeTree[nodeDesc.resource];
+                    const auto &resource = nodeTree[nodeDesc.resource];
                     // get the mesh node via the relative path
                     node = resource->getNode(nodeDesc.resourcePath);
                     if (node == nullptr)
@@ -423,7 +423,7 @@ namespace z0 {
             }
         } else {
             if ((nodeDesc.clazz.empty()) || (nodeDesc.isCustom)) {
-                // The node class is a game class
+                // The node class is a custom class of the game
                 node = make_shared<Node>(nodeDesc.id);
             } else {
                 // The node class is a engine registered class
