@@ -235,7 +235,7 @@ target_sources(${Z0_TARGET}
 
 # command line tools
 add_executable(${Z0_TOOL_GLTF2JON}
-		${Z0_ENGINE_DIR}/tools/gltf2json/gltf2json.cpp
+		${SRC_DIR}/tools/gltf2json/gltf2json.cpp
 )
 target_link_libraries(${Z0_TOOL_GLTF2JON} ${PROJECT_NAME})
 
