@@ -231,7 +231,7 @@ namespace z0 {
         if (materials.empty()) {
             materials.push_back(std::make_shared<StandardMaterial>(""));
         }
-        log("Loader : ", to_string(materials.size()), " materials");
+        // log("Loader : ", to_string(materials.size()), " materials");
 
         auto meshes = vector<shared_ptr<Mesh>>(gltf.meshes.size());
         auto meshesCount = 0;
@@ -334,7 +334,7 @@ namespace z0 {
                 meshesCount++;
             }
         }
-        log("Loader :", to_string(meshes.size()), "meshes", to_string(meshesCount), "uniques meshes");
+        // log("Loader :", to_string(meshes.size()), "meshes", to_string(meshesCount), "uniques meshes");
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;
