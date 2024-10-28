@@ -1,6 +1,5 @@
 module;
 #include "z0/libraries.h"
-#include <volk.h>
 
 export module z0:Constants;
 
@@ -159,17 +158,17 @@ export namespace z0 {
         //! Select the best MSAA sample count between 2x and 8x
         MSAA_AUTO = 0,
         //! 2x MSAA
-        MSAA_2X   = VK_SAMPLE_COUNT_2_BIT,
+        MSAA_2X   = 0x00000002,
         //! 4x MSAA
-        MSAA_4X   = VK_SAMPLE_COUNT_4_BIT,
+        MSAA_4X   = 0x00000004,
         //! 8x MSAA
-        MSAA_8X   = VK_SAMPLE_COUNT_8_BIT,
+        MSAA_8X   = 0x00000008,
         //! 16x MSAA
-        MSAA_16X   = VK_SAMPLE_COUNT_16_BIT,
+        MSAA_16X   = 0x00000010,
         //! 32x MSAA
-        MSAA_32X   = VK_SAMPLE_COUNT_32_BIT,
+        MSAA_32X   = 0x00000020,
         //! 64x MSAA
-        MSAA_64X   = VK_SAMPLE_COUNT_64_BIT
+        MSAA_64X   = 0x00000040
     };
 
     /**
