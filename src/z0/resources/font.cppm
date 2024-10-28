@@ -6,7 +6,6 @@ export module z0:Font;
 
 import :Resource;
 import :Image;
-import :Device;
 
 export namespace z0 {
 
@@ -34,7 +33,7 @@ export namespace z0 {
         void getSize(const string &text, float &width, float &height);
 
         /**
-         *  Renders a string into a RGBA bitmap (stored in CPU memory).
+         *  Renders a string into an RGBA bitmap (stored in CPU memory).
          *  Glyphs are white with alpha channel mapped to the glyphs geometry
          *   @param text : text to render
          *   @param wwidth : width of the resulting bitmap
@@ -44,13 +43,12 @@ export namespace z0 {
         [[nodiscard]] vector<uint32_t> renderToBitmap(const string &text, float &wwidth, float &hheight);
 
         /**
-         * Renders a string into a RGBA Image resource (stored in GPU memory).
+         * Renders a string into an RGBA Image resource (stored in GPU memory).
          * Glyphs are white with alpha channel mapped to the glyphs geometry
-         * @param device : GPU where the Image will be stored
          * @param text : text to render
          * @result 32 bits RGBA bitmap stored in GPU memory with a VK_FORMAT_R8G8B8A8_SRGB format, clamped to border and VK_IMAGE_TILING_OPTIMAL tiling
          */
-        [[nodiscard]] shared_ptr<Image> renderToImage(const Device &device, const string &text);
+        [[nodiscard]] shared_ptr<Image> renderToImage(const string &text);
 
         /**
          * Returns the font path. Useful to create another Font resource with a different size

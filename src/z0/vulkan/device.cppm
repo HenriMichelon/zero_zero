@@ -20,10 +20,14 @@ export namespace z0 {
      */
     class Device {
     public:
-        explicit Device(VkInstance                  instance,
-                        const vector<const char *> &requestedLayers,
-                        const ApplicationConfig &   applicationConfig,
-                        const Window &              theWindow);
+        static Device &get() {
+            return *_instance;
+        }
+
+        explicit Device(VkInstance              instance,
+                    const vector<const char *> &requestedLayers,
+                    const ApplicationConfig &   applicationConfig,
+                    const Window &              theWindow);
 
         void cleanup();
 
@@ -111,6 +115,7 @@ export namespace z0 {
         list<shared_ptr<Renderer>> renderers;
 
     private:
+        static Device *            _instance;
         const Window &             window;
         VkInstance                 vkInstance;
 

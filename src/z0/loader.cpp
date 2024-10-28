@@ -23,6 +23,7 @@ import :MeshInstance;
 import :TypeRegistry;
 import :Loader;
 
+import :Device;
 import :VulkanImage;
 import :VulkanMesh;
 
@@ -38,7 +39,7 @@ namespace z0 {
         VkFilter minFilter,
         VkSamplerAddressMode addressModeU,
         VkSamplerAddressMode addressModeV) {
-        const auto       &device = Application::get()._getDevice();
+        const auto       &device = Device::get();
         shared_ptr<Image> newImage;
         int               width, height, nrChannels;
         string            name{image.name};

@@ -8,12 +8,13 @@ export module z0:Application;
 import :Constants;
 import :Object;
 import :ApplicationConfig;
-import :Instance;
-import :Device;
 import :InputEvent;
 import :Physics;
 import :Window;
 import :Node;
+
+import :Instance;
+import :Device;
 
 export namespace z0 {
 
@@ -143,6 +144,8 @@ export namespace z0 {
          */
         const vec2 &getVectorRatio() const { return vectorRatio; }
 
+        [[nodiscard]] inline float getAspectRatio() const { return device->getAspectRatio(); }
+
     private:
         // The global startup configuration parameters
         const ApplicationConfig &applicationConfig;
@@ -245,11 +248,6 @@ export namespace z0 {
 #endif
         // Pause/resume the main loop
         void _stop(const bool stop) { stopped = stop; };
-
-        // Internal accessor/modifiers
-        Device &_getDevice() { return *device; }
-
-        const Instance& _getVkInstance() const { return *instance; }
 
         JPH::BodyInterface &_getBodyInterface() { return physicsSystem.GetBodyInterface(); }
 

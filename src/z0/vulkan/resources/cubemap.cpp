@@ -5,7 +5,6 @@ module;
 
 module z0;
 
-import :Application;
 import :Cubemap;
 import :Image;
 
@@ -23,7 +22,7 @@ namespace z0 {
         const uint32_t                 imageSize,
         const vector<unsigned char *> &data,
         const string &                 name) {
-        return make_shared<VulkanCubemap>(Application::get()._getDevice(), width, height, imageSize, data, name);
+        return make_shared<VulkanCubemap>(Device::get(), width, height, imageSize, data, name);
     }
 
     VulkanCubemap::VulkanCubemap(
@@ -188,7 +187,7 @@ namespace z0 {
 
     EnvironmentCubemap::EnvironmentCubemap(const string &  name):
         Cubemap{ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE, TYPE_ENVIRONMENT, name} {
-        auto& device = Application::get()._getDevice();
+        auto& device = Device::get();
         specularCubemap = make_shared<VulkanCubemap>(device,
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_SIZE,
@@ -210,7 +209,7 @@ namespace z0 {
     }
 
     shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename) {
-        auto& device = Application::get()._getDevice();
+        auto& device = Device::get();
         auto envCubemap = make_shared<EnvironmentCubemap>();
         const auto unfilteredCubemap = make_shared<VulkanCubemap>(device,
             ENVIRONMENT_MAP_SIZE,

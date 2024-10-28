@@ -16,15 +16,10 @@ import :Input;
 import :InputEvent;
 import :TypeRegistry;
 import :Window;
-import :Instance;
-import :Device;
 import :Material;
 import :SceneRenderer;
 import :VectorRenderer;
-import :SimplePostprocessingRenderer;
-import :TonemappingPostprocessingRenderer;
 import :GManager;
-
 import :Camera;
 import :Character;
 import :CollisionArea;
@@ -38,11 +33,15 @@ import :Skybox;
 import :StaticBody;
 import :Viewport;
 
+import :Instance;
+import :Device;
+import :SimplePostprocessingRenderer;
+import :TonemappingPostprocessingRenderer;
+
 namespace z0 {
 
     // Unique application instance
     Application *Application::_instance = nullptr;
-
 
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
         applicationConfig{appConfig}, rootNode{node} {

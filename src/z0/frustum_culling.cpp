@@ -1,7 +1,5 @@
 module;
-#include <cstdlib>
 #include "z0/libraries.h"
-#include <glm/gtx/quaternion.hpp>
 
 module z0;
 
@@ -27,7 +25,7 @@ namespace z0 {
         const auto up = node->getUpVector();
 
         const float halfVSide = zFar * tanf(radians(fovY) * .5f);
-        const float halfHSide = halfVSide *  Application::get()._getDevice().getAspectRatio();
+        const float halfHSide = halfVSide *  Application::get().getAspectRatio();
         const vec3 frontMultFar = zFar * front;
 
         nearFace = { position + zNear * front, front };

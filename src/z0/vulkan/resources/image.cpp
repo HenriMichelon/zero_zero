@@ -11,17 +11,17 @@ module;
 module z0;
 
 import :Tools;
+import :Image;
+
 import :Device;
 import :Buffer;
-import :Application;
-import :Image;
 import :VulkanImage;
 
 namespace z0 {
 
     shared_ptr<Image> Image::create(uint32_t width, uint32_t height, uint64_t imageSize, const void *data, const string & name) {
         return make_shared<VulkanImage>(
-            Application::get()._getDevice(),
+            Device::get(),
             name, width, height, imageSize, data,
             VK_FORMAT_R8G8B8A8_SRGB);
     }

@@ -3,10 +3,11 @@ module;
 #include <windows.h>
 #include <dxgi1_4.h>
 #endif
-#include "z0/libraries.h"
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <volk.h>
-#include "vk_mem_alloc.h"
+#include <vk_mem_alloc.h>
+#include <cassert>
+#include "z0/libraries.h"
 
 module z0;
 
@@ -17,6 +18,9 @@ import :Tools;
 import :Device;
 
 namespace z0 {
+
+    Device *Device::_instance = nullptr;
+
     Device::Device(VkInstance                  instance,
                    const vector<const char *> &requestedLayers,
                    const ApplicationConfig &   applicationConfig,
@@ -25,6 +29,8 @@ namespace z0 {
         samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)},
         vkInstance{instance},
         window{theWindow} {
+        assert(_instance == nullptr);
+        _instance = this;
         commandBuffers.resize(framesInFlight);
         imageAvailableSemaphores.resize(framesInFlight);
         renderFinishedSemaphores.resize(framesInFlight);

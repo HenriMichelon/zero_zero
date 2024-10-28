@@ -9,9 +9,6 @@ import :Tools;
 import :Image;
 import :Font;
 
-import :Device;
-import :VulkanImage;
-
 namespace z0 {
 
     void Font::getSize(const string &text, float &width, float &height) {
@@ -59,26 +56,6 @@ namespace z0 {
         wwidth  = static_cast<float>(width);
         hheight = static_cast<float>(height);
         return bitmap;
-    }
-
-    shared_ptr<Image> Font::renderToImage(const Device &device, const string &text) {
-        float width, height;
-        auto  bitmap = renderToBitmap(text, width, height);
-        /*  auto name = str;
-         name.append(".png");
-         stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<VulkanImage>(device,
-                                  text,
-                                  width,
-                                  height,
-                                  static_cast<int>(width * height) * STBI_rgb_alpha,
-                                  bitmap.data(),
-                                  VK_FORMAT_R8G8B8A8_SRGB,
-                                  VK_IMAGE_TILING_OPTIMAL,
-                                  VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
-                                  VK_FILTER_LINEAR,
-                                  // don't repeat texture
-                                  false);
     }
 
     Font::CachedCharacter &Font::getFromCache(const char c) {

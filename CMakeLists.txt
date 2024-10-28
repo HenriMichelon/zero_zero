@@ -196,6 +196,7 @@ add_library(${Z0_TARGET} STATIC
 
 		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/vulkan/resources/image.cpp
+		${Z0_ENGINE_DIR}/vulkan/resources/font.cpp
 		${Z0_ENGINE_DIR}/vulkan/resources/mesh.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color.cpp

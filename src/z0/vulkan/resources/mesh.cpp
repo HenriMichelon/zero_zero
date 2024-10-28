@@ -12,9 +12,9 @@ module;
 module z0;
 
 import :Material;
-import :Application;
 import :Tools;
 
+import :Device;
 import :Buffer;
 import :VulkanMesh;
 
@@ -105,7 +105,7 @@ namespace z0 {
     }
 
     void VulkanMesh::buildModel() {
-        const auto &device = Application::get()._getDevice();
+        const auto &device = Device::get();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
