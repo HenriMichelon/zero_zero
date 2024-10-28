@@ -1,14 +1,10 @@
 module;
-#include <cassert>
-#include "stb_image.h"
 #include "z0/libraries.h"
-#include <volk.h>
 
 export module z0:Cubemap;
 
 import :Tools;
 import :Resource;
-import :Device;
 import :Image;
 
 export namespace z0 {
@@ -27,21 +23,20 @@ export namespace z0 {
         /**
          * Creates a Cubemap from 6 images stored in CPU memory.
          * The images **must** have the same sizes
-         * @param device : the GPU where the image will be stored
          * @param width : width in pixels of the images
          * @param height : height in pixels of the images
          * @param imageSize : size of each image in bytes
          * @param data : 6 images datas in this order : right, left, top, bottom, front, back
          * @param name : resource name
          */
-        Cubemap(const Device &                 device,
-                uint32_t                       width,
-                uint32_t                       height,
-                uint32_t                       imageSize,
-                const vector<unsigned char *> &data,
-                const string &                 name = "Cubemap");
+        static shared_ptr<Cubemap> create(
+            uint32_t                       width,
+            uint32_t                       height,
+            uint32_t                       imageSize,
+            const vector<unsigned char *> &data,
+            const string &                 name = "Cubemap");
 
-        ~Cubemap() override;
+        ~Cubemap() override = default;
 
         /**
          * Loads a cubemap from 6 RGBA images files.
@@ -50,7 +45,7 @@ export namespace z0 {
          * @param filename path and filename (without the extension) of the images
          * @param fileext files extension
          */
-        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename, const string &fileext);
+        static shared_ptr<Cubemap> loadFromFile(const string &filename, const string &fileext);
 
         /**
          * Loads the cubemap from a single RGBA image with the following format :<br>
@@ -59,7 +54,7 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filename path of the image
          */
-        [[nodiscard]] static shared_ptr<Cubemap> loadFromFile(const string &filename);
+        static shared_ptr<Cubemap> loadFromFile(const string &filename);
 
         /**
          * Returns the width in pixels of each image
@@ -71,49 +66,29 @@ export namespace z0 {
          */
         [[nodiscard]] inline uint32_t getHeight() const { return height; }
 
-        [[nodiscard]] static unique_ptr<Cubemap> createBlankCubemap();
+        [[nodiscard]] static shared_ptr<Cubemap> createBlankCubemap();
 
         [[nodiscard]] Type getCubemapType() const { return type; }
 
     protected:
-        Type           type{TYPE_STANDARD};
-        const Device & device;
-        uint32_t       width, height;
-        VkImage        textureImage;
-        VkDeviceMemory textureImageMemory;
-        VkImageView    textureImageView;
-        VkSampler      textureSampler;
-        const VkFormat textureFormat;
+        Type    type;
+        uint32_t width;
+        uint32_t height;
 
-        Cubemap(const Device &                 device,
-                uint32_t                       width,
-                uint32_t                       height,
-                VkFormat                       format,
-                const string &                 name = "Cubemap");
-
-        void createTextureSampler();
+        Cubemap(uint32_t      width,
+                uint32_t      height,
+                Type          type = TYPE_STANDARD,
+                const string &name = "Cubemap");
 
         [[nodiscard]] static unsigned char *extractImage(unsigned char *source,
                                                          int            x, int y,
                                                          int            srcWidth,
                                                          int            w, int h,
                                                          int            channels);
-
-    public:
-        inline VkDescriptorImageInfo _getImageInfo() const {
-            return VkDescriptorImageInfo{
-                .sampler = textureSampler,
-                .imageView = textureImageView,
-                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-            };
-        }
-        [[nodiscard]] VkFormat _getFormat() const { return textureFormat; }
-        [[nodiscard]] inline VkImage _getImage() const { return textureImage; }
-        [[nodiscard]] inline VkImageView _getImageView() const { return textureImageView; }
     };
 
     /**
-     * Environment cubemap (with pre-filtered mip chain)
+     * Environment cubemap
      */
     class EnvironmentCubemap : public Cubemap {
     public:
@@ -122,11 +97,7 @@ export namespace z0 {
         static constexpr auto IRRADIANCE_MAP_SIZE{32};
         static constexpr auto BRDFLUT_SIZE{256};
 
-        EnvironmentCubemap(const Device &  device,
-                           uint32_t        width,
-                           uint32_t        height,
-                           uint32_t        levels = 1,
-                           const string &  name = "EnvironmentCubemap");
+        EnvironmentCubemap(const string &  name = "EnvironmentCubemap");
 
         /**
           * Loads the cubemap from a single HDRi.
@@ -134,15 +105,17 @@ export namespace z0 {
           */
         [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename);
 
+        [[nodiscard]] inline shared_ptr<Cubemap> getSpecularCubemap() const { return specularCubemap; }
+        [[nodiscard]] inline shared_ptr<Cubemap> getIrradianceCubemap() const { return irradianceCubemap; }
+        [[nodiscard]] inline shared_ptr<Image> getBRDFLut() const { return brdfLut; }
+
     private:
+        // Specular map
+        shared_ptr<Cubemap> specularCubemap;
         // Irradiance map
         shared_ptr<Cubemap> irradianceCubemap;
         // 2D LUT for split-sum approximation
         shared_ptr<Image> brdfLut;
-
-    public:
-        [[nodiscard]] inline shared_ptr<Cubemap> _getIrradianceCubemap() const { return irradianceCubemap; }
-        [[nodiscard]] inline shared_ptr<Image> _getBRDFLut() const { return brdfLut; }
     };
 
 }

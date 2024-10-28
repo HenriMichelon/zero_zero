@@ -7,14 +7,15 @@ module;
 module z0;
 
 import :Tools;
-import :Renderpass;
-import :Device;
 import :Cubemap;
 import :Environment;
 import :Camera;
+
+import :Device;
 import :Buffer;
 import :Descriptors;
 import :SkyboxRenderer;
+import :VulkanCubemap;
 
 namespace z0 {
 
@@ -85,7 +86,7 @@ namespace z0 {
     }
 
     void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &cubemap) {
-        this->cubemap = cubemap;
+        this->cubemap = reinterpret_pointer_cast<VulkanCubemap>(cubemap);
         createOrUpdateResources();
     }
 
@@ -138,9 +139,16 @@ namespace z0 {
 
     void SkyboxRenderer::createOrUpdateDescriptorSet(const bool create) {
         if (create) {
+            shared_ptr<VulkanCubemap> cm;
+            if (cubemap->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) {
+                const auto& environment = reinterpret_pointer_cast<EnvironmentCubemap>(cubemap);
+                cm = reinterpret_pointer_cast<VulkanCubemap>(environment->getSpecularCubemap());
+            } else {
+                cm = cubemap;
+            }
             for (auto i = 0; i < device.getFramesInFlight(); i++) {
                 auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GobalUniformBuffer));
-                auto imageInfo        = cubemap->_getImageInfo();
+                auto imageInfo        = cm->getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                     .writeBuffer(0, &globalBufferInfo)
                     .writeImage(1, &imageInfo);

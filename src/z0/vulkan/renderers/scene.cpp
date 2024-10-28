@@ -10,33 +10,35 @@ module z0;
 
 import :Constants;
 import :Tools;
-import :ModelsRenderer;
-import :Device;
-import :ColorFrameBufferHDR;
-import :Descriptors;
 import :Node;
 import :MeshInstance;
-import :ShadowMapRenderer;
-import :SkyboxRenderer;
 import :Environment;
 import :Material;
 import :Resource;
-import :Buffer;
-import :Shader;
 import :Image;
 import :Cubemap;
 import :Light;
 import :DirectionalLight;
 import :OmniLight;
 import :SpotLight;
+import :Skybox;
+import :FrustumCulling;
+
+import :ModelsRenderer;
+import :Device;
+import :ColorFrameBufferHDR;
+import :Descriptors;
+import :ShadowMapRenderer;
+import :SkyboxRenderer;
+import :Buffer;
+import :Shader;
 import :FrameBuffer;
 import :ShadowMapFrameBuffer;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
-import :Skybox;
 import :SceneRenderer;
-import :FrustumCulling;
 import :SampledFrameBuffer;
+import :VulkanCubemap;
 
 namespace z0 {
 
@@ -453,7 +455,7 @@ namespace z0 {
 
         // Create an in-memory default blank images
         if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
-        if (blankCubemap == nullptr) { blankCubemap = Cubemap::createBlankCubemap(); }
+        if (blankCubemap == nullptr) { blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap()); }
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             frameData[i].globalBuffer = createUniformBuffer(GLOBAL_BUFFER_SIZE);
@@ -501,7 +503,7 @@ namespace z0 {
 
             for (auto j = 0; j < frame.shadowMapsInfo.size(); j++) {
                 frame.shadowMapsInfo[j] = blankImage->_getImageInfo();
-                frame.shadowMapsCubemapInfo[j] = blankCubemap->_getImageInfo();
+                frame.shadowMapsCubemapInfo[j] = blankCubemap->getImageInfo();
             }
             imageIndex = 0;
             for (const auto &pair : shadowMapRenderers) {
@@ -532,13 +534,13 @@ namespace z0 {
             VkDescriptorImageInfo irradianceInfo;
             VkDescriptorImageInfo brdfInfo;
             if ((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT)) {
-                const auto& environmentCubemap = reinterpret_cast<const shared_ptr<EnvironmentCubemap>&>(frame.skyboxRenderer->getCubemap());
-                specularInfo = environmentCubemap->_getImageInfo();
-                irradianceInfo = environmentCubemap->_getIrradianceCubemap()->_getImageInfo();
-                brdfInfo = environmentCubemap->_getBRDFLut()->_getImageInfo();
+                const auto& environmentCubemap = reinterpret_pointer_cast<EnvironmentCubemap>(frame.skyboxRenderer->getCubemap());
+                specularInfo = reinterpret_pointer_cast<VulkanCubemap>(environmentCubemap->getSpecularCubemap())->getImageInfo();
+                irradianceInfo = reinterpret_pointer_cast<VulkanCubemap>(environmentCubemap->getIrradianceCubemap())->getImageInfo();
+                brdfInfo = environmentCubemap->getBRDFLut()->_getImageInfo();
             } else {
-                specularInfo = blankCubemap->_getImageInfo();
-                irradianceInfo = blankCubemap->_getImageInfo();
+                specularInfo = blankCubemap->getImageInfo();
+                irradianceInfo = blankCubemap->getImageInfo();
                 brdfInfo = blankImage->_getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)

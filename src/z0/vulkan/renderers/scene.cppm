@@ -5,29 +5,31 @@ module;
 export module z0:SceneRenderer;
 
 import :Constants;
-import :ModelsRenderer;
-import :Device;
-import :ColorFrameBufferHDR;
-import :Descriptors;
 import :Node;
 import :MeshInstance;
-import :ShadowMapRenderer;
-import :SkyboxRenderer;
 import :Environment;
 import :Material;
 import :Resource;
-import :Buffer;
-import :Shader;
 import :Image;
 import :Cubemap;
 import :Light;
 import :DirectionalLight;
 import :OmniLight;
 import :SpotLight;
+import :Skybox;
+
+import :ModelsRenderer;
+import :Device;
+import :Descriptors;
+import :ShadowMapRenderer;
+import :SkyboxRenderer;
+import :Buffer;
+import :Shader;
+import :VulkanCubemap;
+import :ColorFrameBufferHDR;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
 import :ShadowMapFrameBuffer;
-import :Skybox;
 import :SampledFrameBuffer;
 
 namespace z0 {
@@ -237,7 +239,7 @@ namespace z0 {
         // Default blank image (for textures and shadow mapping)
         unique_ptr<Image> blankImage{nullptr};
         // Default blank cubemap (for omni shadow mapping)
-        unique_ptr<Cubemap> blankCubemap{nullptr};
+        shared_ptr<VulkanCubemap> blankCubemap{nullptr};
 
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;

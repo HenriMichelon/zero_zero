@@ -1,5 +1,6 @@
 module;
-#include "stb_truetype.h"
+#include <stb_image.h>
+#include <stb_truetype.h>
 #include "z0/libraries.h"
 
 module z0;

@@ -1,6 +1,7 @@
 module;
+#define VMA_VULKAN_VERSION 1003000
+#include <vk_mem_alloc.h>
 #include "z0/libraries.h"
-#include "vk_mem_alloc.h"
 
 export module z0:Buffer;
 

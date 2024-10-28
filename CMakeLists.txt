@@ -41,24 +41,26 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/aabb.cppm
 		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
-		${Z0_ENGINE_DIR}/buffer.cppm
 		${Z0_ENGINE_DIR}/color.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
-		${Z0_ENGINE_DIR}/descriptors.cppm
-		${Z0_ENGINE_DIR}/device.cppm
 		${Z0_ENGINE_DIR}/frustum_culling.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
 		${Z0_ENGINE_DIR}/object.cppm
 		${Z0_ENGINE_DIR}/physics.cppm
-		${Z0_ENGINE_DIR}/shader.cppm
 		${Z0_ENGINE_DIR}/signal.cppm
 		${Z0_ENGINE_DIR}/tools.cppm
 		${Z0_ENGINE_DIR}/tween.cppm
 		${Z0_ENGINE_DIR}/type_registry.cppm
 		${Z0_ENGINE_DIR}/window.cppm
 		${Z0_ENGINE_DIR}/z0.cppm
+
+		${Z0_ENGINE_DIR}/vulkan/buffer.cppm
+		${Z0_ENGINE_DIR}/vulkan/descriptors.cppm
+		${Z0_ENGINE_DIR}/vulkan/device.cppm
+		${Z0_ENGINE_DIR}/vulkan/instance.cppm
+		${Z0_ENGINE_DIR}/vulkan/shader.cppm
 
 		${Z0_ENGINE_DIR}/nodes/camera.cppm
 		${Z0_ENGINE_DIR}/nodes/character.cppm
@@ -92,27 +94,29 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
 		${Z0_ENGINE_DIR}/resources/texture.cppm
 
-		${Z0_ENGINE_DIR}/framebuffers/color.cppm
-		${Z0_ENGINE_DIR}/framebuffers/color_hdr.cppm
-		${Z0_ENGINE_DIR}/framebuffers/depth.cppm
-		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/sampled_frame_buffer.cppm
-		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cppm
+		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cppm
 
-		${Z0_ENGINE_DIR}/pipelines/compute.cppm
-		${Z0_ENGINE_DIR}/pipelines/IBL.cppm
-		${Z0_ENGINE_DIR}/pipelines/pipeline.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/color.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/depth.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/frame_buffer.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/sampled_frame_buffer.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/shadowmap.cppm
 
-		${Z0_ENGINE_DIR}/renderers/models.cppm
-		${Z0_ENGINE_DIR}/renderers/postprocessing.cppm
-		${Z0_ENGINE_DIR}/renderers/renderer.cppm
-		${Z0_ENGINE_DIR}/renderers/renderpass.cppm
-		${Z0_ENGINE_DIR}/renderers/scene.cppm
-		${Z0_ENGINE_DIR}/renderers/shadowmap.cppm
-		${Z0_ENGINE_DIR}/renderers/simple_postprocessing.cppm
-		${Z0_ENGINE_DIR}/renderers/tonemapping.cppm
-		${Z0_ENGINE_DIR}/renderers/skybox.cppm
-		${Z0_ENGINE_DIR}/renderers/vector.cppm
+		${Z0_ENGINE_DIR}/vulkan/pipelines/compute.cppm
+		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cppm
+		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cppm
+
+		${Z0_ENGINE_DIR}/vulkan/renderers/models.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/renderer.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/scene.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/shadowmap.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/simple_postprocessing.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/tonemapping.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle.cppm
@@ -141,19 +145,21 @@ set(PROJECT_FILES
 add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/aabb.cpp
 		${Z0_ENGINE_DIR}/application.cpp
-		${Z0_ENGINE_DIR}/buffer.cpp
-		${Z0_ENGINE_DIR}/descriptors.cpp
-		${Z0_ENGINE_DIR}/device.cpp
 		${Z0_ENGINE_DIR}/frustum_culling.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/loader.cpp
 		${Z0_ENGINE_DIR}/object.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
-		${Z0_ENGINE_DIR}/shader.cpp
 		${Z0_ENGINE_DIR}/signal.cpp
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/window.cpp
+
+		${Z0_ENGINE_DIR}/vulkan/buffer.cpp
+		${Z0_ENGINE_DIR}/vulkan/descriptors.cpp
+		${Z0_ENGINE_DIR}/vulkan/device.cpp
+		${Z0_ENGINE_DIR}/vulkan/instance.cpp
+		${Z0_ENGINE_DIR}/vulkan/shader.cpp
 
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
@@ -186,25 +192,27 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 
-		${Z0_ENGINE_DIR}/framebuffers/color.cpp
-		${Z0_ENGINE_DIR}/framebuffers/color_hdr.cpp
-		${Z0_ENGINE_DIR}/framebuffers/depth.cpp
-		${Z0_ENGINE_DIR}/framebuffers/frame_buffer.cpp
-		${Z0_ENGINE_DIR}/framebuffers/shadowmap.cpp
+		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cpp
 
-		${Z0_ENGINE_DIR}/pipelines/compute.cpp
-		${Z0_ENGINE_DIR}/pipelines/IBL.cpp
-		${Z0_ENGINE_DIR}/pipelines/pipeline.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/color.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/depth.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/frame_buffer.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/shadowmap.cpp
 
-		${Z0_ENGINE_DIR}/renderers/models.cpp
-		${Z0_ENGINE_DIR}/renderers/postprocessing.cpp
-		${Z0_ENGINE_DIR}/renderers/renderpass.cpp
-		${Z0_ENGINE_DIR}/renderers/scene.cpp
-		${Z0_ENGINE_DIR}/renderers/shadowmap.cpp
-		${Z0_ENGINE_DIR}/renderers/simple_postprocessing.cpp
-		${Z0_ENGINE_DIR}/renderers/tonemapping.cpp
-		${Z0_ENGINE_DIR}/renderers/skybox.cpp
-		${Z0_ENGINE_DIR}/renderers/vector.cpp
+		${Z0_ENGINE_DIR}/vulkan/pipelines/compute.cpp
+		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cpp
+		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cpp
+
+		${Z0_ENGINE_DIR}/vulkan/renderers/models.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/scene.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/shadowmap.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/simple_postprocessing.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/tonemapping.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cpp
 
 		${Z0_ENGINE_DIR}/gui/gmanager.cpp
 		${Z0_ENGINE_DIR}/gui/gstyle.cpp

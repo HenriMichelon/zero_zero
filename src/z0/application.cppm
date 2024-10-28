@@ -1,19 +1,18 @@
 module;
+#include <cassert>
 #include "z0/jolt.h"
 #include "z0/libraries.h"
-#include <cassert>
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <volk.h>
 
 export module z0:Application;
 
 import :Constants;
 import :Object;
 import :ApplicationConfig;
+import :Instance;
+import :Device;
 import :InputEvent;
 import :Physics;
 import :Window;
-import :Device;
 import :Node;
 
 export namespace z0 {
@@ -156,9 +155,7 @@ export namespace z0 {
         // The Vulkan device helper object
         unique_ptr<Device> device;
         // The Vulkan global instance
-        VkInstance vkInstance;
-        // Used to redirect validation layers to the logging system
-        VkDebugUtilsMessengerEXT debugMessenger;
+        unique_ptr<Instance> instance;
         // State of the current scene
         bool paused{false};
         // State of the main loop
@@ -252,7 +249,7 @@ export namespace z0 {
         // Internal accessor/modifiers
         Device &_getDevice() { return *device; }
 
-        VkInstance _getVkInstance() const { return vkInstance; }
+        const Instance& _getVkInstance() const { return *instance; }
 
         JPH::BodyInterface &_getBodyInterface() { return physicsSystem.GetBodyInterface(); }
 

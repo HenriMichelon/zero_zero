@@ -5,13 +5,15 @@ module;
 export module z0:SkyboxRenderer;
 
 import :Constants;
-import :Renderpass;
-import :Device;
 import :Cubemap;
 import :Environment;
 import :Camera;
+
+import :Device;
 import :Buffer;
 import :Descriptors;
+import :Renderpass;
+import :VulkanCubemap;
 
 export namespace z0 {
 
@@ -33,7 +35,7 @@ export namespace z0 {
 
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
 
-        [[nodiscard]] inline const shared_ptr<Cubemap>& getCubemap() const { return cubemap; }
+        [[nodiscard]] inline shared_ptr<Cubemap> getCubemap() const { return reinterpret_pointer_cast<Cubemap>(cubemap); }
 
     private:
         struct GobalUniformBuffer {
@@ -45,7 +47,7 @@ export namespace z0 {
         vector<unique_ptr<Buffer>>  globalBuffer;
         uint32_t                    vertexCount;
         unique_ptr<Buffer>          vertexBuffer;
-        shared_ptr<Cubemap>         cubemap;
+        shared_ptr<VulkanCubemap>   cubemap;
     };
 
 }

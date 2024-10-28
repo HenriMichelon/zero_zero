@@ -6,11 +6,13 @@ module z0;
 
 import :Constants;
 import :Tools;
-import :Device;
 import :Image;
 import :Cubemap;
-import :IBLPipeline;
+
+import :Device;
 import :Descriptors;
+import :VulkanCubemap;
+import :IBLPipeline;
 
 namespace z0 {
 
@@ -61,11 +63,12 @@ namespace z0 {
 
     void IBLPipeline::convert(const shared_ptr<Image>&   hdrFile,
                               const shared_ptr<Cubemap>& cubemap) const {
+        const auto& vkCubemap = reinterpret_pointer_cast<VulkanCubemap>(cubemap);
         const auto shaderModule = createShaderModule(readFile("equirect2cube.comp"));
         const auto pipeline = createPipeline(shaderModule);
 
         const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, hdrFile->_getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-        const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, cubemap->_getImageView(), VK_IMAGE_LAYOUT_GENERAL };
+        const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, vkCubemap->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
         DescriptorWriter(*descriptorSetLayout, *descriptorPool)
             .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
@@ -76,7 +79,7 @@ namespace z0 {
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
             {
                 imageMemoryBarrier(
-                    cubemap->_getImage(),
+                    vkCubemap->getImage(),
                     0, VK_ACCESS_SHADER_WRITE_BIT,
                     VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
@@ -87,7 +90,7 @@ namespace z0 {
                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                    {
                        imageMemoryBarrier(
-                           cubemap->_getImage(),
+                           vkCubemap->getImage(),
                            VK_ACCESS_SHADER_WRITE_BIT, 0,
                            VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
         });
@@ -96,6 +99,8 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const {
+        const auto& vkUnfilteredCubemap = reinterpret_pointer_cast<VulkanCubemap>(unfilteredCubemap);
+        const auto& vkCubemap = reinterpret_pointer_cast<VulkanCubemap>(cubemap);
         const auto shaderModule = createShaderModule(readFile("specular_map.comp"));
         const auto pipeline = createPipeline(shaderModule, &specializationInfo);
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
@@ -105,11 +110,11 @@ namespace z0 {
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,
                 {
                     imageMemoryBarrier(
-                        unfilteredCubemap->_getImage(),
+                        vkUnfilteredCubemap->getImage(),
                         0, VK_ACCESS_TRANSFER_READ_BIT,
                         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL),
                     imageMemoryBarrier(
-                        cubemap->_getImage(),
+                        vkCubemap->getImage(),
                         0, VK_ACCESS_TRANSFER_WRITE_BIT,
                         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
             });
@@ -123,19 +128,19 @@ namespace z0 {
             };
             copyRegion.dstSubresource = copyRegion.srcSubresource;
             vkCmdCopyImage(commandBuffer,
-                unfilteredCubemap->_getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                cubemap->_getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                vkUnfilteredCubemap->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                vkCubemap->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 1, &copyRegion);
 
             pipelineBarrier(commandBuffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 {
                     imageMemoryBarrier(
-                       unfilteredCubemap->_getImage(),
+                       vkUnfilteredCubemap->getImage(),
                        VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
                     imageMemoryBarrier(
-                       cubemap->_getImage(),
+                       vkCubemap->getImage(),
                        VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_WRITE_BIT,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL)
             });
@@ -143,11 +148,11 @@ namespace z0 {
         // Pre-filter rest of the mip-chain.
        auto envTextureMipTailViews = vector<VkImageView>{};
        {
-            const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, unfilteredCubemap->_getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+            const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, vkUnfilteredCubemap->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
             auto outputInfo = vector<VkDescriptorImageInfo>{};
             for(auto level = 1; level < EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS; level++) {
-                envTextureMipTailViews.push_back(device.createImageView(cubemap->_getImage(),
-                                                  cubemap->_getFormat(),
+                envTextureMipTailViews.push_back(device.createImageView(vkCubemap->getImage(),
+                                                  vkCubemap->getFormat(),
                                                   VK_IMAGE_ASPECT_COLOR_BIT,
                                                   1,
                                                   VK_IMAGE_VIEW_TYPE_CUBE,
@@ -178,7 +183,7 @@ namespace z0 {
             pipelineBarrier(commandBuffer,
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                 vector{
-                    imageMemoryBarrier(cubemap->_getImage(),
+                    imageMemoryBarrier(vkCubemap->getImage(),
                         VK_ACCESS_SHADER_WRITE_BIT, 0,
                         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
@@ -191,11 +196,13 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeIrradiance(const shared_ptr<Cubemap>& cubemap, const shared_ptr<Cubemap>& irradianceCubemap) const {
+        const auto& vkCubemap = reinterpret_pointer_cast<VulkanCubemap>(cubemap);
+        const auto& vkIrradianceCubemap = reinterpret_pointer_cast<VulkanCubemap>(irradianceCubemap);
         const auto shaderModule = createShaderModule(readFile("irradiance_map.comp"));
         const auto pipeline = createPipeline(shaderModule);
 
-        const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, cubemap->_getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-        const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, irradianceCubemap->_getImageView(), VK_IMAGE_LAYOUT_GENERAL };
+        const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, vkCubemap->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+        const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, vkIrradianceCubemap->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
         DescriptorWriter(*descriptorSetLayout, *descriptorPool)
             .writeImage(BINDING_INPUT_TEXTURE, &inputInfo)
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
@@ -207,7 +214,7 @@ namespace z0 {
            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
            {
                imageMemoryBarrier(
-                   irradianceCubemap->_getImage(),
+                   vkIrradianceCubemap->getImage(),
                    0, VK_ACCESS_SHADER_WRITE_BIT,
                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
@@ -223,7 +230,7 @@ namespace z0 {
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
            {
                imageMemoryBarrier(
-                   irradianceCubemap->_getImage(),
+                   vkIrradianceCubemap->getImage(),
                    VK_ACCESS_SHADER_WRITE_BIT, 0,
                    VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         });
