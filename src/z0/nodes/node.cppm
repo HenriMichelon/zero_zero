@@ -258,6 +258,11 @@ export namespace z0 {
         [[nodiscard]] shared_ptr<Node> getNode(const string &path) const;
 
         /**
+        * Finds the first child by is name.
+        */
+        [[nodiscard]] shared_ptr<Node> findFirstChild(const string& name) const;
+
+        /**
          * Recursively prints the node tree in the log system
          */
         void printTree(int tab = 0) const;

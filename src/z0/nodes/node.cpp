@@ -90,18 +90,26 @@ namespace z0 {
     }
 
     shared_ptr<Node> Node::getChild(const string &name) const {
-        auto it = std::find_if(children.begin(),
-                               children.end(),
-                               [name](std::shared_ptr<Node> elem) {
-                                   return elem->name == name;
-                               });
+        const auto it = std::find_if(children.begin(),
+                                     children.end(),
+                                     [name](std::shared_ptr<Node> elem) {
+                                         return elem->name == name;
+                                     });
         return it == children.end() ? nullptr : *it;
     }
 
+    shared_ptr<Node> Node::findFirstChild(const string& name) const {
+        for (const auto &node : children) {
+            if (node->name == name) return node;
+            if (const auto& found = node->findFirstChild(name)) return found;
+        }
+        return {nullptr};
+    }
+
     shared_ptr<Node> Node::getNode(const string &path) const {
-        size_t pos = path.find('/');
+        const size_t pos = path.find('/');
         if (pos != std::string::npos) {
-            auto child = getChild(path.substr(0, pos));
+            const auto child = getChild(path.substr(0, pos));
             if (child != nullptr) {
                 return child->getNode(path.substr(pos + 1));
             }
