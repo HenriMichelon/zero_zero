@@ -232,7 +232,7 @@ namespace z0 {
             sceneRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
-        // device->registerRenderer(tonemappingRenderer);
+        device->registerRenderer(tonemappingRenderer);
         device->registerRenderer(sceneRenderer);
 
         // The global UI window manager

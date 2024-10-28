@@ -387,9 +387,9 @@ namespace z0 {
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+        setInitialState(commandBuffer, currentFrame);
         if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr)
             return;
-        setInitialState(commandBuffer, currentFrame);
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
