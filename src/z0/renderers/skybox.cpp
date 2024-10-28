@@ -1,4 +1,6 @@
 module;
+#include <memory>
+
 #include "z0/libraries.h"
 #include <volk.h>
 
@@ -94,8 +96,8 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    void SkyboxRenderer::update(const Camera *      currentCamera,
-                                const Environment * currentEnvironment,
+    void SkyboxRenderer::update(const shared_ptr<Camera>&      currentCamera,
+                                const shared_ptr<Environment>& currentEnvironment,
                                 const uint32_t      currentFrame) {
         GobalUniformBuffer globalUbo{
                 .projection = currentCamera->getProjection(),

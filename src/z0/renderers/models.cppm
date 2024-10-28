@@ -30,44 +30,42 @@ export namespace z0 {
         virtual void removeNode(const shared_ptr<Node> &node, uint32_t currentFrame);
 
         // Change the active camera, disable the previous camera
-        virtual void activateCamera(Camera *camera, uint32_t currentFrame);
-
-        inline void activateCamera(const shared_ptr<Camera> &camera, const uint32_t currentFrame) { activateCamera(camera.get(), currentFrame); }
+        virtual void activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame);
 
         // Cleanup all Vulkan resources
         void cleanup() override;
 
         // Get the current scene camera
-        [[nodiscard]] inline Camera *getCamera(const uint32_t currentFrame) const { return frameData[currentFrame].currentCamera; }
+        [[nodiscard]] inline shared_ptr<Camera> getCamera(const uint32_t currentFrame) const { return frameData[currentFrame].currentCamera; }
 
     protected:
         struct FrameData {
             // Currently active camera, first camera added to the scene or the last activated
-            Camera *currentCamera{nullptr};
+            shared_ptr<Camera> currentCamera{nullptr};
             // All the models of the scene
-            list<MeshInstance *> models{};
+            list<shared_ptr<MeshInstance>> models{};
             // Data for all the models of the scene, one buffer for all the models
             // https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
             unique_ptr<Buffer> modelUniformBuffer;
             // Depth testing multi sampled off-screen buffer
             shared_ptr<DepthFrameBuffer> depthFrameBuffer;
             // Current viewport to reset the viewport size if removed from the scene tree
-            Viewport *currentViewport{nullptr};
+            shared_ptr<Viewport> currentViewport{nullptr};
         };
         vector<FrameData> frameData;
 
         ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
 
         // A model is currently been added to the scene, called before updating the descriptor set
-        virtual void addingModel(MeshInstance *meshInstance, uint32_t modelIndex, uint32_t currentFrame) {
+        virtual void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) {
         }
 
         // A model had been added to the scene, called after updating the descriptor set
-        virtual void addedModel(MeshInstance *meshInstance, uint32_t currentFrame) {
+        virtual void addedModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) {
         }
 
         // A model is currently been removed to the scene, called before updating the descriptor set
-        virtual void removingModel(MeshInstance *meshInstance, uint32_t currentFrame) {
+        virtual void removingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) {
         }
 
         // Set the initial states of the dynamic rendering

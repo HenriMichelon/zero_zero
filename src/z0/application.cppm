@@ -182,7 +182,7 @@ export namespace z0 {
             // Deferred list of nodes removed from the current scene, processed before each frame
             list<shared_ptr<Node>> removedNodes;
             // Camera to activate next frame
-            shared_ptr<Camera> activateCamera;
+            shared_ptr<Camera> activeCamera;
         };
         vector<FrameData> frameData;
 

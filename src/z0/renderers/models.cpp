@@ -19,12 +19,12 @@ import :ModelsRenderer;
  namespace z0 {
 
     void ModelsRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
-        if (auto *camera = dynamic_cast<Camera *>(node.get())) {
+        if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
             if (frameData[currentFrame].currentCamera == nullptr) {
                 activateCamera(camera, currentFrame);
                 //log("Using camera", currentCamera->toString());
             }
-        } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
+        } else if (const auto& meshInstance = dynamic_pointer_cast<MeshInstance>(node)) {
             if (meshInstance->isValid()) {
                 if (meshInstance->getMesh()->_getMaterials().empty())
                     die("Models without materials are not supported");
@@ -35,33 +35,33 @@ import :ModelsRenderer;
                 createOrUpdateResources();
                 addedModel(meshInstance, currentFrame);
             }
-        } else if (auto *viewport = dynamic_cast<Viewport *>(node.get())) {
+        } else if (const auto& viewport = dynamic_pointer_cast<Viewport>(node)) {
             frameData[currentFrame].currentViewport = viewport;
             //log("Using viewport", currentViewport->toString());
         }
     }
 
     void ModelsRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
-        if (const auto *camera = dynamic_cast<Camera *>(node.get())) {
+        if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
             if (camera == frameData[currentFrame].currentCamera) {
                 frameData[currentFrame].currentCamera->_setActive(false);
                 frameData[currentFrame].currentCamera = nullptr;
             }
-        } else if (auto *meshInstance = dynamic_cast<MeshInstance *>(node.get())) {
+        } else if (const auto& meshInstance = dynamic_pointer_cast<MeshInstance>(node)) {
             const auto it = find(frameData[currentFrame].models.begin(), frameData[currentFrame].models.end(), meshInstance);
             if (it != frameData[currentFrame].models.end()) {
                 frameData[currentFrame].models.erase(it);
                 removingModel(meshInstance, currentFrame);
             }
             descriptorSetNeedUpdate = true;
-        } else if (const auto *viewport = dynamic_cast<Viewport *>(node.get())) {
+        } else if (const auto& viewport = dynamic_pointer_cast<Viewport>(node)) {
             if (frameData[currentFrame].currentViewport == viewport) {
                 frameData[currentFrame].currentViewport = nullptr;
             }
         }
     }
 
-    void ModelsRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
+    void ModelsRenderer::activateCamera(const shared_ptr<Camera> &camera, const uint32_t currentFrame) {
         if (frameData[currentFrame].currentCamera != nullptr)
             frameData[currentFrame].currentCamera->_setActive(false);
         if (camera == nullptr) {

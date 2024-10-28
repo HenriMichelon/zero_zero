@@ -44,11 +44,11 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     vec3 ambient = color.rgb;
     if (material.metallicFactor != -1) {
         float metallic  = tex.metallicTexture.index == -1 ?
-        material.metallicFactor :
-        material.metallicFactor * texture(texSampler[tex.metallicTexture.index], uvTransform(tex.metallicTexture, fs_in.UV)).b;
+            material.metallicFactor :
+            material.metallicFactor * texture(texSampler[tex.metallicTexture.index], uvTransform(tex.metallicTexture, fs_in.UV)).b;
         float roughness = tex.roughnessTexture.index == -1 ?
-        material.roughnessFactor :
-        material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);
+            material.roughnessFactor :
+            material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);
         // Fresnel reflectance at normal incidence (for metals use albedo color).
         const vec3 F0 = mix(Fdielectric, color.rgb, metallic);
         // Specular reflection vector.
@@ -123,10 +123,10 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         toLinear(texture(texSampler[tex.emissiveTexture.index], uvTransform(tex.emissiveTexture, fs_in.UV))).rgb *
         material.emissiveStrength;// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
     }
-    const float ambientOcclusion = tex.ambientOcclusionTexture.index == -1 ?
-        1.0f :
-        texture(texSampler[tex.ambientOcclusionTexture.index], uvTransform(tex.ambientOcclusionTexture, fs_in.UV)).b;
-    ambient *= global.ambient.w * global.ambient.rgb * ambientOcclusion;
+//    const float ambientOcclusion = tex.ambientOcclusionTexture.index == -1 ?
+//        1.0f :
+//        texture(texSampler[tex.ambientOcclusionTexture.index], uvTransform(tex.ambientOcclusionTexture, fs_in.UV)).b;
+    ambient *= global.ambient.w * global.ambient.rgb ;
 
     return vec4(ambient + diffuse, transparency);
 }

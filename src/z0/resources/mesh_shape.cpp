@@ -12,21 +12,13 @@ import :Shape;
 
 namespace z0 {
 
-
-    MeshShape::MeshShape(Node *node, const string &resName ):
+    MeshShape::MeshShape(const shared_ptr<Node> &node, const string &resName ):
         Shape{resName} {
-        assert(node && "Invalid Node");
         tryCreateShape(node);
     }
 
-
-    MeshShape::MeshShape(const shared_ptr<Node> &node, const string &resName ):
-        Shape{resName} {
-        tryCreateShape(node.get());
-    }
-
-    void MeshShape::tryCreateShape(Node *node) {
-        const auto *meshInstance = dynamic_cast<MeshInstance *>(node);
+    void MeshShape::tryCreateShape(const shared_ptr<Node>& node) {
+        auto meshInstance = dynamic_pointer_cast<MeshInstance>(node);
         if (meshInstance == nullptr) {
             meshInstance = node->findFirstChild<MeshInstance>();
         }
@@ -35,7 +27,7 @@ namespace z0 {
         }
     }
 
-    void MeshShape::createShape(const MeshInstance *meshInstance) {
+    void MeshShape::createShape(const shared_ptr<MeshInstance>& meshInstance) {
         JPH::VertexList vertexList;
         const auto &    transform = meshInstance->getTransformLocal();
         const auto &    vertices  = meshInstance->getMesh()->getVertices();

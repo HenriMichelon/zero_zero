@@ -11,15 +11,9 @@ import :ConvexHullShape;
 
 namespace z0 {
 
-    ConvexHullShape::ConvexHullShape(Node *node, const string &resName):
-        Shape{resName} {
-        assert(node && "Invalid Node");
-        tryCreateShape(node);
-    }
-
     ConvexHullShape::ConvexHullShape(const shared_ptr<Node> &node, const string &resName):
         Shape{resName} {
-        tryCreateShape(node.get());
+        tryCreateShape(node);
     }
 
     ConvexHullShape::ConvexHullShape(const shared_ptr<Mesh> &mesh, const string &resName):
@@ -27,10 +21,11 @@ namespace z0 {
         createShape(mesh);
     }
 
-    void ConvexHullShape::tryCreateShape(Node *node) {
-        const auto *meshInstance = dynamic_cast<MeshInstance *>(node);
+    void ConvexHullShape::tryCreateShape(const shared_ptr<Node> &node) {
+        const auto *meshInstance = dynamic_cast<MeshInstance *>(node.get());
         if (meshInstance == nullptr) {
-            meshInstance = node->findFirstChild<MeshInstance>();
+            const auto& meshNode = node->findFirstChild<MeshInstance>();
+            if (meshNode != nullptr) meshInstance = meshNode.get();
         }
         if (meshInstance != nullptr) {
             createShape(meshInstance);

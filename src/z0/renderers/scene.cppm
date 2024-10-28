@@ -59,15 +59,15 @@ namespace z0 {
 
         void postUpdateScene(uint32_t currentFrame);
 
-        void addingModel(MeshInstance *meshInstance, uint32_t modelIndex, uint32_t currentFrame) override;
+        void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) override;
 
-        void addedModel(MeshInstance *meshInstance, uint32_t currentFrame) override;
+        void addedModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
 
-        void removingModel(MeshInstance *meshInstance, uint32_t currentFrame) override;
+        void removingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
 
-        void loadShadersMaterials(const ShaderMaterial *material, uint32_t currentFrame);
+        void loadShadersMaterials(const shared_ptr<ShaderMaterial>& material, uint32_t currentFrame);
 
-        void activateCamera(Camera *camera, uint32_t currentFrame) override;
+        void activateCamera(const shared_ptr<Camera>& camera, uint32_t currentFrame) override;
 
     private:
         struct GlobalBuffer {
@@ -178,7 +178,7 @@ namespace z0 {
             // Indices of each model data in the models uniform buffer
             map<Node::id_t, uint32_t> modelsIndices{};
             // All non-transparent models
-            list<MeshInstance *> opaquesModels{};
+            list<shared_ptr<MeshInstance>> opaquesModels{};
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
 
@@ -203,7 +203,7 @@ namespace z0 {
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;
             // All the images used in the scene
-            list<Image *> images;
+            list<shared_ptr<Image>> images;
             // Indices of each images in the descriptor binding
             map<Resource::id_t, int32_t> imagesIndices{};
             // Images reference counter
@@ -213,10 +213,10 @@ namespace z0 {
             // For rendering an optional skybox
             unique_ptr<SkyboxRenderer> skyboxRenderer{nullptr};
             // Environment parameters for the current scene
-            Environment *currentEnvironment{nullptr};
+            shared_ptr<Environment> currentEnvironment{nullptr};
 
             // All lights
-            vector<const Light *> lights;
+            vector<shared_ptr<Light>> lights;
             // Lights & shadow maps UBO
             unique_ptr<Buffer> lightBuffer;
             // Currently allocated point light uniform buffer count
@@ -233,7 +233,7 @@ namespace z0 {
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
         // One renderer per shadow map
-        map<const Light*, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
+        map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures and shadow mapping)
         unique_ptr<Image> blankImage{nullptr};
         // Default blank cubemap (for omni shadow mapping)
@@ -270,15 +270,15 @@ namespace z0 {
 
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
-        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<MeshInstance *> &modelsToDraw);
+        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw);
 
-        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const Light *light) const {
+        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);
         }
 
-        void enableLightShadowCasting(const Light *light);
+        void enableLightShadowCasting(const shared_ptr<Light>&light);
 
-        void disableLightShadowCasting(const Light *light);
+        void disableLightShadowCasting(const shared_ptr<Light>&light);
 
     public:
         SceneRenderer(const SceneRenderer &) = delete;

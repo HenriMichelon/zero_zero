@@ -287,7 +287,7 @@ namespace z0 {
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
         assert(camera != nullptr);
         for (auto& frame : frameData) {
-            frame.activateCamera = camera;
+            frame.activeCamera = camera;
         }
     }
 
@@ -313,9 +313,9 @@ namespace z0 {
             }
             frameData[currentFrame].addedNodes.clear();
         }
-        if (frameData[currentFrame].activateCamera != nullptr) {
-            sceneRenderer->activateCamera(frameData[currentFrame].activateCamera.get(), currentFrame);
-            frameData[currentFrame].activateCamera = nullptr;
+        if (frameData[currentFrame].activeCamera != nullptr) {
+            sceneRenderer->activateCamera(frameData[currentFrame].activeCamera, currentFrame);
+            frameData[currentFrame].activeCamera = nullptr;
         }
         sceneRenderer->postUpdateScene(currentFrame);
     }

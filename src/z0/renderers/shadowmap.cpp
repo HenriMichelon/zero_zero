@@ -1,5 +1,6 @@
 module;
 #include <cstdlib>
+#include <memory>
 #include <volk.h>
 #include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
@@ -25,20 +26,20 @@ import :FrustumCulling;
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light) :
+    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const shared_ptr<Light>&light) :
         Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
         light{light} {
         frameData.resize(device.getFramesInFlight());
         for(auto& frame: frameData) {
             frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
-            if (isCascaded()) { frame.cascadesCount = reinterpret_cast<const DirectionalLight*>(light)->getShadowMapCascadesCount(); }
+            if (isCascaded()) { frame.cascadesCount = reinterpret_pointer_cast<DirectionalLight>(light)->getShadowMapCascadesCount(); }
         }
     }
 
-    void ShadowMapRenderer::loadScene(const list<MeshInstance *> &meshes) {
+    void ShadowMapRenderer::loadScene(const list<shared_ptr<MeshInstance>> &meshes) {
         for(auto& frame: frameData) {
             frame.models = meshes;
-            frame.models.sort([](const MeshInstance *a, const MeshInstance *b) { return *a < *b; });
+            frame.models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
         }
         createOrUpdateResources(true, &pushConstantRange);
     }
@@ -65,7 +66,7 @@ namespace z0 {
                 // https://learnopengl.com/Guest-Articles/2021/CSM
 
                 auto cascadeSplits = vector<float>(data.cascadesCount);
-                const auto *directionalLight = reinterpret_cast<const DirectionalLight *>(light);
+                const auto& directionalLight = reinterpret_pointer_cast<DirectionalLight>(light);
                 const auto lightDirection = directionalLight->getFrontVector();
                 const auto nearClip  = data.currentCamera->getNearDistance();
                 const auto farClip   = data.currentCamera->getFarDistance();
@@ -172,7 +173,7 @@ namespace z0 {
                 break;
             }
             case Light::LIGHT_OMNI: {
-                const auto *omniLight = reinterpret_cast<const OmniLight *>(light);
+                const auto& omniLight = reinterpret_pointer_cast<OmniLight>(light);
                 const auto lightPos  = omniLight->getPositionGlobal();
                 const auto lightProj = perspective(
                     radians(90.0f),
@@ -190,7 +191,7 @@ namespace z0 {
                 break;
             }
             case Light::LIGHT_SPOT: {
-                const auto *spotLight = reinterpret_cast<const SpotLight *>(light);
+                const auto& spotLight = reinterpret_pointer_cast<SpotLight>(light);
                 const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
                 const auto lightPosition                   = light->getPositionGlobal();
                 const auto sceneCenter              = lightPosition + lightDirection;

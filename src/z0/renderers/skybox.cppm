@@ -23,7 +23,7 @@ export namespace z0 {
 
         void cleanup() override;
 
-        void update(const Camera *currentCamera, const Environment *currentEnvironment, uint32_t currentFrame);
+        void update(const shared_ptr<Camera>& currentCamera, const shared_ptr<Environment>& currentEnvironment, uint32_t currentFrame);
 
         void loadShaders() override;
 

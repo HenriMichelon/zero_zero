@@ -29,19 +29,19 @@ export namespace z0 {
      */
     class ShadowMapRenderer : public Renderpass, public Renderer {
     public:
-        ShadowMapRenderer(Device &device, const string &shaderDirectory, const Light *light);
+        ShadowMapRenderer(Device &device, const string &shaderDirectory, const shared_ptr<Light>&light);
 
-        void loadScene(const list<MeshInstance *> &meshes);
+        void loadScene(const list<shared_ptr<MeshInstance>> &meshes);
 
         [[nodiscard]] inline mat4 getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
             return frameData[currentFrame].lightSpace[index];
         }
 
-        inline void activateCamera(Camera *camera, const uint32_t currentFrame) {
+        inline void activateCamera(const shared_ptr<Camera>& camera, const uint32_t currentFrame) {
             frameData[currentFrame].currentCamera = camera;
         }
 
-        [[nodiscard]] inline const Light *getLight() const { return light; }
+        [[nodiscard]] inline const shared_ptr<Light>&getLight() const { return light; }
 
         [[nodiscard]] inline bool isCascaded() const { return light->getLightType() == Light::LIGHT_DIRECTIONAL; }
 
@@ -61,7 +61,7 @@ export namespace z0 {
             return frameData[currentFrame].shadowMap;
         }
 
-        [[nodiscard]] inline float getFarPlane() const { return reinterpret_cast<const OmniLight*>(light)->getFarClipDistance(); }
+        [[nodiscard]] inline float getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getFarClipDistance(); }
 
         [[nodiscard]] inline bool isInitialized() const { return setLayout != nullptr; }
 
@@ -99,9 +99,9 @@ export namespace z0 {
 
         struct FrameData {
             // Scene current camera
-            Camera* currentCamera{nullptr};
+            shared_ptr<Camera> currentCamera{nullptr};
             // All the models of the scene
-            list<MeshInstance *> models{};
+            list<shared_ptr<MeshInstance>> models{};
             // The destination frame buffer
             shared_ptr<ShadowMapFrameBuffer> shadowMap;
             // Number of cascades
@@ -116,7 +116,7 @@ export namespace z0 {
         vector<FrameData> frameData;
 
         // The light we render the shadow map for
-        const Light *light;
+        const shared_ptr<Light> light;
 
         void update(uint32_t currentFrame) override;
 

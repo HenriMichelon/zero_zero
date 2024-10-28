@@ -281,16 +281,16 @@ export namespace z0 {
          * Does not work with nodes loaded from a scene file since they are cast to Node.
          */
         template <typename T>
-        [[nodiscard]] T *findFirstChild(const bool recursive = true) const {
-            for (auto &node : children) {
-                if (auto *pnode = dynamic_cast<T *>(node.get())) {
-                    return pnode;
+        [[nodiscard]] shared_ptr<T> findFirstChild(const bool recursive = true) const {
+            for (const auto &node : children) {
+                if (const auto& found = dynamic_pointer_cast<T>(node)) {
+                    return found;
                 }
                 if (recursive) {
                     return node->findFirstChild<T>(true);
                 }
             }
-            return nullptr;
+            return {nullptr};
         }
 
         /**

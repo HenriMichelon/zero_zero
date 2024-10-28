@@ -17,11 +17,11 @@ namespace z0 {
      * https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
     */
 
-    Frustum::Frustum(const Node* node, const float fovY, const float zNear, const float zFar):
+    Frustum::Frustum(const shared_ptr<Node>& node, const float fovY, const float zNear, const float zFar):
         Frustum(node, node->getPositionGlobal(), fovY, zNear, zFar) {
     }
 
-    Frustum::Frustum(const Node* node, const vec3 position, const float fovY, const float zNear, const float zFar) {
+    Frustum::Frustum(const shared_ptr<Node>& node, const vec3 position, const float fovY, const float zNear, const float zFar) {
         const auto front = node->getFrontVector();
         const auto right = node->getRightVector();
         const auto up = node->getUpVector();
@@ -42,7 +42,7 @@ namespace z0 {
         return plane.getSignedDistanceToPlane(position) > -.0f;
     }
 
-    bool Frustum::isOnFrustum(const MeshInstance* meshInstance) const {
+    bool Frustum::isOnFrustum(const shared_ptr<MeshInstance>& meshInstance) const {
         const auto & aabb = meshInstance->getAABB(); // get the world space AABB
         bool ret = true;
         for (int i = 0; i < 6; ++i) {

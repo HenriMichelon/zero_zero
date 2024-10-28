@@ -82,12 +82,12 @@ namespace z0 {
             return;
         }
         if (frameData[currentFrame].currentEnvironment == nullptr) {
-            if (auto *environment = dynamic_cast<Environment *>(node.get())) {
+            if (const auto& environment = dynamic_pointer_cast<Environment>(node)) {
                 frameData[currentFrame].currentEnvironment = environment;
                 return;
             }
         }
-        if (const auto *light = dynamic_cast<const Light *>(node.get())) {
+        if (const auto& light = dynamic_pointer_cast<Light>(node)) {
             frameData[currentFrame].lights.push_back(light);
             descriptorSetNeedUpdate = true;
             enableLightShadowCasting(light);
@@ -98,11 +98,11 @@ namespace z0 {
     void SceneRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (dynamic_cast<Skybox *>(node.get())) {
             frameData[currentFrame].skyboxRenderer.reset();
-        } else if (const auto *environment = dynamic_cast<Environment *>(node.get())) {
+        } else if (const auto& environment = dynamic_pointer_cast<Environment>(node)) {
             if (frameData[currentFrame].currentEnvironment == environment) {
                 frameData[currentFrame].currentEnvironment = nullptr;
             }
-        } else if (const auto *light = dynamic_cast<Light *>(node.get())) {
+        } else if (const auto& light = dynamic_pointer_cast<Light>(node)) {
             disableLightShadowCasting(light);
             std::erase(frameData[currentFrame].lights, light);
         } else {
@@ -136,7 +136,6 @@ namespace z0 {
         material->_setDirty();
         frameData[currentFrame].materials.push_back(material);
         frameData[currentFrame].materialsRefCounter[material->getId()]++;
-        log("frame ", to_string(currentFrame), "add mat ", material->getName());
     }
 
     void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
@@ -168,7 +167,6 @@ namespace z0 {
                 frameData[currentFrame].materialsIndicesAllocation[index] = Resource::INVALID_ID;
                 frameData[currentFrame].materialsIndices.erase(material->getId());
                 frameData[currentFrame].materials.remove(material);
-                log("frame ", to_string(currentFrame), "rem mat ", material->getName());
             }
         }
     }
@@ -176,7 +174,7 @@ namespace z0 {
     void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
         createOrUpdateResources(true, &pushConstantRange);
         for (const auto &material : OutlineMaterials::_all()) {
-            loadShadersMaterials(material.get(), currentFrame);
+            loadShadersMaterials(material, currentFrame);
         }
         for (const auto &pair : shadowMapRenderers) {
             if (!pair.second->isInitialized()) {
@@ -185,7 +183,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::addingModel(MeshInstance *meshInstance, const uint32_t modelIndex, const uint32_t currentFrame) {
+    void SceneRenderer::addingModel(const shared_ptr<MeshInstance>& meshInstance, const uint32_t modelIndex, const uint32_t currentFrame) {
         frameData[currentFrame].opaquesModels.push_back(meshInstance);
         frameData[currentFrame].modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
@@ -212,16 +210,16 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::addedModel(MeshInstance *meshInstance, const uint32_t currentFrame) {
+    void SceneRenderer::addedModel(const shared_ptr<MeshInstance>&meshInstance, const uint32_t currentFrame) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-            if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
+            if (const auto& shaderMaterial = dynamic_pointer_cast<ShaderMaterial>(material)) {
                 loadShadersMaterials(shaderMaterial, currentFrame);
             }
         }
-        frameData[currentFrame].opaquesModels.sort([](const MeshInstance *a, const MeshInstance*b) { return *a < *b; });
+        frameData[currentFrame].opaquesModels.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
     }
 
-    void SceneRenderer::removingModel(MeshInstance *meshInstance, const uint32_t currentFrame) {
+    void SceneRenderer::removingModel(const shared_ptr<MeshInstance>&meshInstance, const uint32_t currentFrame) {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
            removeMaterial(material, currentFrame);
         }
@@ -233,7 +231,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::loadShadersMaterials(const ShaderMaterial *material, const uint32_t currentFrame) {
+    void SceneRenderer::loadShadersMaterials(const shared_ptr<ShaderMaterial>&material, const uint32_t currentFrame) {
         if (!frameData[currentFrame].materialShaders.contains(material->getFragFileName())) {
             if (!material->getVertFileName().empty()) {
                 frameData[currentFrame].materialShaders[material->getVertFileName()] = createShader(
@@ -248,7 +246,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::activateCamera(Camera *camera, const uint32_t currentFrame) {
+    void SceneRenderer::activateCamera(const shared_ptr<Camera>& camera, const uint32_t currentFrame) {
         ModelsRenderer::activateCamera(camera, currentFrame);
         for (const auto &pair : shadowMapRenderers) {
             pair.second->activateCamera(camera, currentFrame);
@@ -276,26 +274,26 @@ namespace z0 {
         if (globalUbo.lightsCount > 0) {
             auto lightsArray = make_unique<LightBuffer[]>(globalUbo.lightsCount);
             auto lightIndex = 0;
-            for (const auto* light : frame.lights) {
+            for (const auto& light : frame.lights) {
                 lightsArray[lightIndex].type      = light->getLightType();
                 lightsArray[lightIndex].position  = light->getPositionGlobal();
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();
                 lightsArray[lightIndex].specular  = light->getSpecularIntensity();
                 switch (light->getLightType()) {
                     case Light::LIGHT_DIRECTIONAL: {
-                        const auto *directionalLight = dynamic_cast<const DirectionalLight *>(light);
+                        const auto& directionalLight = reinterpret_pointer_cast<DirectionalLight>(light);
                         lightsArray[lightIndex].direction = normalize(mat3{directionalLight->getTransformGlobal()} * AXIS_FRONT);
                         break;
                     }
                     case Light::LIGHT_SPOT: {
-                        const auto *spotLight = dynamic_cast<const SpotLight *>(light);
+                        const auto& spotLight = reinterpret_pointer_cast<SpotLight>(light);
                         lightsArray[lightIndex].direction = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
                         lightsArray[lightIndex].cutOff    = spotLight->getCutOff();
                         lightsArray[lightIndex].outerCutOff = spotLight->getOuterCutOff();
                         // a spot is also an omni
                     }
                     case Light::LIGHT_OMNI: {
-                        const auto* omniLight = dynamic_cast<const OmniLight*>(light);
+                        const auto& omniLight = reinterpret_pointer_cast<OmniLight>(light);
                         lightsArray[lightIndex].range  = omniLight->getRange();
                         break;
                     }
@@ -683,18 +681,18 @@ namespace z0 {
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         frameData[currentFrame].imagesRefCounter[image->getId()]++;
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end())
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image) != frameData[currentFrame].images.end())
             return;
         if (frameData[currentFrame].images.size() == MAX_IMAGES)
             die("Maximum images count reached for the scene renderer");
         frameData[currentFrame].imagesIndices[image->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
-        frameData[currentFrame].images.push_back(image.get());
+        frameData[currentFrame].images.push_back(image);
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image.get()) != frameData[currentFrame].images.end()) {
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image) != frameData[currentFrame].images.end()) {
             if (--frameData[currentFrame].imagesRefCounter[image->getId()] == 0) {
-                frameData[currentFrame].images.remove(image.get());
+                frameData[currentFrame].images.remove(image);
                 // Rebuild the image index
                 frameData[currentFrame].imagesIndices.clear();
                 uint32_t imageIndex = 0;
@@ -708,7 +706,7 @@ namespace z0 {
 
     void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer,
                                    const uint32_t currentFrame,
-                                   const list<MeshInstance *> &modelsToDraw) {
+                                   const list<shared_ptr<MeshInstance>> &modelsToDraw) {
         auto shadersChanged = false;
         const auto cameraFrustum = Frustum{
             ModelsRenderer::frameData[currentFrame].currentCamera,
@@ -804,7 +802,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::enableLightShadowCasting(const Light *light) {
+    void SceneRenderer::enableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (!shadowMapRenderers.contains(light)) {
                 if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
@@ -819,7 +817,7 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::disableLightShadowCasting(const Light *light) {
+    void SceneRenderer::disableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (shadowMapRenderers.contains(light)) {
                 device.unRegisterRenderer(shadowMapRenderers.at(light));

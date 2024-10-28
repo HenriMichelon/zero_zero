@@ -17,12 +17,6 @@ export namespace z0 {
     class ConvexHullShape : public Shape {
     public:
         /**
-         * Creates a ConvexHullShape using the vertices of the Mesh of first MeshInstance found in the `node` tree.
-         * Uses the local transform of the node when creating the shape.
-         */
-        explicit ConvexHullShape(Node *node, const string &resName = "ConvexHullShape");
-
-        /**
          * Creates a ConvexHullShape using the vertices of the Mesh of the first MeshInstance found in the `node` tree.
          * Uses the local transform of the node when creating the shape.
          */
@@ -34,7 +28,7 @@ export namespace z0 {
         explicit ConvexHullShape(const shared_ptr<Mesh> &mesh, const string &resName = "ConvexHullShape");
 
     private:
-        void tryCreateShape(Node *node);
+        void tryCreateShape(const shared_ptr<Node> &node);
 
         void createShape(const MeshInstance *meshInstance);
 
