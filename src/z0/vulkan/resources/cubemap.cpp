@@ -6,12 +6,13 @@ module;
 module z0;
 
 import :Application;
-import :Image;
 import :Cubemap;
+import :Image;
 
 import :Device;
 import :Buffer;
 import :VulkanCubemap;
+import :VulkanImage;
 import :IBLPipeline;
 
 namespace z0 {
@@ -195,7 +196,7 @@ namespace z0 {
         irradianceCubemap = make_shared<VulkanCubemap>(device,
            IRRADIANCE_MAP_SIZE,
            IRRADIANCE_MAP_SIZE);
-        brdfLut = make_shared<Image>(device,
+        brdfLut = make_shared<VulkanImage>(device,
             BRDFLUT_SIZE,
             BRDFLUT_SIZE,
             1,
@@ -215,11 +216,14 @@ namespace z0 {
             ENVIRONMENT_MAP_SIZE,
             ENVIRONMENT_MAP_SIZE
         );
+        const auto &vkSpecular = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->specularCubemap);
+        const auto &vkIrradiance = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->irradianceCubemap);
+        const auto &vkBRDF = reinterpret_pointer_cast<VulkanImage>(envCubemap->brdfLut);
         const auto iblPipeline = IBLPipeline{device};
-        iblPipeline.convert(Image::loadFromFile(filename), unfilteredCubemap);
-        iblPipeline.preComputeSpecular(unfilteredCubemap, envCubemap->specularCubemap);
-        iblPipeline.preComputeIrradiance(envCubemap->specularCubemap, envCubemap->irradianceCubemap);
-        iblPipeline.preComputeBRDF(envCubemap->brdfLut);
+        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::loadFromFile(filename)), unfilteredCubemap);
+        iblPipeline.preComputeSpecular(unfilteredCubemap, vkSpecular);
+        iblPipeline.preComputeIrradiance(vkSpecular, vkIrradiance);
+        iblPipeline.preComputeBRDF(vkBRDF);
         return envCubemap;
     }
 

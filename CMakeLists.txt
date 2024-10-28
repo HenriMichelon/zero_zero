@@ -95,6 +95,8 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/resources/texture.cppm
 
 		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cppm
+		${Z0_ENGINE_DIR}/vulkan/resources/image.cppm
+		${Z0_ENGINE_DIR}/vulkan/resources/mesh.cppm
 
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color.cppm
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cppm
@@ -193,6 +195,8 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cpp
+		${Z0_ENGINE_DIR}/vulkan/resources/image.cpp
+		${Z0_ENGINE_DIR}/vulkan/resources/mesh.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color.cpp
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cpp

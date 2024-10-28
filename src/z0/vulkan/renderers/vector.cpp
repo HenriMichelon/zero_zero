@@ -6,18 +6,20 @@ module z0;
 
 import :Constants;
 import :Tools;
+import :Color;
+import :Rect;
+import :Image;
+import :Font;
+import :Resource;
+
 import :Renderer;
 import :Renderpass;
 import :ColorFrameBufferHDR;
 import :Device;
 import :Descriptors;
-import :Color;
-import :Rect;
-import :Image;
-import :Font;
 import :Buffer;
-import :Resource;
 import :VectorRenderer;
+import :VulkanImage;
 
 namespace z0 {
 
@@ -323,12 +325,12 @@ namespace z0 {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {
-                frameData[i].imagesInfo[imageIndex] = image->_getImageInfo();
+                frameData[i].imagesInfo[imageIndex] = image->getImageInfo();
                 imageIndex += 1;
             }
             // initialize the rest of the image info array with the blank image
             for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
-                frameData[i].imagesInfo[j] = blankImage->_getImageInfo();
+                frameData[i].imagesInfo[j] = blankImage->getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeImage(0, frameData[i].imagesInfo.data());
@@ -356,17 +358,18 @@ namespace z0 {
                 offsetof(Vertex, uv)
         });
         // Create an in-memory default blank image
-        if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
+        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage()); }
         createOrUpdateResources(true, &pushConstantRange);
     }
 
     void VectorRenderer::addImage(const shared_ptr<Image> &image) {
-        if (std::find(textures.begin(), textures.end(), image.get()) != textures.end())
+        const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
+        if (std::find(textures.begin(), textures.end(), vkImage) != textures.end())
             return;
         if (textures.size() == MAX_IMAGES)
             die("Maximum images count reached for the vector renderer");
-        texturesIndices[image->getId()] = static_cast<int32_t>(textures.size());
-        textures.push_back(image.get());
+        texturesIndices[vkImage->getId()] = static_cast<int32_t>(textures.size());
+        textures.push_back(vkImage);
     }
 
 }

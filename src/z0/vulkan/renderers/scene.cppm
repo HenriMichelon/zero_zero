@@ -26,6 +26,7 @@ import :SkyboxRenderer;
 import :Buffer;
 import :Shader;
 import :VulkanCubemap;
+import :VulkanImage;
 import :ColorFrameBufferHDR;
 import :ColorFrameBuffer;
 import :DepthFrameBuffer;
@@ -205,7 +206,7 @@ namespace z0 {
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;
             // All the images used in the scene
-            list<shared_ptr<Image>> images;
+            list<shared_ptr<VulkanImage>> images;
             // Indices of each images in the descriptor binding
             map<Resource::id_t, int32_t> imagesIndices{};
             // Images reference counter
@@ -237,7 +238,7 @@ namespace z0 {
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures and shadow mapping)
-        unique_ptr<Image> blankImage{nullptr};
+        shared_ptr<VulkanImage> blankImage{nullptr};
         // Default blank cubemap (for omni shadow mapping)
         shared_ptr<VulkanCubemap> blankCubemap{nullptr};
 

@@ -11,7 +11,7 @@ import :AABB;
 
 namespace z0 {
 
-    /*https://alextardif.com/Bindless.html
+    /*
      * Node that hold a Mesh.
      */
     export class MeshInstance : public Node {

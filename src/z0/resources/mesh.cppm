@@ -1,12 +1,10 @@
 module;
 #include <cassert>
 #include "z0/libraries.h"
-#include <volk.h>
 
 export module z0:Mesh;
 
 import :Resource;
-import :Buffer;
 import :Material;
 import :Tools;
 import :AABB;
@@ -63,7 +61,7 @@ export namespace z0 {
          * Creates an empty Mesh
          * @param meshName node name
          */
-        explicit Mesh(const string &meshName = "Mesh");
+        static shared_ptr<Mesh> create(const string &meshName = "Mesh");
 
         /**
          * Creates a Mesh from vertices
@@ -72,12 +70,13 @@ export namespace z0 {
          * @param surfaces Surfaces
          * @param meshName Node name
          */
-        Mesh(const vector<Vertex> &             vertices,
-             const vector<uint32_t> &           indices,
-             const vector<shared_ptr<Surface>> &surfaces,
-             const string &                     meshName = "Mesh");
+        static shared_ptr<Mesh> create(
+            const vector<Vertex> &             vertices,
+            const vector<uint32_t> &           indices,
+            const vector<shared_ptr<Surface>> &surfaces,
+            const string &                     meshName = "Mesh");
 
-        /**
+         /**
          * Returns the material for a given surface
          * @param surfaceIndex Zero based index of the surface
          */
@@ -133,44 +132,23 @@ export namespace z0 {
             return *a < *b;
         }
 
-    private:
+        [[nodiscard]] inline unordered_set<shared_ptr<Material>> &_getMaterials() { return materials; }
+
+    protected:
         AABB                                localAABB;
         vector<Vertex>                      vertices;
         vector<uint32_t>                    indices;
         vector<shared_ptr<Surface>>         surfaces{};
         unordered_set<shared_ptr<Material>> materials{};
-        unique_ptr<Buffer>                  vertexBuffer;
-        unique_ptr<Buffer>                  indexBuffer;
 
-    public:
-        [[nodiscard]] inline unordered_set<shared_ptr<Material>> &_getMaterials() { return materials; }
+        void buildAABB();
 
-        [[nodiscard]] static vector<VkVertexInputBindingDescription2EXT> _getBindingDescription();
+        explicit Mesh(const string &meshName = "Mesh");
 
-        [[nodiscard]] static vector<VkVertexInputAttributeDescription2EXT> _getAttributeDescription();
-
-        // Bind vertices & indexes then draw the mesh
-        void _draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
-
-        // Only send the drawing command without binding vertices & indexes
-        void _bindlessDraw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
-
-        // Build the vertices & index buffers and compute the local AABB
-        void _buildModel();
+        Mesh(const vector<Vertex> &             vertices,
+             const vector<uint32_t> &           indices,
+             const vector<shared_ptr<Surface>> &surfaces,
+             const string &                     meshName = "Mesh");
     };
 }
 
-namespace std {
-    /**
-     * Custom hash function for Vertex struct (std lib code convention)
-     */
-    template <>
-    struct hash<z0::Vertex> {
-        std::size_t operator()(const z0::Vertex &v) const {
-            std::size_t h1 = std::hash<vec3>()(v.position);
-            std::size_t h2 = std::hash<vec3>()(v.normal);
-            std::size_t h3 = std::hash<vec2>()(v.uv);
-            return h1 ^ (h2 << 1) ^ (h3 << 2);
-        }
-    };
-}

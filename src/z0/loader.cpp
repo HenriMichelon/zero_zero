@@ -17,12 +17,14 @@ import :Image;
 import :Material;
 import :Texture;
 import :Color;
-import :Mesh;
 import :Node;
 import :Resource;
 import :MeshInstance;
 import :TypeRegistry;
 import :Loader;
+
+import :VulkanImage;
+import :VulkanMesh;
 
 namespace z0 {
 
@@ -50,7 +52,7 @@ namespace z0 {
                           auto        *data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
                           if (data) {
                               VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format,
+                              newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
                                   magFilter, minFilter, addressModeU, addressModeV);
                               stbi_image_free(data);
                           }
@@ -64,7 +66,7 @@ namespace z0 {
                                                              STBI_rgb_alpha);
                           if (data) {
                               VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                              newImage = make_shared<Image>(device, name, width, height, imageSize, data, format,
+                              newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
                                     magFilter, minFilter, addressModeU, addressModeV);
                               stbi_image_free(data);
                           }
@@ -88,7 +90,7 @@ namespace z0 {
                                                                       STBI_rgb_alpha);
                                         if (data) {
                                             VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                            newImage               = make_shared<Image>(
+                                            newImage               = make_shared<VulkanImage>(
                                                     device, name, width, height, imageSize, data, format,
                                                     magFilter, minFilter, addressModeU, addressModeV);
                                             stbi_image_free(data);
@@ -104,7 +106,7 @@ namespace z0 {
                                                                       STBI_rgb_alpha);
                                         if (data) {
                                             VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                            newImage               = make_shared<Image>(
+                                            newImage               = make_shared<VulkanImage>(
                                                     device, name, width, height, imageSize, data, format,
                                                     magFilter, minFilter, addressModeU, addressModeV);
                                             stbi_image_free(data);
@@ -233,11 +235,11 @@ namespace z0 {
         }
         // log("Loader : ", to_string(materials.size()), " materials");
 
-        auto meshes = vector<shared_ptr<Mesh>>(gltf.meshes.size());
+        auto meshes = vector<shared_ptr<VulkanMesh>>(gltf.meshes.size());
         auto meshesCount = 0;
         for (size_t i = 0; i < gltf.meshes.size(); i++) {
             const auto& glftMesh = gltf.meshes[i];
-            auto  mesh     = std::make_shared<Mesh>(glftMesh.name.data());
+            auto  mesh     = make_shared<VulkanMesh>(glftMesh.name.data());
             auto &vertices = mesh->getVertices();
             auto &indices  = mesh->getIndices();
             for (auto &&p : glftMesh.primitives) {
@@ -345,7 +347,7 @@ namespace z0 {
             // MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
-                if (loadTextures) { mesh->_buildModel(); }
+                if (loadTextures) { mesh->buildModel(); }
                 newNode = std::make_shared<MeshInstance>(mesh, name);
             } else {
                 newNode = std::make_shared<Node>(name);

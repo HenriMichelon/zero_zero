@@ -9,17 +9,19 @@ module;
 export module z0:VectorRenderer;
 
 import :Constants;
+import :Color;
+import :Rect;
+import :Resource;
+import :Image;
+import :Font;
+
 import :Renderer;
 import :Renderpass;
 import :ColorFrameBufferHDR;
 import :Device;
 import :Descriptors;
-import :Color;
-import :Rect;
-import :Image;
-import :Font;
 import :Buffer;
-import :Resource;
+import :VulkanImage;
 
 namespace z0 {
 
@@ -154,7 +156,7 @@ namespace z0 {
         // Used when we need to postpone the buffers destruction when they are in use by a VkCommandBuffer
         list<shared_ptr<Buffer>> oldBuffers;
         // All the images used in the scene
-        list<Image *> textures;
+        list<shared_ptr<VulkanImage>> textures;
         // Indices of each images in the descriptor binding
         map<Resource::id_t, int32_t> texturesIndices{};
 
@@ -173,7 +175,7 @@ namespace z0 {
         // The renderer use its own color attachment, not an attachment from the previous renderer
         bool internalColorFrameBuffer;
         // Default blank image
-        unique_ptr<Image> blankImage{nullptr};
+        shared_ptr<VulkanImage> blankImage{nullptr};
 
         void init();
 

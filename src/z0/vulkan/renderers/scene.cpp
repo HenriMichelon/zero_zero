@@ -39,6 +39,8 @@ import :DepthFrameBuffer;
 import :SceneRenderer;
 import :SampledFrameBuffer;
 import :VulkanCubemap;
+import :VulkanImage;
+import :VulkanMesh;
 
 namespace z0 {
 
@@ -454,7 +456,7 @@ namespace z0 {
                             .build();
 
         // Create an in-memory default blank images
-        if (blankImage == nullptr) { blankImage = Image::createBlankImage(); }
+        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage()); }
         if (blankCubemap == nullptr) { blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap()); }
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
@@ -494,15 +496,15 @@ namespace z0 {
 
             uint32_t imageIndex = 0;
             for (const auto &image : frame.images) {
-                frame.imagesInfo[imageIndex] = image->_getImageInfo();
+                frame.imagesInfo[imageIndex] = image->getImageInfo();
                 imageIndex += 1;
             }
             for (auto j = imageIndex; j < frame.imagesInfo.size(); j++) {
-                frame.imagesInfo[j] = blankImage->_getImageInfo();
+                frame.imagesInfo[j] = blankImage->getImageInfo();
             }
 
             for (auto j = 0; j < frame.shadowMapsInfo.size(); j++) {
-                frame.shadowMapsInfo[j] = blankImage->_getImageInfo();
+                frame.shadowMapsInfo[j] = blankImage->getImageInfo();
                 frame.shadowMapsCubemapInfo[j] = blankCubemap->getImageInfo();
             }
             imageIndex = 0;
@@ -537,11 +539,11 @@ namespace z0 {
                 const auto& environmentCubemap = reinterpret_pointer_cast<EnvironmentCubemap>(frame.skyboxRenderer->getCubemap());
                 specularInfo = reinterpret_pointer_cast<VulkanCubemap>(environmentCubemap->getSpecularCubemap())->getImageInfo();
                 irradianceInfo = reinterpret_pointer_cast<VulkanCubemap>(environmentCubemap->getIrradianceCubemap())->getImageInfo();
-                brdfInfo = environmentCubemap->getBRDFLut()->_getImageInfo();
+                brdfInfo = reinterpret_pointer_cast<VulkanImage>(environmentCubemap->getBRDFLut())->getImageInfo();
             } else {
                 specularInfo = blankCubemap->getImageInfo();
                 irradianceInfo = blankCubemap->getImageInfo();
-                brdfInfo = blankImage->_getImageInfo();
+                brdfInfo = blankImage->getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
@@ -682,19 +684,21 @@ namespace z0 {
     }
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
-        frameData[currentFrame].imagesRefCounter[image->getId()]++;
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image) != frameData[currentFrame].images.end())
+        const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
+        frameData[currentFrame].imagesRefCounter[vkImage->getId()]++;
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end())
             return;
         if (frameData[currentFrame].images.size() == MAX_IMAGES)
             die("Maximum images count reached for the scene renderer");
-        frameData[currentFrame].imagesIndices[image->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
-        frameData[currentFrame].images.push_back(image);
+        frameData[currentFrame].imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
+        frameData[currentFrame].images.push_back(vkImage);
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), image) != frameData[currentFrame].images.end()) {
-            if (--frameData[currentFrame].imagesRefCounter[image->getId()] == 0) {
-                frameData[currentFrame].images.remove(image);
+        const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end()) {
+            if (--frameData[currentFrame].imagesRefCounter[vkImage->getId()] == 0) {
+                frameData[currentFrame].images.remove(vkImage);
                 // Rebuild the image index
                 frameData[currentFrame].imagesIndices.clear();
                 uint32_t imageIndex = 0;
@@ -727,7 +731,7 @@ namespace z0 {
         for (const auto &meshInstance : modelsToDraw) {
             if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = frameData[currentFrame].modelsIndices[meshInstance->getId()];
-                const auto &model      = meshInstance->getMesh();
+                const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
                         const auto &material = meshInstance->getOutlineMaterial();
@@ -747,9 +751,9 @@ namespace z0 {
                         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                             0, PUSHCONSTANTS_SIZE, &pushConstants);
                         if (lastMeshId == model->getId()) {
-                            model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         } else {
-                            model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                             lastMeshId = model->getId();
                         }
                         vkCmdSetCullMode(commandBuffer,
@@ -789,9 +793,9 @@ namespace z0 {
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, PUSHCONSTANTS_SIZE, &pushConstants);
                     if (lastMeshId == model->getId()) {
-                        model->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                     } else {
-                        model->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         lastMeshId = model->getId();
                     }
                     if (shadersChanged) {

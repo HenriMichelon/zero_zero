@@ -6,9 +6,11 @@ module;
 module z0;
 
 import :Tools;
-import :Device;
 import :Image;
 import :Font;
+
+import :Device;
+import :VulkanImage;
 
 namespace z0 {
 
@@ -65,7 +67,7 @@ namespace z0 {
         /*  auto name = str;
          name.append(".png");
          stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<Image>(device,
+        return make_shared<VulkanImage>(device,
                                   text,
                                   width,
                                   height,

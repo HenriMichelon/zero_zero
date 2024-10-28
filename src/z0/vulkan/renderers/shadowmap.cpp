@@ -9,20 +9,22 @@ module z0;
 
 import :Tools;
 import :Resource;
-import :Renderer;
-import :Renderpass;
-import :Device;
-import :ShadowMapFrameBuffer;
-import :Descriptors;
 import :MeshInstance;
 import :Light;
 import :OmniLight;
 import :SpotLight;
 import :Buffer;
 import :Mesh;
+import :FrustumCulling;
+
+import :Renderer;
+import :Renderpass;
+import :Device;
+import :ShadowMapFrameBuffer;
+import :Descriptors;
 import :ColorFrameBufferHDR;
 import :ShadowMapRenderer;
-import :FrustumCulling;
+import :VulkanMesh;
 
 namespace z0 {
 
@@ -252,8 +254,8 @@ namespace z0 {
             constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
             vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
             vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
-            const auto vertexBinding   = Mesh::_getBindingDescription();
-            const auto vertexAttribute = Mesh::_getAttributeDescription();
+            const auto vertexBinding   = VulkanMesh::getBindingDescription();
+            const auto vertexAttribute = VulkanMesh::getAttributeDescription();
             vkCmdSetVertexInputEXT(commandBuffer,
                                    vertexBinding.size(),
                                    vertexBinding.data(),
@@ -271,7 +273,7 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
-                    const auto& mesh = meshInstance->getMesh();
+                    const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.model = meshInstance->getTransformGlobal();
                         pushConstants.transparency = surface->material->getTransparency();
@@ -283,9 +285,9 @@ namespace z0 {
                             PUSHCONSTANTS_SIZE,
                             &pushConstants);
                         if (lastMeshId == mesh->getId()) {
-                            mesh->_bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            mesh->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                         } else {
-                            mesh->_draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            mesh->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
                             lastMeshId = mesh->getId();
                         }
                     }

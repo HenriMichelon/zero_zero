@@ -1,0 +1,40 @@
+module;
+#include <volk.h>
+#include "z0/libraries.h"
+
+export module z0:VulkanMesh;
+
+import :Mesh;
+
+import :Buffer;
+
+export namespace z0 {
+
+    class VulkanMesh : public Mesh {
+    public:
+        inline explicit VulkanMesh(const string &meshName ) : Mesh{meshName} {}
+
+        VulkanMesh(
+            const vector<Vertex> &             vertices,
+            const vector<uint32_t> &           indices,
+            const vector<shared_ptr<Surface>> &surfaces,
+            const string &                     meshName = "Mesh");
+
+        static vector<VkVertexInputBindingDescription2EXT> getBindingDescription();
+
+        static vector<VkVertexInputAttributeDescription2EXT> getAttributeDescription();
+
+        // Bind vertices & indexes then draw the mesh
+        void draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
+
+        // Only send the drawing command without binding vertices & indexes
+        void bindlessDraw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
+
+        void buildModel();
+
+    private:
+        unique_ptr<Buffer> vertexBuffer;
+        unique_ptr<Buffer> indexBuffer;
+    };
+}
+

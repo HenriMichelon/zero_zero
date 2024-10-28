@@ -4,11 +4,14 @@ module;
 
 export module z0:IBLPipeline;
 
+import :Image;
+import :Cubemap;
+
 import :Device;
 import :ComputePipeline;
 import :Descriptors;
-import :Image;
-import :Cubemap;
+import :VulkanImage;
+import :VulkanCubemap;
 
 export namespace z0 {
 
@@ -20,11 +23,11 @@ export namespace z0 {
         explicit IBLPipeline(Device &device);
         ~IBLPipeline() override;
 
-        void convert(const shared_ptr<Image>&   hdrFile,
-                     const shared_ptr<Cubemap>& cubemap) const;
-        void preComputeSpecular(const shared_ptr<Cubemap>& unfilteredCubemap, const shared_ptr<Cubemap>& cubemap) const;
-        void preComputeIrradiance(const shared_ptr<Cubemap>& cubemap, const shared_ptr<Cubemap>& irradianceCubemap) const;
-        void preComputeBRDF(const shared_ptr<Image>& brdfLut) const;
+        void convert(const shared_ptr<VulkanImage>&   hdrFile,
+                     const shared_ptr<VulkanCubemap>& cubemap) const;
+        void preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const;
+        void preComputeIrradiance(const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const;
+        void preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const;
 
     private:
         struct SpecularFilterPushConstants {

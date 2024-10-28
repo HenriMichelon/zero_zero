@@ -1,20 +1,22 @@
 module;
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
- module z0;
+module z0;
+
+import :Node;
+import :Camera;
+import :MeshInstance;
+import :Viewport;
+import :Mesh;
 
 import :Renderer;
 import :Renderpass;
-import :Node;
-import :Camera;
 import :Buffer;
-import :MeshInstance;
 import :Device;
 import :DepthFrameBuffer;
-import :Viewport;
-import :Mesh;
 import :ModelsRenderer;
+import :VulkanMesh;
 
  namespace z0 {
 
@@ -121,8 +123,8 @@ import :ModelsRenderer;
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
 
-        const auto vertexBinding   = Mesh::_getBindingDescription();
-        const auto vertexAttribute = Mesh::_getAttributeDescription();
+        const auto vertexBinding   = VulkanMesh::getBindingDescription();
+        const auto vertexAttribute = VulkanMesh::getAttributeDescription();
         vkCmdSetVertexInputEXT(commandBuffer,
                                vertexBinding.size(),
                                vertexBinding.data(),
