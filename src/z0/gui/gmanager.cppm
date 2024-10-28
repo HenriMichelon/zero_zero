@@ -11,7 +11,6 @@ import :GWindow;
 
 export namespace z0 {
 
-    class Application;
     class VectorRenderer;
 
     /**
@@ -43,6 +42,10 @@ export namespace z0 {
         [[nodiscard]] inline float getResizeDelta() const { return resizeDelta; }
         void setEnableWindowResizing(const bool enable) { enableWindowResizing = enable; }
 
+        void drawFrame();
+
+        [[nodiscard]] bool onInput(InputEvent& inputEvent);
+
     private:
         const float                 resizeDelta{5.0f};
         shared_ptr<Font>            defaultFont;
@@ -56,12 +59,6 @@ export namespace z0 {
         bool                        resizingWindow{false};
         bool                        resizingWindowOriginBorder{false};
         MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};
-
-        void drawFrame();
-
-        [[nodiscard]] bool onInput(InputEvent& inputEvent);
-
-        friend class Application;
 
     public:
         GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);

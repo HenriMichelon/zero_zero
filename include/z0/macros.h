@@ -19,7 +19,7 @@
  * @param ROOTNODE The root Node of the startup scene
  */
 #define Z0_APP(CONFIG, ROOTNODE) \
-z0::Application _z0_app(CONFIG, ROOTNODE); \
+z0::VulkanApplication _z0_app(CONFIG, ROOTNODE); \
 int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
  if (z0::Application::_instance == nullptr) z0::die("No Application object found"); \
  z0::Application::get()._mainLoop(); \

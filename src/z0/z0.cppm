@@ -46,3 +46,4 @@ export import :GPanel;
 export import :GFrame;
 export import :GTreeView;
 
+export import :VulkanApplication;

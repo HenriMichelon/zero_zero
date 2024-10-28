@@ -17,8 +17,6 @@ import :InputEvent;
 import :TypeRegistry;
 import :Window;
 import :Material;
-import :SceneRenderer;
-import :VectorRenderer;
 import :GManager;
 import :Camera;
 import :Character;
@@ -33,11 +31,6 @@ import :Skybox;
 import :StaticBody;
 import :Viewport;
 
-import :Instance;
-import :Device;
-import :SimplePostprocessingRenderer;
-import :TonemappingPostprocessingRenderer;
-
 namespace z0 {
 
     // Unique application instance
@@ -45,18 +38,16 @@ namespace z0 {
 
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
         applicationConfig{appConfig}, rootNode{node} {
-        assert(_instance == nullptr);
-        assert(rootNode != nullptr);
+        assert(_instance == nullptr && rootNode != nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
-        instance = make_unique<Instance>();
-
         // The rendering window
         window = make_unique<Window>(applicationConfig);
+    }
+
+    void Application::init() {
         // Compute the scale ratios for the vector renderer
         vectorRatio = vec2{window->getWidth() / VECTOR_SCALE.x, window->getHeight() / VECTOR_SCALE.y};
-        // The global Vulkan device helper
-        device = instance->createDevice(applicationConfig, *window);
 
         // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();
@@ -79,41 +70,14 @@ namespace z0 {
         physicsSystem.SetContactListener(&contactListener);
 
         // Initialize the various renderers
-        const string shaderDir{(applicationConfig.appDir / "shaders").string()};
-        sceneRenderer = make_shared<SceneRenderer>(
-            *device,
-            shaderDir,
-            applicationConfig.clearColor);
-        tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
-            *device,
-            shaderDir,
-            sceneRenderer->getColorAttachments(),
-            sceneRenderer->getDepthAttachments());
-        vectorRenderer = make_shared<VectorRenderer>(
-            *device,
-            shaderDir,
-            sceneRenderer->getColorAttachments());
-
-        device->registerRenderer(vectorRenderer);
-        device->registerRenderer(tonemappingRenderer);
-        device->registerRenderer(sceneRenderer);
-
-        // The global UI window manager
-        windowManager = make_unique<GManager>(vectorRenderer,
-                                              (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
-                                              applicationConfig.defaultFontSize);
+        initRenderingSystem();
+        assert(window != nullptr);
 
         // Register the built-in nodes types
         registerTypes();
     }
 
     Application::~Application() {
-        OutlineMaterials::_all().clear();
-        sceneRenderer.reset();
-        vectorRenderer.reset();
-        device->cleanup();
-        device.reset();
-        instance.reset();
         log("===== END OF LOG =====");
     }
 
@@ -152,34 +116,6 @@ namespace z0 {
         }
     }
 
-    void Application::processDeferredUpdates(const uint32_t currentFrame) {
-        // Process the deferred scene tree modifications
-        sceneRenderer->preUpdateScene(currentFrame);
-        windowManager->drawFrame();
-        if (!frameData[currentFrame].removedNodes.empty()) {
-            for (const auto &node : frameData[currentFrame].removedNodes) {
-                sceneRenderer->removeNode(node, currentFrame);
-            }
-            frameData[currentFrame].removedNodes.clear();
-            if (sceneRenderer->getCamera(currentFrame) == nullptr) {
-                const auto &camera = rootNode->findFirstChild<Camera>(true);
-                if (camera->isProcessed()) {
-                    sceneRenderer->activateCamera(camera, currentFrame);
-                }
-            }
-        }
-        if (!frameData[currentFrame].addedNodes.empty()) {
-            for (const auto &node : frameData[currentFrame].addedNodes) {
-                sceneRenderer->addNode(node, currentFrame);
-            }
-            frameData[currentFrame].addedNodes.clear();
-        }
-        if (frameData[currentFrame].activeCamera != nullptr) {
-            sceneRenderer->activateCamera(frameData[currentFrame].activeCamera, currentFrame);
-            frameData[currentFrame].activeCamera = nullptr;
-        }
-        sceneRenderer->postUpdateScene(currentFrame);
-    }
 
     void Application::drawFrame() {
         if (stopped) { return; }
@@ -201,7 +137,7 @@ namespace z0 {
         }
         const double alpha = accumulator / dt;
         process(rootNode, static_cast<float>(alpha));
-        device->drawFrame(currentFrame);
+        renderFrame(currentFrame);
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
         if (elapsedSeconds >= 1.0) {
@@ -213,17 +149,14 @@ namespace z0 {
     }
 
     void Application::_onInput(InputEvent &inputEvent) {
-        if (stopped)
-            return;
-        if (windowManager->onInput(inputEvent)) {
-            return;
-        }
+        if (stopped) return;
+        if (windowManager->onInput(inputEvent)) return;
         input(rootNode, inputEvent);
     }
 
     void Application::setRootNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->getParent() == nullptr && !node->_isAddedToScene());
-        device->wait();
+        waitForRenderingSystem();
         _removeNode(rootNode);
         rootNode = node;
         start();
@@ -340,7 +273,7 @@ namespace z0 {
             drawFrame();
         }
         stopped = true;
-        device->wait();
+        waitForRenderingSystem();
         Input::_closeInput();
         windowManager.reset();
         cleanup(rootNode);
@@ -372,11 +305,4 @@ namespace z0 {
         TypeRegistry::registerType<Viewport>("Viewport");
     }
 
-    void Application::setShadowCasting(const bool enable) const { sceneRenderer->setShadowCasting(enable); }
-
-    uint64_t Application::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
-
-    const string &Application::getAdapterDescription() const { return device->getAdapterDescription(); }
-
-    uint64_t Application::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
 } // namespace z0

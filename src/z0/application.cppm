@@ -13,17 +13,10 @@ import :Physics;
 import :Window;
 import :Node;
 
-import :Instance;
-import :Device;
-
 export namespace z0 {
 
     class GWindow;
     class GManager;
-    class SceneRenderer;
-    class VectorRenderer;
-    class PostprocessingRenderer;
-    class TonemappingPostprocessingRenderer;
     class Camera;
 
     /**
@@ -33,7 +26,7 @@ export namespace z0 {
      * the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html) and the
      * various renderes.
      */
-    class Application final : public Object {
+    class Application : public Object {
     public:
         /**
          * Returns the application singleton
@@ -117,22 +110,22 @@ export namespace z0 {
         /**
          * Returns the number of bytes of dedicated video memory that are not shared with the CPU.
          */
-        [[nodiscard]] uint64_t getDedicatedVideoMemory() const;
+        [[nodiscard]] virtual uint64_t getDedicatedVideoMemory() const = 0;
 
         /**
          * Returns the video adapter description
          */
-        [[nodiscard]] const string &getAdapterDescription() const;
+        [[nodiscard]] virtual const string &getAdapterDescription() const = 0;
 
         /**
          * Returns the application’s current video memory usage, in bytes.
          */
-        [[nodiscard]] uint64_t getVideoMemoryUsage() const;
+        [[nodiscard]] virtual uint64_t getVideoMemoryUsage() const = 0;
 
         /**
          * Enable or disable shadow casting for the entire scene, applied when adding nodes
          */
-        void setShadowCasting(bool) const;
+        virtual void setShadowCasting(bool) const = 0;
 
         /**
          * Returns the global window manager
@@ -140,25 +133,13 @@ export namespace z0 {
         GManager &getWindowManager() const { return *windowManager; }
 
         /**
-         * Return the vector renderer size ratios
+         * Return the vector renderer size ratio
          */
         const vec2 &getVectorRatio() const { return vectorRatio; }
 
-        [[nodiscard]] inline float getAspectRatio() const { return device->getAspectRatio(); }
+        [[nodiscard]] virtual float getAspectRatio() const = 0;
 
     private:
-        // The global startup configuration parameters
-        const ApplicationConfig &applicationConfig;
-        // The current scene
-        shared_ptr<Node> rootNode;
-        // The global display window
-        unique_ptr<Window> window;
-        // The global UI Window manager
-        unique_ptr<GManager> windowManager;
-        // The Vulkan device helper object
-        unique_ptr<Device> device;
-        // The Vulkan global instance
-        unique_ptr<Instance> instance;
         // State of the current scene
         bool paused{false};
         // State of the main loop
@@ -167,24 +148,8 @@ export namespace z0 {
         uint32_t fps{0};
         // The current frame in flight
         uint32_t currentFrame{0};
-        // The Main renderer
-        shared_ptr<SceneRenderer> sceneRenderer;
-        // The 2D vector renderer used for the UI
-        shared_ptr<VectorRenderer> vectorRenderer;
         // vector renderer size ratios
         vec2 vectorRatio;
-        // HDR & Gamma correction renderer
-        shared_ptr<TonemappingPostprocessingRenderer> tonemappingRenderer;
-
-        struct FrameData {
-            // Deferred list of nodes added to the current scene, processed before each frame
-            list<shared_ptr<Node>> addedNodes;
-            // Deferred list of nodes removed from the current scene, processed before each frame
-            list<shared_ptr<Node>> removedNodes;
-            // Camera to activate next frame
-            shared_ptr<Camera> activeCamera;
-        };
-        vector<FrameData> frameData;
 
         /*
          * Main loop members
@@ -235,8 +200,39 @@ export namespace z0 {
         // Register all nodes types
         void registerTypes() const;
 
+
+    protected:
+        // The global startup configuration parameters
+        const ApplicationConfig &applicationConfig;
+        // The global display window
+        unique_ptr<Window> window;
+        // The global UI Window manager
+        unique_ptr<GManager> windowManager;
+        // The current scene
+        shared_ptr<Node> rootNode;
+
+        struct FrameData {
+            // Deferred list of nodes added to the current scene, processed before each frame
+            list<shared_ptr<Node>> addedNodes;
+            // Deferred list of nodes removed from the current scene, processed before each frame
+            list<shared_ptr<Node>> removedNodes;
+            // Camera to activate next frame
+            shared_ptr<Camera> activeCamera;
+        };
+        vector<FrameData> frameData;
+
+        explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
+
+        void init();
+
+        virtual void initRenderingSystem() = 0;
+
+        virtual void renderFrame(uint32_t currentFrame) = 0;
+
+        virtual void waitForRenderingSystem() = 0;
+
         // Process scene updates before drawing a frame
-        void processDeferredUpdates(uint32_t currentFrame);
+        virtual void processDeferredUpdates(uint32_t currentFrame) = 0;
 
     public:
         // The following members are accessed by global function WinMain
@@ -269,8 +265,6 @@ export namespace z0 {
         Application(const Application &) = delete;
 
         Application &operator=(const Application &) = delete;
-
-        explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
 
         ~Application() override;
     };
