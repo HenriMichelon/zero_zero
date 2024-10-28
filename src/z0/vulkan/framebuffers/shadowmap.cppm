@@ -10,7 +10,7 @@ import :SampledFrameBuffer;
 
 export namespace z0{
 
-    /**
+    /*
      * Offscreen frame buffer for rendering shadow, one per light
      */
     class ShadowMapFrameBuffer : public SampledFrameBuffer {

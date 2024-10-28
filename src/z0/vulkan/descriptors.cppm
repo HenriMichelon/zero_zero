@@ -8,7 +8,7 @@ import :Device;
 
 export namespace z0 {
 
-    /**
+    /*
      * Vulkan [VkDescriptorSetLayout](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDescriptorSetLayout.html) helper
      */
     class DescriptorSetLayout {

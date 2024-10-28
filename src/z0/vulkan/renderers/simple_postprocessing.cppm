@@ -9,7 +9,7 @@ import :ColorFrameBufferHDR;
 
 export namespace z0 {
 
-    /**
+    /*
      * Fragment shader based post processing renderer
      */
     class SimplePostprocessingRenderer : public PostprocessingRenderer {

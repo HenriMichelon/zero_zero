@@ -5,7 +5,7 @@ export module z0:Renderer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Common interface of all renderers
      */
     class Renderer {

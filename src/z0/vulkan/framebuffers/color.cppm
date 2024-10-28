@@ -7,7 +7,7 @@ import :FrameBuffer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Default color rendering attachments
      */
     class ColorFrameBuffer: public FrameBuffer {

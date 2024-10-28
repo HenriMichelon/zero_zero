@@ -8,7 +8,7 @@ import :SampledFrameBuffer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Resolved HDR offscreen framebuffer
      */
     class ColorFrameBufferHDR: public SampledFrameBuffer {

@@ -15,7 +15,7 @@ import :Renderer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Vulkan [VkDevice](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkDevice.html) helper
      */
     class Device {

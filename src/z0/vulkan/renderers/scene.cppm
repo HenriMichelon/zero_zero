@@ -35,7 +35,7 @@ import :SampledFrameBuffer;
 
 namespace z0 {
 
-    /**
+    /*
      * Main renderer
      */
     export class SceneRenderer : public ModelsRenderer {

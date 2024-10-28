@@ -24,7 +24,7 @@ export namespace z0 {
 
     class Camera;
 
-    /**
+    /*
      * Shadow map renderer, one per light
      */
     class ShadowMapRenderer : public Renderpass, public Renderer {

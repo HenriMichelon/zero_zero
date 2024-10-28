@@ -33,7 +33,6 @@ namespace z0 {
     }
 
     void VulkanApplication::initRenderingSystem() {
-        // Initialize the various renderers
         const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(
             *device,

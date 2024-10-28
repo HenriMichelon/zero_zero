@@ -1,7 +1,6 @@
 module;
 #include <mutex>
 
-
 #include <volk.h>
 #include "stb_image_write.h"
 #include "z0/libraries.h"

@@ -9,7 +9,7 @@ import :Image;
 
 export namespace z0 {
 
-    /**
+    /*
      * Base class for all pipelines
      */
     class Pipeline {

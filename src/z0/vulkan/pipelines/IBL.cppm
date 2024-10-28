@@ -15,7 +15,7 @@ import :VulkanCubemap;
 
 export namespace z0 {
 
-    /**
+    /*
      * Pipeline to converts equirectangular projection texture into a cubemap.
      */
     class IBLPipeline : public ComputePipeline {

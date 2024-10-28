@@ -9,7 +9,7 @@ import :FrameBuffer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Depth rendering attachment or resolved offscreen depth buffer
      */
     class DepthFrameBuffer : public FrameBuffer {

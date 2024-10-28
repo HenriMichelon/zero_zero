@@ -18,7 +18,7 @@ import :Mesh;
 
 export namespace z0 {
 
-    /**
+    /*
      * Base class for renderers drawing a collection of Mesh
      */
     class ModelsRenderer : public Renderpass, public Renderer {

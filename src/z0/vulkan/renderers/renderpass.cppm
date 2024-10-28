@@ -12,7 +12,7 @@ import :Descriptors;
 
 export namespace z0 {
 
-    /**
+    /*
      * Base class for renderers and sub passes
      */
     class Renderpass {
