@@ -53,6 +53,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/tools.cppm
 		${Z0_ENGINE_DIR}/tween.cppm
 		${Z0_ENGINE_DIR}/type_registry.cppm
+		${Z0_ENGINE_DIR}/virtual_fs.cppm
 		${Z0_ENGINE_DIR}/window.cppm
 		${Z0_ENGINE_DIR}/z0.cppm
 
@@ -156,6 +157,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/signal.cpp
 		${Z0_ENGINE_DIR}/tools.cpp
+		${Z0_ENGINE_DIR}/virtual_fs.cpp
 		${Z0_ENGINE_DIR}/window.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/buffer.cpp

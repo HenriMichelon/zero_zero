@@ -4,8 +4,8 @@ module;
 #include <windows.h>
 #endif
 #include <cassert>
+#include <stb_image_write.h>
 #include "z0/libraries.h"
-#include <glm/gtx/quaternion.hpp>
 
 module z0;
 
@@ -39,6 +39,23 @@ namespace z0 {
         }
         result.push_back(str.substr(start)); // Add the last token
         return result;
+    }
+
+    void _stb_write_func(void *context, void *data, const int size) {
+        auto *buffer = static_cast<vector<unsigned char> *>(context);
+        auto *ptr    = static_cast<unsigned char *>(data);
+        buffer->insert(buffer->end(), ptr, ptr + size);
+    }
+
+    vector<unsigned char> createBlankJPG() {
+        vector<unsigned char> blankJPEG;
+        const auto data = new unsigned char[1 * 1 * 3];
+        data[0]   = 0;
+        data[1]   = 0;
+        data[2]   = 0;
+        stbi_write_jpg_to_func(_stb_write_func, &blankJPEG, 1, 1, 3, data, 100);
+        delete[] data;
+        return blankJPEG;
     }
 
 }

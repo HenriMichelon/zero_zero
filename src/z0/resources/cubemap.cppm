@@ -3,6 +3,7 @@ module;
 
 export module z0:Cubemap;
 
+import :Constants;
 import :Tools;
 import :Resource;
 import :Image;
@@ -42,19 +43,19 @@ export namespace z0 {
          * Loads a cubemap from 6 RGBA images files.
          * Images must be named `{name}_back.{ext}`, `{name}_front.{ext}`, `{name}_top.{ext}`, `{name}_bottom.{ext}`, `{name}_left.{ext}` and `{name}_right.{ext}`
          * and **must** have the same sizes
-         * @param filename path and filename (without the extension) of the images
+         * @param filepath path and filename (without the extension) of the images
          * @param fileext files extension
          */
-        static shared_ptr<Cubemap> loadFromFile(const string &filename, const string &fileext);
+        static shared_ptr<Cubemap> loadFromFile(const string &filepath, const string &fileext, ImageFormat imageFormat = IMAGE_R8G8B8A8);
 
         /**
          * Loads the cubemap from a single RGBA image with the following format :<br>
          *&emsp;&emsp;&emsp;`top`<br>
          *&emsp;`left  front  right  back`<br>
          *&emsp;&emsp;&emsp;`bottom`<br>
-         * @param filename path of the image
+         * @param filepath path of the image
          */
-        static shared_ptr<Cubemap> loadFromFile(const string &filename);
+        static shared_ptr<Cubemap> loadFromFile(const string &filepath, ImageFormat imageFormat = IMAGE_R8G8B8A8);
 
         /**
          * Returns the width in pixels of each image
@@ -103,7 +104,7 @@ export namespace z0 {
           * Loads the cubemap from a single HDRi.
           * @param filename path of the image
           */
-        [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename);
+        [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename, ImageFormat imageFormat = IMAGE_R8G8B8A8);
 
         [[nodiscard]] inline shared_ptr<Cubemap> getSpecularCubemap() const { return specularCubemap; }
         [[nodiscard]] inline shared_ptr<Cubemap> getIrradianceCubemap() const { return irradianceCubemap; }

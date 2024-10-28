@@ -36,7 +36,7 @@ export namespace z0 {
     };
 
     /**
-     * Tween to interpolate a property of a Object. 
+     * Tween to interpolate a property of an Object.
      */
     template<typename T>
     class PropertyTween: public Tween {

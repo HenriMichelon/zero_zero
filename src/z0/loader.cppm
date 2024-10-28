@@ -18,9 +18,9 @@ export namespace z0 {
          * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double-sided (default is CULLMODE_DISABLED for double sided materials)
          * @param loadTextures do not load image
          */
-        [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const filesystem::path &filepath,
-                                                                bool                    forceBackFaceCulling = false,
-                                                                bool                    loadTextures         = true);
+        [[nodiscard]] static shared_ptr<Node> loadModelFromFile(const string& filepath,
+                                                                bool forceBackFaceCulling = false,
+                                                                bool loadTextures         = true);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree

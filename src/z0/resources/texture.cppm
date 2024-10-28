@@ -3,6 +3,7 @@ module;
 
 export module z0:Texture;
 
+import :Constants;
 import :Resource;
 import :Image;
 
@@ -46,10 +47,9 @@ export namespace z0 {
         explicit ImageTexture(const shared_ptr<Image> &img);
 
         /**
-         * Creates an ImageTexture from a image file
-         * @param filename : image file name, relative to the application working directory
+         * Creates an ImageTexture from an image resource
          */
-        explicit ImageTexture(const string &filename);
+        explicit ImageTexture(const string &filename, ImageFormat imageFormat);
 
         /**
          * Returns the attached Image

@@ -208,7 +208,7 @@ namespace z0 {
         );
     }
 
-    shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename) {
+    shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename, ImageFormat imageFormat) {
         auto& device = Device::get();
         auto envCubemap = make_shared<EnvironmentCubemap>();
         const auto unfilteredCubemap = make_shared<VulkanCubemap>(device,
@@ -219,7 +219,7 @@ namespace z0 {
         const auto &vkIrradiance = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->irradianceCubemap);
         const auto &vkBRDF = reinterpret_pointer_cast<VulkanImage>(envCubemap->brdfLut);
         const auto iblPipeline = IBLPipeline{device};
-        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::loadFromFile(filename)), unfilteredCubemap);
+        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::load(filename, imageFormat)), unfilteredCubemap);
         iblPipeline.preComputeSpecular(unfilteredCubemap, vkSpecular);
         iblPipeline.preComputeIrradiance(vkSpecular, vkIrradiance);
         iblPipeline.preComputeBRDF(vkBRDF);

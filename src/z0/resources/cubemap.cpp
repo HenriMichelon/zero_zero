@@ -1,21 +1,16 @@
 module;
-#include <stb_image.h>
-#include <stb_image_write.h>
+#include <cassert>
 #include "z0/libraries.h"
 
 module z0;
 
+import :Constants;
 import :Application;
 import :Image;
 import :Cubemap;
+import :VirtualFS;
 
 namespace z0 {
-
-    void cm_stb_write_func(void *context, void *data, const int size) {
-        auto *buffer = static_cast<vector<unsigned char> *>(context);
-        auto *ptr    = static_cast<unsigned char *>(data);
-        buffer->insert(buffer->end(), ptr, ptr + size);
-    }
 
     Cubemap::Cubemap(const uint32_t width,
                     const uint32_t  height,
@@ -24,47 +19,40 @@ namespace z0 {
        Resource{name}, type{type}, width{width}, height{height} { }
 
     shared_ptr<Cubemap> Cubemap::createBlankCubemap() {
-        vector<unsigned char> blankJPEG;
-        const auto data = new unsigned char[1 * 1 * 3];
-        data[0]   = 0;
-        data[1]   = 0;
-        data[2]   = 0;
-        stbi_write_jpg_to_func(cm_stb_write_func, &blankJPEG, 1, 1, 3, data, 100);
-        delete[] data;
+        auto blankJPEG = createBlankJPG();
         const auto cubeFaces = vector{blankJPEG.data(),blankJPEG.data(),blankJPEG.data(),blankJPEG.data(),blankJPEG.data(),blankJPEG.data()};
         return create(1, 1, blankJPEG.size(), cubeFaces);
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filename, const string &fileext) {
-        const auto &            filepath = (Application::get().getConfig().appDir / filename).string();
-        int                     texWidth, texHeight, texChannels;
+    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
+        uint32_t texWidth, texHeight;
+        uint64_t imageSize;
         vector<unsigned char *> data;
         const array<std::string, 6> names{"right", "left", "top", "bottom", "front", "back"};
         for (int i = 0; i < 6; i++) {
-            string   path   = filepath + "_" + names[i] + fileext;
-            stbi_uc *pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-            if (!pixels) {
+            auto path = filepath + "_" + names[i] + fileext;
+            auto *pixels = VirtualFS::loadImage(path, texWidth, texHeight, imageSize, imageFormat);
+            if (!pixels)
                 die("failed to load texture image", path);
-            }
             data.push_back(pixels);
         }
         const auto &cubemap = create(
             texWidth, texHeight,
-            texWidth * texHeight * STBI_rgb_alpha,
+            imageSize,
             data);
         for (int i = 0; i < 6; i++) {
-            stbi_image_free(data[i]);
+            VirtualFS::destroyImage(data[i]);
         }
         return cubemap;
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filename) {
-        const auto &filepath = (Application::get().getConfig().appDir / filename).string();
-        int         texWidth, texHeight, texChannels;
-        stbi_uc *   pixels = stbi_load(filepath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        if (!pixels) {
+    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const ImageFormat imageFormat) {
+        assert(imageFormat == IMAGE_R8G8B8A8);
+        uint32_t texWidth, texHeight;
+        uint64_t imageSize;
+        auto *pixels = VirtualFS::loadImage(filepath, texWidth, texHeight, imageSize, imageFormat);
+        if (!pixels)
             die("failed to load texture image", filepath);
-        }
         vector<unsigned char *> data;
         const auto              imgWidth  = texWidth / 4;
         const auto              imgHeight = texHeight / 3;
@@ -75,7 +63,7 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         // left
         data.push_back(extractImage(pixels,
                                     0 * imgWidth,
@@ -83,7 +71,7 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         // top
         data.push_back(extractImage(pixels,
                                     1 * imgWidth,
@@ -91,7 +79,7 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         // bottom
         data.push_back(extractImage(pixels,
                                     1 * imgWidth,
@@ -99,7 +87,7 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         // front
         data.push_back(extractImage(pixels,
                                     1 * imgWidth,
@@ -107,7 +95,7 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         // back
         data.push_back(extractImage(pixels,
                                     3 * imgWidth,
@@ -115,15 +103,15 @@ namespace z0 {
                                     texWidth,
                                     imgWidth,
                                     imgHeight,
-                                    STBI_rgb_alpha));
+                                    4));
         const auto &cubemap = create(imgWidth,
                                      imgHeight,
-                                     imgWidth * imgHeight * STBI_rgb_alpha,
+                                     imageSize,
                                      data);
         for (int i = 0; i < 6; i++) {
             delete[] data[i];
         }
-        stbi_image_free(pixels);
+        VirtualFS::destroyImage(pixels);
         return cubemap;
     }
 

@@ -38,7 +38,7 @@ target_link_libraries(${Z0_TARGET} glm::glm glm-modules)
 FetchContent_Declare(
         fetch_fastgltf
         GIT_REPOSITORY https://github.com/spnda/fastgltf
-        GIT_TAG        v0.7.2
+        GIT_TAG        v0.8.0
 )
 FetchContent_MakeAvailable(fetch_fastgltf)
 target_link_libraries(${Z0_TARGET} fastgltf)

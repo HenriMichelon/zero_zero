@@ -102,6 +102,8 @@ export namespace z0 {
         return levels;
     }
 
+    vector<unsigned char> createBlankJPG();
+
 }
 
 export namespace std {

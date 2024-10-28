@@ -687,4 +687,8 @@ export namespace z0 {
         MOUSE_CURSOR_RESIZE_V = 3,
     };
 
+    enum ImageFormat {
+        IMAGE_R8G8B8A8 = 0,
+    };
+
 }

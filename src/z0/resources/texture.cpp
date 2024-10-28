@@ -13,12 +13,11 @@ namespace z0 {
     }
 
     ImageTexture::ImageTexture(const shared_ptr<Image> &img):
-        Texture{img->getName()}, image(img) {
+        Texture{img->getName()}, image{img} {
     }
 
-    ImageTexture::ImageTexture(const string &filename):
-        Texture{filename},
-        image{Image::loadFromFile(filename)} {
+    ImageTexture::ImageTexture(const string &filename, const ImageFormat imageFormat):
+        Texture{filename}, image{Image::load(filename, imageFormat)} {
     }
 
 }

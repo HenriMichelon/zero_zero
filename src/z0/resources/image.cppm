@@ -3,13 +3,13 @@ module;
 
 export module z0:Image;
 
+import :Constants;
 import :Resource;
 
 export namespace z0 {
 
     /**
      * A bitmap resource, stored in GPU memory.
-     * Use loadFromFile(const string& filepath) to load an image from a file.
      */
     class Image : public Resource {
     public:
@@ -32,9 +32,8 @@ export namespace z0 {
 
         /**
          * Load a bitmap from file. For supported file formats see https://github.com/nothings/stb/blob/master/stb_image.h
-         * @param filename : path of the file, relative to the application working directory
          */
-        static shared_ptr<Image> loadFromFile(const string &filename);
+        static shared_ptr<Image> load(const string &filepath, ImageFormat imageFormat);
 
         static shared_ptr<Image> createBlankImage();
 

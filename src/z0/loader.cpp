@@ -22,6 +22,7 @@ import :Resource;
 import :MeshInstance;
 import :TypeRegistry;
 import :Loader;
+import :VirtualFS;
 
 import :Device;
 import :VulkanImage;
@@ -46,20 +47,22 @@ namespace z0 {
         visit(fastgltf::visitor{
                       [](auto &arg) {},
                       [&](fastgltf::sources::URI &filePath) {
-                          assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
+                          die("External textures files for glTF not supported");
+                          /*assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
                           assert(filePath.uri.isLocalPath()); // We're only capable of loading
                           const string path(filePath.uri.path().begin(),
                                             filePath.uri.path().end()); // Thanks C++.
-                          auto        *data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+                          uint32_t texWidth, texHeight;
+                          uint64_t imageSize;
+                          auto *data = VirtualFS::loadImage(VirtualFS::APP_URI + path, texWidth, texHeight, imageSize, IMAGE_R8G8B8A8);
                           if (data) {
-                              VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
                               newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
                                   magFilter, minFilter, addressModeU, addressModeV);
-                              stbi_image_free(data);
-                          }
+                              VirtualFS::destroyImage(data);
+                          }*/
                       },
                       [&](fastgltf::sources::Vector &vector) {
-                          auto *data = stbi_load_from_memory(vector.bytes.data(),
+                          auto *data = stbi_load_from_memory(reinterpret_cast<stbi_uc const *>(vector.bytes.data()),
                                                              static_cast<int>(vector.bytes.size()),
                                                              &width,
                                                              &height,
@@ -73,7 +76,7 @@ namespace z0 {
                           }
                       },
                       [&](fastgltf::sources::BufferView &view) {
-                          auto &bufferView = asset.bufferViews[view.bufferViewIndex];
+                          const auto &bufferView = asset.bufferViews[view.bufferViewIndex];
                           auto &buffer     = asset.buffers[bufferView.bufferIndex];
 
                           visit(fastgltf::visitor{
@@ -83,7 +86,9 @@ namespace z0 {
                                     [](auto &arg) {},
                                     [&](fastgltf::sources::Vector &vector) {
                                         auto *data =
-                                                stbi_load_from_memory(vector.bytes.data() + bufferView.byteOffset,
+                                                stbi_load_from_memory(
+                                                    reinterpret_cast<stbi_uc const *>(vector.bytes.data() +
+                                                                                      bufferView.byteOffset),
                                                                       static_cast<int>(bufferView.byteLength),
                                                                       &width,
                                                                       &height,
@@ -99,7 +104,9 @@ namespace z0 {
                                     },
                                     [&](fastgltf::sources::Array &array) {
                                         auto *data =
-                                                stbi_load_from_memory(array.bytes.data() + bufferView.byteOffset,
+                                                stbi_load_from_memory(
+                                                    reinterpret_cast<stbi_uc const *>(array.bytes.data() +
+                                                                                      bufferView.byteOffset),
                                                                       static_cast<int>(bufferView.byteLength),
                                                                       &width,
                                                                       &height,
@@ -121,21 +128,21 @@ namespace z0 {
         return newImage;
     }
 
-    // https://fastgltf.readthedocs.io/v0.7.x/overview.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
-    shared_ptr<Node> Loader::loadModelFromFile(const filesystem::path &filename, bool forceBackFaceCulling,
+    shared_ptr<Node> Loader::loadModelFromFile(const string &filepath,
+                                               bool forceBackFaceCulling,
                                                bool loadTextures) {
-        filesystem::path filepath = loadTextures ? (Application::get().getConfig().appDir / filename): filename;
+        fastgltf::GltfDataBuffer data;
+        data.FromPath("..\\" + filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
                                 fastgltf::Extensions::KHR_materials_emissive_strength};
-        constexpr auto   gltfOptions = fastgltf::Options::DontRequireValidAssetMember | fastgltf::Options::AllowDouble |
-                fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
-        fastgltf::GltfDataBuffer data;
-        if (!data.loadFromFile(filepath)) {
-            die("Error loading", filename.string());
-        }
-        auto asset = parser.loadGltfBinary(&data, filepath.parent_path(), gltfOptions);
+        constexpr auto gltfOptions =
+            fastgltf::Options::DontRequireValidAssetMember |
+            fastgltf::Options::AllowDouble |
+            fastgltf::Options::LoadGLBBuffers |
+            fastgltf::Options::LoadExternalBuffers;
+        auto asset = parser.loadGltfBinary(data, ".", gltfOptions);
         if (auto error = asset.error(); error != fastgltf::Error::None) {
             die(getErrorMessage(error));
         }
@@ -154,10 +161,8 @@ namespace z0 {
             });
             material->setMetallicFactor(mat.pbrData.metallicFactor);
             material->setRoughnessFactor(mat.pbrData.roughnessFactor);
-            if (!mat.emissiveFactor.empty()) {
-                material->setEmissiveFactor(vec3{mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]});
-                material->setEmissiveStrength(mat.emissiveStrength);
-            }
+            material->setEmissiveFactor(vec3{mat.emissiveFactor[0], mat.emissiveFactor[1], mat.emissiveFactor[2]});
+            material->setEmissiveStrength(mat.emissiveStrength);
             switch (mat.alphaMode) {
             case fastgltf::AlphaMode::Blend:
                 material->setTransparency(TRANSPARENCY_ALPHA);
@@ -258,7 +263,7 @@ namespace z0 {
                 }
                 // load vertex positions
                 {
-                    auto &posAccessor = gltf.accessors[p.findAttribute("POSITION")->second];
+                    auto &posAccessor = gltf.accessors[p.findAttribute("POSITION")->accessorIndex];
                     vertices.resize(vertices.size() + posAccessor.count);
                     fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor, [&](vec3 v, size_t index) {
                         Vertex newvtx{
@@ -271,7 +276,7 @@ namespace z0 {
                 auto normals = p.findAttribute("NORMAL");
                 if (normals != p.attributes.end()) {
                     fastgltf::iterateAccessorWithIndex<glm::vec3>(
-                            gltf, gltf.accessors[(*normals).second], [&](vec3 v, size_t index) {
+                            gltf, gltf.accessors[(*normals).accessorIndex], [&](vec3 v, size_t index) {
                                 vertices[index + initial_vtx].normal = v;
                             });
                 }
@@ -279,7 +284,7 @@ namespace z0 {
                 if (tangents != p.attributes.end()) {
                     haveTangents = true;
                     fastgltf::iterateAccessorWithIndex<glm::vec4>(
-                            gltf, gltf.accessors[(*tangents).second], [&](vec4 v, size_t index) {
+                            gltf, gltf.accessors[(*tangents).accessorIndex], [&](vec4 v, size_t index) {
                                 vertices[index + initial_vtx].tangent = v;
                             });
                 }
@@ -298,7 +303,7 @@ namespace z0 {
                     auto uv = p.findAttribute(stextCoord.str());
                     if (uv != p.attributes.end()) {
                         fastgltf::iterateAccessorWithIndex<glm::vec2>(
-                                gltf, gltf.accessors[(*uv).second], [&](vec2 v, size_t index) {
+                                gltf, gltf.accessors[(*uv).accessorIndex], [&](vec2 v, size_t index) {
                                     vertices[index + initial_vtx].uv = {v.x, v.y};
                                 });
                     }
@@ -355,7 +360,7 @@ namespace z0 {
             }
 
             visit(fastgltf::visitor{
-                          [&](fastgltf::Node::TransformMatrix matrix) {
+                          [&](fastgltf::math::fmat4x4 matrix) {
                               memcpy(&newNode->_getTransformLocal(), matrix.data(), sizeof(matrix));
                           },
                           [&](fastgltf::TRS transform) {
@@ -365,11 +370,9 @@ namespace z0 {
                                        transform.rotation[1],
                                        transform.rotation[2]);
                               vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
-
                               mat4 tm = translate(mat4(1.f), tl);
                               mat4 rm = toMat4(rot);
                               mat4 sm = scale(mat4(1.f), sc);
-
                               newNode->_setTransform(tm * rm * sm);
                           }},
                   node.transform);
@@ -388,7 +391,7 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        shared_ptr<Node> rootNode = make_shared<Node>(filename.string());
+        shared_ptr<Node> rootNode = make_shared<Node>(filepath);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
@@ -526,7 +529,7 @@ namespace z0 {
         try {
             auto jsonData = nlohmann::ordered_json::parse(ifs); // parsing using ordered_json to preserver fields order
             if (jsonData.contains("includes")) {
-                vector<string> includes = jsonData["includes"];
+                const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {
                     vector<SceneNode> includeNodes = loadSceneFromJSON(filepath.parent_path() / include);
                     scene.append_range(includeNodes);
