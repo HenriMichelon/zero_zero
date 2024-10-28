@@ -731,6 +731,8 @@ namespace z0 {
         vkCmdSetStencilTestEnable(commandBuffer, VK_FALSE);
         vkCmdSetLogicOpEnableEXT(commandBuffer, VK_FALSE);
         vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
+        vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
+        vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
 
         // Use RGBA color write mask
         constexpr VkColorComponentFlags color_component_flags[] = {
