@@ -61,12 +61,6 @@ namespace z0 {
                 sceneRenderer->removeNode(node, currentFrame);
             }
             frameData[currentFrame].removedNodes.clear();
-            if (sceneRenderer->getCamera(currentFrame) == nullptr) {
-                const auto &camera = rootNode->findFirstChild<Camera>(true);
-                if (camera->isProcessed()) {
-                    sceneRenderer->activateCamera(camera, currentFrame);
-                }
-            }
         }
         if (!frameData[currentFrame].addedNodes.empty()) {
             for (const auto &node : frameData[currentFrame].addedNodes) {
@@ -77,6 +71,12 @@ namespace z0 {
         if (frameData[currentFrame].activeCamera != nullptr) {
             sceneRenderer->activateCamera(frameData[currentFrame].activeCamera, currentFrame);
             frameData[currentFrame].activeCamera = nullptr;
+        }
+        if (sceneRenderer->getCamera(currentFrame) == nullptr) {
+            const auto &camera = rootNode->findFirstChild<Camera>(true);
+            if (camera && camera->isProcessed()) {
+                sceneRenderer->activateCamera(camera, currentFrame);
+            }
         }
         sceneRenderer->postUpdateScene(currentFrame);
     }
