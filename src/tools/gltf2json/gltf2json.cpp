@@ -52,9 +52,13 @@ int main(const int argc, char **argv) {
     const auto &glb_filename  = result["glb"].as<std::string>();
     const auto &json_filename = result["json"].as<std::string>();
 
-    const auto     scene    = z0::Loader::loadModelFromFile(glb_filename, false, true);
+    const auto app = z0::DummyApplication{
+        z0::ApplicationConfig{
+            .appDir = "."
+        }};
+    const auto     scene    = z0::Loader::loadModelFromFile(glb_filename, false, false);
     auto           out      = std::ofstream(json_filename, std::ios::out);
-    constexpr auto scene_id = "sceneResources";
+    constexpr auto scene_id = "resources";
     out << "{\n  \"nodes\": [\n";
     out << "    {\n";
     out << "      \"id\": \"" << scene_id << "\",\n";

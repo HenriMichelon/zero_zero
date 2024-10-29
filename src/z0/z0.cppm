@@ -47,3 +47,4 @@ export import :GFrame;
 export import :GTreeView;
 
 export import :VulkanApplication;
+export import :DummyApplication;

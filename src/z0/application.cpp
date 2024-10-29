@@ -38,11 +38,11 @@ namespace z0 {
 
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
         applicationConfig{appConfig}, rootNode{node} {
-        assert(_instance == nullptr && rootNode != nullptr);
+        assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
         // The rendering window
-        window = make_unique<Window>(applicationConfig);
+        if (node != nullptr) { window = make_unique<Window>(applicationConfig); };
     }
 
     void Application::init() {

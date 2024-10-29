@@ -143,6 +143,8 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gui/gwindow.cppm
 		${Z0_ENGINE_DIR}/gui/gmanager.cppm
 		${Z0_ENGINE_DIR}/gui/rect.cppm
+
+		${SRC_DIR}/tools/application.cppm
 )
 
 # engine library
