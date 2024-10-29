@@ -108,7 +108,7 @@ namespace z0 {
     };
 
     unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string& filepath) {
-        return make_unique<GltfFileStream>(getPath(filepath).string());
+        return make_unique<GltfFileStream>(getPath(filepath));
     }
 
     ifstream VirtualFS::openFile(const string& filepath) {
@@ -117,9 +117,9 @@ namespace z0 {
         return file;
     }
 
-    vector<char> VirtualFS::loadShader(const string &fileName) {
-        auto filepath = APP_URI + "shaders/" + fileName + ".spv";
-        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
+    vector<char> VirtualFS::loadShader(const string &filepath) {
+        auto path = APP_URI + "shaders/" + filepath + ".spv";
+        ifstream file(getPath(path), std::ios::ate | std::ios::binary);
         if (!file.is_open()) die("failed to open file : ", filepath);
         const size_t fileSize = file.tellg();
         vector<char> buffer(fileSize);
@@ -129,18 +129,20 @@ namespace z0 {
         return buffer;
     }
 
-    filesystem::path VirtualFS::parentPath(const string& filepath) {
-        return APP_URI / getPath(filepath).parent_path();
+    string VirtualFS::parentPath(const string& filepath) {
+        const auto lastSlash = filepath.find_last_of("/");
+        if (lastSlash == std::string::npos) return "";
+        return filepath.substr(0, lastSlash+1);
     }
 
-    filesystem::path VirtualFS::getPath(const string& filepath) {
-        filesystem::path filename;
+    string VirtualFS::getPath(const string& filepath) {
+        string filename;
         if (filepath.starts_with(APP_URI)) {
-            filename = Application::get().getConfig().appDir;
+            filename = Application::get().getConfig().appDir.string();
         } else {
             die("Unknown resource type ", filepath);
         }
-        return (filename /= filepath.substr(APP_URI.size()));
+        return (filename + "/" + filepath.substr(APP_URI.size()));
     }
 
 }

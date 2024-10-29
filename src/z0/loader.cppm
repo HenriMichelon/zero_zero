@@ -44,6 +44,7 @@ export namespace z0 {
             string id{};
             bool   isResource{false};
             bool   isCustom{false};
+            bool   isIncluded{false};
 
             string                            clazz{};
             shared_ptr<SceneNode>             child{nullptr};

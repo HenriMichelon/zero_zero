@@ -416,7 +416,7 @@ namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
                 // the model is in a glTF file
-                node = Loader::loadModelFromFile(nodeDesc.resource);
+                node = loadModelFromFile(nodeDesc.resource);
                 node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 // the model is part of another, already loaded, model
@@ -425,8 +425,10 @@ namespace z0 {
                     const auto &resource = nodeTree[nodeDesc.resource];
                     // get the mesh node via the relative path
                     node = resource->getNode(nodeDesc.resourcePath);
-                    if (node == nullptr)
+                    if (node == nullptr) {
+                        resource->printTree();
                         die(log_name, "Mesh with path", nodeDesc.resourcePath, "not found");
+                    }
                 } else {
                     die(log_name, "Resource with id", nodeDesc.resource, "not found");
                 }
@@ -436,7 +438,7 @@ namespace z0 {
                 // The node class is a custom class of the game
                 node = make_shared<Node>(nodeDesc.id);
             } else {
-                // The node class is a engine registered class
+                // The node class is an engine registered class
                 node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
                 node->setName(nodeDesc.id);
             }
@@ -479,7 +481,7 @@ namespace z0 {
                 node->setProperty(to_lower(prop.first), prop.second);
             }
             node->_setParent(nullptr);
-            parent->addChild(node);
+            if (!nodeDesc.isIncluded) parent->addChild(node);
             if (!loadTextures) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
             }
@@ -533,7 +535,10 @@ namespace z0 {
             if (jsonData.contains("includes")) {
                 const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {
-                    vector<SceneNode> includeNodes = loadSceneFromJSON((VirtualFS::parentPath(filepath) / include).string());
+                    vector<SceneNode> includeNodes = loadSceneFromJSON(VirtualFS::parentPath(filepath) + include);
+                    for(auto& node : includeNodes) {
+                        node.isIncluded = true;
+                    }
                     scene.append_range(includeNodes);
                 }
             }

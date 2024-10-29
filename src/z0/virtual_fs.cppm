@@ -15,7 +15,7 @@ export namespace z0 {
     public:
         static constexpr string APP_URI = "app://";
 
-        static byte* loadImage(const string& path, uint32_t& width, uint32_t& height, uint64_t& size, ImageFormat imageFormat);
+        static byte* loadImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size, ImageFormat imageFormat);
 
         static void destroyImage(byte* image);
 
@@ -23,12 +23,12 @@ export namespace z0 {
 
         static ifstream openFile(const string& filepath);
 
-        static vector<char> loadShader(const string &fileName);
+        static vector<char> loadShader(const string &filepath);
 
-        static filesystem::path parentPath(const string& path);
+        static string parentPath(const string& filepath);
 
     private:
-        static filesystem::path getPath(const string& filepath);
+        static string getPath(const string& filepath);
     };
 
 }
