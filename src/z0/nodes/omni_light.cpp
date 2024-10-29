@@ -19,4 +19,13 @@ namespace z0 {
         Light{color, specular, nodeName, type}, range{range} {
     }
 
+    void OmniLight::setProperty(const string &property, const string &value) {
+        Light::setProperty(property, value);
+        if (property == "range") {
+            range = stof(value);
+        } else if (property == "near") {
+            near = stof(value);
+        }
+    }
+
 }
