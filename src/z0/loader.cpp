@@ -44,6 +44,7 @@ namespace z0 {
         shared_ptr<Image> newImage;
         int               width, height, nrChannels;
         string            name{image.name};
+        // log("Load image ", name);
         visit(fastgltf::visitor{
                       [](auto &arg) {},
                       [&](fastgltf::sources::URI &filePath) {
@@ -132,11 +133,6 @@ namespace z0 {
     shared_ptr<Node> Loader::loadModelFromFile(const string &filename,
                                                bool forceBackFaceCulling,
                                                bool loadTextures) {
-        // filesystem::path filepath = loadTextures ? (Application::get().getConfig().appDir / filename): filename;
-        // auto gltfFile = fastgltf::GltfDataBuffer::FromPath(filepath);
-        // if (auto error = gltfFile.error(); error != fastgltf::Error::None) {
-        //     die(getErrorMessage(error));
-        // }
         auto getter = VirtualFS::openGltf(filename);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
@@ -151,6 +147,9 @@ namespace z0 {
             die(getErrorMessage(error));
         }
         fastgltf::Asset gltf = std::move(asset.get());
+
+        // Already loaded images
+        map<size_t, shared_ptr<Image>> images;
 
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
@@ -205,9 +204,17 @@ namespace z0 {
                     const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
                     materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
                     if (texture.samplerIndex.has_value()) convertSamplerData(texture);
-                    auto image = loadImage(
-                        gltf, gltf.images[sourceTextureInfo.textureIndex],
-                        format, magFilter, minFilter, wrapU, wrapV);
+                    if (!texture.imageIndex.has_value()) die("Texture without image");
+                    const auto imageIndex = texture.imageIndex.value();
+                    shared_ptr<Image> image;
+                    if (images.contains(imageIndex)) {
+                        image = images[imageIndex];
+                    } else {
+                        image = loadImage(
+                            gltf, gltf.images[imageIndex],
+                            format, magFilter, minFilter, wrapU, wrapV);
+                        images.emplace(imageIndex, image);
+                    }
                     if (image == nullptr) return StandardMaterial::TextureInfo{};
                     auto texInfo = StandardMaterial::TextureInfo {
                         .texture = make_shared<ImageTexture>(image)
@@ -243,7 +250,6 @@ namespace z0 {
         if (materials.empty()) {
             materials.push_back(std::make_shared<StandardMaterial>(""));
         }
-        // log("Loader : ", to_string(materials.size()), " materials");
 
         auto meshes = vector<shared_ptr<VulkanMesh>>(gltf.meshes.size());
         auto meshesCount = 0;
@@ -269,11 +275,10 @@ namespace z0 {
                 {
                     auto &posAccessor = gltf.accessors[p.findAttribute("POSITION")->accessorIndex];
                     vertices.resize(vertices.size() + posAccessor.count);
-                    fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor, [&](vec3 v, size_t index) {
-                        Vertex newvtx{
-                                .position = v,
+                    fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor, [&](const vec3 v, const size_t index) {
+                        vertices[index + initial_vtx] = {
+                            .position = v,
                         };
-                        vertices[index + initial_vtx] = newvtx;
                     });
                 }
                 // load vertex normals
@@ -346,7 +351,9 @@ namespace z0 {
                 meshesCount++;
             }
         }
-        // log("Loader :", to_string(meshes.size()), "meshes", to_string(meshesCount), "uniques meshes");
+        log("Loader :", to_string(materials.size()), "materials ,",
+            to_string(images.size()), "images ,",
+            to_string(meshes.size()), "meshes,", to_string(meshesCount), "uniques meshes");
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;
