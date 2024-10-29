@@ -15,7 +15,6 @@ export namespace z0 {
     class SimplePostprocessingRenderer : public PostprocessingRenderer {
     public:
         SimplePostprocessingRenderer(Device& device,
-                                     const string& shaderDirectory,
                                      const string& shaderName,
                                      const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr);
 

@@ -28,8 +28,8 @@ import :VulkanMesh;
 
 namespace z0 {
 
-    ShadowMapRenderer::ShadowMapRenderer(Device &device, const string &shaderDirectory, const shared_ptr<Light>&light) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
+    ShadowMapRenderer::ShadowMapRenderer(Device &device, const shared_ptr<Light>&light) :
+        Renderpass{device, WINDOW_CLEAR_COLOR},
         light{light} {
         frameData.resize(device.getFramesInFlight());
         for(auto& frame: frameData) {

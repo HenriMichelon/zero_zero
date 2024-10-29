@@ -33,19 +33,15 @@ namespace z0 {
     }
 
     void VulkanApplication::initRenderingSystem() {
-        const string shaderDir{(applicationConfig.appDir / "shaders").string()};
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
-            shaderDir,
             applicationConfig.clearColor);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
             *device,
-            shaderDir,
             sceneRenderer->getColorAttachments(),
             sceneRenderer->getDepthAttachments());
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
-            shaderDir,
             sceneRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
@@ -53,7 +49,7 @@ namespace z0 {
         device->registerRenderer(sceneRenderer);
 
         windowManager = make_unique<GManager>(vectorRenderer,
-                                              (applicationConfig.appDir / applicationConfig.defaultFontName).string(),
+                                              applicationConfig.defaultFontName,
                                               applicationConfig.defaultFontSize);
     }
 

@@ -21,9 +21,14 @@ export namespace z0 {
 
         static unique_ptr<fastgltf::GltfDataGetter> openGltf(const string& filepath);
 
-        static ifstream openJSON(const string& filepath);
+        static ifstream openFile(const string& filepath);
+
+        static vector<char> loadShader(const string &fileName);
 
         static filesystem::path parentPath(const string& path);
+
+    private:
+        static filesystem::path getPath(const string& filepath);
     };
 
 }

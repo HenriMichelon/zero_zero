@@ -40,19 +40,11 @@ namespace z0 {
     };
 
     byte* VirtualFS::loadImage(const string& filepath,
-                                        uint32_t& width, uint32_t& height, uint64_t& size,
-                                        const ImageFormat imageFormat) {
+                                uint32_t& width, uint32_t& height, uint64_t& size,
+                                const ImageFormat imageFormat) {
         assert(imageFormat == IMAGE_R8G8B8A8);
-        filesystem::path filename;
-        if (filepath.starts_with(APP_URI)) {
-            filename = Application::get().getConfig().appDir;
-        } else {
-            die("Unknown resource type", filepath);
-        }
-        filename /= filepath.substr(APP_URI.size());
-
-        ifstream file(filename, std::ios::binary);
-        if (!file) die("Error: Could not open file ", filename.string());
+        ifstream file(getPath(filepath), std::ios::binary);
+        if (!file.is_open()) die("Error: Could not open file ", filepath);
 
         StreamWrapper wrapper{&file};
         int texWidth, texHeight, texChannels;
@@ -74,8 +66,7 @@ namespace z0 {
     class GltfFileStream : public fastgltf::GltfDataGetter {
     public:
         explicit GltfFileStream(const std::string& filename) : stream{filename, std::ios::binary | std::ios::ate} {
-            if (!stream.is_open())
-                die("Error: Could not open file ", filename);
+            if (!stream.is_open()) die("Error: Could not open file ", filename);
             fileSize = stream.tellg();
             stream.seekg(0, std::ios::beg);
             bytesReadCount = 0;
@@ -117,39 +108,39 @@ namespace z0 {
     };
 
     unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string& filepath) {
-        filesystem::path filename;
-        if (filepath.starts_with(APP_URI)) {
-            filename = Application::get().getConfig().appDir;
-        } else {
-            die("Unknown resource type", filepath);
-        }
-        filename /= filepath.substr(APP_URI.size());
-        return make_unique<GltfFileStream>(filename.string());
+        return make_unique<GltfFileStream>(getPath(filepath).string());
     }
 
-    ifstream VirtualFS::openJSON(const string& filepath) {
-        filesystem::path filename;
-        if (filepath.starts_with(APP_URI)) {
-            filename = Application::get().getConfig().appDir;
-        } else {
-            die("Unknown resource type", filepath);
-        }
-        filename /= filepath.substr(APP_URI.size());
-
-        ifstream file(filename, std::ios::binary);
-        if (!file) die("Error: Could not open file ", filename.string());
+    ifstream VirtualFS::openFile(const string& filepath) {
+        ifstream file(getPath(filepath), std::ios::binary);
+        if (!file.is_open()) die("Error: Could not open file ", filepath);
         return file;
     }
 
+    vector<char> VirtualFS::loadShader(const string &fileName) {
+        auto filepath = APP_URI + "shaders/" + fileName + ".spv";
+        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
+        if (!file.is_open()) die("failed to open file : ", filepath);
+        const size_t fileSize = file.tellg();
+        vector<char> buffer(fileSize);
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+        file.close();
+        return buffer;
+    }
+
     filesystem::path VirtualFS::parentPath(const string& filepath) {
+        return APP_URI / getPath(filepath).parent_path();
+    }
+
+    filesystem::path VirtualFS::getPath(const string& filepath) {
         filesystem::path filename;
         if (filepath.starts_with(APP_URI)) {
             filename = Application::get().getConfig().appDir;
         } else {
             die("Unknown resource type ", filepath);
         }
-        filename /= filepath.substr(APP_URI.size());
-        return APP_URI / filename.parent_path();
+        return (filename /= filepath.substr(APP_URI.size()));
     }
 
 }

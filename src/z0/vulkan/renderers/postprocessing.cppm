@@ -19,7 +19,6 @@ export namespace z0 {
     class PostprocessingRenderer : public Renderpass, public Renderer {
     public:
         PostprocessingRenderer(Device &                                        device,
-                               const string &                                  shaderDirectory,
                                const vector<shared_ptr<ColorFrameBufferHDR>> & inputColorAttachment);
 
         void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);

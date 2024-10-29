@@ -40,7 +40,7 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
+        SceneRenderer(Device &device, vec3 clearColor);
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
 

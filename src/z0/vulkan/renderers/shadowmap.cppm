@@ -29,7 +29,7 @@ export namespace z0 {
      */
     class ShadowMapRenderer : public Renderpass, public Renderer {
     public:
-        ShadowMapRenderer(Device &device, const string &shaderDirectory, const shared_ptr<Light>&light);
+        ShadowMapRenderer(Device &device, const shared_ptr<Light>&light);
 
         void loadScene(const list<shared_ptr<MeshInstance>> &meshes);
 

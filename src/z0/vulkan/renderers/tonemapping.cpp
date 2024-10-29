@@ -15,10 +15,9 @@ namespace z0 {
 
     TonemappingPostprocessingRenderer::TonemappingPostprocessingRenderer(
             Device &            device,
-            const string &      shaderDirectory,
             const vector<shared_ptr<ColorFrameBufferHDR>>&inputColorAttachmentHdr,
             const vector<shared_ptr<DepthFrameBuffer>>& depthBuffer):
-        PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr},
+        PostprocessingRenderer{device, inputColorAttachmentHdr},
         resolvedDepthBuffer{depthBuffer} {
         globalBuffer.resize(device.getFramesInFlight());
         createOrUpdateResources();

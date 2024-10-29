@@ -23,18 +23,16 @@ import :VulkanImage;
 
 namespace z0 {
 
-    VectorRenderer::VectorRenderer(Device &      device,
-                                   const string &shaderDirectory) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
+    VectorRenderer::VectorRenderer(Device &device) :
+        Renderpass{device, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{true} {
         frameData.resize(device.getFramesInFlight());
         init();
     }
 
-    VectorRenderer::VectorRenderer(Device &                               device,
-                                   const string &                         shaderDirectory,
+    VectorRenderer::VectorRenderer(Device &device,
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR},
+        Renderpass{device, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {

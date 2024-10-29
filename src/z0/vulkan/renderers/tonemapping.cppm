@@ -17,7 +17,6 @@ export namespace z0 {
     class TonemappingPostprocessingRenderer : public PostprocessingRenderer {
     public:
         TonemappingPostprocessingRenderer(Device& device,
-                                     const string& shaderDirectory,
                                      const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr,
                                      const vector<shared_ptr<DepthFrameBuffer>>& depthBuffer);
 

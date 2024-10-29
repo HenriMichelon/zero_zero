@@ -44,8 +44,8 @@ import :VulkanMesh;
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(Device &device, const string &shaderDirectory, const vec3 clearColor) :
-        ModelsRenderer{device, shaderDirectory, clearColor} {
+    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor) :
+        ModelsRenderer{device, clearColor} {
         frameData.resize(device.getFramesInFlight());
         colorFrameBufferHdr.resize(device.getFramesInFlight());
         resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
@@ -81,7 +81,7 @@ namespace z0 {
 
     void SceneRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (auto *skybox = dynamic_cast<Skybox *>(node.get())) {
-            frameData[currentFrame].skyboxRenderer = make_unique<SkyboxRenderer>(device, shaderDirectory, clearColor);
+            frameData[currentFrame].skyboxRenderer = make_unique<SkyboxRenderer>(device, clearColor);
             frameData[currentFrame].skyboxRenderer->loadScene(skybox->getCubemap());
             return;
         }
@@ -812,7 +812,7 @@ namespace z0 {
         if (enableShadowMapRenders) {
             if (!shadowMapRenderers.contains(light)) {
                 if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
-                    const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, shaderDirectory, light);
+                    const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
                     for(auto i = 0; i < device.getFramesInFlight(); i++) {
                         shadowMapRenderer->activateCamera(ModelsRenderer::frameData[0].currentCamera, i);
                     }

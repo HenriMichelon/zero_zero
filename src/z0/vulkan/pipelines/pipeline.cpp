@@ -92,19 +92,4 @@ namespace z0 {
         return shaderModule;
     }
 
-    vector<char> Pipeline::readFile(const string &fileName) const {
-        filesystem::path filepath = (Application::get().getConfig().appDir / "shaders").string();
-        filepath /= fileName;
-        filepath += ".spv";
-        ifstream file{filepath, std::ios::ate | std::ios::binary};
-        if (!file.is_open()) {
-            die("failed to open file : ", filepath.string());
-        }
-        const size_t fileSize = file.tellg();
-        vector<char> buffer(fileSize);
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-        file.close();
-        return buffer;
-    }
 } // namespace z0

@@ -24,9 +24,8 @@ export namespace z0 {
         [[nodiscard]] inline const Device &getDevice() const { return device; }
 
     protected:
-        Device                         &device;
+        Device                          &device;
         VkDevice                        vkDevice;
-        string                          shaderDirectory; // SPIR-V Compiled shaders directory
         VkPipelineLayout                pipelineLayout{VK_NULL_HANDLE};
         shared_ptr<DescriptorPool>      descriptorPool{};
         unique_ptr<DescriptorSetLayout> setLayout{};
@@ -39,8 +38,8 @@ export namespace z0 {
 
         const VkClearValue depthClearValue{.depthStencil = {1.0f, 0}};
 
-        Renderpass(Device &dev, const string &shaderDir, vec3 clearColor);
-        Renderpass(Device &dev, string shaderDir, VkClearValue clearColor);
+        Renderpass(Device &dev, vec3 clearColor);
+        Renderpass(Device &dev, VkClearValue clearColor);
 
         // Helpers function for children classes
         static void setViewport(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
@@ -73,8 +72,6 @@ export namespace z0 {
 
     private:
         void buildShader(Shader &shader) const;
-
-        vector<char> readFile(const string &fileName);
 
     public:
         Renderpass(const Renderpass &) = delete;

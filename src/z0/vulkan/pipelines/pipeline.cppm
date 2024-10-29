@@ -21,8 +21,6 @@ export namespace z0 {
         Device &device;
         VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
 
-        vector<char> readFile(const string &fileName) const;
-
         VkPipelineLayout createPipelineLayout(
             VkDescriptorSetLayout descriptorSetLayout,
                                               const VkPushConstantRange * pushConstants = nullptr) const;

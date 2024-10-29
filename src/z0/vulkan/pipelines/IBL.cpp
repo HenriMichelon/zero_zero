@@ -8,6 +8,7 @@ import :Constants;
 import :Tools;
 import :Image;
 import :Cubemap;
+import :VirtualFS;
 
 import :Device;
 import :Descriptors;
@@ -64,7 +65,7 @@ namespace z0 {
 
     void IBLPipeline::convert(const shared_ptr<VulkanImage>&   hdrFile,
                               const shared_ptr<VulkanCubemap>& cubemap) const {
-        const auto shaderModule = createShaderModule(readFile("equirect2cube.comp"));
+        const auto shaderModule = createShaderModule( VirtualFS::loadShader("equirect2cube.comp"));
         const auto pipeline = createPipeline(shaderModule);
 
         const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, hdrFile->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
@@ -99,7 +100,7 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const {
-        const auto shaderModule = createShaderModule(readFile("specular_map.comp"));
+        const auto shaderModule = createShaderModule(VirtualFS::loadShader("specular_map.comp"));
         const auto pipeline = createPipeline(shaderModule, &specializationInfo);
         const auto commandBuffer = device.beginOneTimeCommandBuffer();
         // Copy base mipmap level into destination environment map.
@@ -194,7 +195,7 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeIrradiance(const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const {
-        const auto shaderModule = createShaderModule(readFile("irradiance_map.comp"));
+        const auto shaderModule = createShaderModule(VirtualFS::loadShader("irradiance_map.comp"));
         const auto pipeline = createPipeline(shaderModule);
 
         const auto inputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, cubemap->getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
@@ -235,7 +236,7 @@ namespace z0 {
     }
 
     void IBLPipeline::preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const {
-        const auto shaderModule = createShaderModule(readFile("brdf.comp"));
+        const auto shaderModule = createShaderModule(VirtualFS::loadShader("brdf.comp"));
         const auto pipeline = createPipeline(shaderModule);
         const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, brdfLut->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
         DescriptorWriter(*descriptorSetLayout, *descriptorPool)

@@ -6,6 +6,8 @@ module z0;
 
 import :Tools;
 import :Constants;
+import :VirtualFS;
+
 import :Device;
 import :Shader;
 import :Buffer;
@@ -27,18 +29,17 @@ namespace z0 {
         descriptorPool.reset();
     }
 
-    Renderpass::Renderpass(Device &dev, const string &shaderDir, const vec3 clearColor) :
-        Renderpass(dev, shaderDir, {
+    Renderpass::Renderpass(Device &dev, const vec3 clearColor) :
+        Renderpass(dev, {
             clearColor.r / 256.0f,
             clearColor.g / 256.0f,
             clearColor.b / 256.0f,
             1.0f}) {
     }
 
-    Renderpass::Renderpass(Device &dev, string shaderDir, const VkClearValue clearColor) :
+    Renderpass::Renderpass(Device &dev, const VkClearValue clearColor) :
         device{dev},
         vkDevice{dev.getDevice()},
-        shaderDirectory(std::move(shaderDir)),
         clearColor{clearColor} {
         descriptorSet.resize(dev.getFramesInFlight());
     }
@@ -138,7 +139,7 @@ namespace z0 {
     unique_ptr<Shader> Renderpass::createShader(const string &              filename,
                                                 const VkShaderStageFlagBits stage,
                                                 const VkShaderStageFlags    next_stage) {
-        auto code   = readFile(filename);
+        auto code = VirtualFS::loadShader(filename);
         auto shader = make_unique<Shader>(
                 device,
                 stage,
@@ -175,22 +176,6 @@ namespace z0 {
             die("vkCreateShadersEXT failed");
         }
         shader.setShader(shaderEXT);
-    }
-
-    vector<char> Renderpass::readFile(const string &fileName) {
-        filesystem::path filepath = shaderDirectory;
-        filepath /= fileName;
-        filepath += ".spv";
-        ifstream file{filepath, std::ios::ate | std::ios::binary};
-        if (!file.is_open()) {
-            die("failed to open file : ", fileName);
-        }
-        const size_t fileSize = static_cast<size_t>(file.tellg());
-        vector<char> buffer(fileSize);
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-        file.close();
-        return buffer;
     }
 
 }

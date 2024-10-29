@@ -11,10 +11,9 @@ import :SimplePostprocessingRenderer;
 namespace z0 {
 
     SimplePostprocessingRenderer::SimplePostprocessingRenderer(Device &            device,
-                                                               const string &      shaderDirectory,
                                                                const string &      shaderName,
                                                                 const vector<shared_ptr<ColorFrameBufferHDR>>&inputColorAttachmentHdr):
-        PostprocessingRenderer{device, shaderDirectory, inputColorAttachmentHdr}, shaderName{shaderName} {
+        PostprocessingRenderer{device, inputColorAttachmentHdr}, shaderName{shaderName} {
         createOrUpdateResources();
     }
 

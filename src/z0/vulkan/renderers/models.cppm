@@ -54,7 +54,7 @@ export namespace z0 {
         };
         vector<FrameData> frameData;
 
-        ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor);
+        ModelsRenderer(Device &device, vec3 clearColor);
 
         // A model is currently been added to the scene, called before updating the descriptor set
         virtual void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) {

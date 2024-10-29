@@ -15,9 +15,9 @@ import :PostprocessingRenderer;
 
 namespace z0 {
 
-    PostprocessingRenderer::PostprocessingRenderer(Device &device, const string &shaderDirectory,
+    PostprocessingRenderer::PostprocessingRenderer(Device &device,
                                                    const vector<shared_ptr<ColorFrameBufferHDR>> & inputColorAttachment) :
-        Renderpass{device, shaderDirectory, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
+        Renderpass{device, WINDOW_CLEAR_COLOR}, inputColorAttachmentHdr{inputColorAttachment} {
         colorAttachmentHdr.resize(device.getFramesInFlight());
         inputColorAttachmentHdr.resize(device.getFramesInFlight());
         createImagesResources();

@@ -19,7 +19,7 @@ export namespace z0 {
 
     class SkyboxRenderer : public Renderpass {
     public:
-        SkyboxRenderer(Device &device, const string &shaderDirectory, VkClearValue clearColor);
+        SkyboxRenderer(Device &device, VkClearValue clearColor);
 
         void loadScene(const shared_ptr<Cubemap> &cubemap);
 

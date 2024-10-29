@@ -83,8 +83,8 @@ import :VulkanMesh;
         Renderpass::cleanup();
     }
 
-    ModelsRenderer::ModelsRenderer(Device &device, const string &shaderDirectory, vec3 clearColor):
-        Renderpass(device, shaderDirectory, clearColor) {
+    ModelsRenderer::ModelsRenderer(Device &device, const vec3 clearColor):
+        Renderpass(device, clearColor) {
         frameData.resize(device.getFramesInFlight());
     }
 

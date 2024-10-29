@@ -8,6 +8,7 @@ module z0;
 import :Tools;
 import :Image;
 import :Font;
+import :VirtualFS;
 
 namespace z0 {
 
@@ -82,12 +83,11 @@ namespace z0 {
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
 
-    Font::Font(const string &_name, const uint32_t _size) :
-        Resource{_name},
-        path{_name},
-        size{_size} {
-        ifstream fontFile(path.c_str(), ios::binary);
-        if (!fontFile) { die("Failed to open font file", path); }
+    Font::Font(const string &name, const uint32_t size) :
+        Resource{name},
+        path{name},
+        size{size} {
+        ifstream fontFile = VirtualFS::openFile(path);
         fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator<char>(fontFile)),
                                                         istreambuf_iterator<char>());
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {

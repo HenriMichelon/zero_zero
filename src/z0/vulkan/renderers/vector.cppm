@@ -33,12 +33,10 @@ namespace z0 {
     export class VectorRenderer : public Renderpass, public Renderer {
     public:
         // Used when this renderer is the only renderer
-        VectorRenderer(Device &      device,
-                       const string &shaderDirectory);
+        VectorRenderer(Device &device);
 
         // Used when this renderer is in a renderer chain
         VectorRenderer(Device &                                     device,
-                       const string &                               shaderDirectory,
                        const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr);
 
         // Draw a 1-fragment width line

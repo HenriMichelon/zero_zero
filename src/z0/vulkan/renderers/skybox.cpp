@@ -19,8 +19,8 @@ import :VulkanCubemap;
 
 namespace z0 {
 
-    SkyboxRenderer::SkyboxRenderer(Device &device, const string &shaderDirectory, const VkClearValue clearColor):
-        Renderpass{device, shaderDirectory, clearColor} {
+    SkyboxRenderer::SkyboxRenderer(Device &device, const VkClearValue clearColor):
+        Renderpass{device, clearColor} {
         globalBuffer.resize(device.getFramesInFlight());
         static constexpr float skyboxVertices[] = {
                 // positions
