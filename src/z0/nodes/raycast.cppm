@@ -20,13 +20,13 @@ export namespace z0 {
          * @param mask The ray's collision mask. Only objects in at least one collision layer enabled in the mask will be detected
          * @param name The node's name
          */
-        RayCast(const vec3 &target, uint32_t mask, const string &name = "RayCast");
+        RayCast(const vec3 &target, uint32_t mask, const string &name = TypeNames[RAYCAST]);
 
         /**
          * Creates a RayCast with a [0.0, 0.0, 0.0] target
          * @param name The node's name
          */
-        explicit RayCast(const string &name = "RayCast");
+        explicit RayCast(const string &name = TypeNames[RAYCAST]);
 
         /**
          * Returns whether any object is intersecting with the ray's vector (considering the vector length).

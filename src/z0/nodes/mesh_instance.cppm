@@ -19,7 +19,7 @@ namespace z0 {
         /**
          * Creates a MeshInstance with the given Mesh
          */
-        explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = "MeshInstance");
+        explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = TypeNames[MESH_INSTANCE]);
 
         /**
          * Returns the associated Mesh

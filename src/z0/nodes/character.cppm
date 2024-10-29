@@ -29,12 +29,12 @@ export namespace z0 {
         explicit Character(const shared_ptr<Shape> &shape,
                            uint32_t                 layer,
                            uint32_t                 mask,
-                           const string &           name = "Character");
+                           const string &           name = TypeNames[CHARACTER]);
 
         /**
          * Creates a Character without a collision `shape`,
          */
-        explicit Character(const string &name = "Character");
+        explicit Character(const string &name = TypeNames[CHARACTER]);
 
         void setShape(const shared_ptr<Shape> &shape);
 

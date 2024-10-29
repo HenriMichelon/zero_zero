@@ -18,7 +18,7 @@ export namespace z0 {
         /**
          * Creates a Camera
          */
-        explicit Camera(const string &nodeName = "Camera");
+        explicit Camera(const string &nodeName = TypeNames[CAMERA]);
 
         /**
          * Returns `true` if the camera is the currently active camera for the current scene.

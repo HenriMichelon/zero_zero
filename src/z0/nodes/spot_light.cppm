@@ -16,7 +16,7 @@ export namespace z0 {
         /**
          * Creates a SpotLight with default parameters
          */
-        explicit SpotLight(const string &name = "SpotLight");
+        explicit SpotLight(const string &name = TypeNames[SPOT_LIGHT]);
 
         /**
         * Create a SpotLight.
@@ -31,7 +31,7 @@ export namespace z0 {
                            float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},
                            float         specular    = 1.0f,
-                           const string &nodeName    = "SpotLight");
+                           const string &nodeName    = TypeNames[SPOT_LIGHT]);
 
         ~SpotLight() override = default;
 

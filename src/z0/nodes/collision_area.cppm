@@ -20,12 +20,12 @@ export namespace z0 {
          */
         CollisionArea(const shared_ptr<Shape> &shape,
                       uint32_t                 mask,
-                      const string &           name = "CollisionArea");
+                      const string &           name = TypeNames[COLLISION_AREA]);
 
         /**
          * Creates a CollisionArea without collision shape
          */
-        explicit CollisionArea(const string &name = "CollisionArea");
+        explicit CollisionArea(const string &name = TypeNames[COLLISION_AREA]);
 
         void setShape(const shared_ptr<Shape> &shape);
 

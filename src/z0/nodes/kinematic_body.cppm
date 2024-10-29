@@ -22,12 +22,12 @@ export namespace z0 {
         explicit KinematicBody(const shared_ptr<Shape> &shape,
                                uint32_t                 layer = 0xff,
                                uint32_t                 mask  = 0xff,
-                               const string &           name  = "KinematicBody");
+                               const string &           name  = TypeNames[KINEMATIC_BODY]);
 
         /**
          * Creates a KinematicBody without a collision shape,
          */
-        explicit KinematicBody(const string &name = "KinematicBody");
+        explicit KinematicBody(const string &name = TypeNames[KINEMATIC_BODY]);
 
         ~KinematicBody() override = default;
 

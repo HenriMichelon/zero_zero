@@ -165,7 +165,7 @@ namespace z0 {
         for (int i = 0; i < (tab * 2); i++) {
             sstream << " ";
         }
-        sstream << " " << toString();
+        sstream << " " << toString() << " (" << TypeNames[type] << ")";
         log(sstream.str());
         for (auto &child : children)
             child->printTree(tab + 1);

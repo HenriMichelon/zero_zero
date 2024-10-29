@@ -63,9 +63,9 @@ export namespace z0 {
         void setProperty(const string &property, const string &value) override;
 
     protected:
-        explicit Light(const string &nodeName, Type type = LIGHT);
+        explicit Light(const string &nodeName = TypeNames[LIGHT], Type type = LIGHT);
 
-        explicit Light(vec4 color, float specular, const string &nodeName, Type type = LIGHT);
+        explicit Light(vec4 color, float specular, const string &nodeName = TypeNames[LIGHT], Type type = LIGHT);
 
     private:
         const LightType lightType{LIGHT_UNKNOWN};

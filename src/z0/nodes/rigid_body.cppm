@@ -22,12 +22,12 @@ export namespace z0 {
         explicit RigidBody(const shared_ptr<Shape> &shape,
                            uint32_t                 layer = 0xff,
                            uint32_t                 mask  = 0xff,
-                           const string &           name  = "RigidBody");
+                           const string &           name  = TypeNames[RIGID_BODY]);
 
         /**
          * Creates a RigidBody without a collision shape,
          */
-        explicit RigidBody(const string &name = "RigidBody");
+        explicit RigidBody(const string &name = TypeNames[RIGID_BODY]);
 
         ~RigidBody() override = default;
 

@@ -116,12 +116,12 @@ export namespace z0 {
         CollisionObject(const shared_ptr<Shape> &_shape,
                         uint32_t                 layer,
                         uint32_t                 mask,
-                        const string &           name,
+                        const string &           name = TypeNames[COLLISION_OBJECT],
                         Type                     type = COLLISION_OBJECT);
 
         CollisionObject(uint32_t      layer,
                         uint32_t      mask,
-                        const string &name,
+                        const string &name = TypeNames[COLLISION_OBJECT],
                         Type          type = COLLISION_OBJECT);
 
         virtual void setPositionAndRotation();

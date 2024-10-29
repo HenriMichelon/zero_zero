@@ -19,7 +19,7 @@ export namespace z0 {
          */
         explicit Environment(
                 vec4          colorAndIntensity = {1.0f, 1.0f, 1.0f, 1.0f},
-                const string &nodeName          = "Environment");
+                const string &nodeName          = TypeNames[ENVIRONMENT]);
 
         ~Environment() override = default;
 

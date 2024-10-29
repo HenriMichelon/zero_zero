@@ -20,19 +20,19 @@ export namespace z0 {
          */
         explicit StaticBody(const shared_ptr<Shape> &shape,
                             uint32_t                 layer,
-                            const string &           name = "StaticBody");
+                            const string &           name = TypeNames[STATIC_BODY]);
 
         /**
          * Creates a StaticBody without a collision shape`
          * belonging to the `layer` layers
          */
         explicit StaticBody(uint32_t      layer,
-                            const string &name = "StaticBody");
+                            const string &name = TypeNames[STATIC_BODY]);
 
         /**
         * Creates a StaticBody without a collision shape`
         */
-        explicit StaticBody(const string &name = "StaticBody");
+        explicit StaticBody(const string &name = TypeNames[STATIC_BODY]);
 
         ~StaticBody() override = default;
     };

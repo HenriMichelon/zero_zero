@@ -19,9 +19,9 @@ export namespace z0 {
          * @param size size in pixels
          * @param name node name
          */
-        Viewport(const vec2 &position, const vec2 &size, const string &name = "Viewport");
+        Viewport(const vec2 &position, const vec2 &size, const string &name = TypeNames[VIEWPORT]);
 
-        explicit Viewport(const string &name = "Viewport");
+        explicit Viewport(const string &name = TypeNames[VIEWPORT]);
 
         /**
          * Sets the viewport size in pixels

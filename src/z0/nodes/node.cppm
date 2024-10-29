@@ -41,6 +41,27 @@ export namespace z0 {
             VIEWPORT
         };
 
+        static constexpr auto TypeNames = array{
+            "Camera",
+            "Character",
+            "CollisionArea",
+            "CollisionObject",
+            "DirectionalLight",
+            "Environment",
+            "KinematicBody",
+            "Light",
+            "MeshInstance",
+            "Node",
+            "OmniLight",
+            "PhysicsBody",
+            "RayCast",
+            "RigidBody",
+            "Skybox",
+            "SpotLight",
+            "StaticBody",
+            "Viewport"
+        };
+
         /**
          * Creates a node by copying the transforms, process mode, type and name
          */

@@ -15,7 +15,7 @@ export namespace z0 {
         /**
          * Creates an OmniLight with default parameters
          */
-        explicit OmniLight(const string &name = "OmniLight", Type type = OMNI_LIGHT);
+        explicit OmniLight(const string &name = TypeNames[OMNI_LIGHT], Type type = OMNI_LIGHT);
 
         /**
          * Create an OmniLight.
@@ -27,7 +27,7 @@ export namespace z0 {
         explicit OmniLight(float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},
                            float         specular    = 1.0f,
-                           const string &nodeName    = "OmniLight",
+                           const string &nodeName    =TypeNames[OMNI_LIGHT],
                            Type          type        = OMNI_LIGHT);
 
         ~OmniLight() override = default;

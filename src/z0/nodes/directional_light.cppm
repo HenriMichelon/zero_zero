@@ -20,7 +20,7 @@ export namespace z0 {
          */
         explicit DirectionalLight(vec4          color    = {1.0f, 1.0f, 1.0f, 1.0f},
                                   float         specular = 1.0f,
-                                  const string &nodeName = "DirectionalLight");
+                                  const string &nodeName = TypeNames[DIRECTIONAL_LIGHT]);
 
         ~DirectionalLight() override = default;
 

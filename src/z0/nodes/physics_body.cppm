@@ -28,14 +28,14 @@ export namespace z0 {
                     uint32_t                 mask,
                     JPH::EActivation         activationMode,
                     JPH::EMotionType         motionType,
-                    const string &           name,
+                    const string &           name= TypeNames[PHYSICS_BODY],
                     Type                     type = PHYSICS_BODY);
 
         PhysicsBody(uint32_t         layer,
                     uint32_t         mask,
                     JPH::EActivation activationMode,
                     JPH::EMotionType motionType,
-                    const string &   name,
+                    const string &   name = TypeNames[PHYSICS_BODY],
                     Type             type = PHYSICS_BODY);
 
         void setShape(const shared_ptr<Shape> &shape);
