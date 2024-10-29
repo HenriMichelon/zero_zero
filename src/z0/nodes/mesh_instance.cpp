@@ -15,8 +15,7 @@ namespace z0 {
     shared_ptr<Node> MeshInstance::duplicateInstance() {
         return make_shared<MeshInstance>(*this);
     }
-    
-            
+
     void MeshInstance::_updateTransform(const mat4 &parentMatrix) {
         Node::_updateTransform(parentMatrix);
         worldAABB = mesh->getAABB().toGlobal(worldTransform) ; 

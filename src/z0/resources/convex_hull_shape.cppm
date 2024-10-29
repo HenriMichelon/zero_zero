@@ -4,6 +4,7 @@ module;
 
 export module z0:ConvexHullShape;
 
+import :Tools;
 import :Node;
 import :Mesh;
 import :MeshInstance;
@@ -27,12 +28,20 @@ export namespace z0 {
          */
         explicit ConvexHullShape(const shared_ptr<Mesh> &mesh, const string &resName = "ConvexHullShape");
 
+        ConvexHullShape(const vector<vec3>& points, const string &resName);
+
+        shared_ptr<Resource> duplicate()  const override;
+
     private:
+        vector<vec3> points;
+
         void tryCreateShape(const shared_ptr<Node> &node);
 
-        void createShape(const MeshInstance *meshInstance);
+        void createShape(const shared_ptr<MeshInstance>& meshInstance);
 
         void createShape(const shared_ptr<Mesh> &mesh);
+
+        void createShape();
     };
 
 }

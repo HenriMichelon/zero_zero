@@ -35,6 +35,10 @@ export namespace z0 {
         explicit StaticBody(const string &name = TypeNames[STATIC_BODY]);
 
         ~StaticBody() override = default;
+
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
+
     };
 
 }

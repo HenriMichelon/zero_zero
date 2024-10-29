@@ -15,7 +15,7 @@ export namespace z0 {
      */
     class PhysicsBody : public CollisionObject {
     public:
-        ~PhysicsBody() override;
+        ~PhysicsBody() override = default;
 
         /**
          * Sets an artificial gravity factor
@@ -41,6 +41,8 @@ export namespace z0 {
         void setShape(const shared_ptr<Shape> &shape);
 
         void setProperty(const string &property, const string &value) override;
+
+        void recreateBody();
 
     private:
         JPH::EMotionType motionType;

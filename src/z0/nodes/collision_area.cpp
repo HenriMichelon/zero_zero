@@ -25,7 +25,6 @@ namespace z0 {
         this->shape         = shape;
         const auto position = getPositionGlobal();
         const auto quat     = normalize(toQuat(mat3(worldTransform)));
-        this->shape->setAttachedToNode();
         JPH::BodyCreationSettings settings{
                 shape->_getShapeSettings(),
                 JPH::RVec3{position.x, position.y, position.z},

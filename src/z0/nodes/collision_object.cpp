@@ -14,6 +14,20 @@ import :Application;
 
 namespace z0 {
 
+    void CollisionObject::releaseBodyId() {
+        if (!bodyId.IsInvalid()) {
+            // log(toString(), "release body id ", to_string(bodyId.GetIndexAndSequenceNumber()));
+            // bodyInterface.DeactivateBody(bodyId);
+            bodyInterface.RemoveBody(bodyId);
+            bodyInterface.DestroyBody(bodyId);
+            bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
+        }
+    }
+
+    CollisionObject::~CollisionObject() {
+        releaseBodyId();
+    }
+
     void CollisionObject::setCollistionLayer(const uint32_t layer, const bool value) {
         assert(!bodyId.IsInvalid());
         if (value) {
@@ -120,7 +134,7 @@ namespace z0 {
     void CollisionObject::setBodyId(const JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
-        //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
+        // log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
     }
 
     CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) const {
@@ -154,6 +168,7 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
+        // assert(!bodyId.IsInvalid());
         bodyInterface.ActivateBody(bodyId);
         setPositionAndRotation();
         Node::_onEnterScene();

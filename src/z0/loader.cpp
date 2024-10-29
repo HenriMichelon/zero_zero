@@ -445,22 +445,30 @@ namespace z0 {
             node->_setParent(parent);
             if (nodeDesc.child != nullptr) {
                 // If we have a designated child we mimic the position, rotation and scale of the child
-                auto &child = nodeTree[nodeDesc.child->id];
+                const auto& child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr)
                     die(log_name, "Child node", nodeDesc.child->id, "not found");
                 node->setPositionGlobal(child->getPositionGlobal());
                 node->setRotation(child->getRotation());
                 node->setScale(child->getScale());
                 if (nodeDesc.child->needDuplicate) {
-                    child = child->duplicate();
+                    const auto dup = child->duplicate();
+                    dup->setPosition(VEC3ZERO);
+                    dup->setRotation(QUATERNION_IDENTITY);
+                    dup->setScale(1.0f);
+                    if (dup->getParent() != nullptr) {
+                        dup->getParent()->removeChild(dup);
+                    };
+                    node->addChild(dup);
+                } else {
+                    child->setPosition(VEC3ZERO);
+                    child->setRotation(QUATERNION_IDENTITY);
+                    child->setScale(1.0f);
+                    if (child->getParent() != nullptr) {
+                        child->getParent()->removeChild(child);
+                    };
+                    node->addChild(child);
                 }
-                child->setPosition(VEC3ZERO);
-                child->setRotation(QUATERNION_IDENTITY);
-                child->setScale(1.0f);
-                if (child->getParent() != nullptr) {
-                    child->getParent()->removeChild(child);
-                };
-                node->addChild(child);
             }
             for (const auto &child : nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {

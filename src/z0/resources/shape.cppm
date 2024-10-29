@@ -5,6 +5,7 @@ module;
 
 export module z0:Shape;
 
+import :Tools;
 import :Resource;
 
 export namespace z0 {
@@ -14,17 +15,12 @@ export namespace z0 {
      */
     class Shape : public Resource {
     protected:
-        JPH::ShapeSettings *shapeSettings{nullptr};
+        JPH::ShapeSettings* shapeSettings{nullptr}; // https://jrouwe.github.io/JoltPhysics/index.html#memory-management
 
         explicit Shape(const string &resName);
 
-    private:
-        bool isAttachedToNode{false};
-
     public:
         [[nodiscard]] inline JPH::ShapeSettings *_getShapeSettings() const { return shapeSettings; }
-
-        void setAttachedToNode();
     };
 
     /**
@@ -35,7 +31,12 @@ export namespace z0 {
         /**
          * Creates a BoxShape with the given extends
          */
-        explicit BoxShape(vec3 extends, const string &resName = "BoxShape");
+        explicit BoxShape(const vec3& extends, const string &resName = "BoxShape");
+
+        shared_ptr<Resource> duplicate()  const override;
+
+    private:
+        const vec3 extends;
     };
 
     /**
@@ -47,6 +48,11 @@ export namespace z0 {
          * Create a SphereShape with the given radius
          */
         explicit SphereShape(float radius, const string &resName = "SphereShape");
+
+    private:
+        // const float radius;
+
+        explicit SphereShape(const string &resName) : Shape(resName) {};
     };
 
 }

@@ -134,6 +134,9 @@ export namespace z0 {
 
         void _updateTransform(const mat4 &parentMatrix) override;
 
+        void releaseBodyId();
+
+
     private:
         JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};
 
@@ -150,7 +153,7 @@ export namespace z0 {
 
         [[nodiscard]] inline JPH::BodyID _getBodyId() const { return bodyId; }
 
-        ~CollisionObject() override = default;
+        ~CollisionObject() override;
     };
 
 

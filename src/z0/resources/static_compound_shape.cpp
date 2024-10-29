@@ -13,7 +13,7 @@ namespace z0 {
 
     StaticCompoundShape::StaticCompoundShape(const vector<SubShape> &subshapes, const string &resName) :
         Shape{resName} {
-        auto *settings = new JPH::StaticCompoundShapeSettings();
+        const auto settings = new JPH::StaticCompoundShapeSettings();
         for (const auto &subshape : subshapes) {
             const auto quat = glm::quat(subshape.rotation);
             settings->AddShape(JPH::Vec3{subshape.position.x, subshape.position.y, subshape.position.z},

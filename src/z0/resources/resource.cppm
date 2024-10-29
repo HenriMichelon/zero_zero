@@ -3,6 +3,7 @@ module;
 
 export module z0:Resource;
 
+import :Tools;
 import :Object;
 
 export namespace z0 {
@@ -16,6 +17,8 @@ export namespace z0 {
         static constexpr id_t INVALID_ID = -1;
 
         explicit Resource(string name);
+
+        // ~Resource() override { log("~Resource", name, to_string(getId())); }
 
         /**
          * Returns the unique id of the resource
@@ -34,6 +37,11 @@ export namespace z0 {
         inline bool operator>(const Resource &other) const { return id > other.id; }
 
         [[nodiscard]] inline string toString() const override { return name; }
+
+        /**
+         * Duplicates a resource. Warning : not implemented on all resources types, check documentation for the resource type before using it.
+         */
+        [[nodiscard]] virtual shared_ptr<Resource> duplicate() const { die("Resource::duplicate() not implemented for this resource type", name); return nullptr; };
 
     protected:
         string name;

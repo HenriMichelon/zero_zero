@@ -14,12 +14,6 @@ import :PhysicsBody;
 
 namespace z0 {
 
-    PhysicsBody::~PhysicsBody() {
-        if (!_getBodyId().IsInvalid()) {
-            bodyInterface.RemoveBody(_getBodyId());
-            bodyInterface.DestroyBody(_getBodyId());
-        }
-    }
 
     void PhysicsBody::setGravityScale(const float value) {
         assert(!_getBodyId().IsInvalid());
@@ -53,7 +47,7 @@ namespace z0 {
     void PhysicsBody::setShape(const shared_ptr<Shape> &shape) {
         const auto &position = getPositionGlobal();
         const auto &quat     = normalize(toQuat(mat3(worldTransform)));
-        shape->setAttachedToNode();
+        this->shape = shape;
         const JPH::BodyCreationSettings settings{
                 shape->_getShapeSettings(),
                 JPH::RVec3{position.x, position.y, position.z},
@@ -62,6 +56,10 @@ namespace z0 {
                 collisionLayer << 4 | collisionMask
         };
         setBodyId(bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate));
+    }
+
+    void PhysicsBody::recreateBody() {
+        setShape(dynamic_pointer_cast<Shape>(shape->duplicate()));
     }
 
     void PhysicsBody::setProperty(const string &property, const string &value) {

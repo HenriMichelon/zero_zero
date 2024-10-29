@@ -8,6 +8,7 @@ module;
 module z0;
 
 import :Tools;
+import :Resource;
 import :Shape;
 
 namespace z0 {
@@ -16,14 +17,16 @@ namespace z0 {
         Resource{resName} {
     }
 
-    void Shape::setAttachedToNode() {
-        if (isAttachedToNode) { die("Shape already attached to a node"); }
-        isAttachedToNode = true;
+    BoxShape::BoxShape(const vec3& extends, const string &resName):
+        Shape{resName}, extends
+        {extends} {
+        shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x / 2, extends.y / 2, extends.z / 2));
     }
 
-    BoxShape::BoxShape(const vec3 extends, const string &resName):
-        Shape{resName} {
-        shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x / 2, extends.y / 2, extends.z / 2));
+    shared_ptr<Resource> BoxShape::duplicate() const {
+        auto dup = make_shared<BoxShape>(extends, name);
+        dup->shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x / 2, extends.y / 2, extends.z / 2));
+        return dup;
     }
 
     SphereShape::SphereShape(const float radius, const string &resName):
