@@ -27,7 +27,7 @@ namespace z0 {
     shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
-        vector<unsigned char *> data;
+        vector<byte *> data;
         const array<std::string, 6> names{"right", "left", "top", "bottom", "front", "back"};
         for (int i = 0; i < 6; i++) {
             auto path = filepath + "_" + names[i] + fileext;
@@ -53,7 +53,7 @@ namespace z0 {
         auto *pixels = VirtualFS::loadImage(filepath, texWidth, texHeight, imageSize, imageFormat);
         if (!pixels)
             die("failed to load texture image", filepath);
-        vector<unsigned char *> data;
+        vector<byte*> data;
         const auto              imgWidth  = texWidth / 4;
         const auto              imgHeight = texHeight / 3;
         // right
@@ -115,12 +115,12 @@ namespace z0 {
         return cubemap;
     }
 
-    unsigned char *Cubemap::extractImage(unsigned char *source,
-                                         int            x, int y,
-                                         int            srcWidth,
-                                         int            w, int h,
-                                         int            channels) {
-        const auto extractedImage = new unsigned char[w * h * channels];
+    byte *Cubemap::extractImage(const byte *source,
+                                const int   x, const int y,
+                                const int   srcWidth,
+                                const int   w, const int h,
+                                const int   channels) {
+        const auto extractedImage = new byte[w * h * channels];
         for (uint32_t row = 0; row < h; ++row) {
             for (uint32_t col = 0; col < w; ++col) {
                 for (uint32_t c = 0; c < channels; ++c) {

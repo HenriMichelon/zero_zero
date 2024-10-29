@@ -9,17 +9,17 @@ import :Constants;
 export namespace z0 {
 
     /**
-     * Virtual files system
+     * Virtual file system
      */
     class VirtualFS {
     public:
         static constexpr string APP_URI = "app://";
 
-        static unsigned char* loadImage(const string& path, uint32_t& width, uint32_t& height, uint64_t& size, ImageFormat imageFormat);
+        static byte* loadImage(const string& path, uint32_t& width, uint32_t& height, uint64_t& size, ImageFormat imageFormat);
 
-        static void destroyImage(unsigned char* image);
+        static void destroyImage(byte* image);
 
-        // static unique_ptr<fastgltf::GltfDataGetter> loadGlTF(const string& filepath);
+        static unique_ptr<fastgltf::GltfDataGetter> openGltf(const string& filepath);
     };
 
 }

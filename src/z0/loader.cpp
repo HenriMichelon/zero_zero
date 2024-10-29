@@ -129,11 +129,15 @@ namespace z0 {
     }
 
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
-    shared_ptr<Node> Loader::loadModelFromFile(const string &filepath,
+    shared_ptr<Node> Loader::loadModelFromFile(const string &filename,
                                                bool forceBackFaceCulling,
                                                bool loadTextures) {
-        fastgltf::GltfDataBuffer data;
-        data.FromPath("..\\" + filepath);
+        // filesystem::path filepath = loadTextures ? (Application::get().getConfig().appDir / filename): filename;
+        // auto gltfFile = fastgltf::GltfDataBuffer::FromPath(filepath);
+        // if (auto error = gltfFile.error(); error != fastgltf::Error::None) {
+        //     die(getErrorMessage(error));
+        // }
+        auto getter = VirtualFS::openGltf(filename);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
                                 fastgltf::Extensions::KHR_materials_emissive_strength};
@@ -142,7 +146,7 @@ namespace z0 {
             fastgltf::Options::AllowDouble |
             fastgltf::Options::LoadGLBBuffers |
             fastgltf::Options::LoadExternalBuffers;
-        auto asset = parser.loadGltfBinary(data, ".", gltfOptions);
+        auto asset = parser.loadGltfBinary(*getter, ".", gltfOptions);
         if (auto error = asset.error(); error != fastgltf::Error::None) {
             die(getErrorMessage(error));
         }
@@ -364,15 +368,15 @@ namespace z0 {
                               memcpy(&newNode->_getTransformLocal(), matrix.data(), sizeof(matrix));
                           },
                           [&](fastgltf::TRS transform) {
-                              vec3 tl(transform.translation[0], transform.translation[1], transform.translation[2]);
-                              quat rot(transform.rotation[3],
+                              const vec3 tl(transform.translation[0], transform.translation[1], transform.translation[2]);
+                              const quat rot(transform.rotation[3],
                                        transform.rotation[0],
                                        transform.rotation[1],
                                        transform.rotation[2]);
-                              vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
-                              mat4 tm = translate(mat4(1.f), tl);
-                              mat4 rm = toMat4(rot);
-                              mat4 sm = scale(mat4(1.f), sc);
+                              const vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
+                              const mat4 tm = translate(mat4(1.f), tl);
+                              const mat4 rm = toMat4(rot);
+                              const mat4 sm = scale(mat4(1.f), sc);
                               newNode->_setTransform(tm * rm * sm);
                           }},
                   node.transform);
@@ -391,7 +395,7 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        shared_ptr<Node> rootNode = make_shared<Node>(filepath);
+        shared_ptr<Node> rootNode = make_shared<Node>(filename);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);

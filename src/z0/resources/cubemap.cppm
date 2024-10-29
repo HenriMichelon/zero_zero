@@ -31,11 +31,11 @@ export namespace z0 {
          * @param name : resource name
          */
         static shared_ptr<Cubemap> create(
-            uint32_t                       width,
-            uint32_t                       height,
-            uint32_t                       imageSize,
-            const vector<unsigned char *> &data,
-            const string &                 name = "Cubemap");
+            uint32_t             width,
+            uint32_t             height,
+            uint32_t             imageSize,
+            const vector<byte*> &data,
+            const string &       name = "Cubemap");
 
         ~Cubemap() override = default;
 
@@ -81,11 +81,11 @@ export namespace z0 {
                 Type          type = TYPE_STANDARD,
                 const string &name = "Cubemap");
 
-        [[nodiscard]] static unsigned char *extractImage(unsigned char *source,
-                                                         int            x, int y,
-                                                         int            srcWidth,
-                                                         int            w, int h,
-                                                         int            channels);
+        [[nodiscard]] static byte *extractImage(const byte *source,
+                                                int   x, int y,
+                                                int   srcWidth,
+                                                int   w, int h,
+                                                int   channels);
     };
 
     /**
