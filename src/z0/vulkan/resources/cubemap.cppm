@@ -11,12 +11,12 @@ export namespace z0 {
 
     class VulkanCubemap : public Cubemap {
     public:
-        VulkanCubemap(const Device &           device,
-                uint32_t                       width,
-                uint32_t                       height,
-                uint32_t                       imageSize,
-                const vector<unsigned char *> &data,
-                const string &                 name = "Cubemap");
+        VulkanCubemap(const Device & device,
+                uint32_t             width,
+                uint32_t             height,
+                uint32_t             imageSize,
+                const vector<byte*> &data,
+                const string &       name = "Cubemap");
 
         VulkanCubemap(const Device &device,
                 uint32_t            width,

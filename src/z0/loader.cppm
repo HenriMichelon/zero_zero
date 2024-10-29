@@ -28,7 +28,7 @@ export namespace z0 {
          * @param filepath path of the glTF file, relative to the application path
          * @param editorMode disable all nodes
          **/
-        static void addSceneFromFile(Node *parent, const filesystem::path &filepath, bool loadTextures = true);
+        static void addSceneFromFile(Node *parent, const string &filepath, bool loadTextures = true);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
@@ -36,7 +36,7 @@ export namespace z0 {
          * @param filepath path of the glTF file, relative to the application path
          * @param editorMode disable all nodes
          **/
-        static void addSceneFromFile(shared_ptr<Node> &parent, const filesystem::path &filepath,
+        static void addSceneFromFile(shared_ptr<Node> &parent, const string &filepath,
                                      bool              loadTextures = true);
 
         // Node description inside a JSON file
@@ -58,7 +58,7 @@ export namespace z0 {
         };
 
     private:
-        [[nodiscard]] static vector<SceneNode> loadSceneFromJSON(const filesystem::path &filepath);
+        [[nodiscard]] static vector<SceneNode> loadSceneFromJSON(const string &filepath);
 
         static void addNode(Node *                         parent,
                             map<string, shared_ptr<Node>> &nodeTree,

@@ -17,21 +17,21 @@ import :IBLPipeline;
 namespace z0 {
 
     shared_ptr<Cubemap> Cubemap::create(
-        const uint32_t                 width,
-        const uint32_t                 height,
-        const uint32_t                 imageSize,
-        const vector<unsigned char *> &data,
-        const string &                 name) {
+        const uint32_t      width,
+        const uint32_t      height,
+        const uint32_t      imageSize,
+        const vector<byte*> &data,
+        const string &      name) {
         return make_shared<VulkanCubemap>(Device::get(), width, height, imageSize, data, name);
     }
 
     VulkanCubemap::VulkanCubemap(
-        const Device &                  device,
-        const uint32_t                  width,
-        const uint32_t                  height,
-        const uint32_t                  imageSize,
-        const vector<unsigned char *> & data,
-        const string &                  name):
+        const Device &       device,
+        const uint32_t       width,
+        const uint32_t       height,
+        const uint32_t       imageSize,
+        const vector<byte*> &data,
+        const string &       name):
         Cubemap{width, height, TYPE_STANDARD, name}, device{device}, textureFormat{VK_FORMAT_R8G8B8A8_SRGB} {
         assert(data.size() == 6 && "Must have 6 images for a cubemap");
         // Create staging buffer for CPU to GPU images copy
@@ -43,7 +43,7 @@ namespace z0 {
                 device.getDeviceProperties().limits.minUniformBufferOffsetAlignment
         };
         if (textureStagingBuffer.map() != VK_SUCCESS) {
-            die("Failed to map Cubmap texture to GPU memory");
+            die("Failed to map Cubemap texture to GPU memory");
         }
         // Copy the 6 images data into staging buffer
         for (int i = 0; i < 6; i++) {
@@ -84,7 +84,7 @@ namespace z0 {
                     1
             };
         }
-        // prepare for CPU to GPU transfert
+        // prepare for CPU to GPU transfer
         const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
@@ -104,7 +104,7 @@ namespace z0 {
                 6,
                 layerRegions
                 );
-        // End the transfert
+        // End the transfer
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

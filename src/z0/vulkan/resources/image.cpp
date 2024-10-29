@@ -66,7 +66,7 @@ namespace z0 {
         };
         textureStagingBuffer.writeToBuffer(data);
 
-        mipLevels = noMipmaps ? 0 : static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        mipLevels = noMipmaps ? 0 : numMipmapLevels(width, height); //static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
         device.createImage(width,
                            height,
                            mipLevels,

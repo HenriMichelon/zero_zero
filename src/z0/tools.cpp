@@ -47,12 +47,12 @@ namespace z0 {
         buffer->insert(buffer->end(), ptr, ptr + size);
     }
 
-    vector<unsigned char> createBlankJPG() {
-        vector<unsigned char> blankJPEG;
-        const auto data = new unsigned char[1 * 1 * 3];
-        data[0]   = 0;
-        data[1]   = 0;
-        data[2]   = 0;
+    vector<byte> createBlankJPG() {
+        vector<byte> blankJPEG;
+        const auto data = new byte[1 * 1 * 3];
+        data[0]   = static_cast<byte>(0);
+        data[1]   = static_cast<byte>(0);
+        data[2]   = static_cast<byte>(0);
         stbi_write_jpg_to_func(_stb_write_func, &blankJPEG, 1, 1, 3, data, 100);
         delete[] data;
         return blankJPEG;

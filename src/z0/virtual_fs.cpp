@@ -1,6 +1,7 @@
 module;
 #include <cassert>
 #include <stb_image.h>
+#include <fastgltf/core.hpp>
 #include "z0/libraries.h"
 
 module z0;
@@ -38,20 +39,19 @@ namespace z0 {
         .eof  = eofCallback,
     };
 
-
-    unsigned char* VirtualFS::loadImage(const string& path,
+    byte* VirtualFS::loadImage(const string& filepath,
                                         uint32_t& width, uint32_t& height, uint64_t& size,
                                         const ImageFormat imageFormat) {
         assert(imageFormat == IMAGE_R8G8B8A8);
         filesystem::path filename;
-        if (path.starts_with(APP_URI)) {
+        if (filepath.starts_with(APP_URI)) {
             filename = Application::get().getConfig().appDir;
         } else {
-            die("Unknown resource type");
+            die("Unknown resource type", filepath);
         }
-        filename /= path.substr(APP_URI.size());
+        filename /= filepath.substr(APP_URI.size());
 
-        std::ifstream file(filename, std::ios::binary);
+        ifstream file(filename, std::ios::binary);
         if (!file) die("Error: Could not open file ", filename.string());
 
         StreamWrapper wrapper{&file};
@@ -64,66 +64,92 @@ namespace z0 {
         width = static_cast<uint32_t>(texWidth);
         height = static_cast<uint32_t>(texHeight);
         size = width * height * STBI_rgb_alpha;
-        return imageData;
+        return reinterpret_cast<byte*>(imageData);
     }
 
-    void VirtualFS::destroyImage(unsigned char* image) {
+    void VirtualFS::destroyImage(byte* image) {
         stbi_image_free(image);
     }
 
-    // class IStreamDataGetter : public fastgltf::GltfDataGetter {
-    // public:
-    //     explicit IStreamDataGetter(std::istream& stream)
-    //         : stream_(stream) {}
-    //
-    //     void read(void* ptr, std::size_t count) override {
-    //
-    //     }
-    //
-    //     span<std::byte> read(std::size_t count, std::size_t padding) override {
-    //
-    //     }
-    //
-    //     void reset() {
-    //     }
-    //
-    //     std::size_t bytesRead() {
-    //
-    //     }
-    //
-    //     virtual std::size_t totalSize() {
-    //
-    //     }
-    //
-    //     std::optional<std::vector<std::byte>> getData(fastgltf::GltfDataLocation location, std::size_t offset, std::size_t size) override {
-    //         if (!stream_) {
-    //             return std::nullopt;
-    //         }
-    //
-    //         // Seek to the specified offset in the stream
-    //         stream_.seekg(static_cast<std::streamoff>(offset), std::ios::beg);
-    //         if (!stream_) {
-    //             return std::nullopt;
-    //         }
-    //
-    //         // Read `size` bytes from the stream
-    //         std::vector<std::byte> data(size);
-    //         stream_.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(size));
-    //
-    //         // Check if the read was successful
-    //         if (!stream_) {
-    //             return std::nullopt;
-    //         }
-    //
-    //         return data;
-    //     }
-    //
-    // private:
-    //     std::istream& stream_;
-    // };
-    //
-    // unique_ptr<fastgltf::GltfDataGetter> VirtualFS::loadGlTF(const string& filepath) {
-    //
-    // }
+    class GltfFileStream : public fastgltf::GltfDataGetter {
+    public:
+        explicit GltfFileStream(const std::string& filename) : stream{filename, std::ios::binary | std::ios::ate} {
+            if (!stream.is_open())
+                die("Error: Could not open file ", filename);
+            fileSize = stream.tellg();
+            stream.seekg(0, std::ios::beg);
+            bytesReadCount = 0;
+        }
+
+        ~GltfFileStream() noexcept override = default;
+
+        void read(void* ptr, const size_t count) override {
+            stream.read(static_cast<char*>(ptr), count);
+            bytesReadCount += count;
+        }
+
+        fastgltf::span<byte> read(const size_t count, const size_t padding) override {
+            buffer.resize(count + padding);
+            stream.read(reinterpret_cast<char*>(buffer.data()), count);
+            bytesReadCount += count;
+            return fastgltf::span<byte>(buffer.data(), count + padding);
+        }
+
+        void reset() override {
+            stream.clear();
+            stream.seekg(0, std::ios::beg);
+            bytesReadCount = 0;
+        }
+
+        size_t bytesRead() override {
+            return bytesReadCount;
+        }
+
+        size_t totalSize() override {
+            return fileSize;
+        }
+
+    private:
+        ifstream     stream;
+        size_t       fileSize;
+        size_t       bytesReadCount;
+        vector<byte> buffer;
+    };
+
+    unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string& filepath) {
+        filesystem::path filename;
+        if (filepath.starts_with(APP_URI)) {
+            filename = Application::get().getConfig().appDir;
+        } else {
+            die("Unknown resource type", filepath);
+        }
+        filename /= filepath.substr(APP_URI.size());
+        return make_unique<GltfFileStream>(filename.string());
+    }
+
+    ifstream VirtualFS::openJSON(const string& filepath) {
+        filesystem::path filename;
+        if (filepath.starts_with(APP_URI)) {
+            filename = Application::get().getConfig().appDir;
+        } else {
+            die("Unknown resource type", filepath);
+        }
+        filename /= filepath.substr(APP_URI.size());
+
+        ifstream file(filename, std::ios::binary);
+        if (!file) die("Error: Could not open file ", filename.string());
+        return file;
+    }
+
+    filesystem::path VirtualFS::parentPath(const string& filepath) {
+        filesystem::path filename;
+        if (filepath.starts_with(APP_URI)) {
+            filename = Application::get().getConfig().appDir;
+        } else {
+            die("Unknown resource type ", filepath);
+        }
+        filename /= filepath.substr(APP_URI.size());
+        return APP_URI / filename.parent_path();
+    }
 
 }
