@@ -359,19 +359,17 @@ namespace z0 {
                 materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
                 materialUBO.normalScale = standardMaterial->getNormaleScale();
                 auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
-                    dest.offset = texInfo.offset;
-                    dest.scale = texInfo.scale;
+                    dest.transform = texInfo.transform;
                     if (texInfo.texture != nullptr) {
                         dest.index = frame.imagesIndices.at(texInfo.texture->getImage()->getId());
                     }
                 };
                 auto textureUBO = TextureBuffer{};
                 convert(textureUBO.albedoTexture, standardMaterial->getAlbedoTexture());
-                // convert(textureUBO.specularTexture, standardMaterial->getSpecularTexture());
                 convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
                 convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
                 convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
-                convert(textureUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
+                // convert(textureUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
                 convert(textureUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
                 frame.texturesBuffer->writeToBuffer(
                     &textureUBO,

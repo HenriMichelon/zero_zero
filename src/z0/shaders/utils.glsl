@@ -10,9 +10,7 @@ float LinearizeDepth(float depth) {
 
 // Apply texture UV transforms
 vec2 uvTransform(const TextureInfo texture, const vec2 UV) {
-    const mat3 translation = mat3(1,0,0, 0,1,0, texture.offset.x, texture.offset.y, 1);
-    const mat3 scale = mat3(texture.scale.x,0,0, 0,texture.scale.y,0, 0,0,1);
-    return (translation * scale * vec3(UV, 1)).xy;
+    return (texture.transform * vec3(UV, 1)).xy;
 }
 
 // Converts a color from sRGB gamma to linear light gamma

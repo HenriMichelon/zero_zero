@@ -116,8 +116,7 @@ namespace z0 {
         // Material & Texture infos are split in two buffers because of the 64kb buffer limit on some GPU/drivers
         struct TextureInfo {
             alignas(4) int32_t  index{-1};
-            alignas(8) vec2     offset{0.0f, 0.0f};
-            alignas(8) vec2     scale{1.0f, 1.0f};
+            alignas(16) mat3x4  transform{1.0f};
         };
         struct TextureBuffer {
             alignas(16) TextureInfo  albedoTexture{};
@@ -125,7 +124,7 @@ namespace z0 {
             alignas(16) TextureInfo  metallicTexture{};
             alignas(16) TextureInfo  roughnessTexture{};
             alignas(16) TextureInfo  emissiveTexture{};
-            alignas(16) TextureInfo  ambientOcclusionTexture{};
+            // alignas(16) TextureInfo  ambientOcclusionTexture{};
         };
 
         struct LightBuffer {

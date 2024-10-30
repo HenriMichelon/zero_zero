@@ -66,8 +66,7 @@ struct Material  {
 
 struct TextureInfo {
     int   index;
-    vec2  offset;
-    vec2  scale;
+    mat3  transform;
 };
 
 struct Texture  {
@@ -76,7 +75,7 @@ struct Texture  {
     TextureInfo metallicTexture;
     TextureInfo roughnessTexture;
     TextureInfo emissiveTexture;
-    TextureInfo ambientOcclusionTexture;
+//    TextureInfo ambientOcclusionTexture;
 };
 
 layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {

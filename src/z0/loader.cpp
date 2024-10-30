@@ -221,8 +221,14 @@ namespace z0 {
                     };
                     const auto& transform = sourceTextureInfo.transform;
                     if (transform != nullptr) {
-                        texInfo.offset = vec2{transform->uvOffset[0], transform->uvOffset[1]};
-                        texInfo.scale  = vec2{transform->uvScale[0], transform->uvScale[1]};
+                        const auto translation = mat3{1,0,0, 0,1,0, transform->uvOffset[0], transform->uvOffset[1], 1};
+                        const auto rotation = mat3{
+                            cos(transform->rotation), sin(transform->rotation), 0,
+                           -sin(transform->rotation), cos(transform->rotation), 0,
+                                        0,             0, 1
+                        };
+                        const auto scale = mat3{transform->uvScale[0],0,0, 0,transform->uvScale[1],0, 0,0,1};
+                        texInfo.transform = translation * rotation * scale;
                     }
                     return texInfo;
                 };

@@ -76,8 +76,7 @@ export namespace z0 {
          */
         struct TextureInfo {
             shared_ptr<ImageTexture> texture{nullptr};
-            vec2                     offset{0.0f, 0.0f};
-            vec2                     scale{1.0f, 1.0f};
+            mat3                     transform{1.0f};
         };
 
         /**
