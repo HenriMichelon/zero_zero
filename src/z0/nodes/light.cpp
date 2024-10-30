@@ -29,7 +29,7 @@ namespace z0 {
             setColorAndIntensity(to_vec4(value));
         } else if (property == "specular") {
             setSpecularIntensity(stof(value));
-        } else if (property == "cast_shadow") {
+        } else if (property == "cast_shadows") {
             setCastShadows(value == "true");
         }
     }

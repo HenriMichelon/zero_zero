@@ -60,6 +60,8 @@ export namespace z0 {
          */
         [[nodiscard]] inline float getFov() const { return fov; }
 
+        void setProperty(const string &property, const string &value) override;
+
     private:
         float fov{0.0f};
         float cutOff{cos(radians(10.f))};

@@ -1,6 +1,9 @@
 import bpy
 import json
 import os
+import sys
+import math
+import mathutils
 
 bl_info = {
     "name": "ZeroZero Engine",
@@ -22,6 +25,14 @@ NODES_TYPE   = {
 APP_URI      = "app://"
 EXPORT_EXT   = ".glb"
 
+ROTATION_CONVERTION_MATRIX = mathutils.Matrix.Rotation(math.radians(-90), 4, 'X')
+
+def convert_vector(vec):
+    return str(vec.x) + "," + str(vec.z) + "," + str(-vec.y)
+
+def convert_vector_degrees(vec):
+    return str(math.degrees(vec.x)) + "," + str(math.degrees(vec.z)) + "," + str(-math.degrees(vec.y))
+
 def add_resource(nodes, obj, parent):
     if parent is None:
         path=obj.name
@@ -39,6 +50,7 @@ def add_resource(nodes, obj, parent):
 
 
 def add_node(obj):
+#    print(obj.name + ":" + obj.type)
     node = { "id": obj.name }
     if "zero_zero_props" in obj:
         props = obj.zero_zero_props
@@ -55,6 +67,24 @@ def add_node(obj):
             node["properties"] = custom_props
     if (obj.type == "MESH"):
         node["child"] = { "id": obj.name + ".mesh" }
+    if (obj.type == "LIGHT"):
+        original_rotation = obj.rotation_euler
+        conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')
+        new_rotation = original_rotation.to_matrix() @ conversion_matrix
+        node["properties"] = {
+            "color" : str(obj.data.color.r) + "," + str(obj.data.color.g) + "," + str(obj.data.color.b) + "," + str(obj.data.energy/10.0),
+            "position" : convert_vector(obj.location),
+            "rotation" : convert_vector_degrees(new_rotation.to_euler('XYZ'))
+        }
+        if (obj.data.use_shadow): 
+            node["properties"]["cast_shadows"] = "true"
+        if (obj.data.type == "POINT"):
+            node["class"] = "OmniLight"
+        if (obj.data.type == "SUN"):
+            node["class"] = "DirectionalLight"
+        if (obj.data.type == "SPOT"):
+            node["class"] = "SpotLight"
+            node["properties"]["fov"] = str(obj.data.spot_size)
     if (obj.children):
         node["children"] = [add_node(child) for child in obj.children]
     return node;
@@ -303,5 +333,7 @@ def unregister():
 print("---------------------------")
 if __name__ == "__main__":
     register()
+    result = export_json()
+    json.dump(result, sys.stdout, indent=4);
     
 
