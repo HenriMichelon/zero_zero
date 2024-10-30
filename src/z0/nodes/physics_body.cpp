@@ -76,6 +76,8 @@ namespace z0 {
                     const auto mesh = getChild(parts[1].data());
                     if (mesh == nullptr)
                         die("Child with path", parts[1].data(), "not found in", toString());
+                    if (mesh->getType() != MESH_INSTANCE)
+                        die("Child with path", parts[1].data(), "not a MeshInstance");
                     setShape(make_shared<ConvexHullShape>(mesh));
                 } else if (parts[0] == "BoxShape") {
                     if (parts.size() > 2)

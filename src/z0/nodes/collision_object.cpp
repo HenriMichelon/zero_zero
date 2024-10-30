@@ -153,7 +153,7 @@ namespace z0 {
     }
 
     void CollisionObject::_physicsUpdate(const float delta) {
-        assert(!bodyId.IsInvalid());
+        assert(shape != nullptr && !bodyId.IsInvalid() && "CollisionObject have with invalid shape");
         Node::_physicsUpdate(delta);
         updating = true;
         JPH::Vec3 position;
