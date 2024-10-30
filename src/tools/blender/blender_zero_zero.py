@@ -38,24 +38,6 @@ def add_resource(nodes, obj, parent):
         add_resource(nodes, child, path)
 
 
-def build_resources_list():
-    settings = bpy.context.scene.zero_zero_settings
-    directory = settings.models_directory
-    filename = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
-    filename = APP_URI + directory + "/" + filename.replace("\\", "/") + EXPORT_EXT
-    nodes = [{
-        "id" : RESOURCES_ID,
-        "type" : "model",
-        "resource" : filename
-    }]
-    for obj in bpy.context.scene.objects:
-        if obj.parent is None:
-            add_resource(nodes, obj, obj.parent)
-    return {
-        "nodes": nodes
-    }
-
-
 def add_node(obj):
     node = { "id": obj.name }
     if "zero_zero_props" in obj:
@@ -69,7 +51,7 @@ def add_node(obj):
         if ("properties" in props):
             custom_props = {}
             for custom_prop in props.properties:
-                custom_props[custom_prop.name] = custom_prop.value
+                custom_props[custom_prop.name] = custom_prop.value.replace("$$", obj.name)
             node["properties"] = custom_props
     if (obj.type == "MESH"):
         node["child"] = { "id": obj.name + ".mesh" }
@@ -77,18 +59,30 @@ def add_node(obj):
         node["children"] = [add_node(child) for child in obj.children]
     return node;
 
-def build_tree_list():
+def export_json():
+    settings = bpy.context.scene.zero_zero_settings
+    directory = settings.models_directory
+    filename = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
+    filename = APP_URI + directory + "/" + filename.replace("\\", "/") + EXPORT_EXT
+    nodes = [{
+        "id" : RESOURCES_ID,
+        "type" : "model",
+        "resource" : filename
+    }]
+    for obj in bpy.context.scene.objects:
+        if obj.parent is None:
+            add_resource(nodes, obj, obj.parent)
+    
     blend_file_path = bpy.data.filepath
     blend_file_name = os.path.basename(blend_file_path)
     scene_name = os.path.splitext(blend_file_name)[0]
-    nodes = []
     for obj in bpy.context.scene.objects:
         if obj.parent is None:
             nodes.append(add_node(obj))
     scene = { "id": scene_name }
     if (nodes):
         scene["children"] = nodes
-    return { "nodes" : [ scene ]}
+    return { "nodes" : nodes}
 
 #-------------------------------------------------------------------------------------
 def show_message(message="", title="Error", icon='ERROR'):
@@ -118,14 +112,14 @@ class ExportOperator(bpy.types.Operator):
             show_message("Please set the project models directory in the scene properties first")
             return {'FINISHED'}
         blend_file_name = os.path.basename(blend_file_path)
-        export_file_name = os.path.splitext(blend_file_name)[0] + EXPORT_EXT
+        file_name = os.path.splitext(blend_file_name)[0];
+        export_file_name = file_name + EXPORT_EXT
         scene_dir = settings.scene_directory.replace("/", "\\")
         models_dir = settings.models_directory.replace("/", "\\")
         export_models_path = os.path.join(settings.project_directory, models_dir)
         export_scene_path = os.path.join(settings.project_directory, scene_dir)
         glb_export_path = os.path.join(export_models_path, export_file_name)
-        json_models_export_path = os.path.join(export_scene_path, "models.json")
-        json_scene_export_path = os.path.join(export_scene_path, "scene.json")
+        json_scene_export_path = os.path.join(export_scene_path, file_name + ".json")
 
         print("--------------------------------------------")
         self.report({'INFO'}, "Saving " + blend_file_name);
@@ -134,13 +128,8 @@ class ExportOperator(bpy.types.Operator):
         self.report({'INFO'}, "Exporting to " + glb_export_path);
         bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
 
-        self.report({'INFO'}, "Generating " + json_models_export_path);
-        result = build_resources_list()
-        with open(json_models_export_path, 'w') as json_file:
-            json.dump(result, json_file, indent=2)
-
         self.report({'INFO'}, "Generating " + json_scene_export_path);
-        result = build_tree_list()
+        result = export_json()
         with open(json_scene_export_path, 'w') as json_file:
             json.dump(result, json_file, indent=2)
 

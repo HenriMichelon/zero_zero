@@ -512,6 +512,7 @@ namespace z0 {
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneFromJSON(filename)) {
             addNode(parent, nodeTree, sceneTree, nodeDesc, loadTextures);
+            log("addNode", nodeDesc.id);
         }
     }
 
