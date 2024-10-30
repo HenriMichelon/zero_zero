@@ -442,7 +442,6 @@ namespace z0 {
             }
         } else {
             if ((nodeDesc.clazz.empty()) || (nodeDesc.isCustom)) {
-                // The node class is a custom class of the game
                 node = make_shared<Node>(nodeDesc.id);
             } else {
                 // The node class is an engine registered class
