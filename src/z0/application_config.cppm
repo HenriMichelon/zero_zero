@@ -16,22 +16,26 @@ export namespace z0 {
         string           appName           = "MyApp";
         //! Directory to search for resources and compiled shaders
         filesystem::path appDir            = ".";
-        //! Initial state of the display window
+        //! State of the display window
         WindowMode       windowMode        = WINDOW_MODE_WINDOWED;
-        //! Initial width in pixels of the display window
+        //! Width in pixels of the display window
         uint32_t         windowWidth       = 1920;
-        //! Initial height in pixels of the display window
+        //! Height in pixels of the display window
         uint32_t         windowHeight      = 1080;
+        //! Monitor index to display the window (-1 = default monitor)
+        int32_t          windowMonitor     = -1;
         //! Default font name, the file must exist in the path
         string           defaultFontName   = "DefaultFont.ttf";
         //! Default font size. See the Font class for the details.
         uint32_t         defaultFontSize   = 20;
         //! Where to log message using log()
         uint32_t        loggingMode        = LOGGING_NONE;
+        //! Monitor index for the logging window
+        int32_t          loggingMonitor    = 0;
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa              = MSAA_AUTO;
         //! Depth frame buffer format
-        DepthFormat     depthFormat       = DEPTH_FORMAT_AUTO;
+        DepthFormat     depthFormat        = DEPTH_FORMAT_AUTO;
         //! Gamma correction value for the tone mapping renderer
         float            gamma             = 1.0f;
         //! Exposure correction value for the tone mapping renderer

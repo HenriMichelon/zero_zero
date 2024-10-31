@@ -223,6 +223,21 @@ namespace z0 {
 
     #ifdef _WIN32
 
+        struct MonitorEnumData {
+            int  enumIndex{0};
+            int  monitorIndex{-1};
+            RECT monitorRect{0};
+        };
+        BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+            const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
+            if (data->enumIndex == data->monitorIndex) {
+                data->monitorRect = *lprcMonitor;
+                return FALSE;
+            }
+            data->enumIndex++;
+            return TRUE;
+        }
+
         void Window::_setSize(int w, int h) {
             width = w;
             height = h;
@@ -265,11 +280,14 @@ namespace z0 {
             };
             if (!RegisterClassEx(&wincl)) die("Cannot register Window class");
 
-            // Getting the dimensions of the primary monitor
-            RECT workArea = {};
-            SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-            auto screenWidth = workArea.right - workArea.left;
-            auto screenHeight = workArea.bottom - workArea.top;
+            // Getting the dimensions of the monitor
+            auto monitorData = MonitorEnumData {};
+            if (Application::get().getConfig().windowMonitor != -1) {
+                monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
+                EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
+            }
+            auto screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
+            auto screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
 
             int x = CW_USEDEFAULT;
             int y = CW_USEDEFAULT;
@@ -289,12 +307,14 @@ namespace z0 {
                     AdjustWindowRect(&rect, style, FALSE); // Adjust the rect to include the frame
                     w = rect.right - rect.left;
                     h = rect.bottom - rect.top;
-                    x = static_cast<int>((screenWidth - w) / 2);
-                    y = static_cast<int>((screenHeight - h) / 2);
+                    x = static_cast<int>((screenWidth - w) / 2) + monitorData.monitorRect.left;
+                    y = static_cast<int>((screenHeight - h) / 2) + monitorData.monitorRect.top;
                     break;
                 }
                 case WINDOW_MODE_WINDOWED_MAXIMIZED:{
                     style |=  WS_MAXIMIZE;
+                    x = monitorData.monitorRect.left;
+                    y = monitorData.monitorRect.top;
                     break;
                 }
                 case WINDOW_MODE_FULLSCREEN: {
@@ -307,15 +327,14 @@ namespace z0 {
                     if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
                         die( "Display mode change failed");
                     }
-                    SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-                    screenWidth = workArea.right - workArea.left;
-                    screenHeight = workArea.bottom - workArea.top;
+                    screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
+                    screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
                 }
                 case WINDOW_MODE_WINDOWED_FULLSCREEN:{
                     exStyle = WS_EX_APPWINDOW;
                     style = WS_POPUP | WS_MAXIMIZE;
-                    x = workArea.left;
-                    y = workArea.top;
+                    x = monitorData.monitorRect.left;
+                    y = monitorData.monitorRect.top;
                     w = static_cast<int>(screenWidth);
                     h = static_cast<int>(screenHeight);
                     break;
@@ -324,17 +343,17 @@ namespace z0 {
                     die("Unknown WindowMode");
             }
 
-            rect.top = y;
             rect.left = x;
-            rect.bottom = y + h;
-            rect.right = x + w;
+            rect.top = y;
+            rect.right = rect.left + w;
+            rect.bottom = rect.top + h;
             hwnd = CreateWindowEx(
                     exStyle,
                     szClassName,
                     applicationConfig.appName.c_str(),
                     style,
                     x,
-                    y,
+                     y,
                     w,
                     h,
                     HWND_DESKTOP,
@@ -375,16 +394,7 @@ namespace z0 {
     #ifndef DISABLE_LOG
     #ifdef _WIN32
 
-        BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
-            static int monitorIndex = 0;
-            if (monitorIndex == 0) {
-                const auto pRect = reinterpret_cast<RECT*>(dwData);
-                *pRect = *lprcMonitor;
-                return FALSE;
-            }
-            monitorIndex++;
-            return TRUE;
-        }
+
 
         void CopyTextToClipboard(const string& text) {
             if (OpenClipboard(nullptr)) {
@@ -474,9 +484,11 @@ namespace z0 {
         DWORD Window::_mainThreadId;
         unique_ptr<ofstream> Window::_logFile{nullptr};
 
-        void Window::createLogWindow(HMODULE hInstance) {
-            RECT secondMonitorRect = { 0 };
-            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&secondMonitorRect));
+        void Window::createLogWindow(const HMODULE hInstance) {
+            auto monitorEnumData = MonitorEnumData {
+                .monitorIndex = Application::get().getConfig().loggingMonitor
+            };
+            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorEnumData));
 
             const WNDCLASSEX wincl {
                 .cbSize = sizeof(WNDCLASSEX),
@@ -499,8 +511,8 @@ namespace z0 {
                     szClassNameLog,
                     "Log",
                     WS_OVERLAPPEDWINDOW,
-                    secondMonitorRect.left,
-                    secondMonitorRect.top,
+                    monitorEnumData.monitorRect.left,
+                    monitorEnumData.monitorRect.top,
                     800,
                     600,
                     HWND_DESKTOP,

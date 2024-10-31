@@ -31,14 +31,14 @@ def convert_vector(vec):
     return str(vec.x) + "," + str(vec.z) + "," + str(-vec.y)
 
 def convert_vector_degrees(vec):
-    return str(-math.degrees(vec.x)) + "," + str(math.degrees(vec.)) + "," + str(-math.degrees(vec.y))
+    return str(-math.degrees(vec.x)) + "," + str(math.degrees(vec.z)) + "," + str(-math.degrees(vec.y))
 
 def add_resource(nodes, obj, parent):
     if parent is None:
         path=obj.name
     else:
         path=parent + "/" + obj.name
-    if (obj.type == "MESH"):
+    if obj.type == "MESH":
         nodes.append({
             "id": obj.name + ".mesh",
             "type" : NODES_TYPE[obj.type],
