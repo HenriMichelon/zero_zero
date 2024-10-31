@@ -130,10 +130,9 @@ namespace z0 {
     }
 
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
-    shared_ptr<Node> Loader::loadModelFromFile(const string &filename,
-                                               bool forceBackFaceCulling,
-                                               bool loadTextures) {
-        auto getter = VirtualFS::openGltf(filename);
+    shared_ptr<Node> Loader::loadModelFromFile(const string &filepath,
+                                               bool forceBackFaceCulling) {
+        auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
                                 fastgltf::Extensions::KHR_materials_emissive_strength};
@@ -177,76 +176,74 @@ namespace z0 {
             default:
                 break;
             }
-            if (loadTextures) {
-                auto magFilter = VK_FILTER_LINEAR;
-                auto minFilter = VK_FILTER_LINEAR;
-                auto wrapU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                auto wrapV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                auto convertSamplerData = [&](const fastgltf::Texture &texture) {
-                    const auto& sampler = gltf.samplers[texture.samplerIndex.value()];
-                    if (sampler.magFilter.has_value())
-                        magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_LINEAR;
-                    if (sampler.minFilter.has_value()) {
-                        const auto v = sampler.minFilter.value();
-                        minFilter = (v==fastgltf::Filter::Linear || v==fastgltf::Filter::LinearMipMapLinear || v==fastgltf::Filter::LinearMipMapNearest) ?
-                            VK_FILTER_LINEAR : VK_FILTER_LINEAR;
-                    }
-                    wrapU = sampler.wrapS ==
-                        fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
-                            sampler.wrapS == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
-                                VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-                    wrapV = sampler.wrapT ==
-                        fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
-                            sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
-                                VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+            auto magFilter = VK_FILTER_LINEAR;
+            auto minFilter = VK_FILTER_LINEAR;
+            auto wrapU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+            auto wrapV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+            auto convertSamplerData = [&](const fastgltf::Texture &texture) {
+                const auto& sampler = gltf.samplers[texture.samplerIndex.value()];
+                if (sampler.magFilter.has_value())
+                    magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                if (sampler.minFilter.has_value()) {
+                    const auto v = sampler.minFilter.value();
+                    minFilter = (v==fastgltf::Filter::Linear || v==fastgltf::Filter::LinearMipMapLinear || v==fastgltf::Filter::LinearMipMapNearest) ?
+                        VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                }
+                wrapU = sampler.wrapS ==
+                    fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
+                        sampler.wrapS == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
+                            VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+                wrapV = sampler.wrapT ==
+                    fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
+                        sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
+                            VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+            };
+            auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
+                const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
+                materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
+                if (texture.samplerIndex.has_value()) convertSamplerData(texture);
+                if (!texture.imageIndex.has_value()) die("Texture without image");
+                const auto imageIndex = texture.imageIndex.value();
+                shared_ptr<Image> image;
+                if (images.contains(imageIndex)) {
+                    image = images[imageIndex];
+                } else {
+                    image = loadImage(
+                        gltf, gltf.images[imageIndex],
+                        format, magFilter, minFilter, wrapU, wrapV);
+                    images.emplace(imageIndex, image);
+                }
+                if (image == nullptr) return StandardMaterial::TextureInfo{};
+                auto texInfo = StandardMaterial::TextureInfo {
+                    .texture = make_shared<ImageTexture>(image)
                 };
-                auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
-                    const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
-                    materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
-                    if (texture.samplerIndex.has_value()) convertSamplerData(texture);
-                    if (!texture.imageIndex.has_value()) die("Texture without image");
-                    const auto imageIndex = texture.imageIndex.value();
-                    shared_ptr<Image> image;
-                    if (images.contains(imageIndex)) {
-                        image = images[imageIndex];
-                    } else {
-                        image = loadImage(
-                            gltf, gltf.images[imageIndex],
-                            format, magFilter, minFilter, wrapU, wrapV);
-                        images.emplace(imageIndex, image);
-                    }
-                    if (image == nullptr) return StandardMaterial::TextureInfo{};
-                    auto texInfo = StandardMaterial::TextureInfo {
-                        .texture = make_shared<ImageTexture>(image)
+                const auto& transform = sourceTextureInfo.transform;
+                if (transform != nullptr) {
+                    const auto translation = mat3{1,0,0, 0,1,0, transform->uvOffset[0], transform->uvOffset[1], 1};
+                    const auto rotation = mat3{
+                        cos(transform->rotation), sin(transform->rotation), 0,
+                       -sin(transform->rotation), cos(transform->rotation), 0,
+                                    0,             0, 1
                     };
-                    const auto& transform = sourceTextureInfo.transform;
-                    if (transform != nullptr) {
-                        const auto translation = mat3{1,0,0, 0,1,0, transform->uvOffset[0], transform->uvOffset[1], 1};
-                        const auto rotation = mat3{
-                            cos(transform->rotation), sin(transform->rotation), 0,
-                           -sin(transform->rotation), cos(transform->rotation), 0,
-                                        0,             0, 1
-                        };
-                        const auto scale = mat3{transform->uvScale[0],0,0, 0,transform->uvScale[1],0, 0,0,1};
-                        texInfo.transform = translation * rotation * scale;
-                    }
-                    return texInfo;
-                };
-                if (mat.pbrData.baseColorTexture.has_value())
-                    material->setAlbedoTexture(loadTexture(mat.pbrData.baseColorTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
-                if (mat.pbrData.metallicRoughnessTexture.has_value()) {
-                    const auto& textInfo = loadTexture(mat.pbrData.metallicRoughnessTexture.value(), VK_FORMAT_R8G8B8A8_UNORM);
-                    material->setMetallicTexture(textInfo);
-                    material->setRoughnessTexture(textInfo);
+                    const auto scale = mat3{transform->uvScale[0],0,0, 0,transform->uvScale[1],0, 0,0,1};
+                    texInfo.transform = translation * rotation * scale;
                 }
-                if (mat.occlusionTexture.has_value())
-                    material->setAmbientOcclusionTexture(loadTexture(mat.occlusionTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
-                if (mat.normalTexture.has_value())
-                    material->setNormalTexture(loadTexture(mat.normalTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
-                if (mat.emissiveTexture.has_value()) {
-                    // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
-                    material->setEmissiveTexture(loadTexture(mat.emissiveTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
-                }
+                return texInfo;
+            };
+            if (mat.pbrData.baseColorTexture.has_value())
+                material->setAlbedoTexture(loadTexture(mat.pbrData.baseColorTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
+            if (mat.pbrData.metallicRoughnessTexture.has_value()) {
+                const auto& textInfo = loadTexture(mat.pbrData.metallicRoughnessTexture.value(), VK_FORMAT_R8G8B8A8_UNORM);
+                material->setMetallicTexture(textInfo);
+                material->setRoughnessTexture(textInfo);
+            }
+            if (mat.occlusionTexture.has_value())
+                material->setAmbientOcclusionTexture(loadTexture(mat.occlusionTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
+            if (mat.normalTexture.has_value())
+                material->setNormalTexture(loadTexture(mat.normalTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
+            if (mat.emissiveTexture.has_value()) {
+                // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
+                material->setEmissiveTexture(loadTexture(mat.emissiveTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
             }
             material->setCullMode(forceBackFaceCulling      ? CULLMODE_BACK
                                           : mat.doubleSided ? CULLMODE_DISABLED
@@ -370,7 +367,7 @@ namespace z0 {
             // MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
-                if (loadTextures) { mesh->buildModel(); }
+                mesh->buildModel();
                 newNode = std::make_shared<MeshInstance>(mesh, name);
             } else {
                 newNode = std::make_shared<Node>(name);
@@ -408,7 +405,7 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        shared_ptr<Node> rootNode = make_shared<Node>(filename);
+        auto rootNode = make_shared<Node>(filepath);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 node->setProcessMode(PROCESS_MODE_DISABLED);
@@ -420,7 +417,7 @@ namespace z0 {
     }
 
     void Loader::addNode(Node *parent, map<string, shared_ptr<Node>> &nodeTree, map<string, SceneNode> &sceneTree,
-                         const SceneNode &nodeDesc, const bool loadTextures) {
+                         const SceneNode &nodeDesc, const bool forceBackFaceCulling) {
         constexpr auto log_name{"Scene loader :"};
         if (nodeTree.contains(nodeDesc.id))
             die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
@@ -429,7 +426,7 @@ namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
                 // the model is in a glTF file
-                node = loadModelFromFile(nodeDesc.resource);
+                node = loadModelFromFile(nodeDesc.resource, forceBackFaceCulling);
                 node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 // the model is part of another, already loaded, model
@@ -494,7 +491,7 @@ namespace z0 {
                         node->addChild(childNode);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child, loadTextures);
+                    addNode(node.get(), nodeTree, sceneTree, child, forceBackFaceCulling);
                 }
             }
             for (const auto &prop : nodeDesc.properties) {
@@ -502,22 +499,19 @@ namespace z0 {
             }
             node->_setParent(nullptr);
             if (!nodeDesc.isIncluded) parent->addChild(node);
-            if (!loadTextures) {
-                node->setProcessMode(PROCESS_MODE_DISABLED);
-            }
         }
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(shared_ptr<Node> &parent, const string &filename, const bool loadTextures) {
-        addSceneFromFile(parent.get(), filename, loadTextures);
+    void Loader::addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath, const bool forceBackFaceCulling) {
+        addSceneFromFile(parent.get(), filepath, forceBackFaceCulling);
     }
 
-    void Loader::addSceneFromFile(Node *parent, const string &filename, const bool loadTextures) {
+    void Loader::addSceneFromFile(Node *parent, const string &filepath, const bool forceBackFaceCulling) {
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
-        for (const auto &nodeDesc : loadSceneFromJSON(filename)) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc, loadTextures);
+        for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
+            addNode(parent, nodeTree, sceneTree, nodeDesc, forceBackFaceCulling);
             log("addNode", nodeDesc.id);
         }
     }
@@ -549,14 +543,14 @@ namespace z0 {
         }
     }
 
-    vector<Loader::SceneNode> Loader::loadSceneFromJSON(const string &filepath) {
+    vector<Loader::SceneNode> Loader::loadSceneDescriptionFromJSON(const string &filepath) {
         vector<SceneNode> scene{};
         try {
             auto jsonData = nlohmann::ordered_json::parse(VirtualFS::openFile(filepath)); // parsing using ordered_json to preserver fields order
             if (jsonData.contains("includes")) {
                 const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {
-                    vector<SceneNode> includeNodes = loadSceneFromJSON(VirtualFS::parentPath(filepath) + include);
+                    vector<SceneNode> includeNodes = loadSceneDescriptionFromJSON(VirtualFS::parentPath(filepath) + include);
                     for(auto& node : includeNodes) {
                         node.isIncluded = true;
                     }

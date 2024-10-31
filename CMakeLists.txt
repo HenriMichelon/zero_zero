@@ -16,9 +16,6 @@ set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
 set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
 
-# Tools
-set(Z0_TOOL_GLTF2JON "gltf2json")
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
@@ -143,8 +140,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gui/gwindow.cppm
 		${Z0_ENGINE_DIR}/gui/gmanager.cppm
 		${Z0_ENGINE_DIR}/gui/rect.cppm
-
-		${SRC_DIR}/tools/application.cppm
 )
 
 # engine library
@@ -236,12 +231,6 @@ target_sources(${Z0_TARGET}
 		FILES
 		${PROJECT_FILES}
 )
-
-# command line tools
-add_executable(${Z0_TOOL_GLTF2JON}
-		${SRC_DIR}/tools/gltf2json/gltf2json.cpp
-)
-target_link_libraries(${Z0_TOOL_GLTF2JON} ${PROJECT_NAME})
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
