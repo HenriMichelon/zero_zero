@@ -57,9 +57,9 @@ export namespace z0 {
     protected:
         // Maximum distance of lighting
         float range{10.0f};
-        // Nearest clipping distance for shadows
+        // clipping distance for shadows
         float near{0.1f};
-        // Farest clipping distance for shadows
+        // clipping distance for shadows
         float far{100.0f};
     };
 
