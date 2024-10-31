@@ -20,6 +20,7 @@ namespace z0 {
     BoxShape::BoxShape(const vec3& extends, const string &resName):
         Shape{resName}, extends
         {extends} {
+        if (extends.x <= 0.2 || extends.y <= 0.2 || extends.z <= 0.2) { die("Invalid extends for BoxShape", resName); }
         shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x / 2, extends.y / 2, extends.z / 2));
     }
 

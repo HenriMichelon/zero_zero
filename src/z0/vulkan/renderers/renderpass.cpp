@@ -31,9 +31,9 @@ namespace z0 {
 
     Renderpass::Renderpass(Device &dev, const vec3 clearColor) :
         Renderpass(dev, {
-            clearColor.r / 256.0f,
-            clearColor.g / 256.0f,
-            clearColor.b / 256.0f,
+            clearColor.r,
+            clearColor.g,
+            clearColor.b,
             1.0f}) {
     }
 

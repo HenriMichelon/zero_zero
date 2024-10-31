@@ -354,9 +354,9 @@ namespace z0 {
                 meshesCount++;
             }
         }
-        log("Loader :", to_string(materials.size()), "materials ,",
-            to_string(images.size()), "images ,",
-            to_string(meshes.size()), "meshes,", to_string(meshesCount), "uniques meshes");
+        log("Loader :", to_string(materials.size()), "materials,",
+            to_string(images.size()), "images,",
+            to_string(meshes.size()), "meshes (", to_string(meshesCount), "uniques)");
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;
@@ -512,7 +512,7 @@ namespace z0 {
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
             addNode(parent, nodeTree, sceneTree, nodeDesc, forceBackFaceCulling);
-            log("addNode", nodeDesc.id);
+            // log("addNode", nodeDesc.id);
         }
     }
 
