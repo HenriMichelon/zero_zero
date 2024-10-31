@@ -50,7 +50,7 @@ export namespace z0 {
         /**
          * Returns the light far clipping distance
          */
-        [[nodiscard]] inline float getFarClipDistance() const { return range; }
+        [[nodiscard]] inline float getFarClipDistance() const { return far; }
 
         void setProperty(const string &property, const string &value) override;
 
@@ -59,6 +59,8 @@ export namespace z0 {
         float range{10.0f};
         // Nearest clipping distance for shadows
         float near{0.1f};
+        // Farest clipping distance for shadows
+        float far{100.0f};
     };
 
 }
