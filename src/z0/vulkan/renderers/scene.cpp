@@ -96,14 +96,6 @@ namespace z0 {
             descriptorSetNeedUpdate = true;
             enableLightShadowCasting(light);
         }
-        if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
-            frameData[currentFrame].cameraFrustum = Frustum{
-                camera,
-                camera->getFov(),
-                camera->getNearDistance(),
-                camera->getFarDistance()
-            };
-        }
         ModelsRenderer::addNode(node, currentFrame);
     }
 
@@ -182,6 +174,13 @@ namespace z0 {
     }
 
     void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
+        const auto& camera = ModelsRenderer::frameData[currentFrame].currentCamera;
+        frameData[currentFrame].cameraFrustum = Frustum{
+            camera,
+            camera->getFov(),
+            camera->getNearDistance(),
+            camera->getFarDistance()
+        };
         createOrUpdateResources(true, &pushConstantRange);
         for (const auto &material : OutlineMaterials::_all()) {
             loadShadersMaterials(material, currentFrame);

@@ -23,7 +23,7 @@ export namespace z0 {
         //! Height in pixels of the display window
         uint32_t         windowHeight      = 1080;
         //! Monitor index to display the window
-        int32_t         windowMonitor      = 0;
+        int32_t          windowMonitor     = 0;
         //! Default font name, the file must exist in the path
         string           defaultFontName   = "DefaultFont.ttf";
         //! Default font size. See the Font class for the details.
@@ -35,7 +35,7 @@ export namespace z0 {
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa              = MSAA_AUTO;
         //! Depth frame buffer format
-        DepthFormat     depthFormat        = DEPTH_FORMAT_AUTO;
+        DepthFormat      depthFormat       = DEPTH_FORMAT_AUTO;
         //! Use a depth pre-pass in the main renderer
         bool             useDepthPrepass   = true;
         //! Gamma correction value for the tone mapping renderer
@@ -46,5 +46,9 @@ export namespace z0 {
         vec3             clearColor        = WINDOW_CLEAR_COLOR;
         //! Number of simultaneous frames during rendering
         uint32_t         framesInFlight    = 3;
+        //! Size (width & height) in pixels of the cascaded (directional lights) shadow maps
+        uint32_t         cascadedShadowMapSize   = 4096;
+        //! Size (width & height) in pixels of the omni & spot lights shadow maps
+        uint32_t         pointLightShadowMapSize = 1024;
     };
 }

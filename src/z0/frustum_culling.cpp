@@ -19,11 +19,11 @@ namespace z0 {
         Frustum(node, node->getPositionGlobal(), fovY, zNear, zFar) {
     }
 
-    Frustum::Frustum(const shared_ptr<Node>& node, const vec3 position, const float fovY, const float zNear, const float zFar) {
-        const auto front = node->getFrontVector();
-        const auto right = node->getRightVector();
-        const auto up = node->getUpVector();
+    Frustum::Frustum(const shared_ptr<Node>& node, const vec3& position, const float fovY, const float zNear, const float zFar):
+        Frustum(node->getPositionGlobal(), node->getFrontVector(), node->getRightVector(), node->getUpVector(), fovY, zNear, zFar) {
+    }
 
+    Frustum::Frustum(const vec3& position, const vec3& front, const vec3& right, const vec3&up, float fovY, float zNear, float zFar) {
         const float halfVSide = zFar * tanf(radians(fovY) * .5f);
         const float halfHSide = halfVSide *  Application::get().getAspectRatio();
         const vec3 frontMultFar = zFar * front;

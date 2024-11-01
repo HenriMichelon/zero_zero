@@ -154,8 +154,8 @@ class ExportOperator(bpy.types.Operator):
         json_scene_export_path = os.path.join(export_scene_path, file_name + ".json")
 
         print("--------------------------------------------")
-        self.report({'INFO'}, "Saving " + blend_file_name);
-        bpy.ops.wm.save_mainfile()
+        #self.report({'INFO'}, "Saving " + blend_file_name);
+        #bpy.ops.wm.save_mainfile()
 
         self.report({'INFO'}, "Exporting to " + glb_export_path);
         bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')

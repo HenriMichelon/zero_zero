@@ -171,6 +171,8 @@ namespace z0 {
                     data.lightSpace[cascadeIndex] = lightProjection * viewMatrix;
                     data.splitDepth[cascadeIndex] = (nearClip + splitDist * clipRange);
                     lastSplitDist = cascadeSplits[cascadeIndex];
+
+                    // TODO : frustum culling
                 }
                 break;
             }
@@ -181,7 +183,7 @@ namespace z0 {
                     radians(90.0f),
                     data.shadowMap->getRatio(),
                     omniLight->getNearClipDistance(),
-                    omniLight->getFarClipDistance());
+                    omniLight->getRange());
                 data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
                 data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
                 data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
@@ -189,7 +191,61 @@ namespace z0 {
                 data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
                 data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
                 globalUBO.lightPosition = omniLight->getPositionGlobal();
-                globalUBO.farPlane =  omniLight->getFarClipDistance();
+                globalUBO.farPlane =  omniLight->getRange();
+                data.frustum[0] = Frustum{
+                    lightPos,
+                    AXIS_RIGHT,
+                    AXIS_BACK,
+                    AXIS_UP,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
+                data.frustum[1] = Frustum{
+                    lightPos,
+                    AXIS_LEFT,
+                    AXIS_FRONT,
+                    AXIS_UP,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
+                data.frustum[2] = Frustum{
+                    lightPos,
+                    AXIS_UP,
+                    AXIS_RIGHT,
+                    AXIS_FRONT,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
+                data.frustum[3] = Frustum{
+                    lightPos,
+                    AXIS_DOWN,
+                    AXIS_RIGHT,
+                    AXIS_FRONT,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
+                data.frustum[4] = Frustum{
+                    lightPos,
+                    AXIS_BACK,
+                    AXIS_LEFT,
+                    AXIS_UP,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
+                data.frustum[5] = Frustum{
+                    lightPos,
+                    AXIS_FRONT,
+                    AXIS_RIGHT,
+                    AXIS_UP,
+                    90.0f,
+                    omniLight->getNearClipDistance(),
+                    omniLight->getRange()
+                };
                 break;
             }
             case Light::LIGHT_SPOT: {
@@ -201,8 +257,14 @@ namespace z0 {
                     spotLight->getFov() * 1.5f,
                     data.shadowMap->getRatio(),
                     spotLight->getNearClipDistance(),
-                    spotLight->getFarClipDistance());
+                    spotLight->getRange());
                 data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+                data.frustum[0] = Frustum{
+                    spotLight,
+                    spotLight->getFov()*1.5f,
+                    spotLight->getNearClipDistance(),
+                    spotLight->getRange()
+                };
                 break;
             }
         }
@@ -273,6 +335,7 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
+                if (meshInstance->isValid() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
                     const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.model = meshInstance->getTransformGlobal();
@@ -291,6 +354,7 @@ namespace z0 {
                             lastMeshId = mesh->getId();
                         }
                     }
+                }
                 modelIndex += 1;
             }
 

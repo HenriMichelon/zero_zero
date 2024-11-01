@@ -51,7 +51,8 @@ export namespace z0 {
 
         Frustum() = default;
         Frustum(const shared_ptr<Node>&, float fovY, float zNear, float zFar);
-        Frustum(const shared_ptr<Node>&, const vec3 position, float fovY, float zNear, float zFar);
+        Frustum(const shared_ptr<Node>&, const vec3& position, float fovY, float zNear, float zFar);
+        Frustum(const vec3& position, const vec3& front, const vec3& right, const vec3&up, float fovY, float zNear, float zFar);
 
         bool isOnFrustum(const shared_ptr<MeshInstance>& meshInstance) const;
 

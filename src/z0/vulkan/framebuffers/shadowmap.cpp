@@ -16,7 +16,11 @@ namespace z0 {
 
     ShadowMapFrameBuffer::ShadowMapFrameBuffer(const Device &dev, const bool isCascaded, const bool isCubemap) :
         SampledFrameBuffer{dev}, isCascaded{isCascaded}, isCubemap{isCubemap} {
-        width = height = 4096;
+        if (isCascaded) {
+            width = height = Application::get().getConfig().cascadedShadowMapSize;
+        } else {
+            width = height = Application::get().getConfig().pointLightShadowMapSize;
+        }
         ShadowMapFrameBuffer::createImagesResources();
     }
 
