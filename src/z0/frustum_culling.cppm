@@ -49,6 +49,7 @@ export namespace z0 {
             }
         }
 
+        Frustum() = default;
         Frustum(const shared_ptr<Node>&, float fovY, float zNear, float zFar);
         Frustum(const shared_ptr<Node>&, const vec3 position, float fovY, float zNear, float zFar);
 

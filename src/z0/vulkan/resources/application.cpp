@@ -35,7 +35,8 @@ namespace z0 {
     void VulkanApplication::initRenderingSystem() {
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
-            applicationConfig.clearColor);
+            applicationConfig.clearColor,
+            applicationConfig.useDepthPrepass);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
             *device,
             sceneRenderer->getColorAttachments(),

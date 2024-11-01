@@ -89,8 +89,8 @@ import :VulkanMesh;
     }
 
     // Set the initial states of the dynamic rendering
-    void ModelsRenderer::setInitialState(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) const {
-        bindShaders(commandBuffer);
+    void ModelsRenderer::setInitialState(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool loadShaders) const {
+        if (loadShaders) { bindShaders(commandBuffer); }
         if (frameData[currentFrame].currentViewport != nullptr) {
             const VkViewport viewport{
                     .x = 0.0f,

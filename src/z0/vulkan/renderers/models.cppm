@@ -69,7 +69,7 @@ export namespace z0 {
         }
 
         // Set the initial states of the dynamic rendering
-        void setInitialState(VkCommandBuffer commandBuffer, uint32_t currentFrame) const;
+        void setInitialState(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool loadShaders = true) const;
 
     public:
         ModelsRenderer(const ModelsRenderer &) = delete;

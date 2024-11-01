@@ -120,6 +120,10 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) { return; }
         processDeferredUpdates(currentFrame);
+        if (currentFrame == (applicationConfig.framesInFlight-1)) {
+            for_each(deferredCalls.begin(), deferredCalls.end(), [](function<void()> call) { call(); });
+            deferredCalls.clear();
+        }
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime =
@@ -201,6 +205,10 @@ namespace z0 {
             return node->onInput(inputEvent);
         }
         return false;
+    }
+
+    void Application::callDeferred(std::function<void()> func) {
+        deferredCalls.push_back(func);
     }
 
     void Application::process(const shared_ptr<Node> &node, const float delta) {

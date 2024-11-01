@@ -137,7 +137,17 @@ export namespace z0 {
          */
         const vec2 &getVectorRatio() const { return vectorRatio; }
 
+        /**
+         * Returns the rendering window aspect ratio
+         */
         [[nodiscard]] virtual float getAspectRatio() const = 0;
+
+        /**
+        * Add a lambda expression in the deferred calls queue.<br>
+        * They will be called before the next frame, after the scene pre-drawing updates where nodes are added/removed
+        * from the drawing lists (for all the frames in flight).
+        */
+        void callDeferred(std::function<void()> func);
 
     private:
         // State of the current scene
@@ -200,7 +210,6 @@ export namespace z0 {
         // Register all nodes types
         void registerTypes() const;
 
-
     protected:
         // The global startup configuration parameters
         const ApplicationConfig &applicationConfig;
@@ -220,6 +229,9 @@ export namespace z0 {
             shared_ptr<Camera> activeCamera;
         };
         vector<FrameData> frameData;
+
+        // Deferred nodes calls, to be called after processDeferredUpdates()
+        list<std::function<void()>> deferredCalls;
 
         explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
 

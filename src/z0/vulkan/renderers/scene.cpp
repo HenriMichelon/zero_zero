@@ -44,8 +44,8 @@ import :VulkanMesh;
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor) :
-        ModelsRenderer{device, clearColor} {
+    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass) :
+        ModelsRenderer{device, clearColor}, enableDepthPrepass{enableDepthPrepass} {
         frameData.resize(device.getFramesInFlight());
         colorFrameBufferHdr.resize(device.getFramesInFlight());
         resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
@@ -95,6 +95,14 @@ namespace z0 {
             frameData[currentFrame].lights.push_back(light);
             descriptorSetNeedUpdate = true;
             enableLightShadowCasting(light);
+        }
+        if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
+            frameData[currentFrame].cameraFrustum = Frustum{
+                camera,
+                camera->getFov(),
+                camera->getNearDistance(),
+                camera->getFarDistance()
+            };
         }
         ModelsRenderer::addNode(node, currentFrame);
     }
@@ -186,7 +194,17 @@ namespace z0 {
     }
 
     void SceneRenderer::addingModel(const shared_ptr<MeshInstance>& meshInstance, const uint32_t modelIndex, const uint32_t currentFrame) {
-        frameData[currentFrame].opaquesModels.push_back(meshInstance);
+        auto transparent{false};
+        if (enableDepthPrepass && meshInstance->isValid()) {
+            for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
+                if (material->getTransparency() != TRANSPARENCY_DISABLED) {
+                    transparent = true;
+                    frameData[currentFrame].transparentModels.push_back(meshInstance);
+                    break;
+                }
+            }
+        }
+        if (!transparent) { frameData[currentFrame].opaquesModels.push_back(meshInstance); }
         frameData[currentFrame].modelsIndices[meshInstance->getId()] = modelIndex;
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             if (frameData[currentFrame].materialsIndices.contains(material->getId())) {
@@ -388,11 +406,15 @@ namespace z0 {
             return;
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
             drawModels(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels);
+            if (!frameData[currentFrame].transparentModels.empty()) {
+                vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+                drawModels(commandBuffer, currentFrame, frameData[currentFrame].transparentModels);
+            }
         }
         if (frameData[currentFrame].skyboxRenderer != nullptr)
             frameData[currentFrame].skyboxRenderer->recordCommands(commandBuffer, currentFrame);
@@ -562,6 +584,7 @@ namespace z0 {
         }
         vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        depthPrepassVertShader = createShader("depth_prepass.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
     }
 
     void SceneRenderer::createImagesResources() {
@@ -597,7 +620,8 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer, uint32_t currentFrame) {
+    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+        if (enableDepthPrepass) { depthPrepass(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels); }
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
                                       frameData[currentFrame].colorFrameBufferMultisampled->getImage(),
@@ -637,7 +661,7 @@ namespace z0 {
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
                 .resolveImageView   = resolvedDepthFrameBuffer[currentFrame]->getImageView(),
                 .resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-                .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .loadOp             = enableDepthPrepass ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_CLEAR,
                 .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                 .clearValue         = depthClearValue,
         };
@@ -705,13 +729,8 @@ namespace z0 {
     void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer,
                                    const uint32_t currentFrame,
                                    const list<shared_ptr<MeshInstance>> &modelsToDraw) {
+        auto &frame = frameData[currentFrame];
         auto shadersChanged = false;
-        const auto cameraFrustum = Frustum{
-            ModelsRenderer::frameData[currentFrame].currentCamera,
-            ModelsRenderer::frameData[currentFrame].currentCamera->getFov(),
-            ModelsRenderer::frameData[currentFrame].currentCamera->getNearDistance(),
-            ModelsRenderer::frameData[currentFrame].currentCamera->getFarDistance()
-        };
 
         // Used to reduce vkCmdSetCullMode calls
         auto lastCullMode = CULLMODE_BACK;
@@ -721,24 +740,24 @@ namespace z0 {
         auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
 
         for (const auto &meshInstance : modelsToDraw) {
-            if (meshInstance->isValid() && cameraFrustum.isOnFrustum(meshInstance)) {
-                const auto &modelIndex = frameData[currentFrame].modelsIndices[meshInstance->getId()];
+            if (meshInstance->isValid() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
+                const auto &modelIndex = frame.modelsIndices[meshInstance->getId()];
                 const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
                         const auto &material = meshInstance->getOutlineMaterial();
                         auto pushConstants = PushConstants {
                             .modelIndex = static_cast<int>(modelIndex),
-                            .materialIndex = frameData[currentFrame].materialsIndices[material->getId()]
+                            .materialIndex = frame.materialsIndices[material->getId()]
                         };
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
-                                            frameData[currentFrame].materialShaders[material->getVertFileName()]->getStage(),
-                                            frameData[currentFrame].materialShaders["outline.vert"]->getShader());
+                                            frame.materialShaders[material->getVertFileName()]->getStage(),
+                                            frame.materialShaders["outline.vert"]->getShader());
                         vkCmdBindShadersEXT(commandBuffer,
                                             1,
-                                            frameData[currentFrame].materialShaders[material->getFragFileName()]->getStage(),
-                                            frameData[currentFrame].materialShaders["outline.frag"]->getShader());
+                                            frame.materialShaders[material->getFragFileName()]->getStage(),
+                                            frame.materialShaders["outline.frag"]->getShader());
                         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                             0, PUSHCONSTANTS_SIZE, &pushConstants);
@@ -759,12 +778,12 @@ namespace z0 {
 
                     if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                         if (!shaderMaterial->getFragFileName().empty()) {
-                            Shader *material = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()].get();
+                            Shader *material = frame.materialShaders[shaderMaterial->getFragFileName()].get();
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
                             shadersChanged = true;
                         }
                         if (!shaderMaterial->getVertFileName().empty()) {
-                            Shader *material = frameData[currentFrame].materialShaders[shaderMaterial->getVertFileName()].get();
+                            Shader *material = frame.materialShaders[shaderMaterial->getVertFileName()].get();
                             vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
                             shadersChanged = true;
                         }
@@ -780,7 +799,7 @@ namespace z0 {
                     }
                     auto pushConstants = PushConstants {
                         .modelIndex = static_cast<int>(modelIndex),
-                        .materialIndex = frameData[currentFrame].materialsIndices[surface->material->getId()]
+                        .materialIndex = frame.materialsIndices[surface->material->getId()]
                     };
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, PUSHCONSTANTS_SIZE, &pushConstants);
@@ -798,6 +817,114 @@ namespace z0 {
                 }
             }
         }
+    }
+
+    void SceneRenderer::depthPrepass(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw) {
+        Device::transitionImageLayout(commandBuffer,
+                                      ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
+                                     VK_IMAGE_LAYOUT_UNDEFINED,
+                                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                     0,
+                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                     VK_IMAGE_ASPECT_DEPTH_BIT);
+        Device::transitionImageLayout(commandBuffer,
+                              resolvedDepthFrameBuffer[currentFrame]->getImage(),
+                             VK_IMAGE_LAYOUT_UNDEFINED,
+                             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                             0,
+                             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                             VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                             VK_IMAGE_ASPECT_DEPTH_BIT);
+        const VkRenderingAttachmentInfo depthAttachmentInfo{
+            .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+            .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
+            .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
+            .resolveImageView   = resolvedDepthFrameBuffer[currentFrame]->getImageView(),
+            .resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+            .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
+            .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+            .clearValue         = depthClearValue,
+    };
+        const VkRenderingInfo renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                            .pNext                = nullptr,
+                                            .renderArea           = {{0, 0}, device.getSwapChainExtent()},
+                                            .layerCount           = 1,
+                                            .colorAttachmentCount = 0,
+                                            .pColorAttachments    = nullptr,
+                                            .pDepthAttachment     = &depthAttachmentInfo,
+                                            .pStencilAttachment   = nullptr};
+        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+
+        if ((ModelsRenderer::frameData[currentFrame].currentCamera != nullptr) &&
+            (!ModelsRenderer::frameData[currentFrame].models.empty())) {
+            auto &frame = frameData[currentFrame];
+            setInitialState(commandBuffer, currentFrame, false);
+            vkCmdBindShadersEXT(commandBuffer, 1, depthPrepassVertShader->getStage(), depthPrepassVertShader->getShader());
+            constexpr VkShaderStageFlagBits stageFlagBits{VK_SHADER_STAGE_FRAGMENT_BIT};
+            vkCmdBindShadersEXT(commandBuffer, 1, &stageFlagBits, VK_NULL_HANDLE);
+            vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
+            bindDescriptorSets(commandBuffer, currentFrame);
+
+            auto lastCullMode = CULLMODE_BACK;
+            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
+            auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
+            for (const auto &meshInstance : modelsToDraw) {
+                if (meshInstance->isValid() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
+                    const auto &modelIndex = frame.modelsIndices[meshInstance->getId()];
+                    const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
+                    for (const auto &surface : model->getSurfaces()) {
+                        const auto cullMode = surface->material->getCullMode();
+                        if (cullMode != lastCullMode) {
+                            vkCmdSetCullMode(commandBuffer,
+                                             cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
+                                                     : cullMode == CULLMODE_BACK
+                                                     ? VK_CULL_MODE_BACK_BIT
+                                                     : VK_CULL_MODE_FRONT_BIT);
+                            lastCullMode = cullMode;
+                        }
+                        auto pushConstants = PushConstants {
+                            .modelIndex = static_cast<int>(modelIndex),
+                            .materialIndex = 0
+                        };
+                        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                                            0, PUSHCONSTANTS_SIZE, &pushConstants);
+                        if (lastMeshId == model->getId()) {
+                            model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        } else {
+                            model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            lastMeshId = model->getId();
+                        }
+                    }
+                }
+            }
+        }
+
+        vkCmdEndRendering(commandBuffer);
+        Device::transitionImageLayout(commandBuffer,
+                                       resolvedDepthFrameBuffer[currentFrame]->getImage(),
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                      VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                                      VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                      VK_IMAGE_ASPECT_DEPTH_BIT);
+        Device::transitionImageLayout(commandBuffer,
+                                   ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                                  VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                  VK_IMAGE_ASPECT_DEPTH_BIT);
     }
 
     void SceneRenderer::enableLightShadowCasting(const shared_ptr<Light>&light) {

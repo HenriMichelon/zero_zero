@@ -12,6 +12,7 @@ import :Material;
 import :Resource;
 import :Image;
 import :Cubemap;
+import :FrustumCulling;
 import :Light;
 import :DirectionalLight;
 import :OmniLight;
@@ -40,7 +41,7 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, vec3 clearColor);
+        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass);
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
 
@@ -177,8 +178,10 @@ namespace z0 {
         struct FrameData {
             // Indices of each model data in the models uniform buffer
             map<Node::id_t, uint32_t> modelsIndices{};
-            // All non-transparent models
+            // All non-transparent models (not used in the depth prepass)
             list<shared_ptr<MeshInstance>> opaquesModels{};
+            // All transparent models
+            list<shared_ptr<MeshInstance>> transparentModels{};
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
 
@@ -227,11 +230,16 @@ namespace z0 {
 
             // Global UBO in GPU memory
             unique_ptr<Buffer> globalBuffer;
+
+            // Current camera frustum
+            Frustum cameraFrustum;
         };
         vector<FrameData> frameData;
 
         // Enable or disable shadow casting (for the editor)
         bool enableShadowMapRenders{true};
+        // Enable the depth pre-pass
+        bool enableDepthPrepass;
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures and shadow mapping)
@@ -239,6 +247,7 @@ namespace z0 {
         // Default blank cubemap (for omni shadow mapping)
         shared_ptr<VulkanCubemap> blankCubemap{nullptr};
 
+        unique_ptr<Shader> depthPrepassVertShader;
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
 
@@ -271,6 +280,8 @@ namespace z0 {
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw);
+
+        void depthPrepass(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw);
 
         [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);

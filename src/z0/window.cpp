@@ -225,7 +225,7 @@ namespace z0 {
 
         struct MonitorEnumData {
             int  enumIndex{0};
-            int  monitorIndex{-1};
+            int  monitorIndex{0};
             RECT monitorRect{0};
         };
         BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
@@ -247,9 +247,9 @@ namespace z0 {
             width{0},
             height{0},
             background{CreateSolidBrush(RGB(
-                applicationConfig.clearColor.r*256.0f,
-                applicationConfig.clearColor.g*256.0f,
-                applicationConfig.clearColor.b*256.0f))} {
+                applicationConfig.clearColor.r*255.0f,
+                applicationConfig.clearColor.g*255.0f,
+                applicationConfig.clearColor.b*255.0f))} {
             auto hInstance = GetModuleHandle(nullptr);
     #ifndef DISABLE_LOG
             _mainThreadId = GetCurrentThreadId();
@@ -284,11 +284,10 @@ namespace z0 {
             if (!RegisterClassEx(&wincl)) die("Cannot register Window class");
 
             // Getting the dimensions of the monitor
-            auto monitorData = MonitorEnumData {};
-            if (Application::get().getConfig().windowMonitor != -1) {
-                monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
-                EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
-            }
+            auto monitorData = MonitorEnumData {
+                .monitorIndex = Application::get().getConfig().windowMonitor
+            };
+            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
             auto screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
             auto screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
 
