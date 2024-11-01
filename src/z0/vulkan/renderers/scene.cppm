@@ -124,7 +124,6 @@ namespace z0 {
             alignas(16) TextureInfo  metallicTexture{};
             alignas(16) TextureInfo  roughnessTexture{};
             alignas(16) TextureInfo  emissiveTexture{};
-            // alignas(16) TextureInfo  ambientOcclusionTexture{};
         };
 
         struct LightBuffer {
@@ -133,7 +132,6 @@ namespace z0 {
             alignas(16) vec3 position{0.0f, 0.0f, 0.0f};
             alignas(16) vec3 direction{0.0f};
             alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + Intensity;
-            alignas(4) float specular{1.0f};
             alignas(4) float range{0.0f};
             alignas(4) float cutOff{0.0f};
             alignas(4) float outerCutOff{0.0f};

@@ -8,9 +8,8 @@ import :ShadowMapFrameBuffer;
 namespace z0 {
 
     DirectionalLight::DirectionalLight(const vec4    color,
-                                       const float   specular,
                                        const string &nodeName):
-        Light{color, specular, nodeName, DIRECTIONAL_LIGHT}
+        Light{color, nodeName, DIRECTIONAL_LIGHT}
     { }
 
     void DirectionalLight::setShadowMapCascadesCount(const uint32_t cascadesCount) {

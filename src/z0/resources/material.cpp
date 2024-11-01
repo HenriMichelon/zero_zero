@@ -44,11 +44,6 @@ namespace z0 {
         _setDirty();
     }
 
-    void StandardMaterial::setAmbientOcclusionTexture(const TextureInfo &texture) {
-        ambientOcclusionTexture = texture;
-        _setDirty();
-    }
-
     void StandardMaterial::setEmissiveTexture(const TextureInfo &texture) {
         emissiveTexture = texture;
         _setDirty();

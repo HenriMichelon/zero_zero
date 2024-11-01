@@ -15,11 +15,9 @@ export namespace z0 {
         /**
          * Create a DirectionalLight
          * @param color RGB color and intensity of the light
-         * @param specular intensity of the specular blob in objects affected by the light.
          * @param nodeName Node name
          */
         explicit DirectionalLight(vec4          color    = {1.0f, 1.0f, 1.0f, 1.0f},
-                                  float         specular = 1.0f,
                                   const string &nodeName = TypeNames[DIRECTIONAL_LIGHT]);
 
         ~DirectionalLight() override = default;

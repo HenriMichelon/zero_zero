@@ -34,16 +34,6 @@ export namespace z0 {
         inline void setColorAndIntensity(const vec4 colorAndIntensity) { this->colorAndIntensity = colorAndIntensity; }
 
         /**
-         * Returns the intensity of the specular blob in objects affected by the light.
-         */
-        [[nodiscard]] inline float getSpecularIntensity() const { return specularIntensity; }
-
-        /**
-         * Sets the intensity of the specular blob in objects affected by the light.
-         */
-        inline void setSpecularIntensity(const float specularIntensity) { this->specularIntensity = specularIntensity; }
-
-        /**
          * If `true`, the light will cast real-time shadows.<br>
          * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
          */
@@ -65,12 +55,11 @@ export namespace z0 {
     protected:
         explicit Light(const string &nodeName = TypeNames[LIGHT], Type type = LIGHT);
 
-        explicit Light(vec4 color, float specular, const string &nodeName = TypeNames[LIGHT], Type type = LIGHT);
+        explicit Light(vec4 color, const string &nodeName = TypeNames[LIGHT], Type type = LIGHT);
 
     private:
         const LightType lightType{LIGHT_UNKNOWN};
         vec4  colorAndIntensity{1.0f, 1.0f, 1.0f, 1.0f};
-        float specularIntensity{1.0f};
         bool  castShadows{false};
     };
 

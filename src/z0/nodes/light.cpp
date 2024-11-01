@@ -12,10 +12,9 @@ namespace z0 {
         lightType{type == DIRECTIONAL_LIGHT ? LIGHT_DIRECTIONAL : type == SPOT_LIGHT ? LIGHT_SPOT : LIGHT_OMNI} {
     }
 
-    Light::Light(const vec4 color, const float specular, const string &nodeName, const Type type):
+    Light::Light(const vec4 color, const string &nodeName, const Type type):
         Node{nodeName, type},
         colorAndIntensity{color},
-        specularIntensity{specular},
         lightType{type == DIRECTIONAL_LIGHT ? LIGHT_DIRECTIONAL : type == SPOT_LIGHT ? LIGHT_SPOT : LIGHT_OMNI} {
     }
 
@@ -27,8 +26,6 @@ namespace z0 {
         Node::setProperty(property, value);
         if (property == "color") {
             setColorAndIntensity(to_vec4(value));
-        } else if (property == "specular") {
-            setSpecularIntensity(stof(value));
         } else if (property == "cast_shadows") {
             setCastShadows(value == "true");
         }

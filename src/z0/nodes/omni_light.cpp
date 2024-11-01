@@ -13,10 +13,9 @@ namespace z0 {
 
     OmniLight::OmniLight(const float   range,
                          const vec4    color,
-                         const float   specular,
                          const string &nodeName,
                          const Type    type):
-        Light{color, specular, nodeName, type}, range{range} {
+        Light{color, nodeName, type}, range{range} {
     }
 
     void OmniLight::setProperty(const string &property, const string &value) {

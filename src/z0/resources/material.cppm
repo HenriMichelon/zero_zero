@@ -130,10 +130,6 @@ export namespace z0 {
 
         void setRoughnessTexture(const TextureInfo &texture);
 
-        [[nodiscard]] inline const TextureInfo& getAmbientOcclusionTexture() const { return ambientOcclusionTexture; }
-
-        void setAmbientOcclusionTexture(const TextureInfo &texture);
-
         [[nodiscard]] inline const TextureInfo& getEmissiveTexture() const { return emissiveTexture; }
 
         [[nodiscard]] inline vec3 getEmissiveFactor() const { return emissiveFactor; }
@@ -160,7 +156,6 @@ export namespace z0 {
         vec3         emissiveFactor{0.0f};
         float        emissiveStrength{1.0f};
         TextureInfo  emissiveTexture;
-        TextureInfo  ambientOcclusionTexture{};
         TextureInfo  normalTexture{};
         float        normalScale{1.0f};
     };

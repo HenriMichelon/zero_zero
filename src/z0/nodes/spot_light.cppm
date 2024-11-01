@@ -23,14 +23,12 @@ export namespace z0 {
         * @param cutOffDegrees the inner cutoff angle that specifies the spotlight's radius, in degrees
         * @param outerCutOffDegrees the outer cutoff angle that specifies the spotlight's radius, in degrees. Everything outside this angle is not lit by the spotlight.
         * @param color the RGB color and intensity
-        * @param specular intensity of the specular blob in objects affected by the light.
         * @param nodeName Node name
         */
         explicit SpotLight(float         cutOffDegrees,
                            float         outerCutOffDegrees,
                            float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},
-                           float         specular    = 1.0f,
                            const string &nodeName    = TypeNames[SPOT_LIGHT]);
 
         ~SpotLight() override = default;

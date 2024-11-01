@@ -40,7 +40,6 @@ struct Light {
     vec3    position;
     vec3    direction;
     vec4    color;
-    float   specular;
     float   range;
     float   cutOff;
     float   outerCutOff;
@@ -75,7 +74,6 @@ struct Texture  {
     TextureInfo metallicTexture;
     TextureInfo roughnessTexture;
     TextureInfo emissiveTexture;
-//    TextureInfo ambientOcclusionTexture;
 };
 
 layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {

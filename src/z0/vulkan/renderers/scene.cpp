@@ -156,8 +156,6 @@ namespace z0 {
                         removeImage(standardMaterial->getMetallicTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getRoughnessTexture().texture != nullptr)
                         removeImage(standardMaterial->getRoughnessTexture().texture->getImage(), currentFrame);
-                    if (standardMaterial->getAmbientOcclusionTexture().texture != nullptr)
-                        removeImage(standardMaterial->getAmbientOcclusionTexture().texture->getImage(), currentFrame);
                     if (standardMaterial->getEmissiveTexture().texture != nullptr)
                         removeImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
@@ -206,8 +204,6 @@ namespace z0 {
                     addImage(standardMaterial->getMetallicTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getRoughnessTexture().texture != nullptr)
                     addImage(standardMaterial->getRoughnessTexture().texture->getImage(), currentFrame);
-                if (standardMaterial->getAmbientOcclusionTexture().texture != nullptr)
-                    addImage(standardMaterial->getAmbientOcclusionTexture().texture->getImage(), currentFrame);
                 if (standardMaterial->getEmissiveTexture().texture != nullptr)
                     addImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
             }
@@ -282,7 +278,6 @@ namespace z0 {
                 lightsArray[lightIndex].type      = light->getLightType();
                 lightsArray[lightIndex].position  = light->getPositionGlobal();
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();
-                lightsArray[lightIndex].specular  = light->getSpecularIntensity();
                 switch (light->getLightType()) {
                     case Light::LIGHT_DIRECTIONAL: {
                         const auto& directionalLight = reinterpret_pointer_cast<DirectionalLight>(light);
@@ -369,7 +364,6 @@ namespace z0 {
                 convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
                 convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
                 convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
-                // convert(textureUBO.ambientOcclusionTexture, standardMaterial->getAmbientOcclusionTexture());
                 convert(textureUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
                 frame.texturesBuffer->writeToBuffer(
                     &textureUBO,

@@ -50,7 +50,7 @@ def add_resource(nodes, obj, parent):
 
 
 def add_node(obj):
-#    print(obj.name + ":" + obj.type)
+    #    print(obj.name + ":" + obj.type)
     node = { "id": obj.name }
     if "zero_zero_props" in obj:
         props = obj.zero_zero_props
@@ -76,10 +76,12 @@ def add_node(obj):
             "position" : convert_vector(obj.location),
             "rotation" : convert_vector_degrees(new_rotation.to_euler('XYZ'))
         }
-        if (obj.data.use_shadow): 
+        if (obj.data.use_shadow):
             node["properties"]["cast_shadows"] = "true"
         if (obj.data.type == "POINT"):
             node["class"] = "OmniLight"
+            if (obj.data.use_custom_distance):
+                node["properties"]["range"] = str(obj.data.cutoff_distance)
         if (obj.data.type == "SUN"):
             node["class"] = "DirectionalLight"
         if (obj.data.type == "SPOT"):
@@ -102,7 +104,7 @@ def export_json():
     for obj in bpy.context.scene.objects:
         if obj.parent is None:
             add_resource(nodes, obj, obj.parent)
-    
+
     blend_file_path = bpy.data.filepath
     blend_file_name = os.path.basename(blend_file_path)
     scene_name = os.path.splitext(blend_file_name)[0]

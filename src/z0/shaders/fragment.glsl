@@ -123,9 +123,6 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         toLinear(texture(texSampler[tex.emissiveTexture.index], uvTransform(tex.emissiveTexture, fs_in.UV))).rgb *
         material.emissiveStrength;// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
     }
-//    const float ambientOcclusion = tex.ambientOcclusionTexture.index == -1 ?
-//        1.0f :
-//        texture(texSampler[tex.ambientOcclusionTexture.index], uvTransform(tex.ambientOcclusionTexture, fs_in.UV)).b;
     ambient *= global.ambient.w * global.ambient.rgb ;
 
     return vec4(ambient + diffuse, transparency);

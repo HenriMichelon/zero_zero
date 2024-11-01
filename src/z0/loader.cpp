@@ -237,8 +237,6 @@ namespace z0 {
                 material->setMetallicTexture(textInfo);
                 material->setRoughnessTexture(textInfo);
             }
-            if (mat.occlusionTexture.has_value())
-                material->setAmbientOcclusionTexture(loadTexture(mat.occlusionTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
             if (mat.normalTexture.has_value())
                 material->setNormalTexture(loadTexture(mat.normalTexture.value(), VK_FORMAT_R8G8B8A8_UNORM));
             if (mat.emissiveTexture.has_value()) {

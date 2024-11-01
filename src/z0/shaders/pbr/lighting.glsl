@@ -91,7 +91,7 @@ vec3 Radiance(const Light light,
     const vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
     // Total contribution for this light.
-    return (diffuseBRDF + specularBRDF) * light.color.rgb * light.color.w * cosLi;
+    return (diffuseBRDF + specularBRDF) * light.color.rgb * light.color.w * cosLi * attenuation;
 }
 
 vec3 calcDirectionalLight(Light light, vec3 albedo, vec3 normal, float metallic, float roughness, vec3 viewDirection, vec3 F0, const float cosLo) {
