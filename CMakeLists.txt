@@ -1,9 +1,9 @@
-/*
- * Copyright (c) 2024 Henri Michelon
- * 
- * This software is released under the MIT License.
- * https://opensource.org/licenses/MIT
- */
+#
+# Copyright (c) 2024 Henri Michelon
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+#
 cmake_minimum_required(VERSION 3.29)
 cmake_policy(SET CMP0002 NEW)
 

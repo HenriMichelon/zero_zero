@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2024 Henri Michelon
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+#
 ###### Auto detect Vulkan SDK
 find_package(Vulkan REQUIRED)
 target_include_directories(${Z0_TARGET} PUBLIC ${Vulkan_INCLUDE_DIRS})
