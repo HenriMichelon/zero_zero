@@ -341,7 +341,7 @@ namespace z0 {
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
             for (const auto &meshInstance : data.models) {
-                if (meshInstance->isValid() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
+                if (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance)) {
                     const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.model = meshInstance->getTransformGlobal();

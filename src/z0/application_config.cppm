@@ -25,9 +25,9 @@ export namespace z0 {
         //! State of the display window
         WindowMode       windowMode        = WINDOW_MODE_WINDOWED;
         //! Width in pixels of the display window
-        uint32_t         windowWidth       = 1920;
+        uint32_t         windowWidth       = 1280;
         //! Height in pixels of the display window
-        uint32_t         windowHeight      = 1080;
+        uint32_t         windowHeight      = 720;
         //! Monitor index to display the window
         int32_t          windowMonitor     = 0;
         //! Default font name, the file must exist in the path
@@ -39,9 +39,9 @@ export namespace z0 {
         //! Monitor index for the logging window
         int32_t          loggingMonitor    = 0;
         //! MSAA samples. Note that MSAA is mandatory
-        MSAA             msaa              = MSAA_AUTO;
+        MSAA             msaa              = MSAA_4X;
         //! Depth frame buffer format
-        DepthFormat      depthFormat       = DEPTH_FORMAT_AUTO;
+        DepthFormat      depthFormat       = DEPTH_FORMAT_24BIT;
         //! Use a depth pre-pass in the main renderer
         bool             useDepthPrepass   = true;
         //! Gamma correction value for the tone mapping renderer

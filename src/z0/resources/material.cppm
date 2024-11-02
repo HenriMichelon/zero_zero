@@ -153,7 +153,7 @@ export namespace z0 {
         void setNormaleScale(float scale);
 
     private:
-        Color        albedoColor{1.0f, 1.0f, 1.0f, 1.0f};
+        Color        albedoColor{1.0f, 0.0f, 0.5f, 1.0f};
         TextureInfo  albedoTexture{};
         float        metallicFactor{-1.0f}; // -1 -> non PBR material
         TextureInfo  metallicTexture{};

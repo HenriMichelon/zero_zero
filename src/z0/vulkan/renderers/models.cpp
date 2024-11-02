@@ -34,8 +34,9 @@ import :VulkanMesh;
             }
         } else if (const auto& meshInstance = dynamic_pointer_cast<MeshInstance>(node)) {
             if (meshInstance->isValid()) {
-                if (meshInstance->getMesh()->_getMaterials().empty())
+                if (meshInstance->getMesh()->_getMaterials().empty()) {
                     die("Models without materials are not supported");
+                }
                 const auto index = frameData[currentFrame].models.size();
                 frameData[currentFrame].models.push_back(meshInstance);
                 addingModel(meshInstance, index, currentFrame);

@@ -96,7 +96,7 @@ export namespace z0 {
          * @param surfaceIndex Zero based index of the Surface
          * @param material New material for the Surface
          */
-        void setSurfaceMaterial(uint32_t surfaceIndex, shared_ptr<Material> material);
+        void setSurfaceMaterial(uint32_t surfaceIndex, const shared_ptr<Material>& material);
 
         /**
          * Returns all the Surfaces

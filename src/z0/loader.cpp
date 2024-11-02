@@ -207,8 +207,8 @@ namespace z0 {
             auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
                 const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
                 materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
-                if (texture.samplerIndex.has_value()) convertSamplerData(texture);
-                if (!texture.imageIndex.has_value()) die("Texture without image");
+                if (texture.samplerIndex.has_value()) { convertSamplerData(texture); }
+                if (!texture.imageIndex.has_value()) { die("Texture without image"); }
                 const auto imageIndex = texture.imageIndex.value();
                 shared_ptr<Image> image;
                 if (images.contains(imageIndex)) {
@@ -304,8 +304,8 @@ namespace z0 {
                                 vertices[index + initial_vtx].tangent = v;
                             });
                 }
-                // associate material to surface and keep track of all materials used in the Mesh
                 if (p.materialIndex.has_value()) {
+                    // associate material to surface and keep track of all materials used in the Mesh
                     auto material     = materials[p.materialIndex.value()];
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
@@ -323,6 +323,11 @@ namespace z0 {
                                     vertices[index + initial_vtx].uv = {v.x, v.y};
                                 });
                     }
+                } else {
+                    // Mesh have no material, use a default one
+                    const auto &material = make_shared<StandardMaterial>();
+                    surface->material = material;
+                    mesh->_getMaterials().insert(material);
                 }
                 // calculate tangent for each triangle
                 if (!haveTangents) {

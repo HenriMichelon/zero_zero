@@ -38,9 +38,9 @@ namespace z0 {
         buildAABB();
     }
 
-    void Mesh::setSurfaceMaterial(const uint32_t surfaceIndex, shared_ptr<Material> material) {
+    void Mesh::setSurfaceMaterial(const uint32_t surfaceIndex, const shared_ptr<Material>& material) {
         assert(surfaceIndex < surfaces.size());
-        surfaces[surfaceIndex]->material = std::move(material);
+        surfaces[surfaceIndex]->material = material;
         materials.insert(surfaces[surfaceIndex]->material);
     }
 
