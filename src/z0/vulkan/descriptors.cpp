@@ -1,4 +1,10 @@
 /*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
+/*
 * Derived from
  * https://github.com/blurrypiano/littleVulkanEngine
  * and

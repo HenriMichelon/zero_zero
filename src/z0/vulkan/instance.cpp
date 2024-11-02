@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 module;
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

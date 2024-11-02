@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 module;
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/core.hpp>

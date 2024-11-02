@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 
 layout (binding = 0) uniform GlobalBuffer {
     vec3 lightPosition;

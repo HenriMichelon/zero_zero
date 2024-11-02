@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 module;
 #include <cassert>
 #include <glm/detail/type_mat3x4.hpp>
