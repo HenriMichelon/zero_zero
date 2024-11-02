@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 #ifdef _WIN32
     #define VK_USE_PLATFORM_WIN32_KHR
 #endif

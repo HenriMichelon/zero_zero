@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 
 float shadowFactor(Light light, int cascadeIndex, vec4 fragPos) {
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping

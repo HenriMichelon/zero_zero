@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
 #include "utils.glsl"
 #include "pbr/lighting.glsl"
 #include "shadows/shadows.glsl"

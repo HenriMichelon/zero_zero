@@ -1,4 +1,10 @@
 /*
+ * Copyright (c) 2024 Henri Michelon
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
+/*
  * https://vulkan-tutorial.com/Vertex_buffers/Vertex_buffer_creation
  * https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/
  *
