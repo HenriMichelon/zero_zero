@@ -9,7 +9,9 @@ module;
 #include <fastgltf/glm_element_traits.hpp>
 #include <json.hpp>
 #include <volk.h>
-#include "stb_image.h"
+#include <stb_image.h>
+#include <ktx.h>
+#include <ktxvulkan.h>
 #include "z0/libraries.h"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -36,111 +38,71 @@ import :VulkanMesh;
 
 namespace z0 {
 
+    typedef  std::function<shared_ptr<Image>(
+                            const string&  name,
+                            const void   * srcData,
+                            size_t   size,
+                            VkFormat format)> LoadImageFunction;
+
     // https://fastgltf.readthedocs.io/v0.7.x/tools.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Image> loadImage(
         fastgltf::Asset &asset,
         fastgltf::Image &image,
-        VkFormat format,
-        VkFilter magFilter,
-        VkFilter minFilter,
-        VkSamplerAddressMode addressModeU,
-        VkSamplerAddressMode addressModeV) {
-        const auto       &device = Device::get();
+        const VkFormat format,
+        const LoadImageFunction loadImageFunction) {
         shared_ptr<Image> newImage;
-        int               width, height, nrChannels;
         string            name{image.name};
-        // log("Load image ", name);
+        log("Load image ", name);
         visit(fastgltf::visitor{
-                      [](auto &arg) {},
-                      [&](fastgltf::sources::URI &filePath) {
-                          die("External textures files for glTF not supported");
-                          /*assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
-                          assert(filePath.uri.isLocalPath()); // We're only capable of loading
-                          const string path(filePath.uri.path().begin(),
-                                            filePath.uri.path().end()); // Thanks C++.
-                          uint32_t texWidth, texHeight;
-                          uint64_t imageSize;
-                          auto *data = VirtualFS::loadImage(VirtualFS::APP_URI + path, texWidth, texHeight, imageSize, IMAGE_R8G8B8A8);
-                          if (data) {
-                              newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
-                                  magFilter, minFilter, addressModeU, addressModeV);
-                              VirtualFS::destroyImage(data);
-                          }*/
-                      },
-                      [&](fastgltf::sources::Vector &vector) {
-                          auto *data = stbi_load_from_memory(reinterpret_cast<stbi_uc const *>(vector.bytes.data()),
-                                                             static_cast<int>(vector.bytes.size()),
-                                                             &width,
-                                                             &height,
-                                                             &nrChannels,
-                                                             STBI_rgb_alpha);
-                          if (data) {
-                              VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                              newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
-                                    magFilter, minFilter, addressModeU, addressModeV);
-                              stbi_image_free(data);
-                          }
-                      },
-                      [&](fastgltf::sources::BufferView &view) {
-                          const auto &bufferView = asset.bufferViews[view.bufferViewIndex];
-                          auto &buffer     = asset.buffers[bufferView.bufferIndex];
-
-                          visit(fastgltf::visitor{
-                                    // We only care about VectorWithMime here, because we
-                                    // specify LoadExternalBuffers, meaning all buffers
-                                    // are already loaded into a vector.
-                                    [](auto &arg) {},
-                                    [&](fastgltf::sources::Vector &vector) {
-                                        auto *data =
-                                                stbi_load_from_memory(
-                                                    reinterpret_cast<stbi_uc const *>(vector.bytes.data() +
-                                                                                      bufferView.byteOffset),
-                                                                      static_cast<int>(bufferView.byteLength),
-                                                                      &width,
-                                                                      &height,
-                                                                      &nrChannels,
-                                                                      STBI_rgb_alpha);
-                                        if (data) {
-                                            VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                            newImage               = make_shared<VulkanImage>(
-                                                    device, name, width, height, imageSize, data, format,
-                                                    magFilter, minFilter, addressModeU, addressModeV);
-                                            stbi_image_free(data);
-                                        }
-                                    },
-                                    [&](fastgltf::sources::Array &array) {
-                                        auto *data =
-                                                stbi_load_from_memory(
-                                                    reinterpret_cast<stbi_uc const *>(array.bytes.data() +
-                                                                                      bufferView.byteOffset),
-                                                                      static_cast<int>(bufferView.byteLength),
-                                                                      &width,
-                                                                      &height,
-                                                                      &nrChannels,
-                                                                      STBI_rgb_alpha);
-                                        if (data) {
-                                            VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                                            newImage               = make_shared<VulkanImage>(
-                                                    device, name, width, height, imageSize, data, format,
-                                                    magFilter, minFilter, addressModeU, addressModeV);
-                                            stbi_image_free(data);
-                                        }
-                                    },
-                            },
-                            buffer.data);
-                      },
+              [](auto &arg) {},
+              [&](fastgltf::sources::URI &filePath) {
+                  die("External textures files for glTF not supported");
+                  /*assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
+                  assert(filePath.uri.isLocalPath()); // We're only capable of loading
+                  const string path(filePath.uri.path().begin(),
+                                    filePath.uri.path().end()); // Thanks C++.
+                  uint32_t texWidth, texHeight;
+                  uint64_t imageSize;
+                  auto *data = VirtualFS::loadImage(VirtualFS::APP_URI + path, texWidth, texHeight, imageSize, IMAGE_R8G8B8A8);
+                  if (data) {
+                      newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
+                          magFilter, minFilter, addressModeU, addressModeV);
+                      VirtualFS::destroyImage(data);
+                  }*/
+              },
+              [&](const fastgltf::sources::Vector &vector) {
+                  newImage = loadImageFunction(name, vector.bytes.data(), vector.bytes.size(), format);
+              },
+              [&](fastgltf::sources::BufferView &view) {
+                  const auto &bufferView = asset.bufferViews[view.bufferViewIndex];
+                  auto &buffer           = asset.buffers[bufferView.bufferIndex];
+                  visit(fastgltf::visitor{
+                        // We only care about VectorWithMime here, because we
+                        // specify LoadExternalBuffers, meaning all buffers
+                        // are already loaded into a vector.
+                        [](auto &arg) {},
+                        [&](const fastgltf::sources::Vector &vector) {
+                            newImage = loadImageFunction(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, format);
+                        },
+                        [&](fastgltf::sources::Array &array) {
+                            newImage = loadImageFunction(name, array.bytes.data() + bufferView.byteOffset, bufferView.byteLength, format);
+                        },
+                    },
+                    buffer.data);
+              },
               },
               image.data);
         return newImage;
     }
 
-    // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Node> Loader::loadModelFromFile(const string &filepath,
                                                bool forceBackFaceCulling) {
+        const auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
+                                fastgltf::Extensions::KHR_texture_basisu |
                                 fastgltf::Extensions::KHR_materials_emissive_strength};
         constexpr auto gltfOptions =
             fastgltf::Options::DontRequireValidAssetMember |
@@ -155,6 +117,7 @@ namespace z0 {
 
         // Already loaded images
         map<size_t, shared_ptr<Image>> images;
+        map<size_t, shared_ptr<Image>> compressedImages;
 
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
@@ -204,20 +167,78 @@ namespace z0 {
                         sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
                             VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
             };
+            auto loadImageRGBA = [&](const string&  name,
+                                     const void   * srcData,
+                                     const size_t   size,
+                                     const VkFormat format) -> shared_ptr<Image> {
+                int width, height, channels;
+                auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
+                                                            static_cast<int>(size),
+                                                            &width,
+                                                            &height,
+                                                            &channels,
+                                                            STBI_rgb_alpha);
+                if (data) {
+                    const VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
+                    const auto newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
+                          magFilter, minFilter, wrapU, wrapV);
+                    stbi_image_free(data);
+                    return newImage;
+                }
+                return nullptr;
+            };
+            auto loadImageKTX2 = [&](const string&  name,
+                                     const void   * srcData,
+                                     const size_t   size,
+                                     const VkFormat format) -> shared_ptr<Image> {
+                ktxTexture2* texture;
+                if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
+                    static_cast<const ktx_uint8_t*>(srcData),
+                    size,
+                    KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+                    &texture)) {
+                    die("Failed to create KTX texture from memory");
+                }
+                const ktx_transcode_fmt_e transcodeFormat = KTX_TTF_BC7_RGBA;
+                const ktx_bool_t transcodingAvailable = ktxTexture2_NeedsTranscoding(texture);
+                if (!transcodingAvailable) { die("KTX2 texture does not need transcoding or cannot be transcoded to BC7."); }
+                if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
+                    die("Failed to transcode KTX2 to BC7");
+                }
+                const auto transcodedData = ktxTexture_GetData(reinterpret_cast<ktxTexture *>(texture));
+                const auto newImage = make_shared<VulkanImage>(
+                    device, name,
+                    texture->baseWidth, texture->baseHeight,
+                    texture->dataSize, transcodedData,
+                    format == VK_FORMAT_R8G8B8A8_SRGB ? VK_FORMAT_BC7_SRGB_BLOCK : VK_FORMAT_BC7_UNORM_BLOCK,
+                    magFilter, minFilter, wrapU, wrapV,
+                    VK_IMAGE_TILING_OPTIMAL, true);
+                ktxTexture_Destroy((ktxTexture*)texture);
+                return newImage;
+            };
             auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
                 const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
                 materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
                 if (texture.samplerIndex.has_value()) { convertSamplerData(texture); }
-                if (!texture.imageIndex.has_value()) { die("Texture without image"); }
-                const auto imageIndex = texture.imageIndex.value();
                 shared_ptr<Image> image;
-                if (images.contains(imageIndex)) {
-                    image = images[imageIndex];
+                if (texture.imageIndex.has_value()) {
+                    const auto imageIndex = texture.imageIndex.value();
+                    if (images.contains(imageIndex)) {
+                        image = images[imageIndex];
+                    } else {
+                        image = loadImage(gltf, gltf.images[imageIndex], format, loadImageRGBA);
+                        images.emplace(imageIndex, image);
+                    }
+                } else if (texture.basisuImageIndex.has_value()) {
+                    const auto imageIndex = texture.basisuImageIndex.value();
+                    if (compressedImages.contains(imageIndex)) {
+                        image = compressedImages[imageIndex];
+                    } else {
+                        image = loadImage(gltf, gltf.images[imageIndex], format, loadImageKTX2);
+                        compressedImages.emplace(imageIndex, image);
+                    }
                 } else {
-                    image = loadImage(
-                        gltf, gltf.images[imageIndex],
-                        format, magFilter, minFilter, wrapU, wrapV);
-                    images.emplace(imageIndex, image);
+                    die("Texture without supported image category");
                 }
                 if (image == nullptr) return StandardMaterial::TextureInfo{};
                 auto texInfo = StandardMaterial::TextureInfo {

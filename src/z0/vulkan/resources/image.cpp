@@ -64,15 +64,32 @@ namespace z0 {
                const bool                 noMipmaps) :
         Image(width, height, name),
         device{device} {
+
+        uint32_t bufferRowLength = 0;
+        uint32_t bufferImageHeight  = 0;
+        VkDeviceSize bufferSize = imageSize;
+
+        if ((format == VK_FORMAT_R8G8B8A8_SRGB) || (format == VK_FORMAT_R8G8B8A8_UNORM)) {
+            // Calculate row pitch for BC7
+            const uint32_t blockSize = 16;  // BC7 block size in bytes
+            uint32_t blockWidth = (width + 3) / 4;  // Number of blocks per row
+            uint32_t blockHeight = (height + 3) / 4;  // Number of blocks per column
+            uint32_t rowPitch = blockWidth * blockSize;
+            // Create a staging buffer with the calculated size
+            bufferSize = rowPitch * blockHeight;
+            bufferRowLength = blockWidth * 4;
+            bufferImageHeight = blockHeight * 4;
+        }
+
         const Buffer textureStagingBuffer{
                 device,
-                imageSize,
+                bufferSize,
                 1,
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         };
         textureStagingBuffer.writeToBuffer(data);
 
-        mipLevels = noMipmaps ? 0 : numMipmapLevels(width, height); //static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        mipLevels = noMipmaps ? 1 : numMipmapLevels(width, height); //static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
         device.createImage(width,
                            height,
                            mipLevels,
@@ -88,8 +105,8 @@ namespace z0 {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Copying-buffer-to-image
         const VkBufferImageCopy region{
                 .bufferOffset = 0,
-                .bufferRowLength = 0,
-                .bufferImageHeight = 0,
+                .bufferRowLength = bufferRowLength,
+                .bufferImageHeight = bufferImageHeight,
                 .imageSubresource = {
                         .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
                         .mipLevel = 0,
@@ -118,11 +135,25 @@ namespace z0 {
                 1,
                 &region
                 );
+        if (noMipmaps) {
+            Device::transitionImageLayout(commandBuffer,
+                                       textureImage,
+                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                       0,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                       VK_IMAGE_ASPECT_COLOR_BIT,
+                                       mipLevels);
+        }
         device.endOneTimeCommandBuffer(commandBuffer);
-        //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        if (!noMipmaps) {
+            //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
+            generateMipmaps(format);
+        }
 
-        if (!noMipmaps) { generateMipmaps(format); }
         createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
     }
 
