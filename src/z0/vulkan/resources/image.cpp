@@ -9,8 +9,7 @@ module;
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
 #include <fastgltf/util.hpp>
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include <ktx.h>
 #include "z0/libraries.h"
 #include <volk.h>
 
@@ -65,25 +64,9 @@ namespace z0 {
         Image(width, height, name),
         device{device} {
 
-        uint32_t bufferRowLength = 0;
-        uint32_t bufferImageHeight  = 0;
-        VkDeviceSize bufferSize = imageSize;
-
-        if ((format == VK_FORMAT_R8G8B8A8_SRGB) || (format == VK_FORMAT_R8G8B8A8_UNORM)) {
-            // Calculate row pitch for BC7
-            const uint32_t blockSize = 16;  // BC7 block size in bytes
-            uint32_t blockWidth = (width + 3) / 4;  // Number of blocks per row
-            uint32_t blockHeight = (height + 3) / 4;  // Number of blocks per column
-            uint32_t rowPitch = blockWidth * blockSize;
-            // Create a staging buffer with the calculated size
-            bufferSize = rowPitch * blockHeight;
-            bufferRowLength = blockWidth * 4;
-            bufferImageHeight = blockHeight * 4;
-        }
-
-        const Buffer textureStagingBuffer{
+        const auto textureStagingBuffer = Buffer{
                 device,
-                bufferSize,
+                imageSize,
                 1,
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         };
@@ -103,10 +86,10 @@ namespace z0 {
                            textureImageMemory);
 
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Copying-buffer-to-image
-        const VkBufferImageCopy region{
+        const auto region = VkBufferImageCopy {
                 .bufferOffset = 0,
-                .bufferRowLength = bufferRowLength,
-                .bufferImageHeight = bufferImageHeight,
+                .bufferRowLength = 0,
+                .bufferImageHeight = 0,
                 .imageSubresource = {
                         .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
                         .mipLevel = 0,
@@ -116,7 +99,7 @@ namespace z0 {
                 .imageOffset = {0, 0, 0},
                 .imageExtent = {width, height, 1},
         };
-        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -155,6 +138,89 @@ namespace z0 {
         }
 
         createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
+    }
+
+    VulkanImage::VulkanImage(const Device &  device,
+              const string &             name,
+              const ktxTexture2*         kTexture,
+              const VkFormat             format,
+              const VkFilter             magFilter,
+              const VkFilter             minFilter,
+              const VkSamplerAddressMode samplerAddressModeU,
+              const VkSamplerAddressMode samplerAddressModeV,
+              const VkImageTiling        tiling):
+        Image(kTexture->baseWidth, kTexture->baseHeight, name),
+        device{device},
+        mipLevels{kTexture->numLevels} {
+        // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/performance/texture_compression_basisu/texture_compression_basisu.cpp
+        const auto textureStagingBuffer = Buffer{
+            device,
+            kTexture->dataSize,
+            1,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        };
+        textureStagingBuffer.writeToBuffer(kTexture->pData);
+
+        // Setup buffer copy regions for each mip level
+        auto copyRegions = vector<VkBufferImageCopy>{};
+        for (auto mip_level = 0; mip_level < mipLevels; mip_level++) {
+            ktx_size_t        offset;
+            KTX_error_code    result                           = ktxTexture_GetImageOffset((ktxTexture *) kTexture, mip_level, 0, 0, &offset);
+            VkBufferImageCopy buffer_copy_region               = {};
+            buffer_copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            buffer_copy_region.imageSubresource.mipLevel       = mip_level;
+            buffer_copy_region.imageSubresource.baseArrayLayer = 0;
+            buffer_copy_region.imageSubresource.layerCount     = 1;
+            buffer_copy_region.imageExtent.width               = kTexture->baseWidth >> mip_level;
+            buffer_copy_region.imageExtent.height              = kTexture->baseHeight >> mip_level;
+            buffer_copy_region.imageExtent.depth               = 1;
+            buffer_copy_region.bufferOffset                    = offset;
+            copyRegions.push_back(buffer_copy_region);
+        }
+
+        device.createImage(width,
+                           height,
+                           mipLevels,
+                           VK_SAMPLE_COUNT_1_BIT,
+                           format,
+                           tiling,
+                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                           VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                           textureImage,
+                           textureImageMemory);
+
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        Device::transitionImageLayout(commandBuffer,
+                                      textureImage,
+                                      VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                      0,
+                                      VK_ACCESS_TRANSFER_WRITE_BIT,
+                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VK_IMAGE_ASPECT_COLOR_BIT,
+                                      mipLevels);
+        vkCmdCopyBufferToImage(
+                commandBuffer,
+                textureStagingBuffer.getBuffer(),
+                textureImage,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                copyRegions.size(),
+                copyRegions.data());
+        Device::transitionImageLayout(commandBuffer,
+                                   textureImage,
+                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                   VK_ACCESS_TRANSFER_WRITE_BIT,
+                                   0,
+                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                   VK_IMAGE_ASPECT_COLOR_BIT,
+                                   mipLevels);
+        device.endOneTimeCommandBuffer(commandBuffer);
+        textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
     }
 
     VulkanImage::VulkanImage(const Device &device,

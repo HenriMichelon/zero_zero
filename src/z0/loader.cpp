@@ -11,7 +11,6 @@ module;
 #include <volk.h>
 #include <stb_image.h>
 #include <ktx.h>
-#include <ktxvulkan.h>
 #include "z0/libraries.h"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -180,7 +179,10 @@ namespace z0 {
                                                             STBI_rgb_alpha);
                 if (data) {
                     const VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
-                    const auto newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
+                    const auto newImage = make_shared<VulkanImage>(
+                        device, name,
+                        width, height,
+                        imageSize, data, format,
                           magFilter, minFilter, wrapU, wrapV);
                     stbi_image_free(data);
                     return newImage;
@@ -199,20 +201,17 @@ namespace z0 {
                     &texture)) {
                     die("Failed to create KTX texture from memory");
                 }
-                const ktx_transcode_fmt_e transcodeFormat = KTX_TTF_BC7_RGBA;
-                const ktx_bool_t transcodingAvailable = ktxTexture2_NeedsTranscoding(texture);
-                if (!transcodingAvailable) { die("KTX2 texture does not need transcoding or cannot be transcoded to BC7."); }
-                if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
-                    die("Failed to transcode KTX2 to BC7");
+                const ktx_transcode_fmt_e transcodeFormat = KTX_TTF_BC7_RGBA; //KTX_TTF_BC1_OR_3;
+                if (ktxTexture2_NeedsTranscoding(texture)) {
+                    if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
+                        die("Failed to transcode KTX2 to BC1/BC7");
+                    }
                 }
-                const auto transcodedData = ktxTexture_GetData(reinterpret_cast<ktxTexture *>(texture));
                 const auto newImage = make_shared<VulkanImage>(
-                    device, name,
-                    texture->baseWidth, texture->baseHeight,
-                    texture->dataSize, transcodedData,
+                    device, name, texture,
+                    // format == VK_FORMAT_R8G8B8A8_SRGB ? VK_FORMAT_BC1_RGBA_SRGB_BLOCK : VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
                     format == VK_FORMAT_R8G8B8A8_SRGB ? VK_FORMAT_BC7_SRGB_BLOCK : VK_FORMAT_BC7_UNORM_BLOCK,
-                    magFilter, minFilter, wrapU, wrapV,
-                    VK_IMAGE_TILING_OPTIMAL, true);
+                    magFilter, minFilter, wrapU, wrapV);
                 ktxTexture_Destroy((ktxTexture*)texture);
                 return newImage;
             };

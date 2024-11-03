@@ -7,6 +7,7 @@
 module;
 #include <volk.h>
 #include "z0/libraries.h"
+#include <ktx.h>
 
 export module z0:VulkanImage;
 
@@ -46,6 +47,16 @@ export namespace z0 {
                VkSamplerAddressMode samplerAddressModeV,
                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
                bool                 noMipmaps          = false);
+
+        VulkanImage(const Device &  device,
+               const string &       name,
+               const ktxTexture2*   kTexture,
+               VkFormat             format,
+               VkFilter             magFiter,
+               VkFilter             minFiler,
+               VkSamplerAddressMode samplerAddressModeU,
+               VkSamplerAddressMode samplerAddressModeV,
+               VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
 
         VulkanImage(const Device &  device,
                uint32_t             width,
