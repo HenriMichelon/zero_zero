@@ -49,28 +49,16 @@ namespace z0 {
         fastgltf::Asset &asset,
         fastgltf::Image &image,
         const VkFormat format,
-        const LoadImageFunction loadImageFunction) {
+        const LoadImageFunction& loadImageFunction) {
         shared_ptr<Image> newImage;
         string            name{image.name};
-        log("Load image ", name);
+        // log("Load image ", name);
         visit(fastgltf::visitor{
               [](auto &arg) {},
               [&](fastgltf::sources::URI &filePath) {
                   die("External textures files for glTF not supported");
-                  /*assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
-                  assert(filePath.uri.isLocalPath()); // We're only capable of loading
-                  const string path(filePath.uri.path().begin(),
-                                    filePath.uri.path().end()); // Thanks C++.
-                  uint32_t texWidth, texHeight;
-                  uint64_t imageSize;
-                  auto *data = VirtualFS::loadImage(VirtualFS::APP_URI + path, texWidth, texHeight, imageSize, IMAGE_R8G8B8A8);
-                  if (data) {
-                      newImage = make_shared<VulkanImage>(device, name, width, height, imageSize, data, format,
-                          magFilter, minFilter, addressModeU, addressModeV);
-                      VirtualFS::destroyImage(data);
-                  }*/
               },
-              [&](const fastgltf::sources::Vector &vector) {
+              [&](fastgltf::sources::Vector &vector) {
                   newImage = loadImageFunction(name, vector.bytes.data(), vector.bytes.size(), format);
               },
               [&](fastgltf::sources::BufferView &view) {
@@ -81,7 +69,7 @@ namespace z0 {
                         // specify LoadExternalBuffers, meaning all buffers
                         // are already loaded into a vector.
                         [](auto &arg) {},
-                        [&](const fastgltf::sources::Vector &vector) {
+                        [&](fastgltf::sources::Vector &vector) {
                             newImage = loadImageFunction(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, format);
                         },
                         [&](fastgltf::sources::Array &array) {
@@ -189,10 +177,18 @@ namespace z0 {
                 }
                 return nullptr;
             };
+            const ktx_transcode_fmt_e transcodeFormat =
+                              device.isFormatSupported(VK_FORMAT_BC7_SRGB_BLOCK) ? KTX_TTF_BC7_RGBA :
+                              device.isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
+                              device.isFormatSupported(VK_FORMAT_BC1_RGBA_SRGB_BLOCK) ? KTX_TTF_BC1_OR_3 :
+                              KTX_TTF_RGBA32;
             auto loadImageKTX2 = [&](const string&  name,
                                      const void   * srcData,
                                      const size_t   size,
                                      const VkFormat format) -> shared_ptr<Image> {
+                if (!device.getDeviceFeatures().textureCompressionBC) {
+                    die("GPU does not support BC texture compression");
+                }
                 ktxTexture2* texture;
                 if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
                     static_cast<const ktx_uint8_t*>(srcData),
@@ -201,16 +197,13 @@ namespace z0 {
                     &texture)) {
                     die("Failed to create KTX texture from memory");
                 }
-                const ktx_transcode_fmt_e transcodeFormat = KTX_TTF_BC7_RGBA; //KTX_TTF_BC1_OR_3;
                 if (ktxTexture2_NeedsTranscoding(texture)) {
                     if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
-                        die("Failed to transcode KTX2 to BC1/BC7");
+                        die("Failed to transcode KTX2 to BC");
                     }
                 }
                 const auto newImage = make_shared<VulkanImage>(
                     device, name, texture,
-                    // format == VK_FORMAT_R8G8B8A8_SRGB ? VK_FORMAT_BC1_RGBA_SRGB_BLOCK : VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
-                    format == VK_FORMAT_R8G8B8A8_SRGB ? VK_FORMAT_BC7_SRGB_BLOCK : VK_FORMAT_BC7_UNORM_BLOCK,
                     magFilter, minFilter, wrapU, wrapV);
                 ktxTexture_Destroy((ktxTexture*)texture);
                 return newImage;

@@ -43,6 +43,8 @@ export namespace z0 {
 
         [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
+        [[nodiscard]] VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
+
         [[nodiscard]] VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
 
         [[nodiscard]] VkSampleCountFlagBits getSamples() const { return samples; }
@@ -50,6 +52,8 @@ export namespace z0 {
         [[nodiscard]] const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
 
         [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+
+        [[nodiscard]] bool isFormatSupported(VkFormat format) const;
 
         [[nodiscard]] float getAspectRatio() const {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
@@ -135,6 +139,7 @@ export namespace z0 {
         VkPhysicalDeviceProperties2 deviceProperties{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
         };
+        VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceIDProperties physDeviceIDProps{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };

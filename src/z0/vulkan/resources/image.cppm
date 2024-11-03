@@ -51,7 +51,6 @@ export namespace z0 {
         VulkanImage(const Device &  device,
                const string &       name,
                const ktxTexture2*   kTexture,
-               VkFormat             format,
                VkFilter             magFiter,
                VkFilter             minFiler,
                VkSamplerAddressMode samplerAddressModeU,

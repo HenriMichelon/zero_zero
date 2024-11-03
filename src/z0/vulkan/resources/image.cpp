@@ -143,7 +143,6 @@ namespace z0 {
     VulkanImage::VulkanImage(const Device &  device,
               const string &             name,
               const ktxTexture2*         kTexture,
-              const VkFormat             format,
               const VkFilter             magFilter,
               const VkFilter             minFilter,
               const VkSamplerAddressMode samplerAddressModeU,
@@ -152,6 +151,7 @@ namespace z0 {
         Image(kTexture->baseWidth, kTexture->baseHeight, name),
         device{device},
         mipLevels{kTexture->numLevels} {
+        const auto format = static_cast<VkFormat>(kTexture->vkFormat);
         // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/performance/texture_compression_basisu/texture_compression_basisu.cpp
         const auto textureStagingBuffer = Buffer{
             device,
