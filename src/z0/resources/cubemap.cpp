@@ -37,7 +37,7 @@ namespace z0 {
         const array<std::string, 6> names{"right", "left", "top", "bottom", "front", "back"};
         for (int i = 0; i < 6; i++) {
             auto path = filepath + "_" + names[i] + fileext;
-            auto *pixels = VirtualFS::loadImage(path, texWidth, texHeight, imageSize, imageFormat);
+            auto *pixels = VirtualFS::loadRGBAImage(path, texWidth, texHeight, imageSize, imageFormat);
             if (!pixels)
                 die("failed to load texture image", path);
             data.push_back(pixels);
@@ -56,12 +56,12 @@ namespace z0 {
         assert(imageFormat == IMAGE_R8G8B8A8_SRGB);
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
-        auto *pixels = VirtualFS::loadImage(filepath, texWidth, texHeight, imageSize, imageFormat);
+        auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);
         if (!pixels)
             die("failed to load texture image", filepath);
         vector<byte*> data;
-        const auto              imgWidth  = texWidth / 4;
-        const auto              imgHeight = texHeight / 3;
+        const auto imgWidth  = texWidth / 4;
+        const auto imgHeight = texHeight / 3;
         // right
         data.push_back(extractImage(pixels,
                                     2 * imgWidth,

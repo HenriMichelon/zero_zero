@@ -45,7 +45,7 @@ namespace z0 {
         .eof  = eofCallback,
     };
 
-    byte* VirtualFS::loadImage(const string& filepath,
+    byte* VirtualFS::loadRGBAImage(const string& filepath,
                                 uint32_t& width, uint32_t& height, uint64_t& size,
                                 const ImageFormat imageFormat) {
         assert(imageFormat == IMAGE_R8G8B8A8_SRGB || imageFormat == IMAGE_R8G8B8A8_UNORM);
@@ -126,6 +126,17 @@ namespace z0 {
     vector<char> VirtualFS::loadShader(const string &filepath) {
         auto path = APP_URI + "shaders/" + filepath + ".spv";
         ifstream file(getPath(path), std::ios::ate | std::ios::binary);
+        if (!file.is_open()) die("failed to open file : ", filepath);
+        const size_t fileSize = file.tellg();
+        vector<char> buffer(fileSize);
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+        file.close();
+        return buffer;
+    }
+
+    vector<char> VirtualFS::loadBinary(const string &filepath) {
+        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
         if (!file.is_open()) die("failed to open file : ", filepath);
         const size_t fileSize = file.tellg();
         vector<char> buffer(fileSize);

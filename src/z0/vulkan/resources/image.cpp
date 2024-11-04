@@ -25,9 +25,9 @@ import :VulkanImage;
 namespace z0 {
 
     shared_ptr<Image> Image::create(
-        uint32_t width, uint32_t height,
-        uint64_t imageSize, const void *data,
-        const string & name, ImageFormat format) {
+    uint32_t width, uint32_t height,
+    uint64_t imageSize, const void *data,
+    const string & name, const ImageFormat format) {
         return make_shared<VulkanImage>(
             Device::get(),
             name, width, height, imageSize, data,
@@ -143,6 +143,27 @@ namespace z0 {
         createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
     }
 
+    VkFormat VulkanImage::formatSRGB(const VkFormat format, const string& name) {
+        switch (format) {
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+            return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+            return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+        case VK_FORMAT_BC3_UNORM_BLOCK:
+            return VK_FORMAT_BC3_SRGB_BLOCK;
+        case VK_FORMAT_BC7_UNORM_BLOCK:
+            return VK_FORMAT_BC7_SRGB_BLOCK;
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+        case VK_FORMAT_BC3_SRGB_BLOCK:
+        case VK_FORMAT_BC7_SRGB_BLOCK:
+            return format;
+        default:
+            die("Unsupported compressed format for ", name);
+            return VK_FORMAT_UNDEFINED;
+        }
+    }
+
     VulkanImage::VulkanImage(const Device &  device,
               const string &             name,
               const ktxTexture2*         kTexture,
@@ -150,11 +171,16 @@ namespace z0 {
               const VkFilter             minFilter,
               const VkSamplerAddressMode samplerAddressModeU,
               const VkSamplerAddressMode samplerAddressModeV,
+              const bool                 forceSRGB,
               const VkImageTiling        tiling):
         Image(kTexture->baseWidth, kTexture->baseHeight, name),
         device{device},
         mipLevels{kTexture->numLevels} {
-        const auto format = static_cast<VkFormat>(kTexture->vkFormat);
+        auto format = static_cast<VkFormat>(kTexture->vkFormat);
+        if (forceSRGB) {
+            format = formatSRGB(format, name);
+        }
+
         // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/performance/texture_compression_basisu/texture_compression_basisu.cpp
         const auto textureStagingBuffer = Buffer{
             device,

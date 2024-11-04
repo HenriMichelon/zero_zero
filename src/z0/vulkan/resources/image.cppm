@@ -55,6 +55,7 @@ export namespace z0 {
                VkFilter             minFiler,
                VkSamplerAddressMode samplerAddressModeU,
                VkSamplerAddressMode samplerAddressModeV,
+               bool                 forceSRGB          = false,
                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
 
         VulkanImage(const Device &  device,
@@ -82,6 +83,8 @@ export namespace z0 {
         [[nodiscard]] inline VkImage getImage() const { return textureImage; }
 
         [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
+
+        static VkFormat formatSRGB(VkFormat format, const string& name);
 
     private:
         const Device & device;
