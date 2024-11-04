@@ -27,7 +27,9 @@ export namespace z0 {
 
         static unique_ptr<fastgltf::GltfDataGetter> openGltf(const string& filepath);
 
-        static ifstream openFile(const string& filepath);
+        static ifstream openStream(const string& filepath);
+
+        static FILE* openFile(const string& filepath);
 
         static vector<char> loadShader(const string &filepath);
 

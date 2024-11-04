@@ -121,14 +121,12 @@ namespace z0 {
                     VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_FILTER_LINEAR, true);
         }
         if (filepath.ends_with(".ktx2")) {
-            const auto ktxData = VirtualFS::loadBinary(filepath);
+            const auto ktxFile = VirtualFS::openFile(filepath);
             ktxTexture2* texture;
-            if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
-                reinterpret_cast<const ktx_uint8_t*>(ktxData.data()),
-                ktxData.size(),
+            if (KTX_SUCCESS != ktxTexture2_CreateFromStdioStream(ktxFile,
                 KTX_TEXTURE_CREATE_NO_FLAGS,
                 &texture)) {
-                die("Failed to create KTX texture from memory");
+                die("Failed to create KTX texture from file stream");
             }
             if (ktxTexture2_NeedsTranscoding(texture)) {
                 const ktx_transcode_fmt_e transcodeFormat =
@@ -148,6 +146,7 @@ namespace z0 {
                     VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT,
                     imageFormat == IMAGE_R8G8B8A8_SRGB);
             ktxTexture_Destroy((ktxTexture*)texture);
+            fclose(ktxFile);
             return image;
         }
         uint32_t texWidth, texHeight;

@@ -117,16 +117,22 @@ namespace z0 {
         return make_unique<GltfFileStream>(getPath(filepath));
     }
 
-    ifstream VirtualFS::openFile(const string& filepath) {
+    ifstream VirtualFS::openStream(const string& filepath) {
         ifstream file(getPath(filepath), std::ios::binary);
-        if (!file.is_open()) die("Error: Could not open file ", filepath);
+        if (!file.is_open()) { die("Error: Could not open file ", filepath); }
+        return file;
+    }
+
+    FILE* VirtualFS::openFile(const string& filepath) {
+        FILE *file = fopen(getPath(filepath).c_str(), "rb");
+        if (file == nullptr) { die("Error: Could not open file ", filepath); }
         return file;
     }
 
     vector<char> VirtualFS::loadShader(const string &filepath) {
         auto path = APP_URI + "shaders/" + filepath + ".spv";
         ifstream file(getPath(path), std::ios::ate | std::ios::binary);
-        if (!file.is_open()) die("failed to open file : ", filepath);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
         const size_t fileSize = file.tellg();
         vector<char> buffer(fileSize);
         file.seekg(0);
@@ -137,7 +143,7 @@ namespace z0 {
 
     vector<char> VirtualFS::loadBinary(const string &filepath) {
         ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
-        if (!file.is_open()) die("failed to open file : ", filepath);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
         const size_t fileSize = file.tellg();
         vector<char> buffer(fileSize);
         file.seekg(0);

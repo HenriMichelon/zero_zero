@@ -93,7 +93,7 @@ namespace z0 {
         Resource{name},
         path{name},
         size{size} {
-        ifstream fontFile = VirtualFS::openFile(path);
+        ifstream fontFile = VirtualFS::openStream(path);
         fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator<char>(fontFile)),
                                                         istreambuf_iterator<char>());
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {

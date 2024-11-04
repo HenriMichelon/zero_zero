@@ -191,7 +191,7 @@ namespace z0 {
                 if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
                     static_cast<const ktx_uint8_t*>(srcData),
                     size,
-                    KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+                    KTX_TEXTURE_CREATE_NO_FLAGS,
                     &texture)) {
                     die("Failed to create KTX texture from memory");
                 }
@@ -202,7 +202,7 @@ namespace z0 {
                 }
                 const auto newImage = make_shared<KTXVulkanImage>(
                     device, name, texture,
-                    magFilter, minFilter, wrapU, wrapV);
+                    magFilter, minFilter, wrapU, wrapV, format == VK_FORMAT_R8G8B8A8_SRGB);
                 ktxTexture_Destroy((ktxTexture*)texture);
                 return newImage;
             };
@@ -566,7 +566,7 @@ namespace z0 {
     vector<Loader::SceneNode> Loader::loadSceneDescriptionFromJSON(const string &filepath) {
         vector<SceneNode> scene{};
         try {
-            auto jsonData = nlohmann::ordered_json::parse(VirtualFS::openFile(filepath)); // parsing using ordered_json to preserver fields order
+            auto jsonData = nlohmann::ordered_json::parse(VirtualFS::openStream(filepath)); // parsing using ordered_json to preserver fields order
             if (jsonData.contains("includes")) {
                 const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {
