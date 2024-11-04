@@ -53,7 +53,7 @@ namespace z0 {
     }
 
     shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const ImageFormat imageFormat) {
-        assert(imageFormat == IMAGE_R8G8B8A8);
+        assert(imageFormat == IMAGE_R8G8B8A8_SRGB);
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = VirtualFS::loadImage(filepath, texWidth, texHeight, imageSize, imageFormat);

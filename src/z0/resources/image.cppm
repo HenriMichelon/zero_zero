@@ -39,11 +39,13 @@ export namespace z0 {
         /**
          * Load a bitmap from file. For supported file formats see https://github.com/nothings/stb/blob/master/stb_image.h
          */
-        static shared_ptr<Image> load(const string &filepath, ImageFormat imageFormat);
+        static shared_ptr<Image> load(const string &filepath, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
 
         static shared_ptr<Image> createBlankImage();
 
-        static shared_ptr<Image> create(uint32_t width, uint32_t height, uint64_t imageSize, const void *data, const string & name);
+        static shared_ptr<Image> create(uint32_t width, uint32_t height,
+                                            uint64_t imageSize, const void *data,
+                                            const string & name, ImageFormat format = IMAGE_R8G8B8A8_SRGB);
 
     protected:
         uint32_t width;

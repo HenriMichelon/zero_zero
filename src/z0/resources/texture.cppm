@@ -55,7 +55,7 @@ export namespace z0 {
         /**
          * Creates an ImageTexture from an image resource
          */
-        explicit ImageTexture(const string &filename, ImageFormat imageFormat);
+        explicit ImageTexture(const string &filename, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
 
         /**
          * Returns the attached Image

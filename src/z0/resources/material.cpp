@@ -42,11 +42,13 @@ namespace z0 {
 
     void StandardMaterial::setMetallicTexture(const TextureInfo &texture) {
         metallicTexture = texture;
+        if (metallicFactor == -1.0f) { metallicFactor = 0.0f; }
         _setDirty();
     }
 
     void StandardMaterial::setRoughnessTexture(const TextureInfo &texture) {
         roughnessTexture = texture;
+        if (metallicFactor == -1.0f) { metallicFactor = 0.0f; }
         _setDirty();
     }
 

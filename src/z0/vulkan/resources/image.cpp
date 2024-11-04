@@ -24,11 +24,14 @@ import :VulkanImage;
 
 namespace z0 {
 
-    shared_ptr<Image> Image::create(uint32_t width, uint32_t height, uint64_t imageSize, const void *data, const string & name) {
+    shared_ptr<Image> Image::create(
+        uint32_t width, uint32_t height,
+        uint64_t imageSize, const void *data,
+        const string & name, ImageFormat format) {
         return make_shared<VulkanImage>(
             Device::get(),
             name, width, height, imageSize, data,
-            VK_FORMAT_R8G8B8A8_SRGB);
+            format == IMAGE_R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
     }
 
     VulkanImage::VulkanImage(const Device &device,

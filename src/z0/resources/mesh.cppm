@@ -40,14 +40,13 @@ export namespace z0 {
      */
     struct Surface {
         //! Index of the first vertex of the surface
-        uint32_t             firstVertexIndex;
+        uint32_t             firstVertexIndex{0};
         //! Number of vertices
-        uint32_t             indexCount;
+        uint32_t             indexCount{0};
         //! Material
-        shared_ptr<Material> material;
+        shared_ptr<Material> material{};
 
-        Surface( uint32_t firstIndex,
-                 uint32_t count);
+        Surface(uint32_t firstIndex, uint32_t count);
 
         inline bool operator==(const Surface &other) const {
             return firstVertexIndex == other.firstVertexIndex && indexCount == other.indexCount && material == other.material;

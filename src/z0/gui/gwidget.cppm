@@ -108,7 +108,7 @@ export namespace z0 {
         /** Creates a widget of a particular type */
         explicit GWidget(Type = WIDGET);
 
-        ~GWidget() override = default;
+        ~GWidget() override {};
 
         /** Returns the type of the widget */
         [[nodiscard]] Type getType() const;

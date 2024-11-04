@@ -60,7 +60,7 @@ export namespace z0 {
         explicit Material(const string &name);
 
     private:
-        CullMode     cullMode{CULLMODE_BACK};
+        CullMode     cullMode{CULLMODE_DISABLED};
         Transparency transparency{TRANSPARENCY_DISABLED};
         float        alphaScissor{0.1f};
         // The material parameters will be written in GPU memory next frame

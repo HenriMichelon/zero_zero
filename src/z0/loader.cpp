@@ -180,15 +180,15 @@ namespace z0 {
             const ktx_transcode_fmt_e transcodeFormat =
                               device.isFormatSupported(VK_FORMAT_ASTC_4x4_SRGB_BLOCK) ? KTX_TTF_ASTC_4x4_RGBA :
                               device.isFormatSupported(VK_FORMAT_BC7_SRGB_BLOCK) ? KTX_TTF_BC7_RGBA :
-                              device.isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
                               device.isFormatSupported(VK_FORMAT_BC1_RGBA_SRGB_BLOCK) ? KTX_TTF_BC1_OR_3 :
+                              device.isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
                               KTX_TTF_RGBA32;
             auto loadImageKTX2 = [&](const string&  name,
                                      const void   * srcData,
                                      const size_t   size,
                                      const VkFormat format) -> shared_ptr<Image> {
                 if ((!device.getDeviceFeatures().textureCompressionBC) && (!device.getDeviceFeatures().textureCompressionASTC_LDR)) {
-                    die("GPU does not support BC and ASTC texture compression");
+                    die("GPU does not support BC/ASTC texture compression");
                 }
                 ktxTexture2* texture;
                 if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
@@ -199,9 +199,12 @@ namespace z0 {
                     die("Failed to create KTX texture from memory");
                 }
                 if (ktxTexture2_NeedsTranscoding(texture)) {
+                    auto tStart         = std::chrono::high_resolution_clock::now();
                     if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
                         die("Failed to transcode KTX2 to BC/ASTC");
                     }
+                    auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+                    log(to_string(last_transcode_time), name, to_string(texture->baseWidth), to_string(texture->baseHeight));
                 }
                 const auto newImage = make_shared<VulkanImage>(
                     device, name, texture,
