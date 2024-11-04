@@ -187,9 +187,6 @@ namespace z0 {
                                      const void   * srcData,
                                      const size_t   size,
                                      const VkFormat format) -> shared_ptr<Image> {
-                if ((!device.getDeviceFeatures().textureCompressionBC) && (!device.getDeviceFeatures().textureCompressionASTC_LDR)) {
-                    die("GPU does not support BC/ASTC texture compression");
-                }
                 ktxTexture2* texture;
                 if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
                     static_cast<const ktx_uint8_t*>(srcData),
@@ -199,12 +196,9 @@ namespace z0 {
                     die("Failed to create KTX texture from memory");
                 }
                 if (ktxTexture2_NeedsTranscoding(texture)) {
-                    auto tStart         = std::chrono::high_resolution_clock::now();
                     if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
                         die("Failed to transcode KTX2 to BC/ASTC");
                     }
-                    auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
-                    log(to_string(last_transcode_time), name, to_string(texture->baseWidth), to_string(texture->baseHeight));
                 }
                 const auto newImage = make_shared<VulkanImage>(
                     device, name, texture,
