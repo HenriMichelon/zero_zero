@@ -9,7 +9,7 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
 
@@ -241,6 +241,12 @@ target_sources(${Z0_TARGET}
 		FILES
 		${PROJECT_FILES}
 )
+
+add_executable(image_encode
+		${SRC_DIR}/tools/image_encode/image_encode.cpp
+		${SRC_DIR}/tools/image_encode/bc7enc.cpp
+)
+target_include_directories(image_encode PUBLIC ${INCLUDE_DIR})
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)

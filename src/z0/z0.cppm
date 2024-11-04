@@ -44,6 +44,7 @@ export import :Tools;
 export import :TypeRegistry;
 export import :Tween;
 export import :Viewport;
+export import :VirtualFS;
 
 export import :GButton;
 export import :GEvent;
