@@ -18,6 +18,7 @@ import :SceneRenderer;
 import :VectorRenderer;
 import :TonemappingPostprocessingRenderer;
 import :VulkanApplication;
+import :VulkanImage;
 
 namespace z0 {
 
@@ -26,6 +27,9 @@ namespace z0 {
         assert(window != nullptr);
         instance = make_unique<Instance>();
         device = instance->createDevice(applicationConfig, *window);
+        KTXVulkanImage::initialize(
+            device->getPhysicalDevice(), device->getDevice(),
+            device->getGraphicQueue(), device->getCommandPool());
         init();
     }
 
@@ -33,6 +37,7 @@ namespace z0 {
         OutlineMaterials::_all().clear();
         sceneRenderer.reset();
         vectorRenderer.reset();
+        KTXVulkanImage::cleanup();
         device->cleanup();
         device.reset();
         instance.reset();

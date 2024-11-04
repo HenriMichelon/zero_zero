@@ -5,13 +5,10 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <fastgltf/glm_element_traits.hpp>
-#include <fastgltf/core.hpp>
-#include <fastgltf/tools.hpp>
-#include <fastgltf/util.hpp>
-#include <ktx.h>
-#include "z0/libraries.h"
 #include <volk.h>
+#include <ktx.h>
+#include <ktxvulkan.h>
+#include "z0/libraries.h"
 
 module z0;
 
@@ -164,94 +161,6 @@ namespace z0 {
         }
     }
 
-    VulkanImage::VulkanImage(const Device &  device,
-              const string &             name,
-              const ktxTexture2*         kTexture,
-              const VkFilter             magFilter,
-              const VkFilter             minFilter,
-              const VkSamplerAddressMode samplerAddressModeU,
-              const VkSamplerAddressMode samplerAddressModeV,
-              const bool                 forceSRGB,
-              const VkImageTiling        tiling):
-        Image(kTexture->baseWidth, kTexture->baseHeight, name),
-        device{device},
-        mipLevels{kTexture->numLevels} {
-        auto format = static_cast<VkFormat>(kTexture->vkFormat);
-        if (forceSRGB) {
-            format = formatSRGB(format, name);
-        }
-
-        // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/performance/texture_compression_basisu/texture_compression_basisu.cpp
-        const auto textureStagingBuffer = Buffer{
-            device,
-            kTexture->dataSize,
-            1,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        };
-        textureStagingBuffer.writeToBuffer(kTexture->pData);
-
-        // Setup buffer copy regions for each mip level
-        auto copyRegions = vector<VkBufferImageCopy>{};
-        for (auto mip_level = 0; mip_level < mipLevels; mip_level++) {
-            ktx_size_t        offset;
-            KTX_error_code    result                           = ktxTexture_GetImageOffset((ktxTexture *) kTexture, mip_level, 0, 0, &offset);
-            VkBufferImageCopy buffer_copy_region               = {};
-            buffer_copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-            buffer_copy_region.imageSubresource.mipLevel       = mip_level;
-            buffer_copy_region.imageSubresource.baseArrayLayer = 0;
-            buffer_copy_region.imageSubresource.layerCount     = 1;
-            buffer_copy_region.imageExtent.width               = kTexture->baseWidth >> mip_level;
-            buffer_copy_region.imageExtent.height              = kTexture->baseHeight >> mip_level;
-            buffer_copy_region.imageExtent.depth               = 1;
-            buffer_copy_region.bufferOffset                    = offset;
-            copyRegions.push_back(buffer_copy_region);
-        }
-
-        device.createImage(width,
-                           height,
-                           mipLevels,
-                           VK_SAMPLE_COUNT_1_BIT,
-                           format,
-                           tiling,
-                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                           VK_IMAGE_USAGE_SAMPLED_BIT,
-                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                           textureImage,
-                           textureImageMemory);
-
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
-        Device::transitionImageLayout(commandBuffer,
-                                      textureImage,
-                                      VK_IMAGE_LAYOUT_UNDEFINED,
-                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                      0,
-                                      VK_ACCESS_TRANSFER_WRITE_BIT,
-                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_IMAGE_ASPECT_COLOR_BIT,
-                                      mipLevels);
-        vkCmdCopyBufferToImage(
-                commandBuffer,
-                textureStagingBuffer.getBuffer(),
-                textureImage,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                copyRegions.size(),
-                copyRegions.data());
-        Device::transitionImageLayout(commandBuffer,
-                                   textureImage,
-                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                   0,
-                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                   mipLevels);
-        device.endOneTimeCommandBuffer(commandBuffer);
-        textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
-        createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
-    }
-
     VulkanImage::VulkanImage(const Device &device,
               const uint32_t             width,
               const uint32_t             height,
@@ -283,8 +192,8 @@ namespace z0 {
     VulkanImage::~VulkanImage() {
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);
-        vkDestroyImage(device.getDevice(), textureImage, nullptr);
-        vkFreeMemory(device.getDevice(), textureImageMemory, nullptr);
+        if (textureImage != VK_NULL_HANDLE) { vkDestroyImage(device.getDevice(), textureImage, nullptr); }
+        if (textureImageMemory != VK_NULL_HANDLE) { vkFreeMemory(device.getDevice(), textureImageMemory, nullptr); }
     }
 
     void VulkanImage::createTextureSampler(
@@ -419,6 +328,46 @@ namespace z0 {
                              &barrier);
 
         device.endOneTimeCommandBuffer(commandBuffer);
+    }
+
+    ktxVulkanDeviceInfo KTXVulkanImage::vdi;
+
+    void KTXVulkanImage::initialize(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, const VkCommandPool cmdPool) {
+        ktxVulkanDeviceInfo_Construct(&vdi, physicalDevice, device, queue, cmdPool, nullptr);
+    }
+
+    void KTXVulkanImage::cleanup() {
+        ktxVulkanDeviceInfo_Destruct(&vdi);
+    }
+
+     KTXVulkanImage::KTXVulkanImage(const Device &  device,
+              const string &             name,
+              ktxTexture2*               kTexture,
+              const VkFilter             magFilter,
+              const VkFilter             minFilter,
+              const VkSamplerAddressMode samplerAddressModeU,
+              const VkSamplerAddressMode samplerAddressModeV,
+              const bool                 forceSRGB,
+              const VkImageTiling        tiling):
+        VulkanImage(device, kTexture->baseWidth, kTexture->baseHeight, kTexture->numLevels, name) {
+        if (forceSRGB) {
+            kTexture->vkFormat = formatSRGB(static_cast<VkFormat>(kTexture->vkFormat), name);
+        }
+        if (KTX_SUCCESS  != ktxTexture2_VkUploadEx(kTexture,
+                                  &vdi, &texture,
+                                  tiling,
+                                  VK_IMAGE_USAGE_SAMPLED_BIT,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)) {
+            die("Failed to create Vulkan image from KTX texture ", name);
+        }
+        textureImage = texture.image;
+        textureImageView = device.createImageView(textureImage, texture.imageFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
+    }
+
+    KTXVulkanImage::~KTXVulkanImage() {
+        ktxVulkanTexture_Destruct(&texture, device.getDevice(), nullptr);
+        textureImage = VK_NULL_HANDLE;
     }
 
 }

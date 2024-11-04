@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 #include <ktx.h>
+#include <ktxvulkan.h>
 
 export module z0:VulkanImage;
 
 import :Image;
-
 import :Device;
 
 export namespace z0 {
@@ -49,16 +49,6 @@ export namespace z0 {
                bool                 noMipmaps          = false);
 
         VulkanImage(const Device &  device,
-               const string &       name,
-               const ktxTexture2*   kTexture,
-               VkFilter             magFiter,
-               VkFilter             minFiler,
-               VkSamplerAddressMode samplerAddressModeU,
-               VkSamplerAddressMode samplerAddressModeV,
-               bool                 forceSRGB          = false,
-               VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
-
-        VulkanImage(const Device &  device,
                uint32_t             width,
                uint32_t             height,
                uint32_t             layers,
@@ -86,13 +76,19 @@ export namespace z0 {
 
         static VkFormat formatSRGB(VkFormat format, const string& name);
 
-    private:
+    protected:
         const Device & device;
         uint32_t       mipLevels;
-        VkImage        textureImage;
-        VkDeviceMemory textureImageMemory;
-        VkImageView    textureImageView;
-        VkSampler      textureSampler;
+        VkImage        textureImage{VK_NULL_HANDLE};
+        VkDeviceMemory textureImageMemory{VK_NULL_HANDLE};
+        VkImageView    textureImageView{VK_NULL_HANDLE};
+        VkSampler      textureSampler{VK_NULL_HANDLE};
+
+        inline VulkanImage(const Device &  device,
+              const uint32_t  width,
+              const uint32_t  height,
+              const uint32_t  mipLevels,
+              const string&   name): Image{width, height, name} , device{device}, mipLevels{mipLevels} {};
 
         void createTextureSampler(
             VkFilter magFilter,
@@ -109,6 +105,29 @@ export namespace z0 {
         }
 
         void generateMipmaps(VkFormat imageFormat) const;
+    };
+
+    class KTXVulkanImage : public VulkanImage {
+    public:
+        KTXVulkanImage(const Device &  device,
+             const string &       name,
+             ktxTexture2*         kTexture,
+             VkFilter             magFiter,
+             VkFilter             minFiler,
+             VkSamplerAddressMode samplerAddressModeU,
+             VkSamplerAddressMode samplerAddressModeV,
+             bool                 forceSRGB          = false,
+             VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
+
+        ~KTXVulkanImage() override;
+
+        static void initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool cmdPool);
+
+        static void cleanup();
+
+    private:
+        static ktxVulkanDeviceInfo vdi;
+        ktxVulkanTexture texture;
     };
 
 }

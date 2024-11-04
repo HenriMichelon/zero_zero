@@ -126,7 +126,7 @@ namespace z0 {
             if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
                 reinterpret_cast<const ktx_uint8_t*>(ktxData.data()),
                 ktxData.size(),
-                KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+                KTX_TEXTURE_CREATE_NO_FLAGS,
                 &texture)) {
                 die("Failed to create KTX texture from memory");
             }
@@ -141,7 +141,7 @@ namespace z0 {
                     die("Failed to transcode KTX2 to BC/ASTC");
                 }
             }
-            auto image = make_shared<VulkanImage>(
+            auto image = make_shared<KTXVulkanImage>(
                     Device::get(), filepath,
                     texture,
                     VK_FILTER_LINEAR, VK_FILTER_LINEAR,

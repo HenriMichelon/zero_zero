@@ -200,7 +200,7 @@ namespace z0 {
                         die("Failed to transcode KTX2 to BC/ASTC");
                     }
                 }
-                const auto newImage = make_shared<VulkanImage>(
+                const auto newImage = make_shared<KTXVulkanImage>(
                     device, name, texture,
                     magFilter, minFilter, wrapU, wrapV);
                 ktxTexture_Destroy((ktxTexture*)texture);

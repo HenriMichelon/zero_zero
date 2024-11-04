@@ -37,35 +37,39 @@ export namespace z0 {
 
         void cleanup();
 
-        [[nodiscard]] VmaAllocator getAllocator() const { return allocator; }
+        [[nodiscard]] inline VmaAllocator getAllocator() const { return allocator; }
 
-        [[nodiscard]] VkDevice getDevice() const { return device; }
+        [[nodiscard]] inline VkDevice getDevice() const { return device; }
 
-        [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        [[nodiscard]] inline VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
-        [[nodiscard]] VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
+        [[nodiscard]] inline VkQueue getGraphicQueue() const { return graphicsQueue; }
 
-        [[nodiscard]] VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
+        [[nodiscard]] inline VkCommandPool getCommandPool() const { return commandPool; }
 
-        [[nodiscard]] VkSampleCountFlagBits getSamples() const { return samples; }
+        [[nodiscard]] inline VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
 
-        [[nodiscard]] const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+        [[nodiscard]] inline VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
 
-        [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+        [[nodiscard]] inline VkSampleCountFlagBits getSamples() const { return samples; }
+
+        [[nodiscard]] inline const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+
+        [[nodiscard]] inline VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
 
         [[nodiscard]] bool isFormatSupported(VkFormat format) const;
 
-        [[nodiscard]] float getAspectRatio() const {
+        [[nodiscard]] inline float getAspectRatio() const {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
         }
 
-        [[nodiscard]] uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
+        [[nodiscard]] inline uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
 
-        [[nodiscard]] const string &getAdapterDescription() const { return adapterDescription; }
+        [[nodiscard]] inline const string &getAdapterDescription() const { return adapterDescription; }
 
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
-        [[nodiscard]] inline uint32_t getFramesInFlight() const { return framesInFlight; }
+        [[nodiscard]] inline inline uint32_t getFramesInFlight() const { return framesInFlight; }
 
         void drawFrame(uint32_t currentFrame);
 
