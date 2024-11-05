@@ -5,7 +5,6 @@
 #include <stb_image.h>
 #include <volk.h>
 
-
 import std;
 using namespace std;
 namespace fs = std::filesystem;
@@ -28,7 +27,7 @@ void convert(const string& name, unsigned char* data, int width, int height, CMP
     // generate mipmap level for the source image, if not already generated
     //----------------------------------------------------------------------
     if (MipSetIn.m_nMipLevels <= 1) {
-        cout << "Generating mimaps for " << name << "...\n";
+        // cout << "Generating mimaps for " << name << "...\n";
         const CMP_INT requestLevel = static_cast<int>(std::floor(std::log2(std::max(MipSetIn.m_nWidth, MipSetIn.m_nHeight))));
         const CMP_INT nMinSize = CMP_CalcMinMipSize(MipSetIn.m_nHeight, MipSetIn.m_nWidth, requestLevel);
         CMP_GenerateMIPLevels(&MipSetIn, nMinSize);
@@ -38,15 +37,16 @@ void convert(const string& name, unsigned char* data, int width, int height, CMP
     // Set Compression Options
     //==========================
     const KernelOptions   kernel_options{
-        .fquality = 1.0,    // Set the quality of the result
-        .format   = format, // Set the format to process
-        .threads  = 0,      // Auto setting
+        .fquality = 1.0,
+        .format   = format,
+        .encodeWith = CMP_HPC ,
+        .threads  = 0,
     };
 
     //===============================================
     // Compress the texture using Compressonator Lib
     //===============================================
-    cout << "Compressing image " << name << "...\n";
+    // cout << "Compressing image " << name << "...\n";
     memset(&MipSetCmp, 0, sizeof(CMP_MipSet));
     auto cmp_status = CMP_ProcessTexture(&MipSetIn, &MipSetCmp, kernel_options, nullptr);
     if (cmp_status != CMP_OK) {
@@ -59,23 +59,26 @@ void convert(const string& name, unsigned char* data, int width, int height, CMP
 typedef std::function<void(
             const string&   name,
             const void   *  srcData,
-            size_t          size)> LoadImageFunction;
+            size_t          size,
+            CMP_MipSet& mipSetIn,
+            CMP_MipSet& mipSetCmp)> LoadImageFunction;
 
 
 void loadImage(
      fastgltf::Asset &asset,
      fastgltf::Image &image,
+     CMP_MipSet& mipSetIn,
+     CMP_MipSet& mipSetCmp,
      const LoadImageFunction& loadImageFunction) {
     shared_ptr<Image> newImage;
     const auto& name = image.name.data();
-    cout << "Loading image " << name << endl;
     visit(fastgltf::visitor{
       [](auto &arg) {die("1");},
       [&](fastgltf::sources::URI &filePath) {
           die("External textures files for glTF not supported");
       },
       [&](fastgltf::sources::Vector &vector) {
-          loadImageFunction(name, vector.bytes.data(), vector.bytes.size());
+          loadImageFunction(name, vector.bytes.data(), vector.bytes.size(), mipSetIn, mipSetCmp);
       },
       [&](fastgltf::sources::BufferView &view) {
           const auto &bufferView = asset.bufferViews[view.bufferViewIndex];
@@ -83,10 +86,10 @@ void loadImage(
           visit(fastgltf::visitor{
                 [](auto &arg) { die("2"); },
                 [&](fastgltf::sources::Vector &vector) {
-                    loadImageFunction(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength);
+                    loadImageFunction(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp);
                 },
                 [&](fastgltf::sources::Array &array) {
-                    loadImageFunction(name, array.bytes.data() + bufferView.byteOffset, bufferView.byteLength);
+                    loadImageFunction(name, array.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp);
                 },
             },
             buffer.data);
@@ -112,27 +115,6 @@ int main(const int argc, char** argv) {
     CMP_InitFramework();
     CMP_InitializeBCLibrary();
 
-    auto MipSetIn = vector<CMP_MipSet>();
-    auto MipSetCmp = vector<CMP_MipSet>();
-    auto convertImageRGBA = [&MipSetIn, &MipSetCmp](const string&  name,
-                                const void   * srcData,
-                                const size_t   size) {
-        const auto imageIndex = MipSetIn.size();
-        MipSetIn.resize(imageIndex + 1);
-        MipSetCmp.resize(imageIndex + 1);
-        int width, height, channels;
-        auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
-                                                    static_cast<int>(size),
-                                                    &width,
-                                                    &height,
-                                                    &channels,
-                                                    STBI_rgb_alpha);
-        if (data) {
-            convert(name, data, width, height, MipSetIn[imageIndex], MipSetCmp[imageIndex], CMP_FORMAT_BC1);
-            stbi_image_free(data);
-        }
-    };
-
     fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                             fastgltf::Extensions::KHR_texture_transform |
                             fastgltf::Extensions::KHR_materials_emissive_strength};
@@ -151,13 +133,41 @@ int main(const int argc, char** argv) {
     }
     fastgltf::Asset gltf = std::move(asset.get());
 
+    auto convertThread = vector<thread>();
+    auto convertImageRGBA = [&](const string&  name,
+                                const void   * srcData,
+                                const size_t   size,
+                                CMP_MipSet& mipSetIn,
+                                CMP_MipSet& mipSetCmp) {
+        convertThread.push_back(thread([&mipSetIn, &mipSetCmp, name, srcData, size]() {
+            int width, height, channels;
+            auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
+                                                         static_cast<int>(size),
+                                                         &width,
+                                                         &height,
+                                                         &channels,
+                                                         STBI_rgb_alpha);
+            if (data) {
+                 convert(name, data, width, height, mipSetIn, mipSetCmp, CMP_FORMAT_BC1);
+                 stbi_image_free(data);
+                 cout << "Converted image " << name << endl;
+            }
+        }));
+    };
+
+    auto MipSetIn = vector<CMP_MipSet>(gltf.images.size());
+    auto MipSetCmp = vector<CMP_MipSet>(gltf.images.size());
+    int imageIndex = 0;
     auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo) {
         const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
         if (texture.imageIndex.has_value()) {
-            const auto imageIndex = texture.imageIndex.value();
-            loadImage(gltf, gltf.images[imageIndex], convertImageRGBA);
+            loadImage(gltf, gltf.images[texture.imageIndex.value()],
+                MipSetIn[imageIndex],MipSetCmp[imageIndex],
+                convertImageRGBA);
+            imageIndex += 1;
         }
     };
+        auto tStart = std::chrono::high_resolution_clock::now();
     for (auto &mat : gltf.materials) {
         cout << "Extracting material " << mat.name << endl;
         if (mat.pbrData.baseColorTexture.has_value()) {
@@ -173,6 +183,11 @@ int main(const int argc, char** argv) {
         //     loadTexture(mat.emissiveTexture.value());
         // }
     }
+    for(auto& t : convertThread) {
+        t.join();
+    }
+    auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+    cout << "total converting time " <<  last_transcode_time << endl;
 
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile) {
