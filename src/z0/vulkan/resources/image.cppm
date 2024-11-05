@@ -59,6 +59,21 @@ export namespace z0 {
                VkFilter             samplerFilter      = VK_FILTER_LINEAR,
                VkBool32             anisotropyEnable   = VK_TRUE);
 
+        VulkanImage(const Device &  device,
+                const string &       name,
+                uint32_t             width,
+                uint32_t             height,
+                const void *         data,
+                uint64_t             dataSize,
+                VkFormat             format,
+                uint32_t             numMipLevels,
+                bool                 forceSRGB          = false,
+                VkFilter             magFiter = VK_FILTER_LINEAR,
+                VkFilter             minFiler = VK_FILTER_LINEAR,
+                VkSamplerAddressMode samplerAddressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                VkSamplerAddressMode samplerAddressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
+
         ~VulkanImage() override;
 
         inline VkDescriptorImageInfo getImageInfo() const {

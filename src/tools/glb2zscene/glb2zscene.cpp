@@ -1,90 +1,136 @@
+#include <volk.h>
 #include <compressonator.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 import std;
 using namespace std;
-
-// Function to compress RGBA image to BC7 format using Compressonator SDK
-CMP_ERROR CompressImageToBC7(const unsigned char* rgbaData, int width, int height, std::vector<unsigned char>& bc7Data)
-{
-    // Initialize the source texture with RGBA format
-    CMP_Texture srcTexture;
-    srcTexture.dwSize = sizeof(srcTexture);
-    srcTexture.dwWidth = width;
-    srcTexture.dwHeight = height;
-    srcTexture.dwPitch = width * 4;
-    srcTexture.format = CMP_FORMAT_RGBA_8888;
-    srcTexture.dwDataSize = width * height * 4;
-    srcTexture.pData = const_cast<CMP_BYTE*>(rgbaData);
-
-    // Initialize the destination texture for BC7 format
-    CMP_Texture destTexture;
-    destTexture.dwSize = sizeof(destTexture);
-    destTexture.dwWidth = width;
-    destTexture.dwHeight = height;
-    destTexture.dwPitch = 0; // Not required for compressed formats
-    destTexture.format = CMP_FORMAT_BC1;
-    destTexture.dwDataSize = CMP_CalculateBufferSize(&destTexture);
-    destTexture.pData = new CMP_BYTE[destTexture.dwDataSize];
-
-    // Set compression options
-    CMP_CompressOptions options;
-    memset(&options, 0, sizeof(options)); // Zero out options for default values
-    options.nCompressionSpeed = CMP_Speed_Normal; // Adjust as needed (Fast, Normal, or Slow)
-
-    // Compress the texture
-    CMP_ERROR cmpStatus = CMP_ConvertTexture(&srcTexture, &destTexture, &options, nullptr);
-
-    // Check compression status
-    if (cmpStatus == CMP_OK)
-    {
-        // Copy compressed data to output vector
-        bc7Data.resize(destTexture.dwDataSize);
-        std::copy(destTexture.pData, destTexture.pData + destTexture.dwDataSize, bc7Data.begin());
-    }
-    else
-    {
-        std::cerr << "Compression failed with error code: " << cmpStatus << std::endl;
-    }
-
-    // Clean up allocated memory
-    delete[] destTexture.pData;
-
-    return cmpStatus;
-}
+import z0;
+using namespace z0;
 
 int main()
 {
-    int texWidth, texHeight, texChannels;
-    unsigned char* imageData = stbi_load("res/textures/worn_brick_floor_2k/worn_brick_floor_diff_2k.jpg",
-        &texWidth, &texHeight,
-        &texChannels, STBI_rgb_alpha);
-    if (!imageData) throw new runtime_error(string{stbi_failure_reason()});
+    CMP_InitializeBCLibrary();
 
-    std::vector<unsigned char> bc7Data;
-    CMP_ERROR result = CompressImageToBC7(imageData, texWidth, texHeight, bc7Data);
+    CMP_MipSet MipSetIn;
+    memset(&MipSetIn, 0, sizeof(CMP_MipSet));
+    CMP_ERROR        cmp_status = CMP_LoadTexture("res/textures/worn_brick_floor_2k/worn_brick_floor_diff_2k.jpg", &MipSetIn);
+    if (cmp_status != CMP_OK) {
+        std::printf("Error %d: Loading source file!\n",cmp_status);
+        return -1;
+    }
 
-    if (result == CMP_OK)
+    //----------------------------------------------------------------------
+    // generate mipmap level for the source image, if not already generated
+    //----------------------------------------------------------------------
+    if (MipSetIn.m_nMipLevels <= 1)
     {
-        std::cout << "Compression successful! Compressed data size: " << bc7Data.size() << " bytes from " << texWidth*texHeight*4 << std::endl;
+        std::printf("Generating mimaps...\n");
+        CMP_INT requestLevel = static_cast<int>(std::floor(std::log2(std::max(MipSetIn.m_nWidth, MipSetIn.m_nHeight))));
+
+        //------------------------------------------------------------------------
+        // Checks what the minimum image size will be for the requested mip levels
+        // if the request is too large, a adjusted minimum size will be returns
+        //------------------------------------------------------------------------
+        CMP_INT nMinSize = CMP_CalcMinMipSize(MipSetIn.m_nHeight, MipSetIn.m_nWidth, requestLevel);
+
+        //--------------------------------------------------------------
+        // now that the minimum size is known, generate the miplevels
+        // users can set any requested minumum size to use. The correct
+        // miplevels will be set acordingly.
+        //--------------------------------------------------------------
+        CMP_GenerateMIPLevels(&MipSetIn, nMinSize);
+    }
+
+    //==========================
+    // Set Compression Options
+    //==========================
+    KernelOptions   kernel_options;
+    memset(&kernel_options, 0, sizeof(KernelOptions));
+
+    kernel_options.format   = CMP_FORMAT_BC1;   // Set the format to process
+    kernel_options.fquality = 1.0;     // Set the quality of the result
+    kernel_options.threads  = 0;            // Auto setting
+
+    //--------------------------------------------------------------
+    // Setup a results buffer for the processed file,
+    // the content will be set after the source texture is processed
+    // in the call to CMP_ConvertMipTexture()
+    //--------------------------------------------------------------
+    CMP_MipSet MipSetCmp;
+    memset(&MipSetCmp, 0, sizeof(CMP_MipSet));
+
+    //===============================================
+    // Compress the texture using Compressonator Lib
+    //===============================================
+    std::printf("Compressing image...\n");
+    cmp_status = CMP_ProcessTexture(&MipSetIn, &MipSetCmp, kernel_options, nullptr);
+    if (cmp_status != CMP_OK) {
+        CMP_FreeMipSet(&MipSetIn);
+        std::printf("Compression returned an error %d\n", cmp_status);
+        return cmp_status;
+    }
+
+
+    if (cmp_status == CMP_OK)
+    {
+        std::cout << "Compression successful!" << std::endl;
     }
     else
     {
         std::cerr << "Compression failed." << std::endl;
     }
 
-    std::ofstream outputFile("worn_brick_floor_diff_2k.bin", std::ios::binary);
+    std::ofstream outputFile("worn_brick_floor_diff_2k.zscene", std::ios::binary);
     if (!outputFile) {
         std::cerr << "Error opening file for writing!" << std::endl;
         return 1;
     }
-    outputFile.write(reinterpret_cast<const char*>(bc7Data.data()), bc7Data.size());
-    if (!outputFile) {
-        std::cerr << "Error writing to file!" << std::endl;
-        return 1;
+    auto header = ZScene::Header {
+        .version = 1,
+        .imagesCount = 1,
+    };
+    header.magic[0] = ZScene::Header::MAGIC[0];
+    header.magic[1] = ZScene::Header::MAGIC[1];
+    header.magic[2] = ZScene::Header::MAGIC[2];
+    header.magic[3] = ZScene::Header::MAGIC[3];
+
+    auto mipHeader = vector<ZScene::MipLevelHeader>{static_cast<unsigned long long>(MipSetCmp.m_nMipLevels)};
+    uint64_t offset{0};
+    for(auto mipLevel = 0; mipLevel < MipSetCmp.m_nMipLevels; ++mipLevel) {
+        mipHeader[mipLevel].offset = offset;
+        mipHeader[mipLevel].size = MipSetCmp.m_pMipLevelTable[mipLevel]->m_dwLinearSize;
+        // std::printf("%d : %d (%d)\n", mipLevel, offset, mipHeader[mipLevel].size);
+        offset += mipHeader[mipLevel].size;
+    }
+    std::printf("total : %d\n", offset);
+
+    const auto imageHeader = ZScene::ImageHeader {
+        .format = VK_FORMAT_BC1_RGB_SRGB_BLOCK,
+        .width  = static_cast<uint32_t>(MipSetIn.m_nWidth),
+        .height  = static_cast<uint32_t>(MipSetIn.m_nHeight),
+        .mipLevels  = static_cast<uint32_t>(MipSetIn.m_nMipLevels),
+        .dataSize = offset,
+    };
+
+    outputFile.write(reinterpret_cast<const char*>(&header), sizeof(ZScene::Header));
+    outputFile.write(reinterpret_cast<const char*>(&imageHeader),sizeof(ZScene::ImageHeader));
+    outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeader.data()), mipHeader.size() * sizeof(ZScene::MipLevelHeader));
+
+    // std::printf("%d\n", sizeof(ZScene::Header) + sizeof(ZScene::ImageHeader) + mipHeader.size());
+    for(auto mipLevel = 0; mipLevel < MipSetCmp.m_nMipLevels; ++mipLevel) {
+        std::printf("Writing level %d %dx%d (%d)...\n", mipLevel,
+            MipSetCmp.m_pMipLevelTable[mipLevel]->m_nWidth,
+            MipSetCmp.m_pMipLevelTable[mipLevel]->m_nHeight,
+            MipSetCmp.m_pMipLevelTable[mipLevel]->m_dwLinearSize);
+        outputFile.write(reinterpret_cast<const char*>(MipSetCmp.m_pMipLevelTable[mipLevel]->m_pbData),MipSetCmp.m_pMipLevelTable[mipLevel]->m_dwLinearSize);
+        if (!outputFile) {
+            std::cerr << "Error writing to file!" << std::endl;
+            return 1;
+        }
     }
     outputFile.close();
 
+    CMP_FreeMipSet(&MipSetIn);
+    CMP_FreeMipSet(&MipSetCmp);
+    CMP_ShutdownBCLibrary();
 
     return 0;
 }

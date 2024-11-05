@@ -64,6 +64,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/virtual_fs.cppm
 		${Z0_ENGINE_DIR}/window.cppm
 		${Z0_ENGINE_DIR}/z0.cppm
+		${Z0_ENGINE_DIR}/zscene.cppm
 
 		${Z0_ENGINE_DIR}/vulkan/buffer.cppm
 		${Z0_ENGINE_DIR}/vulkan/descriptors.cppm
@@ -246,7 +247,9 @@ target_sources(${Z0_TARGET}
 add_executable(${GLB2ZSCENE_TARGET}
 		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
 )
-target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR})
+target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
