@@ -26,6 +26,9 @@ export namespace z0 {
                VkBufferUsageFlags usageFlags,
                VkDeviceSize       minOffsetAlignment = 1);
 
+        Buffer(Buffer &&) = delete;
+        Buffer(Buffer &) = delete;
+
         virtual ~Buffer();
 
         [[nodiscard]] inline VkBuffer getBuffer() const { return buffer; }

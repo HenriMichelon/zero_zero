@@ -30,6 +30,9 @@ export namespace z0 {
             return *_instance;
         }
 
+        Device(Device &device) = delete;
+        Device(Device &&device) = delete;
+
         explicit Device(VkInstance              instance,
                     const vector<const char *> &requestedLayers,
                     const ApplicationConfig &   applicationConfig,
@@ -69,7 +72,7 @@ export namespace z0 {
 
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
-        [[nodiscard]] inline inline uint32_t getFramesInFlight() const { return framesInFlight; }
+        [[nodiscard]] inline uint32_t getFramesInFlight() const { return framesInFlight; }
 
         void drawFrame(uint32_t currentFrame);
 

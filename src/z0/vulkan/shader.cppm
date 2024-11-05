@@ -27,6 +27,9 @@ export namespace z0 {
                const VkDescriptorSetLayout *pSetLayouts,
                const VkPushConstantRange *  pPushConstantRange);
 
+        Shader(Shader &&) = delete;
+        Shader(Shader &) = delete;
+
         virtual ~Shader();
 
         [[nodiscard]] inline VkShaderCreateInfoEXT getShaderCreateInfo() const { return shaderCreateInfo; }

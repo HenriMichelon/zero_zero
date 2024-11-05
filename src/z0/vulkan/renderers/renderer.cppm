@@ -16,6 +16,9 @@ export namespace z0 {
      */
     class Renderer {
     public:
+        Renderer(Renderer&) = delete;
+        Renderer(Renderer&&) = delete;
+        Renderer() = default;
         virtual ~Renderer() = default;
 
         // Returns the offscreen image buffer

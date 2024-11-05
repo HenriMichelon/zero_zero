@@ -26,6 +26,9 @@ export namespace z0 {
             const vector<shared_ptr<Surface>> &surfaces,
             const string &                     meshName = "Mesh");
 
+        VulkanMesh(VulkanMesh &&) = delete;
+        VulkanMesh(VulkanMesh &) = delete;
+
         static vector<VkVertexInputBindingDescription2EXT> getBindingDescription();
 
         static vector<VkVertexInputAttributeDescription2EXT> getAttributeDescription();

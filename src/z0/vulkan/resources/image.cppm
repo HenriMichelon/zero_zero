@@ -74,6 +74,9 @@ export namespace z0 {
                 VkSamplerAddressMode          samplerAddressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
                 VkImageTiling                 tiling             = VK_IMAGE_TILING_OPTIMAL);
 
+        VulkanImage(VulkanImage&&) = delete;
+        VulkanImage(VulkanImage&) = delete;
+
         ~VulkanImage() override;
 
         inline VkDescriptorImageInfo getImageInfo() const {

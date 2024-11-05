@@ -45,13 +45,13 @@ export namespace z0 {
 
         inline const vector<shared_ptr<Image>>& getImages() const { return images; };
 
+        ZScene() = default;
+
     protected:
         Header                    header{};
-        vector<shared_ptr<Image>> images;
+        vector<shared_ptr<Image>> images{};
 
-        static shared_ptr<ZScene> create();
-
-        virtual void loadImages(ifstream& stream) = 0;
+        void loadImages(ifstream& stream);
         void loadHeader(ifstream& stream);
         void loadImagesHeaders(ifstream& stream, vector<ImageHeader>&, vector<vector<MipLevelHeader>>&, uint64_t& totalImageSize) const;
     };

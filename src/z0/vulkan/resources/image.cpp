@@ -206,19 +206,22 @@ namespace z0 {
         mipLevels{imageHeader.mipLevels} {
         const auto format = static_cast<VkFormat>(imageHeader.format);
 
-
         // Setup buffer copy regions for each mip level
         auto copyRegions = vector<VkBufferImageCopy>{};
-        for (auto mip_level = 0; mip_level < mipLevels; mip_level++) {
-            VkBufferImageCopy buffer_copy_region               = {};
-            buffer_copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-            buffer_copy_region.imageSubresource.mipLevel       = mip_level;
-            buffer_copy_region.imageSubresource.baseArrayLayer = 0;
-            buffer_copy_region.imageSubresource.layerCount     = 1;
-            buffer_copy_region.imageExtent.width               = width >> mip_level;
-            buffer_copy_region.imageExtent.height              = height >> mip_level;
-            buffer_copy_region.imageExtent.depth               = 1;
-            buffer_copy_region.bufferOffset                    = bufferOffset + mipLevelHeaders[mip_level].offset;
+        for (uint32_t mip_level = 0; mip_level < mipLevels; mip_level++) {
+            const auto buffer_copy_region = VkBufferImageCopy{
+                .bufferOffset       = bufferOffset + mipLevelHeaders[mip_level].offset,
+                .imageSubresource {
+                    .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
+                    .mipLevel       = mip_level,
+                    .layerCount     = 1,
+                },
+                .imageExtent {
+                    .width          = width >> mip_level,
+                    .height         = height >> mip_level,
+                    .depth          = 1,
+                },
+            };
             copyRegions.push_back(buffer_copy_region);
         }
 
@@ -266,7 +269,6 @@ namespace z0 {
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
         createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
     }
-
 
     VulkanImage::~VulkanImage() {
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);

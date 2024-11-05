@@ -20,6 +20,8 @@ export namespace z0 {
      */
     class Pipeline {
     public:
+        Pipeline(Pipeline&) = delete;
+        Pipeline(Pipeline&&) = delete;
         explicit Pipeline(Device &device);
         virtual ~Pipeline();
 

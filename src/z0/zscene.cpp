@@ -22,9 +22,12 @@ namespace z0 {
     }
 
     shared_ptr<ZScene> ZScene::load(ifstream &stream) {
-        auto zscene = create();
+        auto tStart = std::chrono::high_resolution_clock::now();
+        auto zscene = make_shared<ZScene>();
         zscene->loadHeader(stream);
         zscene->loadImages(stream);
+        auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+        log("ZScene loading time ", to_string(last_transcode_time));
         return zscene;
     }
 

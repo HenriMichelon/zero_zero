@@ -31,6 +31,9 @@ export namespace z0 {
                 VkFormat            format = VK_FORMAT_R16G16B16A16_SFLOAT,
                 const string &      name = "Cubemap");
 
+        VulkanCubemap(VulkanCubemap &&) = delete;
+        VulkanCubemap(VulkanCubemap &) = delete;
+
         ~VulkanCubemap() override;
 
         inline VkDescriptorImageInfo getImageInfo() const {

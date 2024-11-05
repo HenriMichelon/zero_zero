@@ -71,7 +71,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/device.cppm
 		${Z0_ENGINE_DIR}/vulkan/instance.cppm
 		${Z0_ENGINE_DIR}/vulkan/shader.cppm
-		${Z0_ENGINE_DIR}/vulkan/zscene.cppm
 
 		${Z0_ENGINE_DIR}/nodes/camera.cppm
 		${Z0_ENGINE_DIR}/nodes/character.cppm

@@ -23,6 +23,8 @@ export namespace z0 {
     class Instance {
     public:
         explicit Instance();
+        Instance(Instance&&) = delete;
+        Instance(Instance&) = delete;
         ~Instance();
 
         [[nodiscard]] inline  VkInstance getInstance() const { return instance; }

@@ -23,6 +23,8 @@ export namespace z0 {
      */
     class Renderpass {
     public:
+        Renderpass(Renderpass&&) = delete;
+        Renderpass(Renderpass&) = delete;
         virtual ~Renderpass() = default;
 
         virtual void cleanup();
