@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
-set(GLB2ZSCENE_TARGET "glb2zscene")
+set(GLB2ZSCENE_TARGET "gltf2zscene")
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -29,11 +29,7 @@ file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if(MINGW)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
-endif()
 include(cmake/shaders.cmake)
 
 # compile GLSL shaders
@@ -245,6 +241,12 @@ target_sources(${Z0_TARGET}
 		FILES
 		${PROJECT_FILES}
 )
+target_compile_options(${Z0_TARGET} PRIVATE
+		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+)
+
 
 add_executable(${GLB2ZSCENE_TARGET}
 		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
@@ -252,6 +254,11 @@ add_executable(${GLB2ZSCENE_TARGET}
 add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
 target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
 target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
+		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+)
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)

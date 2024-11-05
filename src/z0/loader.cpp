@@ -108,7 +108,7 @@ namespace z0 {
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
         map<Resource::id_t, int> materialsTextCoords;
-        for (fastgltf::Material &mat : gltf.materials) {
+        for (auto &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
             material->setAlbedoColor(Color{
                     mat.pbrData.baseColorFactor[0],

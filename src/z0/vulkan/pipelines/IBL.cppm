@@ -41,10 +41,10 @@ export namespace z0 {
             alignas(4) float roughness;
         };
 
-        unique_ptr<DescriptorPool> descriptorPool;
+        unique_ptr<DescriptorPool>      descriptorPool;
         unique_ptr<DescriptorSetLayout> descriptorSetLayout;
-        VkDescriptorSet descriptorSet{VK_NULL_HANDLE};
-        VkSampler computeSampler{VK_NULL_HANDLE};
+        VkDescriptorSet                 descriptorSet{VK_NULL_HANDLE};
+        VkSampler                       computeSampler{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};
         static constexpr auto BINDING_OUTPUT_TEXTURE{1};
