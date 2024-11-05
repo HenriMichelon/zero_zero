@@ -12,6 +12,8 @@ module;
 
 module z0;
 
+import :Application;
+import :CollisionObject;
 import :RayCast;
 
 namespace z0 {

@@ -11,6 +11,7 @@ module;
 module z0;
 
 import :KinematicBody;
+import :Shape;
 
 namespace z0 {
 

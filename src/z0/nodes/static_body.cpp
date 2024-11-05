@@ -10,8 +10,10 @@ module;
 
 module z0;
 
+import :Node;
 import :PhysicsBody;
 import :Shape;
+import :StaticBody;
 
 namespace z0 {
 

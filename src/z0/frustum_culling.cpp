@@ -9,11 +9,12 @@ module;
 
 module z0;
 
-import :Constants;
-import :Node;
-import :Application;
-import :FrustumCulling;
 import :AABB;
+import :Application;
+import :Constants;
+import :FrustumCulling;
+import :MeshInstance;
+import :Node;
 
 namespace z0 {
 

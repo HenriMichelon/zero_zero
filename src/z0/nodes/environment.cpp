@@ -9,6 +9,9 @@ module;
 
 module z0;
 
+import :Environment;
+import :Tools;
+
 namespace z0 {
 
     Environment::Environment(

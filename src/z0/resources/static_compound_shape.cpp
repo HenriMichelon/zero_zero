@@ -13,6 +13,7 @@ module z0;
 
 import :Tools;
 import :Shape;
+import :StaticCompoundShape;
 import :SubShape;
 
 namespace z0 {

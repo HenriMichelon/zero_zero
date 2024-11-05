@@ -31,6 +31,7 @@ export import :OmniLight;
 export import :Object;
 export import :RayCast;
 export import :Rect;
+export import :Resource;
 export import :RigidBody;
 export import :Signal;
 export import :Shape;
@@ -57,6 +58,3 @@ export import :GTreeView;
 export import :GWindow;
 
 export import :VulkanApplication;
-export import :VulkanImage;
-export import :Device;
-export import :Buffer;

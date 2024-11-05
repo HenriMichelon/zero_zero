@@ -12,7 +12,9 @@ module z0;
 
 import :ZScene;
 
+import :Device;
 import :Buffer;
+import :VulkanImage;
 
 namespace z0 {
 

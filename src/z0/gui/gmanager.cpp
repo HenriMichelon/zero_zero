@@ -13,13 +13,17 @@ module;
 #include "z0/libraries.h"
 module z0;
 
+import :Application;
+import :Constants;
 import :Font;
 import :Input;
 import :InputEvent;
 import :Rect;
-import :VectorRenderer;
+
 import :GManager;
 import :GWindow;
+
+import :VectorRenderer;
 
 namespace z0 {
 

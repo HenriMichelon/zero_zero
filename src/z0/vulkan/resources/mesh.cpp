@@ -18,6 +18,7 @@ module;
 module z0;
 
 import :Material;
+import :Mesh;
 import :Tools;
 
 import :Device;

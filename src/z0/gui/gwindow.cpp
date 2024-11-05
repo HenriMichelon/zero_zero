@@ -10,15 +10,18 @@ module;
 
 module z0;
 
-import :Rect;
-import :Font;
 import :Application;
+import :Constants;
+import :Font;
+import :Rect;
+
 import :GEvent;
 import :GManager;
-import :GWindow;
-import :GWidget;
 import :GPanel;
 import :GStyle;
+import :GWindow;
+import :GWidget;
+
 import :VectorRenderer;
 
 namespace z0 {

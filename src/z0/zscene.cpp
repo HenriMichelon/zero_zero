@@ -11,6 +11,7 @@ module;
 module z0;
 
 import :Image;
+import :Tools;
 import :VirtualFS;
 import :ZScene;
 

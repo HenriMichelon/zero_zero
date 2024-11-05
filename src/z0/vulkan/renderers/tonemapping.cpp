@@ -10,12 +10,15 @@ module;
 
 module z0;
 
-import :PostprocessingRenderer;
+import :Application;
+import :Tools;
+
 import :Device;
 import :ColorFrameBufferHDR;
-import :TonemappingPostprocessingRenderer;
 import :DepthFrameBuffer;
 import :Descriptors;
+import :PostprocessingRenderer;
+import :TonemappingPostprocessingRenderer;
 
 namespace z0 {
 

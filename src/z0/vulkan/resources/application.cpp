@@ -11,6 +11,11 @@ module;
 module z0;
 
 import :ApplicationConfig;
+import :Camera;
+import :Material;
+import :Node;
+
+import :GManager;
 
 import :Instance;
 import :Device;

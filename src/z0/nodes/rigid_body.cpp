@@ -12,6 +12,7 @@ module;
 module z0;
 
 import :RigidBody;
+import :Shape;
 
 namespace z0 {
 

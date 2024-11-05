@@ -5,16 +5,18 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 
 module z0;
 
-import :Tools;
-import :Resource;
 import :ConvexHullShape;
+import :Mesh;
+import :MeshInstance;
+import :Node;
+import :Resource;
+import :Tools;
 
 namespace z0 {
 

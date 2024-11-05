@@ -4,6 +4,8 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
+module;
+
 module z0;
 
 import :Signal;

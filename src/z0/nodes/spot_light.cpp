@@ -9,6 +9,7 @@ module;
 
 module z0;
 
+import :Node;
 import :SpotLight;
 
 namespace z0 {

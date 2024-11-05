@@ -9,7 +9,9 @@ module;
 
 module z0;
 
+import :Mesh;
 import :MeshInstance;
+import :Node;
 
 namespace z0 {
 

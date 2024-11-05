@@ -14,6 +14,7 @@ module z0;
 
 import :Node;
 import :MeshInstance;
+import :MeshShape;
 import :Shape;
 
 namespace z0 {

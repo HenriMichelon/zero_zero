@@ -249,8 +249,8 @@ target_sources(${Z0_TARGET}
 add_executable(${GLB2ZSCENE_TARGET}
 		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
 )
-target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
 add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
 target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
 
 #https://github.com/llvm/llvm-project/issues/105994

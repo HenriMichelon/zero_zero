@@ -13,6 +13,7 @@ module;
 module z0;
 
 import :CollisionArea;
+import :Shape;
 
 namespace z0 {
 

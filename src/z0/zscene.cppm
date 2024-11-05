@@ -27,6 +27,7 @@ export namespace z0 {
             uint64_t headersSize;
             uint32_t imagesCount{0};
         };
+
         struct ImageHeader {
             uint32_t format;
             uint32_t width;
@@ -35,6 +36,7 @@ export namespace z0 {
             uint64_t dataOffset;
             uint64_t dataSize;
         };
+
         struct MipLevelHeader {
             uint64_t offset;
             uint64_t size;

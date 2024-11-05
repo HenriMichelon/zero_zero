@@ -10,6 +10,7 @@ module;
 module z0;
 
 import :Light;
+import :Tools;
 
 namespace z0 {
 

@@ -8,6 +8,8 @@ module;
 
 module z0;
 
+import :Signal;
+
 namespace z0 {
 
     void Signal::emit(Parameters *params) const {

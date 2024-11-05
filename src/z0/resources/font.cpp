@@ -11,9 +11,10 @@ module;
 
 module z0;
 
-import :Tools;
-import :Image;
+import :Application;
 import :Font;
+import :Image;
+import :Tools;
 import :VirtualFS;
 
 namespace z0 {

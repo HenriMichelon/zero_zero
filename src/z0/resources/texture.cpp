@@ -9,6 +9,7 @@ module;
 
 module z0;
 
+import :Constants;
 import :Texture;
 import :Image;
 

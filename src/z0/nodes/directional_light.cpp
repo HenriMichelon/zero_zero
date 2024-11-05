@@ -9,6 +9,8 @@ module;
 
 module z0;
 
+import :DirectionalLight;
+
 import :ShadowMapFrameBuffer;
 
 namespace z0 {

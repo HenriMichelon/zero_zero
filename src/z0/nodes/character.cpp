@@ -14,10 +14,11 @@ module;
 
 module z0;
 
+import :Application;
+import :Character;
 import :Constants;
 import :CollisionObject;
 import :Shape;
-import :Application;
 
 namespace z0 {
     Character::Character(const shared_ptr<Shape> &shape,
