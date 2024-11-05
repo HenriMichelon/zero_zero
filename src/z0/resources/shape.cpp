@@ -11,11 +11,10 @@ module;
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
-module z0;
+module z0.Shape;
 
-import :Tools;
-import :Resource;
-import :Shape;
+import z0.Tools;
+import z0.Resource;
 
 namespace z0 {
 

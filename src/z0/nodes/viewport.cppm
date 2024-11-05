@@ -8,9 +8,9 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:Viewport;
+export module z0.Viewport;
 
-import :Node;
+import z0.Node;
 
 export namespace z0 {
 

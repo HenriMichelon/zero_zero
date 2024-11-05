@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Texture;
+export module z0.Texture;
 
-import :Constants;
-import :Resource;
-import :Image;
+import z0.Constants;
+import z0.Resource;
+import z0.Image;
 
 export namespace z0 {
 

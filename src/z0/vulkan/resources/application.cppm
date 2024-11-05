@@ -7,17 +7,17 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:VulkanApplication;
+export module z0.VulkanApplication;
 
-import :Application;
-import :ApplicationConfig;
-import :Node;
+import z0.Application;
+import z0.ApplicationConfig;
+import z0.Node;
 
-import :Instance;
-import :Device;
-import :SceneRenderer;
-import :VectorRenderer;
-import :TonemappingPostprocessingRenderer;
+import z0.Instance;
+import z0.Device;
+import z0.SceneRenderer;
+import z0.VectorRenderer;
+import z0.TonemappingPostprocessingRenderer;
 
 export namespace z0 {
 

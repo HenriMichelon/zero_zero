@@ -8,13 +8,13 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:ConvexHullShape;
+export module z0.ConvexHullShape;
 
-import :Tools;
-import :Node;
-import :Mesh;
-import :MeshInstance;
-import :Shape;
+import z0.Tools;
+import z0.Node;
+import z0.Mesh;
+import z0.MeshInstance;
+import z0.Shape;
 
 export namespace z0 {
 

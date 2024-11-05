@@ -8,22 +8,22 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:ShadowMapRenderer;
+export module z0.ShadowMapRenderer;
 
-import :Constants;
-import :Renderer;
-import :Renderpass;
-import :Device;
-import :ShadowMapFrameBuffer;
-import :Descriptors;
-import :MeshInstance;
-import :Light;
-import :DirectionalLight;
-import :OmniLight;
-import :SpotLight;
-import :Buffer;
-import :Mesh;
-import :FrustumCulling;
+import z0.Constants;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.Device;
+import z0.ShadowMapFrameBuffer;
+import z0.Descriptors;
+import z0.MeshInstance;
+import z0.Light;
+import z0.DirectionalLight;
+import z0.OmniLight;
+import z0.SpotLight;
+import z0.Buffer;
+import z0.Mesh;
+import z0.FrustumCulling;
 
 export namespace z0 {
     class ColorFrameBufferHDR;

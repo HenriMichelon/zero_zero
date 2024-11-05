@@ -15,13 +15,12 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Device;
 
-import :ApplicationConfig;
-import :Window;
-import :Renderer;
-import :Tools;
-import :Device;
+import z0.ApplicationConfig;
+import z0.Window;
+import z0.Renderer;
+import z0.Tools;
 
 namespace z0 {
 

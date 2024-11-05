@@ -8,12 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.ZScene;
 
-import :Image;
-import :Tools;
-import :VirtualFS;
-import :ZScene;
+import z0.Image;
+import z0.Tools;
+import z0.VirtualFS;
 
 namespace z0 {
 

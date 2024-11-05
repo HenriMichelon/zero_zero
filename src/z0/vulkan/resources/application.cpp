@@ -8,22 +8,21 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VulkanApplication;
 
-import :ApplicationConfig;
-import :Camera;
-import :Material;
-import :Node;
+import z0.ApplicationConfig;
+import z0.Camera;
+import z0.Material;
+import z0.Node;
 
-import :GManager;
+import z0.GManager;
 
-import :Instance;
-import :Device;
-import :SceneRenderer;
-import :VectorRenderer;
-import :TonemappingPostprocessingRenderer;
-import :VulkanApplication;
-import :VulkanImage;
+import z0.Instance;
+import z0.Device;
+import z0.SceneRenderer;
+import z0.VectorRenderer;
+import z0.TonemappingPostprocessingRenderer;
+import z0.VulkanImage;
 
 namespace z0 {
 

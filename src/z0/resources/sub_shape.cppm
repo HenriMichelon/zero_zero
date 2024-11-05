@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:SubShape;
+export module z0.SubShape;
 
-import :Shape;
+import z0.Shape;
 
 export namespace z0 {
 

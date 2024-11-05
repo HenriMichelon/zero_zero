@@ -8,9 +8,9 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:ZScene;
+export module z0.ZScene;
 
-import :Image;
+import z0.Image;
 
 export namespace z0 {
 
@@ -19,6 +19,7 @@ export namespace z0 {
      */
     class ZScene {
     public:
+
         struct Header {
             static constexpr char MAGIC[]{ 'Z', 'S', 'C', 'N' };
             static constexpr uint32_t VERSION{1};

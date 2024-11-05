@@ -11,17 +11,26 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Image;
 
-import :Constants;
-import :Image;
-import :Tools;
-import :VirtualFS;
+import z0.Constants;
+import z0.Tools;
+import z0.VirtualFS;
 
-import :Device;
-import :VulkanImage;
+import z0.Device;
+import z0.VulkanImage;
 
 namespace z0 {
+
+    shared_ptr<Image> Image::create(
+    uint32_t width, uint32_t height,
+    uint64_t imageSize, const void *data,
+    const string & name, const ImageFormat format) {
+        return make_shared<VulkanImage>(
+            Device::get(),
+            name, width, height, imageSize, data,
+            format == IMAGE_R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
+    }
 
     unordered_map<DXGI_FORMAT, VkFormat> dxgiToVulkanFormat = {
         // Undefined format

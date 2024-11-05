@@ -7,22 +7,23 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Node;
+export module z0.Node;
 
-import :Object;
-import :Constants;
-import :InputEvent;
-import :Tween;
+import z0.Object;
+import z0.Constants;
+import z0.InputEvent;
+import z0.Tween;
 
-export namespace z0 {
+ namespace z0 {
 
-    class Application;
+     class Application;
 
     /**
      * Base class for all 3D nodes
      */
-    class Node : public Object {
+    export class Node : public Object {
     public:
+
         using id_t = unsigned int;
 
         //! Node type

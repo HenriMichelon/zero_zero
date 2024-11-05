@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:InputEvent;
+export module z0.InputEvent;
 
-import :Constants;
-import :Object;
+import z0.Constants;
+import z0.Object;
 
 export namespace z0 {
 

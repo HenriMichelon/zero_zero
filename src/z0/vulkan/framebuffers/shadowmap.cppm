@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:ShadowMapFrameBuffer;
+export module z0.ShadowMapFrameBuffer;
 
-import :Light;
-import :Device;
-import :SampledFrameBuffer;
+import z0.Light;
+import z0.Device;
+import z0.SampledFrameBuffer;
 
 export namespace z0{
 

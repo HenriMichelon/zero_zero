@@ -7,10 +7,10 @@
 module;
 #include <cassert>
 
-export module z0:GValueSelect;
+export module z0.GValueSelect;
 
-import :GWidget;
-import :GEvent;
+import z0.GWidget;
+import z0.GEvent;
 
 export namespace z0 {
     class GValueSelect : public GWidget {

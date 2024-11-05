@@ -7,10 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.Environment;
 
-import :Environment;
-import :Tools;
+import z0.Tools;
 
 namespace z0 {
 

@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GCheckWidget;
+export module z0.GCheckWidget;
 
-import :Constants;
-import :GWidget;
-import :GEvent;
+import z0.Constants;
+import z0.GWidget;
+import z0.GEvent;
 
 export namespace z0 {
     /**

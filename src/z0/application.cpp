@@ -14,33 +14,32 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/RegisterTypes.h>
 
-module z0;
+module z0.Application;
 
-import :Application;
-import :ApplicationConfig;
-import :Camera;
-import :Character;
-import :CollisionArea;
-import :Constants;
-import :DirectionalLight;
-import :Environment;
-import :Input;
-import :InputEvent;
-import :KinematicBody;
-import :Material;
-import :Node;
-import :OmniLight;
-import :RayCast;
-import :RigidBody;
-import :Skybox;
-import :SpotLight;
-import :StaticBody;
-import :Tools;
-import :TypeRegistry;
-import :Viewport;
-import :Window;
+import z0.ApplicationConfig;
+import z0.Camera;
+import z0.Character;
+import z0.CollisionArea;
+import z0.Constants;
+import z0.DirectionalLight;
+import z0.Environment;
+import z0.Input;
+import z0.InputEvent;
+import z0.KinematicBody;
+import z0.Material;
+import z0.Node;
+import z0.OmniLight;
+import z0.RayCast;
+import z0.RigidBody;
+import z0.Skybox;
+import z0.SpotLight;
+import z0.StaticBody;
+import z0.Tools;
+import z0.TypeRegistry;
+import z0.Viewport;
+import z0.Window;
 
-import :GManager;
+import z0.GManager;
 
 namespace z0 {
 

@@ -10,11 +10,10 @@ module;
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 
-module z0;
+module z0.RayCast;
 
-import :Application;
-import :CollisionObject;
-import :RayCast;
+import z0.Application;
+import z0.CollisionObject;
 
 namespace z0 {
 

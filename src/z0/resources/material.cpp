@@ -8,13 +8,12 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Material;
 
-import :Application;
-import :Color;
-import :Constants;
-import :Material;
-import :Texture;
+import z0.Application;
+import z0.Color;
+import z0.Constants;
+import z0.Texture;
 
 namespace z0 {
 

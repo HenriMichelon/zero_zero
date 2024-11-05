@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Image;
+export module z0.Image;
 
-import :Constants;
-import :Resource;
+import z0.Constants;
+import z0.Resource;
 
 export namespace z0 {
 

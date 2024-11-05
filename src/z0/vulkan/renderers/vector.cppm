@@ -11,22 +11,22 @@ module;
 #include "stb_image_write.h"
 #include "z0/libraries.h"
 
-export module z0:VectorRenderer;
+export module z0.VectorRenderer;
 
-import :Constants;
-import :Color;
-import :Rect;
-import :Resource;
-import :Image;
-import :Font;
+import z0.Constants;
+import z0.Color;
+import z0.Rect;
+import z0.Resource;
+import z0.Image;
+import z0.Font;
 
-import :Renderer;
-import :Renderpass;
-import :ColorFrameBufferHDR;
-import :Device;
-import :Descriptors;
-import :Buffer;
-import :VulkanImage;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.ColorFrameBufferHDR;
+import z0.Device;
+import z0.Descriptors;
+import z0.Buffer;
+import z0.VulkanImage;
 
 namespace z0 {
 

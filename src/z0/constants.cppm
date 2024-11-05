@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Constants;
+export module z0.Constants;
 
 export namespace z0 {
 

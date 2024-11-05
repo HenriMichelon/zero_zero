@@ -9,17 +9,17 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:Application;
+export module z0.Application;
 
-import :Constants;
-import :Object;
-import :ApplicationConfig;
-import :InputEvent;
-import :Physics;
-import :Window;
-import :Node;
+import z0.Constants;
+import z0.Object;
+import z0.ApplicationConfig;
+import z0.InputEvent;
+import z0.Physics;
+import z0.Window;
+import z0.Node;
 
-export namespace z0 {
+namespace z0 {
 
     class GWindow;
     class GManager;
@@ -32,7 +32,7 @@ export namespace z0 {
      * the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html) and the
      * various renderes.
      */
-    class Application : public Object {
+    export class Application : public Object {
     public:
         /**
          * Returns the application singleton

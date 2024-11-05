@@ -8,10 +8,10 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:RayCast;
+export module z0.RayCast;
 
-import :CollisionObject;
-import :Node;
+import z0.CollisionObject;
+import z0.Node;
 
 export namespace z0 {
 

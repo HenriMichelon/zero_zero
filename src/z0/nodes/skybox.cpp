@@ -7,10 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.Skybox;
 
-import :Cubemap;
-import :Skybox;
+import z0.Cubemap;
 
 namespace z0 {
 

@@ -10,12 +10,11 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 
-module z0;
+module z0.MeshShape;
 
-import :Node;
-import :MeshInstance;
-import :MeshShape;
-import :Shape;
+import z0.Node;
+import z0.MeshInstance;
+import z0.Shape;
 
 namespace z0 {
 

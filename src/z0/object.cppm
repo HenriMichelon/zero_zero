@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Object;
+export module z0.Object;
 
-import :Signal;
+import z0.Signal;
 
 export namespace z0 {
 

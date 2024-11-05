@@ -8,17 +8,16 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.ShadowMapFrameBuffer;
 
-import :Application;
-import :Constants;
-import :DirectionalLight;
-import :Light;
-import :SpotLight;
-import :Tools;
+import z0.Application;
+import z0.Constants;
+import z0.DirectionalLight;
+import z0.Light;
+import z0.SpotLight;
+import z0.Tools;
 
-import :Device;
-import :ShadowMapFrameBuffer;
+import z0.Device;
 
 namespace z0 {
 

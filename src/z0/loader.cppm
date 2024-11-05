@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Loader;
+export module z0.Loader;
 
-import :Node;
-import :MeshInstance;
+import z0.Node;
+import z0.MeshInstance;
 
 export namespace z0 {
     /**

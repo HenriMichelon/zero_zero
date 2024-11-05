@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:StaticCompoundShape;
+export module z0.StaticCompoundShape;
 
-import :Shape;
-import :SubShape;
+import z0.Shape;
+import z0.SubShape;
 
 export namespace z0 {
 

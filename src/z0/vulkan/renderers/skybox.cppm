@@ -8,18 +8,18 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:SkyboxRenderer;
+export module z0.SkyboxRenderer;
 
-import :Constants;
-import :Cubemap;
-import :Environment;
-import :Camera;
+import z0.Constants;
+import z0.Cubemap;
+import z0.Environment;
+import z0.Camera;
 
-import :Device;
-import :Buffer;
-import :Descriptors;
-import :Renderpass;
-import :VulkanCubemap;
+import z0.Device;
+import z0.Buffer;
+import z0.Descriptors;
+import z0.Renderpass;
+import z0.VulkanCubemap;
 
 export namespace z0 {
 

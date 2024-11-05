@@ -7,16 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GTreeView;
+export module z0.GTreeView;
 
-import :Tools;
-import :Constants;
-import :GWidget;
-import :GPanel;
-import :GBox;
-import :GScrollBar;
-import :GWidget;
-import :GText;
+import z0.Tools;
+import z0.Constants;
+import z0.GWidget;
+import z0.GPanel;
+import z0.GBox;
+import z0.GScrollBar;
+import z0.GWidget;
+import z0.GText;
 
 export namespace z0 {
     class GTreeView : public GWidget {

@@ -8,17 +8,16 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-module z0;
+module z0.Renderpass;
 
-import :Tools;
-import :Constants;
-import :VirtualFS;
+import z0.Tools;
+import z0.Constants;
+import z0.VirtualFS;
 
-import :Device;
-import :Shader;
-import :Buffer;
-import :Descriptors;
-import :Renderpass;
+import z0.Device;
+import z0.Shader;
+import z0.Buffer;
+import z0.Descriptors;
 
 namespace z0 {
 

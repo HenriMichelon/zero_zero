@@ -8,10 +8,10 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:CollisionArea;
+export module z0.CollisionArea;
 
-import :CollisionObject;
-import :Shape;
+import z0.CollisionObject;
+import z0.Shape;
 
 export namespace z0 {
 

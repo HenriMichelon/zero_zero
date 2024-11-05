@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:TypeRegistry;
+export module z0.TypeRegistry;
 
-import :Object;
-import :Tools;
+import z0.Object;
+import z0.Tools;
 
 export namespace z0 {
 

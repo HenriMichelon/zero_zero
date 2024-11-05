@@ -7,16 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Signal;
+export module z0.Signal;
 
-export namespace z0 {
+namespace z0 {
 
     class Object;
 
     /**
      * A signal of an Object
      */
-    class Signal {
+    export class Signal {
     public:
         using signal = string;
 

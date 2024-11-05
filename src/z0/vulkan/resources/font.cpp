@@ -9,14 +9,13 @@ module;
 #include <stb_truetype.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Font;
 
-import :Tools;
-import :Image;
-import :Font;
+import z0.Tools;
+import z0.Image;
 
-import :Device;
-import :VulkanImage;
+import z0.Device;
+import z0.VulkanImage;
 
 namespace z0 {
 

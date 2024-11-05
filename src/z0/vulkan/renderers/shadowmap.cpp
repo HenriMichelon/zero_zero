@@ -11,29 +11,28 @@ module;
 #include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 
-module z0;
+module z0.ShadowMapRenderer;
 
-import :Camera;
-import :Constants;
-import :FrustumCulling;
-import :Tools;
-import :DirectionalLight;
-import :Light;
-import :Mesh;
-import :MeshInstance;
-import :OmniLight;
-import :Resource;
-import :SpotLight;
+import z0.Camera;
+import z0.Constants;
+import z0.FrustumCulling;
+import z0.Tools;
+import z0.DirectionalLight;
+import z0.Light;
+import z0.Mesh;
+import z0.MeshInstance;
+import z0.OmniLight;
+import z0.Resource;
+import z0.SpotLight;
 
-import :Buffer;
-import :ColorFrameBufferHDR;
-import :Descriptors;
-import :Device;
-import :Renderer;
-import :Renderpass;
-import :ShadowMapFrameBuffer;
-import :ShadowMapRenderer;
-import :VulkanMesh;
+import z0.Buffer;
+import z0.ColorFrameBufferHDR;
+import z0.Descriptors;
+import z0.Device;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.ShadowMapFrameBuffer;
+import z0.VulkanMesh;
 
 namespace z0 {
 

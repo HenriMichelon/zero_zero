@@ -12,12 +12,12 @@ module;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "vk_mem_alloc.h"
 
-export module z0:Device;
+export module z0.Device;
 
-import :Constants;
-import :ApplicationConfig;
-import :Window;
-import :Renderer;
+import z0.Constants;
+import z0.ApplicationConfig;
+import z0.Window;
+import z0.Renderer;
 
 export namespace z0 {
 

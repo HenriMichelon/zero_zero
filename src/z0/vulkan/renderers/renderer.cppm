@@ -7,7 +7,7 @@
 module;
 #include <volk.h>
 
-export module z0:Renderer;
+export module z0.Renderer;
 
 export namespace z0 {
 

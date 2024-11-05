@@ -7,11 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.MeshInstance;
 
-import :Mesh;
-import :MeshInstance;
-import :Node;
+import z0.Mesh;
+import z0.Node;
 
 namespace z0 {
 

@@ -8,16 +8,15 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.PostprocessingRenderer;
 
-import :Constants;
-import :Tools;
-import :Renderer;
-import :Renderpass;
-import :Device;
-import :ColorFrameBufferHDR;
-import :Descriptors;
-import :PostprocessingRenderer;
+import z0.Constants;
+import z0.Tools;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.Device;
+import z0.ColorFrameBufferHDR;
+import z0.Descriptors;
 
 namespace z0 {
 

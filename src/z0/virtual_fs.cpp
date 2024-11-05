@@ -10,12 +10,11 @@ module;
 #include <fastgltf/core.hpp>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VirtualFS;
 
-import :Tools;
-import :Constants;
-import :Application;
-import :VirtualFS;
+import z0.Tools;
+import z0.Constants;
+import z0.Application;
 
 namespace z0 {
 

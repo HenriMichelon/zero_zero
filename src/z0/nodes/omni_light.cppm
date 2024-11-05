@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:OmniLight;
+export module z0.OmniLight;
 
-import :Light;
+import z0.Light;
 
 export namespace z0 {
 

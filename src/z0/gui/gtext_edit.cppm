@@ -7,14 +7,14 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GTextEdit;
+export module z0.GTextEdit;
 
-import :Tools;
-import :Constants;
-import :GWidget;
-import :GBox;
-import :GText;
-import :GEvent;
+import z0.Tools;
+import z0.Constants;
+import z0.GWidget;
+import z0.GBox;
+import z0.GText;
+import z0.GEvent;
 
 export namespace z0 {
     class GTextEdit : public GWidget {

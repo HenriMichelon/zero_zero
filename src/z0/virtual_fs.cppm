@@ -8,11 +8,11 @@ module;
 #include <fastgltf/core.hpp>
 #include "z0/libraries.h"
 
-export module z0:VirtualFS;
+export module z0.VirtualFS;
 
-import :Constants;
+import z0.Constants;
 
-import :Buffer;
+import z0.Buffer;
 
 export namespace z0 {
 

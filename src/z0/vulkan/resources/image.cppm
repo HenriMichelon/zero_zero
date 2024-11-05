@@ -10,13 +10,13 @@ module;
 #include <ktx.h>
 #include <ktxvulkan.h>
 
-export module z0:VulkanImage;
+export module z0.VulkanImage;
 
-import :Image;
-import :ZScene;
+import z0.Image;
+import z0.ZScene;
 
-import :Device;
-import :Buffer;
+import z0.Device;
+import z0.Buffer;
 
 export namespace z0 {
 

@@ -9,29 +9,18 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VulkanCubemap;
 
-import :Constants;
-import :Cubemap;
-import :Image;
-import :Tools;
+import z0.Constants;
+import z0.Image;
+import z0.Tools;
 
-import :Device;
-import :Buffer;
-import :VulkanCubemap;
-import :VulkanImage;
-import :IBLPipeline;
+import z0.Device;
+import z0.Buffer;
+import z0.VulkanImage;
+import z0.IBLPipeline;
 
 namespace z0 {
-
-    shared_ptr<Cubemap> Cubemap::create(
-        const uint32_t      width,
-        const uint32_t      height,
-        const uint32_t      imageSize,
-        const vector<byte*> &data,
-        const string &      name) {
-        return make_shared<VulkanCubemap>(Device::get(), width, height, imageSize, data, name);
-    }
 
     VulkanCubemap::VulkanCubemap(
         const Device &       device,
@@ -193,45 +182,5 @@ namespace z0 {
         }
     }
 
-    EnvironmentCubemap::EnvironmentCubemap(const string &  name):
-        Cubemap{ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE, TYPE_ENVIRONMENT, name} {
-        auto& device = Device::get();
-        specularCubemap = make_shared<VulkanCubemap>(device,
-            ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_MIPMAP_LEVELS);
-        irradianceCubemap = make_shared<VulkanCubemap>(device,
-           IRRADIANCE_MAP_SIZE,
-           IRRADIANCE_MAP_SIZE);
-        brdfLut = make_shared<VulkanImage>(device,
-            BRDFLUT_SIZE,
-            BRDFLUT_SIZE,
-            1,
-            VK_FORMAT_R16G16_SFLOAT,
-            1,
-            VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            VK_FILTER_LINEAR,
-            VK_FALSE
-        );
-    }
-
-    shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename, ImageFormat imageFormat) {
-        auto& device = Device::get();
-        auto envCubemap = make_shared<EnvironmentCubemap>();
-        const auto unfilteredCubemap = make_shared<VulkanCubemap>(device,
-            ENVIRONMENT_MAP_SIZE,
-            ENVIRONMENT_MAP_SIZE
-        );
-        const auto &vkSpecular = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->specularCubemap);
-        const auto &vkIrradiance = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->irradianceCubemap);
-        const auto &vkBRDF = reinterpret_pointer_cast<VulkanImage>(envCubemap->brdfLut);
-        const auto iblPipeline = IBLPipeline{device};
-        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::load(filename, imageFormat)), unfilteredCubemap);
-        iblPipeline.preComputeSpecular(unfilteredCubemap, vkSpecular);
-        iblPipeline.preComputeIrradiance(vkSpecular, vkIrradiance);
-        iblPipeline.preComputeBRDF(vkBRDF);
-        return envCubemap;
-    }
 
 }

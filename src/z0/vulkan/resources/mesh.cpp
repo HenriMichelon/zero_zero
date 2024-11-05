@@ -15,29 +15,16 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VulkanMesh;
 
-import :Material;
-import :Mesh;
-import :Tools;
+import z0.Material;
+import z0.Tools;
 
-import :Device;
-import :Buffer;
-import :VulkanMesh;
+import z0.Device;
+import z0.Buffer;
 
 namespace z0 {
 
-    shared_ptr<Mesh> Mesh::create(const string &meshName) {
-        return make_shared<VulkanMesh>(meshName);
-    }
-
-    shared_ptr<Mesh> Mesh::create(
-            const vector<Vertex> &             vertices,
-            const vector<uint32_t> &           indices,
-            const vector<shared_ptr<Surface>> &surfaces,
-            const string &                     meshName) {
-        return make_shared<VulkanMesh>(vertices, indices, surfaces, meshName);
-    }
 
     VulkanMesh::VulkanMesh(
             const vector<Vertex> &             vertices,

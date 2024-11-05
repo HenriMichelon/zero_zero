@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:FrustumCulling;
+export module z0.FrustumCulling;
 
-import :Constants;
-import :Node;
-import :MeshInstance;
+import z0.Constants;
+import z0.Node;
+import z0.MeshInstance;
 
 export namespace z0 {
 
@@ -35,8 +35,7 @@ export namespace z0 {
         Plane topFace;
         Plane bottomFace;
 
-        inline const Plane& getPlane(const int i) const
-        {
+        inline const Plane& getPlane(const int i) const {
             switch (i) {
             case 0:
                 return farFace;

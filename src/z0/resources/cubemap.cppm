@@ -7,12 +7,12 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Cubemap;
+export module z0.Cubemap;
 
-import :Constants;
-import :Tools;
-import :Resource;
-import :Image;
+import z0.Constants;
+import z0.Tools;
+import z0.Resource;
+import z0.Image;
 
 export namespace z0 {
 

@@ -8,19 +8,18 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.IBLPipeline;
 
-import :Constants;
-import :Tools;
-import :Image;
-import :Cubemap;
-import :VirtualFS;
+import z0.Constants;
+import z0.Tools;
+import z0.Image;
+import z0.Cubemap;
+import z0.VirtualFS;
 
-import :Device;
-import :Descriptors;
-import :VulkanCubemap;
-import :VulkanImage;
-import :IBLPipeline;
+import z0.Device;
+import z0.Descriptors;
+import z0.VulkanCubemap;
+import z0.VulkanImage;
 
 namespace z0 {
 

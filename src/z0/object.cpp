@@ -6,10 +6,9 @@
 */
 module;
 
-module z0;
+module z0.Object;
 
-import :Signal;
-import :Object;
+import z0.Signal;
 
 namespace z0 {
 

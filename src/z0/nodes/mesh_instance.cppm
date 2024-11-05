@@ -1,13 +1,13 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:MeshInstance;
+export module z0.MeshInstance;
 
-import :Tools;
-import :Mesh;
-import :Material;
-import :Node;
-import :AABB;/*
+import z0.Tools;
+import z0.Mesh;
+import z0.Material;
+import z0.Node;
+import z0.AABB;/*
  * Copyright (c) 2024 Henri Michelon
  * 
  * This software is released under the MIT License.

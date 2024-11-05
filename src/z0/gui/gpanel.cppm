@@ -6,9 +6,9 @@
 */
 module;
 
-export module z0:GPanel;
+export module z0.GPanel;
 
-import :GWidget;
+import z0.GWidget;
 
 export namespace z0 {
 

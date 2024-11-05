@@ -8,13 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.ZScene;
 
-import :ZScene;
-
-import :Device;
-import :Buffer;
-import :VulkanImage;
+import z0.Device;
+import z0.Buffer;
+import z0.VulkanImage;
 
 namespace z0 {
 

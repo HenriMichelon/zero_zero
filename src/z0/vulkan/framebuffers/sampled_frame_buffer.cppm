@@ -7,10 +7,10 @@
 module;
 #include <volk.h>
 
-export module z0:SampledFrameBuffer;
+export module z0.SampledFrameBuffer;
 
-import :Device;
-import :FrameBuffer;
+import z0.Device;
+import z0.FrameBuffer;
 
 export namespace z0 {
 

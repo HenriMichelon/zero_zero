@@ -6,10 +6,10 @@
 */
 module;
 
-export module z0:ColorFrameBuffer;
+export module z0.ColorFrameBuffer;
 
-import :Device;
-import :FrameBuffer;
+import z0.Device;
+import z0.FrameBuffer;
 
 export namespace z0 {
 

@@ -15,25 +15,24 @@ module;
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-module z0;
+module z0.Loader;
 
-import :Color;
-import :Constants;
-import :Image;
-import :Loader;
-import :Material;
-import :Mesh;
-import :MeshInstance;
-import :Node;
-import :Resource;
-import :Texture;
-import :Tools;
-import :TypeRegistry;
-import :VirtualFS;
+import z0.Color;
+import z0.Constants;
+import z0.Image;
+import z0.Material;
+import z0.Mesh;
+import z0.MeshInstance;
+import z0.Node;
+import z0.Resource;
+import z0.Texture;
+import z0.Tools;
+import z0.TypeRegistry;
+import z0.VirtualFS;
 
-import :Device;
-import :VulkanImage;
-import :VulkanMesh;
+import z0.Device;
+import z0.VulkanImage;
+import z0.VulkanMesh;
 
 namespace z0 {
 

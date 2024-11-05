@@ -7,11 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.DirectionalLight;
 
-import :DirectionalLight;
-
-import :ShadowMapFrameBuffer;
+import z0.ShadowMapFrameBuffer;
 
 namespace z0 {
 
