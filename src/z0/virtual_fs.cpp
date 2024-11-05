@@ -113,11 +113,11 @@ namespace z0 {
         vector<byte> buffer;
     };
 
-    unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string& filepath) {
+    unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string &filepath) {
         return make_unique<GltfFileStream>(getPath(filepath));
     }
 
-    ifstream VirtualFS::openStream(const string& filepath) {
+    ifstream VirtualFS::openStream(const string &filepath) {
         ifstream file(getPath(filepath), std::ios::binary);
         if (!file.is_open()) { die("Error: Could not open file ", filepath); }
         return file;
@@ -148,6 +148,16 @@ namespace z0 {
         vector<char> buffer(fileSize);
         file.seekg(0);
         file.read(buffer.data(), fileSize);
+        file.close();
+        return buffer;
+    }
+
+    vector<char> VirtualFS::loadBinary(const string &filepath, const uint64_t size) {
+        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
+        vector<char> buffer(size);
+        file.seekg(0);
+        file.read(buffer.data(), size);
         file.close();
         return buffer;
     }

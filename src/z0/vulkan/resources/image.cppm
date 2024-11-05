@@ -13,11 +13,14 @@ module;
 export module z0:VulkanImage;
 
 import :Image;
+import :ZScene;
+
 import :Device;
+import :Buffer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Helper class for the Vulkan resources [VkImage](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImage.html), [VkImageView](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageView.html) and [VkSampler](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSampler.html)
      */
     class VulkanImage : public Image {
@@ -59,20 +62,17 @@ export namespace z0 {
                VkFilter             samplerFilter      = VK_FILTER_LINEAR,
                VkBool32             anisotropyEnable   = VK_TRUE);
 
-        VulkanImage(const Device &  device,
-                const string &       name,
-                uint32_t             width,
-                uint32_t             height,
-                const void *         data,
-                uint64_t             dataSize,
-                VkFormat             format,
-                uint32_t             numMipLevels,
-                bool                 forceSRGB          = false,
-                VkFilter             magFiter = VK_FILTER_LINEAR,
-                VkFilter             minFiler = VK_FILTER_LINEAR,
-                VkSamplerAddressMode samplerAddressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                VkSamplerAddressMode samplerAddressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
+        VulkanImage(const Device &            device,
+                const string &                name,
+                const ZScene::ImageHeader &   imageHeader,
+                const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+                const Buffer                  &buffer,
+                const uint64_t                bufferOffset,
+                VkFilter                      magFiter = VK_FILTER_LINEAR,
+                VkFilter                      minFiler = VK_FILTER_LINEAR,
+                VkSamplerAddressMode          samplerAddressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                VkSamplerAddressMode          samplerAddressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                VkImageTiling                 tiling             = VK_IMAGE_TILING_OPTIMAL);
 
         ~VulkanImage() override;
 

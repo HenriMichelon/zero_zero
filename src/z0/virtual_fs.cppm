@@ -12,6 +12,8 @@ export module z0:VirtualFS;
 
 import :Constants;
 
+import :Buffer;
+
 export namespace z0 {
 
     /**
@@ -27,13 +29,15 @@ export namespace z0 {
 
         static unique_ptr<fastgltf::GltfDataGetter> openGltf(const string& filepath);
 
-        static ifstream openStream(const string& filepath);
+        static ifstream openStream(const string &filepath);
 
         static FILE* openFile(const string& filepath);
 
         static vector<char> loadShader(const string &filepath);
 
         static vector<char> loadBinary(const string &filepath);
+
+        static vector<char> loadBinary(const string &filepath, uint64_t size);
 
         static string parentPath(const string& filepath);
 

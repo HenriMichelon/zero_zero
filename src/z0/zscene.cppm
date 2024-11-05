@@ -10,6 +10,8 @@ module;
 
 export module z0:ZScene;
 
+import :Image;
+
 export namespace z0 {
 
     /**
@@ -22,6 +24,7 @@ export namespace z0 {
             static constexpr uint32_t VERSION{1};
             char     magic[4];
             uint32_t version{0};
+            uint64_t headersSize;
             uint32_t imagesCount{0};
         };
         struct ImageHeader {
@@ -29,12 +32,28 @@ export namespace z0 {
             uint32_t width;
             uint32_t height;
             uint32_t mipLevels;
+            uint64_t dataOffset;
             uint64_t dataSize;
         };
         struct MipLevelHeader {
             uint64_t offset;
             uint64_t size;
         };
+
+        [[nodiscard]] static shared_ptr<ZScene> load(const string &filename);
+        [[nodiscard]] static shared_ptr<ZScene> load(ifstream &stream);
+
+        inline const vector<shared_ptr<Image>>& getImages() const { return images; };
+
+    protected:
+        Header                    header{};
+        vector<shared_ptr<Image>> images;
+
+        static shared_ptr<ZScene> create();
+
+        virtual void loadImages(ifstream& stream) = 0;
+        void loadHeader(ifstream& stream);
+        void loadImagesHeaders(ifstream& stream, vector<ImageHeader>&, vector<vector<MipLevelHeader>>&, uint64_t& totalImageSize) const;
     };
 
 }

@@ -14,6 +14,7 @@ module z0;
 
 import :Tools;
 import :Image;
+import :ZScene;
 
 import :Device;
 import :Buffer;
@@ -190,39 +191,25 @@ namespace z0 {
     }
 
      VulkanImage::VulkanImage(const Device &  device,
-              const string &             name,
-              uint32_t                   width,
-              uint32_t                   height,
-              const void *               data,
-              uint64_t                   dataSize,
-              VkFormat                   format,
-              uint32_t                   numMipLevels,
-              bool                       forceSRGB,
-              const VkFilter             magFilter,
-              const VkFilter             minFilter,
-              const VkSamplerAddressMode samplerAddressModeU,
-              const VkSamplerAddressMode samplerAddressModeV,
-              const VkImageTiling        tiling):
-        Image(width, height, name),
+              const string &                name,
+              const ZScene::ImageHeader &   imageHeader,
+              const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+              const Buffer                  &buffer,
+              const uint64_t                bufferOffset,
+              const VkFilter                magFilter,
+              const VkFilter                minFilter,
+              const VkSamplerAddressMode    samplerAddressModeU,
+              const VkSamplerAddressMode    samplerAddressModeV,
+              const VkImageTiling           tiling):
+        Image(imageHeader.width, imageHeader.height, name),
         device{device},
-        mipLevels{numMipLevels} {
-        if (forceSRGB) {
-            format = formatSRGB(format, name);
-        }
-        // https://github.com/KhronosGroup/Vulkan-Samples/blob/main/samples/performance/texture_compression_basisu/texture_compression_basisu.cpp
-        const auto textureStagingBuffer = Buffer{
-            device,
-            dataSize,
-            1,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        };
-        textureStagingBuffer.writeToBuffer(data);
+        mipLevels{imageHeader.mipLevels} {
+        const auto format = static_cast<VkFormat>(imageHeader.format);
+
 
         // Setup buffer copy regions for each mip level
         auto copyRegions = vector<VkBufferImageCopy>{};
         for (auto mip_level = 0; mip_level < mipLevels; mip_level++) {
-            ktx_size_t        offset;
-            // KTX_error_code    result                           = ktxTexture_GetImageOffset((ktxTexture *) kTexture, mip_level, 0, 0, &offset);
             VkBufferImageCopy buffer_copy_region               = {};
             buffer_copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
             buffer_copy_region.imageSubresource.mipLevel       = mip_level;
@@ -231,7 +218,7 @@ namespace z0 {
             buffer_copy_region.imageExtent.width               = width >> mip_level;
             buffer_copy_region.imageExtent.height              = height >> mip_level;
             buffer_copy_region.imageExtent.depth               = 1;
-            buffer_copy_region.bufferOffset                    = offset;
+            buffer_copy_region.bufferOffset                    = bufferOffset + mipLevelHeaders[mip_level].offset;
             copyRegions.push_back(buffer_copy_region);
         }
 
@@ -260,7 +247,7 @@ namespace z0 {
                                       mipLevels);
         vkCmdCopyBufferToImage(
                 commandBuffer,
-                textureStagingBuffer.getBuffer(),
+                buffer.getBuffer(),
                 textureImage,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 copyRegions.size(),

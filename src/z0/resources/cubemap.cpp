@@ -30,7 +30,7 @@ namespace z0 {
         return create(1, 1, blankJPEG.size(), cubeFaces);
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
+    shared_ptr<Cubemap> Cubemap::load(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         vector<byte *> data;
@@ -51,7 +51,7 @@ namespace z0 {
         return cubemap;
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const ImageFormat imageFormat) {
+    shared_ptr<Cubemap> Cubemap::load(const string &filepath, const ImageFormat imageFormat) {
         assert(imageFormat == IMAGE_R8G8B8A8_SRGB);
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
