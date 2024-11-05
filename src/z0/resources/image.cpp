@@ -111,11 +111,10 @@ namespace z0 {
                 die("Failed to decode DDS header for", filepath);
             }
             const auto format = dxgiToVulkanFormat.at(static_cast<DXGI_FORMAT>(desc.format));
-            const char* compressedData = ddsData.data() + desc.headerSize;
-            const auto ddsDataSize = ddsData.size() - desc.headerSize;
             return make_shared<VulkanImage>(
                     Device::get(),
-                    filepath, desc.width, desc.height, ddsDataSize, compressedData,
+                    filepath, desc.width, desc.height,
+                    ddsData.size() - desc.headerSize, ddsData.data() + desc.headerSize,
                     imageFormat == IMAGE_R8G8B8A8_SRGB ? VulkanImage::formatSRGB(format, filepath): format,
                     VK_IMAGE_TILING_OPTIMAL,
                     VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_FILTER_LINEAR, true);

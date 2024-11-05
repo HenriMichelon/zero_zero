@@ -56,3 +56,5 @@ export import :GTreeView;
 export import :GWindow;
 
 export import :VulkanApplication;
+export import :VulkanImage;
+export import :Device;

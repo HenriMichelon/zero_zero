@@ -138,4 +138,3 @@ set(CMAKE_EXE_LINKER_FLAGS_DISTRIBUTION "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 # Compile the HelloWorld application
 target_include_directories(${PROJECT_NAME} PUBLIC ${JoltPhysics_SOURCE_DIR}/..)
 target_link_libraries(${PROJECT_NAME} Jolt)
-

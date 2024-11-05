@@ -8,6 +8,7 @@
 find_package(Vulkan REQUIRED)
 target_include_directories(${Z0_TARGET} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
+
 ###### Using Volk to load Vulkan functions
 FetchContent_Declare(
         fetch_volk
@@ -48,6 +49,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fetch_fastgltf)
 target_link_libraries(${Z0_TARGET} fastgltf)
+target_link_libraries(${GLB2ZSCENE_TARGET} fastgltf)
 
 ###### Using KTX to transcode KTX2 to compressed images
 set(KTX_FEATURE_STATIC_LIBRARY ON CACHE BOOL "Build KTX as a static library" FORCE)
@@ -59,3 +61,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fetch_ktx)
 target_link_libraries(${Z0_TARGET} ktx)
 target_include_directories(${Z0_TARGET} PRIVATE ${fetch_ktx_SOURCE_DIR}/include)
+
+include(cmake/compressonator.cmake)
+include(cmake/jolt.cmake)

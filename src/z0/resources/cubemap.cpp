@@ -38,8 +38,7 @@ namespace z0 {
         for (int i = 0; i < 6; i++) {
             auto path = filepath + "_" + names[i] + fileext;
             auto *pixels = VirtualFS::loadRGBAImage(path, texWidth, texHeight, imageSize, imageFormat);
-            if (!pixels)
-                die("failed to load texture image", path);
+            if (!pixels) { die("failed to load texture image", path); }
             data.push_back(pixels);
         }
         const auto &cubemap = create(
@@ -57,8 +56,7 @@ namespace z0 {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);
-        if (!pixels)
-            die("failed to load texture image", filepath);
+        if (!pixels) { die("failed to load texture image", filepath); }
         vector<byte*> data;
         const auto imgWidth  = texWidth / 4;
         const auto imgHeight = texHeight / 3;

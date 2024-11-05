@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
+set(GLB2ZSCENE_TARGET "glb2zscene")
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -242,11 +243,10 @@ target_sources(${Z0_TARGET}
 		${PROJECT_FILES}
 )
 
-add_executable(image_encode
-		${SRC_DIR}/tools/image_encode/image_encode.cpp
-		${SRC_DIR}/tools/image_encode/bc7enc.cpp
+add_executable(${GLB2ZSCENE_TARGET}
+		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
 )
-target_include_directories(image_encode PUBLIC ${INCLUDE_DIR})
+target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR})
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
@@ -259,8 +259,5 @@ if(WIN32)
 endif()
 
 include(FetchContent)
-include(cmake/jolt.cmake)
-include(cmake/libraries.cmake)
 include(cmake/std.cmake)
-target_link_libraries(${PROJECT_NAME} std-cxx-modules)
-target_link_libraries(${Z0_TOOL_GLTF2JON} std-cxx-modules)
+include(cmake/libraries.cmake)
