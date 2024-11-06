@@ -10,7 +10,9 @@ module;
 
 module z0.ZScene;
 
+import z0.Constants;
 import z0.Image;
+import z0.Material;
 import z0.Texture;
 import z0.Tools;
 import z0.VirtualFS;
@@ -25,14 +27,14 @@ namespace z0 {
     shared_ptr<ZScene> ZScene::load(ifstream &stream) {
         auto tStart = std::chrono::high_resolution_clock::now();
         auto zscene = make_shared<ZScene>();
-        zscene->loadHeader(stream);
-        zscene->loadTextures(stream);
+        zscene->loadScene(stream);
         auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         log("ZScene loading time ", to_string(last_transcode_time));
         return zscene;
     }
 
-    void ZScene::loadHeader(ifstream& stream) {
+    void ZScene::loadScene(ifstream& stream) {
+        // Read the file global header
         stream.read(reinterpret_cast<istream::char_type *>(&header), sizeof(header));
         if (header.magic[0] != Header::MAGIC[0] &&
             header.magic[1] != Header::MAGIC[1] &&
@@ -43,30 +45,69 @@ namespace z0 {
         if (header.version != Header::VERSION) {
             die("ZScene bad version");
         }
-    }
 
-    void ZScene::loadImagesAndTexturesHeaders(
-            ifstream& stream,
-            vector<ImageHeader>&imageHeader,
-            vector<vector<MipLevelHeader>>&levelHeaders,
-            vector<TextureHeader>&textureHeaders,
-            uint64_t& totalImageSize) const {
+        // Read the images & mips levels headers
+        auto imageHeaders = vector<ImageHeader>(header.imagesCount);
+        auto levelHeaders = vector<vector<MipLevelHeader>>(header.imagesCount);
+        uint64_t totalImageSize{0};
         for (auto imageIndex = 0; imageIndex < header.imagesCount; ++imageIndex) {
-            stream.read(reinterpret_cast<istream::char_type *>(&imageHeader[imageIndex]), sizeof(ImageHeader));
-            levelHeaders[imageIndex].resize(imageHeader[imageIndex].mipLevels);
-            stream.read(reinterpret_cast<istream::char_type *>(levelHeaders[imageIndex].data()), sizeof(MipLevelHeader) * imageHeader[imageIndex].mipLevels);
-            totalImageSize += imageHeader[imageIndex].dataSize;
+                stream.read(reinterpret_cast<istream::char_type *>(&imageHeaders[imageIndex]), sizeof(ImageHeader));
+                levelHeaders[imageIndex].resize(imageHeaders[imageIndex].mipLevels);
+                stream.read(reinterpret_cast<istream::char_type *>(levelHeaders[imageIndex].data()), sizeof(MipLevelHeader) * imageHeaders[imageIndex].mipLevels);
+                totalImageSize += imageHeaders[imageIndex].dataSize;
         }
-        for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
-            stream.read(reinterpret_cast<istream::char_type *>(&textureHeaders[textureIndex]), sizeof(TextureHeader));
+
+        // Read the textures & materials headers
+        auto textureHeaders = vector<TextureHeader>(header.texturesCount);
+        stream.read(reinterpret_cast<istream::char_type *>(textureHeaders.data()), textureHeaders.size() * sizeof(TextureHeader));
+        auto materialHeaders = vector<MaterialHeader>(header.materialsCount);
+        stream.read(reinterpret_cast<istream::char_type *>(materialHeaders.data()), materialHeaders.size() * sizeof(MaterialHeader));
+
+        // Create the images and textures objets (Vulkan specific)
+        loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
+
+        // Create the materials objects
+        auto textureInfo = [this](TextureInfo& info) {
+            auto texInfo = StandardMaterial::TextureInfo {
+                .texture = dynamic_pointer_cast<ImageTexture>(textures[info.textureIndex])
+            };
+            const auto translation = mat3{1,0,0, 0,1,0, info.offset[0], info.offset[1], 1};
+            const auto rotation = mat3{
+                cos(info.rotation), sin(info.rotation), 0,
+                -sin(info.rotation), cos(info.rotation), 0,
+                            0,             0, 1
+            };
+            const auto scale = mat3{info.scale[0],0,0, 0,info.scale[1],0, 0,0,1};
+            texInfo.transform = translation * rotation * scale;
+            return texInfo;
+        };
+        for (auto materialIndex = 0; materialIndex < header.materialsCount; ++materialIndex) {
+            auto& header = materialHeaders[materialIndex];
+            auto material = make_shared<StandardMaterial>(header.name);
+            material->setCullMode(static_cast<CullMode>(header.cullMode));
+            material->setTransparency(static_cast<Transparency>(header.transparency));
+            material->setAlphaScissor(header.alphaScissor);
+            material->setAlbedoColor(header.albedoColor);
+            material->setAlbedoTexture(textureInfo(header.albedoTexture));
+            material->setMetallicFactor(header.metallicFactor);
+            material->setMetallicTexture(textureInfo(header.metallicTexture));
+            material->setRoughnessFactor(header.roughnessFactor);
+            material->setRoughnessTexture(textureInfo(header.roughnessTexture));
+            material->setEmissiveFactor(header.emissiveFactor);
+            material->setEmissiveStrength(header.emissiveStrength);
+            material->setEmissiveTexture(textureInfo(header.emissiveTexture));
+            material->setNormalTexture(textureInfo(header.normalTexture));
+            material->setNormaleScale(header.normalScale);
+            materials.push_back(material);
         }
     }
 
     void ZScene::print(const Header& header) {
-        printf("Version : %d\nImages count : %d\nTextures count : %d\nHeaders size : %llu\n",
+        printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nHeaders size : %llu\n",
             header.version,
             header.imagesCount,
             header.texturesCount,
+            header.materialsCount,
             header.headersSize);
     }
 
@@ -92,6 +133,10 @@ namespace z0 {
             header.magFilter,
             header.samplerAddressModeU,
             header.samplerAddressModeV);
+    }
+
+    void ZScene::print(const MaterialHeader& header) {
+        printf("Name : %s\n", header.name);
     }
 
 

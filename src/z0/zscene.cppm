@@ -11,6 +11,7 @@ module;
 export module z0.ZScene;
 
 import z0.Texture;
+import z0.Material;
 
 export namespace z0 {
 
@@ -19,6 +20,7 @@ export namespace z0 {
      */
     class ZScene {
     public:
+        static constexpr auto NAME_SIZE{64};
 
         struct Header {
             static constexpr char MAGIC[]{ 'Z', 'S', 'C', 'N' };
@@ -27,12 +29,12 @@ export namespace z0 {
             uint32_t version{0};
             uint32_t imagesCount{0};
             uint32_t texturesCount{0};
+            uint32_t materialsCount{0};
             uint64_t headersSize;
         };
 
-        static constexpr auto IMAGE_NAME_SIZE{64};
         struct ImageHeader {
-            char     name[IMAGE_NAME_SIZE];
+            char     name[NAME_SIZE];
             uint32_t format;
             uint32_t width;
             uint32_t height;
@@ -48,19 +50,42 @@ export namespace z0 {
 
         struct TextureHeader {
             int32_t     imageIndex;
-            // float32_t   rotation;
-            // vec2        offset;
-            // vec2        scale;
             uint32_t    minFilter;
             uint32_t    magFilter;
             uint32_t    samplerAddressModeU;
             uint32_t    samplerAddressModeV;
         };
 
+        struct TextureInfo {
+            int32_t     textureIndex;
+            float32_t   rotation;
+            vec2        offset;
+            vec2        scale;
+        };
+
+        struct MaterialHeader {
+            char         name[NAME_SIZE];
+            uint32_t     cullMode;
+            uint32_t     transparency;
+            float        alphaScissor;
+            vec4         albedoColor;
+            TextureInfo  albedoTexture;
+            float        metallicFactor;
+            TextureInfo  metallicTexture;
+            float        roughnessFactor;
+            TextureInfo  roughnessTexture;
+            vec3         emissiveFactor;
+            float        emissiveStrength;
+            TextureInfo  emissiveTexture;
+            TextureInfo  normalTexture;
+            float        normalScale;
+        };
+
         [[nodiscard]] static shared_ptr<ZScene> load(const string &filename);
         [[nodiscard]] static shared_ptr<ZScene> load(ifstream &stream);
 
-        inline const vector<shared_ptr<ImageTexture>>& getTextures() const { return textures; };
+        inline const vector<shared_ptr<Texture>>& getTextures() const { return textures; };
+        inline const vector<shared_ptr<Material>>& getMaterials() const { return materials; };
 
         ZScene() = default;
 
@@ -68,19 +93,20 @@ export namespace z0 {
         static void print(const ImageHeader& header);
         static void print(const MipLevelHeader& header);
         static void print(const TextureHeader& header);
+        static void print(const MaterialHeader& header);
 
     protected:
         Header header{};
-        vector<shared_ptr<ImageTexture>> textures{};
+        vector<shared_ptr<Texture>> textures{};
+        vector<shared_ptr<Material>> materials{};
 
-        void loadHeader(ifstream& stream);
-        void loadImagesAndTexturesHeaders(ifstream& stream,
-            vector<ImageHeader>&,
-            vector<vector<MipLevelHeader>>&,
-            vector<TextureHeader>&,
-            uint64_t& totalImageSize) const;
+        void loadScene(ifstream& stream);
 
-        void loadTextures(ifstream& stream);
+        void loadImagesAndTextures(ifstream& stream,
+            const vector<ImageHeader>&,
+            const vector<vector<MipLevelHeader>>&,
+            const vector<TextureHeader>&,
+            uint64_t totalImageSize);
     };
 
 }

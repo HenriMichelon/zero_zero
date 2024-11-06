@@ -93,12 +93,12 @@ export namespace z0 {
         /**
          * Returns the material's base color.
          */
-        [[nodiscard]] inline const Color &getAlbedoColor() const { return albedoColor; }
+        [[nodiscard]] inline const vec4 &getAlbedoColor() const { return albedoColor; }
 
         /**
          * Sets the material's base color.
          */
-        inline void setAlbedoColor(const Color &color) { albedoColor = color; }
+        inline void setAlbedoColor(const vec4 &color) { albedoColor = color; }
 
         /**
          * Returns the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
@@ -153,7 +153,7 @@ export namespace z0 {
         void setNormaleScale(float scale);
 
     private:
-        Color        albedoColor{1.0f, 0.0f, 0.5f, 1.0f};
+        vec4         albedoColor{1.0f, 0.0f, 0.5f, 1.0f};
         TextureInfo  albedoTexture{};
         float        metallicFactor{-1.0f}; // -1 -> non PBR material
         TextureInfo  metallicTexture{};

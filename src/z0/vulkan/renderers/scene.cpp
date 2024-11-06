@@ -369,7 +369,7 @@ namespace z0 {
             };
             const auto materialIndex = frame.materialsIndices.at(material->getId());
             if (const auto *standardMaterial = dynamic_cast<const StandardMaterial *>(material.get())) {
-                materialUBO.albedoColor = standardMaterial->getAlbedoColor().color;
+                materialUBO.albedoColor = standardMaterial->getAlbedoColor();
                 materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
                 materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
                 materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();

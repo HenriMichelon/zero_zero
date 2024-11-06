@@ -45,7 +45,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/aabb.cppm
 		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
-		${Z0_ENGINE_DIR}/color.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
 		${Z0_ENGINE_DIR}/frustum_culling.cppm
 		${Z0_ENGINE_DIR}/input.cppm
@@ -127,6 +126,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
+		${Z0_ENGINE_DIR}/gui/color.cppm
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.cppm

@@ -110,7 +110,7 @@ namespace z0 {
         map<Resource::id_t, int> materialsTextCoords;
         for (auto &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
-            material->setAlbedoColor(Color{
+            material->setAlbedoColor({
                     mat.pbrData.baseColorFactor[0],
                     mat.pbrData.baseColorFactor[1],
                     mat.pbrData.baseColorFactor[2],

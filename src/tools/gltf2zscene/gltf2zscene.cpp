@@ -9,6 +9,9 @@ import std;
 using namespace std;
 namespace fs = std::filesystem;
 
+import glm;
+using namespace glm;
+
 import z0;
 using namespace z0;
 
@@ -170,23 +173,23 @@ int main(const int argc, char** argv) {
         .version = 1,
         .imagesCount = static_cast<uint32_t>(gltf.images.size()),
         .texturesCount =  static_cast<uint32_t>(gltf.textures.size()),
+        .materialsCount =  static_cast<uint32_t>(gltf.materials.size()),
         .headersSize = sizeof(ZScene::Header),
     };
     header.magic[0] = ZScene::Header::MAGIC[0];
     header.magic[1] = ZScene::Header::MAGIC[1];
     header.magic[2] = ZScene::Header::MAGIC[2];
     header.magic[3] = ZScene::Header::MAGIC[3];
-    auto imageHeaders = vector<ZScene::ImageHeader> {gltf.images.size()};
-    auto mipHeaders = vector<vector<ZScene::MipLevelHeader>>{gltf.images.size()};
-    auto textureHeaders = vector<ZScene::TextureHeader> {gltf.textures.size()};
 
     // Fill the images headers
+    auto imageHeaders = vector<ZScene::ImageHeader> {gltf.images.size()};
+    auto mipHeaders = vector<vector<ZScene::MipLevelHeader>>{gltf.images.size()};
     uint64_t dataOffset = 0;
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         string name = gltf.images[imageIndex].name.data();
         if (name.empty()) { name = to_string(imageIndex); }
-        strncpy(imageHeaders[imageIndex].name, name.c_str(), ZScene::IMAGE_NAME_SIZE);
-        imageHeaders[imageIndex].name[ZScene::IMAGE_NAME_SIZE - 1] = '\0';
+        strncpy(imageHeaders[imageIndex].name, name.c_str(), ZScene::NAME_SIZE);
+        imageHeaders[imageIndex].name[ZScene::NAME_SIZE - 1] = '\0';
 
         // Set header for each mip level of the image
         uint64_t mipOffset{0};
@@ -209,6 +212,8 @@ int main(const int argc, char** argv) {
         header.headersSize += sizeof(ZScene::ImageHeader) + sizeof(ZScene::MipLevelHeader) * MipSetIn[imageIndex].m_nMipLevels;
     }
 
+    // Fill textures headers
+    auto textureHeaders = vector<ZScene::TextureHeader> {gltf.textures.size()};
     for(auto textureIndex = 0; textureIndex < gltf.textures.size(); textureIndex++) {
         const auto& texture = gltf.textures[textureIndex];
         textureHeaders[textureIndex].imageIndex = texture.imageIndex.has_value() ? static_cast<int32_t>(texture.imageIndex.value()) : -1;
@@ -238,32 +243,69 @@ int main(const int argc, char** argv) {
         header.headersSize += sizeof(ZScene::TextureHeader);
     }
 
-    // auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo) {
-    //     const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
-    //     if (texture.imageIndex.has_value()) {
-    //         loadImage(gltf, gltf.images[texture.imageIndex.value()],
-    //             MipSetIn[imageIndex],MipSetCmp[imageIndex],
-    //             loadAndConvert);
-    //         textureHeaders[textureIndex].imageIndex = imageIndex;
-    //         imageIndex += 1;
-    //     }
-    // };
+    // Fill materials headers
+    auto materialHeaders = vector<ZScene::MaterialHeader> {gltf.materials.size()};
+    for(auto materialIndex = 0; materialIndex < gltf.materials.size(); materialIndex++) {
+        const auto& material = gltf.materials[materialIndex];
 
-    // for (auto &mat : gltf.materials) {
-    //     cout << "Extracting material " << mat.name << endl;
-    //     if (mat.pbrData.baseColorTexture.has_value()) {
-    //         loadTexture(mat.pbrData.baseColorTexture.value());
-    //     }
-    //     if (mat.pbrData.metallicRoughnessTexture.has_value()) {
-    //         loadTexture(mat.pbrData.metallicRoughnessTexture.value());
-    //     }
-    //     if (mat.normalTexture.has_value()) {
-    //         loadTexture(mat.normalTexture.value());
-    //     }
-    //     if (mat.emissiveTexture) {
-    //         loadTexture(mat.emissiveTexture.value());
-    //     }
-    // }
+        string name =material.name.data();
+        if (name.empty()) { name = to_string(materialIndex); }
+        strncpy(materialHeaders[materialIndex].name, name.c_str(), ZScene::NAME_SIZE);
+        materialHeaders[materialIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+
+        materialHeaders[materialIndex].albedoColor = {
+            material.pbrData.baseColorFactor[0],
+            material.pbrData.baseColorFactor[1],
+            material.pbrData.baseColorFactor[2],
+            material.pbrData.baseColorFactor[3],
+        };
+        materialHeaders[materialIndex].metallicFactor = material.pbrData.metallicFactor;
+        materialHeaders[materialIndex].roughnessFactor = material.pbrData.roughnessFactor;
+        materialHeaders[materialIndex].emissiveFactor = vec3{material.emissiveFactor[0], material.emissiveFactor[1], material.emissiveFactor[2]};
+        materialHeaders[materialIndex].emissiveStrength = material.emissiveStrength;
+        switch (material.alphaMode) {
+        case fastgltf::AlphaMode::Blend:
+            materialHeaders[materialIndex].transparency = TRANSPARENCY_ALPHA;
+            break;
+        case fastgltf::AlphaMode::Mask:
+            materialHeaders[materialIndex].transparency = TRANSPARENCY_SCISSOR;
+            materialHeaders[materialIndex].alphaScissor = material.alphaCutoff;
+            break;
+        default:
+            break;
+        }
+        materialHeaders[materialIndex].cullMode = material.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK;
+        auto textureInfo = [](const fastgltf::TextureInfo& sourceTextureInfo) {
+            auto texInfo = ZScene::TextureInfo{
+                .textureIndex = static_cast<int32_t>(sourceTextureInfo.textureIndex),
+                .rotation =  0.0f,
+                .offset = vec2{0.0f},
+                .scale = vec2{1.0f},
+            };
+            const auto& transform = sourceTextureInfo.transform;
+            if (transform != nullptr) {
+                texInfo.rotation = transform->rotation;
+                texInfo.offset = vec2{transform->uvOffset[0], transform->uvOffset[1]};
+                texInfo.scale = vec2{transform->uvScale[0], transform->uvScale[1]};
+            }
+            return texInfo;
+        };
+        if (material.pbrData.baseColorTexture.has_value()) {
+            materialHeaders[materialIndex].albedoTexture = textureInfo(material.pbrData.baseColorTexture.value());
+        }
+        if (material.pbrData.metallicRoughnessTexture.has_value()) {
+            materialHeaders[materialIndex].metallicTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
+            materialHeaders[materialIndex].roughnessTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
+        }
+        if (material.normalTexture.has_value()) {
+            materialHeaders[materialIndex].normalTexture = textureInfo(material.normalTexture.value());
+            materialHeaders[materialIndex].normalScale = 1.0f;
+        }
+        if (material.emissiveTexture) {
+            materialHeaders[materialIndex].emissiveTexture = textureInfo(material.emissiveTexture.value());
+        }
+        header.headersSize += sizeof(ZScene::MaterialHeader);
+    }
 
     cout << "Writing output file " << outputFilename << "...\n";
     std::ofstream outputFile(outputFilename, std::ios::binary);
@@ -273,17 +315,15 @@ int main(const int argc, char** argv) {
     }
 
     // Write all the headers
-    // ZScene::print(header);
+    ZScene::print(header);
     outputFile.write(reinterpret_cast<const char*>(&header), sizeof(ZScene::Header));
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         // ZScene::print(imageHeaders[imageIndex]);
         outputFile.write(reinterpret_cast<const char*>(&imageHeaders[imageIndex]),sizeof(ZScene::ImageHeader));
         outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeaders[imageIndex].data()), mipHeaders[imageIndex].size() * sizeof(ZScene::MipLevelHeader));
     }
-    for (auto textureIndex = 0; textureIndex < gltf.textures.size(); textureIndex++) {
-        ZScene::print(textureHeaders[textureIndex]);
-        outputFile.write(reinterpret_cast<const char*>(&textureHeaders[textureIndex]),sizeof(ZScene::TextureHeader));
-    }
+    outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(ZScene::TextureHeader));
+    outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(ZScene::MaterialHeader));
 
     // Write images mip levels
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
