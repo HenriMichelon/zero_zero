@@ -66,12 +66,9 @@ export namespace z0 {
                 const string &                name,
                 const ZScene::ImageHeader &   imageHeader,
                 const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+                const ZScene::TextureHeader & textureHeader,
                 const Buffer                  &buffer,
                 const uint64_t                bufferOffset,
-                VkFilter                      magFiter = VK_FILTER_LINEAR,
-                VkFilter                      minFiler = VK_FILTER_LINEAR,
-                VkSamplerAddressMode          samplerAddressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                VkSamplerAddressMode          samplerAddressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,
                 VkImageTiling                 tiling             = VK_IMAGE_TILING_OPTIMAL);
 
         VulkanImage(VulkanImage&&) = delete;

@@ -16,12 +16,13 @@ import z0.VulkanImage;
 
 namespace z0 {
 
-    void ZScene::loadImages(ifstream &stream) {
-        auto imageHeader = vector<ImageHeader>(header.imagesCount);
+    void ZScene::loadTextures(ifstream &stream) {
+        auto imageHeaders = vector<ImageHeader>(header.imagesCount);
         auto levelHeaders = vector<vector<MipLevelHeader>>(header.imagesCount);
+        auto textureHeaders = vector<TextureHeader>(header.texturesCount);
 
         uint64_t totalImageSize{0};
-        loadImagesHeaders(stream, imageHeader, levelHeaders, totalImageSize);
+        loadImagesAndTexturesHeaders(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
 
         const auto textureStagingBuffer = Buffer{
             Device::get(),
@@ -41,14 +42,21 @@ namespace z0 {
 
         vector<shared_ptr<VulkanImage>> vulkanImages;
         const auto& device = Device::get();
-        for (auto imageIndex = 0; imageIndex < header.imagesCount; ++imageIndex) {
-            images.push_back(make_shared<VulkanImage>(
-                device,
-                to_string(imageIndex),
-                imageHeader[imageIndex],
-                levelHeaders[imageIndex],
-                textureStagingBuffer,
-                imageHeader[imageIndex].dataOffset));
+        for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
+            const auto& texture = textureHeaders[textureIndex];
+            if (texture.imageIndex != -1) {
+                const auto& image = imageHeaders[texture.imageIndex];
+                textures.push_back(make_shared<ImageTexture>(
+                    make_shared<VulkanImage>(
+                       device,
+                       image.name,
+                       image,
+                       levelHeaders[texture.imageIndex],
+                       texture,
+                       textureStagingBuffer,
+                       image.dataOffset)
+                ));
+            }
         }
     }
 

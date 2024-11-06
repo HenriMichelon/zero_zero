@@ -185,12 +185,9 @@ namespace z0 {
               const string &                name,
               const ZScene::ImageHeader &   imageHeader,
               const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+              const ZScene::TextureHeader & textureHeader,
               const Buffer                  &buffer,
               const uint64_t                bufferOffset,
-              const VkFilter                magFilter,
-              const VkFilter                minFilter,
-              const VkSamplerAddressMode    samplerAddressModeU,
-              const VkSamplerAddressMode    samplerAddressModeV,
               const VkImageTiling           tiling):
         Image(imageHeader.width, imageHeader.height, name),
         device{device},
@@ -258,7 +255,11 @@ namespace z0 {
                                    mipLevels);
         device.endOneTimeCommandBuffer(commandBuffer);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
-        createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
+        createTextureSampler(
+            static_cast<VkFilter>(textureHeader.magFilter),
+            static_cast<VkFilter>(textureHeader.minFilter),
+            static_cast<VkSamplerAddressMode>(textureHeader.samplerAddressModeU),
+            static_cast<VkSamplerAddressMode>(textureHeader.samplerAddressModeV));
     }
 
     VulkanImage::~VulkanImage() {

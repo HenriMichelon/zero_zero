@@ -292,7 +292,7 @@ namespace z0 {
                 {
                     auto &posAccessor = gltf.accessors[p.findAttribute("POSITION")->accessorIndex];
                     vertices.resize(vertices.size() + posAccessor.count);
-                    fastgltf::iterateAccessorWithIndex<glm::vec3>(gltf, posAccessor, [&](const vec3 v, const size_t index) {
+                    fastgltf::iterateAccessorWithIndex<vec3>(gltf, posAccessor, [&](const vec3 v, const size_t index) {
                         vertices[index + initial_vtx] = {
                             .position = v,
                         };
@@ -301,7 +301,7 @@ namespace z0 {
                 // load vertex normals
                 auto normals = p.findAttribute("NORMAL");
                 if (normals != p.attributes.end()) {
-                    fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                    fastgltf::iterateAccessorWithIndex<vec3>(
                             gltf, gltf.accessors[(*normals).accessorIndex], [&](vec3 v, size_t index) {
                                 vertices[index + initial_vtx].normal = v;
                             });
@@ -309,7 +309,7 @@ namespace z0 {
                 auto tangents = p.findAttribute("TANGENT");
                 if (tangents != p.attributes.end()) {
                     haveTangents = true;
-                    fastgltf::iterateAccessorWithIndex<glm::vec4>(
+                    fastgltf::iterateAccessorWithIndex<vec4>(
                             gltf, gltf.accessors[(*tangents).accessorIndex], [&](vec4 v, size_t index) {
                                 vertices[index + initial_vtx].tangent = v;
                             });
@@ -328,7 +328,7 @@ namespace z0 {
                     stextCoord << "TEXCOORD_" << textCoord;
                     auto uv = p.findAttribute(stextCoord.str());
                     if (uv != p.attributes.end()) {
-                        fastgltf::iterateAccessorWithIndex<glm::vec2>(
+                        fastgltf::iterateAccessorWithIndex<vec2>(
                                 gltf, gltf.accessors[(*uv).accessorIndex], [&](vec2 v, size_t index) {
                                     vertices[index + initial_vtx].uv = {v.x, v.y};
                                 });
