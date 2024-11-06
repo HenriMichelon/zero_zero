@@ -172,8 +172,9 @@ int main(const int argc, char** argv) {
     auto header = ZScene::Header {
         .version = 1,
         .imagesCount = static_cast<uint32_t>(gltf.images.size()),
-        .texturesCount =  static_cast<uint32_t>(gltf.textures.size()),
-        .materialsCount =  static_cast<uint32_t>(gltf.materials.size()),
+        .texturesCount = static_cast<uint32_t>(gltf.textures.size()),
+        .materialsCount = static_cast<uint32_t>(gltf.materials.size()),
+        .meshesCount = static_cast<uint32_t>(gltf.meshes.size()),
         .headersSize = sizeof(ZScene::Header),
     };
     header.magic[0] = ZScene::Header::MAGIC[0];
@@ -185,7 +186,7 @@ int main(const int argc, char** argv) {
     auto imageHeaders = vector<ZScene::ImageHeader> {gltf.images.size()};
     auto mipHeaders = vector<vector<ZScene::MipLevelHeader>>{gltf.images.size()};
     uint64_t dataOffset = 0;
-    for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
+    for(auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         string name = gltf.images[imageIndex].name.data();
         if (name.empty()) { name = to_string(imageIndex); }
         strncpy(imageHeaders[imageIndex].name, name.c_str(), ZScene::NAME_SIZE);
@@ -299,6 +300,7 @@ int main(const int argc, char** argv) {
             }
             return ZScene::TextureInfo{
                 .textureIndex = static_cast<int32_t>(sourceTextureInfo.textureIndex),
+                .uvsIndex = static_cast<uint32_t>(sourceTextureInfo.texCoordIndex),
                 .transform = translation * rotation * scale,
             };
         };
@@ -319,6 +321,107 @@ int main(const int argc, char** argv) {
         header.headersSize += sizeof(ZScene::MaterialHeader);
     }
 
+    // Fill meshes headers
+    vector<uint32_t> indices{};
+    vector<vec3> positions{};
+    vector<vec3> normals{};
+    vector<vec2> uvs{};
+    vector<vec4> tangents{};
+    auto meshesHeaders = vector<ZScene::MeshHeader> {gltf.meshes.size()};
+    auto surfaceInfo = vector<vector<ZScene::SurfaceInfo>> {gltf.meshes.size()};
+    auto uvsInfos = vector<vector<vector<ZScene::DataInfo>>> {gltf.meshes.size()};
+    for(auto meshIndex = 0; meshIndex < meshesHeaders.size(); meshIndex++) {
+        auto& mesh = gltf.meshes[meshIndex];
+
+        string name = mesh.name.data();
+        if (name.empty()) { name = to_string(meshIndex); }
+        strncpy(meshesHeaders[meshIndex].name, name.c_str(), ZScene::NAME_SIZE);
+        meshesHeaders[meshIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        meshesHeaders[meshIndex].surfacesCount = mesh.primitives.size();
+
+        uvsInfos[meshIndex].resize(mesh.primitives.size());
+        surfaceInfo[meshIndex].resize(mesh.primitives.size());
+
+        uint32_t initialVtx{0};
+        uint32_t uvsDataInfoCount{0};
+        for(auto surfaceIndex = 0; surfaceIndex < mesh.primitives.size(); surfaceIndex++) {
+            const auto& p = mesh.primitives[surfaceIndex];
+            // load indexes
+            {
+                auto &indexAccessor = gltf.accessors[p.indicesAccessor.value()];
+                surfaceInfo[meshIndex][surfaceIndex].indices.first = indices.size();
+                surfaceInfo[meshIndex][surfaceIndex].indices.count = indexAccessor.count;
+                indices.reserve(indices.size() + indexAccessor.count);
+                fastgltf::iterateAccessor<std::uint32_t>(gltf, indexAccessor, [&](const uint32_t idx) {
+                    indices.push_back(idx + initialVtx);
+                });
+            }
+            // load vertex positions
+            {
+                auto &posAccessor = gltf.accessors[p.findAttribute("POSITION")->accessorIndex];
+                surfaceInfo[meshIndex][surfaceIndex].positions.first = positions.size();
+                surfaceInfo[meshIndex][surfaceIndex].positions.count = posAccessor.count;
+                positions.reserve(positions.size() + posAccessor.count);
+                fastgltf::iterateAccessor<vec3>(gltf, posAccessor, [&](const vec3 v) {
+                    positions.push_back(v);
+                });
+                initialVtx += posAccessor.count;
+            }
+            // load vertex normals
+            {
+                auto normalAttr = p.findAttribute("NORMAL");
+                if (normalAttr != p.attributes.end()) {
+                    auto &normalAccessor = gltf.accessors[normalAttr->accessorIndex];
+                    surfaceInfo[meshIndex][surfaceIndex].normals.first = normals.size();
+                    surfaceInfo[meshIndex][surfaceIndex].normals.count = normalAccessor.count;
+                    positions.reserve(normals.size() + normalAccessor.count);
+                    fastgltf::iterateAccessor<vec3>(gltf, normalAccessor, [&](const vec3 v) {
+                        normals.push_back(v);
+                    });
+                }
+            }
+            // load uv tangents
+            {
+                auto tangentAttr = p.findAttribute("TANGENT");
+                if (tangentAttr != p.attributes.end()) {
+                    auto &tangentAccessor = gltf.accessors[tangentAttr->accessorIndex];
+                    surfaceInfo[meshIndex][surfaceIndex].tangents.first = tangents.size();
+                    surfaceInfo[meshIndex][surfaceIndex].tangents.count = tangentAccessor.count;
+                    tangents.reserve(tangents.size() + tangentAccessor.count);
+                    fastgltf::iterateAccessorWithIndex<vec4>(
+                        gltf,tangentAccessor, [&](const vec4 v, const size_t index) {
+                            tangents.push_back(v);
+                        });
+                }
+            }
+            if (p.materialIndex.has_value()) {
+                surfaceInfo[meshIndex][surfaceIndex].materialIndex = p.materialIndex.value();
+                // load UVs
+                surfaceInfo[meshIndex][surfaceIndex].uvsCount = 0;
+                for(auto &attr : p.attributes) {
+                    string name{attr.name.data()};
+                    if (name.starts_with("TEXCOORD_")) {
+                        auto& accessor = gltf.accessors[attr.accessorIndex];
+                        uvsDataInfoCount += 1;
+                        uvsInfos[meshIndex][surfaceIndex].resize(surfaceInfo[meshIndex][surfaceIndex].uvsCount + 1);
+                        uvsInfos[meshIndex][surfaceIndex][surfaceInfo[meshIndex][surfaceIndex].uvsCount].first = uvs.size();
+                        uvsInfos[meshIndex][surfaceIndex][surfaceInfo[meshIndex][surfaceIndex].uvsCount].count = accessor.count;
+                        uvs.reserve(uvs.size() + accessor.count);
+                        fastgltf::iterateAccessor<vec2>(gltf, accessor, [&](const vec2 v) {
+                            uvs.push_back({v.x, v.y});
+                        });
+                        surfaceInfo[meshIndex][surfaceIndex].uvsCount += 1;
+                    }
+                }
+            } else {
+                surfaceInfo[meshIndex][surfaceIndex].materialIndex = -1;
+            }
+        }
+        header.headersSize += sizeof(ZScene::MeshHeader)
+                            + sizeof(ZScene::SurfaceInfo) * surfaceInfo[meshIndex].size()
+                            + sizeof(ZScene::DataInfo) * uvsDataInfoCount;
+    }
+
     cout << "Writing output file " << outputFilename << "...\n";
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile) {
@@ -336,8 +439,40 @@ int main(const int argc, char** argv) {
     }
     outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(ZScene::TextureHeader));
     outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(ZScene::MaterialHeader));
+    for (auto meshIndex = 0; meshIndex < gltf.meshes.size(); meshIndex++) {
+        ZScene::print(meshesHeaders[meshIndex]);
+        outputFile.write(reinterpret_cast<const char*>(&meshesHeaders[meshIndex]),sizeof(ZScene::MeshHeader));
+        for(auto surfaceIndex = 0; surfaceIndex < meshesHeaders[meshIndex].surfacesCount; surfaceIndex++) {
+            outputFile.write(reinterpret_cast<const char*>(&surfaceInfo[meshIndex][surfaceIndex]),sizeof(ZScene::SurfaceInfo));
+            outputFile.write(reinterpret_cast<const char*>(&uvsInfos[meshIndex][surfaceIndex]), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(ZScene::DataInfo));
+        }
+    }
 
-    // Write images mip levels
+    // Write meshes data
+    uint32_t count = indices.size();
+    outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
+    outputFile.write(reinterpret_cast<const char*>(indices.data()),indices.size() * sizeof(uint32_t));
+
+    count = positions.size();
+    outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
+    outputFile.write(reinterpret_cast<const char*>(positions.data()),positions.size() * sizeof(vec3));
+
+    count = normals.size();
+    outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
+    outputFile.write(reinterpret_cast<const char*>(normals.data()),normals.size() * sizeof(vec3));
+
+    count = uvs.size();
+    outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
+    outputFile.write(reinterpret_cast<const char*>(uvs.data()),uvs.size() * sizeof(vec2));
+
+    count = tangents.size();
+    outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
+    outputFile.write(reinterpret_cast<const char*>(tangents.data()),tangents.size() * sizeof(vec4));
+
+    // cout << format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
+        // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()) << endl;
+
+    // Write images
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         for(auto mipLevel = 0; mipLevel < MipSetCmp[imageIndex].m_nMipLevels; ++mipLevel) {
             // ZScene::print(mipHeaders[imageIndex][mipLevel]);
@@ -352,12 +487,11 @@ int main(const int argc, char** argv) {
             }
         }
     }
-
-    outputFile.close();
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         CMP_FreeMipSet(&MipSetIn[imageIndex]);
         CMP_FreeMipSet(&MipSetCmp[imageIndex]);
     }
 
+    outputFile.close();
     return 0;
 }

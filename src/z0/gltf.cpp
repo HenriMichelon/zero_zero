@@ -51,8 +51,8 @@ namespace z0 {
         string            name{image.name};
         // log("Load image ", name);
         visit(fastgltf::visitor{
-              [](auto &arg) {},
-              [&](fastgltf::sources::URI &filePath) {
+              [](auto &) {},
+              [&](fastgltf::sources::URI &) {
                   die("External textures files for glTF not supported");
               },
               [&](fastgltf::sources::Vector &vector) {
@@ -65,7 +65,7 @@ namespace z0 {
                         // We only care about VectorWithMime here, because we
                         // specify LoadExternalBuffers, meaning all buffers
                         // are already loaded into a vector.
-                        [](auto &arg) {},
+                        [](auto &) {},
                         [&](fastgltf::sources::Vector &vector) {
                             newImage = loadImageFunction(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, format);
                         },
@@ -81,7 +81,8 @@ namespace z0 {
     }
 
     shared_ptr<Node> GlTF::load(const string &filepath,
-                                               bool forceBackFaceCulling) {
+                                bool forceBackFaceCulling) {
+        auto tStart = std::chrono::high_resolution_clock::now();
         const auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
@@ -105,7 +106,7 @@ namespace z0 {
 
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
-        map<Resource::id_t, int> materialsTextCoords;
+        map<Resource::id_t, int> materialsTexCoords;
         for (auto &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
             material->setAlbedoColor({
@@ -205,7 +206,7 @@ namespace z0 {
             };
             auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
                 const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
-                materialsTextCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
+                materialsTexCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
                 if (texture.samplerIndex.has_value()) { convertSamplerData(texture); }
                 shared_ptr<Image> image;
                 if (texture.imageIndex.has_value()) {
@@ -284,7 +285,10 @@ namespace z0 {
                     auto &indexaccessor = gltf.accessors[p.indicesAccessor.value()];
                     indices.reserve(indices.size() + indexaccessor.count);
                     fastgltf::iterateAccessor<std::uint32_t>(
-                            gltf, indexaccessor, [&](std::uint32_t idx) { indices.push_back(idx + initial_vtx); });
+                        gltf, indexaccessor, [&](const uint32_t idx) {
+                            indices.push_back(idx + initial_vtx);
+                            // log(format("mesh {} surface {} index {}", i, mesh->getSurfaces().size(), idx + initial_vtx));
+                        });
                 }
                 // load vertex positions
                 {
@@ -294,42 +298,52 @@ namespace z0 {
                         vertices[index + initial_vtx] = {
                             .position = v,
                         };
+                        // log(format("mesh {} surface {} pos {}", i, mesh->getSurfaces().size(), to_string(v)));
                     });
                 }
                 // load vertex normals
-                auto normals = p.findAttribute("NORMAL");
-                if (normals != p.attributes.end()) {
-                    fastgltf::iterateAccessorWithIndex<vec3>(
-                            gltf, gltf.accessors[(*normals).accessorIndex], [&](vec3 v, size_t index) {
+                {
+                    auto normals = p.findAttribute("NORMAL");
+                    if (normals != p.attributes.end()) {
+                        auto &normalAccessor = gltf.accessors[normals->accessorIndex];
+                        fastgltf::iterateAccessorWithIndex<vec3>(
+                            gltf, normalAccessor, [&](const vec3 v, const size_t index) {
                                 vertices[index + initial_vtx].normal = v;
+                                // log(format("mesh {} surface {} norm {}", i, mesh->getSurfaces().size(), to_string(v)));
                             });
+                    }
                 }
-                auto tangents = p.findAttribute("TANGENT");
-                if (tangents != p.attributes.end()) {
-                    haveTangents = true;
-                    fastgltf::iterateAccessorWithIndex<vec4>(
-                            gltf, gltf.accessors[(*tangents).accessorIndex], [&](vec4 v, size_t index) {
+                // load uv tangents
+                {
+                    auto tangents = p.findAttribute("TANGENT");
+                    if (tangents != p.attributes.end()) {
+                        haveTangents = true;
+                        auto &tangentAccessor = gltf.accessors[tangents->accessorIndex];
+                        fastgltf::iterateAccessorWithIndex<vec4>(
+                            gltf, tangentAccessor, [&](const vec4 v, const size_t index) {
                                 vertices[index + initial_vtx].tangent = v;
                             });
+                    }
                 }
                 if (p.materialIndex.has_value()) {
                     // associate material to surface and keep track of all materials used in the Mesh
-                    auto material     = materials[p.materialIndex.value()];
+                    const auto& material     = materials[p.materialIndex.value()];
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
                     // load UVs
                     auto textCoord = 0;
-                    if (materialsTextCoords.contains(material->getId())) {
-                        textCoord = materialsTextCoords.at(material->getId());
+                    if (materialsTexCoords.contains(material->getId())) {
+                        textCoord = materialsTexCoords.at(material->getId());
                     }
                     stringstream stextCoord;
                     stextCoord << "TEXCOORD_" << textCoord;
                     auto uv = p.findAttribute(stextCoord.str());
                     if (uv != p.attributes.end()) {
                         fastgltf::iterateAccessorWithIndex<vec2>(
-                                gltf, gltf.accessors[(*uv).accessorIndex], [&](vec2 v, size_t index) {
-                                    vertices[index + initial_vtx].uv = {v.x, v.y};
-                                });
+                            gltf, gltf.accessors[(*uv).accessorIndex], [&](const vec2 v, const size_t index) {
+                                vertices[index + initial_vtx].uv = v;
+                                // log(format("mesh {} surface {} uvs {} uv {}", i, mesh->getSurfaces().size(), textCoord, to_string(v)));
+                            });
                     }
                 } else {
                     // Mesh have no material, use a default one
@@ -339,7 +353,7 @@ namespace z0 {
                 }
                 // calculate tangent for each triangle
                 if (!haveTangents) {
-                    for (uint32_t i = 0; i < indices.size(); i += 3) {
+                    for (auto i = 0; i < indices.size(); i += 3) {
                         auto &vertex1  = vertices[indices[i]];
                         auto &vertex2  = vertices[indices[i + 1]];
                         auto &vertex3  = vertices[indices[i + 2]];
@@ -430,6 +444,8 @@ namespace z0 {
             }
         }
 
+        auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+        log("glTF loading time ", to_string(last_time));
         return rootNode;
     }
 

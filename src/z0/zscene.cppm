@@ -12,11 +12,28 @@ export module z0.ZScene;
 
 import z0.Texture;
 import z0.Material;
+import z0.Mesh;
 
 export namespace z0 {
 
     /**
-     * ZScene file format
+     * ZScene binary file format : <br>
+     * Header : global header<br>
+     * array<ImageHeader + array<MipLevelHeader, mipLevels>, imagesCount> : images headers<br>
+     * array<TextureHeader, texturesCount> : textures headers<br>
+     * array<MaterialHeader, materialsCount> : materials headers<br>
+     * array<MeshHeader + array<SurfaceInfo, surfacesCount> + array<DataInfo, surfacesCount * uvsCount>, meshesCount> : meshes headers<br>
+     * uint32_t : indicesCount<br>
+     * array<uint32_t, indicesCount> : indices<br>
+     * uint32_t : positionsCount<br>
+     * array<vec3, positionsCount> : positions<br>
+     * uint32_t : normalsCount<br>
+     * array<vec3, normalsCount> : normals<br>
+     * uint32_t : uvsCount<br>
+     * array<vec2, uvsCount> : uvs<br>
+     * uint32_t : tangentsCount<br>
+     * array<vec4, tangentsCount> : tangents<br>
+     * array<BCn compressed image, imagesCount> : images<br>
      */
     class ZScene {
     public:
@@ -30,6 +47,7 @@ export namespace z0 {
             uint32_t imagesCount{0};
             uint32_t texturesCount{0};
             uint32_t materialsCount{0};
+            uint32_t meshesCount{0};
             uint64_t headersSize;
         };
 
@@ -57,8 +75,9 @@ export namespace z0 {
         };
 
         struct TextureInfo {
-            int32_t   textureIndex;
-            mat3      transform;
+            int32_t  textureIndex;
+            uint32_t uvsIndex;
+            mat3     transform;
         };
 
         struct MaterialHeader {
@@ -79,11 +98,31 @@ export namespace z0 {
             float        normalScale;
         };
 
+        struct DataInfo {
+            uint32_t first;
+            uint32_t count;
+        };
+
+        struct SurfaceInfo {
+            int32_t  materialIndex;
+            DataInfo indices;
+            DataInfo positions;
+            DataInfo normals;
+            DataInfo tangents;
+            uint32_t uvsCount;
+        };
+
+        struct MeshHeader {
+            char     name[NAME_SIZE];
+            uint32_t surfacesCount;
+        };
+
         [[nodiscard]] static shared_ptr<ZScene> load(const string &filename);
         [[nodiscard]] static shared_ptr<ZScene> load(ifstream &stream);
 
         inline const vector<shared_ptr<Texture>>& getTextures() const { return textures; };
         inline const vector<shared_ptr<Material>>& getMaterials() const { return materials; };
+        inline const vector<shared_ptr<Mesh>>& getMeshes() const { return meshes; };
 
         ZScene() = default;
 
@@ -92,11 +131,14 @@ export namespace z0 {
         static void print(const MipLevelHeader& header);
         static void print(const TextureHeader& header);
         static void print(const MaterialHeader& header);
+        static void print(const MeshHeader& header);
+        static void print(const SurfaceInfo& header);
 
     protected:
         Header header{};
-        vector<shared_ptr<Texture>> textures{};
+        vector<shared_ptr<Texture>>  textures{};
         vector<shared_ptr<Material>> materials{};
+        vector<shared_ptr<Mesh>>     meshes{};
 
         void loadScene(ifstream& stream);
 
