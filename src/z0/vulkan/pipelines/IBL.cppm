@@ -8,16 +8,16 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:IBLPipeline;
+export module z0.IBLPipeline;
 
-import :Image;
-import :Cubemap;
+import z0.Image;
+import z0.Cubemap;
 
-import :Device;
-import :ComputePipeline;
-import :Descriptors;
-import :VulkanImage;
-import :VulkanCubemap;
+import z0.Device;
+import z0.ComputePipeline;
+import z0.Descriptors;
+import z0.VulkanImage;
+import z0.VulkanCubemap;
 
 export namespace z0 {
 
@@ -41,10 +41,10 @@ export namespace z0 {
             alignas(4) float roughness;
         };
 
-        unique_ptr<DescriptorPool> descriptorPool;
+        unique_ptr<DescriptorPool>      descriptorPool;
         unique_ptr<DescriptorSetLayout> descriptorSetLayout;
-        VkDescriptorSet descriptorSet{VK_NULL_HANDLE};
-        VkSampler computeSampler{VK_NULL_HANDLE};
+        VkDescriptorSet                 descriptorSet{VK_NULL_HANDLE};
+        VkSampler                       computeSampler{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};
         static constexpr auto BINDING_OUTPUT_TEXTURE{1};

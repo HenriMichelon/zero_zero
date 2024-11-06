@@ -7,26 +7,26 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GStyleClassic;
+export module z0.GStyleClassic;
 
-import :Rect;
-import :Tools;
-import :Color;
-import :GResource;
-import :GStyle;
-import :GWidget;
-import :GStyleClassicResource;
-import :GPanel;
-import :GLine;
-import :GButton;
-import :GToggleButton;
-import :GText;
-import :GFrame;
-import :GScrollBar;
-import :GTreeView;
-import :GCheckWidget;
-import :VectorRenderer;
-import :Application;
+import z0.Rect;
+import z0.Tools;
+import z0.Color;
+import z0.GResource;
+import z0.GStyle;
+import z0.GWidget;
+import z0.GStyleClassicResource;
+import z0.GPanel;
+import z0.GLine;
+import z0.GButton;
+import z0.GToggleButton;
+import z0.GText;
+import z0.GFrame;
+import z0.GScrollBar;
+import z0.GTreeView;
+import z0.GCheckWidget;
+import z0.VectorRenderer;
+import z0.Application;
 
 export namespace z0 {
     class Glayout;

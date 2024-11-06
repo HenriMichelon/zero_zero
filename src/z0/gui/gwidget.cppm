@@ -7,25 +7,28 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GWidget;
+export module z0.GWidget;
 
-import :Constants;
-import :Object;
-import :Rect;
-import :Font;
-import :Object;
-import :GResource;
-import :GStyle;
-import :Application;
+import z0.Constants;
+import z0.Object;
+import z0.Rect;
+import z0.Font;
+import z0.Object;
+import z0.GResource;
+import z0.GStyle;
+import z0.Application;
 
-export namespace z0 {
+namespace z0 {
+
     class GWindow;
+    class VectorRenderer;
 
     /**
      * Base class for all UI widgets
      */
-    class GWidget : public Object {
+    export class GWidget : public Object {
     public:
+
         //! Widget type
         enum Type {
             //! transparent widget
@@ -108,7 +111,7 @@ export namespace z0 {
         /** Creates a widget of a particular type */
         explicit GWidget(Type = WIDGET);
 
-        ~GWidget() override = default;
+        ~GWidget() override {};
 
         /** Returns the type of the widget */
         [[nodiscard]] Type getType() const;

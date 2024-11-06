@@ -13,10 +13,10 @@ module;
 #include <stb_image_write.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Tools;
 
-import :Constants;
-import :Window;
+import z0.Constants;
+import z0.Window;
 
 namespace z0 {
 

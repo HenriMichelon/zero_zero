@@ -8,37 +8,37 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:SceneRenderer;
+export module z0.SceneRenderer;
 
-import :Constants;
-import :Node;
-import :MeshInstance;
-import :Environment;
-import :Material;
-import :Resource;
-import :Image;
-import :Cubemap;
-import :FrustumCulling;
-import :Light;
-import :DirectionalLight;
-import :OmniLight;
-import :SpotLight;
-import :Skybox;
+import z0.Constants;
+import z0.Node;
+import z0.MeshInstance;
+import z0.Environment;
+import z0.Material;
+import z0.Resource;
+import z0.Image;
+import z0.Cubemap;
+import z0.FrustumCulling;
+import z0.Light;
+import z0.DirectionalLight;
+import z0.OmniLight;
+import z0.SpotLight;
+import z0.Skybox;
 
-import :ModelsRenderer;
-import :Device;
-import :Descriptors;
-import :ShadowMapRenderer;
-import :SkyboxRenderer;
-import :Buffer;
-import :Shader;
-import :VulkanCubemap;
-import :VulkanImage;
-import :ColorFrameBufferHDR;
-import :ColorFrameBuffer;
-import :DepthFrameBuffer;
-import :ShadowMapFrameBuffer;
-import :SampledFrameBuffer;
+import z0.ModelsRenderer;
+import z0.Device;
+import z0.Descriptors;
+import z0.ShadowMapRenderer;
+import z0.SkyboxRenderer;
+import z0.Buffer;
+import z0.Shader;
+import z0.VulkanCubemap;
+import z0.VulkanImage;
+import z0.ColorFrameBufferHDR;
+import z0.ColorFrameBuffer;
+import z0.DepthFrameBuffer;
+import z0.ShadowMapFrameBuffer;
+import z0.SampledFrameBuffer;
 
 namespace z0 {
 

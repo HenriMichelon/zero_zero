@@ -5,8 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 #pragma once
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wnullability-completeness"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_GTC_constants

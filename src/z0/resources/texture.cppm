@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Texture;
+export module z0.Texture;
 
-import :Constants;
-import :Resource;
-import :Image;
+import z0.Constants;
+import z0.Resource;
+import z0.Image;
 
 export namespace z0 {
 
@@ -55,7 +55,7 @@ export namespace z0 {
         /**
          * Creates an ImageTexture from an image resource
          */
-        explicit ImageTexture(const string &filename, ImageFormat imageFormat);
+        explicit ImageTexture(const string &filename, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
 
         /**
          * Returns the attached Image

@@ -8,16 +8,19 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.GWidget;
 
-import :Font;
-import :Rect;
-import :Application;
-import :VectorRenderer;
-import :GWidget;
-import :GResource;
-import :GWindow;
-import :GEvent;
+import z0.Application;
+import z0.Constants;
+import z0.Font;
+import z0.Rect;
+import z0.Tools;
+
+import z0.GEvent;
+import z0.GResource;
+import z0.GWindow;
+
+import z0.VectorRenderer;
 
 namespace z0 {
     GWidget::GWidget(Type T): type{T} {

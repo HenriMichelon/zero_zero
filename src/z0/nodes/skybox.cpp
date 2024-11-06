@@ -7,16 +7,15 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.Skybox;
 
-import :Cubemap;
-import :Skybox;
+import z0.Cubemap;
 
 namespace z0 {
 
     Skybox::Skybox(const string &filename, const string &fileext):
         Node{filename, SKYBOX} {
-        cubemap = Cubemap::loadFromFile(filename, fileext);
+        cubemap = Cubemap::load(filename, fileext);
     }
 
     Skybox::Skybox(const string &filename):
@@ -24,17 +23,17 @@ namespace z0 {
         if (filename.ends_with(".hdr")) {
             cubemap = EnvironmentCubemap::loadFromHDRi(filename);
         } else {
-            cubemap = Cubemap::loadFromFile(filename);
+            cubemap = Cubemap::load(filename);
         }
     }
 
     void Skybox::setCubemapFromFile(const string &filename) {
-        cubemap = Cubemap::loadFromFile(filename);
+        cubemap = Cubemap::load(filename);
     }
 
     void Skybox::setProperty(const string &property, const string &value) {
         Node::setProperty(property, value);
-        if (property == "cubemap_file") { cubemap = Cubemap::loadFromFile(value); }
+        if (property == "cubemap_file") { cubemap = Cubemap::load(value); }
     }
 
 }

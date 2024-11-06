@@ -8,19 +8,19 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module z0:ModelsRenderer;
+export module z0.ModelsRenderer;
 
-import :Constants;
-import :Renderer;
-import :Renderpass;
-import :Node;
-import :Camera;
-import :Buffer;
-import :MeshInstance;
-import :Device;
-import :DepthFrameBuffer;
-import :Viewport;
-import :Mesh;
+import z0.Constants;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.Node;
+import z0.Camera;
+import z0.Buffer;
+import z0.MeshInstance;
+import z0.Device;
+import z0.DepthFrameBuffer;
+import z0.Viewport;
+import z0.Mesh;
 
 export namespace z0 {
 

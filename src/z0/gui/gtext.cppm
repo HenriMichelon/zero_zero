@@ -7,12 +7,12 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GText;
+export module z0.GText;
 
-import :Color;
-import :Rect;
-import :Application;
-import :GWidget;
+import z0.Color;
+import z0.Rect;
+import z0.Application;
+import z0.GWidget;
 
 export namespace z0 {
     /**

@@ -8,10 +8,10 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:DepthFrameBuffer;
+export module z0.DepthFrameBuffer;
 
-import :Device;
-import :FrameBuffer;
+import z0.Device;
+import z0.FrameBuffer;
 
 export namespace z0 {
 

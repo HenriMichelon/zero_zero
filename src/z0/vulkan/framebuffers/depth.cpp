@@ -7,11 +7,10 @@
 module;
 #include <volk.h>
 
-module z0;
+module z0.DepthFrameBuffer;
 
-import :Application;
-import :Device;
-import :DepthFrameBuffer;
+import z0.Application;
+import z0.Device;
 
 namespace z0 {
 

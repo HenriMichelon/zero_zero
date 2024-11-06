@@ -10,9 +10,9 @@ module;
 #endif
 #include "z0/libraries.h"
 
-export module z0:Input;
+export module z0.Input;
 
-import :Constants;
+import z0.Constants;
 
 namespace z0 {
     /**

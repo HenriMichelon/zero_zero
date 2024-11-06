@@ -7,22 +7,25 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GStyle;
+export module z0.GStyle;
 
-import :Object;
-import :Rect;
-import :Font;
-import :GResource;
+import z0.Font;
+import z0.Object;
+import z0.Rect;
 
-export namespace z0 {
+import z0.GResource;
+
+namespace z0 {
+
     class GWidget;
     class VectorRenderer;
 
     /**
      * Widget drawing base class
      */
-    class GStyle : public Object {
+    export class GStyle : public Object {
     public:
+
         GStyle();
 
         ~GStyle() override = default;

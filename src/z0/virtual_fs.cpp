@@ -10,12 +10,11 @@ module;
 #include <fastgltf/core.hpp>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VirtualFS;
 
-import :Tools;
-import :Constants;
-import :Application;
-import :VirtualFS;
+import z0.Tools;
+import z0.Constants;
+import z0.Application;
 
 namespace z0 {
 
@@ -45,10 +44,10 @@ namespace z0 {
         .eof  = eofCallback,
     };
 
-    byte* VirtualFS::loadImage(const string& filepath,
+    byte* VirtualFS::loadRGBAImage(const string& filepath,
                                 uint32_t& width, uint32_t& height, uint64_t& size,
                                 const ImageFormat imageFormat) {
-        assert(imageFormat == IMAGE_R8G8B8A8);
+        assert(imageFormat == IMAGE_R8G8B8A8_SRGB || imageFormat == IMAGE_R8G8B8A8_UNORM);
         ifstream file(getPath(filepath), std::ios::binary);
         if (!file.is_open()) die("Error: Could not open file ", filepath);
 
@@ -113,24 +112,51 @@ namespace z0 {
         vector<byte> buffer;
     };
 
-    unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string& filepath) {
+    unique_ptr<fastgltf::GltfDataGetter> VirtualFS::openGltf(const string &filepath) {
         return make_unique<GltfFileStream>(getPath(filepath));
     }
 
-    ifstream VirtualFS::openFile(const string& filepath) {
+    ifstream VirtualFS::openStream(const string &filepath) {
         ifstream file(getPath(filepath), std::ios::binary);
-        if (!file.is_open()) die("Error: Could not open file ", filepath);
+        if (!file.is_open()) { die("Error: Could not open file ", filepath); }
+        return file;
+    }
+
+    FILE* VirtualFS::openFile(const string& filepath) {
+        FILE *file = fopen(getPath(filepath).c_str(), "rb");
+        if (file == nullptr) { die("Error: Could not open file ", filepath); }
         return file;
     }
 
     vector<char> VirtualFS::loadShader(const string &filepath) {
         auto path = APP_URI + "shaders/" + filepath + ".spv";
         ifstream file(getPath(path), std::ios::ate | std::ios::binary);
-        if (!file.is_open()) die("failed to open file : ", filepath);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
         const size_t fileSize = file.tellg();
         vector<char> buffer(fileSize);
         file.seekg(0);
         file.read(buffer.data(), fileSize);
+        file.close();
+        return buffer;
+    }
+
+    vector<char> VirtualFS::loadBinary(const string &filepath) {
+        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
+        const size_t fileSize = file.tellg();
+        vector<char> buffer(fileSize);
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+        file.close();
+        return buffer;
+    }
+
+    vector<char> VirtualFS::loadBinary(const string &filepath, const uint64_t size) {
+        ifstream file(getPath(filepath), std::ios::ate | std::ios::binary);
+        if (!file.is_open()) { die("failed to open file : ", filepath); }
+        vector<char> buffer(size);
+        file.seekg(0);
+        file.read(buffer.data(), size);
         file.close();
         return buffer;
     }

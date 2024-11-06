@@ -8,13 +8,13 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:Renderpass;
+export module z0.Renderpass;
 
-import :Constants;
-import :Device;
-import :Shader;
-import :Buffer;
-import :Descriptors;
+import z0.Constants;
+import z0.Device;
+import z0.Shader;
+import z0.Buffer;
+import z0.Descriptors;
 
 export namespace z0 {
 
@@ -23,6 +23,8 @@ export namespace z0 {
      */
     class Renderpass {
     public:
+        Renderpass(Renderpass&&) = delete;
+        Renderpass(Renderpass&) = delete;
         virtual ~Renderpass() = default;
 
         virtual void cleanup();

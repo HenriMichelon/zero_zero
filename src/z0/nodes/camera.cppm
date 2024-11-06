@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Camera;
+export module z0.Camera;
 
-import :Constants;
-import :Node;
+import z0.Constants;
+import z0.Node;
 
 export namespace z0 {
 

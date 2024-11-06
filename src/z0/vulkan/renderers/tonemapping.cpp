@@ -8,14 +8,16 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.TonemappingPostprocessingRenderer;
 
-import :PostprocessingRenderer;
-import :Device;
-import :ColorFrameBufferHDR;
-import :TonemappingPostprocessingRenderer;
-import :DepthFrameBuffer;
-import :Descriptors;
+import z0.Application;
+import z0.Tools;
+
+import z0.Device;
+import z0.ColorFrameBufferHDR;
+import z0.DepthFrameBuffer;
+import z0.Descriptors;
+import z0.PostprocessingRenderer;
 
 namespace z0 {
 

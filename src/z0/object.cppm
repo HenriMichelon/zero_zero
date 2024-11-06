@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Object;
+export module z0.Object;
 
-import :Signal;
+import z0.Signal;
 
 export namespace z0 {
 
@@ -18,8 +18,6 @@ export namespace z0 {
      */
     class Object {
     public:
-        virtual ~Object() = default;
-
         /**
          * Connects a signal by name to a member function
          * @param name signal name.
@@ -55,6 +53,13 @@ export namespace z0 {
 
         template<typename T>
         static constexpr Signal::Handler SignalHandler(const T handler) { return reinterpret_cast<Signal::Handler>(handler); }
+
+        Object(Object const&) = delete;
+        Object(Object const&&) = delete;
+        Object(Object &) = delete;
+        Object(Object &&) = delete;
+        Object() = default;
+        virtual ~Object() = default;
 
     private:
         map<string, Signal> signals;

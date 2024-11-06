@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GEvent;
+export module z0.GEvent;
 
-import :Constants;
-import :Signal;
+import z0.Constants;
+import z0.Signal;
 
 export namespace z0 {
     class GWidget;

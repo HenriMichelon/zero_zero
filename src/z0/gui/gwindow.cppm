@@ -7,23 +7,24 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GWindow;
+export module z0.GWindow;
 
-import :Constants;
-import :Object;
-import :Rect;
-import :Font;
-import :Application;
-import :GStyle;
-import :GWidget;
+import z0.Constants;
+import z0.Object;
+import z0.Rect;
+import z0.Font;
+import z0.Application;
+import z0.GStyle;
+import z0.GWidget;
 
-export namespace z0 {
+namespace z0 {
+
     class GManager;
 
     /**
      * A UI window displayed inside the rendering window
      */
-    class GWindow : public Object {
+    export class GWindow : public Object {
     public:
         /**
          * Which GWindow borders can be used to resize the window

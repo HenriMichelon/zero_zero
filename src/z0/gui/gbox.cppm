@@ -6,11 +6,11 @@
 */
 module;
 
-export module z0:GBox;
+export module z0.GBox;
 
-import :GPanel;
+import z0.GPanel;
 
-namespace z0 {
+export namespace z0 {
 
     /**
      * A rectangular box

@@ -7,9 +7,9 @@
 module;
 #include <volk.h>
 
-export module z0:FrameBuffer;
+export module z0.FrameBuffer;
 
-import :Device;
+import z0.Device;
 
 export namespace z0 {
 
@@ -18,6 +18,9 @@ export namespace z0 {
      */
     class FrameBuffer {
     public:
+        FrameBuffer(FrameBuffer&) = delete;
+        FrameBuffer(FrameBuffer&&) = delete;
+
         [[nodiscard]] inline const VkImage &getImage() const { return image; }
 
         [[nodiscard]] inline const VkImageView &getImageView() const { return imageView; }

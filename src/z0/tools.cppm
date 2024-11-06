@@ -11,10 +11,10 @@ module;
 #endif
 #include "z0/libraries.h"
 
-export module z0:Tools;
+export module z0.Tools;
 
-import :Constants;
-import :Window;
+import z0.Constants;
+import z0.Window;
 
 export namespace z0 {
     /**

@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:ApplicationConfig;
+export module z0.ApplicationConfig;
 
-import :Constants;
+import z0.Constants;
 
 export namespace z0 {
 

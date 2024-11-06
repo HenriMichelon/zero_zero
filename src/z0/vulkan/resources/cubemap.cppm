@@ -8,10 +8,10 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:VulkanCubemap;
+export module z0.VulkanCubemap;
 
-import :Cubemap;
-import :Device;
+import z0.Cubemap;
+import z0.Device;
 
 export namespace z0 {
 
@@ -30,6 +30,9 @@ export namespace z0 {
                 uint32_t            levels = 1,
                 VkFormat            format = VK_FORMAT_R16G16B16A16_SFLOAT,
                 const string &      name = "Cubemap");
+
+        VulkanCubemap(VulkanCubemap &&) = delete;
+        VulkanCubemap(VulkanCubemap &) = delete;
 
         ~VulkanCubemap() override;
 

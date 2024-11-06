@@ -7,9 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
-
-import :OmniLight;
+module z0.OmniLight;
 
 namespace z0 {
 

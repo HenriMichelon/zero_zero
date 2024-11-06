@@ -9,10 +9,10 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 
-export module z0:Shape;
+export module z0.Shape;
 
-import :Tools;
-import :Resource;
+import z0.Tools;
+import z0.Resource;
 
 export namespace z0 {
 

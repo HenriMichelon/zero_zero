@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GResource;
+export module z0.GResource;
 
-import :Object;
+import z0.Object;
 
-namespace z0 {
+export namespace z0 {
 
     /**
      * Super class for style resources descriptions

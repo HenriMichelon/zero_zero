@@ -8,12 +8,12 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Material;
 
-import :Constants;
-import :Color;
-import :Texture;
-import :Material;
+import z0.Application;
+import z0.Color;
+import z0.Constants;
+import z0.Texture;
 
 namespace z0 {
 
@@ -42,11 +42,13 @@ namespace z0 {
 
     void StandardMaterial::setMetallicTexture(const TextureInfo &texture) {
         metallicTexture = texture;
+        if (metallicFactor == -1.0f) { metallicFactor = 0.0f; }
         _setDirty();
     }
 
     void StandardMaterial::setRoughnessTexture(const TextureInfo &texture) {
         roughnessTexture = texture;
+        if (metallicFactor == -1.0f) { metallicFactor = 0.0f; }
         _setDirty();
     }
 

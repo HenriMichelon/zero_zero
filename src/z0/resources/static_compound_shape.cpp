@@ -9,11 +9,11 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 
-module z0;
+module z0.StaticCompoundShape;
 
-import :Tools;
-import :Shape;
-import :SubShape;
+import z0.Tools;
+import z0.Shape;
+import z0.SubShape;
 
 namespace z0 {
 

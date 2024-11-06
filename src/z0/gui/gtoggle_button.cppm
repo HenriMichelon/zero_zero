@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GToggleButton;
+export module z0.GToggleButton;
 
-import :Constants;
-import :GEvent;
-import :GCheckWidget;
+import z0.Constants;
+import z0.GEvent;
+import z0.GCheckWidget;
 
 export namespace z0 {
     /**

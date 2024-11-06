@@ -7,13 +7,13 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GManager;
+export module z0.GManager;
 
-import :Constants;
-import :Object;
-import :Font;
-import :InputEvent;
-import :GWindow;
+import z0.Constants;
+import z0.Object;
+import z0.Font;
+import z0.InputEvent;
+import z0.GWindow;
 
 export namespace z0 {
 

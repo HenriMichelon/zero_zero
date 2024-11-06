@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Environment;
+export module z0.Environment;
 
-import :Node;
+import z0.Node;
 
 export namespace z0 {
 

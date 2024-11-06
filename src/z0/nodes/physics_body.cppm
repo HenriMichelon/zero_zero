@@ -9,10 +9,10 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 
-export module z0:PhysicsBody;
+export module z0.PhysicsBody;
 
-import :CollisionObject;
-import :Shape;
+import z0.CollisionObject;
+import z0.Shape;
 
 export namespace z0 {
 

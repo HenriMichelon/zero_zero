@@ -7,16 +7,20 @@
 module;
 #include <volk.h>
 #include "z0/libraries.h"
+#include <ktx.h>
+#include <ktxvulkan.h>
 
-export module z0:VulkanImage;
+export module z0.VulkanImage;
 
-import :Image;
+import z0.Image;
+import z0.ZScene;
 
-import :Device;
+import z0.Device;
+import z0.Buffer;
 
 export namespace z0 {
 
-    /**
+    /*
      * Helper class for the Vulkan resources [VkImage](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImage.html), [VkImageView](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageView.html) and [VkSampler](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkSampler.html)
      */
     class VulkanImage : public Image {
@@ -58,6 +62,18 @@ export namespace z0 {
                VkFilter             samplerFilter      = VK_FILTER_LINEAR,
                VkBool32             anisotropyEnable   = VK_TRUE);
 
+        VulkanImage(const Device &            device,
+                const string &                name,
+                const ZScene::ImageHeader &   imageHeader,
+                const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+                const ZScene::TextureHeader & textureHeader,
+                const Buffer                  &buffer,
+                const uint64_t                bufferOffset,
+                VkImageTiling                 tiling             = VK_IMAGE_TILING_OPTIMAL);
+
+        VulkanImage(VulkanImage&&) = delete;
+        VulkanImage(VulkanImage&) = delete;
+
         ~VulkanImage() override;
 
         inline VkDescriptorImageInfo getImageInfo() const {
@@ -73,13 +89,21 @@ export namespace z0 {
 
         [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
 
-    private:
+        static VkFormat formatSRGB(VkFormat format, const string& name);
+
+    protected:
         const Device & device;
         uint32_t       mipLevels;
-        VkImage        textureImage;
-        VkDeviceMemory textureImageMemory;
-        VkImageView    textureImageView;
-        VkSampler      textureSampler;
+        VkImage        textureImage{VK_NULL_HANDLE};
+        VkDeviceMemory textureImageMemory{VK_NULL_HANDLE};
+        VkImageView    textureImageView{VK_NULL_HANDLE};
+        VkSampler      textureSampler{VK_NULL_HANDLE};
+
+        inline VulkanImage(const Device &  device,
+              const uint32_t  width,
+              const uint32_t  height,
+              const uint32_t  mipLevels,
+              const string&   name): Image{width, height, name} , device{device}, mipLevels{mipLevels} {};
 
         void createTextureSampler(
             VkFilter magFilter,
@@ -96,6 +120,29 @@ export namespace z0 {
         }
 
         void generateMipmaps(VkFormat imageFormat) const;
+    };
+
+    class KTXVulkanImage : public VulkanImage {
+    public:
+        KTXVulkanImage(const Device &  device,
+             const string &       name,
+             ktxTexture2*         kTexture,
+             VkFilter             magFiter,
+             VkFilter             minFiler,
+             VkSamplerAddressMode samplerAddressModeU,
+             VkSamplerAddressMode samplerAddressModeV,
+             bool                 forceSRGB          = false,
+             VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
+
+        ~KTXVulkanImage() override;
+
+        static void initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool cmdPool);
+
+        static void cleanup();
+
+    private:
+        static ktxVulkanDeviceInfo vdi;
+        ktxVulkanTexture texture;
     };
 
 }

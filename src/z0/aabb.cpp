@@ -7,16 +7,13 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
-
-import :AABB;
+module z0.AABB;
 
 namespace z0 {
 
     // https://ktstephano.github.io/rendering/stratusgfx/aabbs
     AABB AABB::toGlobal(const mat4& transform) const {
         // First extract the 8 transformed corners of the box using vmin/vmax
-        const auto corner = vec3{transform * vec4{min.x, min.y, min.z, 1.0f}};
         const vec3 corners[8] = {
             vec3(transform * vec4(min.x, min.y, min.z, 1.0f)),
             vec3(transform * vec4(min.x, max.y, min.z, 1.0f)),

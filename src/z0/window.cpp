@@ -14,13 +14,14 @@ module;
 #include <time.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Window;
 
-import :Tools;
-import :Window;
-import :Application;
-import :Input;
-import :InputEvent;
+import z0.Application;
+import z0.ApplicationConfig;
+import z0.Constants;
+import z0.Input;
+import z0.InputEvent;
+import z0.Tools;
 
 namespace z0 {
 

@@ -8,13 +8,27 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Mesh;
 
-import :Material;
-import :Tools;
-import :Mesh;
+import z0.Material;
+import z0.Tools;
+
+import z0.VulkanMesh;
 
 namespace z0 {
+
+    shared_ptr<Mesh> Mesh::create(const string &meshName) {
+        return make_shared<VulkanMesh>(meshName);
+    }
+
+    shared_ptr<Mesh> Mesh::create(
+            const vector<Vertex> &             vertices,
+            const vector<uint32_t> &           indices,
+            const vector<shared_ptr<Surface>> &surfaces,
+            const string &                     meshName) {
+        return make_shared<VulkanMesh>(vertices, indices, surfaces, meshName);
+    }
+
 
     Surface::Surface(const uint32_t firstIndex,
                      const uint32_t count):

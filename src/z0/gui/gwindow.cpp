@@ -8,18 +8,20 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.GWindow;
 
-import :Rect;
-import :Font;
-import :Application;
-import :GEvent;
-import :GManager;
-import :GWindow;
-import :GWidget;
-import :GPanel;
-import :GStyle;
-import :VectorRenderer;
+import z0.Application;
+import z0.Constants;
+import z0.Font;
+import z0.Rect;
+
+import z0.GEvent;
+import z0.GManager;
+import z0.GPanel;
+import z0.GStyle;
+import z0.GWidget;
+
+import z0.VectorRenderer;
 
 namespace z0 {
     GWindow::GWindow(Rect r):

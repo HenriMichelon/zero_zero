@@ -12,10 +12,10 @@ module;
 #endif
 #include "z0/libraries.h"
 
-export module z0:Window;
+export module z0.Window;
 
-import :ApplicationConfig;
-import :Object;
+import z0.ApplicationConfig;
+import z0.Object;
 
 namespace z0 {
 

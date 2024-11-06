@@ -9,12 +9,12 @@ module;
 #include <stb_truetype.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Font;
 
-import :Tools;
-import :Image;
-import :Font;
-import :VirtualFS;
+import z0.Application;
+import z0.Image;
+import z0.Tools;
+import z0.VirtualFS;
 
 namespace z0 {
 
@@ -93,7 +93,7 @@ namespace z0 {
         Resource{name},
         path{name},
         size{size} {
-        ifstream fontFile = VirtualFS::openFile(path);
+        ifstream fontFile = VirtualFS::openStream(path);
         fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator<char>(fontFile)),
                                                         istreambuf_iterator<char>());
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {

@@ -14,11 +14,13 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Instance;
 
-import :Device;
-import :Instance;
-import :Window;
+import z0.ApplicationConfig;
+import z0.Tools;
+import z0.Window;
+
+import z0.Device;
 
 namespace z0 {
 

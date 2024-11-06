@@ -10,10 +10,12 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-module z0;
+module z0.Node;
 
-import :Node;
-import :Application;
+import z0.Constants;
+import z0.Application;
+import z0.Tools;
+import z0.Tween;
 
 namespace z0 {
 

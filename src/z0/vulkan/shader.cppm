@@ -8,9 +8,9 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module z0:Shader;
+export module z0.Shader;
 
-import :Device;
+import z0.Device;
 
 export namespace z0 {
 
@@ -26,6 +26,9 @@ export namespace z0 {
                const vector<char> &         code,
                const VkDescriptorSetLayout *pSetLayouts,
                const VkPushConstantRange *  pPushConstantRange);
+
+        Shader(Shader &&) = delete;
+        Shader(Shader &) = delete;
 
         virtual ~Shader();
 

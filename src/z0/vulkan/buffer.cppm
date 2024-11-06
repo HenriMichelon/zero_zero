@@ -9,9 +9,9 @@ module;
 #include <vk_mem_alloc.h>
 #include "z0/libraries.h"
 
-export module z0:Buffer;
+export module z0.Buffer;
 
-import :Device;
+import z0.Device;
 
 export namespace z0 {
 
@@ -25,6 +25,9 @@ export namespace z0 {
                uint32_t           instanceCount,
                VkBufferUsageFlags usageFlags,
                VkDeviceSize       minOffsetAlignment = 1);
+
+        Buffer(Buffer &&) = delete;
+        Buffer(Buffer &) = delete;
 
         virtual ~Buffer();
 

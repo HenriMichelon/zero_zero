@@ -8,16 +8,21 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.VulkanApplication;
 
-import :ApplicationConfig;
+import z0.ApplicationConfig;
+import z0.Camera;
+import z0.Material;
+import z0.Node;
 
-import :Instance;
-import :Device;
-import :SceneRenderer;
-import :VectorRenderer;
-import :TonemappingPostprocessingRenderer;
-import :VulkanApplication;
+import z0.GManager;
+
+import z0.Instance;
+import z0.Device;
+import z0.SceneRenderer;
+import z0.VectorRenderer;
+import z0.TonemappingPostprocessingRenderer;
+import z0.VulkanImage;
 
 namespace z0 {
 
@@ -26,6 +31,9 @@ namespace z0 {
         assert(window != nullptr);
         instance = make_unique<Instance>();
         device = instance->createDevice(applicationConfig, *window);
+        KTXVulkanImage::initialize(
+            device->getPhysicalDevice(), device->getDevice(),
+            device->getGraphicQueue(), device->getCommandPool());
         init();
     }
 
@@ -33,6 +41,7 @@ namespace z0 {
         OutlineMaterials::_all().clear();
         sceneRenderer.reset();
         vectorRenderer.reset();
+        KTXVulkanImage::cleanup();
         device->cleanup();
         device.reset();
         instance.reset();

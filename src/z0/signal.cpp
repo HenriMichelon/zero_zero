@@ -4,9 +4,7 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
-module;
-
-module z0;
+module z0.Signal;
 
 namespace z0 {
 

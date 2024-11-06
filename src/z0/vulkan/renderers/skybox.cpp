@@ -10,18 +10,17 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-module z0;
+module z0.SkyboxRenderer;
 
-import :Tools;
-import :Cubemap;
-import :Environment;
-import :Camera;
+import z0.Tools;
+import z0.Cubemap;
+import z0.Environment;
+import z0.Camera;
 
-import :Device;
-import :Buffer;
-import :Descriptors;
-import :SkyboxRenderer;
-import :VulkanCubemap;
+import z0.Device;
+import z0.Buffer;
+import z0.Descriptors;
+import z0.VulkanCubemap;
 
 namespace z0 {
 

@@ -7,14 +7,14 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GScrollBar;
+export module z0.GScrollBar;
 
-import :Constants;
-import :Rect;
-import :Signal;
-import :GEvent;
-import :GValueSelect;
-import :GBox;
+import z0.Constants;
+import z0.Rect;
+import z0.Signal;
+import z0.GEvent;
+import z0.GValueSelect;
+import z0.GBox;
 
 export namespace z0 {
 #define LIFT_MINWIDTH 	10

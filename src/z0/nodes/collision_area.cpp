@@ -10,9 +10,9 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 
-module z0;
+module z0.CollisionArea;
 
-import :CollisionArea;
+import z0.Shape;
 
 namespace z0 {
 

@@ -4,10 +4,11 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
-module z0;
+module;
 
-import :Signal;
-import :Object;
+module z0.Object;
+
+import z0.Signal;
 
 namespace z0 {
 

@@ -9,11 +9,16 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
+
 #add_compile_definitions(DISABLE_LOG)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
+set(GLB2ZSCENE_TARGET "gltf2zscene")
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -24,11 +29,7 @@ file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if(MINGW)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
-endif()
 include(cmake/shaders.cmake)
 
 # compile GLSL shaders
@@ -44,9 +45,9 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/aabb.cppm
 		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
-		${Z0_ENGINE_DIR}/color.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
 		${Z0_ENGINE_DIR}/frustum_culling.cppm
+		${Z0_ENGINE_DIR}/gltf.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
@@ -59,6 +60,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/virtual_fs.cppm
 		${Z0_ENGINE_DIR}/window.cppm
 		${Z0_ENGINE_DIR}/z0.cppm
+		${Z0_ENGINE_DIR}/zscene.cppm
 
 		${Z0_ENGINE_DIR}/vulkan/buffer.cppm
 		${Z0_ENGINE_DIR}/vulkan/descriptors.cppm
@@ -125,6 +127,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
+		${Z0_ENGINE_DIR}/gui/color.cppm
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.cppm
@@ -153,6 +156,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/aabb.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/frustum_culling.cpp
+		${Z0_ENGINE_DIR}/gltf.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/loader.cpp
@@ -162,12 +166,14 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/virtual_fs.cpp
 		${Z0_ENGINE_DIR}/window.cpp
+		${Z0_ENGINE_DIR}/zscene.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/buffer.cpp
 		${Z0_ENGINE_DIR}/vulkan/descriptors.cpp
 		${Z0_ENGINE_DIR}/vulkan/device.cpp
 		${Z0_ENGINE_DIR}/vulkan/instance.cpp
 		${Z0_ENGINE_DIR}/vulkan/shader.cpp
+		${Z0_ENGINE_DIR}/vulkan/zscene.cpp
 
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
@@ -237,6 +243,24 @@ target_sources(${Z0_TARGET}
 		FILES
 		${PROJECT_FILES}
 )
+target_compile_options(${Z0_TARGET} PRIVATE
+		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+)
+
+
+add_executable(${GLB2ZSCENE_TARGET}
+		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
+)
+add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
+		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+)
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
@@ -249,8 +273,5 @@ if(WIN32)
 endif()
 
 include(FetchContent)
-include(cmake/jolt.cmake)
-include(cmake/libraries.cmake)
 include(cmake/std.cmake)
-target_link_libraries(${PROJECT_NAME} std-cxx-modules)
-target_link_libraries(${Z0_TOOL_GLTF2JON} std-cxx-modules)
+include(cmake/libraries.cmake)

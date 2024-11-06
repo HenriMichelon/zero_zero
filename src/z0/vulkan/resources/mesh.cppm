@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:VulkanMesh;
+export module z0.VulkanMesh;
 
-import :Mesh;
+import z0.Mesh;
 
-import :Buffer;
+import z0.Buffer;
 
 export namespace z0 {
 
@@ -25,6 +25,9 @@ export namespace z0 {
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
             const string &                     meshName = "Mesh");
+
+        VulkanMesh(VulkanMesh &&) = delete;
+        VulkanMesh(VulkanMesh &) = delete;
 
         static vector<VkVertexInputBindingDescription2EXT> getBindingDescription();
 

@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Constants;
+export module z0.Constants;
 
 export namespace z0 {
 
@@ -694,7 +694,8 @@ export namespace z0 {
     };
 
     enum ImageFormat {
-        IMAGE_R8G8B8A8 = 0,
+        IMAGE_R8G8B8A8_SRGB  = 0,
+        IMAGE_R8G8B8A8_UNORM = 1,
     };
 
 }

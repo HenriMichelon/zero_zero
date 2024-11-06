@@ -8,11 +8,10 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Pipeline;
 
-import :Tools;
-import :Device;
-import :Pipeline;
+import z0.Tools;
+import z0.Device;
 
 namespace z0 {
 

@@ -7,13 +7,13 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.FrustumCulling;
 
-import :Constants;
-import :Node;
-import :Application;
-import :FrustumCulling;
-import :AABB;
+import z0.AABB;
+import z0.Application;
+import z0.Constants;
+import z0.MeshInstance;
+import z0.Node;
 
 namespace z0 {
 

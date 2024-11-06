@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GFrame;
+export module z0.GFrame;
 
-import :Color;
-import :GPanel;
+import z0.Color;
+import z0.GPanel;
 
 export namespace z0 {
 

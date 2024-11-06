@@ -9,9 +9,9 @@ module;
 #include "z0/libraries.h"
 #include <Jolt/Physics/Collision/ContactListener.h>
 
-export module z0:Physics;
+export module z0.Physics;
 
-import :Signal;
+import z0.Signal;
 
 export namespace z0 {
 

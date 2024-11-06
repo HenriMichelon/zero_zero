@@ -12,12 +12,12 @@ module;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "vk_mem_alloc.h"
 
-export module z0:Device;
+export module z0.Device;
 
-import :Constants;
-import :ApplicationConfig;
-import :Window;
-import :Renderer;
+import z0.Constants;
+import z0.ApplicationConfig;
+import z0.Window;
+import z0.Renderer;
 
 export namespace z0 {
 
@@ -30,6 +30,9 @@ export namespace z0 {
             return *_instance;
         }
 
+        Device(Device &device) = delete;
+        Device(Device &&device) = delete;
+
         explicit Device(VkInstance              instance,
                     const vector<const char *> &requestedLayers,
                     const ApplicationConfig &   applicationConfig,
@@ -37,27 +40,35 @@ export namespace z0 {
 
         void cleanup();
 
-        [[nodiscard]] VmaAllocator getAllocator() const { return allocator; }
+        [[nodiscard]] inline VmaAllocator getAllocator() const { return allocator; }
 
-        [[nodiscard]] VkDevice getDevice() const { return device; }
+        [[nodiscard]] inline VkDevice getDevice() const { return device; }
 
-        [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        [[nodiscard]] inline VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
-        [[nodiscard]] VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
+        [[nodiscard]] inline VkQueue getGraphicQueue() const { return graphicsQueue; }
 
-        [[nodiscard]] VkSampleCountFlagBits getSamples() const { return samples; }
+        [[nodiscard]] inline VkCommandPool getCommandPool() const { return commandPool; }
 
-        [[nodiscard]] const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+        [[nodiscard]] inline VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
 
-        [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+        [[nodiscard]] inline VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
 
-        [[nodiscard]] float getAspectRatio() const {
+        [[nodiscard]] inline VkSampleCountFlagBits getSamples() const { return samples; }
+
+        [[nodiscard]] inline const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+
+        [[nodiscard]] inline VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+
+        [[nodiscard]] bool isFormatSupported(VkFormat format) const;
+
+        [[nodiscard]] inline float getAspectRatio() const {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
         }
 
-        [[nodiscard]] uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
+        [[nodiscard]] inline uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
 
-        [[nodiscard]] const string &getAdapterDescription() const { return adapterDescription; }
+        [[nodiscard]] inline const string &getAdapterDescription() const { return adapterDescription; }
 
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
@@ -135,6 +146,7 @@ export namespace z0 {
         VkPhysicalDeviceProperties2 deviceProperties{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
         };
+        VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceIDProperties physDeviceIDProps{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };

@@ -11,15 +11,19 @@ module;
 #endif
 #include <cassert>
 #include "z0/libraries.h"
-module z0;
 
-import :Font;
-import :Input;
-import :InputEvent;
-import :Rect;
-import :VectorRenderer;
-import :GManager;
-import :GWindow;
+module z0.GManager;
+
+import z0.Application;
+import z0.Constants;
+import z0.Font;
+import z0.Input;
+import z0.InputEvent;
+import z0.Rect;
+
+import z0.GWindow;
+
+import z0.VectorRenderer;
 
 namespace z0 {
 

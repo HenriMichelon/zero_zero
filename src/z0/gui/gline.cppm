@@ -6,9 +6,9 @@
 */
 module;
 
-export module z0:GLine;
+export module z0.GLine;
 
-import :GWidget;
+import z0.GWidget;
 
 export namespace z0 {
     /**

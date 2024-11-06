@@ -12,12 +12,12 @@ module;
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 
-module z0;
+module z0.Character;
 
-import :Constants;
-import :CollisionObject;
-import :Shape;
-import :Application;
+import z0.Application;
+import z0.Constants;
+import z0.CollisionObject;
+import z0.Shape;
 
 namespace z0 {
     Character::Character(const shared_ptr<Shape> &shape,

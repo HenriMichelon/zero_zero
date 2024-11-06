@@ -7,16 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:Tween;
+export module z0.Tween;
 
-import :Object;
-import :Constants;
-import :Tools;
+import z0.Object;
+import z0.Constants;
+import z0.Tools;
 
 export namespace z0 {
 
     /**
-     * Base class for all tweeners classes.
+     * Base class for all tweeners classes.<br>
      * Tweens are objects that perform a specific animating task, e.g. interpolating a property of an Object. 
      */
     class Tween: public Object {

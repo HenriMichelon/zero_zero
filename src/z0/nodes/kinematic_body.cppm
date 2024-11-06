@@ -8,10 +8,10 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:KinematicBody;
+export module z0.KinematicBody;
 
-import :PhysicsBody;
-import :Shape;
+import z0.PhysicsBody;
+import z0.Shape;
 
 export namespace z0 {
 

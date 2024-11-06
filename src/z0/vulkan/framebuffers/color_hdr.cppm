@@ -7,10 +7,10 @@
 module;
 #include <volk.h>
 
-export module z0:ColorFrameBufferHDR;
+export module z0.ColorFrameBufferHDR;
 
-import :Device;
-import :SampledFrameBuffer;
+import z0.Device;
+import z0.SampledFrameBuffer;
 
 export namespace z0 {
 

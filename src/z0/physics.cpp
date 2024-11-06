@@ -9,11 +9,10 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-module z0;
+module z0.Physics;
 
-import :Signal;
-import :Physics;
-import :CollisionObject;
+import z0.Signal;
+import z0.CollisionObject;
 
 namespace z0 {
 

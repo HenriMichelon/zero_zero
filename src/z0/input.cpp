@@ -14,13 +14,12 @@ module;
 #include "z0/libraries.h"
 #include "mappings.h"
 
-module z0;
+module z0.Input;
 
-import :Constants;
-import :Input;
-import :InputEvent;
-import :Tools;
-import :Application;
+import z0.Constants;
+import z0.InputEvent;
+import z0.Tools;
+import z0.Application;
 
 namespace z0 {
 

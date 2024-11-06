@@ -8,10 +8,10 @@ module;
 #include "stb_truetype.h"
 #include "z0/libraries.h"
 
-export module z0:Font;
+export module z0.Font;
 
-import :Resource;
-import :Image;
+import z0.Resource;
+import z0.Image;
 
 export namespace z0 {
 

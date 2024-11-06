@@ -9,12 +9,11 @@ module;
 #include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 
-module z0;
+module z0.Camera;
 
-import :Constants;
-import :Node;
-import :Application;
-import :Camera;
+import z0.Application;
+import z0.Constants;
+import z0.Node;
 
 namespace z0 {
 

@@ -7,12 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-module z0;
+module z0.SimplePostprocessingRenderer;
 
-import :PostprocessingRenderer;
-import :Device;
-import :ColorFrameBufferHDR;
-import :SimplePostprocessingRenderer;
+import z0.PostprocessingRenderer;
+import z0.Device;
+import z0.ColorFrameBufferHDR;
 
 namespace z0 {
 

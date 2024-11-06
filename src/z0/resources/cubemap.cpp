@@ -6,17 +6,32 @@
 */
 module;
 #include <cassert>
+#include <volk.h>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Cubemap;
 
-import :Constants;
-import :Application;
-import :Image;
-import :Cubemap;
-import :VirtualFS;
+import z0.Application;
+import z0.Constants;
+import z0.Image;
+import z0.Tools;
+import z0.VirtualFS;
+
+import z0.Device;
+import z0.VulkanCubemap;
+import z0.VulkanImage;
+import z0.IBLPipeline;
 
 namespace z0 {
+
+    shared_ptr<Cubemap> Cubemap::create(
+       const uint32_t      width,
+       const uint32_t      height,
+       const uint32_t      imageSize,
+       const vector<byte*> &data,
+       const string &      name) {
+        return make_shared<VulkanCubemap>(Device::get(), width, height, imageSize, data, name);
+    }
 
     Cubemap::Cubemap(const uint32_t width,
                     const uint32_t  height,
@@ -30,16 +45,15 @@ namespace z0 {
         return create(1, 1, blankJPEG.size(), cubeFaces);
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
+    shared_ptr<Cubemap> Cubemap::load(const string &filepath, const string &fileext, const ImageFormat imageFormat) {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         vector<byte *> data;
         const array<std::string, 6> names{"right", "left", "top", "bottom", "front", "back"};
         for (int i = 0; i < 6; i++) {
             auto path = filepath + "_" + names[i] + fileext;
-            auto *pixels = VirtualFS::loadImage(path, texWidth, texHeight, imageSize, imageFormat);
-            if (!pixels)
-                die("failed to load texture image", path);
+            auto *pixels = VirtualFS::loadRGBAImage(path, texWidth, texHeight, imageSize, imageFormat);
+            if (!pixels) { die("failed to load texture image", path); }
             data.push_back(pixels);
         }
         const auto &cubemap = create(
@@ -52,16 +66,15 @@ namespace z0 {
         return cubemap;
     }
 
-    shared_ptr<Cubemap> Cubemap::loadFromFile(const string &filepath, const ImageFormat imageFormat) {
-        assert(imageFormat == IMAGE_R8G8B8A8);
+    shared_ptr<Cubemap> Cubemap::load(const string &filepath, const ImageFormat imageFormat) {
+        assert(imageFormat == IMAGE_R8G8B8A8_SRGB);
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
-        auto *pixels = VirtualFS::loadImage(filepath, texWidth, texHeight, imageSize, imageFormat);
-        if (!pixels)
-            die("failed to load texture image", filepath);
+        auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);
+        if (!pixels) { die("failed to load texture image", filepath); }
         vector<byte*> data;
-        const auto              imgWidth  = texWidth / 4;
-        const auto              imgHeight = texHeight / 3;
+        const auto imgWidth  = texWidth / 4;
+        const auto imgHeight = texHeight / 3;
         // right
         data.push_back(extractImage(pixels,
                                     2 * imgWidth,
@@ -138,5 +151,45 @@ namespace z0 {
         return extractedImage;
     }
 
+    EnvironmentCubemap::EnvironmentCubemap(const string &  name):
+            Cubemap{ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE, TYPE_ENVIRONMENT, name} {
+        auto& device = Device::get();
+        specularCubemap = make_shared<VulkanCubemap>(device,
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_MIPMAP_LEVELS);
+        irradianceCubemap = make_shared<VulkanCubemap>(device,
+           IRRADIANCE_MAP_SIZE,
+           IRRADIANCE_MAP_SIZE);
+        brdfLut = make_shared<VulkanImage>(device,
+            BRDFLUT_SIZE,
+            BRDFLUT_SIZE,
+            1,
+            VK_FORMAT_R16G16_SFLOAT,
+            1,
+            VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            VK_FILTER_LINEAR,
+            VK_FALSE
+        );
+    }
+
+    shared_ptr<EnvironmentCubemap> EnvironmentCubemap::loadFromHDRi(const string &filename, ImageFormat imageFormat) {
+        auto& device = Device::get();
+        auto envCubemap = make_shared<EnvironmentCubemap>();
+        const auto unfilteredCubemap = make_shared<VulkanCubemap>(device,
+            ENVIRONMENT_MAP_SIZE,
+            ENVIRONMENT_MAP_SIZE
+        );
+        const auto &vkSpecular = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->specularCubemap);
+        const auto &vkIrradiance = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->irradianceCubemap);
+        const auto &vkBRDF = reinterpret_pointer_cast<VulkanImage>(envCubemap->brdfLut);
+        const auto iblPipeline = IBLPipeline{device};
+        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::load(filename, imageFormat)), unfilteredCubemap);
+        iblPipeline.preComputeSpecular(unfilteredCubemap, vkSpecular);
+        iblPipeline.preComputeIrradiance(vkSpecular, vkIrradiance);
+        iblPipeline.preComputeBRDF(vkBRDF);
+        return envCubemap;
+    }
 
 }

@@ -8,11 +8,11 @@ module;
 #include "z0/jolt.h"
 #include "z0/libraries.h"
 
-export module z0:CollisionObject;
+export module z0.CollisionObject;
 
-import :Node;
-import :Signal;
-import :Shape;
+import z0.Node;
+import z0.Signal;
+import z0.Shape;
 
 export namespace z0 {
 

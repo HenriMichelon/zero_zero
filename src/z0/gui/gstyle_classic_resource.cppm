@@ -7,10 +7,10 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:GStyleClassicResource;
+export module z0.GStyleClassicResource;
 
-import :Tools;
-import :GResource;
+import z0.Tools;
+import z0.GResource;
 
 export namespace z0 {
     class GStyleClassicResource : public GResource {

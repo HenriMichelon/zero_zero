@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0:AABB;
+export module z0.AABB;
 
 export namespace z0 {
 

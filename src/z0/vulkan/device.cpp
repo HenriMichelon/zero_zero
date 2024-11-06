@@ -15,13 +15,12 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0;
+module z0.Device;
 
-import :ApplicationConfig;
-import :Window;
-import :Renderer;
-import :Tools;
-import :Device;
+import z0.ApplicationConfig;
+import z0.Window;
+import z0.Renderer;
+import z0.Tools;
 
 namespace z0 {
 
@@ -47,8 +46,9 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Selecting-a-physical-device
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
-        if (deviceCount == 0)
+        if (deviceCount == 0) {
             die("Failed to find GPUs with Vulkan support");
+        }
 
         // Get a VkSurface for drawing in the window, must be done before picking the better physical device
         // since we need the VkSurface for vkGetPhysicalDeviceSurfaceCapabilitiesKHR
@@ -59,24 +59,25 @@ namespace z0 {
                 .hinstance = GetModuleHandle(nullptr),
                 .hwnd = theWindow._getHandle(),
         };
-        if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS)
+        if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS) {
             die("Failed to create window surface!");
+        }
 #endif
 
         // Requested device extensions
         const vector deviceExtensions = {
-                // Mandatory to create a swap chain
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
-                VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-                // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
-                VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
-                // for Vulkan Memory Allocator
-                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+            // Mandatory to create a swap chain
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            // https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html
+            VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+            // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
+            VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
+            // for Vulkan Memory Allocator
+            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
 #ifndef NDEBUG
-                // To debugPrintEXT() from shaders :-)
-                // See shader_debug_env.cmd for setup with environment variables
-                VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME,
+            // To debugPrintEXT() from shaders :-)
+            // See shader_debug_env.cmd for setup with environment variables
+            VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME,
 #endif
         };
 
@@ -101,7 +102,10 @@ namespace z0 {
             vkGetPhysicalDeviceProperties2(physicalDevice, &deviceProperties);
             // Get the GPU description and total memory
             getAdapterDescFromOS();
-        } else { die("Failed to find a suitable GPU!"); }
+            vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        } else {
+            die("Failed to find a suitable GPU!");
+        }
 
         //////////////////// Create Vulkan device
 
@@ -153,8 +157,9 @@ namespace z0 {
                     .ppEnabledExtensionNames = deviceExtensions.data(),
                     .pEnabledFeatures = &deviceFeatures,
             };
-            if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+            if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
                 die("Failed to create logical device!");
+            }
         }
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
@@ -857,6 +862,12 @@ namespace z0 {
         return actualExtent;
     }
 
+    bool Device::isFormatSupported(const VkFormat format) const {
+        VkFormatProperties format_properties;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &format_properties);
+        return ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_DST_BIT) &&
+            (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT));
+    }
 
 #ifdef _WIN32
     // https://dev.to/reg__/there-is-a-way-to-query-gpu-memory-usage-in-vulkan---use-dxgi-1f0d

@@ -9,11 +9,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0:Instance;
+export module z0.Instance;
 
-import :ApplicationConfig;
-import :Device;
-import :Window;
+import z0.ApplicationConfig;
+import z0.Device;
+import z0.Window;
 
 export namespace z0 {
 
@@ -23,6 +23,8 @@ export namespace z0 {
     class Instance {
     public:
         explicit Instance();
+        Instance(Instance&&) = delete;
+        Instance(Instance&) = delete;
         ~Instance();
 
         [[nodiscard]] inline  VkInstance getInstance() const { return instance; }
