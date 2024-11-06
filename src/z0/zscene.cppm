@@ -49,18 +49,16 @@ export namespace z0 {
         };
 
         struct TextureHeader {
-            int32_t     imageIndex;
-            uint32_t    minFilter;
-            uint32_t    magFilter;
-            uint32_t    samplerAddressModeU;
-            uint32_t    samplerAddressModeV;
+            int32_t  imageIndex;
+            uint32_t minFilter;
+            uint32_t magFilter;
+            uint32_t samplerAddressModeU;
+            uint32_t samplerAddressModeV;
         };
 
         struct TextureInfo {
-            int32_t     textureIndex;
-            float32_t   rotation;
-            vec2        offset;
-            vec2        scale;
+            int32_t   textureIndex;
+            mat3      transform;
         };
 
         struct MaterialHeader {

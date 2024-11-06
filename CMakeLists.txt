@@ -47,6 +47,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/application_config.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
 		${Z0_ENGINE_DIR}/frustum_culling.cppm
+		${Z0_ENGINE_DIR}/gltf.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
@@ -155,6 +156,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/aabb.cpp
 		${Z0_ENGINE_DIR}/application.cpp
 		${Z0_ENGINE_DIR}/frustum_culling.cpp
+		${Z0_ENGINE_DIR}/gltf.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
 		${Z0_ENGINE_DIR}/loader.cpp

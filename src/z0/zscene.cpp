@@ -67,18 +67,11 @@ namespace z0 {
         loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
 
         // Create the materials objects
-        auto textureInfo = [this](TextureInfo& info) {
+        auto textureInfo = [this](const TextureInfo& info) {
             auto texInfo = StandardMaterial::TextureInfo {
-                .texture = dynamic_pointer_cast<ImageTexture>(textures[info.textureIndex])
+                .texture = dynamic_pointer_cast<ImageTexture>(textures[info.textureIndex]),
+                .transform = info.transform,
             };
-            const auto translation = mat3{1,0,0, 0,1,0, info.offset[0], info.offset[1], 1};
-            const auto rotation = mat3{
-                cos(info.rotation), sin(info.rotation), 0,
-                -sin(info.rotation), cos(info.rotation), 0,
-                            0,             0, 1
-            };
-            const auto scale = mat3{info.scale[0],0,0, 0,info.scale[1],0, 0,0,1};
-            texInfo.transform = translation * rotation * scale;
             return texInfo;
         };
         for (auto materialIndex = 0; materialIndex < header.materialsCount; ++materialIndex) {

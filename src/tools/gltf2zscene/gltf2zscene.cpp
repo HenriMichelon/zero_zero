@@ -276,19 +276,31 @@ int main(const int argc, char** argv) {
         }
         materialHeaders[materialIndex].cullMode = material.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK;
         auto textureInfo = [](const fastgltf::TextureInfo& sourceTextureInfo) {
-            auto texInfo = ZScene::TextureInfo{
-                .textureIndex = static_cast<int32_t>(sourceTextureInfo.textureIndex),
-                .rotation =  0.0f,
-                .offset = vec2{0.0f},
-                .scale = vec2{1.0f},
-            };
+            mat3 translation;
+            mat3 scale;
+            mat3 rotation;
             const auto& transform = sourceTextureInfo.transform;
             if (transform != nullptr) {
-                texInfo.rotation = transform->rotation;
-                texInfo.offset = vec2{transform->uvOffset[0], transform->uvOffset[1]};
-                texInfo.scale = vec2{transform->uvScale[0], transform->uvScale[1]};
+                translation = mat3{1,0,0, 0,1,0, transform->uvOffset[0], transform->uvOffset[1], 1};
+                rotation = mat3{
+                    cos(transform->rotation), sin(transform->rotation), 0,
+                   -sin(transform->rotation), cos(transform->rotation), 0,
+                                0,             0, 1
+                };
+                scale = mat3{transform->uvScale[0],0,0, 0,transform->uvScale[1],0, 0,0,1};
+            } else {
+                translation = mat3{1,0,0, 0,1,0, 0, 0, 1};
+                rotation = mat3{
+                    cos(0.0), sin(0.0), 0,
+                   -sin(0.0), cos(0.0), 0,
+                                0,             0, 1
+                };
+                scale = mat3{1,0,0, 0,1,0, 0,0,1};
             }
-            return texInfo;
+            return ZScene::TextureInfo{
+                .textureIndex = static_cast<int32_t>(sourceTextureInfo.textureIndex),
+                .transform = translation * rotation * scale,
+            };
         };
         if (material.pbrData.baseColorTexture.has_value()) {
             materialHeaders[materialIndex].albedoTexture = textureInfo(material.pbrData.baseColorTexture.value());
