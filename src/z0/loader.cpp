@@ -23,19 +23,23 @@ import z0.Node;
 import z0.Tools;
 import z0.TypeRegistry;
 import z0.VirtualFS;
+import z0.ZScene;
 
 namespace z0 {
 
-    shared_ptr<Node> Loader::load(const string& filepath, const bool forceBackFaceCulling) {
+    shared_ptr<Node> Loader::load(const string& filepath) {
+        if (filepath.ends_with(".zscene")) {
+            return ZScene::load(filepath);
+        }
         if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {
-            return GlTF::load(filepath, forceBackFaceCulling);
+            return GlTF::load(filepath);
         }
         die("Loader : unsupported scene file format");
         return nullptr;
     }
 
     void Loader::addNode(Node *parent, map<string, shared_ptr<Node>> &nodeTree, map<string, SceneNode> &sceneTree,
-                         const SceneNode &nodeDesc, const bool forceBackFaceCulling) {
+                         const SceneNode &nodeDesc) {
         constexpr auto log_name{"Scene loader :"};
         if (nodeTree.contains(nodeDesc.id)) {
             die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
@@ -45,7 +49,7 @@ namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "model") {
                 // the model is in a glTF/ZScene file
-                node = load(nodeDesc.resource, forceBackFaceCulling);
+                node = load(nodeDesc.resource);
                 node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 // the model is part of another, already loaded, model
@@ -110,7 +114,7 @@ namespace z0 {
                         node->addChild(childNode);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child, forceBackFaceCulling);
+                    addNode(node.get(), nodeTree, sceneTree, child);
                 }
             }
             for (const auto &prop : nodeDesc.properties) {
@@ -122,15 +126,15 @@ namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath, const bool forceBackFaceCulling) {
-        addSceneFromFile(parent.get(), filepath, forceBackFaceCulling);
+    void Loader::addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath) {
+        addSceneFromFile(parent.get(), filepath);
     }
 
-    void Loader::addSceneFromFile(Node *parent, const string &filepath, const bool forceBackFaceCulling) {
+    void Loader::addSceneFromFile(Node *parent, const string &filepath) {
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc, forceBackFaceCulling);
+            addNode(parent, nodeTree, sceneTree, nodeDesc);
             // log("addNode", nodeDesc.id);
         }
     }

@@ -127,33 +127,23 @@ export namespace z0 {
             uint32_t childrenCount;
         };
 
-        [[nodiscard]] static shared_ptr<ZScene> load(const string &filename);
-        [[nodiscard]] static shared_ptr<ZScene> load(ifstream &stream);
-
-        inline const vector<shared_ptr<Texture>>& getTextures() const { return textures; };
-        inline const vector<shared_ptr<Material>>& getMaterials() const { return materials; };
-        inline const vector<shared_ptr<Mesh>>& getMeshes() const { return meshes; };
-        inline const vector<shared_ptr<Node>>& getNodes() const { return nodes; };
+        [[nodiscard]] static shared_ptr<Node> load(const string &filename);
+        [[nodiscard]] static shared_ptr<Node> load(ifstream &stream);
 
         ZScene() = default;
 
-        static void print(const Header& header);
-        static void print(const ImageHeader& header);
-        static void print(const MipLevelHeader& header);
-        static void print(const TextureHeader& header);
-        static void print(const MaterialHeader& header);
-        static void print(const MeshHeader& header);
-        static void print(const SurfaceInfo& header);
-        static void print(const DataInfo& header);
-
-        shared_ptr<Node> node;
+        // static void print(const Header& header);
+        // static void print(const ImageHeader& header);
+        // static void print(const MipLevelHeader& header);
+        // static void print(const TextureHeader& header);
+        // static void print(const MaterialHeader& header);
+        // static void print(const MeshHeader& header);
+        // static void print(const SurfaceInfo& header);
+        // static void print(const DataInfo& header);
 
     protected:
         Header header{};
         vector<shared_ptr<Texture>>  textures{};
-        vector<shared_ptr<Material>> materials{};
-        vector<shared_ptr<Mesh>>     meshes{};
-        vector<shared_ptr<Node>>     nodes{};
 
         shared_ptr<Node> loadScene(ifstream& stream);
 

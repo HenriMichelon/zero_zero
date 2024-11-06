@@ -20,25 +20,22 @@ export namespace z0 {
         /**
          * Load a glTF or ZScene scene
          * @param filepath path of the glTF/Zscene file, relative to the application path
-         * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double-sided (default is CULLMODE_DISABLED for double-sided materials)
          */
-        [[nodiscard]] static shared_ptr<Node> load(const string& filepath, bool forceBackFaceCulling = false);
+        [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
-         * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double-sided (default is CULLMODE_DISABLED for double-sided materials)
          **/
-        static void addSceneFromFile(Node *parent, const string &filepath, bool forceBackFaceCulling = false);
+        static void addSceneFromFile(Node *parent, const string &filepath);
 
         /**
          * Creates new instances of nodes described in a JSON file and add them to the parent's tree
          * @param parent Node to add the new nodes to
          * @param filepath path of the glTF file, relative to the application path
-         * @param forceBackFaceCulling set the z0::CullMode to CULLMODE_BACK even if the material is double-sided (default is CULLMODE_DISABLED for double sided materials)
          **/
-        static void addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath, bool forceBackFaceCulling = false);
+        static void addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath);
 
         // Node description inside a JSON file
         struct SceneNode {
@@ -65,8 +62,7 @@ export namespace z0 {
         static void addNode(Node *                         parent,
                             map<string, shared_ptr<Node>> &nodeTree,
                             map<string, SceneNode> &       sceneTree,
-                            const SceneNode &              nodeDesc,
-                            bool                           forceBackFaceCulling);
+                            const SceneNode &              nodeDesc);
     };
 
 }

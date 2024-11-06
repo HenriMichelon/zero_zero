@@ -80,8 +80,7 @@ namespace z0 {
         return newImage;
     }
 
-    shared_ptr<Node> GlTF::load(const string &filepath,
-                                bool forceBackFaceCulling) {
+    shared_ptr<Node> GlTF::load(const string &filepath) {
         auto tStart = std::chrono::high_resolution_clock::now();
         const auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
@@ -258,9 +257,7 @@ namespace z0 {
                 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
                 material->setEmissiveTexture(loadTexture(mat.emissiveTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
             }
-            material->setCullMode(forceBackFaceCulling      ? CULLMODE_BACK
-                                          : mat.doubleSided ? CULLMODE_DISABLED
-                                                            : CULLMODE_BACK);
+            material->setCullMode(mat.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK);
             materials.push_back(material);
         }
         if (materials.empty()) {

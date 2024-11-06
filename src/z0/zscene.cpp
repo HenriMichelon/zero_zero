@@ -24,18 +24,18 @@ import z0.VulkanMesh;
 
 namespace z0 {
 
-    shared_ptr<ZScene> ZScene::load(const string &filename) {
+    shared_ptr<Node> ZScene::load(const string &filename) {
         auto stream = VirtualFS::openStream(filename);
         return load(stream);
     }
 
-    shared_ptr<ZScene> ZScene::load(ifstream &stream) {
+    shared_ptr<Node> ZScene::load(ifstream &stream) {
         auto tStart = std::chrono::high_resolution_clock::now();
         auto zscene = make_shared<ZScene>();
-        zscene->node = zscene->loadScene(stream);
+        auto rootNode = zscene->loadScene(stream);
         auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         log("ZScene loading time ", to_string(last_transcode_time));
-        return zscene;
+        return rootNode;
     }
 
     shared_ptr<Node> ZScene::loadScene(ifstream& stream) {
@@ -129,6 +129,7 @@ namespace z0 {
         loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
 
         // Create the Material objects
+        vector<shared_ptr<Material>> materials{header.materialsCount};
         map<Resource::id_t, int> materialsTexCoords;
         for (auto materialIndex = 0; materialIndex < header.materialsCount; ++materialIndex) {
             auto& header = materialHeaders[materialIndex];
@@ -155,10 +156,11 @@ namespace z0 {
             material->setEmissiveTexture(textureInfo(header.emissiveTexture));
             material->setNormalTexture(textureInfo(header.normalTexture));
             material->setNormaleScale(header.normalScale);
-            materials.push_back(material);
+            materials[materialIndex] = material;
         }
 
         // Create the Mesh, Surface & Vertex objects
+        vector<shared_ptr<Mesh>>     meshes{header.meshesCount};
         for (auto meshIndex = 0; meshIndex < header.meshesCount; ++meshIndex) {
             auto& header   = meshesHeaders[meshIndex];
             auto  mesh     = make_shared<VulkanMesh>(header.name);
@@ -241,10 +243,11 @@ namespace z0 {
                 mesh->getSurfaces().push_back(surface);
             }
             mesh->buildModel();
-            meshes.push_back(mesh);
+            meshes[meshIndex] = mesh;
         }
 
         // Create the Node objects
+        vector<shared_ptr<Node>> nodes{header.nodesCount};
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             shared_ptr<Node> newNode;
             string           name{nodeHeaders[nodeIndex].name};
@@ -258,7 +261,7 @@ namespace z0 {
             }
             newNode->_setTransform(nodeHeaders[nodeIndex].transform);
             newNode->_updateTransform(mat4{1.0f});
-            nodes.push_back(newNode);
+            nodes[nodeIndex] = newNode;
         }
 
         // Build the scene tree
@@ -281,7 +284,7 @@ namespace z0 {
 
         return rootNode;
     }
-
+/*
     void ZScene::print(const Header& header) {
         printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nMeshes count : %d\nHeaders size : %llu\n",
             header.version,
@@ -337,5 +340,5 @@ namespace z0 {
             header.tangents.first, header.tangents.count,
             header.uvsCount);
     }
-
+*/
 }
