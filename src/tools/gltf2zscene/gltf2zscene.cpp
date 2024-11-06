@@ -313,10 +313,12 @@ int main(const int argc, char** argv) {
         if (material.pbrData.metallicRoughnessTexture.has_value()) {
             materialHeaders[materialIndex].metallicTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
             materialHeaders[materialIndex].roughnessTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
+            imageHeaders[materialHeaders[materialIndex].metallicTexture.textureIndex].format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         }
         if (material.normalTexture.has_value()) {
             materialHeaders[materialIndex].normalTexture = textureInfo(material.normalTexture.value());
             materialHeaders[materialIndex].normalScale = 1.0f;
+            imageHeaders[materialHeaders[materialIndex].normalTexture.textureIndex].format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         }
         if (material.emissiveTexture) {
             materialHeaders[materialIndex].emissiveTexture = textureInfo(material.emissiveTexture.value());
@@ -472,7 +474,7 @@ int main(const int argc, char** argv) {
     }
 
     // Write all the headers
-    ZScene::print(header);
+    // ZScene::print(header);
     outputFile.write(reinterpret_cast<const char*>(&header), sizeof(ZScene::Header));
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         // ZScene::print(imageHeaders[imageIndex]);
