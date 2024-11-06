@@ -133,6 +133,7 @@ export namespace z0 {
         static void print(const MaterialHeader& header);
         static void print(const MeshHeader& header);
         static void print(const SurfaceInfo& header);
+        static void print(const DataInfo& header);
 
     protected:
         Header header{};

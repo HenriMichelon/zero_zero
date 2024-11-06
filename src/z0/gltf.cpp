@@ -351,7 +351,7 @@ namespace z0 {
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
                 }
-                // calculate tangent for each triangle
+                // calculate missing tangents
                 if (!haveTangents) {
                     for (auto i = 0; i < indices.size(); i += 3) {
                         auto &vertex1  = vertices[indices[i]];

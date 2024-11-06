@@ -73,13 +73,16 @@ namespace z0 {
         auto uvsInfos = vector<vector<vector<DataInfo>>> {header.meshesCount};
         for (auto meshIndex = 0; meshIndex < header.meshesCount; ++meshIndex) {
             stream.read(reinterpret_cast<istream::char_type *>(&meshesHeaders[meshIndex]), sizeof(MeshHeader));
-            print(meshesHeaders[meshIndex]);
+            // print(meshesHeaders[meshIndex]);
             surfaceInfo[meshIndex].resize(meshesHeaders[meshIndex].surfacesCount);
             uvsInfos[meshIndex].resize(meshesHeaders[meshIndex].surfacesCount);
             for (auto surfaceIndex = 0; surfaceIndex < meshesHeaders[meshIndex].surfacesCount; ++surfaceIndex) {
                 stream.read(reinterpret_cast<istream::char_type *>(&surfaceInfo[meshIndex][surfaceIndex]), sizeof(SurfaceInfo));
+                // print(surfaceInfo[meshIndex][surfaceIndex]);
                 uvsInfos[meshIndex][surfaceIndex].resize(surfaceInfo[meshIndex][surfaceIndex].uvsCount);
-                stream.read(reinterpret_cast<istream::char_type *>(uvsInfos[meshIndex][surfaceIndex].data()), sizeof(DataInfo) * surfaceInfo[meshIndex][surfaceIndex].uvsCount);
+                stream.read(reinterpret_cast<istream::char_type *>(uvsInfos[meshIndex][surfaceIndex].data()), sizeof(DataInfo) * uvsInfos[meshIndex][surfaceIndex].size());
+                // print(uvsInfos[meshIndex][surfaceIndex][0]);
+                // print(uvsInfos[meshIndex][surfaceIndex][1]);
             }
         }
 
@@ -107,8 +110,8 @@ namespace z0 {
 
         // log(format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
             // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()));
-        // for(auto& pos : indices) {
-            // log(to_string(pos));
+        // for(auto& pos : positions) {
+        //     log(to_string(pos));
         // }
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
@@ -169,7 +172,7 @@ namespace z0 {
                     meshVertices[firstVertex + i] = {
                         .position = positions[info.positions.first + i],
                     };
-                    // log(format("mesh {} surface {} position {}", meshIndex, surfaceIndex, to_string(positions[info.indices.first + i])));
+                    // log(format("mesh {} surface {} position {}", meshIndex, surfaceIndex, to_string(positions[info.positions.first + i])));
                 }
                 // Load normals
                 for(auto i = 0; i < info.normals.count; ++i) {
@@ -194,7 +197,7 @@ namespace z0 {
                     const auto& texCoordInfo = uvsInfos[meshIndex][surfaceIndex][texCoord];
                     for(auto i = 0; i < texCoordInfo.count; i++) {
                         meshVertices[firstVertex + i].uv = uvs[texCoordInfo.first + i];
-                        log(format("mesh {} surface {} uvs {} uv {}", meshIndex, surfaceIndex, texCoord, to_string(uvs[texCoordInfo.first + i])));
+                        // log(format("mesh {} surface {} uvs {} uv {}", meshIndex, surfaceIndex, texCoord, to_string(uvs[texCoordInfo.first + i])));
                     }
                 } else {
                     // Mesh have no material, use a default one
@@ -202,7 +205,32 @@ namespace z0 {
                     surface->material = material;
                     mesh->_getMaterials().insert(material);
                 }
+                // calculate missing tangents
+                if (info.tangents.count == 0) {
+                    for (auto i = 0; i < indices.size(); i += 3) {
+                        auto &vertex1  = meshVertices[indices[i]];
+                        auto &vertex2  = meshVertices[indices[i + 1]];
+                        auto &vertex3  = meshVertices[indices[i + 2]];
+                        vec3  edge1    = vertex2.position - vertex1.position;
+                        vec3  edge2    = vertex3.position - vertex1.position;
+                        vec2  deltaUV1 = vertex2.uv - vertex1.uv;
+                        vec2  deltaUV2 = vertex3.uv - vertex1.uv;
+
+                        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+                        vec3  tangent{
+                            f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
+                            f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
+                            f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z),
+                        };
+                        vertex1.tangent = vec4(tangent, 1.0);
+                        vertex2.tangent = vec4(tangent, 1.0);
+                        vertex3.tangent = vec4(tangent, 1.0);
+                    }
+                }
+                mesh->getSurfaces().push_back(surface);
             }
+            mesh->buildModel();
+            meshes.push_back(mesh);
         }
 
     }
@@ -247,6 +275,10 @@ namespace z0 {
 
     void ZScene::print(const MeshHeader& header) {
         printf("Name : %s\nSurfaces count : %d\n", header.name, header.surfacesCount);
+    }
+
+    void ZScene::print(const DataInfo& header) {
+        printf("First : %d\nCount : %d\n", header.first, header.count);
     }
 
     void ZScene::print(const SurfaceInfo& header) {

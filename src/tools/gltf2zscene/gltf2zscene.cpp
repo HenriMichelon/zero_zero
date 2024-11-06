@@ -364,6 +364,7 @@ int main(const int argc, char** argv) {
                 positions.reserve(positions.size() + posAccessor.count);
                 fastgltf::iterateAccessor<vec3>(gltf, posAccessor, [&](const vec3 v) {
                     positions.push_back(v);
+                    // cout << format("mesh {} surface {} position {}", meshIndex, surfaceIndex, to_string(v)) << endl;;
                 });
                 initialVtx += posAccessor.count;
             }
@@ -440,11 +441,14 @@ int main(const int argc, char** argv) {
     outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(ZScene::TextureHeader));
     outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(ZScene::MaterialHeader));
     for (auto meshIndex = 0; meshIndex < gltf.meshes.size(); meshIndex++) {
-        ZScene::print(meshesHeaders[meshIndex]);
+        // ZScene::print(meshesHeaders[meshIndex]);
         outputFile.write(reinterpret_cast<const char*>(&meshesHeaders[meshIndex]),sizeof(ZScene::MeshHeader));
         for(auto surfaceIndex = 0; surfaceIndex < meshesHeaders[meshIndex].surfacesCount; surfaceIndex++) {
+            // ZScene::print(surfaceInfo[meshIndex][surfaceIndex]);
             outputFile.write(reinterpret_cast<const char*>(&surfaceInfo[meshIndex][surfaceIndex]),sizeof(ZScene::SurfaceInfo));
-            outputFile.write(reinterpret_cast<const char*>(&uvsInfos[meshIndex][surfaceIndex]), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(ZScene::DataInfo));
+            // ZScene::print(uvsInfos[meshIndex][surfaceIndex][0]);
+            // ZScene::print(uvsInfos[meshIndex][surfaceIndex][1]);
+            outputFile.write(reinterpret_cast<const char*>(uvsInfos[meshIndex][surfaceIndex].data()), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(ZScene::DataInfo));
         }
     }
 
@@ -471,6 +475,9 @@ int main(const int argc, char** argv) {
 
     // cout << format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
         // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()) << endl;
+    // for(const auto&p : positions) {
+        // cout << to_string(p) << endl;
+    // }
 
     // Write images
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
