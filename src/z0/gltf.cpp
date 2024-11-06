@@ -7,10 +7,8 @@
 module;
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
-#include <json.hpp>
 #include <volk.h>
 #include <stb_image.h>
-#include <ktx.h>
 #include "z0/libraries.h"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -86,7 +84,6 @@ namespace z0 {
         auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |
-                                fastgltf::Extensions::KHR_texture_basisu |
                                 fastgltf::Extensions::KHR_materials_emissive_strength};
         constexpr auto gltfOptions =
             fastgltf::Options::DontRequireValidAssetMember |
@@ -174,35 +171,6 @@ namespace z0 {
                 }
                 return nullptr;
             };
-            const ktx_transcode_fmt_e transcodeFormat =
-                              device.isFormatSupported(VK_FORMAT_ASTC_4x4_SRGB_BLOCK) ? KTX_TTF_ASTC_4x4_RGBA :
-                              device.isFormatSupported(VK_FORMAT_BC7_SRGB_BLOCK) ? KTX_TTF_BC7_RGBA :
-                              device.isFormatSupported(VK_FORMAT_BC1_RGBA_SRGB_BLOCK) ? KTX_TTF_BC1_OR_3 :
-                              device.isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
-                              KTX_TTF_RGBA32;
-            auto loadImageKTX2 = [&](const string&  name,
-                                     const void   * srcData,
-                                     const size_t   size,
-                                     const VkFormat format) -> shared_ptr<Image> {
-                ktxTexture2* texture;
-                if (KTX_SUCCESS != ktxTexture2_CreateFromMemory(
-                    static_cast<const ktx_uint8_t*>(srcData),
-                    size,
-                    KTX_TEXTURE_CREATE_NO_FLAGS,
-                    &texture)) {
-                    die("Failed to create KTX texture from memory");
-                }
-                if (ktxTexture2_NeedsTranscoding(texture)) {
-                    if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
-                        die("Failed to transcode KTX2 to BC/ASTC");
-                    }
-                }
-                const auto newImage = make_shared<KTXVulkanImage>(
-                    device, name, texture,
-                    magFilter, minFilter, wrapU, wrapV, format == VK_FORMAT_R8G8B8A8_SRGB);
-                ktxTexture_Destroy((ktxTexture*)texture);
-                return newImage;
-            };
             auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
                 const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
                 materialsTexCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
@@ -215,14 +183,6 @@ namespace z0 {
                     } else {
                         image = loadImage(gltf, gltf.images[imageIndex], format, loadImageRGBA);
                         images.emplace(imageIndex, image);
-                    }
-                } else if (texture.basisuImageIndex.has_value()) {
-                    const auto imageIndex = texture.basisuImageIndex.value();
-                    if (compressedImages.contains(imageIndex)) {
-                        image = compressedImages[imageIndex];
-                    } else {
-                        image = loadImage(gltf, gltf.images[imageIndex], format, loadImageKTX2);
-                        compressedImages.emplace(imageIndex, image);
                     }
                 } else {
                     die("Texture without supported image category");
@@ -433,7 +393,6 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        // TODO : use scene node
         auto rootNode = make_shared<Node>(filepath);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
