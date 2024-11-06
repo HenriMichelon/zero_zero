@@ -436,6 +436,7 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
+        // TODO : use scene node
         auto rootNode = make_shared<Node>(filepath);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {

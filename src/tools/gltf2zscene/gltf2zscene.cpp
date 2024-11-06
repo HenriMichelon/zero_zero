@@ -1,16 +1,18 @@
+#define GLM_ENABLE_EXPERIMENTAL
+import glm;
+using namespace glm;
+
 #include <compressonator.h>
 #include <cxxopts.hpp>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <stb_image.h>
 #include <volk.h>
+#include <glm/gtx/quaternion.hpp>
 
 import std;
 using namespace std;
 namespace fs = std::filesystem;
-
-import glm;
-using namespace glm;
 
 import z0;
 using namespace z0;
@@ -175,6 +177,7 @@ int main(const int argc, char** argv) {
         .texturesCount = static_cast<uint32_t>(gltf.textures.size()),
         .materialsCount = static_cast<uint32_t>(gltf.materials.size()),
         .meshesCount = static_cast<uint32_t>(gltf.meshes.size()),
+        .nodesCount = static_cast<uint32_t>(gltf.nodes.size()),
         .headersSize = sizeof(ZScene::Header),
     };
     header.magic[0] = ZScene::Header::MAGIC[0];
@@ -423,6 +426,44 @@ int main(const int argc, char** argv) {
                             + sizeof(ZScene::DataInfo) * uvsDataInfoCount;
     }
 
+    // Fill the nodes header
+    auto nodesHeaders = vector<ZScene::NodeHeader> { gltf.nodes.size()};
+    auto childrenIndexes = vector<vector<uint32_t>>  {gltf.nodes.size()};
+    for (auto nodeIndex = 0; nodeIndex < gltf.nodes.size(); ++nodeIndex) {
+        const auto &node = gltf.nodes[nodeIndex];
+
+        string name = node.name.data();
+        if (name.empty()) { name = to_string(nodeIndex); }
+        strncpy(nodesHeaders[nodeIndex].name, name.c_str(), ZScene::NAME_SIZE);
+        nodesHeaders[nodeIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        nodesHeaders[nodeIndex].meshIndex = node.meshIndex.has_value() ? node.meshIndex.value() : -1;
+
+        visit(fastgltf::visitor{
+              [&](fastgltf::math::fmat4x4 matrix) {
+                  memcpy(&nodesHeaders[nodeIndex].transform, matrix.data(), sizeof(mat4));
+              },
+              [&](fastgltf::TRS transform) {
+                  const vec3 tl(transform.translation[0], transform.translation[1], transform.translation[2]);
+                  const quat rot(transform.rotation[3],
+                           transform.rotation[0],
+                           transform.rotation[1],
+                           transform.rotation[2]);
+                  const vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
+                  const mat4 trm = translate(mat4(1.f), tl);
+                  const mat4 rm = toMat4(rot);
+                  const mat4 sm = scale(mat4(1.f), sc);
+                  nodesHeaders[nodeIndex].transform = trm * rm * sm;
+              }},
+            node.transform);
+        childrenIndexes[nodeIndex].resize(node.children.size());
+        for(auto i = 0; i < node.children.size(); ++i) {
+            childrenIndexes[nodeIndex][i] = node.children[i];
+        }
+        nodesHeaders[nodeIndex].childrenCount = node.children.size();
+        header.headersSize += sizeof(ZScene::NodeHeader) +
+                            sizeof(uint32_t) * childrenIndexes[nodeIndex].size();
+    }
+
     cout << "Writing output file " << outputFilename << "...\n";
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile) {
@@ -450,6 +491,10 @@ int main(const int argc, char** argv) {
             // ZScene::print(uvsInfos[meshIndex][surfaceIndex][1]);
             outputFile.write(reinterpret_cast<const char*>(uvsInfos[meshIndex][surfaceIndex].data()), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(ZScene::DataInfo));
         }
+    }
+    for (auto nodeIndex = 0; nodeIndex < gltf.nodes.size(); ++nodeIndex) {
+        outputFile.write(reinterpret_cast<const char*>(&nodesHeaders[nodeIndex]),sizeof(ZScene::NodeHeader));
+        outputFile.write(reinterpret_cast<const char*>(childrenIndexes[nodeIndex].data()),childrenIndexes[nodeIndex].size() * sizeof(uint32_t));
     }
 
     // Write meshes data

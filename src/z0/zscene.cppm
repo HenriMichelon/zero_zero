@@ -13,6 +13,7 @@ export module z0.ZScene;
 import z0.Texture;
 import z0.Material;
 import z0.Mesh;
+import z0.Node;
 
 export namespace z0 {
 
@@ -23,6 +24,7 @@ export namespace z0 {
      * array<TextureHeader, texturesCount> : textures headers<br>
      * array<MaterialHeader, materialsCount> : materials headers<br>
      * array<MeshHeader + array<SurfaceInfo, surfacesCount> + array<DataInfo, surfacesCount * uvsCount>, meshesCount> : meshes headers<br>
+     * array<NodeHeader + array<uint32_t, childrenCount>, nodesCount> : nodes headers<br>
      * uint32_t : indicesCount<br>
      * array<uint32_t, indicesCount> : indices<br>
      * uint32_t : positionsCount<br>
@@ -48,6 +50,7 @@ export namespace z0 {
             uint32_t texturesCount{0};
             uint32_t materialsCount{0};
             uint32_t meshesCount{0};
+            uint32_t nodesCount{0};
             uint64_t headersSize;
         };
 
@@ -117,12 +120,20 @@ export namespace z0 {
             uint32_t surfacesCount;
         };
 
+        struct NodeHeader {
+            char     name[NAME_SIZE];
+            int32_t  meshIndex;
+            mat4     transform;
+            uint32_t childrenCount;
+        };
+
         [[nodiscard]] static shared_ptr<ZScene> load(const string &filename);
         [[nodiscard]] static shared_ptr<ZScene> load(ifstream &stream);
 
         inline const vector<shared_ptr<Texture>>& getTextures() const { return textures; };
         inline const vector<shared_ptr<Material>>& getMaterials() const { return materials; };
         inline const vector<shared_ptr<Mesh>>& getMeshes() const { return meshes; };
+        inline const vector<shared_ptr<Node>>& getNodes() const { return nodes; };
 
         ZScene() = default;
 
@@ -135,13 +146,16 @@ export namespace z0 {
         static void print(const SurfaceInfo& header);
         static void print(const DataInfo& header);
 
+        shared_ptr<Node> node;
+
     protected:
         Header header{};
         vector<shared_ptr<Texture>>  textures{};
         vector<shared_ptr<Material>> materials{};
         vector<shared_ptr<Mesh>>     meshes{};
+        vector<shared_ptr<Node>>     nodes{};
 
-        void loadScene(ifstream& stream);
+        shared_ptr<Node> loadScene(ifstream& stream);
 
         void loadImagesAndTextures(ifstream& stream,
             const vector<ImageHeader>&,

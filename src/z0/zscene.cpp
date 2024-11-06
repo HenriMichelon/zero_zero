@@ -14,6 +14,7 @@ import z0.Constants;
 import z0.Image;
 import z0.Material;
 import z0.Mesh;
+import z0.MeshInstance;
 import z0.Resource;
 import z0.Texture;
 import z0.Tools;
@@ -31,13 +32,13 @@ namespace z0 {
     shared_ptr<ZScene> ZScene::load(ifstream &stream) {
         auto tStart = std::chrono::high_resolution_clock::now();
         auto zscene = make_shared<ZScene>();
-        zscene->loadScene(stream);
+        zscene->node = zscene->loadScene(stream);
         auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         log("ZScene loading time ", to_string(last_transcode_time));
         return zscene;
     }
 
-    void ZScene::loadScene(ifstream& stream) {
+    shared_ptr<Node> ZScene::loadScene(ifstream& stream) {
         // Read the file global header
         stream.read(reinterpret_cast<istream::char_type *>(&header), sizeof(header));
         if (header.magic[0] != Header::MAGIC[0] &&
@@ -84,6 +85,16 @@ namespace z0 {
                 // print(uvsInfos[meshIndex][surfaceIndex][0]);
                 // print(uvsInfos[meshIndex][surfaceIndex][1]);
             }
+        }
+
+        // Read the nodes headers
+        auto nodeHeaders = vector<NodeHeader>(header.nodesCount);
+        auto childrenIndexes = vector<vector<uint32_t>>{header.nodesCount};
+        for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
+            stream.read(reinterpret_cast<istream::char_type *>(&nodeHeaders[nodeIndex]), sizeof(NodeHeader));
+            childrenIndexes[nodeIndex].resize(nodeHeaders[nodeIndex].childrenCount);
+            stream.read(reinterpret_cast<istream::char_type *>(childrenIndexes[nodeIndex].data()), sizeof(uint32_t) * childrenIndexes[nodeIndex].size());
+            log("Node ", nodeHeaders[nodeIndex].name, " ", to_string(nodeHeaders[nodeIndex].childrenCount), "children");
         }
 
         // Read the meshes data
@@ -207,10 +218,10 @@ namespace z0 {
                 }
                 // calculate missing tangents
                 if (info.tangents.count == 0) {
-                    for (auto i = 0; i < indices.size(); i += 3) {
-                        auto &vertex1  = meshVertices[indices[i]];
-                        auto &vertex2  = meshVertices[indices[i + 1]];
-                        auto &vertex3  = meshVertices[indices[i + 2]];
+                    for (auto i = 0; i < meshIndices.size(); i += 3) {
+                        auto &vertex1  = meshVertices[meshIndices[i]];
+                        auto &vertex2  = meshVertices[meshIndices[i + 1]];
+                        auto &vertex3  = meshVertices[meshIndices[i + 2]];
                         vec3  edge1    = vertex2.position - vertex1.position;
                         vec3  edge2    = vertex3.position - vertex1.position;
                         vec2  deltaUV1 = vertex2.uv - vertex1.uv;
@@ -233,6 +244,42 @@ namespace z0 {
             meshes.push_back(mesh);
         }
 
+        // Create the Node objects
+        for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
+            shared_ptr<Node> newNode;
+            string           name{nodeHeaders[nodeIndex].name};
+            // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the
+            // MeshInstance class
+            if (nodeHeaders[nodeIndex].meshIndex != -1) {
+                auto mesh = meshes[nodeHeaders[nodeIndex].meshIndex];
+                newNode = std::make_shared<MeshInstance>(mesh, name);
+            } else {
+                newNode = std::make_shared<Node>(name);
+            }
+            newNode->_setTransform(nodeHeaders[nodeIndex].transform);
+            newNode->_updateTransform(mat4{1.0f});
+            nodes.push_back(newNode);
+        }
+
+        // Build the scene tree
+        for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
+            auto& sceneNode = nodes[nodeIndex];
+            for (auto i = 0; i < nodeHeaders[nodeIndex].childrenCount; i++) {
+                sceneNode->setProcessMode(PROCESS_MODE_DISABLED);
+                sceneNode->addChild(nodes[childrenIndexes[nodeIndex][i]]);
+            }
+        }
+
+        // find the top nodes, with no parents
+        auto rootNode = make_shared<Node>("ZScene");
+        for (auto &node : nodes) {
+            if (node->getParent() == nullptr) {
+                node->setProcessMode(PROCESS_MODE_DISABLED);
+                rootNode->addChild(node);
+            }
+        }
+
+        return rootNode;
     }
 
     void ZScene::print(const Header& header) {
