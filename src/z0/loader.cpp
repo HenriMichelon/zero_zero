@@ -5,15 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <fastgltf/core.hpp>
-#include <fastgltf/glm_element_traits.hpp>
 #include <json.hpp>
-#include <volk.h>
-#include <stb_image.h>
-#include <ktx.h>
 #include "z0/libraries.h"
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 module z0.Loader;
 

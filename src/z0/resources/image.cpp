@@ -5,7 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <ktx.h>
+//#include <ktx.h>
 #include <ddspp.h>
 #include <dxgiformat.h>
 #include <volk.h>
@@ -129,35 +129,35 @@ namespace z0 {
                     VK_IMAGE_TILING_OPTIMAL,
                     VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_FILTER_LINEAR, true);
         }
-        if (filepath.ends_with(".ktx2")) {
-            const auto ktxFile = VirtualFS::openFile(filepath);
-            ktxTexture2* texture;
-            if (KTX_SUCCESS != ktxTexture2_CreateFromStdioStream(ktxFile,
-                KTX_TEXTURE_CREATE_NO_FLAGS,
-                &texture)) {
-                die("Failed to create KTX texture from file stream");
-            }
-            if (ktxTexture2_NeedsTranscoding(texture)) {
-                const ktx_transcode_fmt_e transcodeFormat =
-                              Device::get().isFormatSupported(VK_FORMAT_ASTC_4x4_SRGB_BLOCK) ? KTX_TTF_ASTC_4x4_RGBA :
-                              Device::get().isFormatSupported(VK_FORMAT_BC7_SRGB_BLOCK) ? KTX_TTF_BC7_RGBA :
-                              Device::get().isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
-                              Device::get().isFormatSupported(VK_FORMAT_BC1_RGBA_SRGB_BLOCK) ? KTX_TTF_BC1_OR_3 :
-                              KTX_TTF_RGBA32;
-                if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
-                    die("Failed to transcode KTX2 to BC/ASTC");
-                }
-            }
-            auto image = make_shared<KTXVulkanImage>(
-                    Device::get(), filepath,
-                    texture,
-                    VK_FILTER_LINEAR, VK_FILTER_LINEAR,
-                    VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                    imageFormat == IMAGE_R8G8B8A8_SRGB);
-            ktxTexture_Destroy((ktxTexture*)texture);
-            fclose(ktxFile);
-            return image;
-        }
+        // if (filepath.ends_with(".ktx2")) {
+        //     const auto ktxFile = VirtualFS::openFile(filepath);
+        //     ktxTexture2* texture;
+        //     if (KTX_SUCCESS != ktxTexture2_CreateFromStdioStream(ktxFile,
+        //         KTX_TEXTURE_CREATE_NO_FLAGS,
+        //         &texture)) {
+        //         die("Failed to create KTX texture from file stream");
+        //     }
+        //     if (ktxTexture2_NeedsTranscoding(texture)) {
+        //         const ktx_transcode_fmt_e transcodeFormat =
+        //                       Device::get().isFormatSupported(VK_FORMAT_ASTC_4x4_SRGB_BLOCK) ? KTX_TTF_ASTC_4x4_RGBA :
+        //                       Device::get().isFormatSupported(VK_FORMAT_BC7_SRGB_BLOCK) ? KTX_TTF_BC7_RGBA :
+        //                       Device::get().isFormatSupported(VK_FORMAT_BC3_SRGB_BLOCK) ? KTX_TTF_BC3_RGBA :
+        //                       Device::get().isFormatSupported(VK_FORMAT_BC1_RGBA_SRGB_BLOCK) ? KTX_TTF_BC1_OR_3 :
+        //                       KTX_TTF_RGBA32;
+        //         if (KTX_SUCCESS != ktxTexture2_TranscodeBasis(texture, transcodeFormat, 0)) {
+        //             die("Failed to transcode KTX2 to BC/ASTC");
+        //         }
+        //     }
+        //     auto image = make_shared<KTXVulkanImage>(
+        //             Device::get(), filepath,
+        //             texture,
+        //             VK_FILTER_LINEAR, VK_FILTER_LINEAR,
+        //             VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        //             imageFormat == IMAGE_R8G8B8A8_SRGB);
+        //     ktxTexture_Destroy((ktxTexture*)texture);
+        //     fclose(ktxFile);
+        //     return image;
+        // }
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);

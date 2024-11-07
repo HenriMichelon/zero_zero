@@ -7,8 +7,8 @@
 module;
 #include <volk.h>
 #include "z0/libraries.h"
-#include <ktx.h>
-#include <ktxvulkan.h>
+// #include <ktx.h>
+// #include <ktxvulkan.h>
 
 export module z0.VulkanImage;
 
@@ -122,27 +122,27 @@ export namespace z0 {
         void generateMipmaps(VkFormat imageFormat) const;
     };
 
-    class KTXVulkanImage : public VulkanImage {
-    public:
-        KTXVulkanImage(const Device &  device,
-             const string &       name,
-             ktxTexture2*         kTexture,
-             VkFilter             magFiter,
-             VkFilter             minFiler,
-             VkSamplerAddressMode samplerAddressModeU,
-             VkSamplerAddressMode samplerAddressModeV,
-             bool                 forceSRGB          = false,
-             VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
-
-        ~KTXVulkanImage() override;
-
-        static void initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool cmdPool);
-
-        static void cleanup();
-
-    private:
-        static ktxVulkanDeviceInfo vdi;
-        ktxVulkanTexture texture;
-    };
+    // class KTXVulkanImage : public VulkanImage {
+    // public:
+    //     KTXVulkanImage(const Device &  device,
+    //          const string &       name,
+    //          ktxTexture2*         kTexture,
+    //          VkFilter             magFiter,
+    //          VkFilter             minFiler,
+    //          VkSamplerAddressMode samplerAddressModeU,
+    //          VkSamplerAddressMode samplerAddressModeV,
+    //          bool                 forceSRGB          = false,
+    //          VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL);
+    //
+    //     ~KTXVulkanImage() override;
+    //
+    //     static void initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkQueue queue, VkCommandPool cmdPool);
+    //
+    //     static void cleanup();
+    //
+    // private:
+    //     static ktxVulkanDeviceInfo vdi;
+    //     ktxVulkanTexture texture;
+    // };
 
 }

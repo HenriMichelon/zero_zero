@@ -94,7 +94,7 @@ namespace z0 {
             stream.read(reinterpret_cast<istream::char_type *>(&nodeHeaders[nodeIndex]), sizeof(NodeHeader));
             childrenIndexes[nodeIndex].resize(nodeHeaders[nodeIndex].childrenCount);
             stream.read(reinterpret_cast<istream::char_type *>(childrenIndexes[nodeIndex].data()), sizeof(uint32_t) * childrenIndexes[nodeIndex].size());
-            log("Node ", nodeHeaders[nodeIndex].name, " ", to_string(nodeHeaders[nodeIndex].childrenCount), "children");
+            // log("Node ", nodeHeaders[nodeIndex].name, " ", to_string(nodeHeaders[nodeIndex].childrenCount), "children");
         }
 
         // Read the meshes data

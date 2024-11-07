@@ -6,8 +6,8 @@
 */
 module;
 #include <volk.h>
-#include <ktx.h>
-#include <ktxvulkan.h>
+// #include <ktx.h>
+// #include <ktxvulkan.h>
 #include "z0/libraries.h"
 
 module z0.VulkanImage;
@@ -403,44 +403,44 @@ namespace z0 {
         device.endOneTimeCommandBuffer(commandBuffer);
     }
 
-    ktxVulkanDeviceInfo KTXVulkanImage::vdi;
-
-    void KTXVulkanImage::initialize(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, const VkCommandPool cmdPool) {
-        ktxVulkanDeviceInfo_Construct(&vdi, physicalDevice, device, queue, cmdPool, nullptr);
-    }
-
-    void KTXVulkanImage::cleanup() {
-        ktxVulkanDeviceInfo_Destruct(&vdi);
-    }
-
-     KTXVulkanImage::KTXVulkanImage(const Device &  device,
-              const string &             name,
-              ktxTexture2*               kTexture,
-              const VkFilter             magFilter,
-              const VkFilter             minFilter,
-              const VkSamplerAddressMode samplerAddressModeU,
-              const VkSamplerAddressMode samplerAddressModeV,
-              const bool                 forceSRGB,
-              const VkImageTiling        tiling):
-        VulkanImage(device, kTexture->baseWidth, kTexture->baseHeight, kTexture->numLevels, name) {
-        if (forceSRGB) {
-            kTexture->vkFormat = formatSRGB(static_cast<VkFormat>(kTexture->vkFormat), name);
-        }
-        if (KTX_SUCCESS  != ktxTexture2_VkUploadEx(kTexture,
-                                  &vdi, &texture,
-                                  tiling,
-                                  VK_IMAGE_USAGE_SAMPLED_BIT,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)) {
-            die("Failed to create Vulkan image from KTX texture ", name);
-        }
-        textureImage = texture.image;
-        textureImageView = device.createImageView(textureImage, texture.imageFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
-        createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
-    }
-
-    KTXVulkanImage::~KTXVulkanImage() {
-        ktxVulkanTexture_Destruct(&texture, device.getDevice(), nullptr);
-        textureImage = VK_NULL_HANDLE;
-    }
+    // ktxVulkanDeviceInfo KTXVulkanImage::vdi;
+    //
+    // void KTXVulkanImage::initialize(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, const VkCommandPool cmdPool) {
+    //     ktxVulkanDeviceInfo_Construct(&vdi, physicalDevice, device, queue, cmdPool, nullptr);
+    // }
+    //
+    // void KTXVulkanImage::cleanup() {
+    //     ktxVulkanDeviceInfo_Destruct(&vdi);
+    // }
+    //
+    //  KTXVulkanImage::KTXVulkanImage(const Device &  device,
+    //           const string &             name,
+    //           ktxTexture2*               kTexture,
+    //           const VkFilter             magFilter,
+    //           const VkFilter             minFilter,
+    //           const VkSamplerAddressMode samplerAddressModeU,
+    //           const VkSamplerAddressMode samplerAddressModeV,
+    //           const bool                 forceSRGB,
+    //           const VkImageTiling        tiling):
+    //     VulkanImage(device, kTexture->baseWidth, kTexture->baseHeight, kTexture->numLevels, name) {
+    //     if (forceSRGB) {
+    //         kTexture->vkFormat = formatSRGB(static_cast<VkFormat>(kTexture->vkFormat), name);
+    //     }
+    //     if (KTX_SUCCESS  != ktxTexture2_VkUploadEx(kTexture,
+    //                               &vdi, &texture,
+    //                               tiling,
+    //                               VK_IMAGE_USAGE_SAMPLED_BIT,
+    //                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)) {
+    //         die("Failed to create Vulkan image from KTX texture ", name);
+    //     }
+    //     textureImage = texture.image;
+    //     textureImageView = device.createImageView(textureImage, texture.imageFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+    //     createTextureSampler(magFilter, minFilter, samplerAddressModeU, samplerAddressModeV);
+    // }
+    //
+    // KTXVulkanImage::~KTXVulkanImage() {
+    //     ktxVulkanTexture_Destruct(&texture, device.getDevice(), nullptr);
+    //     textureImage = VK_NULL_HANDLE;
+    // }
 
 }
