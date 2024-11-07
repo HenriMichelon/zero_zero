@@ -66,9 +66,7 @@ $(document).ready(function(){initNavTree('classz0_1_1ZScene.html',''); initResiz
 <div id="doc-content">
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classz0_1_1ZScene-members.html">List of all members</a>  </div>
   <div class="headertitle">
     <div class="title">ZScene Class Reference</div>
@@ -77,7 +75,21 @@ $(document).ready(function(){initNavTree('classz0_1_1ZScene.html',''); initResiz
 </div><!--header-->
 <div class="contents">
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="classz0_1_1ZScene.html">ZScene</a> binary file format : </p><div class="fragment"><div class="line"><a class="code" href="structz0_1_1ZScene_1_1Header.html">Header</a> : global header</div>
+<div class="textblock"><p><a class="el" href="classz0_1_1ZScene.html">ZScene</a> file format containing a whole scene with nodes, meshes, materials, textures and images.<br/>
+ This file format is adapted to ZeroZero and have the following advantages :<br/>
+</p><ul>
+<li>Binary file format : fast loading of data without deserialization</li>
+<li>Compressed images : images are compressed in GPU-compatible format like the BCn formats to reduce the VRAM usage.<br/>
+</li>
+<li>One big images atlas : all images are read and directly uploaded to the GPU in one pass and without using a big CPU buffer.<br/>
+</li>
+<li>Pre calculated mip levels : all images mips levels are pre-calculated and compressed.<br/>
+</li>
+<li>Pre calculated data : all transforms are pre-calculated.<br/>
+ <br/>
+ <a class="el" href="namespacez0.html#a7a2d71f78acae0c6efa38d7f1fea596fa7fc56270e7a70fa81a5935b72eacbe29" title="A or X. ">A</a> <a class="el" href="classz0_1_1ZScene.html">Zscene</a> file can be created from a <a class="el" href="classz0_1_1GlTF.html">glTF</a> file using the <code>gltf2zscene</code> command line tool.<br/>
+ <br/>
+ <b>File format description :</b> <div class="fragment"><div class="line">Header : global header</div>
 <div class="line">array&lt;ImageHeader + array&lt;MipLevelInfo, mipLevels&gt;, imagesCount&gt; : images headers</div>
 <div class="line">array&lt;TextureHeader, texturesCount&gt; : textures headers</div>
 <div class="line">array&lt;MaterialHeader, materialsCount&gt; : materials headers</div>
@@ -95,45 +107,15 @@ $(document).ready(function(){initNavTree('classz0_1_1ZScene.html',''); initResiz
 <div class="line">array&lt;vec4, tangentsCount&gt; : tangents data bloc</div>
 <div class="line">array&lt;BCn compressed image, imagesCount&gt; : images data bloc</div>
 </div><!-- end fragment -->
- </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1DataInfo.html">DataInfo</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1Header.html">Header</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1ImageHeader.html">ImageHeader</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1MaterialHeader.html">MaterialHeader</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1MeshHeader.html">MeshHeader</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1MipLevelInfo.html">MipLevelInfo</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1NodeHeader.html">NodeHeader</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1SurfaceInfo.html">SurfaceInfo</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1TextureHeader.html">TextureHeader</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structz0_1_1ZScene_1_1TextureInfo.html">TextureInfo</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
+ </li>
+</ul>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a8af7ca778b8c06a9fc15fab3015e0d80"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; <a class="el" href="classz0_1_1Node.html">Node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1ZScene.html#a8af7ca778b8c06a9fc15fab3015e0d80">load</a> (const string &amp;filename)</td></tr>
 <tr class="separator:a8af7ca778b8c06a9fc15fab3015e0d80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac47d1e2ddcbc869dabc6a2cf2ddea7e8"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; <a class="el" href="classz0_1_1Node.html">Node</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1ZScene.html#ac47d1e2ddcbc869dabc6a2cf2ddea7e8">load</a> (ifstream &amp;stream)</td></tr>
 <tr class="separator:ac47d1e2ddcbc869dabc6a2cf2ddea7e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
-Static Public Attributes</h2></td></tr>
-<tr class="memitem:a5cad78f50ad9f99bedf787a8911c0fcc"><td class="memItemLeft" align="right" valign="top">static constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1ZScene.html#a5cad78f50ad9f99bedf787a8911c0fcc">NAME_SIZE</a> {64}</td></tr>
-<tr class="separator:a5cad78f50ad9f99bedf787a8911c0fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a39c2f325ff688b5b740e9540b9c725"><td class="memItemLeft" align="right" valign="top">static constexpr char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1ZScene.html#a3a39c2f325ff688b5b740e9540b9c725">MAGIC</a> [] { 'Z', 'S', 'C', 'N' }</td></tr>
-<tr class="separator:a3a39c2f325ff688b5b740e9540b9c725"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e6e29a7ef496298417f969adf92f60d"><td class="memItemLeft" align="right" valign="top">static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1ZScene.html#a9e6e29a7ef496298417f969adf92f60d">VERSION</a> {1}</td></tr>
-<tr class="separator:a9e6e29a7ef496298417f969adf92f60d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a8af7ca778b8c06a9fc15fab3015e0d80"></a>
@@ -186,77 +168,13 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a3a39c2f325ff688b5b740e9540b9c725"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr char MAGIC[] { 'Z', 'S', 'C', 'N' }</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Magic header thing </p>
-
-</div>
-</div>
-<a class="anchor" id="a5cad78f50ad9f99bedf787a8911c0fcc"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr auto NAME_SIZE {64}</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Maximum size of strings in files </p>
-
-</div>
-</div>
-<a class="anchor" id="a9e6e29a7ef496298417f969adf92f60d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr uint32_t VERSION {1}</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Current format version </p>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Generated by DoxyPress 1.7.0 -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacez0.html">z0</a></li><li class="navelem"><a class="el" href="classz0_1_1ZScene.html">ZScene</a></li>
-    <li class="footer">Generated on jeu. nov. 7 2024 21:32:23 for ZeroZero &nbsp; by
+    <li class="footer">Generated on jeu. nov. 7 2024 21:48:43 for ZeroZero &nbsp; by
     <a href="https://www.copperspice.com/documentation-doxypress.html">
     <img class="footer" src="doxypress.png" alt="DoxyPress"/></a> 1.7.0 </li>
   </ul>

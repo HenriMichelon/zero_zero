@@ -18,7 +18,17 @@ import z0.Node;
 export namespace z0 {
 
     /**
-     * ZScene binary file format :
+     * ZScene file format containing a whole scene with nodes, meshes, materials, textures and images.<br>
+     * This file format is adapted to ZeroZero and have the following advantages :<br>
+     * - Binary file format : fast loading of data without deserialization
+     * - Compressed images : images are compressed in GPU-compatible format like the BCn formats to reduce the VRAM usage.<br>
+     * - One big images atlas : all images are read and directly uploaded to the GPU in one pass and without using a big CPU buffer.<br>
+     * - Pre calculated mip levels : all images mips levels are pre-calculated and compressed.<br>
+     * - Pre calculated data : all transforms are pre-calculated.<br>
+     *<br>
+     *$A Zscene file can be created from a glTF file using the `gltf2zscene` command line tool.<br>
+     *<br>
+     * **File format description :**
      * ```
      * Header : global header
      * array<ImageHeader + array<MipLevelInfo, mipLevels>, imagesCount> : images headers
@@ -41,22 +51,22 @@ export namespace z0 {
      */
     class ZScene {
     public:
-        /**
+        /*
          * Maximum size of strings in files
          */
         static constexpr auto NAME_SIZE{64};
 
-        /**
+        /*
          * Magic header thing
          */
         static constexpr char MAGIC[]{ 'Z', 'S', 'C', 'N' };
 
-        /**
+        /*
          * Current format version
          */
         static constexpr uint32_t VERSION{1};
 
-        /**
+        /*
          * Global file header
          */
         struct Header {
@@ -78,7 +88,7 @@ export namespace z0 {
             uint64_t headersSize;
         };
 
-        /**
+        /*
          * Description of an image
          */
         struct ImageHeader {
@@ -98,7 +108,7 @@ export namespace z0 {
             uint64_t dataSize;
         };
 
-        /**
+        /*
          * Description of a mip level for an image
          */
         struct MipLevelInfo {
@@ -108,7 +118,7 @@ export namespace z0 {
             uint64_t size;
         };
 
-        /**
+        /*
          * Description of a texture
          */
         struct TextureHeader {
@@ -124,7 +134,7 @@ export namespace z0 {
             uint32_t samplerAddressModeV;
         };
 
-        /**
+        /*
          * Description of a texture attached to a material
          */
         struct TextureInfo {
@@ -136,7 +146,7 @@ export namespace z0 {
             mat3     transform;
         };
 
-        /**
+        /*
          * Description of a material
          */
         struct MaterialHeader {
@@ -172,7 +182,7 @@ export namespace z0 {
             float        normalScale;
         };
 
-        /**
+        /*
          * Description of a data bloc (indices, positions, normals, tangents, uv coords)
          */
         struct DataInfo {
@@ -182,7 +192,7 @@ export namespace z0 {
             uint32_t count;
         };
 
-        /**
+        /*
          * Description of a mesh primitive
          */
         struct SurfaceInfo {
@@ -200,7 +210,7 @@ export namespace z0 {
             uint32_t uvsCount;
         };
 
-        /**
+        /*
          * Description of a mesh
          */
         struct MeshHeader {
@@ -210,7 +220,7 @@ export namespace z0 {
             uint32_t surfacesCount;
         };
 
-        /**
+        /*
          * Description of a node in the scene
          */
         struct NodeHeader {

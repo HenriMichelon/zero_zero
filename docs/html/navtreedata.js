@@ -647,82 +647,7 @@ var NAVTREE =
             [ "shouldClose", "classz0_1_1Window.html#a831069e29b711e34bb2044bfdc7b5a51", null ],
             [ "toString", "classz0_1_1Window.html#acc18036adaea83856c3e6069e90a3f97", null ]
           ] ],
-          [ "ZScene", "classz0_1_1ZScene.html", [
-            [ "DataInfo", "structz0_1_1ZScene_1_1DataInfo.html", [
-              [ "count", "structz0_1_1ZScene_1_1DataInfo.html#a86988a65e0d3ece7990c032c159786d6", null ],
-              [ "first", "structz0_1_1ZScene_1_1DataInfo.html#a278eb73b0cdb4b6029426dbd091b643f", null ]
-            ] ],
-            [ "Header", "structz0_1_1ZScene_1_1Header.html", [
-              [ "headersSize", "structz0_1_1ZScene_1_1Header.html#aa9b02119563bced01d7bc7adc9bf69c4", null ],
-              [ "imagesCount", "structz0_1_1ZScene_1_1Header.html#a7750b3e93354321a9c8d3c08d90b18a6", null ],
-              [ "magic", "structz0_1_1ZScene_1_1Header.html#a03dedff415badb9581a8ca90e6a45b53", null ],
-              [ "materialsCount", "structz0_1_1ZScene_1_1Header.html#aeab95e4e7124fb0650890269363a5968", null ],
-              [ "meshesCount", "structz0_1_1ZScene_1_1Header.html#af79a14e8670b80496cdfc7e1a9550279", null ],
-              [ "nodesCount", "structz0_1_1ZScene_1_1Header.html#afde4d80e1d28eb0f601a82f093d286d0", null ],
-              [ "texturesCount", "structz0_1_1ZScene_1_1Header.html#a81f89f7e057032f03c2698904edd4992", null ],
-              [ "version", "structz0_1_1ZScene_1_1Header.html#acd99bb05ca015e7d74448acb1deba7ca", null ]
-            ] ],
-            [ "ImageHeader", "structz0_1_1ZScene_1_1ImageHeader.html", [
-              [ "dataOffset", "structz0_1_1ZScene_1_1ImageHeader.html#a3740df413de90e9ed6e5fa6e3e1d3f36", null ],
-              [ "dataSize", "structz0_1_1ZScene_1_1ImageHeader.html#ab29ebe7b970d805aa09be1e5946f8e39", null ],
-              [ "format", "structz0_1_1ZScene_1_1ImageHeader.html#a5f103a560be6fbd177116e18875162d7", null ],
-              [ "height", "structz0_1_1ZScene_1_1ImageHeader.html#a6ad4f820ce4e75cda0686fcaad5168be", null ],
-              [ "mipLevels", "structz0_1_1ZScene_1_1ImageHeader.html#a4ec7bfbc7ae5f5c9a66ad9c7a742355c", null ],
-              [ "name", "structz0_1_1ZScene_1_1ImageHeader.html#abf5b047e1f527e88ab5997329d1b557b", null ],
-              [ "width", "structz0_1_1ZScene_1_1ImageHeader.html#a325272ddd9a962f05deb905101d25cbd", null ]
-            ] ],
-            [ "MaterialHeader", "structz0_1_1ZScene_1_1MaterialHeader.html", [
-              [ "albedoColor", "structz0_1_1ZScene_1_1MaterialHeader.html#a60102deab9ab459ca8de541083d0c8ab", null ],
-              [ "albedoTexture", "structz0_1_1ZScene_1_1MaterialHeader.html#ae374d86eba681e603823a6f8461ede67", null ],
-              [ "alphaScissor", "structz0_1_1ZScene_1_1MaterialHeader.html#a7731596df5a42611ceca78a293e0b2d5", null ],
-              [ "cullMode", "structz0_1_1ZScene_1_1MaterialHeader.html#a0945f595eeab3957bc072fa1b1b1c2b7", null ],
-              [ "emissiveFactor", "structz0_1_1ZScene_1_1MaterialHeader.html#ad671a8b0e38134cdfb1897062a2a84bd", null ],
-              [ "emissiveStrength", "structz0_1_1ZScene_1_1MaterialHeader.html#a1dd5e5679d01fed429e0f919909db6b7", null ],
-              [ "emissiveTexture", "structz0_1_1ZScene_1_1MaterialHeader.html#ac335378b20f5e72ff9900412b8b148ae", null ],
-              [ "metallicFactor", "structz0_1_1ZScene_1_1MaterialHeader.html#a54da436e9141648a2db2671c01a883cb", null ],
-              [ "metallicTexture", "structz0_1_1ZScene_1_1MaterialHeader.html#a7cb3e4aba168e19fb9e601dd6f719113", null ],
-              [ "name", "structz0_1_1ZScene_1_1MaterialHeader.html#abf5b047e1f527e88ab5997329d1b557b", null ],
-              [ "normalScale", "structz0_1_1ZScene_1_1MaterialHeader.html#adc09e044c20a39064bdcced2157bd677", null ],
-              [ "normalTexture", "structz0_1_1ZScene_1_1MaterialHeader.html#a27f7295880a7146a8450b645b42cce36", null ],
-              [ "roughnessFactor", "structz0_1_1ZScene_1_1MaterialHeader.html#aa30e63342d49fa15f2242c0692b1cee0", null ],
-              [ "roughnessTexture", "structz0_1_1ZScene_1_1MaterialHeader.html#a5ffd43fd5386dda32f03a06b340a3a69", null ],
-              [ "transparency", "structz0_1_1ZScene_1_1MaterialHeader.html#a74823bd8d6c09eace3f708d30a0eeeaf", null ]
-            ] ],
-            [ "MeshHeader", "structz0_1_1ZScene_1_1MeshHeader.html", [
-              [ "name", "structz0_1_1ZScene_1_1MeshHeader.html#abf5b047e1f527e88ab5997329d1b557b", null ],
-              [ "surfacesCount", "structz0_1_1ZScene_1_1MeshHeader.html#a693f7fdc4b882113180cadd4a470e4fb", null ]
-            ] ],
-            [ "MipLevelInfo", "structz0_1_1ZScene_1_1MipLevelInfo.html", [
-              [ "offset", "structz0_1_1ZScene_1_1MipLevelInfo.html#a612bb2807d848cca89ea1437cceea886", null ],
-              [ "size", "structz0_1_1ZScene_1_1MipLevelInfo.html#af931a8871310b4dad23f0f0b0f623560", null ]
-            ] ],
-            [ "NodeHeader", "structz0_1_1ZScene_1_1NodeHeader.html", [
-              [ "childrenCount", "structz0_1_1ZScene_1_1NodeHeader.html#a9ebf91426dfada78d805327f4092df76", null ],
-              [ "meshIndex", "structz0_1_1ZScene_1_1NodeHeader.html#aa6ed31012de11928dd6a6ff8396788a8", null ],
-              [ "name", "structz0_1_1ZScene_1_1NodeHeader.html#abf5b047e1f527e88ab5997329d1b557b", null ],
-              [ "transform", "structz0_1_1ZScene_1_1NodeHeader.html#a88d79474d8dfb5449c8f0de2c8e901e2", null ]
-            ] ],
-            [ "SurfaceInfo", "structz0_1_1ZScene_1_1SurfaceInfo.html", [
-              [ "indices", "structz0_1_1ZScene_1_1SurfaceInfo.html#a4dc2c4dd290269f4d530fa8f06228652", null ],
-              [ "materialIndex", "structz0_1_1ZScene_1_1SurfaceInfo.html#aa71646c7fa6260c99ad730b482e3daf0", null ],
-              [ "normals", "structz0_1_1ZScene_1_1SurfaceInfo.html#acb0239b199adec3593bad1f1b95f0ddf", null ],
-              [ "positions", "structz0_1_1ZScene_1_1SurfaceInfo.html#afb366648b87874324161d4bf36fdf620", null ],
-              [ "tangents", "structz0_1_1ZScene_1_1SurfaceInfo.html#a98ee1e925d264c686df5d475574f01cf", null ],
-              [ "uvsCount", "structz0_1_1ZScene_1_1SurfaceInfo.html#a16c15c56a3da369b58b50d2aff5eec71", null ]
-            ] ],
-            [ "TextureHeader", "structz0_1_1ZScene_1_1TextureHeader.html", [
-              [ "imageIndex", "structz0_1_1ZScene_1_1TextureHeader.html#ace0ceb16555a2121b280bd8b48cefcab", null ],
-              [ "magFilter", "structz0_1_1ZScene_1_1TextureHeader.html#ab7c82056fbdbd362b5af6e0161f8cb73", null ],
-              [ "minFilter", "structz0_1_1ZScene_1_1TextureHeader.html#a4a46e77fcb16e5c4b854aee648afc3d1", null ],
-              [ "samplerAddressModeU", "structz0_1_1ZScene_1_1TextureHeader.html#a01891b74c82c65b1ae7c07dc6fe15135", null ],
-              [ "samplerAddressModeV", "structz0_1_1ZScene_1_1TextureHeader.html#a881b4cdbe7a4282662e3cb8538a56eca", null ]
-            ] ],
-            [ "TextureInfo", "structz0_1_1ZScene_1_1TextureInfo.html", [
-              [ "textureIndex", "structz0_1_1ZScene_1_1TextureInfo.html#a8eb7b96c1920c557972cd7a815bb2494", null ],
-              [ "transform", "structz0_1_1ZScene_1_1TextureInfo.html#a869bda8864d4b3c814cb518968ee67de", null ],
-              [ "uvsIndex", "structz0_1_1ZScene_1_1TextureInfo.html#ae53c1dbf1225dbde06ceb1ad310e5edd", null ]
-            ] ]
-          ] ]
+          [ "ZScene", "classz0_1_1ZScene.html", null ]
         ] ]
       ] ],
       [ "Class Index", "classes.html", null ],
@@ -833,17 +758,7 @@ var NAVTREE =
         [ "TypeRegistry", "classz0_1_1TypeRegistry.html", null ],
         [ "Vertex", "structz0_1_1Vertex.html", null ],
         [ "VirtualFS", "classz0_1_1VirtualFS.html", null ],
-        [ "ZScene", "classz0_1_1ZScene.html", null ],
-        [ "DataInfo", "structz0_1_1ZScene_1_1DataInfo.html", null ],
-        [ "Header", "structz0_1_1ZScene_1_1Header.html", null ],
-        [ "ImageHeader", "structz0_1_1ZScene_1_1ImageHeader.html", null ],
-        [ "MaterialHeader", "structz0_1_1ZScene_1_1MaterialHeader.html", null ],
-        [ "MeshHeader", "structz0_1_1ZScene_1_1MeshHeader.html", null ],
-        [ "MipLevelInfo", "structz0_1_1ZScene_1_1MipLevelInfo.html", null ],
-        [ "NodeHeader", "structz0_1_1ZScene_1_1NodeHeader.html", null ],
-        [ "SurfaceInfo", "structz0_1_1ZScene_1_1SurfaceInfo.html", null ],
-        [ "TextureHeader", "structz0_1_1ZScene_1_1TextureHeader.html", null ],
-        [ "TextureInfo", "structz0_1_1ZScene_1_1TextureInfo.html", null ]
+        [ "ZScene", "classz0_1_1ZScene.html", null ]
       ] ]
     ] ]
   ] ]
