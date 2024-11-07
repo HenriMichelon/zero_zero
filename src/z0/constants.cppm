@@ -14,8 +14,8 @@ module;
 
 export module z0.Constants;
 
+/// The z0 namespace
 export namespace z0 {
-
 
     /**
     * Useless engine name
@@ -108,6 +108,7 @@ export namespace z0 {
     constexpr vec2 VECTOR_SIZE{1001.0f};
 
     /**
+     *\enum
      * Nodes state when the scene is paused or running
      */
     enum class ProcessMode {
