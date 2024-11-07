@@ -136,6 +136,7 @@
         "uml-limit-num-fields": 10,
         "uml-look": false
     },
+    "doxyPress-location": "",
     "doxypress-format": 1,
     "doxypress-updated": "2018-Jun-30",
     "external": {
@@ -244,6 +245,8 @@
         "warn-undoc-param": false,
         "warnings": true
     },
+    "opened-files": [
+    ],
     "output-chm": {
         "binary-toc": false,
         "chm-file": "",
@@ -388,6 +391,8 @@
         "xml-output": "xml",
         "xml-program-listing": true
     },
+    "pos-x": -8,
+    "pos-y": -8,
     "preprocessor": {
         "enable-preprocessing": false,
         "expand-as-defined": [
@@ -413,6 +418,8 @@
         "project-name": "ZeroZero",
         "project-version": "v0.0"
     },
+    "size-height": 1009,
+    "size-width": 1920,
     "source": {
         "inline-source": false,
         "ref-by-relation": false,
