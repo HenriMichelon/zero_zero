@@ -19,7 +19,7 @@ export namespace z0 {
     class GlTF {
     public:
         /**
-         * Load a glTF scene
+         * Loads a glTF scene
          * @param filepath path of the (binary) glTF file, relative to the application path
          */
         [[nodiscard]] static shared_ptr<Node> load(const string& filepath);

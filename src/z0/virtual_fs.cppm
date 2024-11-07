@@ -17,7 +17,7 @@ import z0.Buffer;
 export namespace z0 {
 
     /**
-     * Virtual file system
+     * Virtual file system<br>Currently under heavy construction, do not use.
      */
     class VirtualFS {
     public:

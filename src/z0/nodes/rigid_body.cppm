@@ -41,7 +41,7 @@ export namespace z0 {
          * Sets the coefficient of restitution
          * (the ratio of the relative velocity of separation after collision to the relative velocity of approach before collision)
          */
-        void setBounce(const float value);
+        void setBounce(float value);
 
         void setProperty(const string &property, const string &value) override;
     };

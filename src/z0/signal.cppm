@@ -14,7 +14,7 @@ namespace z0 {
     class Object;
 
     /**
-     * A signal of an Object
+     * %A signal of an Object
      */
     export class Signal {
     public:

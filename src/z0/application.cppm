@@ -26,17 +26,13 @@ namespace z0 {
     class Camera;
 
     /**
-     * Global application.
-     * Automatically instantiated by the `Z0_APP(CONFIG, ROOTNODE)` macro.
-     * Initialize the Vulkan [VkInstance](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkInstance.html),
-     * the Jolt [PhysicsSystem](https://jrouwe.github.io/JoltPhysics/class_physics_system.html) and the
-     * various renderes.
+     * Global application.<br>
+     * Automatically instantiated by the `Z0_APP(CONFIG, ROOTNODE)` macro.<br>
      */
     export class Application : public Object {
     public:
         /**
          * Returns the application singleton
-         * @return the global application object
          */
         static Application &get() {
             assert(_instance != nullptr);

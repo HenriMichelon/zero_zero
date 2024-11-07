@@ -15,24 +15,36 @@ import z0.MeshInstance;
 
 export namespace z0 {
 
-    struct Plane {
-        // normal vector
-        vec3 normal{0.f, 1.f, 0.f};
-        // distance from the origin to the nearest point in the plane
-        float distance{0.f};
-
-        Plane() = default;
-        inline Plane(const vec3& p1, const vec3& norm) : normal(normalize(norm)), distance(dot(normal, p1)){}
-
-        inline float getSignedDistanceToPlane(const vec3& point) const { return dot(normal, point) - distance; }
-    };
-
+    /**
+     * %A camera or light frustum
+     */
     struct Frustum {
+        /**
+         * One plane of a frustum cube
+         */
+        struct Plane {
+            //! normal vector
+            vec3 normal{0.f, 1.f, 0.f};
+            //! distance from the origin to the nearest point in the plane
+            float distance{0.f};
+
+            Plane() = default;
+            inline Plane(const vec3& p1, const vec3& norm) : normal(normalize(norm)), distance(dot(normal, p1)){}
+
+            inline float getSignedDistanceToPlane(const vec3& point) const { return dot(normal, point) - distance; }
+        };
+
+        //! Far plane
         Plane farFace;
+        //! Near plane
         Plane nearFace;
+        //! Left plane
         Plane leftFace;
+        //! Right plane
         Plane rightFace;
+        //! Top plane
         Plane topFace;
+        //! Bottom plane
         Plane bottomFace;
 
         inline const Plane& getPlane(const int i) const {
@@ -55,10 +67,41 @@ export namespace z0 {
         }
 
         Frustum() = default;
-        Frustum(const shared_ptr<Node>&, float fovY, float zNear, float zFar);
-        Frustum(const shared_ptr<Node>&, const vec3& position, float fovY, float zNear, float zFar);
+
+        /**
+         * Creates a frustum
+         * \param node Camera or Light
+         * \param fovY Field of view in degrees
+         * \param zNear Near clipping distance
+         * \param zFar Far clipping distance
+         */
+        Frustum(const shared_ptr<Node>&node, float fovY, float zNear, float zFar);
+
+        /**
+         * Creates a frustum
+         * \param node Camera or Light
+         * \param position Node position to use instead of the real node position
+         * \param fovY Field of view in degrees
+         * \param zNear Near clipping distance
+         * \param zFar Far clipping distance
+         */
+        Frustum(const shared_ptr<Node>&node, const vec3& position, float fovY, float zNear, float zFar);
+
+        /**
+         * Creates a frustum
+         * \param position Node position
+         * \param front Front vector
+         * \param right Right vector
+         * \param up Up vector
+         * \param fovY Field of view in degrees
+         * \param zNear Near clipping distance
+         * \param zFar Far clipping distance
+         */
         Frustum(const vec3& position, const vec3& front, const vec3& right, const vec3&up, float fovY, float zNear, float zFar);
 
+        /**
+         * Returns `true` if the MeshInstance is in the frustum
+         */
         bool isOnFrustum(const shared_ptr<MeshInstance>& meshInstance) const;
 
     };

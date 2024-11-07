@@ -19,7 +19,7 @@ export namespace z0 {
     public:
         /**
          * Load a glTF or ZScene scene
-         * @param filepath path of the glTF/Zscene file, relative to the application path
+         * @param filepath path of the glTF/ZScene file, relative to the application path
          */
         [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
 

@@ -266,7 +266,7 @@ export namespace z0 {
         KEY_APOSTROPHE = 4,
         //! ,
         KEY_COMMA = 5,
-        //! .
+        //! $.
         KEY_PERIOD = 6,
         //! ?
         KEY_QUESTIONMARK = 7,
@@ -691,8 +691,13 @@ export namespace z0 {
         RESIZE_V = 3,
     };
 
+    /**
+     * Images pixel format
+     */
     enum class ImageFormat {
+        //! 32 bits with alpha channel in the sRGB color space
         R8G8B8A8_SRGB  = 0,
+        //! 32 bits with alpha channel in the lineara color space
         R8G8B8A8_UNORM = 1,
     };
 

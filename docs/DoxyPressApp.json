@@ -75,7 +75,7 @@
         "show-grouped-members-inc": false,
         "show-include-files": true,
         "show-namespace-page": true,
-        "show-used-files": true,
+        "show-used-files": false,
         "sip-support": false,
         "sort-brief-docs": false,
         "sort-by-scope-name": false,
@@ -416,7 +416,7 @@
     "source": {
         "inline-source": false,
         "ref-by-relation": false,
-        "ref-link-source": true,
+        "ref-link-source": false,
         "ref-relation": false,
         "source-code": false,
         "source-tooltips": true,

@@ -1,3 +1,8 @@
+.icona {
+    background-color: transparent !important;
+    text-align: center;
+}
+
 @media (prefers-color-scheme: dark) {
     html:not(.light-mode) {
     --primary-color: #7aa2f7;

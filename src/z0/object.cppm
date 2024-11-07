@@ -51,7 +51,10 @@ export namespace z0 {
             return os;
         }
 
-        template<typename T>
+        /**
+         * Shortcut to avoid using `reinterpret_cast`
+         */
+        template <typename T>
         static constexpr Signal::Handler SignalHandler(const T handler) { return reinterpret_cast<Signal::Handler>(handler); }
 
         Object(Object const&) = delete;

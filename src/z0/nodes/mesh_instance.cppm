@@ -17,7 +17,7 @@ import z0.AABB;/*
 
 namespace z0 {
 
-    /*
+    /**
      * Node that hold a Mesh.
      */
     export class MeshInstance : public Node {

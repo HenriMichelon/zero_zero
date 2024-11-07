@@ -21,10 +21,12 @@ export namespace z0 {
          * The geometry shape
          */
         shared_ptr<Shape> shape;
+
         /**
          * Local space position
          */
         vec3 position{0.0f};
+
         /**
          * Local space rotation
          */

@@ -26,7 +26,7 @@ namespace z0 {
     }
 
     Frustum::Frustum(const shared_ptr<Node>& node, const vec3& position, const float fovY, const float zNear, const float zFar):
-        Frustum(node->getPositionGlobal(), node->getFrontVector(), node->getRightVector(), node->getUpVector(), fovY, zNear, zFar) {
+        Frustum(position, node->getFrontVector(), node->getRightVector(), node->getUpVector(), fovY, zNear, zFar) {
     }
 
     Frustum::Frustum(const vec3& position, const vec3& front, const vec3& right, const vec3&up, float fovY, float zNear, float zFar) {
@@ -42,7 +42,7 @@ namespace z0 {
         bottomFace = { position, cross(frontMultFar + up * halfVSide, right) };
     }
 
-    bool isOnOrForwardPlane(const Plane& plane, const vec3& position) {
+    bool isOnOrForwardPlane(const Frustum::Plane& plane, const vec3& position) {
         return plane.getSignedDistanceToPlane(position) > -.0f;
     }
 

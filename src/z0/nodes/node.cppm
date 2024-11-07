@@ -131,12 +131,12 @@ import z0.Tween;
          */
         [[nodiscard]] vec3 toGlobal(vec3 local) const;
 
-        /*
+        /**
         * Sets the local space position (relative to parent)
         */
         virtual void setPosition(vec3 position);
 
-        /*
+        /**
         * Returns the local space position (relative to parent)
         */
         [[nodiscard]] inline vec3 getPosition() const { return localTransform[3]; }
@@ -275,12 +275,12 @@ import z0.Tween;
          */
         [[nodiscard]] bool haveChild(const shared_ptr<Node> &child, bool recursive) const;
 
-        /*
+        /**
         * Returns the child node by is name. Not recursive
         */
         [[nodiscard]] shared_ptr<Node> getChild(const string &name) const;
 
-        /*
+        /**
         * Returns the child node by is absolute path
         */
         [[nodiscard]] shared_ptr<Node> getNode(const string &path) const;

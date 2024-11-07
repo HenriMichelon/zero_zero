@@ -19,7 +19,9 @@ export namespace z0 {
     class Light : public Node {
     public:
 
-        // For the fragment shader
+        /**
+         * Light type, mainly used by the fragment shader
+         */
         enum LightType {
             LIGHT_UNKNOWN     = -1,
             LIGHT_DIRECTIONAL = 0,
@@ -54,6 +56,9 @@ export namespace z0 {
          */
         void setCastShadows(bool castShadows);
 
+        /**
+         * Returns the light type
+         */
         [[nodiscard]] inline int32_t getLightType() const { return lightType; }
 
         void setProperty(const string &property, const string &value) override;

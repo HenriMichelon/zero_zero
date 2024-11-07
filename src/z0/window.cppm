@@ -39,7 +39,7 @@ namespace z0 {
          */
         void close() { closing = true; }
 
-        /*
+        /**
         * Returns true if we need to stop the Application main loop and quit the application
         */
         [[nodiscard]] bool shouldClose() const { return closing; }

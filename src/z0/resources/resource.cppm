@@ -24,8 +24,6 @@ export namespace z0 {
 
         explicit Resource(string name);
 
-        // ~Resource() override { log("~Resource", name, to_string(getId())); }
-
         /**
          * Returns the unique id of the resource
          */

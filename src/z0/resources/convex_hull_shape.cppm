@@ -34,6 +34,9 @@ export namespace z0 {
          */
         explicit ConvexHullShape(const shared_ptr<Mesh> &mesh, const string &resName = "ConvexHullShape");
 
+        /**
+         * Creates a ConvexHullShape using a list of vertices
+         */
         ConvexHullShape(const vector<vec3>& points, const string &resName);
 
         shared_ptr<Resource> duplicate()  const override;
