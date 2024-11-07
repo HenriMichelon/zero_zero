@@ -29,7 +29,7 @@ namespace z0 {
         return make_shared<VulkanImage>(
             Device::get(),
             name, width, height, imageSize, data,
-            format == IMAGE_R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
+            format == ImageFormat::R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
     }
 
     unordered_map<DXGI_FORMAT, VkFormat> dxgiToVulkanFormat = {
@@ -125,7 +125,7 @@ namespace z0 {
                     Device::get(),
                     filepath, desc.width, desc.height,
                     ddsData.size() - desc.headerSize, ddsData.data() + desc.headerSize,
-                    imageFormat == IMAGE_R8G8B8A8_SRGB ? VulkanImage::formatSRGB(format, filepath): format,
+                    imageFormat == ImageFormat::R8G8B8A8_SRGB ? VulkanImage::formatSRGB(format, filepath): format,
                     VK_IMAGE_TILING_OPTIMAL,
                     VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_FILTER_LINEAR, true);
         }

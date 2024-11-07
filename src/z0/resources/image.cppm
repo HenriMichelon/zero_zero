@@ -40,13 +40,13 @@ export namespace z0 {
          * Load a bitmap from file.<br>
          * Support KTX2, DDS and all the format supported by [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
          */
-        static shared_ptr<Image> load(const string &filepath, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
+        static shared_ptr<Image> load(const string &filepath, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
         static shared_ptr<Image> createBlankImage();
 
         static shared_ptr<Image> create(uint32_t width, uint32_t height,
                                         uint64_t imageSize, const void *data,
-                                        const string & name, ImageFormat format = IMAGE_R8G8B8A8_SRGB);
+                                        const string & name, ImageFormat format = ImageFormat::R8G8B8A8_SRGB);
 
     protected:
         uint32_t width;

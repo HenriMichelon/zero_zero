@@ -347,7 +347,7 @@ namespace z0 {
                     const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : mesh->getSurfaces()) {
                         pushConstants.model = meshInstance->getTransformGlobal();
-                        pushConstants.transparency = surface->material->getTransparency();
+                        pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
                         vkCmdPushConstants(
                             commandBuffer,
                             pipelineLayout,

@@ -66,7 +66,7 @@ export namespace z0 {
                       T initial, 
                       T final, 
                       const float duration,
-                      const TransitionType ttype = TRANS_LINEAR):
+                      const TransitionType ttype = TransitionType::LINEAR):
             Tween{ttype},
             durationTime{duration},
             targetValue{final},
@@ -88,7 +88,7 @@ export namespace z0 {
                       T initial, 
                       T final, 
                       const float duration,
-                      const TransitionType ttype = TRANS_LINEAR):
+                      const TransitionType ttype = TransitionType::LINEAR):
             Tween{ttype},
             durationTime{duration},
             targetValue{final},

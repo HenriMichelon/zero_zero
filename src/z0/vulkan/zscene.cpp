@@ -18,7 +18,7 @@ namespace z0 {
 
     void ZScene::loadImagesAndTextures(ifstream &stream,
         const vector<ImageHeader>& imageHeaders,
-        const vector<vector<MipLevelHeader>>&levelHeaders,
+        const vector<vector<MipLevelInfo>>&levelHeaders,
         const vector<TextureHeader>& textureHeaders,
         const uint64_t totalImageSize) {
 

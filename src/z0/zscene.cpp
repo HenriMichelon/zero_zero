@@ -41,24 +41,24 @@ namespace z0 {
     shared_ptr<Node> ZScene::loadScene(ifstream& stream) {
         // Read the file global header
         stream.read(reinterpret_cast<istream::char_type *>(&header), sizeof(header));
-        if (header.magic[0] != Header::MAGIC[0] &&
-            header.magic[1] != Header::MAGIC[1] &&
-            header.magic[2] != Header::MAGIC[2] &&
-            header.magic[3] != Header::MAGIC[3]) {
+        if (header.magic[0] != MAGIC[0] &&
+            header.magic[1] != MAGIC[1] &&
+            header.magic[2] != MAGIC[2] &&
+            header.magic[3] != MAGIC[3]) {
             die("ZScene bad magic");
             }
-        if (header.version != Header::VERSION) {
+        if (header.version != VERSION) {
             die("ZScene bad version");
         }
 
         // Read the images & mips levels headers
         auto imageHeaders = vector<ImageHeader>(header.imagesCount);
-        auto levelHeaders = vector<vector<MipLevelHeader>>(header.imagesCount);
+        auto levelHeaders = vector<vector<MipLevelInfo>>(header.imagesCount);
         uint64_t totalImageSize{0};
         for (auto imageIndex = 0; imageIndex < header.imagesCount; ++imageIndex) {
             stream.read(reinterpret_cast<istream::char_type *>(&imageHeaders[imageIndex]), sizeof(ImageHeader));
             levelHeaders[imageIndex].resize(imageHeaders[imageIndex].mipLevels);
-            stream.read(reinterpret_cast<istream::char_type *>(levelHeaders[imageIndex].data()), sizeof(MipLevelHeader) * imageHeaders[imageIndex].mipLevels);
+            stream.read(reinterpret_cast<istream::char_type *>(levelHeaders[imageIndex].data()), sizeof(MipLevelInfo) * imageHeaders[imageIndex].mipLevels);
             totalImageSize += imageHeaders[imageIndex].dataSize;
         }
 
@@ -268,7 +268,7 @@ namespace z0 {
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             auto& sceneNode = nodes[nodeIndex];
             for (auto i = 0; i < nodeHeaders[nodeIndex].childrenCount; i++) {
-                sceneNode->setProcessMode(PROCESS_MODE_DISABLED);
+                sceneNode->setProcessMode(ProcessMode::DISABLED);
                 sceneNode->addChild(nodes[childrenIndexes[nodeIndex][i]]);
             }
         }
@@ -277,7 +277,7 @@ namespace z0 {
         auto rootNode = make_shared<Node>("ZScene");
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
-                node->setProcessMode(PROCESS_MODE_DISABLED);
+                node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);
             }
         }

@@ -117,10 +117,10 @@ namespace z0 {
             material->setEmissiveStrength(mat.emissiveStrength);
             switch (mat.alphaMode) {
             case fastgltf::AlphaMode::Blend:
-                material->setTransparency(TRANSPARENCY_ALPHA);
+                material->setTransparency(Transparency::ALPHA);
                 break;
             case fastgltf::AlphaMode::Mask:
-                material->setTransparency(TRANSPARENCY_SCISSOR);
+                material->setTransparency(Transparency::SCISSOR);
                 material->setAlphaScissor(mat.alphaCutoff);
                 break;
             default:
@@ -217,7 +217,7 @@ namespace z0 {
                 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_emissivetexture
                 material->setEmissiveTexture(loadTexture(mat.emissiveTexture.value(), VK_FORMAT_R8G8B8A8_SRGB));
             }
-            material->setCullMode(mat.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK);
+            material->setCullMode(mat.doubleSided ? CullMode::DISABLED : CullMode::BACK);
             materials.push_back(material);
         }
         if (materials.empty()) {
@@ -387,7 +387,7 @@ namespace z0 {
             fastgltf::Node   &node      = gltf.nodes[i];
             shared_ptr<Node> &sceneNode = nodes[i];
             for (auto &child : node.children) {
-                sceneNode->setProcessMode(PROCESS_MODE_DISABLED);
+                sceneNode->setProcessMode(ProcessMode::DISABLED);
                 sceneNode->addChild(nodes[child]);
             }
         }
@@ -396,7 +396,7 @@ namespace z0 {
         auto rootNode = make_shared<Node>(filepath);
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
-                node->setProcessMode(PROCESS_MODE_DISABLED);
+                node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);
             }
         }

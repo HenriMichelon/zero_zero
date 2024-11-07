@@ -26,7 +26,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
 //    return color;
 //    color = vec4(fs_in.UV.x, fs_in.UV.y, 1.0f, 1.0f);
 
-    // if TRANSPARENCY_SCISSOR or TRANSPARENCY_SCISSOR_ALPHA
+    // if Transparency::SCISSOR or Transparency::SCISSOR_ALPHA
     // discard the fragment if the alpha value < scissor value of the material
     if (((material.transparency == TRANSPARENCY_SCISSOR) || (material.transparency == TRANSPARENCY_SCISSOR_ALPHA)) && (color.a < material.alphaScissor)) {
         discard;

@@ -201,7 +201,7 @@ namespace z0 {
         auto transparent{false};
         if (enableDepthPrepass && meshInstance->isValid()) {
             for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-                if (material->getTransparency() != TRANSPARENCY_DISABLED) {
+                if (material->getTransparency() != Transparency::DISABLED) {
                     transparent = true;
                     frameData[currentFrame].transparentModels.push_back(meshInstance);
                     break;
@@ -364,7 +364,7 @@ namespace z0 {
         for (const auto& material : frame.materials) {
             if (!material->_isDirty()) { continue; }
             auto materialUBO = MaterialBuffer{
-                .transparency = material->getTransparency(),
+                .transparency = static_cast<int>(material->getTransparency()),
                 .alphaScissor = material->getAlphaScissor()
             };
             const auto materialIndex = frame.materialsIndices.at(material->getId());
@@ -737,7 +737,7 @@ namespace z0 {
         auto shadersChanged = false;
 
         // Used to reduce vkCmdSetCullMode calls
-        auto lastCullMode = CULLMODE_BACK;
+        auto lastCullMode = CullMode::BACK;
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
 
         // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
@@ -772,8 +772,8 @@ namespace z0 {
                             lastMeshId = model->getId();
                         }
                         vkCmdSetCullMode(commandBuffer,
-                                        lastCullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                                : lastCullMode == CULLMODE_BACK
+                                        lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                                : lastCullMode == CullMode::BACK
                                                 ? VK_CULL_MODE_BACK_BIT
                                                 : VK_CULL_MODE_FRONT_BIT);
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
@@ -795,8 +795,8 @@ namespace z0 {
                     auto cullMode = surface->material->getCullMode();
                     if (cullMode != lastCullMode) {
                         vkCmdSetCullMode(commandBuffer,
-                                         cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                                 : cullMode == CULLMODE_BACK
+                                         cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                                 : cullMode == CullMode::BACK
                                                  ? VK_CULL_MODE_BACK_BIT
                                                  : VK_CULL_MODE_FRONT_BIT);
                         lastCullMode = cullMode;
@@ -876,7 +876,7 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
 
-            auto lastCullMode = CULLMODE_BACK;
+            auto lastCullMode = CullMode::BACK;
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
             for (const auto &meshInstance : modelsToDraw) {
@@ -887,8 +887,8 @@ namespace z0 {
                         const auto cullMode = surface->material->getCullMode();
                         if (cullMode != lastCullMode) {
                             vkCmdSetCullMode(commandBuffer,
-                                             cullMode == CULLMODE_DISABLED ? VK_CULL_MODE_NONE
-                                                     : cullMode == CULLMODE_BACK
+                                             cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                                     : cullMode == CullMode::BACK
                                                      ? VK_CULL_MODE_BACK_BIT
                                                      : VK_CULL_MODE_FRONT_BIT);
                             lastCullMode = cullMode;

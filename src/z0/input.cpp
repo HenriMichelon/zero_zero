@@ -212,7 +212,7 @@ namespace z0 {
         int                                 indexAxisLeftY{0};
         int                                 indexAxisRightX{0};
         int                                 indexAxisRightY{0};
-        array<int, GAMEPAD_BUTTON_LAST + 1> indexButtons;
+        array<int, static_cast<int>(GamepadButton::LAST) + 1> indexButtons;
     };
 
     static map<uint32_t, _DirectInputState> _directInputStates{};
@@ -220,21 +220,21 @@ namespace z0 {
     static LPDIRECTINPUT8                   _directInput = nullptr;
 
     static map<GamepadButton, int> GAMEPABUTTON2XINPUT{
-            {GAMEPAD_BUTTON_A, XINPUT_GAMEPAD_A},
-            {GAMEPAD_BUTTON_B, XINPUT_GAMEPAD_B},
-            {GAMEPAD_BUTTON_X, XINPUT_GAMEPAD_X},
-            {GAMEPAD_BUTTON_Y, XINPUT_GAMEPAD_Y},
-            {GAMEPAD_BUTTON_LB, XINPUT_GAMEPAD_LEFT_SHOULDER},
-            {GAMEPAD_BUTTON_RB, XINPUT_GAMEPAD_RIGHT_SHOULDER},
-            {GAMEPAD_BUTTON_LT, XINPUT_GAMEPAD_LEFT_THUMB},
-            {GAMEPAD_BUTTON_RT, XINPUT_GAMEPAD_RIGHT_THUMB},
-            {GAMEPAD_BUTTON_BACK, XINPUT_GAMEPAD_BACK},
-            {GAMEPAD_BUTTON_START, XINPUT_GAMEPAD_START},
-            {GAMEPAD_BUTTON_DPAD_DOWN, XINPUT_GAMEPAD_DPAD_DOWN},
-            {GAMEPAD_BUTTON_DPAD_UP, XINPUT_GAMEPAD_DPAD_UP},
-            {GAMEPAD_BUTTON_DPAD_LEFT, XINPUT_GAMEPAD_DPAD_LEFT},
-            {GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
-            {GAMEPAD_BUTTON_DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
+            {GamepadButton::A, XINPUT_GAMEPAD_A},
+            {GamepadButton::B, XINPUT_GAMEPAD_B},
+            {GamepadButton::X, XINPUT_GAMEPAD_X},
+            {GamepadButton::Y, XINPUT_GAMEPAD_Y},
+            {GamepadButton::LB, XINPUT_GAMEPAD_LEFT_SHOULDER},
+            {GamepadButton::RB, XINPUT_GAMEPAD_RIGHT_SHOULDER},
+            {GamepadButton::LT, XINPUT_GAMEPAD_LEFT_THUMB},
+            {GamepadButton::RT, XINPUT_GAMEPAD_RIGHT_THUMB},
+            {GamepadButton::BACK, XINPUT_GAMEPAD_BACK},
+            {GamepadButton::START, XINPUT_GAMEPAD_START},
+            {GamepadButton::DPAD_DOWN, XINPUT_GAMEPAD_DPAD_DOWN},
+            {GamepadButton::DPAD_UP, XINPUT_GAMEPAD_DPAD_UP},
+            {GamepadButton::DPAD_LEFT, XINPUT_GAMEPAD_DPAD_LEFT},
+            {GamepadButton::DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
+            {GamepadButton::DPAD_RIGHT, XINPUT_GAMEPAD_DPAD_RIGHT},
     };
 
     static BOOL CALLBACK _deviceObjectCallback(const DIDEVICEOBJECTINSTANCEA *doi,
@@ -341,25 +341,25 @@ namespace z0 {
                                 if (parts[0] == "righty")
                                     state.indexAxisRightY = index;
                                 if (parts[0] == "a")
-                                    state.indexButtons[GAMEPAD_BUTTON_A] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::A)] = index;
                                 if (parts[0] == "b")
-                                    state.indexButtons[GAMEPAD_BUTTON_B] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::B)] = index;
                                 if (parts[0] == "x")
-                                    state.indexButtons[GAMEPAD_BUTTON_X] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::X)] = index;
                                 if (parts[0] == "y")
-                                    state.indexButtons[GAMEPAD_BUTTON_Y] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::Y)] = index;
                                 if (parts[0] == "leftshoulder")
-                                    state.indexButtons[GAMEPAD_BUTTON_LB] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::LB)] = index;
                                 if (parts[0] == "rightshoulder")
-                                    state.indexButtons[GAMEPAD_BUTTON_RB] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::RB)] = index;
                                 if (parts[0] == "leftstick")
-                                    state.indexButtons[GAMEPAD_BUTTON_LT] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::LT)] = index;
                                 if (parts[0] == "rightstick")
-                                    state.indexButtons[GAMEPAD_BUTTON_RT] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::RT)] = index;
                                 if (parts[0] == "back")
-                                    state.indexButtons[GAMEPAD_BUTTON_BACK] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::BACK)] = index;
                                 if (parts[0] == "start")
-                                    state.indexButtons[GAMEPAD_BUTTON_START] = index;
+                                    state.indexButtons[static_cast<int>(GamepadButton::START)] = index;
                             } catch (const std::invalid_argument &e) {
                             }
                         }
@@ -372,10 +372,10 @@ namespace z0 {
     }
 
     void Input::_initInput() {
-        _mouseCursors[MOUSE_CURSOR_ARROW]    = LoadCursor(nullptr, IDC_ARROW);
-        _mouseCursors[MOUSE_CURSOR_WAIT]     = LoadCursor(nullptr, IDC_WAIT);
-        _mouseCursors[MOUSE_CURSOR_RESIZE_H] = LoadCursor(nullptr, IDC_SIZEWE);
-        _mouseCursors[MOUSE_CURSOR_RESIZE_V] = LoadCursor(nullptr, IDC_SIZENS);
+        _mouseCursors[MouseCursor::ARROW]    = LoadCursor(nullptr, IDC_ARROW);
+        _mouseCursors[MouseCursor::WAIT]     = LoadCursor(nullptr, IDC_WAIT);
+        _mouseCursors[MouseCursor::RESIZE_H] = LoadCursor(nullptr, IDC_SIZEWE);
+        _mouseCursors[MouseCursor::RESIZE_V] = LoadCursor(nullptr, IDC_SIZENS);
 
         for (uint32_t i = 0; i < XUSER_MAX_COUNT; ++i) {
             XINPUT_STATE state;
@@ -455,7 +455,7 @@ namespace z0 {
                 ZeroMemory(&state, sizeof(XINPUT_STATE));
                 if (XInputGetState(i, &state) == ERROR_SUCCESS) {
                     _xinputStates[i] = state;
-                    for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+                    for (int i = 0; i < static_cast<int>(GamepadButton::LAST); i++) {
                         auto button = static_cast<GamepadButton>(i);
                         generateGamepadButtonEvent(button, state.Gamepad.wButtons & GAMEPABUTTON2XINPUT[button]);
                     }
@@ -490,9 +490,9 @@ namespace z0 {
                     // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416627(v=vs.85)
                     gamepad.buttons[i] = (state.rgbButtons[i] & 0x80);
                 }
-                for (int i = 0; i < GAMEPAD_BUTTON_LAST; i++) {
+                for (int i = 0; i < static_cast<int>(GamepadButton::LAST); i++) {
                     auto button = static_cast<GamepadButton>(i);
-                    generateGamepadButtonEvent(button, gamepad.buttons[gamepad.indexButtons[button]]);
+                    generateGamepadButtonEvent(button, gamepad.buttons[gamepad.indexButtons[static_cast<int>(button)]]);
                 }
             }
         }
@@ -503,7 +503,7 @@ namespace z0 {
             return _xinputStates[index].Gamepad.wButtons & GAMEPABUTTON2XINPUT[gamepadButton];
         } else if (_directInputStates.contains(index)) {
             const auto &gamepad = _directInputStates[index];
-            return gamepad.buttons[gamepad.indexButtons[gamepadButton]];
+            return gamepad.buttons[gamepad.indexButtons[static_cast<int>(gamepadButton)]];
         }
         return false;
     }
@@ -511,9 +511,9 @@ namespace z0 {
     vec2 Input::getGamepadVector(const uint32_t index, const GamepadAxisJoystick axisJoystick) {
         if (_useXInput && _xinputStates.contains(index)) {
             const auto gamepad        = _xinputStates[index].Gamepad;
-            const auto xAxis          = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLX : gamepad.sThumbRX;
-            const auto yAxis          = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.sThumbLY : gamepad.sThumbRY;
-            const auto deadzonPercent = ((axisJoystick == GAMEPAD_AXIS_LEFT
+            const auto xAxis          = axisJoystick == GamepadAxisJoystick::LEFT ? gamepad.sThumbLX : gamepad.sThumbRX;
+            const auto yAxis          = axisJoystick == GamepadAxisJoystick::LEFT ? gamepad.sThumbLY : gamepad.sThumbRY;
+            const auto deadzonPercent = ((axisJoystick == GamepadAxisJoystick::LEFT
                     ? XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
                     : XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
                 / 32767.0f);
@@ -525,8 +525,8 @@ namespace z0 {
             return (length > 1.0f) ? vector / length : vector;
         } else if (_directInputStates.contains(index)) {
             const auto &gamepad = _directInputStates[index];
-            const auto  xAxis   = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
-            const auto  yAxis   = axisJoystick == GAMEPAD_AXIS_LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
+            const auto  xAxis   = axisJoystick == GamepadAxisJoystick::LEFT ? gamepad.indexAxisLeftX : gamepad.indexAxisRightX;
+            const auto  yAxis   = axisJoystick == GamepadAxisJoystick::LEFT ? gamepad.indexAxisLeftY : gamepad.indexAxisRightY;
             const vec2  vector{
                     applyDeadzone(gamepad.axes[xAxis], 0.05f),
                     applyDeadzone(gamepad.axes[yAxis], 0.05f)
@@ -567,19 +567,19 @@ namespace z0 {
             DispatchMessageW(&msg);
         }
         switch (mode) {
-        case MOUSE_MODE_VISIBLE:
+        case MouseMode::VISIBLE:
             ReleaseCapture();
             ClipCursor(nullptr);
             ShowCursor(TRUE);
             SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
                          wnd._getRect().top + wnd.getHeight() / 2);
             break;
-        case MOUSE_MODE_HIDDEN:
+        case MouseMode::HIDDEN:
             ReleaseCapture();
             ClipCursor(nullptr);
             ShowCursor(FALSE);
             break;
-        case MOUSE_MODE_VISIBLE_CAPTURED: {
+        case MouseMode::VISIBLE_CAPTURED: {
             auto rect = wnd._getRect();
             SetCapture(wnd._getHandle());
             ClipCursor(&rect);
@@ -588,7 +588,7 @@ namespace z0 {
                          wnd._getRect().top + wnd.getHeight() / 2);
             break;
         }
-        case MOUSE_MODE_HIDDEN_CAPTURED: {
+        case MouseMode::HIDDEN_CAPTURED: {
             auto rect = wnd._getRect();
             SetCapture(wnd._getHandle());
             ClipCursor(&rect);

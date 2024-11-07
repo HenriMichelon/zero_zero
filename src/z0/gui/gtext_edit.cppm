@@ -116,12 +116,12 @@ export namespace z0 {
                                                                    text.length() - selStart - 1));
                 }
             }
-            /*else if ((K != keyb->KEY_SHIFTRIGHT) &&
-                    (K != keyb->KEY_SHIFTLEFT) &&
-                    (K != keyb->KEY_CTRLRIGHT) &&
-                    (K != keyb->KEY_CTRLLEFT) &&
-                    (K != keyb->KEY_ALTRIGHT) &&
-                    (K != keyb->KEY_ALTLEFT))
+            /*else if ((K != keyb->Key::SHIFTRIGHT) &&
+                    (K != keyb->Key::SHIFTLEFT) &&
+                    (K != keyb->Key::CTRLRIGHT) &&
+                    (K != keyb->Key::CTRLLEFT) &&
+                    (K != keyb->Key::ALTRIGHT) &&
+                    (K != keyb->Key::ALTLEFT))
             {
                 UChar c = keyb->CodeToChar(K);
                 if (c >= _WORD(0x0020)) {

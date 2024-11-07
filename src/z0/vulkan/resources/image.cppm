@@ -65,7 +65,7 @@ export namespace z0 {
         VulkanImage(const Device &            device,
                 const string &                name,
                 const ZScene::ImageHeader &   imageHeader,
-                const vector<ZScene::MipLevelHeader>& mipLevelHeaders,
+                const vector<ZScene::MipLevelInfo>& mipLevelHeaders,
                 const ZScene::TextureHeader & textureHeader,
                 const Buffer                  &buffer,
                 const uint64_t                bufferOffset,

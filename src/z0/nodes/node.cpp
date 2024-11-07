@@ -206,15 +206,15 @@ namespace z0 {
         } else if (property == "process_mode") {
             const auto v = to_lower(value);
             if (v == "inherit") {
-                setProcessMode(PROCESS_MODE_INHERIT);
+                setProcessMode(ProcessMode::INHERIT);
             } else if (v == "pausable") {
-                setProcessMode(PROCESS_MODE_PAUSABLE);
+                setProcessMode(ProcessMode::PAUSABLE);
             } else if (v == "when_paused") {
-                setProcessMode(PROCESS_MODE_WHEN_PAUSED);
+                setProcessMode(ProcessMode::WHEN_PAUSED);
             } else if (v == "always") {
-                setProcessMode(PROCESS_MODE_ALWAYS);
+                setProcessMode(ProcessMode::ALWAYS);
             } else if (v == "disabled") {
-                setProcessMode(PROCESS_MODE_DISABLED);
+                setProcessMode(ProcessMode::DISABLED);
             }
         }
     }
@@ -280,12 +280,12 @@ namespace z0 {
     bool Node::isProcessed() const {
         const auto paused = Application::get().isPaused();
         auto       mode   = processMode;
-        if ((parent == nullptr) && (mode == PROCESS_MODE_INHERIT))
-            mode = PROCESS_MODE_PAUSABLE;
-        return ((mode == PROCESS_MODE_INHERIT) && (parent->isProcessed())) ||
-                (!paused && (mode == PROCESS_MODE_PAUSABLE)) ||
-                (paused && (mode == PROCESS_MODE_WHEN_PAUSED)) ||
-                (mode == PROCESS_MODE_ALWAYS);
+        if ((parent == nullptr) && (mode == ProcessMode::INHERIT))
+            mode = ProcessMode::PAUSABLE;
+        return ((mode == ProcessMode::INHERIT) && (parent->isProcessed())) ||
+                (!paused && (mode == ProcessMode::PAUSABLE)) ||
+                (paused && (mode == ProcessMode::WHEN_PAUSED)) ||
+                (mode == ProcessMode::ALWAYS);
     }
 
     shared_ptr<Node> Node::duplicateInstance() {

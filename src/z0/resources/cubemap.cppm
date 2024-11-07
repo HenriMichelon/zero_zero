@@ -52,7 +52,7 @@ export namespace z0 {
          * @param filepath path and filename (without the extension) of the images
          * @param fileext files extension
          */
-        static shared_ptr<Cubemap> load(const string &filepath, const string &fileext, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
+        static shared_ptr<Cubemap> load(const string &filepath, const string &fileext, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
         /**
          * Loads the cubemap from a single RGBA image with the following format :<br>
@@ -61,7 +61,7 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`bottom`<br>
          * @param filepath path of the image
          */
-        static shared_ptr<Cubemap> load(const string &filepath, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
+        static shared_ptr<Cubemap> load(const string &filepath, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
         /**
          * Returns the width in pixels of each image
@@ -110,7 +110,7 @@ export namespace z0 {
           * Loads the cubemap from a single HDRi.
           * @param filename path of the image
           */
-        [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename, ImageFormat imageFormat = IMAGE_R8G8B8A8_SRGB);
+        [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
         [[nodiscard]] inline shared_ptr<Cubemap> getSpecularCubemap() const { return specularCubemap; }
         [[nodiscard]] inline shared_ptr<Cubemap> getIrradianceCubemap() const { return irradianceCubemap; }

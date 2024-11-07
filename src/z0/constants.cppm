@@ -4,6 +4,11 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
+/**
+* \include constants.cppm
+* \file constants.cppm
+* \brief Header file defining global constants.
+*/
 module;
 #include "z0/libraries.h"
 
@@ -11,10 +16,6 @@ export module z0.Constants;
 
 export namespace z0 {
 
-    /**
-    * @file constants.h
-    * @brief Header file defining global constants.
-    */
 
     /**
     * Useless engine name
@@ -109,31 +110,31 @@ export namespace z0 {
     /**
      * Nodes state when the scene is paused or running
      */
-    enum ProcessMode {
+    enum class ProcessMode {
         //! Inherits mode from the node's parent. This is the default for any newly created node
-        PROCESS_MODE_INHERIT = 0,
+        INHERIT = 0,
         //! Stops processing when Application::isPaused() is true. This is the inverse of PROCESS_MODE_WHEN_PAUSED
-        PROCESS_MODE_PAUSABLE = 1,
+        PAUSABLE = 1,
         //! Process only when Application::isPaused() is true. This is the inverse of PROCESS_MODE_PAUSABLE
-        PROCESS_MODE_WHEN_PAUSED = 2,
+        WHEN_PAUSED = 2,
         //! Always process. Keeps processing, ignoring Application::isPaused(). This is the inverse of PROCESS_MODE_DISABLED
-        PROCESS_MODE_ALWAYS = 3,
+        ALWAYS = 3,
         //! Never process. Completely disables processing, ignoring Application::isPaused(). This is the inverse of PROCESS_MODE_ALWAYS
-        PROCESS_MODE_DISABLED = 4,
+        DISABLED = 4,
     };
 
     /**
      * Rendering window mode
      */
-    enum WindowMode {
+    enum class WindowMode {
         //! A window with a border and a title that can be minimized
-        WINDOW_MODE_WINDOWED = 0,
+        WINDOWED = 0,
         //! A maximized window with a border and a title that can be minimized
-        WINDOW_MODE_WINDOWED_MAXIMIZED = 1,
+        WINDOWED_MAXIMIZED = 1,
         //! A maximized window without a border and without a title
-        WINDOW_MODE_WINDOWED_FULLSCREEN = 2,
+        WINDOWED_FULLSCREEN = 2,
         //! A full screen window. The screen resolution will be changed
-        WINDOW_MODE_FULLSCREEN = 3,
+        FULLSCREEN = 3,
     };
 
     /**
@@ -141,116 +142,116 @@ export namespace z0 {
      */
     enum LoggingMode {
         //! Disable logging
-        LOGGING_NONE = 0,
+        LOGGING_MODE_NONE = 0,
         /**
         * Open an external window (on the first screen if you have multiple screen) to display the log messages.
         * Log message appearance in the window can be deferred to the next frame if the log message is sent from a thread different from the main thread
         */
-        LOGGING_WINDOW = 0x001,
+        LOGGING_MODE_WINDOW = 0x001,
         /**
          * Log the messages into a file named 'log.txt'
          */
-        LOGGING_FILE = 0x010,
+        LOGGING_MODE_FILE = 0x010,
         /**
          * Log the messages to std::cout. WIN32 applications needs to be linked with `-mconsole`
          */
-        LOGGING_STDOUT = 0x100
+        LOGGING_MODE_STDOUT = 0x100
     };
 
     /**
      * MSAA samples
      */
-    enum MSAA {
+    enum class MSAA {
         //! Select the best MSAA sample count between 2x and 8x
-        MSAA_AUTO = 0,
+        AUTO = 0,
         //! 2x MSAA
-        MSAA_2X   = 0x00000002,
+        X2   = 0x00000002,
         //! 4x MSAA
-        MSAA_4X   = 0x00000004,
+        X4   = 0x00000004,
         //! 8x MSAA
-        MSAA_8X   = 0x00000008,
+        X8   = 0x00000008,
         //! 16x MSAA
-        MSAA_16X   = 0x00000010,
+        X16   = 0x00000010,
         //! 32x MSAA
-        MSAA_32X   = 0x00000020,
+        X32   = 0x00000020,
         //! 64x MSAA
-        MSAA_64X   = 0x00000040
+        X64   = 0x00000040
     };
 
     /**
      * Depth frame buffers precision
      */
-    enum DepthFormat {
+    enum class DepthFormat {
         //! Selection the best depth format available
-        DEPTH_FORMAT_AUTO   = 0,
+        AUTO   = 0,
         //! 16-bit unsigned normalized
-        DEPTH_FORMAT_16BIT  = 1,
+        B16  = 1,
         //! 24-bit unsigned normalized with or without stencil component
-        DEPTH_FORMAT_24BIT  = 2,
+        B24  = 2,
         //! 32-bit signed float with or without stencil component
-        DEPTH_FORMAT_32BIT  = 3,
+        B32  = 3,
     };
 
     /**
      * Cull mode for mesh surfaces.
      * Determines which side of the triangle to cull depending on whether the triangle faces towards or away from the camera.
      */
-    enum CullMode {
+    enum class CullMode {
         //! No face culling is performed; both the front face and back face will be visible.
-        CULLMODE_DISABLED = 0,
+        DISABLED = 0,
         //! Default cull mode. The back of the object is culled when not visible. Back face triangles will be culled when facing the camera. This results in only the front side of triangles being drawn. For closed-surface meshes, this means that only the exterior of the mesh will be visible.
-        CULLMODE_BACK     = 1,
+        BACK     = 1,
         //! Front face triangles will be culled when facing the camera. This results in only the back side of triangles being drawn. For closed-surface meshes, this means that the interior of the mesh will be drawn instead of the exterior.
-        CULLMODE_FRONT    = 2,
+        FRONT    = 2,
     };
 
     /*
     * A Material transparency mode
-    * Any transparency mode other than TRANSPARENCY_DISABLED has a greater performance impact compared to opaque rendering.
+    * Any transparency mode other than Transparency::DISABLED has a greater performance impact compared to opaque rendering.
     */
-    enum Transparency {
+    enum class Transparency {
         //! The material will not use transparency. This is the fastest to render.
-        TRANSPARENCY_DISABLED      = 0,
+        DISABLED      = 0,
         //! The material will use the texture's alpha values for transparency.
-        TRANSPARENCY_ALPHA         = 1,
+        ALPHA         = 1,
         //! The material will cut off all values below a threshold, the rest will remain opaque.
-        TRANSPARENCY_SCISSOR       = 2,
+        SCISSOR       = 2,
         //! The material will cut off all values below a threshold, the rest will use the texture's alpha values for transparency.
-        TRANSPARENCY_SCISSOR_ALPHA = 3,
+        SCISSOR_ALPHA = 3,
     };
 
     /**
      * A Tween transition type
      */
-    enum TransitionType {
+    enum class TransitionType {
         /** The animation is interpolated linearly */
-        TRANS_LINEAR = 0,
+        LINEAR = 0,
     };
 
     /**
      * Source of an input event
      */
-    enum InputEventType {
+    enum class InputEventType {
         //! A key have been pressed or released
-        INPUT_EVENT_KEY = 0,
+        KEY = 0,
         //! The mouse cursor moved
-        INPUT_EVENT_MOUSE_MOTION = 1,
+        MOUSE_MOTION = 1,
         //! A mouse button have been pressed or released
-        INPUT_EVENT_MOUSE_BUTTON = 2,
+        MOUSE_BUTTON = 2,
         //! A gamepad button have been pressed or released
-        INPUT_EVENT_GAMEPAD_BUTTON = 3,
+        GAMEPAD_BUTTON = 3,
     };
 
     /**
      * Keyboard modifier keys
      */
-    enum KeyModifier {
+    enum class KeyModifier {
         //! Left & right shift keys
-        KEY_MODIFIER_SHIFT = 0x0001,
+        SHIFT = 0x0001,
         //! Left & right control keys
-        KEY_MODIFIER_CONTROL = 0x0002,
+        CONTROL = 0x0002,
         //! Left & right alt keys
-        KEY_MODIFIER_ALT = 0x0004,
+        ALT = 0x0004,
     };
 
     /**
@@ -583,119 +584,119 @@ export namespace z0 {
     /**
      * Mouse buttons
      */
-    enum MouseButton {
-        MOUSE_BUTTON_NONE = 0b0000,
+    enum class MouseButton {
+        NONE = 0b0000,
         //! Left
-        MOUSE_BUTTON_LEFT = 0b0001,
+        LEFT = 0b0001,
         //! Right
-        MOUSE_BUTTON_RIGHT = 0b0010,
+        RIGHT = 0b0010,
         //! Middle
-        MOUSE_BUTTON_MIDDLE = 0b0100,
+        MIDDLE = 0b0100,
         //! Wheel. Pressed==true means rotated backward
-        MOUSE_BUTTON_WHEEL = 0b1000,
+        WHEEL = 0b1000,
     };
 
     /**
      * Gamepas buttons
      */
-    enum GamepadButton {
+    enum class GamepadButton {
         //! A or X
-        GAMEPAD_BUTTON_A = 0,
+        A = 0,
         //! B or ○
-        GAMEPAD_BUTTON_B = 1,
+        B = 1,
         //! X or □
-        GAMEPAD_BUTTON_X = 2,
+        X = 2,
         //! Y or △
-        GAMEPAD_BUTTON_Y = 3,
+        Y = 3,
         //! Left shoulder/bumper
-        GAMEPAD_BUTTON_LB = 4,
+        LB = 4,
         //! Right shoulder/bumper
-        GAMEPAD_BUTTON_RB = 5,
+        RB = 5,
         //! Back
-        GAMEPAD_BUTTON_BACK = 6,
+        BACK = 6,
         //! Start
-        GAMEPAD_BUTTON_START = 7,
+        START = 7,
         //! Left trigger
-        GAMEPAD_BUTTON_LT = 8,
+        LT = 8,
         //! Right trigger
-        GAMEPAD_BUTTON_RT = 9,
+        RT = 9,
         //! Directional hat ↑
-        GAMEPAD_BUTTON_DPAD_UP = 10,
+        DPAD_UP = 10,
         //! Directional hat →
-        GAMEPAD_BUTTON_DPAD_RIGHT = 11,
+        DPAD_RIGHT = 11,
         //! Directional hat ↓
-        GAMEPAD_BUTTON_DPAD_DOWN = 12,
+        DPAD_DOWN = 12,
         //! Directional hat ←
-        GAMEPAD_BUTTON_DPAD_LEFT = 13,
-        GAMEPAD_BUTTON_LAST      = GAMEPAD_BUTTON_DPAD_LEFT,
+        DPAD_LEFT = 13,
+        LAST      = DPAD_LEFT,
         //! A or X
-        GAMEPAD_BUTTON_CROSS = GAMEPAD_BUTTON_A,
+        CROSS = A,
         //! B or ○
-        GAMEPAD_BUTTON_CIRCLE = GAMEPAD_BUTTON_B,
+        CIRCLE = B,
         //! X or □
-        GAMEPAD_BUTTON_SQUARE = GAMEPAD_BUTTON_X,
+        SQUARE = X,
         //! Y or △
-        GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y,
+        TRIANGLE = Y,
     };
 
     /**
      * Gamepad thumbs joysticks
      */
-    enum GamepadAxisJoystick {
+    enum class GamepadAxisJoystick {
         //! Left stick/joystick
-        GAMEPAD_AXIS_LEFT = 0,
+        LEFT = 0,
         //! Right stick/joystick
-        GAMEPAD_AXIS_RIGHT = 1,
+        RIGHT = 1,
     };
 
     /**
      * Gamepad axis & triggers
      */
-    enum GamepadAxis {
+    enum class GamepadAxis {
         //! Left stick/joystick X
-        GAMEPAD_AXIS_LEFT_X = 0,
+        LEFT_X = 0,
         //! Left stick/joystick Y
-        GAMEPAD_AXIS_LEFT_Y = 1,
+        LEFT_Y = 1,
         //! Right stick/joystick X
-        GAMEPAD_AXIS_RIGHT_X = 2,
+        RIGHT_X = 2,
         //! Right stick/joystick Y
-        GAMEPAD_AXIS_RIGHT_Y       = 3,
-        GAMEPAD_AXIS_LEFT_TRIGGER  = 4,
-        GAMEPAD_AXIS_RIGHT_TRIGGER = 5,
-        GAMEPAD_AXIS_LAST          = GAMEPAD_AXIS_RIGHT_TRIGGER,
+        RIGHT_Y       = 3,
+        LEFT_TRIGGER  = 4,
+        RIGHT_TRIGGER = 5,
+        LAST          = RIGHT_TRIGGER,
     };
 
     /**
      * Mouse visibility & capture mode
      */
-    enum MouseMode {
+    enum class MouseMode {
         //! Makes the mouse cursor visible
-        MOUSE_MODE_VISIBLE = 0,
+        VISIBLE = 0,
         //! Confines the mouse cursor to the game window, and make it visible
-        MOUSE_MODE_VISIBLE_CAPTURED = 1,
+        VISIBLE_CAPTURED = 1,
         //! Makes the mouse cursor hidden
-        MOUSE_MODE_HIDDEN = 2,
+        HIDDEN = 2,
         //! Confines the mouse cursor to the game window, and make it hidden.
-        MOUSE_MODE_HIDDEN_CAPTURED = 3,
+        HIDDEN_CAPTURED = 3,
     };
 
     /**
      * Mouse cursors types
      */
-    enum MouseCursor {
+    enum class MouseCursor {
         //! "Normal" arrow cursor
-        MOUSE_CURSOR_ARROW = 0,
+        ARROW = 0,
         //! Waiting cursor
-        MOUSE_CURSOR_WAIT = 1,
+        WAIT = 1,
         //! Horizontal resize cursor
-        MOUSE_CURSOR_RESIZE_H = 2,
+        RESIZE_H = 2,
         //! Vertical resize cursor
-        MOUSE_CURSOR_RESIZE_V = 3,
+        RESIZE_V = 3,
     };
 
-    enum ImageFormat {
-        IMAGE_R8G8B8A8_SRGB  = 0,
-        IMAGE_R8G8B8A8_UNORM = 1,
+    enum class ImageFormat {
+        R8G8B8A8_SRGB  = 0,
+        R8G8B8A8_UNORM = 1,
     };
 
 }

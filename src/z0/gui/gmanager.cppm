@@ -64,7 +64,7 @@ export namespace z0 {
         bool                        enableWindowResizing{true};
         bool                        resizingWindow{false};
         bool                        resizingWindowOriginBorder{false};
-        MouseCursor                 currentCursor{MOUSE_CURSOR_ARROW};
+        MouseCursor                 currentCursor{MouseCursor::ARROW};
 
     public:
         GManager(shared_ptr<VectorRenderer>&, const string& defaultFont, uint32_t defaultFontSize);

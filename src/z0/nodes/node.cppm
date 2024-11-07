@@ -415,7 +415,7 @@ import z0.Tween;
     private:
         static id_t             currentId;
         id_t                    id;
-        ProcessMode             processMode{PROCESS_MODE_INHERIT};
+        ProcessMode             processMode{ProcessMode::INHERIT};
         bool                    inReady{false};
         bool                    addedToScene{false};
         list<shared_ptr<Tween>> tweens;

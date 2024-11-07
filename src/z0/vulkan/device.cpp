@@ -96,7 +96,7 @@ namespace z0 {
             // Select the better suitable device found
             physicalDevice = candidates.rbegin()->second;
             // Select the best MSAA samples count if requested
-            if (applicationConfig.msaa == MSAA_AUTO)
+            if (applicationConfig.msaa == MSAA::AUTO)
                 samples = getMaxUsableMSAASampleCount();
             deviceProperties.pNext = &physDeviceIDProps;
             vkGetPhysicalDeviceProperties2(physicalDevice, &deviceProperties);

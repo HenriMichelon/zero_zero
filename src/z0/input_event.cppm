@@ -37,7 +37,7 @@ export namespace z0 {
     class InputEventKey: public InputEvent {
     public:
          InputEventKey(const Key _key, const bool _pressed, const int _repeat, const int _modifiers):
-             InputEvent{INPUT_EVENT_KEY},
+             InputEvent{InputEventType::KEY},
              keycode{_key},
              repeat{_repeat},
              pressed{_pressed},
@@ -76,7 +76,7 @@ export namespace z0 {
     class InputEventGamepadButton: public InputEvent {
     public:
         InputEventGamepadButton(const GamepadButton _button, const bool _pressed):
-            InputEvent{INPUT_EVENT_GAMEPAD_BUTTON},
+            InputEvent{InputEventType::GAMEPAD_BUTTON},
             button{_button},
             pressed{_pressed} {}
 
@@ -146,7 +146,7 @@ export namespace z0 {
     class InputEventMouseMotion: public InputEventMouse {
     public:
         InputEventMouseMotion(const uint32_t buttonsState, const int modifiers, const float posX, const float posY, const float rX, const float rY):
-            InputEventMouse{INPUT_EVENT_MOUSE_MOTION, buttonsState, modifiers, posX, posY},
+            InputEventMouse{InputEventType::MOUSE_MOTION, buttonsState, modifiers, posX, posY},
             relativeX{rX},
             relativeY{rY} {}
 
@@ -170,7 +170,7 @@ export namespace z0 {
     class InputEventMouseButton: public InputEventMouse {
     public:
         InputEventMouseButton(const MouseButton _button, const bool _pressed,const  int modifiers, const uint32_t buttonsState, const float posX, const float posY):
-            InputEventMouse{INPUT_EVENT_MOUSE_BUTTON, buttonsState, modifiers, posX, posY},
+            InputEventMouse{InputEventType::MOUSE_BUTTON, buttonsState, modifiers, posX, posY},
             button{_button},
             pressed{_pressed} {}
 

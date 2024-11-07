@@ -23,7 +23,7 @@ export namespace z0 {
         //! Directory to search for resources and compiled shaders
         filesystem::path appDir            = ".";
         //! State of the display window
-        WindowMode       windowMode        = WINDOW_MODE_WINDOWED;
+        WindowMode       windowMode        = WindowMode::WINDOWED;
         //! Width in pixels of the display window
         uint32_t         windowWidth       = 1280;
         //! Height in pixels of the display window
@@ -35,13 +35,13 @@ export namespace z0 {
         //! Default font size. See the Font class for the details.
         uint32_t         defaultFontSize   = 20;
         //! Where to log message using log()
-        uint32_t         loggingMode       = LOGGING_NONE;
+        int              loggingMode       = LOGGING_MODE_NONE;
         //! Monitor index for the logging window
         int32_t          loggingMonitor    = 0;
         //! MSAA samples. Note that MSAA is mandatory
-        MSAA             msaa              = MSAA_4X;
+        MSAA             msaa              = MSAA::X4;
         //! Depth frame buffer format
-        DepthFormat      depthFormat       = DEPTH_FORMAT_24BIT;
+        DepthFormat      depthFormat       = DepthFormat::B24;
         //! Use a depth pre-pass in the main renderer
         bool             useDepthPrepass   = true;
         //! Gamma correction value for the tone mapping renderer

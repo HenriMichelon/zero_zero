@@ -47,7 +47,7 @@ namespace z0 {
     byte* VirtualFS::loadRGBAImage(const string& filepath,
                                 uint32_t& width, uint32_t& height, uint64_t& size,
                                 const ImageFormat imageFormat) {
-        assert(imageFormat == IMAGE_R8G8B8A8_SRGB || imageFormat == IMAGE_R8G8B8A8_UNORM);
+        assert(imageFormat == ImageFormat::R8G8B8A8_SRGB || imageFormat == ImageFormat::R8G8B8A8_UNORM);
         ifstream file(getPath(filepath), std::ios::binary);
         if (!file.is_open()) die("Error: Could not open file ", filepath);
 

@@ -26,7 +26,7 @@ namespace z0 {
         createImage(device.getSwapChainExtent().width,
                     device.getSwapChainExtent().height,
                     device.findImageSupportedFormat(
-                            DEPTH_BUFFER_FORMATS[Application::get().getConfig().depthFormat],
+                            DEPTH_BUFFER_FORMATS[static_cast<int>(Application::get().getConfig().depthFormat)],
                             VK_IMAGE_TILING_OPTIMAL,
                             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
                     multisampled ? device.getSamples() : VK_SAMPLE_COUNT_1_BIT,

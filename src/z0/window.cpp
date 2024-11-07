@@ -32,17 +32,17 @@ namespace z0 {
     // Helper to translate Windows get state to z0 key modifiers
     int _getKeyboardModifiers() {
         int modifiers = 0;
-        if (GetKeyState(VK_SHIFT) & 0x8000) modifiers |= z0::KEY_MODIFIER_SHIFT;
-        if (GetKeyState(VK_CONTROL) & 0x8000) modifiers |= z0::KEY_MODIFIER_CONTROL;
-        if (GetKeyState(VK_MENU) & 0x8000) modifiers |= z0::KEY_MODIFIER_ALT;
+        if (GetKeyState(VK_SHIFT) & 0x8000) modifiers |= static_cast<int>(KeyModifier::SHIFT);
+        if (GetKeyState(VK_CONTROL) & 0x8000) modifiers |= static_cast<int>(KeyModifier::CONTROL);
+        if (GetKeyState(VK_MENU) & 0x8000) modifiers |= static_cast<int>(KeyModifier::ALT);
         return modifiers;
     }
 
     uint32_t _getMouseButtonState(WPARAM wParam) {
         uint32_t state{0};
-        if (wParam & MK_LBUTTON) state += z0::MOUSE_BUTTON_LEFT;
-        if (wParam & MK_MBUTTON) state += z0::MOUSE_BUTTON_MIDDLE;
-        if (wParam & MK_RBUTTON) state += z0::MOUSE_BUTTON_RIGHT;
+        if (wParam & MK_LBUTTON) state += static_cast<int>(MouseButton::LEFT);
+        if (wParam & MK_MBUTTON) state += static_cast<int>(MouseButton::MIDDLE);
+        if (wParam & MK_RBUTTON) state += static_cast<int>(MouseButton::RIGHT);
         return state;
     }
 
@@ -103,10 +103,10 @@ namespace z0 {
                 break;
             }
             case WM_LBUTTONDOWN: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_LEFT] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT];
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT] = true;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_LEFT] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_LEFT,
+                Input::_mouseButtonJustPressedStates[MouseButton::LEFT] = !Input::_mouseButtonPressedStates[MouseButton::LEFT];
+                Input::_mouseButtonPressedStates[MouseButton::LEFT] = true;
+                Input::_mouseButtonJustReleasedStates[MouseButton::LEFT] = false;
+                auto event = InputEventMouseButton(MouseButton::LEFT,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -116,10 +116,10 @@ namespace z0 {
                 break;
             }
             case WM_LBUTTONUP: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_LEFT] = false;
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_LEFT] = false;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_LEFT] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_LEFT,
+                Input::_mouseButtonJustPressedStates[MouseButton::LEFT] = false;
+                Input::_mouseButtonPressedStates[MouseButton::LEFT] = false;
+                Input::_mouseButtonJustReleasedStates[MouseButton::LEFT] = false;
+                auto event = InputEventMouseButton(MouseButton::LEFT,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -129,10 +129,10 @@ namespace z0 {
                 break;
             }
             case WM_RBUTTONDOWN: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_RIGHT] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT];
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT] = true;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_RIGHT] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_RIGHT,
+                Input::_mouseButtonJustPressedStates[MouseButton::RIGHT] = !Input::_mouseButtonPressedStates[MouseButton::RIGHT];
+                Input::_mouseButtonPressedStates[MouseButton::RIGHT] = true;
+                Input::_mouseButtonJustReleasedStates[MouseButton::RIGHT] = false;
+                auto event = InputEventMouseButton(MouseButton::RIGHT,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -142,10 +142,10 @@ namespace z0 {
                 break;
             }
             case WM_RBUTTONUP: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_RIGHT] = false;
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_RIGHT] = false;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_RIGHT] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_RIGHT,
+                Input::_mouseButtonJustPressedStates[MouseButton::RIGHT] = false;
+                Input::_mouseButtonPressedStates[MouseButton::RIGHT] = false;
+                Input::_mouseButtonJustReleasedStates[MouseButton::RIGHT] = false;
+                auto event = InputEventMouseButton(MouseButton::RIGHT,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -155,10 +155,10 @@ namespace z0 {
                 break;
             }
             case WM_MBUTTONDOWN: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = !Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE];
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = true;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_MIDDLE,
+                Input::_mouseButtonJustPressedStates[MouseButton::MIDDLE] = !Input::_mouseButtonPressedStates[MouseButton::MIDDLE];
+                Input::_mouseButtonPressedStates[MouseButton::MIDDLE] = true;
+                Input::_mouseButtonJustReleasedStates[MouseButton::MIDDLE] = false;
+                auto event = InputEventMouseButton(MouseButton::MIDDLE,
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -168,10 +168,10 @@ namespace z0 {
                 break;
             }
             case WM_MBUTTONUP: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = false;
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = false;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_MIDDLE,
+                Input::_mouseButtonJustPressedStates[MouseButton::MIDDLE] = false;
+                Input::_mouseButtonPressedStates[MouseButton::MIDDLE] = false;
+                Input::_mouseButtonJustReleasedStates[MouseButton::MIDDLE] = false;
+                auto event = InputEventMouseButton(MouseButton::MIDDLE,
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
@@ -181,10 +181,10 @@ namespace z0 {
                 break;
             }
             case WM_MOUSEWHEEL: {
-                Input::_mouseButtonJustPressedStates[MOUSE_BUTTON_MIDDLE] = false;
-                Input::_mouseButtonPressedStates[MOUSE_BUTTON_MIDDLE] = false;
-                Input::_mouseButtonJustReleasedStates[MOUSE_BUTTON_MIDDLE] = false;
-                auto event = InputEventMouseButton(MOUSE_BUTTON_WHEEL,
+                Input::_mouseButtonJustPressedStates[MouseButton::MIDDLE] = false;
+                Input::_mouseButtonPressedStates[MouseButton::MIDDLE] = false;
+                Input::_mouseButtonJustReleasedStates[MouseButton::MIDDLE] = false;
+                auto event = InputEventMouseButton(MouseButton::WHEEL,
                                                        GET_WHEEL_DELTA_WPARAM(wParam) < 0,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(GET_KEYSTATE_WPARAM(wParam)),
@@ -260,16 +260,16 @@ namespace z0 {
             auto hInstance = GetModuleHandle(nullptr);
     #ifndef DISABLE_LOG
             _mainThreadId = GetCurrentThreadId();
-            if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 createLogWindow(hInstance);
             }
-            if (Application::get().getConfig().loggingMode & LOGGING_FILE) {
+            if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
                 _logFile = make_unique<ofstream>("log.txt");
                 if(!_logFile->is_open()) {
                     die("Error opening log file");
                 }
             }
-            if (Application::get().getConfig().loggingMode != LOGGING_NONE) {
+            if (Application::get().getConfig().loggingMode != LOGGING_MODE_NONE) {
                 log("===== START OF LOG =====");
             }
     #endif
@@ -306,7 +306,7 @@ namespace z0 {
             DWORD style = WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER;
             DWORD exStyle = 0;
             switch (applicationConfig.windowMode) {
-                case WINDOW_MODE_WINDOWED:{
+                case WindowMode::WINDOWED:{
                     RECT rect{
                         .left = 0,
                         .top = 0,
@@ -320,13 +320,13 @@ namespace z0 {
                     y = static_cast<int>((screenHeight - h) / 2) + monitorData.monitorRect.top;
                     break;
                 }
-                case WINDOW_MODE_WINDOWED_MAXIMIZED:{
+                case WindowMode::WINDOWED_MAXIMIZED:{
                     style |=  WS_MAXIMIZE;
                     x = monitorData.monitorRect.left;
                     y = monitorData.monitorRect.top;
                     break;
                 }
-                case WINDOW_MODE_FULLSCREEN: {
+                case WindowMode::FULLSCREEN: {
                     DEVMODE dmScreenSettings = {};
                     dmScreenSettings.dmSize = sizeof(dmScreenSettings);
                     dmScreenSettings.dmPelsWidth = static_cast<int>(applicationConfig.windowWidth);
@@ -339,7 +339,7 @@ namespace z0 {
                     screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
                     screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
                 }
-                case WINDOW_MODE_WINDOWED_FULLSCREEN:{
+                case WindowMode::WINDOWED_FULLSCREEN:{
                     exStyle = WS_EX_APPWINDOW;
                     style = WS_POPUP | WS_MAXIMIZE;
                     x = monitorData.monitorRect.left;
@@ -389,10 +389,10 @@ namespace z0 {
         Window::~Window() {
             DeleteObject(background);
     #ifndef DISABLE_LOG
-            if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 CloseWindow(_hwndLog);
             }
-            if (Application::get().getConfig().loggingMode & LOGGING_FILE) {
+            if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
                 _logFile->close();
             }
     #endif
@@ -536,7 +536,7 @@ namespace z0 {
 
         void Window::_log(string msg) {
             const auto logMode = Application::get().getConfig().loggingMode;
-            if (logMode == LOGGING_NONE) { return; }
+            if (logMode == LOGGING_MODE_NONE) { return; }
             using namespace chrono;
             auto in_time_t = system_clock::to_time_t(system_clock::now());
             tm tm;
@@ -544,7 +544,7 @@ namespace z0 {
             string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
             item.append(" ");
             item.append(msg);
-            if (logMode & LOGGING_WINDOW) {
+            if (static_cast<int>(logMode) & static_cast<int>(LOGGING_MODE_WINDOW)) {
                 // Store the log message in the deferred log queue if we log from another thread
                 // because the log window proc run on the main thread
                 if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
@@ -555,16 +555,16 @@ namespace z0 {
                     _deferredLogMessages.push_back(item);
                 }
             }
-            if (logMode & LOGGING_FILE) {
+            if (logMode & LOGGING_MODE_FILE) {
                 *_logFile << item << endl;
             }
-            if (logMode & LOGGING_STDOUT) {
+            if (logMode & LOGGING_MODE_STDOUT) {
                 std::cout << item << endl;
             }
         }
 
         void Window::_processDeferredLog() {
-            if (Application::get().getConfig().loggingMode & LOGGING_WINDOW) {
+            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 for(const auto& msg: _deferredLogMessages) {
                     SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(msg.c_str()));
                     const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);

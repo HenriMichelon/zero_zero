@@ -180,14 +180,14 @@ int main(const int argc, char** argv) {
         .nodesCount = static_cast<uint32_t>(gltf.nodes.size()),
         .headersSize = sizeof(ZScene::Header),
     };
-    header.magic[0] = ZScene::Header::MAGIC[0];
-    header.magic[1] = ZScene::Header::MAGIC[1];
-    header.magic[2] = ZScene::Header::MAGIC[2];
-    header.magic[3] = ZScene::Header::MAGIC[3];
+    header.magic[0] = ZScene::MAGIC[0];
+    header.magic[1] = ZScene::MAGIC[1];
+    header.magic[2] = ZScene::MAGIC[2];
+    header.magic[3] = ZScene::MAGIC[3];
 
     // Fill the images headers
     auto imageHeaders = vector<ZScene::ImageHeader> {gltf.images.size()};
-    auto mipHeaders = vector<vector<ZScene::MipLevelHeader>>{gltf.images.size()};
+    auto mipHeaders = vector<vector<ZScene::MipLevelInfo>>{gltf.images.size()};
     uint64_t dataOffset = 0;
     for(auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         string name = gltf.images[imageIndex].name.data();
@@ -213,7 +213,7 @@ int main(const int argc, char** argv) {
         imageHeaders[imageIndex].dataSize = mipOffset;
         dataOffset += mipOffset;
 
-        header.headersSize += sizeof(ZScene::ImageHeader) + sizeof(ZScene::MipLevelHeader) * MipSetIn[imageIndex].m_nMipLevels;
+        header.headersSize += sizeof(ZScene::ImageHeader) + sizeof(ZScene::MipLevelInfo) * MipSetIn[imageIndex].m_nMipLevels;
     }
 
     // Fill textures headers
@@ -269,16 +269,16 @@ int main(const int argc, char** argv) {
         materialHeaders[materialIndex].emissiveStrength = material.emissiveStrength;
         switch (material.alphaMode) {
         case fastgltf::AlphaMode::Blend:
-            materialHeaders[materialIndex].transparency = TRANSPARENCY_ALPHA;
+            materialHeaders[materialIndex].transparency = static_cast<uint32_t>(Transparency::ALPHA);
             break;
         case fastgltf::AlphaMode::Mask:
-            materialHeaders[materialIndex].transparency = TRANSPARENCY_SCISSOR;
+            materialHeaders[materialIndex].transparency =  static_cast<uint32_t>(Transparency::SCISSOR);
             materialHeaders[materialIndex].alphaScissor = material.alphaCutoff;
             break;
         default:
             break;
         }
-        materialHeaders[materialIndex].cullMode = material.doubleSided ? CULLMODE_DISABLED : CULLMODE_BACK;
+        materialHeaders[materialIndex].cullMode =  static_cast<uint32_t>(material.doubleSided ? CullMode::DISABLED : CullMode::BACK);
         auto textureInfo = [](const fastgltf::TextureInfo& sourceTextureInfo) {
             mat3 translation;
             mat3 scale;
@@ -479,7 +479,7 @@ int main(const int argc, char** argv) {
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         // ZScene::print(imageHeaders[imageIndex]);
         outputFile.write(reinterpret_cast<const char*>(&imageHeaders[imageIndex]),sizeof(ZScene::ImageHeader));
-        outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeaders[imageIndex].data()), mipHeaders[imageIndex].size() * sizeof(ZScene::MipLevelHeader));
+        outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeaders[imageIndex].data()), mipHeaders[imageIndex].size() * sizeof(ZScene::MipLevelInfo));
     }
     outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(ZScene::TextureHeader));
     outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(ZScene::MaterialHeader));

@@ -98,7 +98,7 @@ namespace z0 {
     }
 
     bool GManager::onInput(InputEvent &inputEvent) {
-        if (inputEvent.getType() == INPUT_EVENT_KEY) {
+        if (inputEvent.getType() == InputEventType::KEY) {
             const auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
             if ((focusedWindow != nullptr) && (focusedWindow->isVisible())) {
                 if (keyInputEvent.isPressed()) {
@@ -107,8 +107,8 @@ namespace z0 {
                     return focusedWindow->eventKeybUp(keyInputEvent.getKey());
                 }
             }
-        } else if ((inputEvent.getType() == INPUT_EVENT_MOUSE_BUTTON)
-                || (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION)) {
+        } else if ((inputEvent.getType() == InputEventType::MOUSE_BUTTON)
+                || (inputEvent.getType() == InputEventType::MOUSE_MOTION)) {
 #ifdef _WIN32
             CURSORINFO ci {
                 .cbSize = sizeof(CURSORINFO)
@@ -127,12 +127,12 @@ namespace z0 {
             const auto x = mouseEvent.getX() * scaleX;
             const auto y = mouseEvent.getY() * scaleY;
 
-            if (inputEvent.getType() == INPUT_EVENT_MOUSE_MOTION) {
+            if (inputEvent.getType() == InputEventType::MOUSE_MOTION) {
                 auto resizeDeltaY = scaleY * resizeDelta;
                 if (resizedWindow != nullptr) {
                     if (resizingWindow) {
                         Rect rect = resizedWindow->getRect();
-                        if (currentCursor == MOUSE_CURSOR_RESIZE_H) {
+                        if (currentCursor == MouseCursor::RESIZE_H) {
                             const auto lx = x - rect.x;
                             if (resizingWindowOriginBorder) {
                                 rect.width = rect.width - lx;
@@ -153,7 +153,7 @@ namespace z0 {
                         Input::setMouseCursor(currentCursor);
                         return true;
                     }
-                    currentCursor = MOUSE_CURSOR_ARROW;
+                    currentCursor = MouseCursor::ARROW;
                     resizedWindow = nullptr;
                     Input::setMouseCursor(currentCursor);
                 }
@@ -165,22 +165,22 @@ namespace z0 {
                         if (enableWindowResizing && window->getWidget().isDrawBackground()) {
                             if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) &&
                                 (lx >= (window->getRect().width - resizeDelta))) {
-                                currentCursor = MOUSE_CURSOR_RESIZE_H;
+                                currentCursor = MouseCursor::RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
                             } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) &&
                                        (lx < resizeDelta)) {
-                                currentCursor = MOUSE_CURSOR_RESIZE_H;
+                                currentCursor = MouseCursor::RESIZE_H;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
                             } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) &&
                                        (ly >= (window->getRect().height - resizeDeltaY))) {
-                                currentCursor = MOUSE_CURSOR_RESIZE_V;
+                                currentCursor = MouseCursor::RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = false;
                             } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) &&
                                        (ly < resizeDeltaY)) {
-                                currentCursor = MOUSE_CURSOR_RESIZE_V;
+                                currentCursor = MouseCursor::RESIZE_V;
                                 resizedWindow = window;
                                 resizingWindowOriginBorder = true;
                             }
@@ -197,12 +197,12 @@ namespace z0 {
                 const auto &mouseInputEvent = dynamic_cast<InputEventMouseButton&>(mouseEvent);
                 if (resizedWindow != nullptr) {
                     if ((!resizingWindow) &&
-                        (mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
+                        (mouseInputEvent.getMouseButton() == MouseButton::LEFT) &&
                         (mouseInputEvent.isPressed())) {
                         resizingWindow = true;
-                    } else if ((mouseInputEvent.getMouseButton() == MOUSE_BUTTON_LEFT) &&
+                    } else if ((mouseInputEvent.getMouseButton() == MouseButton::LEFT) &&
                                (!mouseInputEvent.isPressed())) {
-                        currentCursor = MOUSE_CURSOR_ARROW;
+                        currentCursor = MouseCursor::ARROW;
                         resizedWindow = nullptr;
                         resizingWindow = false;
                     }
