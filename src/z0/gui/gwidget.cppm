@@ -175,15 +175,15 @@ namespace z0 {
 
         /** Adds a child widget.
               Children widgets will be destroyed on parent destruction.
-            	@param child	: child widget to add
-            	@param alignment: placement
-            	@Param string	: resource string
-            	@Param float	: default padding
+            	\param child	: child widget to add
+            	\param alignment: placement
+            	\param resource	: resource string
+            	\param defaultPadding	: default padding
         */
         virtual shared_ptr<GWidget> add(shared_ptr<GWidget> child,
                                         AlignmentType       alignment,
-                                        const string & = "",
-                                        float          = 0);
+                                        const string & resource = "",
+                                        float          defaultPadding= 0);
 
         /** Removes a child widget */
         virtual void remove(shared_ptr<GWidget> &);
@@ -246,7 +246,7 @@ namespace z0 {
         /** Return the transparency alpha value */
         [[nodiscard]] inline float getTransparency() const { return transparency; }
 
-        /** Changes the transpency alpha value */
+        /** Changes the transparency alpha value */
         void setTransparency(float alpha);
 
         void resizeChildren();

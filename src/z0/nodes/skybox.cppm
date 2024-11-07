@@ -39,7 +39,6 @@ export namespace z0 {
 
         /**
          * Creates an empty Skybox 
-         * @param filename path of the image
          */
         Skybox() = default;
 

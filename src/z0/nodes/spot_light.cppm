@@ -28,6 +28,7 @@ export namespace z0 {
         * Create a SpotLight.
         * @param cutOffDegrees the inner cutoff angle that specifies the spotlight's radius, in degrees
         * @param outerCutOffDegrees the outer cutoff angle that specifies the spotlight's radius, in degrees. Everything outside this angle is not lit by the spotlight.
+        * @param range Radius of the light and shadows
         * @param color the RGB color and intensity
         * @param nodeName Node name
         */

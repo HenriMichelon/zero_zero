@@ -28,6 +28,7 @@ export namespace z0 {
          * @param range The light's radius
          * @param color the RGB color and intensity
          * @param nodeName Node name
+         * @param type Omni or Spot light
          */
         explicit OmniLight(float         range,
                            vec4          color       = {1.0f, 1.0f, 1.0f, 1.0f},

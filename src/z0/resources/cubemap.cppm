@@ -51,6 +51,7 @@ export namespace z0 {
          * and **must** have the same sizes
          * @param filepath path and filename (without the extension) of the images
          * @param fileext files extension
+         * @param imageFormat format
          */
         static shared_ptr<Cubemap> load(const string &filepath, const string &fileext, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
@@ -59,7 +60,6 @@ export namespace z0 {
          *&emsp;&emsp;&emsp;`top`<br>
          *&emsp;`left  front  right  back`<br>
          *&emsp;&emsp;&emsp;`bottom`<br>
-         * @param filepath path of the image
          */
         static shared_ptr<Cubemap> load(const string &filepath, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
@@ -108,7 +108,6 @@ export namespace z0 {
 
         /**
           * Loads the cubemap from a single HDRi.
-          * @param filename path of the image
           */
         [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 

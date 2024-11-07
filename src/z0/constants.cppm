@@ -4,17 +4,14 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
-/**
-* \include constants.cppm
-* \file constants.cppm
-* \brief Header file defining global constants.
-*/
 module;
 #include "z0/libraries.h"
 
 export module z0.Constants;
 
-/// The z0 namespace
+/**
+ * The z0 namespace
+ */
 export namespace z0 {
 
     /**
@@ -108,7 +105,6 @@ export namespace z0 {
     constexpr vec2 VECTOR_SIZE{1001.0f};
 
     /**
-     *\enum
      * Nodes state when the scene is paused or running
      */
     enum class ProcessMode {
@@ -206,7 +202,7 @@ export namespace z0 {
         FRONT    = 2,
     };
 
-    /*
+    /**
     * A Material transparency mode
     * Any transparency mode other than Transparency::DISABLED has a greater performance impact compared to opaque rendering.
     */
