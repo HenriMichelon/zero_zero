@@ -5,8 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cmath>
-#include <memory>
 #include <volk.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
@@ -424,8 +422,9 @@ namespace z0 {
             auto globalBufferInfo  = frameData.at(frameIndex).globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
             auto writer            = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo);
-            if (!writer.build(descriptorSet.at(frameIndex), create))
+            if (!writer.build(descriptorSet.at(frameIndex), create)) {
                 die("Cannot allocate descriptor set for shadow map renderer");
+            }
         }
     }
 

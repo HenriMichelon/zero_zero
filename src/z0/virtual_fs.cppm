@@ -21,7 +21,7 @@ export namespace z0 {
      */
     class VirtualFS {
     public:
-        static constexpr string APP_URI = "app://";
+        static constexpr auto APP_URI{"app://"};
 
         static byte* loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size, ImageFormat imageFormat);
 

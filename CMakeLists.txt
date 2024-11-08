@@ -242,12 +242,10 @@ target_sources(${Z0_TARGET}
 if(MSVC)
 	target_compile_options(${Z0_TARGET} PRIVATE
 			/nologo
-			/Ob2
 			/W1
 			/WX
 			/std:c++latest
 			/experimental:module
-			/MD
 	)
 endif()
 if(Clang)

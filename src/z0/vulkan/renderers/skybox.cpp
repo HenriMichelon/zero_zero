@@ -5,10 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <memory>
-
-#include "z0/libraries.h"
 #include <volk.h>
+#include "z0/libraries.h"
 
 module z0.SkyboxRenderer;
 
