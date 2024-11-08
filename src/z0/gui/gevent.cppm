@@ -19,7 +19,7 @@ export namespace z0 {
     /**
      * List of widgets events signals
      */
-    struct GEvent : Signal::Parameters {
+    struct GEvent : public Signal::Parameters {
         //! called after widget creation (all widgets)
         static const string OnCreate;
         //! called before widget destruction (all widgets)

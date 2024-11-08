@@ -13,8 +13,12 @@ import z0.Signal;
 
 namespace z0 {
 
-    void Object::connect(const Signal::signal &name, std::function<void(const Signal::Parameters*)> handler) {
+    void Object::connect(const Signal::signal &name, const Signal::Handler& handler) {
         signals[name].connect(handler);
+    }
+
+    void Object::connect(const Signal::signal &name, const std::function<void()>& handler) {
+        signals[name].connect([&handler](Signal::Parameters*) {handler();});
     }
 
     void Object::emit(const Signal::signal &name, Signal::Parameters *params) {

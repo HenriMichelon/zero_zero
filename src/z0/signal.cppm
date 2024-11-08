@@ -24,9 +24,14 @@ export namespace z0 {
         struct Parameters {};
 
         /**
+         * Lambda expression who answer to emitted signals
+         */
+        using Handler = std::function<void(Parameters*)>;
+
+        /**
          * Connects a member function to the signal
         */
-        inline void connect(std::function<void(const Parameters*)> &handler) {
+        inline void connect(const Handler &handler) {
             handlers.push_back(handler);
         }
 
@@ -37,7 +42,7 @@ export namespace z0 {
         void emit(Parameters* params) const;
         
     private:
-        list<std::function<void(const Parameters*)>> handlers;
+        list<Handler> handlers;
     };
 
 }
