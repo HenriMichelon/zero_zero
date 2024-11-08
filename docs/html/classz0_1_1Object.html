@@ -67,7 +67,6 @@ $(document).ready(function(){initNavTree('classz0_1_1Object.html',''); initResiz
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classz0_1_1Object-members.html">List of all members</a>  </div>
   <div class="headertitle">
     <div class="title">Object Class Reference</div>
@@ -99,23 +98,17 @@ Inheritance diagram for Object:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abb2ebe880ed08d1dec1470041d8d4da7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#abb2ebe880ed08d1dec1470041d8d4da7">connect</a> (const Signal::signal &amp;name, Object *object, Signal::Handler handler)</td></tr>
-<tr class="separator:abb2ebe880ed08d1dec1470041d8d4da7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef1cefb710442f7087a4a4d00f4fd528"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#aef1cefb710442f7087a4a4d00f4fd528">disconnect</a> (const Signal::signal &amp;name, Object *object, Signal::Handler handler)</td></tr>
-<tr class="separator:aef1cefb710442f7087a4a4d00f4fd528"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a579b003a1ba1245a7df4211306856aee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#a579b003a1ba1245a7df4211306856aee">connect</a> (const Signal::signal &amp;name, const <a class="el" href="classz0_1_1Signal.html#a5253f6760bfcc7838700fb4c541f404c">Signal::Handler</a> &amp;handler)</td></tr>
+<tr class="separator:a579b003a1ba1245a7df4211306856aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a280ad2b2ee5724b98116ef8ae64feb76"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#a280ad2b2ee5724b98116ef8ae64feb76">connect</a> (const Signal::signal &amp;name, const std::function&lt; void ()&gt; &amp;handler)</td></tr>
+<tr class="separator:a280ad2b2ee5724b98116ef8ae64feb76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8d0436f166a3557eca32fe201a5857b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#ad8d0436f166a3557eca32fe201a5857b">emit</a> (const Signal::signal &amp;name, <a class="el" href="structz0_1_1Signal_1_1Parameters.html">Signal::Parameters</a> *params=nullptr)</td></tr>
 <tr class="separator:ad8d0436f166a3557eca32fe201a5857b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55458af6f75832809652f64d2c949332"><td class="memItemLeft" align="right" valign="top">virtual string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#a55458af6f75832809652f64d2c949332">toString</a> () const</td></tr>
 <tr class="separator:a55458af6f75832809652f64d2c949332"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a92987edca57ffedc1ffd31d9296a21dc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a92987edca57ffedc1ffd31d9296a21dc"><td class="memTemplItemLeft" align="right" valign="top">static constexpr Signal::Handler&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classz0_1_1Object.html#a92987edca57ffedc1ffd31d9296a21dc">SignalHandler</a> (const T handler)</td></tr>
-<tr class="separator:a92987edca57ffedc1ffd31d9296a21dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="abb2ebe880ed08d1dec1470041d8d4da7"></a>
+<a class="anchor" id="a579b003a1ba1245a7df4211306856aee"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -128,13 +121,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Object *&#160;</td>
-          <td class="paramname"><em>object</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Signal::Handler&#160;</td>
+          <td class="paramtype">const <a class="el" href="classz0_1_1Signal.html#a5253f6760bfcc7838700fb4c541f404c">Signal::Handler</a> &amp;&#160;</td>
           <td class="paramname"><em>handler</em>&#160;</td>
         </tr>
         <tr>
@@ -147,7 +134,6 @@ Static Public Member Functions</h2></td></tr>
 <p>Connects a signal by name to a member function </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">name</td><td>signal name. </td></tr>
-    <tr><td class="paramname">object</td><td>object containing the member function to connect </td></tr>
     <tr><td class="paramname">handler</td><td>the member function to call when <a class="el" href="classz0_1_1Object.html#ad8d0436f166a3557eca32fe201a5857b">emit()</a> is called </td></tr>
   </table>
   </dd>
@@ -155,12 +141,12 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aef1cefb710442f7087a4a4d00f4fd528"></a>
+<a class="anchor" id="a280ad2b2ee5724b98116ef8ae64feb76"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void disconnect </td>
+          <td class="memname">void connect </td>
           <td>(</td>
           <td class="paramtype">const Signal::signal &amp;&#160;</td>
           <td class="paramname"><em>name</em>, </td>
@@ -168,13 +154,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Object *&#160;</td>
-          <td class="paramname"><em>object</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Signal::Handler&#160;</td>
+          <td class="paramtype">const std::function&lt; void ()&gt; &amp;&#160;</td>
           <td class="paramname"><em>handler</em>&#160;</td>
         </tr>
         <tr>
@@ -184,10 +164,9 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Disconnects a signal by name from a member function </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Connects a signal by name to a member function </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">name</td><td>signal name. </td></tr>
-    <tr><td class="paramname">object</td><td>object containing the member function to disconnect </td></tr>
     <tr><td class="paramname">handler</td><td>the member function to call when <a class="el" href="classz0_1_1Object.html#ad8d0436f166a3557eca32fe201a5857b">emit()</a> is called </td></tr>
   </table>
   </dd>
@@ -228,31 +207,6 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a92987edca57ffedc1ffd31d9296a21dc"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static constexpr Signal::Handler SignalHandler </td>
-          <td>(</td>
-          <td class="paramtype">const T&#160;</td>
-          <td class="paramname"><em>handler</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Shortcut to avoid using <code>reinterpret_cast</code> </p>
-
-</div>
-</div>
 <a class="anchor" id="a55458af6f75832809652f64d2c949332"></a>
 <div class="memitem">
 <div class="memproto">
@@ -285,7 +239,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacez0.html">z0</a></li><li class="navelem"><a class="el" href="classz0_1_1Object.html">Object</a></li>
-    <li class="footer">Generated on jeu. nov. 7 2024 21:48:43 for ZeroZero &nbsp; by
+    <li class="footer">Generated on ven. nov. 8 2024 22:29:30 for ZeroZero &nbsp; by
     <a href="https://www.copperspice.com/documentation-doxypress.html">
     <img class="footer" src="doxypress.png" alt="DoxyPress"/></a> 1.7.0 </li>
   </ul>

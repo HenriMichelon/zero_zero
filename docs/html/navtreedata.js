@@ -496,8 +496,8 @@ var NAVTREE =
             [ "translate", "classz0_1_1Node.html#a67404cfd749850c280b938553fce7e90", null ]
           ] ],
           [ "Object", "classz0_1_1Object.html", [
-            [ "connect", "classz0_1_1Object.html#abb2ebe880ed08d1dec1470041d8d4da7", null ],
-            [ "disconnect", "classz0_1_1Object.html#aef1cefb710442f7087a4a4d00f4fd528", null ],
+            [ "connect", "classz0_1_1Object.html#a579b003a1ba1245a7df4211306856aee", null ],
+            [ "connect", "classz0_1_1Object.html#a280ad2b2ee5724b98116ef8ae64feb76", null ],
             [ "emit", "classz0_1_1Object.html#ad8d0436f166a3557eca32fe201a5857b", null ],
             [ "toString", "classz0_1_1Object.html#a55458af6f75832809652f64d2c949332", null ]
           ] ],
@@ -562,9 +562,8 @@ var NAVTREE =
           [ "Shape", "classz0_1_1Shape.html", null ],
           [ "Signal", "classz0_1_1Signal.html", [
             [ "Parameters", "structz0_1_1Signal_1_1Parameters.html", null ],
-            [ "Handler", "classz0_1_1Signal.html#a1b5aa0555b5fa30dcc022298f504ab0b", null ],
-            [ "connect", "classz0_1_1Signal.html#a1710716db7c1017702396d45cd1b90e1", null ],
-            [ "disconnect", "classz0_1_1Signal.html#a68f667473f94883cc15b89194cd26f98", null ],
+            [ "Handler", "classz0_1_1Signal.html#a5253f6760bfcc7838700fb4c541f404c", null ],
+            [ "connect", "classz0_1_1Signal.html#a2088aa539d8a78ee12015540437ee5a4", null ],
             [ "emit", "classz0_1_1Signal.html#a3be8ffb1045a72d22b3feb4b297e97bb", null ]
           ] ],
           [ "Skybox", "classz0_1_1Skybox.html", [
@@ -768,7 +767,7 @@ var NAVTREEINDEX =
 [
 "annotated.html",
 "classz0_1_1InputEventMouse.html#ab571f4fa20071a4daf7ee619d2c76202",
-"structz0_1_1ApplicationConfig.html#aa85248416c701926d4908f9c7238b24a"
+"structz0_1_1ApplicationConfig.html#ac9cbcb24d11d6cc7b73cfadac22dcced"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';
