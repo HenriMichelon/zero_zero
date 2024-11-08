@@ -556,7 +556,7 @@ namespace z0 {
                 }
             }
             if (logMode & LOGGING_MODE_FILE) {
-                *_logFile << item << endl;
+                (*_logFile) << item << endl;
             }
             if (logMode & LOGGING_MODE_STDOUT) {
                 std::cout << item << endl;

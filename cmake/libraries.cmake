@@ -36,6 +36,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fetch_glm)
 set(GLM_DIR ${CMAKE_BINARY_DIR}/_deps/fetch_glm-src/glm)
 # compile GLM as a module
+message(NOTICE "Building glm C++ module...")
 add_library(glm-modules STATIC)
 target_sources(glm-modules
   PUBLIC
@@ -46,6 +47,7 @@ target_sources(glm-modules
       ${GLM_DIR}/glm.cppm)
 target_link_libraries(glm-modules glm::glm)
 target_link_libraries(${Z0_TARGET} glm::glm glm-modules)
+target_precompile_headers(${Z0_TARGET} PRIVATE ${GLM_DIR}/glm.hpp ${GLM_DIR}/gtx/quaternion.hpp ${GLM_DIR}/gtx/matrix_decompose.hpp)
 
 ###### Using FastGTLF to load models from binary glTF
 message(NOTICE "Fetching FastGTLF from https://github.com/spnda/fastgltf ...")

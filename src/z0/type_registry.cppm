@@ -34,7 +34,7 @@ export namespace z0 {
          * If you want to register outside a bloc of code use the `Z0_REGISTER_TYPE(class)` macro after your class declaration
          */
         template<typename T> static void registerType(const string&clazz) {
-            typeMap[clazz] = &_createNewObjectInstance<T>;
+            typeMap.emplace(clazz, &_createNewObjectInstance<T>);
         }
     private:
         static map<std::string, Object*(*)()> typeMap;

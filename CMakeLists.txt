@@ -285,7 +285,8 @@ endif()
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
 
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
+add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 include(FetchContent)
 include(cmake/std.cmake)
