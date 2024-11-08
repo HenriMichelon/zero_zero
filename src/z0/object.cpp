@@ -10,6 +10,7 @@ module;
 module z0.Object;
 
 import z0.Signal;
+import z0.Tools;
 
 namespace z0 {
 
@@ -18,7 +19,9 @@ namespace z0 {
     }
 
     void Object::connect(const Signal::signal &name, const std::function<void()>& handler) {
-        signals[name].connect([&handler](Signal::Parameters*) {handler();});
+        signals[name].connect([handler](Signal::Parameters*) {
+            handler();
+        });
     }
 
     void Object::emit(const Signal::signal &name, Signal::Parameters *params) {
