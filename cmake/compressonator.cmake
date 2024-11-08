@@ -17,7 +17,7 @@ find_path(Compressonator_INCLUDE_DIR
 )
 
 find_library(Compressonator_LIBRARY
-        NAMES Compressonator_MT
+        NAMES Compressonator_MTd
         PATHS
         "${COMPRESSONATOR_ROOT}/lib/bin/x64"
 )
@@ -33,4 +33,4 @@ if (!Compressonator_FOUND)
 endif()
 
 target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${Compressonator_INCLUDE_DIR})
-target_link_libraries(${GLB2ZSCENE_TARGET} "${COMPRESSONATOR_ROOT}/lib/bin/x64/Compressonator_MT_DLL.dll")
+target_link_libraries(${GLB2ZSCENE_TARGET} "${COMPRESSONATOR_ROOT}/lib/bin/x64/Compressonator_MTd_DLL.dll")

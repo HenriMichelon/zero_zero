@@ -17,12 +17,82 @@ namespace fs = std::filesystem;
 import z0;
 using namespace z0;
 
+struct CompressionFormats {
+    const string      name;
+    const CMP_FORMAT  compressonatorFormat;
+    const VkFormat    vulkanFormat;
+    const VkFormat    vulkanFormatSRGB;
+};
+
+static const CompressionFormats compressionFormats[] = {
+    {"", CMP_FORMAT_Unknown, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED },
+    { "bc1", CMP_FORMAT_BC1, VK_FORMAT_BC1_RGBA_UNORM_BLOCK, VK_FORMAT_BC1_RGBA_SRGB_BLOCK},
+    { "bc2", CMP_FORMAT_BC2, VK_FORMAT_BC2_UNORM_BLOCK, VK_FORMAT_BC2_SRGB_BLOCK},
+    { "bc3", CMP_FORMAT_BC3, VK_FORMAT_BC3_UNORM_BLOCK, VK_FORMAT_BC3_SRGB_BLOCK},
+    { "bc4", CMP_FORMAT_BC4, VK_FORMAT_BC4_UNORM_BLOCK, VK_FORMAT_BC4_UNORM_BLOCK},
+    { "bc4s", CMP_FORMAT_BC4_S, VK_FORMAT_BC4_SNORM_BLOCK, VK_FORMAT_BC4_SNORM_BLOCK},
+    { "bc5", CMP_FORMAT_BC5, VK_FORMAT_BC5_UNORM_BLOCK, VK_FORMAT_BC5_UNORM_BLOCK},
+    { "bc5s", CMP_FORMAT_BC5_S, VK_FORMAT_BC5_SNORM_BLOCK, VK_FORMAT_BC5_SNORM_BLOCK},
+    { "bc6h", CMP_FORMAT_BC6H, VK_FORMAT_BC6H_UFLOAT_BLOCK, VK_FORMAT_BC6H_UFLOAT_BLOCK},
+    { "bc6h_sf", CMP_FORMAT_BC6H_SF, VK_FORMAT_BC6H_SFLOAT_BLOCK, VK_FORMAT_BC6H_SFLOAT_BLOCK},
+    { "bc7", CMP_FORMAT_BC7, VK_FORMAT_BC7_UNORM_BLOCK, VK_FORMAT_BC7_SRGB_BLOCK},
+};
+
+// string createTemporaryFile(const string& name, const void* data, const size_t size) {
+//     fs::path tempFilePath = fs::temp_directory_path() / fs::unique_path("temp_%%%%%%_" + name);
+//     std::ofstream tempFile(tempFilePath, std::ios::binary);
+//     if (!tempFile) {
+//         throw std::runtime_error("Failed to create temporary file.");
+//     }
+//     tempFile.write(static_cast<const char*>(data), size);
+//     if (!tempFile) {
+//         throw std::runtime_error("Failed to write data to temporary file.");
+//     }
+//     tempFile.close();
+//     return tempFilePath.string();
+// }
+//
+// string toUpper(const std::string& str) {
+//     std::string result = str;
+//     std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+//         return std::toupper(c);
+//     });
+//     return result;
+// }
+//
+// void convertImageWithCLI(const string& name,
+//                         const void   * srcData,
+//                         const size_t   size,
+//                         CMP_MipSet& MipSetIn, CMP_MipSet& MipSetCmp,
+//                         CompressionFormats format) {
+//     auto inputFile = createTemporaryFile(name, srcData, size);
+//     if (!fs::exists(inputFile)) {
+//         throw runtime_error("Input file does not exist: " + inputFile.string());
+//     }
+//     const auto command = std::format("compressonatorcli.exe -fd {} -miplevels {} {} {}",
+//         toUpper(format.name),
+//         11,
+//         inputFile, );
+//
+//     // Execute the command and capture result
+//     int result = std::system(command.c_str());
+//     if (result != 0) {
+//         throw std::runtime_error("Failed to execute Compressonator command.");
+//     }
+//
+//     // Check if the output file was created
+//     if (!fs::exists(outputFile)) {
+//         throw std::runtime_error("Compression failed, output file was not created.");
+//     }
+//     std::cout << "Compression successful. Output file: " << outputFile << std::endl;
+// }
+
 // https://compressonator.readthedocs.io/en/latest/developer_sdk/cmp_framework/index.html#using-the-pipeline-api-interfaces
 void convertImage(const string& name,
-    const unsigned char* data,
-    const int width, const int height,
-    CMP_MipSet& MipSetIn, CMP_MipSet& MipSetCmp,
-    const CMP_FORMAT format) {
+                const unsigned char* data,
+                const int width, const int height,
+                CMP_MipSet& MipSetIn, CMP_MipSet& MipSetCmp,
+                const CMP_FORMAT format) {
     memset(&MipSetIn, 0, sizeof(CMP_MipSet));
     if (CMP_CreateMipSet(&MipSetIn, width, height, 1, CF_8bit, TT_2D) != CMP_OK) {
         die("Error while creating Mip Set ", name);
@@ -45,10 +115,10 @@ void convertImage(const string& name,
     //==========================
     // Set Compression Options
     //==========================
-    const KernelOptions   kernel_options{
+    KernelOptions   kernel_options{
         .fquality = 1.0,
         .format   = format,
-        .encodeWith = CMP_HPC ,
+        .encodeWith = CMP_GPU_HW,
         .threads  = 0,
     };
 
@@ -64,13 +134,16 @@ void convertImage(const string& name,
     }
 }
 
+auto verbose{false};
 auto convertThread = vector<thread>();
+
 void loadAndConvertImage(const string&  name,
                                const void   * srcData,
                                const size_t   size,
                                CMP_MipSet& mipSetIn,
-                               CMP_MipSet& mipSetCmp) {
-    convertThread.push_back(thread([&mipSetIn, &mipSetCmp, name, srcData, size]() {
+                               CMP_MipSet& mipSetCmp,
+                               const CMP_FORMAT format) {
+    convertThread.push_back(thread([&mipSetIn, &mipSetCmp, name, srcData, size, format] {
         int width, height, channels;
         auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
                                                      static_cast<int>(size),
@@ -79,9 +152,9 @@ void loadAndConvertImage(const string&  name,
                                                      &channels,
                                                      STBI_rgb_alpha);
         if (data) {
-             convertImage(name, data, width, height, mipSetIn, mipSetCmp, CMP_FORMAT_BC1);
+             convertImage(name, data, width, height, mipSetIn, mipSetCmp, format);
              stbi_image_free(data);
-             cout << "Converted image " << name << endl;
+             if (verbose) { cout << "Converted image " << name << endl; }
         }
     }));
 };
@@ -90,16 +163,17 @@ void loadImage(
      fastgltf::Asset &asset,
      fastgltf::Image &image,
      CMP_MipSet& mipSetIn,
-     CMP_MipSet& mipSetCmp) {
+     CMP_MipSet& mipSetCmp,
+     CMP_FORMAT format) {
     shared_ptr<Image> newImage;
     const auto& name = image.name.data();
     visit(fastgltf::visitor{
-      [](auto &arg) {},
-      [&](fastgltf::sources::URI &filePath) {
+      [](auto &) {},
+      [&](fastgltf::sources::URI &) {
           die("External textures files for glTF not supported");
       },
       [&](fastgltf::sources::Vector &vector) {
-          loadAndConvertImage(name, vector.bytes.data(), vector.bytes.size(), mipSetIn, mipSetCmp);
+          loadAndConvertImage(name, vector.bytes.data(), vector.bytes.size(), mipSetIn, mipSetCmp, format);
       },
       [&](fastgltf::sources::BufferView &view) {
           const auto &bufferView = asset.bufferViews[view.bufferViewIndex];
@@ -107,10 +181,10 @@ void loadImage(
           visit(fastgltf::visitor{
                 [](auto &arg) {},
                 [&](fastgltf::sources::Vector &vector) {
-                    loadAndConvertImage(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp);
+                    loadAndConvertImage(name, vector.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp, format);
                 },
                 [&](fastgltf::sources::Array &array) {
-                    loadAndConvertImage(name, array.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp);
+                    loadAndConvertImage(name, array.bytes.data() + bufferView.byteOffset, bufferView.byteLength, mipSetIn, mipSetCmp, format);
                 },
             },
             buffer.data);
@@ -120,20 +194,42 @@ void loadImage(
 }
 
 int main(const int argc, char** argv) {
-    cxxopts::Options options("gltl2zscene", "Create a ZScene file from a glTF binary file");
+    cxxopts::Options options("gltl2zscene", "Create a ZScene file from a glTF file");
     options.add_options()
+        ("f", "Compression format [bc1 bc2 bc3 bc4 bc4s bc5 bc5s bc6h bc6h_sf bc7]", cxxopts::value<string>())
+        ("v", "Verbose mode")
         ("input", "The binary glTF file to read", cxxopts::value<string>())
         ("output","The ZScene file to create", cxxopts::value<string>());
     options.parse_positional({"input", "output"});
     const auto result = options.parse(argc, argv);
     if (result.count("input") != 1 || result.count("output") != 1) {
-        std::cerr << "usage: gltl2zscene input.glb output.zscene\n";
+        cerr << "usage: gltl2zscene input.glb output.zscene\n";
         return EXIT_FAILURE;
     }
+
+    verbose = result.count("v") > 0;
+
+    auto formatName = string{"bc7"};
+    if (result.count("f") == 1) {
+        formatName = result["f"].as<string>();
+    }
+    auto format{compressionFormats[0]};
+    for (const auto& fmt : compressionFormats) {
+        if (formatName == fmt.name) {
+            format = fmt;
+        }
+    }
+    if (format.vulkanFormat == VK_FORMAT_UNDEFINED) {
+        cerr << "Unknown compression format " << formatName << endl;
+        return EXIT_FAILURE;
+    }
+    if (verbose) { cout << "Using compression format " << formatName << endl; }
+
     const auto &inputFilename  = fs::path(result["input"].as<string>());
     const auto &outputFilename = fs::path(result["output"].as<string>());
 
     // Open the glTF file
+    if (verbose) { cout << "Opening file " << inputFilename << endl; }
     constexpr auto gltfOptions =
         fastgltf::Options::DontRequireValidAssetMember |
         fastgltf::Options::AllowDouble |
@@ -155,22 +251,29 @@ int main(const int argc, char** argv) {
     fastgltf::Asset gltf = std::move(asset.get());
 
     // Load & transcode all the images
+    if (verbose) { cout << "Transcoding images...\n"; }
     CMP_InitFramework();
     CMP_InitializeBCLibrary();
     auto MipSetIn = vector<CMP_MipSet>(gltf.images.size());
     auto MipSetCmp = vector<CMP_MipSet>(gltf.images.size());
     auto tStart = std::chrono::high_resolution_clock::now();
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
-        loadImage(gltf, gltf.images[imageIndex], MipSetIn[imageIndex],MipSetCmp[imageIndex]);
+        loadImage(
+            gltf, gltf.images[imageIndex],
+            MipSetIn[imageIndex],MipSetCmp[imageIndex],
+            format.compressonatorFormat);
     }
     for(auto& t : convertThread) {
         t.join();
     }
     CMP_ShutdownBCLibrary();
-    auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
-    cout << "total transcoding time for "  << gltf.images.size() << " images : " <<  last_transcode_time << "ms" << endl;
+    if (verbose) {
+        auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+        cout << "total transcoding time for "  << gltf.images.size() << " images : " <<  last_transcode_time << "ms" << endl;
+    }
 
     // Initialize the destination file headers
+    if (verbose) { cout << "Creating destination file headers...\n"; }
     auto header = ZScene::Header {
         .version = 1,
         .imagesCount = static_cast<uint32_t>(gltf.images.size()),
@@ -185,15 +288,35 @@ int main(const int argc, char** argv) {
     header.magic[2] = ZScene::MAGIC[2];
     header.magic[3] = ZScene::MAGIC[3];
 
+    auto copyName = [](string name, char* dest, auto index) {
+        if (name.empty()) { name = to_string(index); }
+        memset(dest, 0, ZScene::NAME_SIZE);
+        strncpy(dest, name.c_str(), ZScene::NAME_SIZE-1);
+        dest[ZScene::NAME_SIZE - 1] = '\0';
+    };
+
     // Fill the images headers
+    // First check for images usage before to select sRGB or UNORM profile
+    auto isImageSRGB = vector<bool>(gltf.images.size());
+    for(const auto& material : gltf.materials) {
+        if (material.pbrData.baseColorTexture.has_value() && gltf.textures[material.pbrData.baseColorTexture.value().textureIndex].imageIndex.has_value()) {
+            isImageSRGB[gltf.textures[material.pbrData.baseColorTexture.value().textureIndex].imageIndex.value()] = true;
+        }
+        if (material.pbrData.metallicRoughnessTexture.has_value()&& gltf.textures[material.pbrData.metallicRoughnessTexture.value().textureIndex].imageIndex.has_value()) {
+            isImageSRGB[gltf.textures[material.pbrData.metallicRoughnessTexture.value().textureIndex].imageIndex.value()] = false;
+        }
+        if (material.normalTexture.has_value()&& gltf.textures[material.normalTexture.value().textureIndex].imageIndex.has_value()) {
+            isImageSRGB[gltf.textures[material.normalTexture.value().textureIndex].imageIndex.value()] = false;
+        }
+        if (material.emissiveTexture.has_value() && gltf.textures[material.emissiveTexture.value().textureIndex].imageIndex.has_value()) {
+            isImageSRGB[gltf.textures[material.emissiveTexture.value().textureIndex].imageIndex.value()] = true;
+        }
+    }
     auto imageHeaders = vector<ZScene::ImageHeader> {gltf.images.size()};
     auto mipHeaders = vector<vector<ZScene::MipLevelInfo>>{gltf.images.size()};
     uint64_t dataOffset = 0;
     for(auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
-        string name = gltf.images[imageIndex].name.data();
-        if (name.empty()) { name = to_string(imageIndex); }
-        strncpy(imageHeaders[imageIndex].name, name.c_str(), ZScene::NAME_SIZE);
-        imageHeaders[imageIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        copyName(gltf.images[imageIndex].name.data(), imageHeaders[imageIndex].name, imageIndex);
 
         // Set header for each mip level of the image
         uint64_t mipOffset{0};
@@ -205,7 +328,7 @@ int main(const int argc, char** argv) {
         }
 
         // Set header for one image
-        imageHeaders[imageIndex].format = VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+        imageHeaders[imageIndex].format = isImageSRGB[imageIndex] ? format.vulkanFormatSRGB : format.vulkanFormat;
         imageHeaders[imageIndex].width  = static_cast<uint32_t>(MipSetIn[imageIndex].m_nWidth);
         imageHeaders[imageIndex].height  = static_cast<uint32_t>(MipSetIn[imageIndex].m_nHeight);
         imageHeaders[imageIndex].mipLevels  = static_cast<uint32_t>(MipSetIn[imageIndex].m_nMipLevels);
@@ -251,11 +374,7 @@ int main(const int argc, char** argv) {
     auto materialHeaders = vector<ZScene::MaterialHeader> {gltf.materials.size()};
     for(auto materialIndex = 0; materialIndex < gltf.materials.size(); materialIndex++) {
         const auto& material = gltf.materials[materialIndex];
-
-        string name =material.name.data();
-        if (name.empty()) { name = to_string(materialIndex); }
-        strncpy(materialHeaders[materialIndex].name, name.c_str(), ZScene::NAME_SIZE);
-        materialHeaders[materialIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        copyName(material.name.data(), materialHeaders[materialIndex].name, materialIndex);
 
         materialHeaders[materialIndex].albedoColor = {
             material.pbrData.baseColorFactor[0],
@@ -313,12 +432,10 @@ int main(const int argc, char** argv) {
         if (material.pbrData.metallicRoughnessTexture.has_value()) {
             materialHeaders[materialIndex].metallicTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
             materialHeaders[materialIndex].roughnessTexture = textureInfo(material.pbrData.metallicRoughnessTexture.value());
-            imageHeaders[materialHeaders[materialIndex].metallicTexture.textureIndex].format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         }
         if (material.normalTexture.has_value()) {
             materialHeaders[materialIndex].normalTexture = textureInfo(material.normalTexture.value());
             materialHeaders[materialIndex].normalScale = 1.0f;
-            imageHeaders[materialHeaders[materialIndex].normalTexture.textureIndex].format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         }
         if (material.emissiveTexture) {
             materialHeaders[materialIndex].emissiveTexture = textureInfo(material.emissiveTexture.value());
@@ -337,11 +454,7 @@ int main(const int argc, char** argv) {
     auto uvsInfos = vector<vector<vector<ZScene::DataInfo>>> {gltf.meshes.size()};
     for(auto meshIndex = 0; meshIndex < meshesHeaders.size(); meshIndex++) {
         auto& mesh = gltf.meshes[meshIndex];
-
-        string name = mesh.name.data();
-        if (name.empty()) { name = to_string(meshIndex); }
-        strncpy(meshesHeaders[meshIndex].name, name.c_str(), ZScene::NAME_SIZE);
-        meshesHeaders[meshIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        copyName(mesh.name.data(), meshesHeaders[meshIndex].name, meshIndex);
         meshesHeaders[meshIndex].surfacesCount = mesh.primitives.size();
 
         uvsInfos[meshIndex].resize(mesh.primitives.size());
@@ -433,12 +546,9 @@ int main(const int argc, char** argv) {
     auto childrenIndexes = vector<vector<uint32_t>>  {gltf.nodes.size()};
     for (auto nodeIndex = 0; nodeIndex < gltf.nodes.size(); ++nodeIndex) {
         const auto &node = gltf.nodes[nodeIndex];
-
-        string name = node.name.data();
-        if (name.empty()) { name = to_string(nodeIndex); }
-        strncpy(nodesHeaders[nodeIndex].name, name.c_str(), ZScene::NAME_SIZE);
-        nodesHeaders[nodeIndex].name[ZScene::NAME_SIZE - 1] = '\0';
+        copyName(node.name.data(), nodesHeaders[nodeIndex].name, nodeIndex);
         nodesHeaders[nodeIndex].meshIndex = node.meshIndex.has_value() ? node.meshIndex.value() : -1;
+
 
         visit(fastgltf::visitor{
               [&](fastgltf::math::fmat4x4 matrix) {
@@ -466,7 +576,7 @@ int main(const int argc, char** argv) {
                             sizeof(uint32_t) * childrenIndexes[nodeIndex].size();
     }
 
-    cout << "Writing output file " << outputFilename << "...\n";
+    if (verbose) { cout << "Writing output file " << outputFilename << "...\n"; }
     std::ofstream outputFile(outputFilename, std::ios::binary);
     if (!outputFile) {
         die("Error opening file for writing!");

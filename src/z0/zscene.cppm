@@ -26,7 +26,7 @@ export namespace z0 {
      * - Pre calculated mip levels : all images mips levels are pre-calculated and compressed.<br>
      * - Pre calculated data : all transforms are pre-calculated.<br>
      *<br>
-     *$A Zscene file can be created from a glTF file using the `gltf2zscene` command line tool.<br>
+     *%A Zscene file can be created from a glTF file using the `gltf2zscene` command line tool.<br>
      *<br>
      * **File format description :**
      * ```
@@ -246,14 +246,14 @@ export namespace z0 {
 
         ZScene() = default;
 
-        // static void print(const Header& header);
-        // static void print(const ImageHeader& header);
-        // static void print(const MipLevelHeader& header);
-        // static void print(const TextureHeader& header);
-        // static void print(const MaterialHeader& header);
-        // static void print(const MeshHeader& header);
-        // static void print(const SurfaceInfo& header);
-        // static void print(const DataInfo& header);
+        static void print(const Header& header);
+        static void print(const ImageHeader& header);
+        static void print(const MipLevelInfo& header);
+        static void print(const TextureHeader& header);
+        static void print(const MaterialHeader& header);
+        static void print(const MeshHeader& header);
+        static void print(const SurfaceInfo& header);
+        static void print(const DataInfo& header);
 
     protected:
         Header header{};

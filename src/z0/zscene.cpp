@@ -46,7 +46,7 @@ namespace z0 {
             header.magic[2] != MAGIC[2] &&
             header.magic[3] != MAGIC[3]) {
             die("ZScene bad magic");
-            }
+        }
         if (header.version != VERSION) {
             die("ZScene bad version");
         }
@@ -57,6 +57,8 @@ namespace z0 {
         uint64_t totalImageSize{0};
         for (auto imageIndex = 0; imageIndex < header.imagesCount; ++imageIndex) {
             stream.read(reinterpret_cast<istream::char_type *>(&imageHeaders[imageIndex]), sizeof(ImageHeader));
+            // print(imageHeaders[imageIndex]);
+            // log(format("{} : {}x{}", string(imageHeaders[imageIndex].name), imageHeaders[imageIndex].width, imageHeaders[imageIndex].height));
             levelHeaders[imageIndex].resize(imageHeaders[imageIndex].mipLevels);
             stream.read(reinterpret_cast<istream::char_type *>(levelHeaders[imageIndex].data()), sizeof(MipLevelInfo) * imageHeaders[imageIndex].mipLevels);
             totalImageSize += imageHeaders[imageIndex].dataSize;
@@ -82,8 +84,6 @@ namespace z0 {
                 // print(surfaceInfo[meshIndex][surfaceIndex]);
                 uvsInfos[meshIndex][surfaceIndex].resize(surfaceInfo[meshIndex][surfaceIndex].uvsCount);
                 stream.read(reinterpret_cast<istream::char_type *>(uvsInfos[meshIndex][surfaceIndex].data()), sizeof(DataInfo) * uvsInfos[meshIndex][surfaceIndex].size());
-                // print(uvsInfos[meshIndex][surfaceIndex][0]);
-                // print(uvsInfos[meshIndex][surfaceIndex][1]);
             }
         }
 
@@ -284,7 +284,7 @@ namespace z0 {
 
         return rootNode;
     }
-/*
+
     void ZScene::print(const Header& header) {
         printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nMeshes count : %d\nHeaders size : %llu\n",
             header.version,
@@ -294,7 +294,6 @@ namespace z0 {
             header.meshesCount,
             header.headersSize);
     }
-
     void ZScene::print(const ImageHeader& header) {
         printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\n",
             header.name,
@@ -305,8 +304,7 @@ namespace z0 {
             header.dataOffset,
             header.dataSize);
     }
-
-    void ZScene::print(const MipLevelHeader& header) {
+    void ZScene::print(const MipLevelInfo& header) {
         printf("Offset : %llu\nSize: %llu\n", header.offset, header.size);
     }
 
@@ -340,5 +338,5 @@ namespace z0 {
             header.tangents.first, header.tangents.count,
             header.uvsCount);
     }
-*/
+
 }

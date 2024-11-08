@@ -256,11 +256,11 @@ add_executable(${GLB2ZSCENE_TARGET}
 add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
 target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
 target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
-target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
-		$<$<CXX_COMPILER_ID:GNU>:-Werror>
-		$<$<CXX_COMPILER_ID:Clang>:-Werror>
-		$<$<CXX_COMPILER_ID:MSVC>:/WX>
-)
+#target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
+#		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+#		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+#		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+#)
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)

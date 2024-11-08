@@ -45,6 +45,7 @@ namespace z0 {
             const auto& texture = textureHeaders[textureIndex];
             if (texture.imageIndex != -1) {
                 const auto& image = imageHeaders[texture.imageIndex];
+                print(image);
                 textures.push_back(make_shared<ImageTexture>(
                     make_shared<VulkanImage>(
                        device,
