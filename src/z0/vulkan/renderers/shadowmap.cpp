@@ -40,33 +40,33 @@ namespace z0 {
         Renderpass{device, WINDOW_CLEAR_COLOR},
         light{light} {
         frameData.resize(device.getFramesInFlight());
-        for(auto& frame: frameData) {
+        for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
             frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
             if (isCascaded()) { frame.cascadesCount = reinterpret_pointer_cast<DirectionalLight>(light)->getShadowMapCascadesCount(); }
-        }
+        });
     }
 
     void ShadowMapRenderer::loadScene(const list<shared_ptr<MeshInstance>> &meshes) {
-        for(auto& frame: frameData) {
+        for_each(frameData.begin(), frameData.end(), [&meshes](FrameData& frame) {
             frame.models = meshes;
             frame.models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
-        }
+        });
         createOrUpdateResources(true, &pushConstantRange);
     }
 
     void ShadowMapRenderer::cleanup() {
         cleanupImagesResources();
-        for(auto& frame: frameData) {
+        for_each(frameData.begin(), frameData.end(), [](FrameData& frame) {
             frame.globalBuffer.reset();
             frame.shadowMap.reset();
-        }
+        });
         Renderpass::cleanup();
     }
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        auto& data = frameData[currentFrame];
+        auto& data = frameData.at(currentFrame);
         if (data.currentCamera == nullptr) { return; }
         auto globalUBO = GlobalBuffer{};
         switch (light->getLightType()) {
@@ -283,7 +283,7 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        const auto& data = frameData[currentFrame];
+        const auto& data = frameData.at(currentFrame);
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
         auto pushConstants = PushConstants {};
         for (int passIndex = 0; passIndex < passCount; passIndex++) {
@@ -392,11 +392,11 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        for(auto& frame: frameData) {
+        for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
             if (frame.shadowMap != nullptr) {
                 frame.shadowMap->cleanupImagesResources();
             }
-        }
+        });
     }
 
     void ShadowMapRenderer::createDescriptorSetLayout() {
@@ -415,16 +415,16 @@ namespace z0 {
                             .build();
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            frameData[i].globalBuffer = createUniformBuffer(sizeof(GlobalBuffer));
+            frameData.at(i).globalBuffer = createUniformBuffer(sizeof(GlobalBuffer));
         }
     }
 
     void ShadowMapRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
-            auto globalBufferInfo  = frameData[frameIndex].globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
+            auto globalBufferInfo  = frameData.at(frameIndex).globalBuffer->descriptorInfo(sizeof(GlobalBuffer));
             auto writer            = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo);
-            if (!writer.build(descriptorSet[frameIndex], create))
+            if (!writer.build(descriptorSet.at(frameIndex), create))
                 die("Cannot allocate descriptor set for shadow map renderer");
         }
     }

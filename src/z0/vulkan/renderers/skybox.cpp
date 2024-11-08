@@ -112,7 +112,7 @@ namespace z0 {
         if (currentEnvironment != nullptr) {
             globalUbo.ambient = currentEnvironment->getAmbientColorAndIntensity();
         }
-        writeUniformBuffer(globalBuffer[currentFrame], &globalUbo);
+        writeUniformBuffer(globalBuffer.at(currentFrame), &globalUbo);
     }
 
     void SkyboxRenderer::loadShaders() {
@@ -128,7 +128,7 @@ namespace z0 {
                          .build();
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalBuffer[i] = createUniformBuffer(sizeof(GobalUniformBuffer));
+            globalBuffer.at(i) = createUniformBuffer(sizeof(GobalUniformBuffer));
         }
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -152,12 +152,12 @@ namespace z0 {
                 cm = cubemap;
             }
             for (auto i = 0; i < device.getFramesInFlight(); i++) {
-                auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GobalUniformBuffer));
+                auto globalBufferInfo = globalBuffer.at(i)->descriptorInfo(sizeof(GobalUniformBuffer));
                 auto imageInfo        = cm->getImageInfo();
                 auto writer           = DescriptorWriter(*setLayout, *descriptorPool)
                     .writeBuffer(0, &globalBufferInfo)
                     .writeImage(1, &imageInfo);
-                if (!writer.build(descriptorSet[i], create))
+                if (!writer.build(descriptorSet.at(i), create))
                     die("Cannot allocate skybox renderer descriptor set");
             }
         }

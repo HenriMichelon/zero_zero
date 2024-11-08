@@ -163,7 +163,7 @@ namespace z0 {
         };
 
         // Maximum number of materials supported by this renderer
-        static constexpr uint32_t MAX_MATERIALS{200};
+        static constexpr vector<Resource::id_t>::size_type MAX_MATERIALS{200};
         // Maximum number of shadow maps supported by this renderer
         static constexpr uint32_t MAX_SHADOW_MAPS{10};
         // Maximum number of images supported by this renderer

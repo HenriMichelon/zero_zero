@@ -5,6 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <volk.h>
 #include "z0/libraries.h"
 
 module z0.SimplePostprocessingRenderer;

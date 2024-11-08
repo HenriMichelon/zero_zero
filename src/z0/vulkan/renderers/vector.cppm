@@ -84,7 +84,7 @@ namespace z0 {
         // Send the data of the drawing commands to the GPU
         void endDraw();
 
-        [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return frameData[currentFrame].colorFrameBufferHdr->getImage(); }
+        [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return frameData.at(currentFrame).colorFrameBufferHdr->getImage(); }
 
     private:
         // Drawing commands primitives

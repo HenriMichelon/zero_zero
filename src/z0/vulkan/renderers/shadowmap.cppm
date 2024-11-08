@@ -40,11 +40,11 @@ export namespace z0 {
         void loadScene(const list<shared_ptr<MeshInstance>> &meshes);
 
         [[nodiscard]] inline mat4 getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
-            return frameData[currentFrame].lightSpace[index];
+            return frameData.at(currentFrame).lightSpace[index];
         }
 
         inline void activateCamera(const shared_ptr<Camera>& camera, const uint32_t currentFrame) {
-            frameData[currentFrame].currentCamera = camera;
+            frameData.at(currentFrame).currentCamera = camera;
         }
 
         [[nodiscard]] inline const shared_ptr<Light>&getLight() const { return light; }
@@ -56,15 +56,15 @@ export namespace z0 {
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
         [[nodiscard]] inline float getCascadesCount(const uint32_t currentFrame) const {
-            return frameData[currentFrame].cascadesCount;
+            return frameData.at(currentFrame).cascadesCount;
         }
 
         [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
-            return frameData[currentFrame].splitDepth[index];
+            return frameData.at(currentFrame).splitDepth[index];
         }
 
         [[nodiscard]] inline const shared_ptr<ShadowMapFrameBuffer> &getShadowMap(const uint32_t currentFrame) const {
-            return frameData[currentFrame].shadowMap;
+            return frameData.at(currentFrame).shadowMap;
         }
 
         [[nodiscard]] inline float getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getRange(); }

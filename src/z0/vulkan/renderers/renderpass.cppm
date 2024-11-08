@@ -35,7 +35,7 @@ export namespace z0 {
         Device                          &device;
         VkDevice                        vkDevice;
         VkPipelineLayout                pipelineLayout{VK_NULL_HANDLE};
-        shared_ptr<DescriptorPool>      descriptorPool{};
+        unique_ptr<DescriptorPool>      descriptorPool{};
         unique_ptr<DescriptorSetLayout> setLayout{};
         VkPushConstantRange             *pushConstantRange{nullptr};
         vector<VkDescriptorSet>         descriptorSet;

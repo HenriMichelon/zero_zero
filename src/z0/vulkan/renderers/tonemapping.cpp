@@ -41,7 +41,7 @@ namespace z0 {
             .gamma = Application::get().getConfig().gamma,
             .exposure = Application::get().getConfig().exposure,
         };
-        writeUniformBuffer(globalBuffer[currentFrame], &globalUbo);
+        writeUniformBuffer(globalBuffer.at(currentFrame), &globalUbo);
     }
 
     void TonemappingPostprocessingRenderer::createDescriptorSetLayout() {
@@ -59,24 +59,24 @@ namespace z0 {
                             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalBuffer[i] = createUniformBuffer(sizeof(GlobalUniformBuffer));
+            globalBuffer.at(i) = createUniformBuffer(sizeof(GlobalUniformBuffer));
         }
     }
 
     void TonemappingPostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            auto globalBufferInfo = globalBuffer[i]->descriptorInfo(sizeof(GlobalUniformBuffer));
-            auto colorInfo        = inputColorAttachmentHdr[i]->imageInfo();
+            auto globalBufferInfo = globalBuffer.at(i)->descriptorInfo(sizeof(GlobalUniformBuffer));
+            auto colorInfo        = inputColorAttachmentHdr.at(i)->imageInfo();
             auto depthInfo        = VkDescriptorImageInfo {
                 .sampler = colorInfo.sampler,
-                .imageView = resolvedDepthBuffer[i]->getImageView(),
+                .imageView = resolvedDepthBuffer.at(i)->getImageView(),
                 .imageLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
             };
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(0, &globalBufferInfo)
                 .writeImage(1, &colorInfo)
                 .writeImage(2, &depthInfo);
-            if (!writer.build(descriptorSet[i], create))
+            if (!writer.build(descriptorSet.at(i), create))
                 die("Cannot allocate descriptor set for TonemappingPostprocessingRenderer");
         }
     }

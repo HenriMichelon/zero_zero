@@ -163,7 +163,7 @@ namespace z0 {
                                                   0,
                                                   VK_REMAINING_ARRAY_LAYERS,
                                                   level));
-                outputInfo.push_back(VkDescriptorImageInfo{ VK_NULL_HANDLE, envTextureMipTailViews[level-1], VK_IMAGE_LAYOUT_GENERAL });
+                outputInfo.push_back(VkDescriptorImageInfo{ VK_NULL_HANDLE, envTextureMipTailViews.at(level-1), VK_IMAGE_LAYOUT_GENERAL });
             }
 
             DescriptorWriter(*descriptorSetLayout, *descriptorPool)

@@ -89,7 +89,7 @@ namespace z0 {
         const auto createInfo = VkShaderModuleCreateInfo {
             .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             .codeSize = code.size(),
-            .pCode    = reinterpret_cast<const uint32_t*>(&code[0])
+            .pCode    = reinterpret_cast<const uint32_t*>(code.data())
         };
         auto shaderModule = VkShaderModule{VK_NULL_HANDLE};
         if(vkCreateShaderModule(device.getDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)

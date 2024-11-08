@@ -41,7 +41,7 @@ namespace z0 {
         internalColorFrameBuffer{false} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {
-            frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr[i];
+            frameData.at(i).colorFrameBufferHdr = inputColorAttachmentHdr.at(i);
         }
         init();
     }
@@ -147,9 +147,9 @@ namespace z0 {
             stagingBuffer->writeToBuffer(vertices.data());
             stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
         }
-        for (auto& frame: frameData) {
+        for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
             frame.commands = commands;
-        }
+        });
         // Initialize or update pipeline layout & descriptors sets if needed
         descriptorSetNeedUpdate = true;
         createOrUpdateResources();
@@ -184,7 +184,7 @@ namespace z0 {
         auto vertexIndex{0};
         auto commandIndex{0};
         auto lastPrimitive = PRIMITIVE_LINE;
-        for (const auto &command : frameData[currentFrame].commands) {
+        for (const auto &command : frameData.at(currentFrame).commands) {
             if (lastPrimitive != command.primitive) {
                 vkCmdSetPrimitiveTopologyEXT(commandBuffer,
                                              command.primitive == PRIMITIVE_LINE
@@ -218,7 +218,7 @@ namespace z0 {
 
     void VectorRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         Device::transitionImageLayout(commandBuffer,
-                                      frameData[currentFrame].colorFrameBufferHdr->getImage(),
+                                      frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                       0,
@@ -228,7 +228,7 @@ namespace z0 {
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView = frameData[currentFrame].colorFrameBufferHdr->getImageView(),
+                .imageView = frameData.at(currentFrame).colorFrameBufferHdr->getImageView(),
                 .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                 .resolveMode = VK_RESOLVE_MODE_NONE,
                 .loadOp = internalColorFrameBuffer ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -251,7 +251,7 @@ namespace z0 {
     void VectorRenderer::endRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
-                                      frameData[currentFrame].colorFrameBufferHdr->getImage(),
+                                      frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       isLast
                                       ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
@@ -267,26 +267,26 @@ namespace z0 {
 
     void VectorRenderer::createImagesResources() {
         if (internalColorFrameBuffer) {
-            for (auto& frame: frameData) {
+            for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
                 frame.colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
-            }
+            });
         }
     }
 
     void VectorRenderer::cleanupImagesResources() {
         if (internalColorFrameBuffer) {
-            for (auto& frame: frameData) {
+            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->cleanupImagesResources();
-            }
+            });
         }
     }
 
     void VectorRenderer::recreateImagesResources() {
         cleanupImagesResources();
         if (internalColorFrameBuffer) {
-            for (auto& frame: frameData) {
+            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->createImagesResources();
-            }
+            });
         }
     }
 
@@ -297,9 +297,9 @@ namespace z0 {
         stagingBuffer.reset();
         oldBuffers.clear();
         if (internalColorFrameBuffer) {
-            for (auto& frame: frameData) {
+            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->cleanupImagesResources();
-            }
+            });
         }
         blankImage.reset();
         Renderpass::cleanup();
@@ -328,16 +328,16 @@ namespace z0 {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {
-                frameData[i].imagesInfo[imageIndex] = image->getImageInfo();
+                frameData.at(i).imagesInfo[imageIndex] = image->getImageInfo();
                 imageIndex += 1;
             }
             // initialize the rest of the image info array with the blank image
-            for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
-                frameData[i].imagesInfo[j] = blankImage->getImageInfo();
+            for (uint32_t j = imageIndex; j < frameData.at(i).imagesInfo.size(); j++) {
+                frameData.at(i).imagesInfo[j] = blankImage->getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                .writeImage(0, frameData[i].imagesInfo.data());
-            if (!writer.build(descriptorSet[i], create))
+                .writeImage(0, frameData.at(i).imagesInfo.data());
+            if (!writer.build(descriptorSet.at(i), create))
                 die("Cannot allocate descriptor set for vector renderer");
         }
     }
