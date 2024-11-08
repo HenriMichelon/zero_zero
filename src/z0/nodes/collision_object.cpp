@@ -24,10 +24,7 @@ namespace z0 {
 
     void CollisionObject::releaseBodyId() {
         if (!bodyId.IsInvalid()) {
-            // log(toString(), "release body id ", to_string(bodyId.GetIndexAndSequenceNumber()));
-            // bodyInterface.DeactivateBody(bodyId);
             bodyInterface.RemoveBody(bodyId);
-            bodyInterface.DestroyBody(bodyId);
             bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
         }
     }
