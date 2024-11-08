@@ -5,9 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cstdlib>
-#include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
+#include "z0/libraries.h"
 
 module z0.Camera;
 

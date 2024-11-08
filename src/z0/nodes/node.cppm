@@ -16,8 +16,6 @@ import z0.Tween;
 
  namespace z0 {
 
-     class Application;
-
     /**
      * Base class for all 3D nodes
      */
@@ -409,8 +407,6 @@ import z0.Tween;
         mat4                   worldTransform{};
 
         virtual shared_ptr<Node> duplicateInstance();
-
-        Application &app() const;
 
     private:
         static id_t             currentId;

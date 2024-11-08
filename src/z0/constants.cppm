@@ -17,7 +17,7 @@ export namespace z0 {
     /**
     * Useless engine name
     */
-    constexpr string ENGINE_NAME = "ZeroZero";
+    constexpr auto ENGINE_NAME{"ZeroZero"};
 
     /**
      * Default background color for the display window
@@ -348,7 +348,7 @@ export namespace z0 {
         KEY_Z = 45,
         //! [
         KEY_LEFT_BRACKET = 46,
-        //! \\
+        //! backslash
         KEY_BACKSLASH      = 47,
         //! ]
         KEY_RIGHT_BRACKET = 48,

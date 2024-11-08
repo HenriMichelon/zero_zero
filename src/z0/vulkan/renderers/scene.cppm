@@ -10,6 +10,7 @@ module;
 
 export module z0.SceneRenderer;
 
+import z0.Camera;
 import z0.Constants;
 import z0.Node;
 import z0.MeshInstance;

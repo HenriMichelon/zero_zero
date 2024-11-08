@@ -28,7 +28,7 @@ export namespace z0 {
 #ifdef _WIN32
         MessageBox(nullptr,
                    stringstream.str().c_str(),
-                   ENGINE_NAME.c_str(),
+                   ENGINE_NAME,
                    MB_OK | MB_ICONINFORMATION);
 #endif
         throw runtime_error(stringstream.str());

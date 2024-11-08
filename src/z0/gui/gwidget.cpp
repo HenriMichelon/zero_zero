@@ -18,6 +18,7 @@ import z0.Tools;
 
 import z0.GEvent;
 import z0.GResource;
+import z0.GStyle;
 import z0.GWindow;
 
 import z0.VectorRenderer;
@@ -26,17 +27,14 @@ namespace z0 {
     GWidget::GWidget(Type T): type{T} {
     }
 
-    Application& GWidget::app() const {
-        return Application::get();
-    }
-
     void GWidget::_draw(VectorRenderer& R) const {
-        if (!isVisible()) return;
-        style->draw(*this, *resource, R, true);
+        if (!isVisible()) { return; }
+        const auto* s = static_cast<GStyle *>(style);
+        s->draw(*this, *resource, R, true);
         for (auto& child : children) {
             child->_draw(R);
         }
-        style->draw(*this, *resource, R, false);
+        s->draw(*this, *resource, R, false);
     }
 
     bool GWidget::isVisible() const {
@@ -44,7 +42,7 @@ namespace z0 {
         do {
             if (!p->visible) { return false; }
         } while ((p = p->parent) != nullptr);
-        return (window && window->isVisible());
+        return (window && static_cast<GWindow*>(window)->isVisible());
     }
 
     void GWidget::show(bool S) {
@@ -121,8 +119,8 @@ namespace z0 {
         if (!enabled) return nullptr;
 
         if (F && (!allowFocus)) {
-            for (auto& child : children) {
-                auto w = child->setFocus(F);
+            for (const auto & child : children) {
+                const auto w = child->setFocus(F);
                 if (w) return w;
             }
             return nullptr;
@@ -152,7 +150,7 @@ namespace z0 {
     }
 
     shared_ptr<Font>& GWidget::getFont() {
-        return (font == nullptr ? window->getDefaultFont() : font);
+        return (font == nullptr ? static_cast<GWindow*>(window)->getDefaultFont() : font);
     }
 
     void GWidget::_init(GWidget& WND,
@@ -165,10 +163,10 @@ namespace z0 {
         WND.window = window;
         WND.style = style;
         WND.parent = this;
-        style->addResource(WND, RES);
+        static_cast<GStyle*>(style)->addResource(WND, RES);
         WND.eventCreate();
         WND.freeze = false;
-        if (window->isVisible() && (resource != nullptr)) {
+        if (static_cast<GWindow*>(window)->isVisible() && (resource != nullptr)) {
             resizeChildren();
         }
     }
@@ -287,7 +285,7 @@ namespace z0 {
         if ((!style) || (freeze)) { return; }
         freeze = true;
         Rect r = getRect();
-        style->resize(*this, r, *resource);
+        static_cast<GStyle*>(style)->resize(*this, r, *resource);
 
         Rect clientRect = rect;
         clientRect.x += hborder + padding;
@@ -597,7 +595,7 @@ namespace z0 {
 
     void GWidget::refresh() const {
         if ((!freeze) && (window)) {
-            window->refresh();
+            static_cast<GWindow*>(window)->refresh();
         }
     }
 

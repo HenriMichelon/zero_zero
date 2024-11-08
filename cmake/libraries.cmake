@@ -24,6 +24,9 @@ endif()
 target_link_libraries(${Z0_TARGET} volk)
 
 ###### Using GLM for maths
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
+add_compile_definitions(GLM_GTC_constants)
+add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
 message(NOTICE "Fetching GLM from https://github.com/g-truc/glm ...")
 FetchContent_Declare(
         fetch_glm
@@ -53,7 +56,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fetch_fastgltf)
 target_link_libraries(${Z0_TARGET} fastgltf)
-target_link_libraries(${GLB2ZSCENE_TARGET} fastgltf)
+#target_link_libraries(${GLB2ZSCENE_TARGET} fastgltf)
 
 ###### Using KTX to transcode KTX2 to compressed images
 #message(NOTICE "Fetching LibKTX from https://github.com/KhronosGroup/KTX-Software ...")

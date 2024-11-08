@@ -5,7 +5,10 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "z0/jolt.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyFilter.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include "z0/libraries.h"
 
 export module z0.RayCast;

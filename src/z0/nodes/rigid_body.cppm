@@ -5,8 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
-#include "z0/jolt.h"
+#include <Jolt/Jolt.h>
 #include "z0/libraries.h"
 
 export module z0.RigidBody;

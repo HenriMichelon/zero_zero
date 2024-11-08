@@ -9,14 +9,15 @@ module;
 
 export module z0.GTreeView;
 
-import z0.Tools;
+import z0.Application;
 import z0.Constants;
-import z0.GWidget;
-import z0.GPanel;
+import z0.Tools;
+
 import z0.GBox;
+import z0.GPanel;
 import z0.GScrollBar;
-import z0.GWidget;
 import z0.GText;
+import z0.GWidget;
 
 export namespace z0 {
     class GTreeView : public GWidget {
@@ -60,7 +61,7 @@ export namespace z0 {
             newWidget->handle = make_shared<GText>(" ");
             newWidget->add(newWidget->handle, GWidget::LEFT, treeTabsSize);
             newWidget->add(item, GWidget::LEFT);
-            newWidget->setSize(app().getWindow().getWidth(), item->getHeight());
+            newWidget->setSize(Application::get().getWindow().getWidth(), item->getHeight());
             newWidget->setDrawBackground(false);
             return newWidget;
         }
@@ -81,7 +82,7 @@ export namespace z0 {
             }
             parent->handle->setText("-");
             newWidget->add(item, GWidget::LEFT);
-            newWidget->setSize(app().getWindow().getWidth(), item->getHeight());
+            newWidget->setSize(Application::get().getWindow().getWidth(), item->getHeight());
             newWidget->setDrawBackground(false);
             //expand(parent->item);
             return newWidget;

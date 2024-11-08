@@ -5,9 +5,11 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "z0/jolt.h"
-#include "z0/libraries.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Body/Body.h>
 #include <glm/gtx/quaternion.hpp>
+#include "z0/libraries.h"
 
 module z0.CollisionObject;
 
@@ -88,7 +90,7 @@ namespace z0 {
 
     bool CollisionObject::wereInContact(const CollisionObject *obj) const {
         assert(!bodyId.IsInvalid());
-        return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
+        return Application::get()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
     }
 
     void CollisionObject::setProperty(const string &property, const string &value) {
@@ -110,7 +112,7 @@ namespace z0 {
         collisionMask{mask},
         shape{_shape},
         activationMode{JPH::EActivation::Activate},
-        bodyInterface{app()._getBodyInterface()} {
+        bodyInterface{Application::get()._getBodyInterface()} {
     }
 
     CollisionObject::CollisionObject(const uint32_t layer,
@@ -122,7 +124,7 @@ namespace z0 {
         collisionMask{mask},
         shape{nullptr},
         activationMode{JPH::EActivation::Activate},
-        bodyInterface{app()._getBodyInterface()} {
+        bodyInterface{Application::get()._getBodyInterface()} {
     }
 
     void CollisionObject::setPositionAndRotation() {

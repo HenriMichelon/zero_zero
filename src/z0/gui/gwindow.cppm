@@ -10,21 +10,19 @@ module;
 export module z0.GWindow;
 
 import z0.Constants;
+import z0.Font;
 import z0.Object;
 import z0.Rect;
-import z0.Font;
-import z0.Application;
+
 import z0.GStyle;
 import z0.GWidget;
 
-namespace z0 {
-
-    class GManager;
+export namespace z0 {
 
     /**
      * A UI window displayed inside the rendering window
      */
-    export class GWindow : public Object {
+    class GWindow : public Object {
     public:
         /**
          * Which GWindow borders can be used to resize the window
@@ -41,8 +39,6 @@ namespace z0 {
          * Creates a window with a given position & size
          */
         explicit GWindow(Rect rect);
-
-        ~GWindow() override = default;
 
         /**
          * Sets the borders that can be used to resize the window
@@ -201,31 +197,6 @@ namespace z0 {
 
         void refresh();
 
-    protected:
-        Application &app() const;
-
-    private:
-        Rect                rect;
-        float               minWidth{2.0f};
-        float               minHeight{2.0f};
-        float               maxWidth{VECTOR_SCALE.x};
-        float               maxHeight{VECTOR_SCALE.y};
-        GManager *          windowManager{nullptr};
-        bool                visible{true};
-        bool                visibilityChanged{false};
-        bool                visibilityChange{false};
-        shared_ptr<GStyle>  layout{nullptr};
-        shared_ptr<GWidget> widget{nullptr};
-        GWidget *           focusedWidget{nullptr};
-        float               transparency{1.0};
-        uint32_t            resizeableBorders{RESIZEABLE_NONE};
-
-        void unFreeze(shared_ptr<GWidget> &);
-
-        void draw() const;
-
-        friend class GManager;
-
         void eventCreate();
 
         void eventDestroy();
@@ -251,5 +222,27 @@ namespace z0 {
         void eventGotFocus();
 
         void eventLostFocus();
+
+        void draw() const;
+
+        void *              windowManager{nullptr};
+        bool                visibilityChanged{false};
+        bool                visible{true};
+        bool                visibilityChange{false};
+
+    private:
+        Rect                rect;
+        float               minWidth{2.0f};
+        float               minHeight{2.0f};
+        float               maxWidth{VECTOR_SCALE.x};
+        float               maxHeight{VECTOR_SCALE.y};
+        shared_ptr<GStyle>  layout{nullptr};
+        shared_ptr<GWidget> widget{nullptr};
+        GWidget *           focusedWidget{nullptr};
+        float               transparency{1.0};
+        uint32_t            resizeableBorders{RESIZEABLE_NONE};
+
+        void unFreeze(shared_ptr<GWidget> &);
+
     };
 }

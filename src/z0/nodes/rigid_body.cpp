@@ -5,8 +5,11 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/EActivation.h>
 #include <cassert>
-#include "z0/jolt.h"
+
 #include "z0/libraries.h"
 
 module z0.RigidBody;

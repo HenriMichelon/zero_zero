@@ -10,25 +10,25 @@ module;
 
 export module z0.ShadowMapRenderer;
 
+import z0.Camera;
 import z0.Constants;
-import z0.Renderer;
-import z0.Renderpass;
-import z0.Device;
-import z0.ShadowMapFrameBuffer;
-import z0.Descriptors;
-import z0.MeshInstance;
-import z0.Light;
 import z0.DirectionalLight;
+import z0.FrustumCulling;
+import z0.Light;
+import z0.Mesh;
+import z0.MeshInstance;
 import z0.OmniLight;
 import z0.SpotLight;
+
 import z0.Buffer;
-import z0.Mesh;
-import z0.FrustumCulling;
+import z0.ColorFrameBuffer;
+import z0.Descriptors;
+import z0.Device;
+import z0.Renderer;
+import z0.Renderpass;
+import z0.ShadowMapFrameBuffer;
 
 export namespace z0 {
-    class ColorFrameBufferHDR;
-
-    class Camera;
 
     /*
      * Shadow map renderer, one per light

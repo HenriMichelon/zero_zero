@@ -24,15 +24,7 @@ export namespace z0 {
          * @param object object containing the member function to connect
          * @param handler the member function to call when emit() is called
         */
-        void connect(const Signal::signal &name, Object *object, Signal::Handler handler);
-
-        /**
-         * Disconnects a signal by name from a member function
-         * @param name signal name.
-         * @param object object containing the member function to disconnect
-         * @param handler the member function to call when emit() is called
-        */
-        void disconnect(const Signal::signal &name, Object *object, Signal::Handler handler);
+        void connect(const Signal::signal &name, std::function<void(const Signal::Parameters*)> handler);
 
         /**
          * Emits a signal by name by calling all the connected function in the connect order
@@ -50,12 +42,6 @@ export namespace z0 {
             os << obj.toString();
             return os;
         }
-
-        /**
-         * Shortcut to avoid using `reinterpret_cast`
-         */
-        template <typename T>
-        static constexpr Signal::Handler SignalHandler(const T handler) { return reinterpret_cast<Signal::Handler>(handler); }
 
         Object(Object const&) = delete;
         Object(Object const&&) = delete;

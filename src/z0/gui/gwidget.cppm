@@ -10,18 +10,15 @@ module;
 export module z0.GWidget;
 
 import z0.Constants;
-import z0.Object;
-import z0.Rect;
 import z0.Font;
 import z0.Object;
+import z0.Rect;
+
+import z0.VectorRenderer;
+
 import z0.GResource;
-import z0.GStyle;
-import z0.Application;
 
 namespace z0 {
-
-    class GWindow;
-    class VectorRenderer;
 
     /**
      * Base class for all UI widgets
@@ -257,34 +254,8 @@ namespace z0 {
 
         [[nodiscard]] virtual list<shared_ptr<GWidget>> &_getChildren() { return children; }
 
-    protected:
-        Rect                      rect;
-        Rect                      defaultRect;
-        float                     hborder{0};
-        float                     vborder{0};
-        float                     padding{0};
-        bool                      focused{false};
-        bool                      allowFocus{false};
-        bool                      allowChildren{true};
-        bool                      drawBackground{true};
-        bool                      moveChildrenOnPush{false};
-        bool                      redrawOnMouseEvent{false};
-        bool                      redrawOnMouseMove{false};
-        bool                      mouseMoveOnFocus{false};
-        float                     transparency{1.0f};
-        GWidget *                 parent{nullptr};
-        GWindow *                 window{nullptr};
-        Type                      type;
-        AlignmentType             alignment{NONE};
-        shared_ptr<GStyle>        style{nullptr};
-        shared_ptr<GResource>     resource;
-        list<shared_ptr<GWidget>> children;
-
-        void allowingFocus(bool = true);
-
-        Application &app() const;
-
-        [[nodiscard]] inline virtual Rect _getDefaultRect() { return defaultRect; }
+        void _draw(VectorRenderer &) const;
+        GWidget *setFocus(bool = true);
 
         virtual void eventCreate();
 
@@ -298,8 +269,7 @@ namespace z0 {
 
         virtual void eventDisable();
 
-        virtual void eventMove(float,
-                               float);
+        virtual void eventMove(float, float);
 
         virtual void eventResize();
 
@@ -323,6 +293,34 @@ namespace z0 {
 
         virtual void eventLostFocus();
 
+        void *                    window{nullptr};
+        void*                     style{nullptr};
+        bool                      mouseMoveOnFocus{false};
+
+    protected:
+        Rect                      rect;
+        Rect                      defaultRect;
+        float                     hborder{0};
+        float                     vborder{0};
+        float                     padding{0};
+        bool                      focused{false};
+        bool                      allowFocus{false};
+        bool                      allowChildren{true};
+        bool                      drawBackground{true};
+        bool                      moveChildrenOnPush{false};
+        bool                      redrawOnMouseEvent{false};
+        bool                      redrawOnMouseMove{false};
+        float                     transparency{1.0f};
+        GWidget *                 parent{nullptr};
+        Type                      type;
+        AlignmentType             alignment{NONE};
+        shared_ptr<GResource>     resource;
+        list<shared_ptr<GWidget>> children;
+
+        void allowingFocus(bool = true);
+
+        [[nodiscard]] inline virtual Rect _getDefaultRect() { return defaultRect; }
+
         virtual void _init(GWidget &,
                            AlignmentType,
                            const string &,
@@ -339,12 +337,8 @@ namespace z0 {
         int32_t          groupIndex{0};
         Rect             childrenRect;
 
-        friend class GWindow;
-
         GWidget *setNextFocus();
 
-        GWidget *setFocus(bool = true);
 
-        void _draw(VectorRenderer &) const;
     };
 }

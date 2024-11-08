@@ -22,13 +22,13 @@ target_sources(std-cxx-modules
       ${STD_BASE_DIR}/std.compat.${STD_EXTENSION})
 
 if(MSVC)
-target_compile_options(std-cxx-modules
-  PRIVATE
-    /std:c++latest
-    /EHsc
-    /nologo
-    /c
-)
+target_compile_options(std-cxx-modules PRIVATE
+        /std:c++latest
+        /experimental:module
+        /EHsc
+        /nologo
+        /W4
+        /c)
 else()
 target_compile_options(std-cxx-modules
   PRIVATE
@@ -37,5 +37,3 @@ target_compile_options(std-cxx-modules
 )
 endif()
 
-target_link_libraries(${PROJECT_NAME} std-cxx-modules)
-target_link_libraries(${GLB2ZSCENE_TARGET} std-cxx-modules)

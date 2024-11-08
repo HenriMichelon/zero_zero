@@ -32,5 +32,3 @@ if (!Compressonator_FOUND)
     message(FATAL_ERROR "Compressonator SDK not found")
 endif()
 
-target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${Compressonator_INCLUDE_DIR})
-target_link_libraries(${GLB2ZSCENE_TARGET} "${COMPRESSONATOR_ROOT}/lib/bin/x64/Compressonator_MTd_DLL.dll")

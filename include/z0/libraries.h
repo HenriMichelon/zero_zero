@@ -6,10 +6,6 @@
 */
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
-#define GLM_GTC_constants
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
 import std;
 import glm;
 

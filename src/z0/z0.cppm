@@ -55,6 +55,7 @@ export import z0.GManager;
 export import z0.GPanel;
 export import z0.GText;
 export import z0.GTreeView;
+export import z0.GWidget;
 export import z0.GWindow;
 
 export import z0.VulkanApplication;

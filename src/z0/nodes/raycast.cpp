@@ -5,10 +5,11 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "z0/jolt.h"
-#include "z0/libraries.h"
-#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include "z0/libraries.h"
 
 module z0.RayCast;
 
@@ -36,13 +37,13 @@ namespace z0 {
                 JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
         };
         JPH::RayCastResult result;
-        if (app()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(
+        if (Application::get()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(
                 ray,
                 result,
                 broadPhaseLayerFilter,
                 *this,
                 *this)) {
-            collider      = reinterpret_cast<CollisionObject *>(app()._getBodyInterface().GetUserData(result.mBodyID));
+            collider      = reinterpret_cast<CollisionObject *>(Application::get()._getBodyInterface().GetUserData(result.mBodyID));
             auto posInRay = ray.GetPointOnRay(result.mFraction);
             hitPoint      = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
         } else {

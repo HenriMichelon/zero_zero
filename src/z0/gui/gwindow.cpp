@@ -28,16 +28,12 @@ namespace z0 {
         rect{r} {
     }
 
-    Application &GWindow::app() const {
-        return Application::get();
-    }
-
     void GWindow::draw() const {
-        if (!isVisible())
-            return;
-        windowManager->getRenderer().setTranslate({rect.x, rect.y});
-        windowManager->getRenderer().setTransparency(1.0f - transparency);
-        widget->_draw(windowManager->getRenderer());
+        if (!isVisible()) { return; }
+        const auto *wm = static_cast<GManager *>(windowManager);
+        wm->getRenderer().setTranslate({rect.x, rect.y});
+        wm->getRenderer().setTransparency(1.0f - transparency);
+        widget->_draw(wm->getRenderer());
     }
 
     void GWindow::unFreeze(shared_ptr<GWidget> &W) {
@@ -48,7 +44,8 @@ namespace z0 {
     }
 
     shared_ptr<Font> &GWindow::getDefaultFont() const {
-        return windowManager->getDefaultFont();
+        auto *wm = static_cast<GManager *>(windowManager);
+        return wm->getDefaultFont();
     }
 
     GWidget &GWindow::setWidget(shared_ptr<GWidget> WIDGET, const string &RES, float PADDING) {
@@ -59,12 +56,12 @@ namespace z0 {
         } else {
             widget = std::move(WIDGET);
         }
-        widget->freeze  = true;
-        widget->padding = PADDING;
+        widget->setFreezed( true);
+        widget->setPadding(PADDING);
         widget->window  = this;
-        widget->style   = layout;
-        widget->font    = widget->style->getFont();
-        widget->style->addResource(*widget, RES);
+        widget->style   = layout.get();
+        widget->setFont(static_cast<GStyle*>(widget->style)->getFont());
+        static_cast<GStyle*>(widget->style)->addResource(*widget, RES);
         widget->setDrawBackground(true);
         widget->eventCreate();
         widget->setPos(0, 0);
@@ -209,7 +206,7 @@ namespace z0 {
     }
 
     void GWindow::refresh() {
-        if (windowManager) { windowManager->refresh(); }
+        if (windowManager) { static_cast<GManager*>(windowManager)->refresh(); }
     }
 
     void GWindow::setFocusedWidget(const shared_ptr<GWidget> &W) {

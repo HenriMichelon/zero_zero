@@ -6,7 +6,9 @@
 */
 module;
 #include <cassert>
-#include "z0/jolt.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
 #include "z0/libraries.h"
 
 module z0.Physics;

@@ -5,10 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
-#include "z0/jolt.h"
-#include "z0/libraries.h"
+#include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include "z0/libraries.h"
 
 module z0.MeshShape;
 

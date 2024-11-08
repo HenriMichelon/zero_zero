@@ -13,12 +13,12 @@ import z0.Font;
 import z0.Object;
 import z0.Rect;
 
+import z0.VectorRenderer;
+
 import z0.GResource;
+import z0.GWidget;
 
 namespace z0 {
-
-    class GWidget;
-    class VectorRenderer;
 
     /**
      * Widget drawing base class

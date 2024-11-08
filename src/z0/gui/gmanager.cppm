@@ -10,14 +10,15 @@ module;
 export module z0.GManager;
 
 import z0.Constants;
-import z0.Object;
 import z0.Font;
 import z0.InputEvent;
+import z0.Object;
+
 import z0.GWindow;
 
-export namespace z0 {
+import z0.VectorRenderer;
 
-    class VectorRenderer;
+export namespace z0 {
 
     /**
      * Manage all the UI windows

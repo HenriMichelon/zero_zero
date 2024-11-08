@@ -5,7 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "z0/jolt.h"
 #include "z0/libraries.h"
 
 export module z0.Viewport;

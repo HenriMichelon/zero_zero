@@ -5,12 +5,16 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
 #include <cassert>
-#include "z0/jolt.h"
+
 #include "z0/libraries.h"
 
 export module z0.Application;
 
+import z0.Camera;
 import z0.Constants;
 import z0.Object;
 import z0.ApplicationConfig;
@@ -19,11 +23,10 @@ import z0.Physics;
 import z0.Window;
 import z0.Node;
 
-namespace z0 {
+import z0.GWindow;
+import z0.GManager;
 
-    class GWindow;
-    class GManager;
-    class Camera;
+namespace z0 {
 
     /**
      * Global application.<br>

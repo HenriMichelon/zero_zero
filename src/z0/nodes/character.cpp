@@ -5,12 +5,12 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "z0/jolt.h"
-#include "z0/libraries.h"
-#include <glm/gtx/quaternion.hpp>
+#include <Jolt/Jolt.h>
 #include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <glm/gtx/quaternion.hpp>
+#include "z0/libraries.h"
 
 module z0.Character;
 
@@ -53,7 +53,7 @@ namespace z0 {
                                                        pos,
                                                        rot,
                                                        0,
-                                                       &app()._getPhysicsSystem());
+                                                       &Application::get()._getPhysicsSystem());
         character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
         character->SetUserData(reinterpret_cast<uint64>(this));
         character->SetListener(this);
@@ -130,12 +130,12 @@ namespace z0 {
         Node::_physicsUpdate(delta);
         updating = true;
         character->Update(delta,
-                          character->GetUp() * app()._getPhysicsSystem().GetGravity().Length(),
+                          character->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
                           *this,
                           *this,
                           *this,
                           {},
-                          *app()._getTempAllocator().get());
+                          *Application::get()._getTempAllocator().get());
         const auto pos    = character->GetPosition();
         const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {

@@ -5,13 +5,13 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <volk.h>
 #include <stb_image.h>
 #include "z0/libraries.h"
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 module z0.GlTF;
 
@@ -88,7 +88,6 @@ namespace z0 {
         constexpr auto gltfOptions =
             fastgltf::Options::DontRequireValidAssetMember |
             fastgltf::Options::AllowDouble |
-            fastgltf::Options::LoadGLBBuffers |
             fastgltf::Options::LoadExternalBuffers;
         auto asset = parser.loadGltfBinary(*getter, ".", gltfOptions);
         if (auto error = asset.error(); error != fastgltf::Error::None) {

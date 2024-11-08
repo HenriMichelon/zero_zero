@@ -9,10 +9,6 @@ cmake_policy(SET CMP0002 NEW)
 
 project(ZeroZero)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
-
 #add_compile_definitions(DISABLE_LOG)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -243,35 +239,54 @@ target_sources(${Z0_TARGET}
 		FILES
 		${PROJECT_FILES}
 )
-target_compile_options(${Z0_TARGET} PRIVATE
-		$<$<CXX_COMPILER_ID:GNU>:-Werror>
-		$<$<CXX_COMPILER_ID:Clang>:-Werror>
-		$<$<CXX_COMPILER_ID:MSVC>:/WX>
-)
-
-
-add_executable(${GLB2ZSCENE_TARGET}
-		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
-)
-add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
-target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
-target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
-#target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
-#		$<$<CXX_COMPILER_ID:GNU>:-Werror>
-#		$<$<CXX_COMPILER_ID:Clang>:-Werror>
-#		$<$<CXX_COMPILER_ID:MSVC>:/WX>
-#)
-
-#https://github.com/llvm/llvm-project/issues/105994
-#target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
-
+if(MSVC)
+	target_compile_options(${Z0_TARGET} PRIVATE
+			/nologo
+			/Ob2
+			/W1
+			/WX
+			/std:c++latest
+			/experimental:module
+			/MD
+	)
+endif()
+if(Clang)
+	target_compile_options(${Z0_TARGET} PRIVATE
+			-02
+			-d
+			-Wno-deprecated-declarations
+			-Wno-nullability-completeness
+			-Werror
+	)
+endif()
+target_link_libraries(${PROJECT_NAME} std-cxx-modules)
 add_dependencies(${Z0_TARGET} ${Z0_TARGET}_shaders)
 target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
-add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 if(WIN32)
 	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
 endif()
 
+
+
+#add_executable(${GLB2ZSCENE_TARGET}
+#		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
+#)
+#add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+#target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+#target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
+#target_link_libraries(${GLB2ZSCENE_TARGET} std-cxx-modules)#target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
+#		$<$<CXX_COMPILER_ID:GNU>:-Werror>
+#		$<$<CXX_COMPILER_ID:Clang>:-Werror>
+#		$<$<CXX_COMPILER_ID:MSVC>:/WX>
+#)
+#target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${Compressonator_INCLUDE_DIR})
+#target_link_libraries(${GLB2ZSCENE_TARGET} "${COMPRESSONATOR_ROOT}/lib/bin/x64/Compressonator_MTd_DLL.dll")
+
+#https://github.com/llvm/llvm-project/issues/105994
+#target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
+
+
+add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 include(FetchContent)
 include(cmake/std.cmake)
 include(cmake/libraries.cmake)

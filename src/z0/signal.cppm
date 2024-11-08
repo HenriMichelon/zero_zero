@@ -9,14 +9,12 @@ module;
 
 export module z0.Signal;
 
-namespace z0 {
-
-    class Object;
+export namespace z0 {
 
     /**
      * %A signal of an Object
      */
-    export class Signal {
+    class Signal {
     public:
         using signal = string;
 
@@ -26,27 +24,12 @@ namespace z0 {
         struct Parameters {};
 
         /**
-         * Callable member function
-         */
-        typedef void (Object::*Handler)(Parameters*);
-
-        /**
          * Connects a member function to the signal
-         * @param object object containing the member function to connect
-         * @param handler the member function to call when emit() is called
         */
-        inline void connect(Object* object, const Handler handler) {
-            handlers.push_back(SignalCallable{object, handler});
+        inline void connect(std::function<void(const Parameters*)> &handler) {
+            handlers.push_back(handler);
         }
 
-        /**
-         * Disconnects a member function to the signal
-         * @param object object containing the member function to connect
-         * @param handler the member function to call when emit() is called
-        */
-        inline void disconnect(Object* object, const Handler handler) {
-            handlers.remove(SignalCallable{object, handler});
-        }
         /**
          * Emits the signal by calling all the connected functions in the connect order
          * @param params parameters to pass to the function connected to the signal
@@ -54,15 +37,7 @@ namespace z0 {
         void emit(Parameters* params) const;
         
     private:
-        struct SignalCallable {
-            Object* obj{nullptr};
-            Handler func{nullptr};
-
-            inline bool operator==(const SignalCallable& other) const {
-                return (obj == other.obj) && (func == other.func);
-            }
-        };
-        list<SignalCallable> handlers;
+        list<std::function<void(const Parameters*)>> handlers;
     };
 
 }

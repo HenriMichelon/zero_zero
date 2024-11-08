@@ -41,9 +41,9 @@ namespace z0 {
                 .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         };
         const VmaAllocationCreateInfo allocInfo = {
-                .flags = usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+                .flags = static_cast<VmaAllocationCreateFlags>(usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
                 ? VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT
-                : VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+                : VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT),
                 .usage = VMA_MEMORY_USAGE_AUTO,
         };
         if (vmaCreateBuffer(allocator,

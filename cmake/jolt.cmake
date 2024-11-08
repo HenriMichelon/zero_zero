@@ -61,40 +61,40 @@ if (MSVC)
     endif()
 
     # Set general compiler flags
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /Gm- /Wall /WX /MP /nologo /diagnostics:classic /FC /fp:except- /Zc:inline")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /Gm- /Wall /WX /MP /nologo /diagnostics:classic /FC /fp:except- /Zc:inline")
 
     # Optionally generate debug symbols
-    if (GENERATE_DEBUG_SYMBOLS)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
-    endif()
+    #if (GENERATE_DEBUG_SYMBOLS)
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
+    #endif()
 
     # Remove any existing compiler flag that enables RTTI
-    string(REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    #string(REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
     # Set compiler flag for disabling RTTI
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
 
-    if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "ARM")
+    #if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "ARM")
         # On ARM the exception handling flag is missing which causes warnings
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-    endif()
+     #   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+    #endif()
 
     # Set compiler flags for various configurations
-    set(CMAKE_CXX_FLAGS_DEBUG "/GS /Od /Ob0 /RTC1")
-    set(CMAKE_CXX_FLAGS_RELEASE "/GS- /Gy /O2 /Oi /Ot")
-    set(CMAKE_CXX_FLAGS_DISTRIBUTION "/GS- /Gy /O2 /Oi /Ot")
+    #set(CMAKE_CXX_FLAGS_DEBUG "/GS /Od /Ob0 /RTC1")
+    #set(CMAKE_CXX_FLAGS_RELEASE "/GS- /Gy /O2 /Oi /Ot")
+    #set(CMAKE_CXX_FLAGS_DISTRIBUTION "/GS- /Gy /O2 /Oi /Ot")
 
     # Set linker flags
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        if (CROSS_PLATFORM_DETERMINISTIC)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:precise")
-        else()
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast") # Clang doesn't use fast math because it cannot be turned off inside a single compilation unit
-        endif()
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /showFilenames")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments") # Clang emits warnings about unused arguments such as /MP and /GL
-    endif()
+    #if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    #    if (CROSS_PLATFORM_DETERMINISTIC)
+    #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:precise")
+    #    else()
+    #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast") # Clang doesn't use fast math because it cannot be turned off inside a single compilation unit
+    #    endif()
+    #elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /showFilenames")
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments") # Clang emits warnings about unused arguments such as /MP and /GL
+    #endif()
 else()
     # Set general compiler flags
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")

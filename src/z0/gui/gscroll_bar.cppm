@@ -45,10 +45,10 @@ export namespace z0 {
                 mouseMoveOnFocus = true;
                 add(liftArea, FILL, RAREA);
                 add(liftCage, NONE, RCAGE);
-                liftArea->connect(GEvent::OnMouseDown, this,
-                                  Signal::Handler(&GScrollBar::onLiftAreaDown));
-                liftCage->connect(GEvent::OnMouseDown, this,
-                                  Signal::Handler(&GScrollBar::onLiftCageDown));
+                liftArea->connect(GEvent::OnMouseDown,
+                    [this](auto p) { this->onLiftAreaDown(static_cast<const GEventMouseButton *>(p)); });
+                liftCage->connect(GEvent::OnMouseDown,
+                    [this](auto p) { this->onLiftCageDown(static_cast<const GEventMouseButton *>(p)); });
                 liftCage->_setRedrawOnMouseEvent(true);
                 liftCage->_setMoveChildrenOnPush(true);
             }

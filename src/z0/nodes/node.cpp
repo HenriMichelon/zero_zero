@@ -5,10 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cstdlib>
-#include "z0/libraries.h"
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include "z0/libraries.h"
 
 module z0.Node;
 
@@ -298,7 +297,4 @@ namespace z0 {
         inReady = false;
     }
 
-    Application &Node::app() const {
-        return Application::get();
-    }
 }

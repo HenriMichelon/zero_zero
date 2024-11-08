@@ -5,7 +5,10 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <cstddef>
 #ifdef _WIN32
+#define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <dxgi1_4.h>
 #endif
