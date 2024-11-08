@@ -6,6 +6,7 @@
 */
 module;
 #include <json.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 module z0.Loader;

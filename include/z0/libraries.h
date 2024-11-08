@@ -6,8 +6,12 @@
 */
 #pragma once
 
-import std;
+#ifdef _MSC_VER
+#include <glm/glm.hpp>
+#else
 import glm;
+#endif
+import std;
 
 using namespace std;
 using namespace glm;

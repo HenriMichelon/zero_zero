@@ -247,6 +247,7 @@ if(MSVC)
 			/std:c++latest
 			/experimental:module
 	)
+	set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
 endif()
 if(Clang)
 	target_compile_options(${Z0_TARGET} PRIVATE
@@ -284,6 +285,7 @@ endif()
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
 
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 include(FetchContent)
 include(cmake/std.cmake)

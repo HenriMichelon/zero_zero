@@ -28,7 +28,10 @@ target_compile_options(std-cxx-modules PRIVATE
         /EHsc
         /nologo
         /W4
-        /c)
+        /c
+        /D_DEBUG
+        /MDd
+)
 else()
 target_compile_options(std-cxx-modules
   PRIVATE

@@ -5,6 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 export module z0.Constants;

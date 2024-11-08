@@ -7,6 +7,7 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 module z0.StaticCompoundShape;
