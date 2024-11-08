@@ -1,8 +1,14 @@
-# Compile std as a module (LLVM only !)
+# Compile std as a module (LLVM & MSVC only !)
 
 # extract the compiler directory
 get_filename_component(COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+if(MSVC)
+set(STD_BASE_DIR ${COMPILER_DIR}/../../../modules)
+set(STD_EXTENSION ixx)
+else()
 set(STD_BASE_DIR ${COMPILER_DIR}/../share/libc++/v1)
+set(STD_EXTENSION cppm)
+endif()
 
 # compile the std library
 add_library(std-cxx-modules STATIC)
@@ -12,12 +18,24 @@ target_sources(std-cxx-modules
     TYPE CXX_MODULES
     BASE_DIRS ${STD_BASE_DIR}
     FILES
-      ${STD_BASE_DIR}/std.cppm
-      ${STD_BASE_DIR}/std.compat.cppm)
+      ${STD_BASE_DIR}/std.${STD_EXTENSION}
+      ${STD_BASE_DIR}/std.compat.${STD_EXTENSION})
+
+if(MSVC)
+target_compile_options(std-cxx-modules
+  PRIVATE
+    /std:c++latest
+    /EHsc
+    /nologo
+    /c
+)
+else()
 target_compile_options(std-cxx-modules
   PRIVATE
     -Wno-reserved-module-identifier
-    -Wno-reserved-user-defined-literal)
+    -Wno-reserved-user-defined-literal
+)
+endif()
 
 target_link_libraries(${PROJECT_NAME} std-cxx-modules)
 target_link_libraries(${GLB2ZSCENE_TARGET} std-cxx-modules)
