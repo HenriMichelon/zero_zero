@@ -14,8 +14,8 @@ import z0.Tools;
 
 export namespace z0 {
 
-    template<typename T> Object* _createNewObjectInstance() { return new T(); }
-    
+    // template<typename T> Object* _createNewObjectInstance() { return new T(); }
+
     /**
      * Register custom nodes types used to map the node's description in JSON scene files and real classes
      */
@@ -25,8 +25,8 @@ export namespace z0 {
          * Creates a new shared pointer to a new instance of type `clazz` with casting to the type `T`
          */
         template<typename T> [[nodiscard]] static shared_ptr<T> makeShared(const string&clazz) {
-            if (!typeMap.contains(clazz)) die("Type", clazz, "not registered in TypeRegistry");
-            return shared_ptr<T>(reinterpret_cast<T*>(typeMap[clazz]()));
+            if (!typeMap->contains(clazz)) { die("Type", clazz, "not registered in TypeRegistry"); }
+            return shared_ptr<T>(reinterpret_cast<T*>(typeMap->at(clazz)()));
         }
 
         /**
@@ -34,19 +34,21 @@ export namespace z0 {
          * If you want to register outside a bloc of code use the `Z0_REGISTER_TYPE(class)` macro after your class declaration
          */
         template<typename T> static void registerType(const string&clazz) {
-            typeMap.emplace(clazz, &_createNewObjectInstance<T>);
+            if (typeMap == nullptr) { typeMap = make_unique<map<string, function<Object*()>>>(); }
+            typeMap->emplace(clazz, []{ return new T(); });
         }
-    private:
-        static map<std::string, Object*(*)()> typeMap;
+
+    // private:
+        static unique_ptr<map<string, function<Object*()>>> typeMap;
     };
 
     template<typename T>
     struct _TypeRegister {
-        _TypeRegister(const string&clazz) {
+        explicit _TypeRegister(const string&clazz) {
             TypeRegistry::registerType<T>(clazz);
         }
     };
 
-    map<std::string, Object*(*)()> TypeRegistry::typeMap;
+    unique_ptr<map<string, function<Object*()>>> TypeRegistry::typeMap{nullptr};
 
 }

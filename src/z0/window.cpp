@@ -555,11 +555,11 @@ namespace z0 {
                     _deferredLogMessages.push_back(item);
                 }
             }
-            if (logMode & LOGGING_MODE_FILE) {
-                (*_logFile) << item << endl;
-            }
             if (logMode & LOGGING_MODE_STDOUT) {
                 std::cout << item << endl;
+            }
+            if (logMode & LOGGING_MODE_FILE) {
+                (*_logFile) << item << endl;
             }
         }
 

@@ -26,7 +26,7 @@
  *
  * ##Build tools
  * **For Microsoft Windows**
- * - LLVM 18+, for example [LLVM+MingGW 64/MSVCRT/x86_64](https://github.com/mstorsjo/llvm-mingw/releases)
+ * - LLVM 18+ or MSVC 19+, for example [LLVM+MingGW 64/MSVCRT/x86_64](https://github.com/mstorsjo/llvm-mingw/releases)
  * - [CMake 3.29+](https://cmake.org/download/) with a [build tool](https://github.com/ninja-build/ninja/releases)
  *
  * **For Linux and macOS**
