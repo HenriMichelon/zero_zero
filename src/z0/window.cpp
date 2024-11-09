@@ -264,8 +264,8 @@ namespace z0 {
                 createLogWindow(hInstance);
             }
             if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
-                _logFile = make_unique<ofstream>("log.txt");
-                if(!_logFile->is_open()) {
+                _logFile = fopen("log.txt", "w");
+                if(_logFile == nullptr) {
                     die("Error opening log file");
                 }
             }
@@ -393,7 +393,7 @@ namespace z0 {
                 CloseWindow(_hwndLog);
             }
             if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
-                _logFile->close();
+                fclose(_logFile);
             }
     #endif
         }
@@ -491,7 +491,7 @@ namespace z0 {
         constexpr char szClassNameLog[ ] = "WindowsAppLog";
         list<string> Window::_deferredLogMessages;
         DWORD Window::_mainThreadId;
-        unique_ptr<ofstream> Window::_logFile{nullptr};
+        FILE* Window::_logFile;
 
         void Window::createLogWindow(const HMODULE hInstance) {
             auto monitorEnumData = MonitorEnumData {
@@ -538,7 +538,7 @@ namespace z0 {
             const auto logMode = Application::get().getConfig().loggingMode;
             if (logMode == LOGGING_MODE_NONE) { return; }
             using namespace chrono;
-            auto in_time_t = system_clock::to_time_t(system_clock::now());
+            const auto in_time_t = system_clock::to_time_t(system_clock::now());
             tm tm;
             localtime_s(&tm, &in_time_t);
             string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
@@ -556,10 +556,11 @@ namespace z0 {
                 }
             }
             if (logMode & LOGGING_MODE_STDOUT) {
-                std::cout << item << endl;
+                cout << item << endl;
             }
             if (logMode & LOGGING_MODE_FILE) {
-                (*_logFile) << item << endl;
+                fwrite(item.c_str(), item.size(), 1, _logFile);
+                fwrite("\n", 1, 1, _logFile);
             }
         }
 

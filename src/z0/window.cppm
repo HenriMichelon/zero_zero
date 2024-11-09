@@ -73,7 +73,7 @@ namespace z0 {
 #ifdef _WIN32
 #ifndef DISABLE_LOG
         static HWND _hwndLogList;
-        static unique_ptr<ofstream> _logFile;
+        static FILE* _logFile;
         static void _log(string);
         static void _processDeferredLog();
 #endif

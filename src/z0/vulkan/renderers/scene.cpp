@@ -180,6 +180,7 @@ namespace z0 {
 
     void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
         const auto& camera = ModelsRenderer::frameData.at(currentFrame).currentCamera;
+        if (camera == nullptr) { return; }
         frameData.at(currentFrame).cameraFrustum = Frustum{
             camera,
             camera->getFov(),
