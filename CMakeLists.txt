@@ -285,6 +285,7 @@ else()
 	else()
 		target_compile_options(${Z0_TARGET} PRIVATE
 			-O3
+			-DNDEBUG
 		)
 	endif()
 endif()
@@ -294,6 +295,12 @@ target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
 if(WIN32)
 	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
 endif()
+
+add_custom_target(doxypress ALL
+	COMMAND doxypress.exe
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs
+	COMMENT "Generating documentation with Doxypress"
+	VERBATIM )
 
 #add_executable(${GLB2ZSCENE_TARGET}
 #		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp

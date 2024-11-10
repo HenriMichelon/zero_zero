@@ -1,11 +1,8 @@
 var NAVTREE =
 [
   [ "ZeroZero", "index.html", [
-    [ "User Documentation", "index.html", [
-      [ "Building ZeroZero", "index.html#build_sec", null ],
-      [ "Examples", "index.html#example_sec", null ],
-      [ "Contact", "index.html#contact_sec", null ]
-    ] ],
+    [ "User documentation", "index.html", null ],
+    [ "Coordinates system", "md_coordinate_system.html", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", [
         [ "z0", "namespacez0.html", null ]
@@ -38,6 +35,7 @@ var NAVTREE =
             [ "getDedicatedVideoMemory", "classz0_1_1Application.html#a2d23ee7279732621024f5c39f0c28d26", null ],
             [ "getFPS", "classz0_1_1Application.html#a7ab50866951aa9591052e13d4bc3d894", null ],
             [ "getGravity", "classz0_1_1Application.html#a65a449ef4b95351bb4d7bdf34edeb04b", null ],
+            [ "getOutlineMaterials", "classz0_1_1Application.html#acca1f71b2a47b4be069caf3d487b0c18", null ],
             [ "getVectorRatio", "classz0_1_1Application.html#a54e515e6a5cceeeb445b47e24b43f820", null ],
             [ "getVideoMemoryUsage", "classz0_1_1Application.html#a2059dc6cc210e830e41ae2caf27734a3", null ],
             [ "getWindow", "classz0_1_1Application.html#a9e1d1a499f6735fc424647f4456e96c4", null ],
@@ -509,7 +507,10 @@ var NAVTREE =
             [ "setProperty", "classz0_1_1OmniLight.html#ac4a1d2e49be60bd4e614d05e4db933b1", null ],
             [ "setRange", "classz0_1_1OmniLight.html#ab34edfaf47041626d338cf623e84977d", null ]
           ] ],
-          [ "OutlineMaterials", "classz0_1_1OutlineMaterials.html", null ],
+          [ "OutlineMaterials", "classz0_1_1OutlineMaterials.html", [
+            [ "add", "classz0_1_1OutlineMaterials.html#a406af4a3380bac367f35efec0eb042b3", null ],
+            [ "get", "classz0_1_1OutlineMaterials.html#a28ba51a146d4bffbdb35db1a1be0f682", null ]
+          ] ],
           [ "PhysicsBody", "classz0_1_1PhysicsBody.html", [
             [ "setGravityScale", "classz0_1_1PhysicsBody.html#a9b84b1ab56c014235177033cf8134fb3", null ],
             [ "setProperty", "classz0_1_1PhysicsBody.html#ac4a1d2e49be60bd4e614d05e4db933b1", null ]
@@ -553,7 +554,7 @@ var NAVTREE =
           ] ],
           [ "ShaderMaterial", "classz0_1_1ShaderMaterial.html", [
             [ "ShaderMaterial", "classz0_1_1ShaderMaterial.html#a619d853c160afcd238fa2ee179d37426", null ],
-            [ "ShaderMaterial", "classz0_1_1ShaderMaterial.html#a441dc2f03fbca3829c5d5dbc68acd4d5", null ],
+            [ "ShaderMaterial", "classz0_1_1ShaderMaterial.html#a591dae470f143899a8393a7abce38884", null ],
             [ "getFragFileName", "classz0_1_1ShaderMaterial.html#a1dc7dc2ae244217b872cb1a9ae331b1b", null ],
             [ "getParameter", "classz0_1_1ShaderMaterial.html#a049a1938f8436bfc758ce235b7497565", null ],
             [ "getVertFileName", "classz0_1_1ShaderMaterial.html#a573bfe7094b4d44505bd734334794d0a", null ],
@@ -766,8 +767,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classz0_1_1InputEventMouse.html#ab571f4fa20071a4daf7ee619d2c76202",
-"structz0_1_1ApplicationConfig.html#ac9cbcb24d11d6cc7b73cfadac22dcced"
+"classz0_1_1InputEventMouse.html#a1da8aa3a43aa06db29c286dc0a87987a",
+"structz0_1_1ApplicationConfig.html#a776847f292e10f2bbaeee8c1ce59bc41"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

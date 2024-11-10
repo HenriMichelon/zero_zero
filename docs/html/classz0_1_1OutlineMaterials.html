@@ -38,6 +38,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
     </ul>
@@ -66,7 +67,7 @@ $(document).ready(function(){initNavTree('classz0_1_1OutlineMaterials.html','');
 <div id="doc-content">
 <div class="header">
   <div class="summary">
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classz0_1_1OutlineMaterials-members.html">List of all members</a>  </div>
   <div class="headertitle">
     <div class="title">OutlineMaterials Class Reference</div>
@@ -77,59 +78,43 @@ $(document).ready(function(){initNavTree('classz0_1_1OutlineMaterials.html','');
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Singleton for all the materials used by the SceneRenderer to outline meshes </p>
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ae6bc883f6e54df4ed90c66315ffa6c94"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; <a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1OutlineMaterials.html#ae6bc883f6e54df4ed90c66315ffa6c94">get</a> (int index)</td></tr>
-<tr class="separator:ae6bc883f6e54df4ed90c66315ffa6c94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb6531c62e46445147014de3a3a6d3b9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1OutlineMaterials.html#acb6531c62e46445147014de3a3a6d3b9">add</a> (const shared_ptr&lt; <a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a> &gt; &amp;material)</td></tr>
-<tr class="separator:acb6531c62e46445147014de3a3a6d3b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a28ba51a146d4bffbdb35db1a1be0f682"><td class="memItemLeft" align="right" valign="top">const shared_ptr&lt; <a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1OutlineMaterials.html#a28ba51a146d4bffbdb35db1a1be0f682">get</a> (int index) const</td></tr>
+<tr class="separator:a28ba51a146d4bffbdb35db1a1be0f682"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a406af4a3380bac367f35efec0eb042b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1OutlineMaterials.html#a406af4a3380bac367f35efec0eb042b3">add</a> (const shared_ptr&lt; <a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a> &gt; &amp;material)</td></tr>
+<tr class="separator:a406af4a3380bac367f35efec0eb042b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="acb6531c62e46445147014de3a3a6d3b9"></a>
+<a class="anchor" id="a406af4a3380bac367f35efec0eb042b3"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void add </td>
+          <td class="memname">void add </td>
           <td>(</td>
           <td class="paramtype">const shared_ptr&lt; <a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>material</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 <p>Adds an outline material. </p>
 
 </div>
 </div>
-<a class="anchor" id="ae6bc883f6e54df4ed90c66315ffa6c94"></a>
+<a class="anchor" id="a28ba51a146d4bffbdb35db1a1be0f682"></a>
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static shared_ptr&lt;<a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a>&gt;&amp; get </td>
+          <td class="memname">const shared_ptr&lt;<a class="el" href="classz0_1_1ShaderMaterial.html">ShaderMaterial</a>&gt;&amp; get </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>index</em></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 <p>Returns a given outline material </p>
 
@@ -141,7 +126,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacez0.html">z0</a></li><li class="navelem"><a class="el" href="classz0_1_1OutlineMaterials.html">OutlineMaterials</a></li>
-    <li class="footer">Generated on ven. nov. 8 2024 22:29:30 for ZeroZero &nbsp; by
+    <li class="footer">Generated on dim. nov. 10 2024 22:21:42 for ZeroZero &nbsp; by
     <a href="https://www.copperspice.com/documentation-doxypress.html">
     <img class="footer" src="doxypress.png" alt="DoxyPress"/></a> 1.7.0 </li>
   </ul>

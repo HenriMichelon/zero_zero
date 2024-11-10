@@ -58,7 +58,7 @@
             ""
         ],
         "layout-file": "layout_default.xml",
-        "main-page-name": "",
+        "main-page-name": "mainpage.md",
         "main-page-omit": false,
         "markdown": true,
         "max-init-lines": 30,
@@ -217,19 +217,19 @@
             ""
         ],
         "image-path": [
-            ""
+            "."
         ],
         "input-encoding": "UTF-8",
         "input-patterns": [
             "*.cppm",
-            "*.dox"
+            "*.md"
         ],
         "input-recursive": true,
         "input-source": [
             "../src/z0",
             "."
         ],
-        "mdfile-mainpage": ""
+        "mdfile-mainpage": "mainpage.md"
     },
     "messages": {
         "quiet": true,

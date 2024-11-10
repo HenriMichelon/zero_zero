@@ -38,6 +38,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
     </ul>
@@ -117,6 +118,8 @@ Public Member Functions</h2></td></tr>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a0613d46bc8a3e0b10ee9113fc9423b35"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; Image &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Image.html#a0613d46bc8a3e0b10ee9113fc9423b35">load</a> (const string &amp;filepath, <a class="el" href="namespacez0.html#a22f6b18e781e3c412e7d243f7de6aa5c">ImageFormat</a> imageFormat=ImageFormat::R8G8B8A8_SRGB)</td></tr>
 <tr class="separator:a0613d46bc8a3e0b10ee9113fc9423b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e16117edb967b08daca6c0714ba6b17"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; Image &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Image.html#a9e16117edb967b08daca6c0714ba6b17">load</a> (const void *data, uint64_t dataSize, <a class="el" href="namespacez0.html#a22f6b18e781e3c412e7d243f7de6aa5c">ImageFormat</a> imageFormat=ImageFormat::R8G8B8A8_SRGB)</td></tr>
+<tr class="separator:a9e16117edb967b08daca6c0714ba6b17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a401b1e26dd8bb8fe4d9cb2c391535d04"><td class="memItemLeft" align="right" valign="top">static shared_ptr&lt; Image &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classz0_1_1Image.html#a401b1e26dd8bb8fe4d9cb2c391535d04">create</a> (uint32_t width, uint32_t height, uint64_t imageSize, const void *data, const string &amp;name, <a class="el" href="namespacez0.html#a22f6b18e781e3c412e7d243f7de6aa5c">ImageFormat</a> format=ImageFormat::R8G8B8A8_SRGB)</td></tr>
 <tr class="separator:a401b1e26dd8bb8fe4d9cb2c391535d04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -294,7 +297,49 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>Load a bitmap from file.<br/>
- Support KTX2, DDS and all the format supported by <a href="https://github.com/nothings/stb/blob/master/stb_image.h">stb_image</a> </p>
+ Support JPEG, PNG, DDS and KTX2 formats. </p>
+
+</div>
+</div>
+<a class="anchor" id="a9e16117edb967b08daca6c0714ba6b17"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static shared_ptr&lt;Image&gt; load </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>dataSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacez0.html#a22f6b18e781e3c412e7d243f7de6aa5c">ImageFormat</a>&#160;</td>
+          <td class="paramname"><em>imageFormat</em> = <code>ImageFormat::R8G8B8A8_SRGB</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Load a bitmap from memory.<br/>
+ Support JPEG &amp; PNG formats. </p>
 
 </div>
 </div>
@@ -304,7 +349,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacez0.html">z0</a></li><li class="navelem"><a class="el" href="classz0_1_1Image.html">Image</a></li>
-    <li class="footer">Generated on ven. nov. 8 2024 22:29:30 for ZeroZero &nbsp; by
+    <li class="footer">Generated on dim. nov. 10 2024 22:21:42 for ZeroZero &nbsp; by
     <a href="https://www.copperspice.com/documentation-doxypress.html">
     <img class="footer" src="doxypress.png" alt="DoxyPress"/></a> 1.7.0 </li>
   </ul>
