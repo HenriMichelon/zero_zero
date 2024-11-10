@@ -152,7 +152,6 @@ namespace z0 {
                                      const void   * srcData,
                                      const size_t   size,
                                      const VkFormat format) -> shared_ptr<Image> {
-                auto ttStart = std::chrono::high_resolution_clock::now();
                 int width, height, channels;
                 auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
                                                             static_cast<int>(size),
@@ -168,8 +167,6 @@ namespace z0 {
                         imageSize, data, format,
                           magFilter, minFilter, wrapU, wrapV);
                     stbi_image_free(data);
-                    auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - ttStart).count();
-                    log(name, " loading time ", to_string(last_time));
                     return newImage;
                 }
                 return nullptr;
