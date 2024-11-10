@@ -4,11 +4,11 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 #
-###### Detect Vulkan SDK & Compressonator SDK
-message(NOTICE "Searching for Vulkan SDK and Compressonator SDK")
+###### Detect Vulkan SDK
+message(NOTICE "Searching for Vulkan SDK")
 find_package(Vulkan REQUIRED)
 target_include_directories(${Z0_TARGET} PUBLIC ${Vulkan_INCLUDE_DIRS})
-include(cmake/compressonator.cmake)
+#include(cmake/compressonator.cmake)
 
 ###### Using Volk to load Vulkan functions
 message(NOTICE "Fetching volk from https://github.com/zeux/volk ...")
@@ -47,7 +47,9 @@ target_sources(glm-modules
       ${GLM_DIR}/glm.cppm)
 target_link_libraries(glm-modules glm::glm)
 target_link_libraries(${Z0_TARGET} glm::glm glm-modules)
-target_precompile_headers(${Z0_TARGET} PRIVATE ${GLM_DIR}/glm.hpp ${GLM_DIR}/gtx/quaternion.hpp ${GLM_DIR}/gtx/matrix_decompose.hpp)
+if(MSVC)
+    target_precompile_headers(${Z0_TARGET} PRIVATE ${GLM_DIR}/glm.hpp ${GLM_DIR}/gtx/quaternion.hpp ${GLM_DIR}/gtx/matrix_decompose.hpp)
+endif()
 
 ###### Using FastGTLF to load models from binary glTF
 message(NOTICE "Fetching FastGTLF from https://github.com/spnda/fastgltf ...")

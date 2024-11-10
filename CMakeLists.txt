@@ -14,7 +14,7 @@ project(ZeroZero)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
-set(GLB2ZSCENE_TARGET "gltf2zscene")
+#set(GLB2ZSCENE_TARGET "gltf2zscene")
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -234,28 +234,28 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/gui/gwindow.cpp
 )
 target_sources(${Z0_TARGET}
-		PUBLIC
-		FILE_SET CXX_MODULES
-		FILES
+	PUBLIC
+	FILE_SET CXX_MODULES
+	FILES
 		${PROJECT_FILES}
 )
 if(MSVC)
 	target_compile_options(${Z0_TARGET} PRIVATE
-			/nologo
-			/W1
-			/WX
-			/std:c++latest
-			/experimental:module
+		/nologo
+		/W1
+		/WX
+		/std:c++latest
+		/experimental:module
 	)
 	set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
 endif()
 if(Clang)
 	target_compile_options(${Z0_TARGET} PRIVATE
-			-02
-			-d
-			-Wno-deprecated-declarations
-			-Wno-nullability-completeness
-			-Werror
+		-02
+		-d
+		-Wno-deprecated-declarations
+		-Wno-nullability-completeness
+		-Werror
 	)
 endif()
 target_link_libraries(${PROJECT_NAME} std-cxx-modules)
@@ -264,8 +264,8 @@ target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
 if(WIN32)
 	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
 endif()
-
-
+if(MSVC)
+endif()
 
 #add_executable(${GLB2ZSCENE_TARGET}
 #		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
@@ -284,7 +284,6 @@ endif()
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
-
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
 add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
@@ -292,9 +291,9 @@ include(FetchContent)
 include(cmake/std.cmake)
 include(cmake/libraries.cmake)
 
-if(WIN32)
-	message(NOTICE "************************************************************************************************************")
-	message(NOTICE "* Don't forget to make ${COMPRESSONATOR_ROOT}\\lib\\bin\\x64\\Compressonator_MT_DLL.dll available in the PATH")
-	message(NOTICE "* if you want to use gltf2json.exe")
-	message(NOTICE "************************************************************************************************************")
-endif()
+#if(WIN32)
+#	message(NOTICE "************************************************************************************************************")
+#	message(NOTICE "* Don't forget to make ${COMPRESSONATOR_ROOT}\\lib\\bin\\x64\\Compressonator_MT_DLL.dll available in the PATH")
+#	message(NOTICE "* if you want to use gltf2json.exe")
+#	message(NOTICE "************************************************************************************************************")
+#endif()

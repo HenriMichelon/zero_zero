@@ -135,8 +135,9 @@ namespace z0 {
             [&](const Resource::id_t &id) {
                 return id == Resource::INVALID_ID;
             });
-        if (it == frameData.at(currentFrame).materialsIndicesAllocation.end())
+        if (it == frameData.at(currentFrame).materialsIndicesAllocation.end()) {
             die("Maximum number of materials reached");
+        }
         const auto index = it - frameData.at(currentFrame).materialsIndicesAllocation.begin();
         frameData.at(currentFrame).materialsIndices[material->getId()] = index;
         frameData.at(currentFrame).materialsIndicesAllocation[index] = material->getId();
@@ -770,12 +771,12 @@ namespace z0 {
                         };
                         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                             0, PUSHCONSTANTS_SIZE, &pushConstants);
-                        // if (lastMeshId == model->getId()) {
-                            // model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        // } else {
+                        if (lastMeshId == model->getId()) {
+                            model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        } else {
                             model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                            // lastMeshId = model->getId();
-                        // }
+                            lastMeshId = model->getId();
+                        }
                         vkCmdSetCullMode(commandBuffer,
                                         lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
                                                 : lastCullMode == CullMode::BACK
@@ -812,12 +813,12 @@ namespace z0 {
                     };
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, PUSHCONSTANTS_SIZE, &pushConstants);
-                    // if (lastMeshId == model->getId()) {
-                        // model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    // } else {
+                    if (lastMeshId == model->getId()) {
+                        model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    } else {
                         model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        // lastMeshId = model->getId();
-                    // }
+                        lastMeshId = model->getId();
+                    }
                     if (shadersChanged) {
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
@@ -889,6 +890,37 @@ namespace z0 {
                     const auto &modelIndex = frame.modelsIndices[meshInstance->getId()];
                     const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : model->getSurfaces()) {
+                        if (meshInstance->isOutlined()) {
+                            const auto &material = meshInstance->getOutlineMaterial();
+                            vkCmdBindShadersEXT(commandBuffer,
+                                                1,
+                                                frame.materialShaders[material->getVertFileName()]->getStage(),
+                                                frame.materialShaders[material->getVertFileName()]->getShader());
+                            vkCmdBindShadersEXT(commandBuffer,
+                                                1,
+                                                frame.materialShaders[material->getFragFileName()]->getStage(),
+                                                frame.materialShaders[material->getFragFileName()]->getShader());
+                            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                            auto pushConstants = PushConstants {
+                                .modelIndex = static_cast<int>(modelIndex),
+                                .materialIndex = frame.materialsIndices[material->getId()]
+                            };
+                            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                                                0, PUSHCONSTANTS_SIZE, &pushConstants);
+                            if (lastMeshId == model->getId()) {
+                                model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                            } else {
+                                model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                                lastMeshId = model->getId();
+                            }
+                            vkCmdSetCullMode(commandBuffer,
+                                            lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                                    : lastCullMode == CullMode::BACK
+                                                    ? VK_CULL_MODE_BACK_BIT
+                                                    : VK_CULL_MODE_FRONT_BIT);
+                            vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                            vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                        }
                         const auto cullMode = surface->material->getCullMode();
                         if (cullMode != lastCullMode) {
                             vkCmdSetCullMode(commandBuffer,
