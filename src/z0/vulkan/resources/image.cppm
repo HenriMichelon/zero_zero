@@ -68,7 +68,7 @@ export namespace z0 {
                 const vector<ZScene::MipLevelInfo>& mipLevelHeaders,
                 const ZScene::TextureHeader & textureHeader,
                 const Buffer                  &buffer,
-                uint64_t                bufferOffset,
+                uint64_t                      bufferOffset,
                 VkImageTiling                 tiling             = VK_IMAGE_TILING_OPTIMAL);
 
         VulkanImage(VulkanImage&&) = delete;

@@ -42,7 +42,7 @@ export namespace z0 {
         explicit GCheckWidget(const Type T): GWidget{T} {
         }
 
-        virtual bool eventMouseDown(const MouseButton B, const uint32_t X, const uint32_t Y) {
+        bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
             if (getRect().contains(X, Y)) {
                 if (state == CHECK) {
                     setState(UNCHECK);

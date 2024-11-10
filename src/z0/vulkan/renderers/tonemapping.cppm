@@ -38,8 +38,8 @@ export namespace z0 {
 
     private:
         struct GlobalUniformBuffer {
-            alignas(4) float gamma{2.2};
-            alignas(4) float exposure{1.0};
+            alignas(4) float gamma{2.2f};
+            alignas(4) float exposure{1.0f};
         };
 
         vector<unique_ptr<Buffer>>           globalBuffer;

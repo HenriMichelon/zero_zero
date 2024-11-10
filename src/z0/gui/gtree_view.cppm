@@ -40,7 +40,7 @@ export namespace z0 {
         void setResources(const string& RBOX, const string& RSCROLL, const string&) {
             if (box == nullptr) {
                 box = make_shared<GBox>();
-                vscroll = make_shared<GVScrollBar>(0, 0);
+                vscroll = make_shared<GVScrollBar>(0.0f, 0.0f);
                 add(vscroll, RIGHT, RSCROLL);
                 add(box, FILL, RBOX);
                 box->setDrawBackground(false);
@@ -61,7 +61,7 @@ export namespace z0 {
             newWidget->handle = make_shared<GText>(" ");
             newWidget->add(newWidget->handle, GWidget::LEFT, treeTabsSize);
             newWidget->add(item, GWidget::LEFT);
-            newWidget->setSize(Application::get().getWindow().getWidth(), item->getHeight());
+            newWidget->setSize(1000.0f, item->getHeight());
             newWidget->setDrawBackground(false);
             return newWidget;
         }
@@ -82,7 +82,7 @@ export namespace z0 {
             }
             parent->handle->setText("-");
             newWidget->add(item, GWidget::LEFT);
-            newWidget->setSize(Application::get().getWindow().getWidth(), item->getHeight());
+            newWidget->setSize(1000.0f, item->getHeight());
             newWidget->setDrawBackground(false);
             //expand(parent->item);
             return newWidget;

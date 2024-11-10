@@ -110,7 +110,7 @@ namespace z0 {
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -123,7 +123,7 @@ namespace z0 {
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -136,7 +136,7 @@ namespace z0 {
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -149,7 +149,7 @@ namespace z0 {
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -162,7 +162,7 @@ namespace z0 {
                                                        true,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -175,7 +175,7 @@ namespace z0 {
                                                        false,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(wParam),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;
@@ -188,7 +188,7 @@ namespace z0 {
                                                        GET_WHEEL_DELTA_WPARAM(wParam) < 0,
                                                        _getKeyboardModifiers(),
                                                        _getMouseButtonState(GET_KEYSTATE_WPARAM(wParam)),
-                                                       GET_X_LPARAM(lParam),
+                                                       static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
                 app._onInput(event);
                 break;

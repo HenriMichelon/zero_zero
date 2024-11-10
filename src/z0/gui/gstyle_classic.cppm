@@ -209,12 +209,12 @@ export namespace z0 {
         //GTexture	*texture;
 
         void updateOptions() override {
-            focus = extractColor("color_focus", 0.1, 0.1, 0.1);
-            shadowDark = extractColor("color_shadow_dark", 0.3, 0.3, 0.3);
-            shadowBright = extractColor("color_shadow_light", 0.94, 0.94, 0.94);
-            fgUp = extractColor("color_foreground_up", 0.68, 0.68, 0.81);
-            fgDown = extractColor("color_foreground_down", 0.76, 0.85, 0.76);
-            background = extractColor("color_background", 0.75, 0.75, 0.90);
+            focus = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
+            shadowDark = extractColor("color_shadow_dark", 0.3f, 0.3f, 0.3f);
+            shadowBright = extractColor("color_shadow_light", 0.94f, 0.94f, 0.94f);
+            fgUp = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f);
+            fgDown = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f);
+            background = extractColor("color_background", 0.75f, 0.75f, 0.90f);
             /*XXXX
             if (texture != nullptr) { delete texture; }
             if (Option("texture").Len() > 0) {

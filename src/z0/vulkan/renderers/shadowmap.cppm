@@ -55,7 +55,7 @@ export namespace z0 {
 
         [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
 
-        [[nodiscard]] inline float getCascadesCount(const uint32_t currentFrame) const {
+        [[nodiscard]] inline uint32_t getCascadesCount(const uint32_t currentFrame) const {
             return frameData.at(currentFrame).cascadesCount;
         }
 

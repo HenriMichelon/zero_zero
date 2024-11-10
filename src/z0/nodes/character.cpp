@@ -60,7 +60,7 @@ namespace z0 {
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << 4 | collisionMask;
-        settings.mShape  = new JPH::BoxShape(shapeHe * 0.90);
+        settings.mShape  = new JPH::BoxShape(shapeHe * 0.90f);
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,

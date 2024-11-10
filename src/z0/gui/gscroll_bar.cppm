@@ -189,14 +189,14 @@ export namespace z0 {
 
     class GVScrollBar : public GScrollBar {
     public:
-        explicit GVScrollBar(const uint32_t min = 0, const uint32_t max = 100, const uint32_t value = 0, const uint32_t step = 1):
+        explicit GVScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
             GScrollBar(VERTICAL, min, max, value, step) {
         };
     };
 
     class GHScrollBar : public GScrollBar {
     public:
-        explicit GHScrollBar(const uint32_t min = 0, const uint32_t max = 100, const uint32_t value = 0, const uint32_t step = 1):
+        explicit GHScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
             GScrollBar(HORIZONTAL, min, max, value, step) {
         };
     };

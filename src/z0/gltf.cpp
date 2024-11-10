@@ -5,7 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
@@ -26,9 +25,11 @@ import z0.Texture;
 import z0.Tools;
 import z0.VirtualFS;
 
+import z0.Buffer;
 import z0.Device;
 import z0.VulkanImage;
 import z0.VulkanMesh;
+
 
 namespace z0 {
 
@@ -38,7 +39,7 @@ namespace z0 {
                             size_t   size,
                             VkFormat format)> LoadImageFunction;
 
-    // https://fastgltf.readthedocs.io/v0.7.x/tools.html
+    // https://fastgltf.readthedocs.io/v0.8.x/tools.html
     // https://github.com/vblanco20-1/vulkan-guide/blob/all-chapters-1.3-wip/chapter-5/vk_loader.cpp
     shared_ptr<Image> loadImage(
         fastgltf::Asset &asset,
@@ -151,6 +152,7 @@ namespace z0 {
                                      const void   * srcData,
                                      const size_t   size,
                                      const VkFormat format) -> shared_ptr<Image> {
+                auto ttStart = std::chrono::high_resolution_clock::now();
                 int width, height, channels;
                 auto *data = stbi_load_from_memory(static_cast<stbi_uc const *>(srcData),
                                                             static_cast<int>(size),
@@ -166,6 +168,8 @@ namespace z0 {
                         imageSize, data, format,
                           magFilter, minFilter, wrapU, wrapV);
                     stbi_image_free(data);
+                    auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - ttStart).count();
+                    log(name, " loading time ", to_string(last_time));
                     return newImage;
                 }
                 return nullptr;
@@ -341,9 +345,9 @@ namespace z0 {
                 meshesCount++;
             }
         }
-        log("Loader :", to_string(materials.size()), "materials,",
-            to_string(images.size()), "images,",
-            to_string(meshes.size()), "meshes (", to_string(meshesCount), "uniques)");
+        // log("Loader :", to_string(materials.size()), "materials,",
+            // to_string(images.size()), "images,",
+            // to_string(meshes.size()), "meshes (", to_string(meshesCount), "uniques)");
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;

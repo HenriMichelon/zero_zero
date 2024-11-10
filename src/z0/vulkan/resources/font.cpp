@@ -27,8 +27,8 @@ namespace z0 {
          stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
         return make_shared<VulkanImage>(Device::get(),
                                   text,
-                                  width,
-                                  height,
+                                  static_cast<uint32_t>(width),
+                                  static_cast<uint32_t>(height),
                                   static_cast<int>(width * height) * STBI_rgb_alpha,
                                   bitmap.data(),
                                   VK_FORMAT_R8G8B8A8_SRGB,

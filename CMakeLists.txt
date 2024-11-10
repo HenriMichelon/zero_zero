@@ -10,6 +10,13 @@ cmake_policy(SET CMP0002 NEW)
 project(ZeroZero)
 
 #add_compile_definitions(DISABLE_LOG)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
+add_compile_definitions(GLM_ENABLE_CXX_20 ON)
+add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -242,29 +249,50 @@ target_sources(${Z0_TARGET}
 if(MSVC)
 	target_compile_options(${Z0_TARGET} PRIVATE
 		/nologo
-		/W1
+		/W2
 		/WX
 		/std:c++latest
 		/experimental:module
+		/fp:fast
 	)
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		target_compile_options(${Z0_TARGET} PRIVATE
+			/Od
+			/GS
+			/Ob0
+			/RTC1
+		)
+	else()
+		target_compile_options(${Z0_TARGET} PRIVATE
+			/O2
+			/GS-
+			/Gy
+			/Oi
+			/Ot
+		)
+	endif()
 	set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
-endif()
-if(Clang)
+else()
 	target_compile_options(${Z0_TARGET} PRIVATE
-		-02
-		-d
 		-Wno-deprecated-declarations
 		-Wno-nullability-completeness
 		-Werror
 	)
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		target_compile_options(${Z0_TARGET} PRIVATE
+			-O0
+		)
+	else()
+		target_compile_options(${Z0_TARGET} PRIVATE
+			-O3
+		)
+	endif()
 endif()
-target_link_libraries(${PROJECT_NAME} std-cxx-modules)
+target_link_libraries(${Z0_TARGET} std-cxx-modules)
 add_dependencies(${Z0_TARGET} ${Z0_TARGET}_shaders)
 target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
 if(WIN32)
 	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
-endif()
-if(MSVC)
 endif()
 
 #add_executable(${GLB2ZSCENE_TARGET}
@@ -284,9 +312,6 @@ endif()
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
-add_compile_definitions(GLM_ENABLE_CXX_20 ON)
-add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 include(FetchContent)
 include(cmake/std.cmake)
 include(cmake/libraries.cmake)

@@ -82,8 +82,8 @@ namespace z0 {
         const auto    newWidth                = Application::get().getWindow().getWidth();
         const auto    horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
         const auto    verticalScalingFactor   = static_cast<float>(newHeight) / baseHeight;
-        const auto    averageScalingFactor    = (horizontalScalingFactor + verticalScalingFactor) / 2.0;
-        return ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor));
+        const auto    averageScalingFactor    = (horizontalScalingFactor + verticalScalingFactor) / 2.0f;
+        return static_cast<uint32_t>(ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor)));
     }
 
 
@@ -99,12 +99,12 @@ namespace z0 {
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
             die("Failed to initialize font", path);
         }
-        scale = stbtt_ScaleForPixelHeight(&font, scaleFontSize(size));
+        scale = stbtt_ScaleForPixelHeight(&font, static_cast<float>(scaleFontSize(size)));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
-        height = ceilf((ascent - descent) * scale);
+        height = static_cast<int>(ceilf((ascent - descent) * scale));
         //log(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
-        ascent  = ascent * scale;
-        descent = descent * scale;
+        ascent  = static_cast<int>(ascent * scale);
+        descent = static_cast<int>(descent * scale);
     }
 
     /*  void savePPM(const char* filename, const unsigned char* bitmap, int width, int height) {
@@ -122,8 +122,8 @@ namespace z0 {
     void Font::render(CachedCharacter &cachedCharacter, const char c) const {
         int advanceWidth, leftSideBearing;
         stbtt_GetCodepointHMetrics(&font, c, &advanceWidth, &leftSideBearing);
-        cachedCharacter.advance  = advanceWidth * scale;
-        cachedCharacter.xBearing = leftSideBearing * scale;
+        cachedCharacter.advance  = static_cast<int32_t>(advanceWidth * scale);
+        cachedCharacter.xBearing = static_cast<int32_t>(leftSideBearing * scale);
 
         int        width, height;
         const auto srcBitmap     = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0, 0);

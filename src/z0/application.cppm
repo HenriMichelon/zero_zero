@@ -176,7 +176,7 @@ namespace z0 {
          * Main loop members
          */
         using Clock = std::chrono::steady_clock;
-        static constexpr float dt = 0.01;
+        static constexpr float dt = 0.01f;
         double t = 0.0;
         double currentTime = chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double accumulator = 0.0;
