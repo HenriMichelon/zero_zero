@@ -148,9 +148,9 @@ export namespace z0 {
 
         void setEmissiveStrength(float emissive);
 
-        [[nodiscard]] inline float getNormaleScale() const { return normalScale; }
+        [[nodiscard]] inline float getNormalScale() const { return normalScale; }
 
-        void setNormaleScale(float scale);
+        void setNormalScale(float scale);
 
     private:
         vec4         albedoColor{1.0f, 0.0f, 0.5f, 1.0f};
@@ -187,8 +187,7 @@ export namespace z0 {
          * @param vertShaderFileName vertex shader file path, relative to the application directory
          * @param name Resource name
          */
-        explicit ShaderMaterial(string        fragShaderFileName,
-                                string        vertShaderFileName = "",
+        explicit ShaderMaterial(const string &fragShaderFileName, const string &vertShaderFileName = "",
                                 const string &name               = "ShaderMaterial");
 
         /**
@@ -222,25 +221,24 @@ export namespace z0 {
      */
     class OutlineMaterials {
     public:
+        OutlineMaterials();
+
         /**
          * Returns a given outline material
          */
-        static shared_ptr<ShaderMaterial> &get(int index);
+        const shared_ptr<ShaderMaterial> &get(int index) const;
 
         /**
          * Adds an outline material.
          */
-        static void add(const shared_ptr<ShaderMaterial> &material);
+        void add(const shared_ptr<ShaderMaterial> &material);
 
-    private:
-        static vector<shared_ptr<ShaderMaterial>> materials;
-
-    public:
-        static vector<shared_ptr<ShaderMaterial>> &_all() {
+        inline const vector<shared_ptr<ShaderMaterial>> &getAll() const {
             return materials;
         }
 
-        static void _initialize();
+    private:
+        vector<shared_ptr<ShaderMaterial>> materials;
     };
 
 }

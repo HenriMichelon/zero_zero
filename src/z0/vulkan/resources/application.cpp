@@ -38,7 +38,6 @@ namespace z0 {
     }
 
     VulkanApplication::~VulkanApplication() {
-        OutlineMaterials::_all().clear();
         sceneRenderer.reset();
         vectorRenderer.reset();
         // KTXVulkanImage::cleanup();
@@ -72,21 +71,21 @@ namespace z0 {
     void VulkanApplication::processDeferredUpdates(const uint32_t currentFrame) {
         sceneRenderer->preUpdateScene(currentFrame);
         windowManager->drawFrame();
-        if (!frameData[currentFrame].removedNodes.empty()) {
-            for (const auto &node : frameData[currentFrame].removedNodes) {
+        if (!frameData.at(currentFrame).removedNodes.empty()) {
+            for (const auto &node : frameData.at(currentFrame).removedNodes) {
                 sceneRenderer->removeNode(node, currentFrame);
             }
-            frameData[currentFrame].removedNodes.clear();
+            frameData.at(currentFrame).removedNodes.clear();
         }
-        if (!frameData[currentFrame].addedNodes.empty()) {
-            for (const auto &node : frameData[currentFrame].addedNodes) {
+        if (!frameData.at(currentFrame).addedNodes.empty()) {
+            for (const auto &node : frameData.at(currentFrame).addedNodes) {
                 sceneRenderer->addNode(node, currentFrame);
             }
-            frameData[currentFrame].addedNodes.clear();
+            frameData.at(currentFrame).addedNodes.clear();
         }
-        if (frameData[currentFrame].activeCamera != nullptr) {
-            sceneRenderer->activateCamera(frameData[currentFrame].activeCamera, currentFrame);
-            frameData[currentFrame].activeCamera = nullptr;
+        if (frameData.at(currentFrame).activeCamera != nullptr) {
+            sceneRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
+            frameData.at(currentFrame).activeCamera = nullptr;
         }
         if (sceneRenderer->getCamera(currentFrame) == nullptr) {
             const auto &camera = rootNode->findFirstChild<Camera>(true);

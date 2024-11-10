@@ -14,6 +14,7 @@ module;
 
 module z0.SceneRenderer;
 
+import z0.Application;
 import z0.Constants;
 import z0.Tools;
 import z0.Node;
@@ -55,8 +56,7 @@ namespace z0 {
         colorFrameBufferHdr.resize(device.getFramesInFlight());
         resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
         createImagesResources();
-        OutlineMaterials::_initialize();
-        for_each(frameData.begin(), frameData.end(), [&device](FrameData& frame) {
+        ranges::for_each(frameData, [&device](FrameData& frame) {
             frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
             frame.materialsIndicesAllocation = vector(MAX_MATERIALS, Resource::INVALID_ID);
         });
@@ -66,7 +66,7 @@ namespace z0 {
     void SceneRenderer::cleanup() {
         blankImage.reset();
         blankCubemap.reset();
-        for_each(frameData.begin(), frameData.end(), [](FrameData& frame) {
+        ranges::for_each(frameData, [](FrameData& frame) {
             frame.globalBuffer.reset();
             frame.materialShaders.clear();
             frame.materialsBuffer.reset();
@@ -120,7 +120,7 @@ namespace z0 {
     }
 
     void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
-        for (const auto &material : OutlineMaterials::_all()) {
+        for (const auto &material : Application::get().getOutlineMaterials().getAll()) {
             if (!frameData.at(currentFrame).materialsIndices.contains(material->getId())) {
                 addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
@@ -130,9 +130,8 @@ namespace z0 {
 
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         // Allocate the first free buffer index
-        const auto it = std::find_if(
-            frameData.at(currentFrame).materialsIndicesAllocation.begin(),
-            frameData.at(currentFrame).materialsIndicesAllocation.end(),
+        const auto it = ranges::find_if(
+            frameData.at(currentFrame).materialsIndicesAllocation,
             [&](const Resource::id_t &id) {
                 return id == Resource::INVALID_ID;
             });
@@ -188,7 +187,7 @@ namespace z0 {
             camera->getFarDistance()
         };
         createOrUpdateResources(true, &pushConstantRange);
-        for (const auto &material : OutlineMaterials::_all()) {
+        for (const auto &material : Application::get().getOutlineMaterials().getAll()) {
             loadShadersMaterials(material, currentFrame);
         }
         for (const auto &pair : shadowMapRenderers) {
@@ -247,9 +246,14 @@ namespace z0 {
            removeMaterial(material, currentFrame);
         }
 
-        const auto it = find(frameData.at(currentFrame).opaquesModels.begin(), frameData.at(currentFrame).opaquesModels.end(), meshInstance);
+        const auto it = ranges::find(frameData.at(currentFrame).opaquesModels, meshInstance);
         if (it != frameData.at(currentFrame).opaquesModels.end()) {
             frameData.at(currentFrame).opaquesModels.erase(it);
+            frameData.at(currentFrame).modelsIndices.erase(meshInstance->getId());
+        }
+        const auto itTransparent = ranges::find(frameData.at(currentFrame).transparentModels, meshInstance);
+        if (itTransparent != frameData.at(currentFrame).transparentModels.end()) {
+            frameData.at(currentFrame).transparentModels.erase(itTransparent);
             frameData.at(currentFrame).modelsIndices.erase(meshInstance->getId());
         }
     }
@@ -375,7 +379,7 @@ namespace z0 {
                 materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
                 materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
                 materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
-                materialUBO.normalScale = standardMaterial->getNormaleScale();
+                materialUBO.normalScale = standardMaterial->getNormalScale();
                 auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
                     dest.transform = texInfo.transform;
                     if (texInfo.texture != nullptr) {
@@ -582,7 +586,7 @@ namespace z0 {
     }
 
     void SceneRenderer::loadShaders() {
-        for_each(frameData.begin(), frameData.end(), [](FrameData& frame) {
+        ranges::for_each(frameData, [](const FrameData & frame) {
             if (frame.skyboxRenderer != nullptr) {
                 frame.skyboxRenderer->loadShaders();
             } 
@@ -751,27 +755,27 @@ namespace z0 {
                 for (const auto &surface : model->getSurfaces()) {
                     if (meshInstance->isOutlined()) {
                         const auto &material = meshInstance->getOutlineMaterial();
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            frame.materialShaders[material->getVertFileName()]->getStage(),
+                                            frame.materialShaders[material->getVertFileName()]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            frame.materialShaders[material->getFragFileName()]->getStage(),
+                                            frame.materialShaders[material->getFragFileName()]->getShader());
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         auto pushConstants = PushConstants {
                             .modelIndex = static_cast<int>(modelIndex),
                             .materialIndex = frame.materialsIndices[material->getId()]
                         };
-                        vkCmdBindShadersEXT(commandBuffer,
-                                            1,
-                                            frame.materialShaders[material->getVertFileName()]->getStage(),
-                                            frame.materialShaders["outline.vert"]->getShader());
-                        vkCmdBindShadersEXT(commandBuffer,
-                                            1,
-                                            frame.materialShaders[material->getFragFileName()]->getStage(),
-                                            frame.materialShaders["outline.frag"]->getShader());
-                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
                         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                             0, PUSHCONSTANTS_SIZE, &pushConstants);
-                        if (lastMeshId == model->getId()) {
-                            model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        } else {
+                        // if (lastMeshId == model->getId()) {
+                            // model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                        // } else {
                             model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                            lastMeshId = model->getId();
-                        }
+                            // lastMeshId = model->getId();
+                        // }
                         vkCmdSetCullMode(commandBuffer,
                                         lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
                                                 : lastCullMode == CullMode::BACK
@@ -793,7 +797,7 @@ namespace z0 {
                             shadersChanged = true;
                         }
                     }
-                    auto cullMode = surface->material->getCullMode();
+                    const auto cullMode = surface->material->getCullMode();
                     if (cullMode != lastCullMode) {
                         vkCmdSetCullMode(commandBuffer,
                                          cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
@@ -808,12 +812,12 @@ namespace z0 {
                     };
                     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                                         0, PUSHCONSTANTS_SIZE, &pushConstants);
-                    if (lastMeshId == model->getId()) {
-                        model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    } else {
+                    // if (lastMeshId == model->getId()) {
+                        // model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
+                    // } else {
                         model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        lastMeshId = model->getId();
-                    }
+                        // lastMeshId = model->getId();
+                    // }
                     if (shadersChanged) {
                         vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
                         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());

@@ -77,7 +77,7 @@ namespace z0 {
         _setDirty();
     }
 
-    void StandardMaterial::setNormaleScale(const float scale) {
+    void StandardMaterial::setNormalScale(const float scale) {
         normalScale = scale;
         _setDirty();
     }
@@ -91,12 +91,11 @@ namespace z0 {
         }
     }
 
-    ShaderMaterial::ShaderMaterial(string        fragShaderFileName,
-                                   string        vertShaderFileName,
+    ShaderMaterial::ShaderMaterial(const string &fragShaderFileName, const string &vertShaderFileName,
                                    const string &name):
         Material{name},
-        fragFileName{std::move(fragShaderFileName)},
-        vertFileName{std::move(vertShaderFileName)} {
+        fragFileName{fragShaderFileName},
+        vertFileName{vertShaderFileName} {
     }
 
     void ShaderMaterial::setParameter(const int index, const vec4 value) {
@@ -104,7 +103,7 @@ namespace z0 {
         _setDirty();
     }
 
-    shared_ptr<ShaderMaterial> &OutlineMaterials::get(const int index) {
+    const shared_ptr<ShaderMaterial> &OutlineMaterials::get(const int index) const {
         assert(index < materials.size());
         return materials[index];
     }
@@ -113,13 +112,11 @@ namespace z0 {
         materials.push_back(material);
     }
 
-    void OutlineMaterials::_initialize() {
+    OutlineMaterials::OutlineMaterials() {
         const auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag", "outline.vert");
         outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});
         outlineMaterial->setParameter(1, vec4{0.01f});
         add(outlineMaterial);
     }
-
-    vector<shared_ptr<ShaderMaterial>> OutlineMaterials::materials;
 
 }

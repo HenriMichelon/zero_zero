@@ -185,7 +185,7 @@ namespace z0 {
         struct FrameData {
             // Indices of each model data in the models uniform buffer
             map<Node::id_t, uint32_t> modelsIndices{};
-            // All non-transparent models (not used in the depth prepass)
+            // All non-transparent models
             list<shared_ptr<MeshInstance>> opaquesModels{};
             // All transparent models
             list<shared_ptr<MeshInstance>> transparentModels{};

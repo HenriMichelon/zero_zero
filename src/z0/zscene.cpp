@@ -155,7 +155,7 @@ namespace z0 {
             material->setEmissiveStrength(header.emissiveStrength);
             material->setEmissiveTexture(textureInfo(header.emissiveTexture));
             material->setNormalTexture(textureInfo(header.normalTexture));
-            material->setNormaleScale(header.normalScale);
+            material->setNormalScale(header.normalScale);
             materials[materialIndex] = material;
         }
 

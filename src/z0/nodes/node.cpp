@@ -269,9 +269,10 @@ namespace z0 {
     }
 
     void Node::removeAllChildren() {
+        auto& app = Application::get();
         for (const auto &node : children) {
             node->parent = nullptr;
-            if (node->addedToScene) { Application::get()._removeNode(node); }
+            if (node->addedToScene) { app._removeNode(node); }
         }
         children.clear();
     }

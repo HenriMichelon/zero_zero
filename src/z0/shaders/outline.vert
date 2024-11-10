@@ -16,6 +16,7 @@ layout (location = 3) in vec4 tangent;
 void main() {
     mat4 model = models.model[pushConstants.modelIndex];
     Material material = materials.material[pushConstants.materialIndex];
+
     vec3 scaledPosition = position * vec3(1.0f + material.parameters[1].x);
     vec4 globalPosition = model * vec4(scaledPosition, 1.0);
     gl_Position = global.projection * global.view * globalPosition;

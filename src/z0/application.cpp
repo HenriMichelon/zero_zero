@@ -88,6 +88,8 @@ namespace z0 {
         initRenderingSystem();
         assert(window != nullptr);
 
+        outlineMaterials = make_unique<OutlineMaterials>();
+
         // Register the built-in nodes types
         registerTypes();
     }

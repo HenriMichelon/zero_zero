@@ -19,6 +19,7 @@ import z0.Constants;
 import z0.Object;
 import z0.ApplicationConfig;
 import z0.InputEvent;
+import z0.Material;
 import z0.Physics;
 import z0.Window;
 import z0.Node;
@@ -154,6 +155,11 @@ namespace z0 {
         */
         void callDeferred(std::function<void()> func);
 
+        /**
+         * Returns the meshes outlining materials
+         */
+        inline OutlineMaterials& getOutlineMaterials() const { return *outlineMaterials; }
+
     private:
         // State of the current scene
         bool paused{false};
@@ -212,7 +218,7 @@ namespace z0 {
         // Recursively call onInput() on a tree node
         bool input(const shared_ptr<Node> &node, InputEvent &inputEvent);
 
-        // Register all nodes types
+        // Registers all nodes types
         void registerTypes() const;
 
     protected:
@@ -224,6 +230,8 @@ namespace z0 {
         unique_ptr<GManager> windowManager;
         // The current scene
         shared_ptr<Node> rootNode;
+        // Mesh outlining materials
+        unique_ptr<OutlineMaterials> outlineMaterials;
 
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame
