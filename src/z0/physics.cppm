@@ -27,7 +27,10 @@ export namespace z0 {
     public:
         [[nodiscard]] uint32_t GetNumBroadPhaseLayers() const override { return 1;}
         [[nodiscard]] JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override { return static_cast<JPH::BroadPhaseLayer>(0); }
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
         [[nodiscard]] const char * GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override { return "?";}
+#endif
+
     };
 
     // Class that determines if an object layer can collide with a broadphase layer

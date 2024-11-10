@@ -15,7 +15,7 @@ Building ZeroZero
 
 ### Install the build tools
 For Microsoft Windows :
-- [LLVM 18+](https://github.com/mstorsjo/llvm-mingw/releases) or [MSVC 19+](https://visualstudio.microsoft.com/fr/)
+- [LLVM 19+](https://github.com/mstorsjo/llvm-mingw/releases) or [MSVC 19+ (VS 2022)](https://visualstudio.microsoft.com/fr/)
 - [CMake 3.29+](https://cmake.org/download/) ([Visual Studio](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170)) with a [build tool](https://github.com/ninja-build/ninja/releases)
 
 For Linux and macOS :
