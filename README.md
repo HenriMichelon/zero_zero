@@ -4,4 +4,4 @@ ZeroZero is an experimental 3D engine based on [Vulkan 1.3](https://www.vulkan.o
 
 [User documentation](https://henrimichelon.github.io/ZeroZero/)
 
-Released under the [MIT license](https://raw.githubusercontent.com/HenriMichelon/zero_zero/blob/main/LICENSE.txt).
+Released under the [MIT license](https://github.com/HenriMichelon/zero_zero/blob/main/LICENSE.txt).
