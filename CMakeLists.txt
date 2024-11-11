@@ -21,7 +21,6 @@ add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
-#set(GLB2ZSCENE_TARGET "gltf2zscene")
 
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
@@ -302,19 +301,6 @@ add_custom_target(doxypress ALL
 	COMMENT "Generating documentation with Doxypress"
 	VERBATIM )
 
-#add_executable(${GLB2ZSCENE_TARGET}
-#		${SRC_DIR}/tools/${GLB2ZSCENE_TARGET}/${GLB2ZSCENE_TARGET}.cpp
-#)
-#add_dependencies(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
-#target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${INCLUDE_DIR} ${Z0_INCLUDE_DIR})
-#target_link_libraries(${GLB2ZSCENE_TARGET} ${Z0_TARGET})
-#target_link_libraries(${GLB2ZSCENE_TARGET} std-cxx-modules)#target_compile_options(${GLB2ZSCENE_TARGET} PRIVATE
-#		$<$<CXX_COMPILER_ID:GNU>:-Werror>
-#		$<$<CXX_COMPILER_ID:Clang>:-Werror>
-#		$<$<CXX_COMPILER_ID:MSVC>:/WX>
-#)
-#target_include_directories(${GLB2ZSCENE_TARGET} PUBLIC ${Compressonator_INCLUDE_DIR})
-#target_link_libraries(${GLB2ZSCENE_TARGET} "${COMPRESSONATOR_ROOT}/lib/bin/x64/Compressonator_MTd_DLL.dll")
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)

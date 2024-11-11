@@ -8,7 +8,6 @@
 message(NOTICE "Searching for Vulkan SDK")
 find_package(Vulkan REQUIRED)
 target_include_directories(${Z0_TARGET} PUBLIC ${Vulkan_INCLUDE_DIRS})
-#include(cmake/compressonator.cmake)
 
 ###### Using Volk to load Vulkan functions
 message(NOTICE "Fetching volk from https://github.com/zeux/volk ...")
