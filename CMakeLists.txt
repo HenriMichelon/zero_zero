@@ -64,6 +64,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/z0.cppm
 		${Z0_ENGINE_DIR}/zscene.cppm
 
+		${Z0_ENGINE_DIR}/vulkan/application.cppm
 		${Z0_ENGINE_DIR}/vulkan/buffer.cppm
 		${Z0_ENGINE_DIR}/vulkan/descriptors.cppm
 		${Z0_ENGINE_DIR}/vulkan/device.cppm
@@ -102,7 +103,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/resources/sub_shape.cppm
 		${Z0_ENGINE_DIR}/resources/texture.cppm
 
-		${Z0_ENGINE_DIR}/vulkan/resources/application.cppm
 		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cppm
 		${Z0_ENGINE_DIR}/vulkan/resources/image.cppm
 		${Z0_ENGINE_DIR}/vulkan/resources/mesh.cppm
@@ -170,6 +170,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/window.cpp
 		${Z0_ENGINE_DIR}/zscene.cpp
 
+		${Z0_ENGINE_DIR}/vulkan/application.cpp
 		${Z0_ENGINE_DIR}/vulkan/buffer.cpp
 		${Z0_ENGINE_DIR}/vulkan/descriptors.cpp
 		${Z0_ENGINE_DIR}/vulkan/device.cpp
@@ -208,7 +209,6 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/resources/static_compound_shape.cpp
 		${Z0_ENGINE_DIR}/resources/texture.cpp
 
-		${Z0_ENGINE_DIR}/vulkan/resources/application.cpp
 		${Z0_ENGINE_DIR}/vulkan/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/vulkan/resources/image.cpp
 		${Z0_ENGINE_DIR}/vulkan/resources/font.cpp
