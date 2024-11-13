@@ -20,6 +20,17 @@ import z0.Window;
 
 namespace z0 {
 
+    int numMipmapLevels(int width, int height) {
+        int mipLevels = 0;
+        const int minWidth = 8;
+        while (width > minWidth || height > minWidth) {
+            width = std::max(width / 2, 1);
+            height = std::max(height / 2, 1);
+            ++mipLevels;
+        }
+        return mipLevels + 1;  // Include the last mip level
+    }
+
     uint32_t randomi(const uint32_t max) {
         static std::random_device rd;
         static std::uniform_int_distribution<> distr(0, static_cast<int>(max));

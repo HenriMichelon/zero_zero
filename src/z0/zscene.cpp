@@ -305,7 +305,7 @@ namespace z0 {
             header.dataSize);
     }
     void ZScene::print(const MipLevelInfo& header) {
-        printf("Offset : %llu\nSize: %llu\n", header.offset, header.size);
+        printf("Offset : %llu\nSize: %llu\nPadding: %d", header.offset, header.size, header.padding);
     }
 
     void ZScene::print(const TextureHeader& header) {

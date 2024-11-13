@@ -116,6 +116,8 @@ export namespace z0 {
             uint64_t offset;
             //! Size in bytes of the level
             uint64_t size;
+            //! Alignment passing in bytes
+            uint32_t padding;
         };
 
         /*

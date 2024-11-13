@@ -51,7 +51,7 @@ export namespace z0 {
         static constexpr auto BINDING_OUTPUT_MIPMAPS{2};
 
         static constexpr auto specializationMap = VkSpecializationMapEntry { 0, 0, sizeof(uint32_t) };
-        static constexpr uint32_t specializationData[]{ EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1 };
+        static inline uint32_t specializationData[]{ static_cast<uint32_t>(EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1) };
         static constexpr auto specializationInfo = VkSpecializationInfo{ 1, &specializationMap, sizeof(specializationData), specializationData };
     };
 

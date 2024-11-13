@@ -176,7 +176,7 @@ namespace z0 {
                                     0, 1, &descriptorSet,
                                     0, nullptr);
 
-            constexpr auto deltaRoughness = 1.0f / std::max(static_cast<float>(EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1), 1.0f);
+            const auto deltaRoughness = 1.0f / std::max(static_cast<float>(EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS - 1), 1.0f);
             for(uint32_t level = 1, size = EnvironmentCubemap::ENVIRONMENT_MAP_SIZE/2; level<EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS; ++level, size /= 2) {
                 const auto numGroups = std::max<uint32_t>(1, size/32);
                 const auto pushConstants = SpecularFilterPushConstants{ level-1, level * deltaRoughness };

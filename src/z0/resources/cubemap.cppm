@@ -100,7 +100,7 @@ export namespace z0 {
     class EnvironmentCubemap : public Cubemap {
     public:
         static constexpr auto ENVIRONMENT_MAP_SIZE{1024};
-        static constexpr auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
+        static inline auto ENVIRONMENT_MAP_MIPMAP_LEVELS = numMipmapLevels(ENVIRONMENT_MAP_SIZE, ENVIRONMENT_MAP_SIZE);
         static constexpr auto IRRADIANCE_MAP_SIZE{32};
         static constexpr auto BRDFLUT_SIZE{256};
 
