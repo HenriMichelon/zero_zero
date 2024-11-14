@@ -295,17 +295,18 @@ namespace z0 {
             header.headersSize);
     }
     void ZScene::print(const ImageHeader& header) {
-        printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\n",
+        printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\nPadding: %d\n",
             header.name,
             header.format,
             header.width,
             header.height,
             header.mipLevels,
             header.dataOffset,
-            header.dataSize);
+            header.dataSize,
+            header.padding);
     }
     void ZScene::print(const MipLevelInfo& header) {
-        printf("Offset : %llu\nSize: %llu\nPadding: %d", header.offset, header.size, header.padding);
+        printf("Offset : %llu\nSize: %llu\n", header.offset, header.size);
     }
 
     void ZScene::print(const TextureHeader& header) {

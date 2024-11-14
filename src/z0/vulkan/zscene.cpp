@@ -36,16 +36,17 @@ namespace z0 {
             const auto bytesRead = stream.gcount();
             textureStagingBuffer.writeToBuffer(transferBuffer.data(), bytesRead, transferOffset);
             transferOffset += bytesRead;
-        }
+        };
+        printf("%llu bytes read\n", transferOffset);
 
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
         const auto& device = Device::get();
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
-            const auto& texture = textureHeaders[textureIndex];
+            const auto& texture = textureHeaders.at(textureIndex);
             if (texture.imageIndex != -1) {
                 const auto& image = imageHeaders[texture.imageIndex];
-                print(image);
+                // print(image);
                 textures.push_back(make_shared<ImageTexture>(
                     make_shared<VulkanImage>(
                        device,

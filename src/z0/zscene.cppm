@@ -106,6 +106,8 @@ export namespace z0 {
             uint64_t dataOffset;
             //! Size in bytes of all levels
             uint64_t dataSize;
+            //! Alignment padding in bytes
+            uint32_t padding;
         };
 
         /*
@@ -116,8 +118,6 @@ export namespace z0 {
             uint64_t offset;
             //! Size in bytes of the level
             uint64_t size;
-            //! Alignment passing in bytes
-            uint32_t padding;
         };
 
         /*

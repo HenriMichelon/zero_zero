@@ -24,8 +24,8 @@ namespace z0 {
         int mipLevels = 0;
         const int minWidth = 8;
         while (width > minWidth || height > minWidth) {
-            width = std::max(width / 2, 1);
-            height = std::max(height / 2, 1);
+            width = std::max<int>(width / 2, 1);
+            height = std::max<int>(height / 2, 1);
             ++mipLevels;
         }
         return mipLevels + 1;  // Include the last mip level
