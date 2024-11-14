@@ -86,6 +86,10 @@ export namespace z0 {
             uint32_t nodesCount{0};
             //! Size in bytes of all the headers
             uint64_t headersSize;
+            //! Headers alignment padding in bytes
+            // uint32_t headersPadding;
+            //! Meshes data alignment padding in bytes
+            // uint32_t meshesDataPadding;
         };
 
         /*
@@ -107,7 +111,7 @@ export namespace z0 {
             //! Size in bytes of all levels
             uint64_t dataSize;
             //! Alignment padding in bytes
-            uint32_t padding;
+            // uint32_t padding;
         };
 
         /*
@@ -118,6 +122,8 @@ export namespace z0 {
             uint64_t offset;
             //! Size in bytes of the level
             uint64_t size;
+            //! Alignment padding in bytes
+            // uint32_t padding;
         };
 
         /*

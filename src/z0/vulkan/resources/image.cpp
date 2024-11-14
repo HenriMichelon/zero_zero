@@ -198,7 +198,7 @@ namespace z0 {
         auto copyRegions = vector<VkBufferImageCopy>{};
         for (uint32_t mip_level = 0; mip_level < mipLevels; mip_level++) {
             const auto buffer_copy_region = VkBufferImageCopy{
-                .bufferOffset       = bufferOffset + mipLevelHeaders[mip_level].offset,
+                .bufferOffset       = bufferOffset + mipLevelHeaders.at(mip_level).offset,
                 .imageSubresource {
                     .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
                     .mipLevel       = mip_level,

@@ -91,11 +91,17 @@ namespace z0 {
         auto nodeHeaders = vector<NodeHeader>(header.nodesCount);
         auto childrenIndexes = vector<vector<uint32_t>>{header.nodesCount};
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
-            stream.read(reinterpret_cast<istream::char_type *>(&nodeHeaders[nodeIndex]), sizeof(NodeHeader));
-            childrenIndexes[nodeIndex].resize(nodeHeaders[nodeIndex].childrenCount);
-            stream.read(reinterpret_cast<istream::char_type *>(childrenIndexes[nodeIndex].data()), sizeof(uint32_t) * childrenIndexes[nodeIndex].size());
+            stream.read(reinterpret_cast<istream::char_type *>(&nodeHeaders.at(nodeIndex)), sizeof(NodeHeader));
+            childrenIndexes.at(nodeIndex).resize(nodeHeaders.at(nodeIndex).childrenCount);
+            stream.read(reinterpret_cast<istream::char_type *>(childrenIndexes.at(nodeIndex).data()), sizeof(uint32_t) * childrenIndexes[nodeIndex].size());
             // log("Node ", nodeHeaders[nodeIndex].name, " ", to_string(nodeHeaders[nodeIndex].childrenCount), "children");
         }
+
+        // Skip padding
+        // auto pad = vector<uint8_t>(vector<uint8_t>::size_type(32), 0);
+        // if (header.headersPadding > 0) {
+            // stream.read(reinterpret_cast<istream::char_type *>(pad.data()), header.headersPadding);
+        // }
 
         // Read the meshes data
         uint32_t count;
@@ -119,6 +125,11 @@ namespace z0 {
         vector<vec4> tangents{count};
         stream.read(reinterpret_cast<istream::char_type *>(tangents.data()), count * sizeof(vec4));
 
+        // Skip padding
+        // if (header.meshesDataPadding > 0) {
+            // stream.read(reinterpret_cast<istream::char_type *>(pad.data()), header.meshesDataPadding);
+        // }
+
         // log(format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
             // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()));
         // for(auto& pos : positions) {
@@ -132,11 +143,11 @@ namespace z0 {
         vector<shared_ptr<Material>> materials{header.materialsCount};
         map<Resource::id_t, int> materialsTexCoords;
         for (auto materialIndex = 0; materialIndex < header.materialsCount; ++materialIndex) {
-            auto& header = materialHeaders[materialIndex];
+            auto& header = materialHeaders.at(materialIndex);
             auto material = make_shared<StandardMaterial>(header.name);
             auto textureInfo = [&](const TextureInfo& info) {
                 auto texInfo = StandardMaterial::TextureInfo {
-                    .texture = dynamic_pointer_cast<ImageTexture>(textures[info.textureIndex]),
+                    .texture = dynamic_pointer_cast<ImageTexture>(textures.at(info.textureIndex)),
                     .transform = info.transform,
                 };
                 materialsTexCoords[material->getId()] = info.uvsIndex;
@@ -156,7 +167,7 @@ namespace z0 {
             material->setEmissiveTexture(textureInfo(header.emissiveTexture));
             material->setNormalTexture(textureInfo(header.normalTexture));
             material->setNormalScale(header.normalScale);
-            materials[materialIndex] = material;
+            materials.at(materialIndex) = material;
         }
 
         // Create the Mesh, Surface & Vertex objects
@@ -295,15 +306,14 @@ namespace z0 {
             header.headersSize);
     }
     void ZScene::print(const ImageHeader& header) {
-        printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\nPadding: %d\n",
+        printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\n",
             header.name,
             header.format,
             header.width,
             header.height,
             header.mipLevels,
             header.dataOffset,
-            header.dataSize,
-            header.padding);
+            header.dataSize);
     }
     void ZScene::print(const MipLevelInfo& header) {
         printf("Offset : %llu\nSize: %llu\n", header.offset, header.size);
