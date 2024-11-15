@@ -131,7 +131,7 @@ export namespace z0 {
          */
         struct TextureHeader {
             //! Associated image, -1 for a texture without image
-            int32_t  imageIndex;
+            int32_t  imageIndex{-1};
             //! Minification filter to apply to texture lookups, [VkFilter format](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkFilter.html)
             uint32_t minFilter;
             //! Magnification filter to apply to texture lookups, [VkFilter format](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkFilter.html)
@@ -147,7 +147,7 @@ export namespace z0 {
          */
         struct TextureInfo {
             //! Attached texture, -1 if no texture
-            int32_t  textureIndex;
+            int32_t  textureIndex{-1};
             //! Index of UV coordinates, in the UV DataInfo array of the attached surface
             uint32_t uvsIndex;
             //! UV coordinates transform
@@ -205,7 +205,7 @@ export namespace z0 {
          */
         struct SurfaceInfo {
             //! Attached material, -1 if no material
-            int32_t  materialIndex;
+            int32_t  materialIndex{-1};
             //! Indices array
             DataInfo indices;
             //! Vertices positions array

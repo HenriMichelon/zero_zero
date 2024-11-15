@@ -66,9 +66,13 @@ namespace z0 {
 
         // Read the textures & materials headers
         auto textureHeaders = vector<TextureHeader>(header.texturesCount);
-        stream.read(reinterpret_cast<istream::char_type *>(textureHeaders.data()), textureHeaders.size() * sizeof(TextureHeader));
+        if (header.texturesCount > 0) {
+            stream.read(reinterpret_cast<istream::char_type *>(textureHeaders.data()), textureHeaders.size() * sizeof(TextureHeader));
+        }
         auto materialHeaders = vector<MaterialHeader>(header.materialsCount);
-        stream.read(reinterpret_cast<istream::char_type *>(materialHeaders.data()), materialHeaders.size() * sizeof(MaterialHeader));
+        if (header.materialsCount > 0) {
+            stream.read(reinterpret_cast<istream::char_type *>(materialHeaders.data()), materialHeaders.size() * sizeof(MaterialHeader));
+        }
 
         // Read the meshes & surfaces headers
         auto meshesHeaders = vector<MeshHeader>(header.meshesCount);
@@ -137,17 +141,19 @@ namespace z0 {
         // }
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
-        loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
+        if (header.imagesCount > 0) {
+            loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
+        }
 
         // Create the Material objects
-        vector<shared_ptr<Material>> materials{header.materialsCount};
+        vector<shared_ptr<Material>> materials{static_cast<vector<shared_ptr<Material>>::size_type>(header.materialsCount)};
         map<Resource::id_t, int> materialsTexCoords;
         for (auto materialIndex = 0; materialIndex < header.materialsCount; ++materialIndex) {
             auto& header = materialHeaders.at(materialIndex);
             auto material = make_shared<StandardMaterial>(header.name);
             auto textureInfo = [&](const TextureInfo& info) {
                 auto texInfo = StandardMaterial::TextureInfo {
-                    .texture = dynamic_pointer_cast<ImageTexture>(textures.at(info.textureIndex)),
+                    .texture = info.textureIndex == -1 ? nullptr : dynamic_pointer_cast<ImageTexture>(textures.at(info.textureIndex)),
                     .transform = info.transform,
                 };
                 materialsTexCoords[material->getId()] = info.uvsIndex;
@@ -171,15 +177,15 @@ namespace z0 {
         }
 
         // Create the Mesh, Surface & Vertex objects
-        vector<shared_ptr<Mesh>>     meshes{header.meshesCount};
+        vector<shared_ptr<Mesh>> meshes{static_cast<vector<shared_ptr<Mesh>>::size_type>(header.meshesCount)};
         for (auto meshIndex = 0; meshIndex < header.meshesCount; ++meshIndex) {
-            auto& header   = meshesHeaders[meshIndex];
+            auto& header   = meshesHeaders.at(meshIndex);
             auto  mesh     = make_shared<VulkanMesh>(header.name);
             auto &meshVertices = mesh->getVertices();
             auto &meshIndices  = mesh->getIndices();
             // print(header);
             for (auto surfaceIndex = 0; surfaceIndex < header.surfacesCount; ++surfaceIndex) {
-                auto &info = surfaceInfo[meshIndex][surfaceIndex];
+                auto &info = surfaceInfo.at(meshIndex)[surfaceIndex];
                 // print(info);
                 auto firstIndex = meshIndices.size();
                 auto firstVertex  = meshVertices.size();
@@ -218,7 +224,7 @@ namespace z0 {
                     if (materialsTexCoords.contains(material->getId())) {
                         texCoord = materialsTexCoords.at(material->getId());
                     }
-                    const auto& texCoordInfo = uvsInfos[meshIndex][surfaceIndex][texCoord];
+                    const auto& texCoordInfo = uvsInfos.at(meshIndex)[surfaceIndex][texCoord];
                     for(auto i = 0; i < texCoordInfo.count; i++) {
                         meshVertices[firstVertex + i].uv = uvs[texCoordInfo.first + i];
                         // log(format("mesh {} surface {} uvs {} uv {}", meshIndex, surfaceIndex, texCoord, to_string(uvs[texCoordInfo.first + i])));
@@ -258,19 +264,19 @@ namespace z0 {
         }
 
         // Create the Node objects
-        vector<shared_ptr<Node>> nodes{header.nodesCount};
+        vector<shared_ptr<Node>> nodes{static_cast<vector<shared_ptr<Node>>::size_type>(header.nodesCount)};
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             shared_ptr<Node> newNode;
-            string           name{nodeHeaders[nodeIndex].name};
+            string           name{nodeHeaders.at(nodeIndex).name};
             // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the
             // MeshInstance class
-            if (nodeHeaders[nodeIndex].meshIndex != -1) {
-                auto mesh = meshes[nodeHeaders[nodeIndex].meshIndex];
+            if (nodeHeaders.at(nodeIndex).meshIndex != -1) {
+                auto mesh = meshes[nodeHeaders.at(nodeIndex).meshIndex];
                 newNode = std::make_shared<MeshInstance>(mesh, name);
             } else {
                 newNode = std::make_shared<Node>(name);
             }
-            newNode->_setTransform(nodeHeaders[nodeIndex].transform);
+            newNode->_setTransform(nodeHeaders.at(nodeIndex).transform);
             newNode->_updateTransform(mat4{1.0f});
             nodes[nodeIndex] = newNode;
         }
@@ -278,9 +284,9 @@ namespace z0 {
         // Build the scene tree
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             auto& sceneNode = nodes[nodeIndex];
-            for (auto i = 0; i < nodeHeaders[nodeIndex].childrenCount; i++) {
+            for (auto i = 0; i < nodeHeaders.at(nodeIndex).childrenCount; i++) {
                 sceneNode->setProcessMode(ProcessMode::DISABLED);
-                sceneNode->addChild(nodes[childrenIndexes[nodeIndex][i]]);
+                sceneNode->addChild(nodes[childrenIndexes.at(nodeIndex)[i]]);
             }
         }
 
