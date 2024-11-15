@@ -120,11 +120,11 @@ namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addSceneFromFile(const shared_ptr<Node> &parent, const string &filepath) {
-        addSceneFromFile(parent.get(), filepath);
+    void Loader::addScene(const shared_ptr<Node> &parent, const string &filepath) {
+        addScene(parent.get(), filepath);
     }
 
-    void Loader::addSceneFromFile(Node *parent, const string &filepath) {
+    void Loader::addScene(Node *parent, const string &filepath) {
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
