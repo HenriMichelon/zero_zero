@@ -14,33 +14,25 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
 add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
+include(cmake/shaders.cmake)
+include(cmake/compile_options.cmake)
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(Z0_TARGET ${PROJECT_NAME})
 
+###########################################################################
+# Engine shared library
+###########################################################################
 # Engine sources & build directories
 set(Z0_INCLUDE_DIR ${INCLUDE_DIR}/z0)
 set(Z0_ENGINE_DIR ${SRC_DIR}/z0)
-set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
-set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
-file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-include(cmake/shaders.cmake)
-
-# compile GLSL shaders
-file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
-		"${Z0_SHADERS_DIR}/*.frag"
-		"${Z0_SHADERS_DIR}/*.vert"
-		"${Z0_SHADERS_DIR}/*.comp"
-)
-add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 
 # engine modules
 set(PROJECT_FILES
@@ -153,7 +145,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gui/rect.cppm
 )
 
-# engine library
+# engine sources
 add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/aabb.cpp
 		${Z0_ENGINE_DIR}/application.cpp
@@ -245,50 +237,18 @@ target_sources(${Z0_TARGET}
 	FILES
 		${PROJECT_FILES}
 )
-if(MSVC)
-	target_compile_options(${Z0_TARGET} PRIVATE
-		/nologo
-		/W2
-		/WX
-		/std:c++latest
-		/experimental:module
-		/fp:fast
-	)
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_options(${Z0_TARGET} PRIVATE
-			/Od
-			/GS
-			/Ob0
-			/RTC1
-		)
-	else()
-		target_compile_options(${Z0_TARGET} PRIVATE
-			/O2
-			/GS-
-			/Gy
-			/Oi
-			/Ot
-		)
-	endif()
-	set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
-else()
-	target_compile_options(${Z0_TARGET} PRIVATE
-		-Wno-deprecated-declarations
-		-Wno-nullability-completeness
-		-Werror
-	)
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_options(${Z0_TARGET} PRIVATE
-			-O0
-		)
-	else()
-		target_compile_options(${Z0_TARGET} PRIVATE
-			-O3
-			-DNDEBUG
-		)
-	endif()
-endif()
-target_link_libraries(${Z0_TARGET} std-cxx-modules)
+compile_options(${Z0_TARGET})
+
+# GLSL shaders & dependencies
+set(Z0_SHADERS_DIR ${Z0_ENGINE_DIR}/shaders)
+set(Z0_SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+file(MAKE_DIRECTORY ${Z0_SHADERS_BUILD_DIR})
+file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
+		"${Z0_SHADERS_DIR}/*.frag"
+		"${Z0_SHADERS_DIR}/*.vert"
+		"${Z0_SHADERS_DIR}/*.comp"
+)
+add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 add_dependencies(${Z0_TARGET} ${Z0_TARGET}_shaders)
 target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
 if(WIN32)
@@ -297,6 +257,36 @@ endif()
 
 #https://github.com/llvm/llvm-project/issues/105994
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
+
+###########################################################################
+# gltf2zscene tool
+###########################################################################
+set(GLTF2ZSCENE gltf2zscene)
+set(GLTF2ZSCENE_SRC_DIR ${SRC_DIR}/tools/gltf2zscene)
+set(GLTF2ZSCENE_INCLUDE_DIR ${GLTF2ZSCENE_INCLUDE_DIR})
+add_executable(${GLTF2ZSCENE}
+		${GLTF2ZSCENE_SRC_DIR}/main.cpp
+		${GLTF2ZSCENE_SRC_DIR}/image.cpp
+		${GLTF2ZSCENE_SRC_DIR}/converter.cpp
+		${GLTF2ZSCENE_SRC_DIR}/glad/glad.c
+)
+target_sources(${GLTF2ZSCENE}
+		PUBLIC
+		FILE_SET CXX_MODULES
+		FILES
+		${GLTF2ZSCENE_SRC_DIR}/miplevel.cppm
+		${GLTF2ZSCENE_SRC_DIR}/image.cppm
+		${GLTF2ZSCENE_SRC_DIR}/converter.cppm
+)
+compile_options(${GLTF2ZSCENE})
+target_include_directories(${PROJECT_NAME} PUBLIC ${GLTF2ZSCENE_INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+target_link_libraries(${GLTF2ZSCENE} ${Z0_TARGET})
+
+###########################################################################
+# global target
+###########################################################################
+add_custom_target(ZeroZeroEngine ALL)
+add_dependencies(ZeroZeroEngine ${Z0_TARGET} ${GLTF2ZSCENE})
 
 include(FetchContent)
 include(cmake/std.cmake)
