@@ -47,9 +47,12 @@ int main(const int argc, char** argv) {
     if (verbose) { cout << "Using compression format " << formatName << " for color images" << endl; }
 
     // -t
-    auto maxThreads = std::min<int>(4, thread::hardware_concurrency() / 2);
+    auto maxThreads = 0;
     if (result.count("t") == 1) {
         maxThreads = result["t"].as<int>();
+    }
+    if (maxThreads <= 0) {
+        maxThreads = std::max<int>(4, thread::hardware_concurrency() / 2);
     }
     if (verbose) { cout << "Using " << maxThreads << " threads for transcoding" << endl; }
 
@@ -112,7 +115,6 @@ int main(const int argc, char** argv) {
     try {
         auto tStart = std::chrono::high_resolution_clock::now();
         for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
-            const auto dstFormat = imagesFormat.at(imageIndex);
             equeueImageLoading(
                 gltf,
                 gltf.images[imageIndex],

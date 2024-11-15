@@ -210,7 +210,8 @@ class ExportOperator(bpy.types.Operator):
         if settings.convert_zscene:
             zscene_export_path = os.path.join(export_models_path,  file_name + Z_EXPORT_EXT)
             subprocess.run([
-                gltf2zscene, 
+                gltf2zscene,
+                "-v",
                 "-t", str(settings.gltf2zscene_threads),
                 "-f", settings.gltf2zscene_format,
                 glb_export_path, 
