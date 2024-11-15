@@ -47,7 +47,7 @@ int main(const int argc, char** argv) {
     if (verbose) { cout << "Using compression format " << formatName << " for color images" << endl; }
 
     // -t
-    auto maxThreads = std::min<int>(4, thread::hardware_concurrency() / 3);
+    auto maxThreads = std::min<int>(4, thread::hardware_concurrency() / 2);
     if (result.count("t") == 1) {
         maxThreads = result["t"].as<int>();
     }
