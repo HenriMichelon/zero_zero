@@ -17,8 +17,8 @@ import converter;
 
 // Image conversion destination format, one per image
 export struct ImageFormat {
-    string name;
-    VkFormat format;
+    string name{"bc7"};
+    VkFormat format{VK_FORMAT_BC7_UNORM_BLOCK};
 };
 
 // Vulkan equivalence of compression formats with sRGB options

@@ -112,6 +112,7 @@ int main(const int argc, char** argv) {
     try {
         auto tStart = std::chrono::high_resolution_clock::now();
         for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
+            const auto dstFormat = imagesFormat.at(imageIndex);
             equeueImageLoading(
                 gltf,
                 gltf.images[imageIndex],
