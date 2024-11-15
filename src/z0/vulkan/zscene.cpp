@@ -37,7 +37,7 @@ namespace z0 {
             textureStagingBuffer.writeToBuffer(transferBuffer.data(), bytesRead, transferOffset);
             transferOffset += bytesRead;
         };
-        printf("%llu bytes read\n", transferOffset);
+        //printf("%llu bytes read\n", transferOffset);
 
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
