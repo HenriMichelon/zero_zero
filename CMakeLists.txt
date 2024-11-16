@@ -40,6 +40,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/application.cppm
 		${Z0_ENGINE_DIR}/application_config.cppm
 		${Z0_ENGINE_DIR}/constants.cppm
+		${Z0_ENGINE_DIR}/debug_config.cppm
 		${Z0_ENGINE_DIR}/frustum_culling.cppm
 		${Z0_ENGINE_DIR}/gltf.cppm
 		${Z0_ENGINE_DIR}/input.cppm
@@ -110,7 +111,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cppm
 		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cppm
 
-		${Z0_ENGINE_DIR}/vulkan/renderers/debug_co.cppm
+		${Z0_ENGINE_DIR}/vulkan/renderers/debug.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/models.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderer.cppm
@@ -217,7 +218,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cpp
 		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cpp
 
-		${Z0_ENGINE_DIR}/vulkan/renderers/debug_co.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/debug.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/models.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cpp

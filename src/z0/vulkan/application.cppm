@@ -16,7 +16,7 @@ import z0.ApplicationConfig;
 import z0.Node;
 
 import z0.Instance;
-import z0.DebugCollisionObjectsRenderer;
+import z0.DebugRenderer;
 import z0.Device;
 import z0.SceneRenderer;
 import z0.VectorRenderer;
@@ -59,9 +59,9 @@ export namespace z0 {
         shared_ptr<VectorRenderer> vectorRenderer;
         // HDR & Gamma correction renderer
         shared_ptr<TonemappingPostprocessingRenderer> tonemappingRenderer;
-        // Collision object debug
-        shared_ptr<DebugCollisionObjectsRenderer> debugCollisionObjectsRenderer;
-        // Collision object debug config
+        // Debug view
+        shared_ptr<DebugRenderer> debugRenderer;
+        // Debug view config
         JPH::BodyManager::DrawSettings bodyDrawSettings{};
     };
 }

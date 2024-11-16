@@ -21,7 +21,7 @@ module;
 #include <Jolt/Renderer/DebugRendererSimple.h>
 #include "z0/libraries.h"
 
-export module z0.DebugCollisionObjectsRenderer;
+export module z0.DebugRenderer;
 
 import z0.Camera;
 import z0.CollisionObject;
@@ -36,9 +36,9 @@ import z0.Renderpass;
 
 namespace z0 {
 
-    export class DebugCollisionObjectsRenderer : public Renderpass, public Renderer, public JPH::DebugRendererSimple  {
+    export class DebugRenderer : public Renderpass, public Renderer, public JPH::DebugRendererSimple  {
     public:
-        DebugCollisionObjectsRenderer(Device &                        device,
+        DebugRenderer(Device &                        device,
                        const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
                        const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment);
 

@@ -22,6 +22,7 @@ import z0.GManager;
 
 import z0.Instance;
 import z0.Device;
+import z0.DebugRenderer;
 import z0.SceneRenderer;
 import z0.VectorRenderer;
 import z0.TonemappingPostprocessingRenderer;
@@ -37,7 +38,7 @@ namespace z0 {
         // KTXVulkanImage::initialize(
         //     device->getPhysicalDevice(), device->getDevice(),
         //     device->getGraphicQueue(), device->getCommandPool());
-        const auto& conf = appConfig.debugPhysicsConfig;
+        const auto& conf = appConfig.debugConfig;
         bodyDrawSettings = JPH::BodyManager::DrawSettings{
             .mDrawGetSupportFunction = conf.drawGetSupportingFace,
             .mDrawShape = conf.drawShape,
@@ -55,7 +56,7 @@ namespace z0 {
         sceneRenderer.reset();
         if (vectorRenderer) { vectorRenderer.reset(); }
         if (tonemappingRenderer) { tonemappingRenderer.reset(); }
-        if (debugCollisionObjectsRenderer) { debugCollisionObjectsRenderer.reset(); }
+        if (debugRenderer) { debugRenderer.reset(); }
         // KTXVulkanImage::cleanup();
         device->cleanup();
         device.reset();
@@ -67,7 +68,7 @@ namespace z0 {
             *device,
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass,
-            applicationConfig.debugPhysics);
+            applicationConfig.debug);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
         *device,
         sceneRenderer->getColorAttachments(),
@@ -78,12 +79,12 @@ namespace z0 {
 
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(tonemappingRenderer);
-        if (applicationConfig.debugPhysics) {
-            debugCollisionObjectsRenderer = make_shared<DebugCollisionObjectsRenderer>(
+        if (applicationConfig.debug) {
+            debugRenderer = make_shared<DebugRenderer>(
                 *device,
                 sceneRenderer->getColorAttachments(),
                 sceneRenderer->getDepthAttachments());
-            device->registerRenderer(debugCollisionObjectsRenderer);
+            device->registerRenderer(debugRenderer);
         }
         device->registerRenderer(sceneRenderer);
 
@@ -109,8 +110,8 @@ namespace z0 {
         }
         if (frameData.at(currentFrame).activeCamera != nullptr) {
             sceneRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
-            if (applicationConfig.debugPhysics) {
-                debugCollisionObjectsRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
+            if (applicationConfig.debug) {
+                debugRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
             }
             frameData.at(currentFrame).activeCamera = nullptr;
         }
@@ -118,19 +119,19 @@ namespace z0 {
             const auto &camera = rootNode->findFirstChild<Camera>(true);
             if (camera && camera->isProcessed()) {
                 sceneRenderer->activateCamera(camera, currentFrame);
-                if (applicationConfig.debugPhysics) {
-                    debugCollisionObjectsRenderer->activateCamera(camera, currentFrame);
+                if (applicationConfig.debug) {
+                    debugRenderer->activateCamera(camera, currentFrame);
                 }
             }
         }
         sceneRenderer->postUpdateScene(currentFrame);
-        if (applicationConfig.debugPhysics &&
-                (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugPhysicsConfig.updateDelay / 1000.0f)))) {
-            debugCollisionObjectsRenderer->startDrawing();
-            if (applicationConfig.debugPhysicsConfig.drawCoordinateSystem) {
-                debugCollisionObjectsRenderer->DrawCoordinateSystem(JPH::RMat44::sIdentity());
+        if (applicationConfig.debug &&
+                (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugConfig.updateDelay / 1000.0f)))) {
+            debugRenderer->startDrawing();
+            if (applicationConfig.debugConfig.drawCoordinateSystem) {
+                debugRenderer->DrawCoordinateSystem(JPH::RMat44::sIdentity());
             }
-            _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugCollisionObjectsRenderer.get(), nullptr);
+            _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugRenderer.get(), nullptr);
         }
     }
 

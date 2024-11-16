@@ -17,7 +17,7 @@ module;
 #endif // !JPH_DEBUG_RENDERER
 #include "z0/libraries.h"
 
-module z0.DebugCollisionObjectsRenderer;
+module z0.DebugRenderer;
 
 import z0.CollisionObject;
 import z0.Constants;
@@ -30,7 +30,7 @@ import z0.Device;
 
 namespace z0 {
 
-    DebugCollisionObjectsRenderer::DebugCollisionObjectsRenderer(Device &device,
+    DebugRenderer::DebugRenderer(Device &device,
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
                                    const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment) :
         Renderpass{device, WINDOW_CLEAR_COLOR} {
@@ -59,7 +59,7 @@ namespace z0 {
         Initialize();
     }
 
-    void DebugCollisionObjectsRenderer::cleanup() {
+    void DebugRenderer::cleanup() {
         ranges::for_each(frameData, [](FrameData& frame) {
             frame.globalBuffer.reset();
         });
@@ -69,19 +69,19 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    void DebugCollisionObjectsRenderer::activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame) {
+    void DebugRenderer::activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame) {
         frameData.at(currentFrame).currentCamera = camera;
         auto cameraPosition = frameData.at(currentFrame).currentCamera->getPositionGlobal();
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 
-    void DebugCollisionObjectsRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
+    void DebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
         const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a / 2.0};
         vertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
         vertices.push_back( {{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }, color});
     }
 
-    void DebugCollisionObjectsRenderer::update(const uint32_t currentFrame) {
+    void DebugRenderer::update(const uint32_t currentFrame) {
         const auto& frame = frameData.at(currentFrame);
         if (!frame.currentCamera) { return; }
         // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
@@ -118,7 +118,7 @@ namespace z0 {
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
     }
 
-    void DebugCollisionObjectsRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void DebugRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         if ((!frameData.at(currentFrame).currentCamera) || vertices.empty()) { return; }
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
@@ -141,7 +141,7 @@ namespace z0 {
         vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
     }
 
-    void DebugCollisionObjectsRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void DebugRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -182,7 +182,7 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void DebugCollisionObjectsRenderer::endRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool isLast) {
+    void DebugRenderer::endRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool isLast) {
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
@@ -199,17 +199,17 @@ namespace z0 {
                                       VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
-    void DebugCollisionObjectsRenderer::startDrawing() {
+    void DebugRenderer::startDrawing() {
         NextFrame();
         vertices.clear();
     }
 
-    void DebugCollisionObjectsRenderer::loadShaders() {
+    void DebugRenderer::loadShaders() {
         vertShader = createShader("debug_co.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
         fragShader = createShader("debug_co.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
-    void DebugCollisionObjectsRenderer::createDescriptorSetLayout() {
+    void DebugRenderer::createDescriptorSetLayout() {
         descriptorPool =
                 DescriptorPool::Builder(device)
                         .setMaxSets(device.getFramesInFlight())
@@ -225,7 +225,7 @@ namespace z0 {
         }
     }
 
-    void DebugCollisionObjectsRenderer::createOrUpdateDescriptorSet(const bool create) {
+    void DebugRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
             auto globalBufferInfo = frameData.at(frameIndex).globalBuffer->descriptorInfo(GLOBAL_BUFFER_SIZE);
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)

@@ -10,7 +10,7 @@ module;
 export module z0.ApplicationConfig;
 
 import z0.Constants;
-import z0.Physics;
+import z0.DebugConfig;
 
 export namespace z0 {
 
@@ -57,9 +57,9 @@ export namespace z0 {
         uint32_t         cascadedShadowMapSize      = 4096;
         //! Size (width & height) in pixels of the omni & spotlights shadow maps
         uint32_t         pointLightShadowMapSize    = 1024;
-        //! Enable the display of collision objects
-        bool             debugPhysics               = false;
-        //! Configuration for the debugging of collision objects
-        PhysicsDebugConfig debugPhysicsConfig       = {};
+        //! Enable the debug renderer
+        bool             debug                      = true;
+        //! Configuration for the debug rendering
+        DebugConfig      debugConfig                = {};
     };
 }

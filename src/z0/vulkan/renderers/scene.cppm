@@ -26,7 +26,7 @@ import z0.OmniLight;
 import z0.SpotLight;
 import z0.Skybox;
 
-import z0.DebugCollisionObjectsRenderer;
+import z0.DebugRenderer;
 import z0.ModelsRenderer;
 import z0.Device;
 import z0.Descriptors;
