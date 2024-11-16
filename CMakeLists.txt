@@ -20,7 +20,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
 add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
-#add_compile_definitions(JPH_DEBUG_RENDERER)
 include(cmake/shaders.cmake)
 include(cmake/compile_options.cmake)
 

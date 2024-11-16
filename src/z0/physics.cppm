@@ -31,7 +31,7 @@ export namespace z0 {
         bool                drawCoordinateSystem = false;
 		bool			    drawGetSupportingFace = false;					///< Draw the faces that were found colliding during collision detection
 		bool			    drawShape = true;								///< Draw the shapes of all bodies
-		PhysicsDebugColor	drawShapeColor = PhysicsDebugColor::MotionTypeColor; ///< Coloring scheme to use for shapes
+		PhysicsDebugColor	drawShapeColor = PhysicsDebugColor::ShapeTypeColor; ///< Coloring scheme to use for shapes
 		bool				drawBoundingBox = false;						///< Draw a bounding box per body
 		// bool				drawCenterOfMassTransform = false;				///< Draw the center of mass for each body
 		// bool				drawWorldTransform = false;					///< Draw the world transform (which can be different than the center of mass) for each body
