@@ -6,6 +6,8 @@
 */
 module;
 #include <cassert>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyManager.h>
 #include "z0/libraries.h"
 
 module z0.VulkanApplication;
@@ -14,6 +16,7 @@ import z0.ApplicationConfig;
 import z0.Camera;
 import z0.Material;
 import z0.Node;
+import z0.Tools;
 
 import z0.GManager;
 
@@ -34,12 +37,25 @@ namespace z0 {
         // KTXVulkanImage::initialize(
         //     device->getPhysicalDevice(), device->getDevice(),
         //     device->getGraphicQueue(), device->getCommandPool());
+        const auto& conf = appConfig.debugPhysicsConfig;
+        bodyDrawSettings = JPH::BodyManager::DrawSettings{
+            .mDrawGetSupportFunction = conf.drawGetSupportingFace,
+            .mDrawShape = conf.drawShape,
+            .mDrawShapeWireframe = true,
+            .mDrawShapeColor = static_cast<JPH::BodyManager::EShapeColor>(conf.drawShapeColor),
+            .mDrawBoundingBox = conf.drawBoundingBox,
+            .mDrawVelocity = conf.drawVelocity,
+            .mDrawMassAndInertia = conf.drawMassAndInertia,
+            .mDrawSleepStats = conf.drawSleepStats,
+        };
         init();
     }
 
     VulkanApplication::~VulkanApplication() {
         sceneRenderer.reset();
-        vectorRenderer.reset();
+        if (vectorRenderer) { vectorRenderer.reset(); }
+        if (tonemappingRenderer) { tonemappingRenderer.reset(); }
+        if (debugCollisionObjectsRenderer) { debugCollisionObjectsRenderer.reset(); }
         // KTXVulkanImage::cleanup();
         device->cleanup();
         device.reset();
@@ -50,17 +66,25 @@ namespace z0 {
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
             applicationConfig.clearColor,
-            applicationConfig.useDepthPrepass);
+            applicationConfig.useDepthPrepass,
+            applicationConfig.debugPhysics);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
-            *device,
-            sceneRenderer->getColorAttachments(),
-            sceneRenderer->getDepthAttachments());
+        *device,
+        sceneRenderer->getColorAttachments(),
+        sceneRenderer->getDepthAttachments());
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
             sceneRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(tonemappingRenderer);
+        if (applicationConfig.debugPhysics) {
+            debugCollisionObjectsRenderer = make_shared<DebugCollisionObjectsRenderer>(
+                *device,
+                sceneRenderer->getColorAttachments(),
+                sceneRenderer->getDepthAttachments());
+            device->registerRenderer(debugCollisionObjectsRenderer);
+        }
         device->registerRenderer(sceneRenderer);
 
         windowManager = make_unique<GManager>(vectorRenderer,
@@ -85,15 +109,29 @@ namespace z0 {
         }
         if (frameData.at(currentFrame).activeCamera != nullptr) {
             sceneRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
+            if (applicationConfig.debugPhysics) {
+                debugCollisionObjectsRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
+            }
             frameData.at(currentFrame).activeCamera = nullptr;
         }
         if (sceneRenderer->getCamera(currentFrame) == nullptr) {
             const auto &camera = rootNode->findFirstChild<Camera>(true);
             if (camera && camera->isProcessed()) {
                 sceneRenderer->activateCamera(camera, currentFrame);
+                if (applicationConfig.debugPhysics) {
+                    debugCollisionObjectsRenderer->activateCamera(camera, currentFrame);
+                }
             }
         }
         sceneRenderer->postUpdateScene(currentFrame);
+        if (applicationConfig.debugPhysics &&
+                (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugPhysicsConfig.updateDelay / 1000.0f)))) {
+            debugCollisionObjectsRenderer->startDrawing();
+            if (applicationConfig.debugPhysicsConfig.drawCoordinateSystem) {
+                debugCollisionObjectsRenderer->DrawCoordinateSystem(JPH::RMat44::sIdentity());
+            }
+            _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugCollisionObjectsRenderer.get(), nullptr);
+        }
     }
 
     void VulkanApplication::setShadowCasting(const bool enable) const {
@@ -107,4 +145,5 @@ namespace z0 {
     const string &VulkanApplication::getAdapterDescription() const { return device->getAdapterDescription(); }
 
     uint64_t VulkanApplication::getVideoMemoryUsage() const { return device->getVideoMemoryUsage(); }
+
 } // namespace z0

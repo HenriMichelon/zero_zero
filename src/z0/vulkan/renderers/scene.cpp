@@ -9,7 +9,6 @@ module;
 #include <glm/detail/type_mat3x4.hpp>
 #include <json.hpp>
 #include <volk.h>
-
 #include "z0/libraries.h"
 
 module z0.SceneRenderer;
@@ -50,8 +49,9 @@ import z0.VulkanMesh;
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass) :
-        ModelsRenderer{device, clearColor}, enableDepthPrepass{enableDepthPrepass} {
+    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass, const bool enableDebugCollisionObject) :
+        ModelsRenderer{device, clearColor},
+        enableDepthPrepass{enableDepthPrepass} {
         frameData.resize(device.getFramesInFlight());
         colorFrameBufferHdr.resize(device.getFramesInFlight());
         resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
@@ -60,7 +60,7 @@ namespace z0 {
             frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
             frame.materialsIndicesAllocation = vector(MAX_MATERIALS, Resource::INVALID_ID);
         });
-        createOrUpdateResources(true, &pushConstantRange);
+        createOrUpdateResources(true, &pushConstantRange, 1);
     }
 
     void SceneRenderer::cleanup() {

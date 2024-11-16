@@ -29,6 +29,7 @@ export import z0.MeshShape;
 export import z0.Node;
 export import z0.OmniLight;
 export import z0.Object;
+export import z0.Physics;
 export import z0.RayCast;
 export import z0.Rect;
 export import z0.Resource;

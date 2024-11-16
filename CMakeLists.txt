@@ -20,6 +20,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
 add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
+#add_compile_definitions(JPH_DEBUG_RENDERER)
 include(cmake/shaders.cmake)
 include(cmake/compile_options.cmake)
 
@@ -110,6 +111,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cppm
 		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cppm
 
+		${Z0_ENGINE_DIR}/vulkan/renderers/debug_co.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/models.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderer.cppm
@@ -216,6 +218,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/pipelines/IBL.cpp
 		${Z0_ENGINE_DIR}/vulkan/pipelines/pipeline.cpp
 
+		${Z0_ENGINE_DIR}/vulkan/renderers/debug_co.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/models.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cpp

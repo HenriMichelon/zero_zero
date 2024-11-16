@@ -138,7 +138,7 @@ namespace z0 {
         if (stopped) { return; }
         processDeferredUpdates(currentFrame);
         if (currentFrame == (applicationConfig.framesInFlight-1)) {
-            for_each(deferredCalls.begin(), deferredCalls.end(), [](function<void()> call) { call(); });
+            ranges::for_each(deferredCalls, [](function<void()> call) { call(); });
             deferredCalls.clear();
         }
 

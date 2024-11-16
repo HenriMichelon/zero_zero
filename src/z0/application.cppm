@@ -181,7 +181,6 @@ namespace z0 {
         double currentTime = chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double accumulator = 0.0;
         uint32_t frameCount = 0;
-        float elapsedSeconds = 0.0;
 
         /*
          * Physic system members
@@ -232,6 +231,8 @@ namespace z0 {
         shared_ptr<Node> rootNode;
         // Mesh outlining materials
         unique_ptr<OutlineMaterials> outlineMaterials;
+        // Number of seconds since last FPS update
+        float elapsedSeconds = 0.0;
 
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame

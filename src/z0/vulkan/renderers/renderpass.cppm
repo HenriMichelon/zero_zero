@@ -56,7 +56,7 @@ export namespace z0 {
 
         static void writeUniformBuffer(const unique_ptr<Buffer> &buffer, const void *data);
 
-        void createOrUpdateResources(bool descriptorsAndPushConstants = false, const VkPushConstantRange* = nullptr);
+        void createOrUpdateResources(bool descriptorsAndPushConstants = false, const VkPushConstantRange* = nullptr, uint32_t pushConstantSize = 0);
 
         unique_ptr<Buffer> createUniformBuffer(VkDeviceSize size, uint32_t count = 1) const;
 
@@ -76,7 +76,7 @@ export namespace z0 {
 
         virtual void createOrUpdateDescriptorSet(bool create) {}
 
-        virtual void createPipelineLayout(const VkPushConstantRange* = nullptr);
+        virtual void createPipelineLayout(const VkPushConstantRange* = nullptr, uint32_t pushConstantSize = 0);
 
     private:
         void buildShader(Shader &shader) const;

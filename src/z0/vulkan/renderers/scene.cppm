@@ -26,6 +26,7 @@ import z0.OmniLight;
 import z0.SpotLight;
 import z0.Skybox;
 
+import z0.DebugCollisionObjectsRenderer;
 import z0.ModelsRenderer;
 import z0.Device;
 import z0.Descriptors;
@@ -48,7 +49,7 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass);
+        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass, bool enableDebugCollisionObject);
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
 
@@ -82,11 +83,11 @@ namespace z0 {
 
     private:
         struct GlobalBuffer {
-            mat4 projection{1.0f};
-            mat4 view{1.0f};
-            alignas(16) vec3 cameraPosition;
+            mat4                projection{1.0f};
+            mat4                view{1.0f};
+            alignas(16) vec3    cameraPosition;
             alignas(4) uint32_t lightsCount;
-            alignas(16) vec4 ambient; // RGB + Intensity;
+            alignas(16) vec4    ambient; // RGB + Intensity;
             alignas(4) uint32_t ambientIBL; // Only if HDRi skybox
         };
         static constexpr auto GLOBAL_BUFFER_SIZE = sizeof(GlobalBuffer);
@@ -257,6 +258,7 @@ namespace z0 {
         unique_ptr<Shader> depthPrepassVertShader;
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
+
 
         void update(uint32_t currentFrame) override;
 

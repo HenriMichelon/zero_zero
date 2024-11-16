@@ -81,16 +81,16 @@ namespace z0 {
         buffer->writeToBuffer(data);
     }
 
-    void Renderpass::createOrUpdateResources(const bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange) {
+    void Renderpass::createOrUpdateResources(const bool descriptorsAndPushConstants, const VkPushConstantRange* pushConstantRange, const uint32_t pushConstantSize) {
         if (!descriptorsAndPushConstants && pipelineLayout == VK_NULL_HANDLE && (pushConstantRange != nullptr)) {
-            createPipelineLayout(pushConstantRange);
+            createPipelineLayout(pushConstantRange, pushConstantSize);
             loadShaders();
         } else if ((pipelineLayout == VK_NULL_HANDLE) && (descriptorPool == nullptr)) {
             descriptorSetNeedUpdate = false;
             createDescriptorSetLayout();
             createOrUpdateDescriptorSet(true);
             if (setLayout != nullptr) {
-                createPipelineLayout(pushConstantRange);
+                createPipelineLayout(pushConstantRange, pushConstantSize);
                 loadShaders();
             }
         } else if (descriptorSetNeedUpdate) {
@@ -121,7 +121,7 @@ namespace z0 {
                                 pipelineLayout,
                                 0,
                                 1,
-                                &descriptorSet[currentFrame],
+                                &descriptorSet.at(currentFrame),
                                 count,
                                 offsets);
     }
@@ -157,9 +157,9 @@ namespace z0 {
         return shader;
     }
 
-    void Renderpass::createPipelineLayout(const VkPushConstantRange* pushConstantRange) {
+    void Renderpass::createPipelineLayout(const VkPushConstantRange* pushConstantRange, const uint32_t pushConstantSize) {
         this->pushConstantRange = const_cast<VkPushConstantRange*>(pushConstantRange);
-        const uint32_t pushConstantRangeCount = (pushConstantRange != nullptr ? 1 : 0);
+        const uint32_t pushConstantRangeCount = (pushConstantRange != nullptr ? pushConstantSize : 0);
         const uint32_t setLayoutCount = (setLayout != nullptr && setLayout->isValid() ? 1 : 0);
         const VkPipelineLayoutCreateInfo pipelineLayoutInfo{
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,

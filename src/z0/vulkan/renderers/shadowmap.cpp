@@ -49,7 +49,7 @@ namespace z0 {
             frame.models = meshes;
             frame.models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
         });
-        createOrUpdateResources(true, &pushConstantRange);
+        createOrUpdateResources(true, &pushConstantRange, 1);
     }
 
     void ShadowMapRenderer::cleanup() {

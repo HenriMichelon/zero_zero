@@ -5,6 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyManager.h>
 #include "z0/libraries.h"
 
 export module z0.VulkanApplication;
@@ -14,6 +16,7 @@ import z0.ApplicationConfig;
 import z0.Node;
 
 import z0.Instance;
+import z0.DebugCollisionObjectsRenderer;
 import z0.Device;
 import z0.SceneRenderer;
 import z0.VectorRenderer;
@@ -56,5 +59,9 @@ export namespace z0 {
         shared_ptr<VectorRenderer> vectorRenderer;
         // HDR & Gamma correction renderer
         shared_ptr<TonemappingPostprocessingRenderer> tonemappingRenderer;
+        // Collision object debug
+        shared_ptr<DebugCollisionObjectsRenderer> debugCollisionObjectsRenderer;
+        // Collision object debug config
+        JPH::BodyManager::DrawSettings bodyDrawSettings{};
     };
 }

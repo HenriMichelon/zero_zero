@@ -362,7 +362,7 @@ namespace z0 {
         });
         // Create an in-memory default blank image
         if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage()); }
-        createOrUpdateResources(true, &pushConstantRange);
+        createOrUpdateResources(true, &pushConstantRange, 1);
     }
 
     void VectorRenderer::addImage(const shared_ptr<Image> &image) {
