@@ -142,7 +142,10 @@ namespace z0 {
                     JPH::Mat44::sScale(applicationConfig.debugConfig.drawCoordinateSystemScale));
             }
             if (applicationConfig.debugConfig.drawRayCast) {
-                debugRenderer->drawRayCasts(rootNode, applicationConfig.debugConfig.drawRayCastColor);
+                debugRenderer->drawRayCasts(
+                    rootNode,
+                    applicationConfig.debugConfig.drawRayCastColor,
+                    applicationConfig.debugConfig.drawRayCastCollidingColor);
             }
             _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugRenderer.get(), nullptr);
         }

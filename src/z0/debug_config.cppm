@@ -33,8 +33,10 @@ export namespace z0 {
         float               drawCoordinateSystemScale{1.0f};
         //! Draw all the rays of the RayCast objects
         bool                drawRayCast{false};
-        //! Color for the rays
+        //! Color for the non-colliding rays
         vec4                drawRayCastColor{1.0f, 0.5f, 0.0f, 1.0f};
+        //! Color for the colliding rays
+        vec4                drawRayCastCollidingColor{0.95f, 0.275f, 0.76f, 1.0f};
         //! Draw the faces that were found colliding during collision detection
 		bool	 		    drawGetSupportingFace{false};
         //! Draw the collision shapes of all collision objects

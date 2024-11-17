@@ -47,7 +47,7 @@ namespace z0 {
 
         void activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame);
 
-        void drawRayCasts(const shared_ptr<Node>& scene, vec4 color);
+        void drawRayCasts(const shared_ptr<Node>& scene, vec4 color, vec4 collidingColor);
 
         void drawLine(vec3 from, vec3 to, vec4 color);
 

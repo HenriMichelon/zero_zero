@@ -30,11 +30,11 @@ namespace z0 {
 
     void RayCast::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
-        const auto position    = getPositionGlobal();
-        const auto worldTarget = toGlobal(target);
+        const auto position = getPositionGlobal();
+        const auto worldDirection = toGlobal(target) - position;
         const JPH::RRayCast ray{
-            JPH::Vec3{position.x, position.y, position.z},
-            JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
+            JPH::Vec3{position.x, position.y, position.z },
+            JPH::Vec3{worldDirection.x, worldDirection.y, worldDirection.z}
         };
         JPH::RayCastResult result;
         if (Application::get()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(

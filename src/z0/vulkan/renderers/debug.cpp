@@ -81,9 +81,12 @@ namespace z0 {
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 
-    void DebugRenderer::drawRayCasts(const shared_ptr<Node>& scene, const vec4 color) {
+    void DebugRenderer::drawRayCasts(const shared_ptr<Node>& scene, const vec4 color, const vec4 collidingColor) {
         for(const auto& raycast : scene->findAllChildren<RayCast>(true)) {
-            drawLine(raycast->getPositionGlobal(), raycast->toGlobal(raycast->getTarget()), color);
+            drawLine(
+                raycast->getPositionGlobal(),
+                raycast->isColliding() ? raycast->getCollisionPoint() : raycast->toGlobal(raycast->getTarget()),
+                raycast->isColliding() ? collidingColor : color);
         }
     }
 
