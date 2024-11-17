@@ -31,9 +31,11 @@ import z0.Device;
 namespace z0 {
 
     DebugRenderer::DebugRenderer(Device &device,
-                                   const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
-                                   const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment) :
-        Renderpass{device, WINDOW_CLEAR_COLOR} {
+                                 const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
+                                 const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment,
+                                 const bool useDepthTest) :
+        Renderpass{device, WINDOW_CLEAR_COLOR},
+        useDepthTest{useDepthTest} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {
             frameData.at(i).colorFrameBufferHdr = inputColorAttachmentHdr.at(i);
@@ -76,9 +78,18 @@ namespace z0 {
     }
 
     void DebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
-        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a / 2.0};
-        vertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
-        vertices.push_back( {{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }, color});
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a};
+        linesVertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
+        linesVertices.push_back( {{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }, color});
+        vertexBufferDirty = true;
+    }
+
+    void DebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow) {
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a};
+        triangleVertices.push_back( {{ inV1.GetX(), inV1.GetY(), inV1.GetZ() }, color });
+        triangleVertices.push_back( {{ inV2.GetX(), inV2.GetY(), inV2.GetZ() }, color});
+        triangleVertices.push_back( {{ inV3.GetX(), inV3.GetY(), inV3.GetZ() }, color});
+        vertexBufferDirty = true;
     }
 
     void DebugRenderer::update(const uint32_t currentFrame) {
@@ -86,15 +97,15 @@ namespace z0 {
         if (!frame.currentCamera) { return; }
         // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
         oldBuffers.clear();
-        if (!vertices.empty()) {
+        if (!linesVertices.empty() || !triangleVertices.empty()) {
             // Resize the buffers only if needed by recreating them
-            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != (linesVertices.size() + triangleVertices.size()))) {
                 // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
                 // and can't be destroyed now
                 oldBuffers.push_back(stagingBuffer);
                 oldBuffers.push_back(vertexBuffer);
                 // Allocate new buffers to change size
-                vertexCount      = vertices.size();
+                vertexCount      = linesVertices.size() + triangleVertices.size();
                 vertexBufferSize = VERTEX_BUFFER_SIZE * vertexCount;
                 stagingBuffer    = make_shared<Buffer>(
                         device,
@@ -107,9 +118,17 @@ namespace z0 {
                         vertexCount,
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
             }
-            // Push new vertices data to GPU memory
-            stagingBuffer->writeToBuffer(vertices.data());
-            stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
+            if (vertexBufferDirty) {
+                // Push new vertices data to GPU memory
+                if (!linesVertices.empty()) {
+                    stagingBuffer->writeToBuffer(linesVertices.data(), linesVertices.size() * sizeof(Vertex));
+                }
+                if (!triangleVertices.empty()) {
+                    stagingBuffer->writeToBuffer(triangleVertices.data(), triangleVertices.size() * sizeof(Vertex), linesVertices.size() * sizeof(Vertex));
+                }
+                stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
+                vertexBufferDirty = false;
+            }
         }
         const auto globalUbo = GlobalBuffer {
             .projection = frame.currentCamera->getProjection(),
@@ -119,7 +138,7 @@ namespace z0 {
     }
 
     void DebugRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if ((!frameData.at(currentFrame).currentCamera) || vertices.empty()) { return; }
+        if ((!frameData.at(currentFrame).currentCamera) || (vertexCount == 0)) { return; }
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         vkCmdSetVertexInputEXT(commandBuffer,
@@ -127,18 +146,23 @@ namespace z0 {
                               &bindingDescription,
                               attributeDescriptions.size(),
                               attributeDescriptions.data());
-        vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-        vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
-        vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+        vkCmdSetDepthTestEnable(commandBuffer, useDepthTest);
+        vkCmdSetDepthWriteEnable(commandBuffer, useDepthTest);
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
         vkCmdSetLineWidth(commandBuffer, 1);
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
         bindDescriptorSets(commandBuffer, currentFrame);
-        vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+        if (!linesVertices.empty()) {
+            vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+            vkCmdDraw(commandBuffer, linesVertices.size(), 1, 0, 0);
+        }
+        if (!triangleVertices.empty()) {
+            vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+            vkCmdDraw(commandBuffer, triangleVertices.size(), 1, linesVertices.size(), 0);
+        }
     }
 
     void DebugRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
@@ -170,14 +194,14 @@ namespace z0 {
             .clearValue         = depthClearValue,
         };
         const VkRenderingInfo renderingInfo{
-                .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                .pNext = nullptr,
-                .renderArea = {{0, 0}, device.getSwapChainExtent()},
-                .layerCount = 1,
-                .colorAttachmentCount = 1,
-                .pColorAttachments = &colorAttachmentInfo,
-                .pDepthAttachment = &depthAttachmentInfo,
-                .pStencilAttachment = nullptr
+            .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+            .pNext = nullptr,
+            .renderArea = {{0, 0}, device.getSwapChainExtent()},
+            .layerCount = 1,
+            .colorAttachmentCount = 1,
+            .pColorAttachments = &colorAttachmentInfo,
+            .pDepthAttachment = useDepthTest ? &depthAttachmentInfo : nullptr,
+            .pStencilAttachment = nullptr
         };
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
@@ -201,7 +225,8 @@ namespace z0 {
 
     void DebugRenderer::startDrawing() {
         NextFrame();
-        vertices.clear();
+        linesVertices.clear();
+        triangleVertices.clear();
     }
 
     void DebugRenderer::loadShaders() {

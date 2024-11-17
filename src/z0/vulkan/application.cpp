@@ -39,16 +39,20 @@ namespace z0 {
         //     device->getPhysicalDevice(), device->getDevice(),
         //     device->getGraphicQueue(), device->getCommandPool());
         const auto& conf = appConfig.debugConfig;
-        bodyDrawSettings = JPH::BodyManager::DrawSettings{
-            .mDrawGetSupportFunction = conf.drawGetSupportingFace,
-            .mDrawShape = conf.drawShape,
-            .mDrawShapeWireframe = true,
-            .mDrawShapeColor = static_cast<JPH::BodyManager::EShapeColor>(conf.drawShapeColor),
-            .mDrawBoundingBox = conf.drawBoundingBox,
-            .mDrawVelocity = conf.drawVelocity,
-            .mDrawMassAndInertia = conf.drawMassAndInertia,
-            .mDrawSleepStats = conf.drawSleepStats,
-        };
+        if (appConfig.debug) {
+            bodyDrawSettings = JPH::BodyManager::DrawSettings{
+                .mDrawGetSupportFunction = conf.drawGetSupportingFace,
+                .mDrawShape = conf.drawShape,
+                .mDrawShapeWireframe = conf.drawShapeWireframe,
+                .mDrawShapeColor = static_cast<JPH::BodyManager::EShapeColor>(conf.drawShapeColor),
+                .mDrawBoundingBox = conf.drawBoundingBox,
+                .mDrawCenterOfMassTransform = conf.drawCenterOfMassTransform,
+                .mDrawWorldTransform = conf.drawWorldTransform,
+                .mDrawVelocity = conf.drawVelocity,
+                .mDrawMassAndInertia = conf.drawMassAndInertia,
+                .mDrawSleepStats = conf.drawSleepStats,
+            };
+        }
         init();
     }
 
@@ -83,7 +87,8 @@ namespace z0 {
             debugRenderer = make_shared<DebugRenderer>(
                 *device,
                 sceneRenderer->getColorAttachments(),
-                sceneRenderer->getDepthAttachments());
+                sceneRenderer->getDepthAttachments(),
+                applicationConfig.debugConfig.drawWithDepthTest);
             device->registerRenderer(debugRenderer);
         }
         device->registerRenderer(sceneRenderer);
@@ -129,7 +134,12 @@ namespace z0 {
                 (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugConfig.updateDelay / 1000.0f)))) {
             debugRenderer->startDrawing();
             if (applicationConfig.debugConfig.drawCoordinateSystem) {
-                debugRenderer->DrawCoordinateSystem(JPH::RMat44::sIdentity());
+                debugRenderer->DrawCoordinateSystem(JPH::RMat44::sTranslation(
+                        JPH::Vec3(
+                            applicationConfig.debugConfig.drawCoordinateSystemPosition.x,
+                            applicationConfig.debugConfig.drawCoordinateSystemPosition.y,
+                            applicationConfig.debugConfig.drawCoordinateSystemPosition.z)) *
+                    JPH::Mat44::sScale(applicationConfig.debugConfig.drawCoordinateSystemScale));
             }
             _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugRenderer.get(), nullptr);
         }

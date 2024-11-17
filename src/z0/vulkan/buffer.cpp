@@ -98,7 +98,7 @@ namespace z0 {
     void Buffer::copyTo(const Buffer &dstBuffer, const VkDeviceSize size) const {
         const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
         const VkBufferCopy copyRegion {
-                .size = size
+            .size = size
         };
         vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);
         device.endOneTimeCommandBuffer(commandBuffer);

@@ -5,9 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Collision/ContactListener.h>
 #include "z0/libraries.h"
 
 export module z0.DebugConfig;
@@ -25,22 +22,36 @@ export namespace z0 {
 
     struct DebugConfig {
         //! Delay in milliseconds between collision shapes updates for debug (between 0 and 500)
-        uint32_t            updateDelay  = 100;
-        bool                drawCoordinateSystem = false;
+        uint32_t            updateDelay{100};
+        //! Draw with depth-testing, can hide center of mass transforms & world transforms
+        bool                drawWithDepthTest{true};
+        //! Draw coordinate system (x = red, y = green, z = blue)
+        bool                drawCoordinateSystem{false};
+        //! Coordinate system world position
+        vec3                drawCoordinateSystemPosition{0.0f};
+        //! Coordinate system world position
+        float               drawCoordinateSystemScale{1.0f};
         //! Draw the faces that were found colliding during collision detection
-		bool			    drawGetSupportingFace = false;
-        //! Draw the shapes of all collision objects
-		bool			    drawShape = true;
-        //! Coloring scheme to use for shapes
-		DebugShapeColor	    drawShapeColor = DebugShapeColor::ShapeTypeColor;
+		bool			    drawGetSupportingFace{false};
+        //! Draw the collision shapes of all collision objects
+		bool			    drawShape{true};
+        //! The collision shapes will be drawn in wireframe instead of solid
+        bool                drawShapeWireframe{true};
+        //! Coloring scheme to use for collision shapes
+		DebugShapeColor	    drawShapeColor{DebugShapeColor::ShapeTypeColor};
         //! Draw a bounding box per collision object
-		bool				drawBoundingBox = false;
+		bool				drawBoundingBox{false};
         //! Draw the velocity vector for collision object
-		bool				drawVelocity = false;
+		bool				drawVelocity{false};
         //! Draw the mass and inertia (as the box equivalent) for collision object
-		bool				drawMassAndInertia = false;
+		bool				drawMassAndInertia{false};
         //! Draw stats regarding the sleeping algorithm of each collision object
-		bool				drawSleepStats = false;
+		bool				drawSleepStats{false};
+        //! Draw the center of mass for each collision object
+        bool                drawCenterOfMassTransform{false};
+        //! Draw the world transform (which can be different from the center of mass) for each collision object
+        bool				drawWorldTransform{false};
+
 	};
 
 }
