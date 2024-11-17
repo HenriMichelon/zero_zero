@@ -11,6 +11,7 @@ export module z0.DebugConfig;
 
 export namespace z0 {
 
+    //! Coloring scheme of collision shapes
     enum class DebugShapeColor {
         //! Random color per instance
         InstanceColor,
@@ -20,6 +21,7 @@ export namespace z0 {
         MotionTypeColor,
     };
 
+    //! Configuration of the in-game debug
     struct DebugConfig {
         //! Delay in milliseconds between collision shapes updates for debug (between 0 and 500)
         uint32_t            updateDelay{100};

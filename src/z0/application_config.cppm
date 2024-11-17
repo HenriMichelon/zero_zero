@@ -58,7 +58,7 @@ export namespace z0 {
         //! Size (width & height) in pixels of the omni & spotlights shadow maps
         uint32_t         pointLightShadowMapSize    = 1024;
         //! Enable the debug renderer
-        bool             debug                      = true;
+        bool             debug                      = false;
         //! Configuration for the debug rendering
         DebugConfig      debugConfig                = {};
     };
