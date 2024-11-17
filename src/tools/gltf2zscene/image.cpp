@@ -134,7 +134,8 @@ void loadAndConvertImage(const string&     name,
     if (data) {
         // Check if we need to align the image sizes
         auto blockSize = blockSizes.at(formats.at(dstFormat).format);
-        if ((!isMultipleOfBlockSize(width, blockSize)) || (!isMultipleOfBlockSize(height, blockSize))) {
+        if ((!isMultipleOfBlockSize(width, blockSize) || !isMultipleOfBlockSize(height, blockSize)) &&
+            (width > 4 && height > 4)) {
             blockSize *= blockSize;
             auto alignedWidth = calculateAlignedSize(width);
             auto alignedHeight = calculateAlignedSize(height);
@@ -161,6 +162,14 @@ void loadAndConvertImage(const string&     name,
         {
             auto lock = lock_guard(loadingThreadsExceptionMutex);
             if (loadingThreadsException) { return; }
+        }
+        if (inMipLevels.empty()) {
+            const auto dataSize = width * height * STBI_rgb_alpha;
+            inMipLevels.push_back({
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height),
+                make_shared<vector<uint8_t>>(static_cast<vector<uint8_t>::size_type>(dataSize))});
+            memcpy(inMipLevels.at(0).data->data(), data, dataSize);
         }
         stbi_image_free(data);
 
