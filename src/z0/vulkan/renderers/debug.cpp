@@ -10,7 +10,7 @@ module;
 #include <Jolt/Core/Color.h>
 #include <Jolt/Renderer/DebugRenderer.h>
 #ifndef JPH_DEBUG_RENDERER
-    // Hack to still compile DebugRenderer inside the test framework when Jolt is compiled without
+    // Hack to still compile DebugRenderer when Jolt is compiled without
     #define JPH_DEBUG_RENDERER
     #include <Jolt/Renderer/DebugRenderer.cpp>
     #undef JPH_DEBUG_RENDERER
