@@ -68,6 +68,11 @@ export namespace z0 {
          */
         inline void setTarget(const vec3 &target) { this->target = target; }
 
+        /**
+         * Returns the ray target
+         */
+        inline const vec3& getTarget() const { return this->target; }
+
     private:
         vec3                       target{};
         vec3                       hitPoint{};

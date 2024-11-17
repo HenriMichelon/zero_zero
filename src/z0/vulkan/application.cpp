@@ -141,6 +141,9 @@ namespace z0 {
                             applicationConfig.debugConfig.drawCoordinateSystemPosition.z)) *
                     JPH::Mat44::sScale(applicationConfig.debugConfig.drawCoordinateSystemScale));
             }
+            if (applicationConfig.debugConfig.drawRayCast) {
+                debugRenderer->drawRayCasts(rootNode, applicationConfig.debugConfig.drawRayCastColor);
+            }
             _getPhysicsSystem().DrawBodies(bodyDrawSettings, debugRenderer.get(), nullptr);
         }
     }

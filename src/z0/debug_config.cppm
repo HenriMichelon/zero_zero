@@ -31,8 +31,12 @@ export namespace z0 {
         vec3                drawCoordinateSystemPosition{0.0f};
         //! Coordinate system world position
         float               drawCoordinateSystemScale{1.0f};
+        //! Draw all the rays of the RayCast objects
+        bool                drawRayCast{false};
+        //! Color for the rays
+        vec4                drawRayCastColor{1.0f, 0.5f, 0.0f, 1.0f};
         //! Draw the faces that were found colliding during collision detection
-		bool			    drawGetSupportingFace{false};
+		bool	 		    drawGetSupportingFace{false};
         //! Draw the collision shapes of all collision objects
 		bool			    drawShape{true};
         //! The collision shapes will be drawn in wireframe instead of solid

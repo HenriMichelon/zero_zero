@@ -30,11 +30,11 @@ namespace z0 {
 
     void RayCast::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
-        const auto          position    = getPositionGlobal();
-        const auto          worldTarget = toGlobal(target);
+        const auto position    = getPositionGlobal();
+        const auto worldTarget = toGlobal(target);
         const JPH::RRayCast ray{
-                JPH::Vec3{position.x, position.y, position.z},
-                JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
+            JPH::Vec3{position.x, position.y, position.z},
+            JPH::Vec3{worldTarget.x, worldTarget.y, worldTarget.z}
         };
         JPH::RayCastResult result;
         if (Application::get()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(
@@ -43,9 +43,10 @@ namespace z0 {
                 broadPhaseLayerFilter,
                 *this,
                 *this)) {
-            collider      = reinterpret_cast<CollisionObject *>(Application::get()._getBodyInterface().GetUserData(result.mBodyID));
-            auto posInRay = ray.GetPointOnRay(result.mFraction);
-            hitPoint      = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
+            collider = reinterpret_cast<CollisionObject *>(
+                    Application::get()._getBodyInterface().GetUserData(result.mBodyID));
+            const auto posInRay = ray.GetPointOnRay(result.mFraction);
+            hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
         } else {
             collider = nullptr;
         }

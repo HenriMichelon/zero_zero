@@ -15,12 +15,16 @@ module;
     #include <Jolt/Renderer/DebugRenderer.cpp>
     #undef JPH_DEBUG_RENDERER
 #endif // !JPH_DEBUG_RENDERER
+#include <Jolt/Physics/Collision/RayCast.h>
+
+
 #include "z0/libraries.h"
 
 module z0.DebugRenderer;
 
 import z0.CollisionObject;
 import z0.Constants;
+import z0.RayCast;
 import z0.Tools;
 
 import z0.ColorFrameBufferHDR;
@@ -77,6 +81,12 @@ namespace z0 {
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 
+    void DebugRenderer::drawRayCasts(const shared_ptr<Node>& scene, const vec4 color) {
+        for(const auto& raycast : scene->findAllChildren<RayCast>(true)) {
+            drawLine(raycast->getPositionGlobal(), raycast->toGlobal(raycast->getTarget()), color);
+        }
+    }
+
     void DebugRenderer::drawLine(const vec3 from, const vec3 to, const vec4 color) {
         linesVertices.push_back( {from, color });
         linesVertices.push_back( {to, color });
@@ -91,14 +101,14 @@ namespace z0 {
     }
 
     void DebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
-        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a};
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0;
         linesVertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
         linesVertices.push_back( {{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }, color});
         vertexBufferDirty = true;
     }
 
     void DebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow) {
-        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a};
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0;
         triangleVertices.push_back( {{ inV1.GetX(), inV1.GetY(), inV1.GetZ() }, color });
         triangleVertices.push_back( {{ inV2.GetX(), inV2.GetY(), inV2.GetZ() }, color});
         triangleVertices.push_back( {{ inV3.GetX(), inV3.GetY(), inV3.GetZ() }, color});
