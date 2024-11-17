@@ -77,7 +77,7 @@ import z0.Tween;
          */
         explicit Node(const string &nodeName = "Node", Type type = NODE);
 
-        ~Node() override {};
+        ~Node() override = default;
 
         /**
          * Called when a node is ready to initialize, before being added to the scene
@@ -309,7 +309,6 @@ import z0.Tween;
 
         /**
          * Finds the first child by is type.
-         * Does not work with nodes loaded from a scene file since they are cast to Node.
          */
         template <typename T>
         [[nodiscard]] shared_ptr<T> findFirstChild(const bool recursive = true) const {
@@ -322,6 +321,23 @@ import z0.Tween;
                 }
             }
             return {nullptr};
+        }
+
+        /**
+         * Finds all children by type
+         */
+        template <typename T>
+        [[nodiscard]] list<shared_ptr<T>> findAllChildren(const bool recursive = true) const {
+            list<shared_ptr<T>> result;
+            for (const auto &node : children) {
+                if (const auto& found = dynamic_pointer_cast<T>(node)) {
+                    result.push_back(found);
+                }
+                if (recursive) {
+                    result.append_range(node->template findAllChildren<T>(true));
+                }
+            }
+            return result;
         }
 
         /**

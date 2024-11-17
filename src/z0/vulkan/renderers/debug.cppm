@@ -38,14 +38,18 @@ namespace z0 {
 
     export class DebugRenderer : public Renderpass, public Renderer, public JPH::DebugRendererSimple  {
     public:
-        DebugRenderer(Device &                        device,
-                       const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
-                       const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment,
-                       bool useDepthTest);
+        DebugRenderer(Device &device,
+                      const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
+                      const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment,
+                      bool useDepthTest);
 
         void startDrawing();
 
         void activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame);
+
+        void drawLine(vec3 from, vec3 to, vec4 color);
+
+        void drawTriangle(vec3 v1, vec3 v2, vec3 v3, vec4 color);
 
         void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
 
@@ -101,7 +105,7 @@ namespace z0 {
         shared_ptr<Buffer> stagingBuffer{VK_NULL_HANDLE};
         // Vertex buffer in GPU memory
         shared_ptr<Buffer> vertexBuffer{VK_NULL_HANDLE};
-        // Used when we need to postpone the buffers destruction when they are in use by a VkCommandBuffer
+        // Used when we need to postpone the buffers destruction when they are in use by another frame in flight
         list<shared_ptr<Buffer>> oldBuffers;
         // For vkCmdSetVertexInputEXT
         vector<VkVertexInputAttributeDescription2EXT> attributeDescriptions{};
@@ -121,7 +125,6 @@ namespace z0 {
         void createDescriptorSetLayout() override;
 
         void createOrUpdateDescriptorSet(bool create) override;
-
 
     };
 }

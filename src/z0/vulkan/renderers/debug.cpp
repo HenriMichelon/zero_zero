@@ -77,6 +77,19 @@ namespace z0 {
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 
+    void DebugRenderer::drawLine(const vec3 from, const vec3 to, const vec4 color) {
+        linesVertices.push_back( {from, color });
+        linesVertices.push_back( {to, color });
+        vertexBufferDirty = true;
+    }
+
+    void DebugRenderer::drawTriangle(const vec3 v1, const vec3 v2, const vec3 v3, const vec4 color) {
+        triangleVertices.push_back( {v1, color });
+        triangleVertices.push_back( {v2, color });
+        triangleVertices.push_back( {v3, color });
+        vertexBufferDirty = true;
+    }
+
     void DebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
         const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a};
         linesVertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
@@ -95,12 +108,12 @@ namespace z0 {
     void DebugRenderer::update(const uint32_t currentFrame) {
         const auto& frame = frameData.at(currentFrame);
         if (!frame.currentCamera) { return; }
-        // Destroy the previous buffer when we are sure they aren't used by the VkCommandBuffer
+        // Destroy the previous buffer when we are sure they aren't used by another frame
         oldBuffers.clear();
         if (!linesVertices.empty() || !triangleVertices.empty()) {
             // Resize the buffers only if needed by recreating them
             if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != (linesVertices.size() + triangleVertices.size()))) {
-                // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
+                // Put the current buffers in the recycle bin since they are currently used
                 // and can't be destroyed now
                 oldBuffers.push_back(stagingBuffer);
                 oldBuffers.push_back(vertexBuffer);
