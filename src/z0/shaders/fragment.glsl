@@ -49,12 +49,12 @@ vec4 fragmentColor(vec4 color, bool useColor) {
     vec3 diffuse = vec3(0.0f);
     vec3 ambient = color.rgb;
     if (material.metallicFactor != -1) {
-        float metallic  = tex.metallicTexture.index == -1 ?
+        float metallic  = 0.0f; /*tex.metallicTexture.index == -1 ?
             material.metallicFactor :
-            material.metallicFactor * texture(texSampler[tex.metallicTexture.index], uvTransform(tex.metallicTexture, fs_in.UV)).b;
-        float roughness = tex.roughnessTexture.index == -1 ?
+            material.metallicFactor * texture(texSampler[tex.metallicTexture.index], uvTransform(tex.metallicTexture, fs_in.UV)).b;*/
+        float roughness = 1.0f; /*tex.roughnessTexture.index == -1 ?
             material.roughnessFactor :
-            material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);
+            material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);*/
         // Fresnel reflectance at normal incidence (for metals use albedo color).
         const vec3 F0 = mix(Fdielectric, color.rgb, metallic);
         // Specular reflection vector.

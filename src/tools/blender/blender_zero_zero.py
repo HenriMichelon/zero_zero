@@ -68,6 +68,10 @@ COMPRESSION_FORMATS = [
 def convert_vector(vec):
     return str(vec.x) + "," + str(vec.z) + "," + str(-vec.y)
 
+# converts a vec into a string
+def convert_scale(vec):
+    return str(vec.x) + "," + str(vec.z) + "," + str(vec.y)
+
 # converts a vec in degrees then into a string
 def convert_vector_degrees(vec):
     return str(-math.degrees(vec.x)) + "," + str(math.degrees(vec.z)) + "," + str(-math.degrees(vec.y))
@@ -113,6 +117,13 @@ def add_node(obj):
             for custom_prop in props.properties:
                 custom_props[custom_prop.name] = custom_prop.value.replace("$$", obj.name)
             node["properties"] = custom_props
+    if obj.type == "EMPTY":
+        #original_rotation = obj.rotation_euler
+        #conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')
+        #new_rotation = original_rotation.to_matrix() @ conversion_matrix
+        node["properties"]["position"] = convert_vector(obj.location);
+        node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
+        node["properties"]["scale"] = convert_scale(obj.scale);
     if obj.type == "MESH":
         node["child"] = { "id": obj.name + ".mesh" }
     if obj.type == "LIGHT":
