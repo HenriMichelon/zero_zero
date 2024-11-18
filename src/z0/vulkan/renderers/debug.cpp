@@ -256,8 +256,8 @@ namespace z0 {
     }
 
     void DebugRenderer::loadShaders() {
-        vertShader = createShader("debug_co.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-        fragShader = createShader("debug_co.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        vertShader = createShader("debug.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
+        fragShader = createShader("debug.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
     void DebugRenderer::createDescriptorSetLayout() {
