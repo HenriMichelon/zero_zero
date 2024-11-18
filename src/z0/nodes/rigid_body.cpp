@@ -35,7 +35,7 @@ namespace z0 {
 
 
     RigidBody::RigidBody(const string &name):
-        PhysicsBody(0,
+        PhysicsBody(255,
                     0,
                     JPH::EActivation::Activate,
                     JPH::EMotionType::Dynamic,

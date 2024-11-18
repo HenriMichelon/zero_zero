@@ -72,7 +72,7 @@ namespace z0 {
         CollisionObject::setProperty(property, value);
         if (property == "shape") {
             // split shape class name from parameters
-            const auto &parts = split(value, ';');
+            auto parts = split(value, ';');
             // we must have at least a class name
             if (parts.size() > 0) {
                 if (parts.at(0) == "ConvexHullShape") {
@@ -83,8 +83,14 @@ namespace z0 {
                     if (mesh->getType() != MESH_INSTANCE) { die("Child with path", parts[1].data(), "not a MeshInstance in", name); }
                     setShape(make_shared<ConvexHullShape>(mesh, name));
                 } else if (parts.at(0) == "BoxShape") {
-                    if (parts.size() > 2) { die("Missing parameter for BoxShape for", name); }
+                    if (parts.size() < 2) { die("Missing parameter for BoxShape for", name); }
                     setShape(make_shared<BoxShape>(to_vec3(parts[1].data()), name));
+                } else if (parts.at(0) == "SphereShape") {
+                    if (parts.size() < 2) { die("Missing parameter for SphereShape for", name); }
+                    setShape(make_shared<SphereShape>(stof(parts[1].data()), name));
+                } else if (parts.at(0) == "CylinderShape") {
+                    if (parts.size() < 3) { die("Missing parameter for CylinderShape for", name); }
+                    setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), name));
                 } else {
                     die("Missing or bad shape for ", name);
                 }

@@ -6,9 +6,11 @@
 */
 module;
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+
 #include "z0/libraries.h"
 
 module z0.Shape;
@@ -40,4 +42,8 @@ namespace z0 {
         shapeSettings = new JPH::SphereShapeSettings(radius);
     }
 
+    CylinderShape::CylinderShape(const float radius, const float height, const string &resName):
+        Shape{resName} {
+        shapeSettings = new JPH::CylinderShapeSettings(height / 2.0f, radius);
+    }
 }

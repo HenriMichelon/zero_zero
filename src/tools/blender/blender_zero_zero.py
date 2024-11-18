@@ -104,6 +104,7 @@ def add_resource(nodes, obj, parent):
 def add_node(obj):
 #    print(obj.name + ":" + obj.type)
     node = { "id": obj.name }
+    node["properties"] = {}
     if "zero_zero_props" in obj:
         props = obj.zero_zero_props
         if "custom_class_name" in props and props.custom_class_name != "":
@@ -224,7 +225,8 @@ class ExportOperator(bpy.types.Operator):
         #bpy.ops.wm.save_mainfile()
 
         #self.report({'INFO'}, "Exporting to " + glb_export_path);
-        bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
+        if settings.convert_glb:
+            bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
 
         #self.report({'INFO'}, "Generating " + json_scene_export_path);
         result = export_json()
@@ -264,10 +266,24 @@ class CustomSettings(bpy.types.PropertyGroup):
         description="The game project directory",
         default=""
     )
+    convert_glb: bpy.props.BoolProperty(
+        name="Export to glTF (binary)",
+        description="Export the scene in a GLB file ",
+        default=False
+    )
     convert_zscene: bpy.props.BoolProperty(
         name="Export to ZScene",
         description="Convert the exported GLB file to a ZScene file then delete the GLB",
         default=False
+    )
+    link_zscene: bpy.props.BoolProperty(
+        name="Link to ZScene",
+        description="Link the resources to a Zscene file",
+        default=False
+    )
+    link_zscene_file: bpy.props.StringProperty(
+        name="ZScene file",
+        description="Link the resources to a Zscene file",
     )
     gltf2zscene_path: bpy.props.StringProperty(
         name="gltf2zcene",
@@ -378,6 +394,10 @@ class ScenePanel(bpy.types.Panel):
         layout.prop(settings, "project_directory")
         layout.prop(settings, "scene_directory")
         layout.prop(settings, "models_directory")
+        layout.prop(settings, "link_zscene")
+        if settings.link_zscene:
+            layout.prop(settings, "link_zscene_file")
+        layout.prop(settings, "convert_glb")
         layout.prop(settings, "convert_zscene")
         if settings.convert_zscene:
             layout.prop(settings, "gltf2zscene_path")

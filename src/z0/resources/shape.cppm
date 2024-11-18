@@ -56,9 +56,21 @@ export namespace z0 {
         explicit SphereShape(float radius, const string &resName = "SphereShape");
 
     private:
-        // const float radius;
-
         explicit SphereShape(const string &resName) : Shape(resName) {};
+    };
+
+    /**
+     * Cylinder shaped collision Shape
+     */
+    class CylinderShape : public Shape {
+    public:
+        /**
+         * Create a CylinderShape with the given radius
+         */
+        explicit CylinderShape(float radius, float height, const string &resName = "CylinderShape");
+
+    private:
+        explicit CylinderShape(const string &resName) : Shape(resName) {};
     };
 
 }
