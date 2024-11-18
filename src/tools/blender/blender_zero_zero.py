@@ -1,4 +1,4 @@
-    #
+#
 # Copyright (c) 2024 Henri Michelon
 #
 # This software is released under the MIT License.
@@ -23,7 +23,7 @@ bl_info = {
     "category": "Game Engine",
 }
 
-#-------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
 RESOURCES_ID = "resources"
 NODES_TYPE   = {
     "EMPTY" : "node",
@@ -33,8 +33,7 @@ APP_URI      = "app://"
 EXPORT_EXT   = ".glb"
 Z_EXPORT_EXT = ".zscene"
 
-ROTATION_CONVERTION_MATRIX = mathutils.Matrix.Rotation(math.radians(-90), 4, 'X')
-
+# Drop down list value of ZeroZero built-in classes for nodes properties
 NODES_CLASSES = [
     ("Camera", "Camera", "Camera"),
     ("Character", "Character", "Character"),
@@ -54,19 +53,34 @@ NODES_CLASSES = [
     ("Viewport", "Viewport", "Viewport")
 ]
 
-COMPRESSION_FORMATS = [ 
+# Drop down list value of BCn compression formats for scene export
+COMPRESSION_FORMATS = [
     ("bc1", "BC1 (DXT1)", "bc1"), 
     ("bc2", "BC2 (DXT3)", "bc2"),
     ("bc3", "BC3 (DXT5)", "bc3"),
     ("bc7", "BC7", "bc7") 
   ]
 
+
+#----------------------------------------------------------------------------------------------------------------------
+
+# converts a vec into a string
 def convert_vector(vec):
     return str(vec.x) + "," + str(vec.z) + "," + str(-vec.y)
 
+# converts a vec in degrees then into a string
 def convert_vector_degrees(vec):
     return str(-math.degrees(vec.x)) + "," + str(math.degrees(vec.z)) + "," + str(-math.degrees(vec.y))
 
+def show_message(message="", title="Error", icon='ERROR'):
+    def draw(self, context):
+        self.layout.label(text=message)
+    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
+
+
+#----------------------------------------------------------------------------------------------------------------------
+
+# adds a resource or a mesh node to the JSON scene file
 def add_resource(nodes, obj, parent):
     if parent is None:
         path=obj.name
@@ -78,11 +92,11 @@ def add_resource(nodes, obj, parent):
             "type" : NODES_TYPE[obj.type],
             "resource" : RESOURCES_ID,
             "path": path
-        });
+        })
     for child in obj.children:
         add_resource(nodes, child, path)
 
-
+# adds a node to the JSON scene file
 def add_node(obj):
 #    print(obj.name + ":" + obj.type)
     node = { "id": obj.name }
@@ -123,8 +137,9 @@ def add_node(obj):
             node["properties"]["fov"] = str(obj.data.spot_size)
     if obj.children:
         node["children"] = [add_node(child) for child in obj.children]
-    return node;
+    return node
 
+# Exports the Blender scene to a JSON scene
 def export_json():
     settings = bpy.context.scene.zero_zero_settings
     directory = settings.models_directory
@@ -154,12 +169,9 @@ def export_json():
         scene["children"] = nodes
     return { "nodes" : nodes}
 
-#-------------------------------------------------------------------------------------
-def show_message(message="", title="Error", icon='ERROR'):
-    def draw(self, context):
-        self.layout.label(text=message)
 
-    bpy.context.window_manager.popup_menu(draw, title=title, icon=icon)
+
+#----------------------------------------------------------------------------------------------------------------------
 
 class ExportOperator(bpy.types.Operator):
     bl_idname = "object.zero_zero_export_operator"
@@ -196,6 +208,7 @@ class ExportOperator(bpy.types.Operator):
         json_scene_export_path = os.path.join(export_scene_path, file_name + ".json")
 
         print("--------------------------------------------")
+        bpy.context.window.cursor_set("WAIT")
         #self.report({'INFO'}, "Saving " + blend_file_name);
         #bpy.ops.wm.save_mainfile()
 
@@ -209,6 +222,7 @@ class ExportOperator(bpy.types.Operator):
         
         if settings.convert_zscene:
             zscene_export_path = os.path.join(export_models_path,  file_name + Z_EXPORT_EXT)
+            bpy.context.window.cursor_set("WAIT")
             subprocess.run([
                 gltf2zscene,
                 "-v",
@@ -219,6 +233,7 @@ class ExportOperator(bpy.types.Operator):
             os.remove(glb_export_path)
 
         self.report({'INFO'}, "Exported to " + settings.scene_directory)
+        bpy.context.window.cursor_set("DEFAULT")
         return {'FINISHED'}
 
 
