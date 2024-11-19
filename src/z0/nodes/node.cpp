@@ -198,7 +198,7 @@ namespace z0 {
 
     void Node::setProperty(const string &property, const string &value) {
         if (property == "position") {
-            setPosition(to_vec3(value));
+            setPositionGlobal(to_vec3(value));
         } else if (property == "rotation") {
             const auto rot = to_vec3(value);
             setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});

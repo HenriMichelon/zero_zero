@@ -41,7 +41,7 @@ namespace z0 {
     }
 
     StaticBody::StaticBody(const string &name):
-        PhysicsBody(0xff,
+        PhysicsBody(0,
                     0,
                     JPH::EActivation::DontActivate,
                     JPH::EMotionType::Static,

@@ -88,11 +88,11 @@ def convert_vector_degrees(vec):
     if vec.x == 0:
         x = 0
     else:
-        x = -x;
+        x = -vec.x;
     if vec.y == 0:
         y = 0
     else:
-        y = -y;
+        y = -vec.y;
     return str(math.degrees(x)) + "," + str(math.degrees(vec.z)) + "," + str(math.degrees(y))
 
 def show_message(message="", title="Error", icon='ERROR'):
@@ -121,7 +121,7 @@ def add_resource(nodes, obj, parent):
 
 # adds a node to the JSON scene file
 def add_node(obj):
-#    print(obj.name + ":" + obj.type)
+    print(obj.name + ":" + obj.type)
     settings = bpy.context.scene.zero_zero_settings
     node = { "id": obj.name }
     node["properties"] = {}
@@ -138,7 +138,7 @@ def add_node(obj):
             for custom_prop in props.properties:
                 custom_props[custom_prop.name] = custom_prop.value.replace("$$", obj.name)
             node["properties"] = custom_props
-    node["properties"]["position"] = convert_vector(obj.location);
+    node["properties"]["position"] = convert_vector(obj.matrix_local.to_translation());
     node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
     node["properties"]["scale"] = convert_scale(obj.scale);
     if obj.type == "MESH":

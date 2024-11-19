@@ -61,7 +61,7 @@ namespace z0 {
                 }
             }
         } else {
-            if ((nodeDesc.clazz.empty()) || (nodeDesc.isCustom)) {
+            if (nodeDesc.clazz.empty() || nodeDesc.isCustom) {
                 node = make_shared<Node>(nodeDesc.id);
             } else {
                 // The node class is an engine registered class
@@ -70,13 +70,10 @@ namespace z0 {
             }
             node->_setParent(parent);
             if (nodeDesc.child != nullptr) {
-                // If we have a designated child we mimic the position, rotation and scale of the child
                 const auto& child = nodeTree[nodeDesc.child->id];
-                if (child == nullptr)
+                if (child == nullptr) {
                     die(log_name, "Child node", nodeDesc.child->id, "not found");
-                node->setPositionGlobal(child->getPositionGlobal());
-                node->setRotation(child->getRotation());
-                node->setScale(child->getScale());
+                }
                 if (nodeDesc.child->needDuplicate) {
                     const auto dup = child->duplicate();
                     dup->setPosition(VEC3ZERO);
@@ -84,7 +81,7 @@ namespace z0 {
                     dup->setScale(1.0f);
                     if (dup->getParent() != nullptr) {
                         dup->getParent()->removeChild(dup);
-                    };
+                    }
                     node->addChild(dup);
                 } else {
                     child->setPosition(VEC3ZERO);
@@ -92,7 +89,7 @@ namespace z0 {
                     child->setScale(1.0f);
                     if (child->getParent() != nullptr) {
                         child->getParent()->removeChild(child);
-                    };
+                    }
                     node->addChild(child);
                 }
             }
@@ -104,7 +101,7 @@ namespace z0 {
                     } else {
                         if (childNode->getParent() != nullptr) {
                             childNode->getParent()->removeChild(childNode);
-                        };
+                        }
                         node->addChild(childNode);
                     }
                 } else {
@@ -112,10 +109,13 @@ namespace z0 {
                 }
             }
             for (const auto &prop : nodeDesc.properties) {
-                node->setProperty(to_lower(prop.first), prop.second);
+                node->setProperty(prop.first, prop.second);
             }
+
             node->_setParent(nullptr);
-            if (!nodeDesc.isIncluded) parent->addChild(node);
+            if (!nodeDesc.isIncluded) {
+                parent->addChild(node);
+            }
         }
         nodeTree[nodeDesc.id] = node;
     }
