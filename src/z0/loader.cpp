@@ -17,13 +17,13 @@ import z0.Node;
 import z0.Tools;
 import z0.TypeRegistry;
 import z0.VirtualFS;
-import z0.ZScene;
+import z0.ZRes;
 
 namespace z0 {
 
     shared_ptr<Node> Loader::load(const string& filepath) {
-        if (filepath.ends_with(".zscene")) {
-            return ZScene::load(filepath);
+        if (filepath.ends_with(".zres")) {
+            return ZRes::load(filepath);
         }
         if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {
             return GlTF::load(filepath);
@@ -167,7 +167,7 @@ namespace z0 {
             if (jsonData.contains("includes")) {
                 const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {
-                    vector<SceneNode> includeNodes = loadSceneDescriptionFromJSON(VirtualFS::parentPath(filepath) + include);
+                    vector<SceneNode> includeNodes = loadSceneDescriptionFromJSON(include);
                     for(auto& node : includeNodes) {
                         node.isIncluded = true;
                     }

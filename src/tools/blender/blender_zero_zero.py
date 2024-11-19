@@ -7,6 +7,7 @@
 import bpy
 import json
 import os
+import re
 import sys
 import math
 import mathutils
@@ -31,7 +32,7 @@ NODES_TYPE   = {
 }
 APP_URI      = "app://"
 EXPORT_EXT   = ".glb"
-Z_EXPORT_EXT = ".zscene"
+Z_EXPORT_EXT = ".zres"
 
 # Drop down list value of ZeroZero built-in classes for nodes properties
 NODES_CLASSES = [
@@ -60,6 +61,16 @@ COMPRESSION_FORMATS = [
     ("bc3", "BC3 (DXT5)", "bc3"),
     ("bc7", "BC7", "bc7") 
   ]
+  
+EXPORT_OPTIONS = [
+    ("scene", "Scene", "scene"),
+    ("resources", "Resources", "resources"),
+]
+
+RESOURCES_OPTIONS = [
+    ("export", "Export", "export"),
+    ("link", "Link", "link"),
+]
 
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -74,7 +85,15 @@ def convert_scale(vec):
 
 # converts a vec in degrees then into a string
 def convert_vector_degrees(vec):
-    return str(-math.degrees(vec.x)) + "," + str(math.degrees(vec.z)) + "," + str(-math.degrees(vec.y))
+    if vec.x == 0:
+        x = 0
+    else:
+        x = -x;
+    if vec.y == 0:
+        y = 0
+    else:
+        y = -y;
+    return str(math.degrees(x)) + "," + str(math.degrees(vec.z)) + "," + str(math.degrees(y))
 
 def show_message(message="", title="Error", icon='ERROR'):
     def draw(self, context):
@@ -103,6 +122,7 @@ def add_resource(nodes, obj, parent):
 # adds a node to the JSON scene file
 def add_node(obj):
 #    print(obj.name + ":" + obj.type)
+    settings = bpy.context.scene.zero_zero_settings
     node = { "id": obj.name }
     node["properties"] = {}
     if "zero_zero_props" in obj:
@@ -118,15 +138,17 @@ def add_node(obj):
             for custom_prop in props.properties:
                 custom_props[custom_prop.name] = custom_prop.value.replace("$$", obj.name)
             node["properties"] = custom_props
-    if obj.type == "EMPTY":
-        #original_rotation = obj.rotation_euler
-        #conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')
-        #new_rotation = original_rotation.to_matrix() @ conversion_matrix
-        node["properties"]["position"] = convert_vector(obj.location);
-        node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
-        node["properties"]["scale"] = convert_scale(obj.scale);
+    node["properties"]["position"] = convert_vector(obj.location);
+    node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
+    node["properties"]["scale"] = convert_scale(obj.scale);
     if obj.type == "MESH":
-        node["child"] = { "id": obj.name + ".mesh" }
+        if settings.reconcile_mesh:
+            mesh_name = re.sub(r"\.\d+$", "", obj.name)
+        else:
+            mesh_name = obj.name
+        node["child"] = { "id": mesh_name + ".mesh" }
+        if mesh_name != obj.name:
+            node["child"]["duplicate"] = "true"
     if obj.type == "LIGHT":
         original_rotation = obj.rotation_euler
         conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')
@@ -156,7 +178,32 @@ def export_json():
     settings = bpy.context.scene.zero_zero_settings
     directory = settings.models_directory
     filename = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
-    if settings.convert_zscene:
+    if settings.resources == "export":
+        directory = settings.models_directory
+        filename = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
+        res_file = APP_URI + directory + "/" + filename.replace("\\", "/") + ".json"
+    else:
+        res_file = APP_URI + settings.link_file
+    result = {
+        "includes": [
+            res_file
+        ]
+    }
+    nodes = []
+    for obj in bpy.context.scene.objects:
+        if obj.parent is None:
+            nodes.append(add_node(obj))
+    scene = { "id": filename }
+    if nodes:
+        scene["children"] = nodes
+    result["nodes"] = nodes
+    return result
+
+def export_resouces_json():
+    settings = bpy.context.scene.zero_zero_settings
+    directory = settings.models_directory
+    filename = os.path.splitext(os.path.basename(bpy.data.filepath))[0]
+    if settings.convert_zres:
         ext = Z_EXPORT_EXT
     else:
         ext = EXPORT_EXT
@@ -169,16 +216,6 @@ def export_json():
     for obj in bpy.context.scene.objects:
         if obj.parent is None:
             add_resource(nodes, obj, obj.parent)
-    
-    blend_file_path = bpy.data.filepath
-    blend_file_name = os.path.basename(blend_file_path)
-    scene_name = os.path.splitext(blend_file_name)[0]
-    for obj in bpy.context.scene.objects:
-        if obj.parent is None:
-            nodes.append(add_node(obj))
-    scene = { "id": scene_name }
-    if nodes:
-        scene["children"] = nodes
     return { "nodes" : nodes}
 
 
@@ -187,7 +224,7 @@ def export_json():
 
 class ExportOperator(bpy.types.Operator):
     bl_idname = "object.zero_zero_export_operator"
-    bl_label = "Export as ZeroZero scene"
+    bl_label = "Export to ZeroZero"
 
     def execute(self, context):
         settings = bpy.context.scene.zero_zero_settings
@@ -205,18 +242,20 @@ class ExportOperator(bpy.types.Operator):
         if settings.models_directory == "":
             show_message("Please set the project models directory in the scene properties first")
             return {'FINISHED'}
-        gltf2zscene = settings.gltf2zscene_path + "/gltf2zscene.exe";
-        if settings.convert_zscene and not os.path.isfile(gltf2zscene):
-            show_message("Please set the gltf2zscene directory in the scene properties first")
+        gltf2zres = settings.gltf2zres_path + "/gltf2zres.exe";
+        if settings.convert_zres and not os.path.isfile(gltf2zres):
+            show_message("Please set the gltf2zres directory in the scene properties first")
             return {'FINISHED'}
         blend_file_name = os.path.basename(blend_file_path)
         file_name = os.path.splitext(blend_file_name)[0];
         export_file_name = file_name + EXPORT_EXT
+        export_resources_file_name = file_name + ".json"
         scene_dir = settings.scene_directory.replace("/", "\\")
         models_dir = settings.models_directory.replace("/", "\\")
         export_models_path = os.path.join(settings.project_directory, models_dir)
         export_scene_path = os.path.join(settings.project_directory, scene_dir)
         glb_export_path = os.path.join(export_models_path, export_file_name)
+        resource_desc_export_path = os.path.join(export_models_path, export_resources_file_name)
         json_scene_export_path = os.path.join(export_scene_path, file_name + ".json")
 
         print("--------------------------------------------")
@@ -224,86 +263,38 @@ class ExportOperator(bpy.types.Operator):
         #self.report({'INFO'}, "Saving " + blend_file_name);
         #bpy.ops.wm.save_mainfile()
 
-        #self.report({'INFO'}, "Exporting to " + glb_export_path);
-        if settings.convert_glb:
-            bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
+        if settings.export == "scene":
+            result = export_json()
+            with open(json_scene_export_path, 'w') as json_file:
+                json.dump(result, json_file, indent=2)
 
-        #self.report({'INFO'}, "Generating " + json_scene_export_path);
-        result = export_json()
-        with open(json_scene_export_path, 'w') as json_file:
-            json.dump(result, json_file, indent=2)
-        
-        if settings.convert_zscene:
-            zscene_export_path = os.path.join(export_models_path,  file_name + Z_EXPORT_EXT)
+        if settings.export == "resources" or settings.resources == "export":
+            if settings.resources_desc or settings.export == "scene":
+                result = export_resouces_json()
+                with open(resource_desc_export_path, 'w') as json_file:
+                    json.dump(result, json_file, indent=2)
+            bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
+        else:
+            convert = False
+            
+        if settings.convert_zres and not settings.resources == "link":
+            zres_export_path = os.path.join(export_models_path,  file_name + Z_EXPORT_EXT)
             bpy.context.window.cursor_set("WAIT")
             subprocess.run([
-                gltf2zscene,
+                gltf2zres,
                 "-v",
-                "-t", str(settings.gltf2zscene_threads),
-                "-f", settings.gltf2zscene_format,
+                "-t", str(settings.gltf2zres_threads),
+                "-f", settings.gltf2zres_format,
                 glb_export_path, 
-                zscene_export_path])
+                zres_export_path])
             os.remove(glb_export_path)
 
-        self.report({'INFO'}, "Exported to " + settings.scene_directory)
+        self.report({'INFO'}, "Project exported to ZeroZero")
         bpy.context.window.cursor_set("DEFAULT")
         return {'FINISHED'}
 
 
-class CustomSettings(bpy.types.PropertyGroup):
-    models_directory: bpy.props.StringProperty(
-        name="Models",
-        description="The models resource directory, relative to the project directory",
-        default="res/models"
-    )
-    scene_directory: bpy.props.StringProperty(
-        name="Scene",
-        description="The scene resource directory, relative to the project directory",
-        default="res/scenes"
-    )
-    project_directory: bpy.props.StringProperty(
-        name="Project",
-        description="The game project directory",
-        default=""
-    )
-    convert_glb: bpy.props.BoolProperty(
-        name="Export to glTF (binary)",
-        description="Export the scene in a GLB file ",
-        default=False
-    )
-    convert_zscene: bpy.props.BoolProperty(
-        name="Export to ZScene",
-        description="Convert the exported GLB file to a ZScene file then delete the GLB",
-        default=False
-    )
-    link_zscene: bpy.props.BoolProperty(
-        name="Link to ZScene",
-        description="Link the resources to a Zscene file",
-        default=False
-    )
-    link_zscene_file: bpy.props.StringProperty(
-        name="ZScene file",
-        description="Link the resources to a Zscene file",
-    )
-    gltf2zscene_path: bpy.props.StringProperty(
-        name="gltf2zcene",
-        description="The directory of the gltf2zscene executable",
-        default=""
-    )
-    gltf2zscene_threads: bpy.props.IntProperty(
-        name="Threads",
-        description="Number of threads for gltf2zscene executable (0 = auto)",
-        default=0,
-        min=0,
-        max=20
-    )
-    gltf2zscene_format: bpy.props.EnumProperty(
-        name="Format",
-        description="Compression format for color textures",
-        items=COMPRESSION_FORMATS,
-        default="bc7"
-    )
-
+#----------------------------------------------------------------------------------------------------------------------
 
 class CustomPropertyProperties(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(
@@ -379,6 +370,75 @@ class ObjectPanel(bpy.types.Panel):
         layout.operator("object.zero_zero_add_custom_property")
 
 
+
+#----------------------------------------------------------------------------------------------------------------------
+
+class CustomSettings(bpy.types.PropertyGroup):
+    project_directory: bpy.props.StringProperty(
+        name="Project",
+        description="The game project directory",
+        default=""
+    )
+    scene_directory: bpy.props.StringProperty(
+        name="Scene",
+        description="The scene resource directory, relative to the project directory",
+        default="res/scenes"
+    )
+    models_directory: bpy.props.StringProperty(
+        name="Models",
+        description="The models resource directory, relative to the project directory",
+        default="res/models"
+    )
+    export: bpy.props.EnumProperty(
+        name="Export as",
+        description="Format to export to",
+        items=EXPORT_OPTIONS,
+        default="scene"
+    )
+    resources: bpy.props.EnumProperty(
+        name="Resources",
+        description="Export or link resources to scene",
+        items=RESOURCES_OPTIONS,
+        default="export"
+    )
+    resources_desc: bpy.props.BoolProperty(
+        name="Export resources description",
+        description="Also export JSON resources description",
+        default=True
+    )
+    convert_zres: bpy.props.BoolProperty(
+        name="Convert to ZRes",
+        description="Convert the exported GLB file to a ZRees file then delete the GLB",
+        default=False
+    )
+    link_file: bpy.props.StringProperty(
+        name="Resource file",
+        description="Link the scene to this resource file, relative to the project directory",
+    )
+    gltf2zres_path: bpy.props.StringProperty(
+        name="gltf2zres",
+        description="The directory of the gltf2zscene executable",
+        default=""
+    )
+    gltf2zres_threads: bpy.props.IntProperty(
+        name="Threads",
+        description="Number of threads for gltf2zscene executable (0 = auto)",
+        default=0,
+        min=0,
+        max=20
+    )
+    gltf2zres_format: bpy.props.EnumProperty(
+        name="Format",
+        description="Compression format for color textures",
+        items=COMPRESSION_FORMATS,
+        default="bc7"
+    )
+    reconcile_mesh: bpy.props.BoolProperty(
+        name="Reconcile and duplicate meshes",
+        description="Try to reconcile meshes names between scene and resources by removing versions in meshes names",
+        default=True
+    )
+
 class ScenePanel(bpy.types.Panel):
     """Creates a Panel in the Scene properties window"""
     bl_label = "ZeroZero project"
@@ -394,17 +454,26 @@ class ScenePanel(bpy.types.Panel):
         layout.prop(settings, "project_directory")
         layout.prop(settings, "scene_directory")
         layout.prop(settings, "models_directory")
-        layout.prop(settings, "link_zscene")
-        if settings.link_zscene:
-            layout.prop(settings, "link_zscene_file")
-        layout.prop(settings, "convert_glb")
-        layout.prop(settings, "convert_zscene")
-        if settings.convert_zscene:
-            layout.prop(settings, "gltf2zscene_path")
-            layout.prop(settings, "gltf2zscene_format")
-            layout.prop(settings, "gltf2zscene_threads")
+        layout.prop(settings, "export")
+        layout.prop(settings, "resouces")
+        if settings.export == "scene":
+            layout.prop(settings, "resources")
+            if settings.resources == "link":
+                layout.prop(settings, "link_file")
+                layout.prop(settings, "reconcile_mesh")
+            else:
+                layout.prop(settings, "convert_zres")
+        else:
+            layout.prop(settings, "resources_desc")
+            layout.prop(settings, "convert_zres")
+        if settings.convert_zres and (settings.export == "resources" or settings.resources == "export"):
+            layout.prop(settings, "gltf2zres_path")
+            layout.prop(settings, "gltf2zres_format")
+            layout.prop(settings, "gltf2zres_threads")
         layout.operator("object.zero_zero_export_operator")
 
+
+#----------------------------------------------------------------------------------------------------------------------
 
 def add_keymap():
     wm = bpy.context.window_manager

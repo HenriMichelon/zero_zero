@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.ZScene;
+export module z0.ZRes;
 
 import z0.Texture;
 import z0.Material;
@@ -18,7 +18,8 @@ import z0.Node;
 export namespace z0 {
 
     /**
-     * ZScene file format containing a whole scene with nodes, meshes, materials, textures and images.<br>
+     * ZRes binary file format containing resources for a scene : meshes, materials, textures and images.<br>
+     * It can also be used as a complete scene file since it contains a node tree.<br>
      * This file format is adapted to ZeroZero and have the following advantages :<br>
      * - Binary file format : fast loading of data without deserialization
      * - Compressed images : images are compressed in GPU-compatible format like the BCn formats to reduce the VRAM usage.<br>
@@ -26,7 +27,7 @@ export namespace z0 {
      * - Pre calculated mip levels : all images mips levels are pre-calculated and compressed.<br>
      * - Pre calculated data : all transforms are pre-calculated.<br>
      *<br>
-     *%A Zscene file can be created from a glTF file using the `gltf2zscene` command line tool.<br>
+     *%A ZRes file can be created from a glTF file using the `gltf2zres` command line tool.<br>
      *<br>
      * **File format description :**
      * ```
@@ -49,7 +50,7 @@ export namespace z0 {
      * array<BCn compressed image, imagesCount> : images data bloc
      *  ```
      */
-    class ZScene {
+    class ZRes {
     public:
         /*
          * Maximum size of strings in files
@@ -59,7 +60,7 @@ export namespace z0 {
         /*
          * Magic header thing
          */
-        static constexpr char MAGIC[]{ 'Z', 'S', 'C', 'N' };
+        static constexpr char MAGIC[]{ 'Z', 'R', 'E', 'S' };
 
         /*
          * Current format version
@@ -86,10 +87,6 @@ export namespace z0 {
             uint32_t nodesCount{0};
             //! Size in bytes of all the headers
             uint64_t headersSize;
-            //! Headers alignment padding in bytes
-            // uint32_t headersPadding;
-            //! Meshes data alignment padding in bytes
-            // uint32_t meshesDataPadding;
         };
 
         /*
@@ -110,8 +107,6 @@ export namespace z0 {
             uint64_t dataOffset;
             //! Size in bytes of all levels
             uint64_t dataSize;
-            //! Alignment padding in bytes
-            // uint32_t padding;
         };
 
         /*
@@ -122,8 +117,6 @@ export namespace z0 {
             uint64_t offset;
             //! Size in bytes of the level
             uint64_t size;
-            //! Alignment padding in bytes
-            // uint32_t padding;
         };
 
         /*
@@ -252,7 +245,7 @@ export namespace z0 {
          */
         [[nodiscard]] static shared_ptr<Node> load(ifstream &stream);
 
-        ZScene() = default;
+        ZRes() = default;
 
         static void print(const Header& header);
         static void print(const ImageHeader& header);

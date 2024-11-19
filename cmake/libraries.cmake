@@ -59,9 +59,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fetch_fastgltf)
 target_link_libraries(${Z0_TARGET} fastgltf)
-#target_link_libraries(${GLB2ZSCENE_TARGET} fastgltf)
+#target_link_libraries(${GLTF2ZRES} fastgltf)
 
-###### Using GLFW3 to create a window to transcode image with GPU for gltf2zscene
+###### Using GLFW3 to create a window to transcode image with GPU for gltf2zres
 message(NOTICE "Fetching GLFW3 from https://github.com/glfw/glfw ...")
 FetchContent_Declare(
         fetch_glfw
@@ -69,7 +69,7 @@ FetchContent_Declare(
         GIT_TAG        3.4
 )
 FetchContent_MakeAvailable(fetch_glfw)
-target_link_libraries(${GLTF2ZSCENE} glfw)
+target_link_libraries(${GLTF2ZRES} glfw)
 
 ###### Using KTX to transcode KTX2 to compressed images
 #message(NOTICE "Fetching LibKTX from https://github.com/KhronosGroup/KTX-Software ...")

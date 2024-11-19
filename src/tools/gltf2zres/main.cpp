@@ -134,30 +134,30 @@ int main(const int argc, char** argv) {
 
     // Initialize the destination file headers
     if (verbose) { cout << "Creating destination file headers...\n"; }
-    auto header = z0::ZScene::Header {
+    auto header = z0::ZRes::Header {
         .version = 1,
         .imagesCount = static_cast<uint32_t>(gltf.images.size()),
         .texturesCount = static_cast<uint32_t>(gltf.textures.size()),
         .materialsCount = static_cast<uint32_t>(gltf.materials.size()),
         .meshesCount = static_cast<uint32_t>(gltf.meshes.size()),
         .nodesCount = static_cast<uint32_t>(gltf.nodes.size()),
-        .headersSize = sizeof(z0::ZScene::Header),
+        .headersSize = sizeof(z0::ZRes::Header),
     };
-    header.magic[0] = z0::ZScene::MAGIC[0];
-    header.magic[1] = z0::ZScene::MAGIC[1];
-    header.magic[2] = z0::ZScene::MAGIC[2];
-    header.magic[3] = z0::ZScene::MAGIC[3];
+    header.magic[0] = z0::ZRes::MAGIC[0];
+    header.magic[1] = z0::ZRes::MAGIC[1];
+    header.magic[2] = z0::ZRes::MAGIC[2];
+    header.magic[3] = z0::ZRes::MAGIC[3];
 
     auto copyName = [](string name, char* dest, auto index) {
         if (name.empty()) { name = to_string(index); }
-        memset(dest, 0, z0::ZScene::NAME_SIZE);
-        strncpy(dest, name.c_str(), z0::ZScene::NAME_SIZE-1);
-        dest[z0::ZScene::NAME_SIZE - 1] = '\0';
+        memset(dest, 0, z0::ZRes::NAME_SIZE);
+        strncpy(dest, name.c_str(), z0::ZRes::NAME_SIZE-1);
+        dest[z0::ZRes::NAME_SIZE - 1] = '\0';
     };
 
     // Fill the images header
-    auto imageHeaders = vector<z0::ZScene::ImageHeader> {gltf.images.size()};
-    auto mipHeaders = vector<vector<z0::ZScene::MipLevelInfo>>{gltf.images.size()};
+    auto imageHeaders = vector<z0::ZRes::ImageHeader> {gltf.images.size()};
+    auto mipHeaders = vector<vector<z0::ZRes::MipLevelInfo>>{gltf.images.size()};
     uint64_t dataOffset = 0;
     for(auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         copyName(gltf.images[imageIndex].name.data(), imageHeaders[imageIndex].name, imageIndex);
@@ -182,11 +182,11 @@ int main(const int argc, char** argv) {
         // imageHeaders[imageIndex].padding = calculatePadding(mipOffset, imageHeaders[imageIndex].format);
         dataOffset += mipOffset; // + imageHeaders[imageIndex].padding;
         // ZScene::print(imageHeaders[imageIndex]);
-        header.headersSize += sizeof(z0::ZScene::ImageHeader) + sizeof(z0::ZScene::MipLevelInfo) * outMipLevels[imageIndex].size();
+        header.headersSize += sizeof(z0::ZRes::ImageHeader) + sizeof(z0::ZRes::MipLevelInfo) * outMipLevels[imageIndex].size();
     }
 
     // Fill textures headers
-    auto textureHeaders = vector<z0::ZScene::TextureHeader> {gltf.textures.size()};
+    auto textureHeaders = vector<z0::ZRes::TextureHeader> {gltf.textures.size()};
     for(auto textureIndex = 0; textureIndex < gltf.textures.size(); textureIndex++) {
         const auto& texture = gltf.textures[textureIndex];
         textureHeaders[textureIndex].imageIndex = texture.imageIndex.has_value() ? static_cast<int32_t>(texture.imageIndex.value()) : -1;
@@ -213,11 +213,11 @@ int main(const int argc, char** argv) {
                     sampler.wrapT == fastgltf::Wrap::Repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
                         VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
         }
-        header.headersSize += sizeof(z0::ZScene::TextureHeader);
+        header.headersSize += sizeof(z0::ZRes::TextureHeader);
     }
 
     // Fill materials headers
-    auto materialHeaders = vector<z0::ZScene::MaterialHeader> {gltf.materials.size()};
+    auto materialHeaders = vector<z0::ZRes::MaterialHeader> {gltf.materials.size()};
     for(auto materialIndex = 0; materialIndex < gltf.materials.size(); materialIndex++) {
         const auto& material = gltf.materials[materialIndex];
         copyName(material.name.data(), materialHeaders[materialIndex].name, materialIndex);
@@ -266,7 +266,7 @@ int main(const int argc, char** argv) {
                 };
                 scale = glm::mat3{1,0,0, 0,1,0, 0,0,1};
             }
-            return z0::ZScene::TextureInfo{
+            return z0::ZRes::TextureInfo{
                 .textureIndex = static_cast<int32_t>(sourceTextureInfo.textureIndex),
                 .uvsIndex = static_cast<uint32_t>(sourceTextureInfo.texCoordIndex),
                 .transform = translation * rotation * scale,
@@ -286,7 +286,7 @@ int main(const int argc, char** argv) {
         if (material.emissiveTexture) {
             materialHeaders[materialIndex].emissiveTexture = textureInfo(material.emissiveTexture.value());
         }
-        header.headersSize += sizeof(z0::ZScene::MaterialHeader);
+        header.headersSize += sizeof(z0::ZRes::MaterialHeader);
     }
 
     // Fill meshes headers
@@ -295,9 +295,9 @@ int main(const int argc, char** argv) {
     vector<glm::vec3> normals{};
     vector<glm::vec2> uvs{};
     vector<glm::vec4> tangents{};
-    auto meshesHeaders = vector<z0::ZScene::MeshHeader> {gltf.meshes.size()};
-    auto surfaceInfo = vector<vector<z0::ZScene::SurfaceInfo>> {gltf.meshes.size()};
-    auto uvsInfos = vector<vector<vector<z0::ZScene::DataInfo>>> {gltf.meshes.size()};
+    auto meshesHeaders = vector<z0::ZRes::MeshHeader> {gltf.meshes.size()};
+    auto surfaceInfo = vector<vector<z0::ZRes::SurfaceInfo>> {gltf.meshes.size()};
+    auto uvsInfos = vector<vector<vector<z0::ZRes::DataInfo>>> {gltf.meshes.size()};
     for(auto meshIndex = 0; meshIndex < meshesHeaders.size(); meshIndex++) {
         auto& mesh = gltf.meshes[meshIndex];
         copyName(mesh.name.data(), meshesHeaders[meshIndex].name, meshIndex);
@@ -382,13 +382,13 @@ int main(const int argc, char** argv) {
                 surfaceInfo[meshIndex][surfaceIndex].materialIndex = -1;
             }
         }
-        header.headersSize += sizeof(z0::ZScene::MeshHeader)
-                            + sizeof(z0::ZScene::SurfaceInfo) * surfaceInfo[meshIndex].size()
-                            + sizeof(z0::ZScene::DataInfo) * uvsDataInfoCount;
+        header.headersSize += sizeof(z0::ZRes::MeshHeader)
+                            + sizeof(z0::ZRes::SurfaceInfo) * surfaceInfo[meshIndex].size()
+                            + sizeof(z0::ZRes::DataInfo) * uvsDataInfoCount;
     }
 
     // Fill the nodes header
-    auto nodesHeaders = vector<z0::ZScene::NodeHeader> { gltf.nodes.size()};
+    auto nodesHeaders = vector<z0::ZRes::NodeHeader> { gltf.nodes.size()};
     auto childrenIndexes = vector<vector<uint32_t>>  {gltf.nodes.size()};
     for (auto nodeIndex = 0; nodeIndex < gltf.nodes.size(); ++nodeIndex) {
         const auto &node = gltf.nodes[nodeIndex];
@@ -416,10 +416,10 @@ int main(const int argc, char** argv) {
             childrenIndexes[nodeIndex][i] = node.children[i];
         }
         nodesHeaders[nodeIndex].childrenCount = node.children.size();
-        header.headersSize += sizeof(z0::ZScene::NodeHeader) +
+        header.headersSize += sizeof(z0::ZRes::NodeHeader) +
                             sizeof(uint32_t) * childrenIndexes[nodeIndex].size();
     }
-    if (verbose) { z0::ZScene::print(header); }
+    if (verbose) { z0::ZRes::print(header); }
 
     // header.headersPadding = calculatePadding(header.headersSize, VK_FORMAT_BC1_RGBA_UNORM_BLOCK); // use largest padding
     // header.meshesDataPadding = calculatePadding(
@@ -439,27 +439,27 @@ int main(const int argc, char** argv) {
 
     // Write all the headers
     if (verbose) { cout << "\tHeaders...\n"; }
-    outputFile.write(reinterpret_cast<const char*>(&header), sizeof(z0::ZScene::Header));
+    outputFile.write(reinterpret_cast<const char*>(&header), sizeof(z0::ZRes::Header));
     for (auto imageIndex = 0; imageIndex < gltf.images.size(); imageIndex++) {
         // z0::ZScene::print(imageHeaders[imageIndex]);
-        outputFile.write(reinterpret_cast<const char*>(&imageHeaders[imageIndex]),sizeof(z0::ZScene::ImageHeader));
-        outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeaders[imageIndex].data()), mipHeaders[imageIndex].size() * sizeof(z0::ZScene::MipLevelInfo));
+        outputFile.write(reinterpret_cast<const char*>(&imageHeaders[imageIndex]),sizeof(z0::ZRes::ImageHeader));
+        outputFile.write(reinterpret_cast<const ostream::char_type *>(mipHeaders[imageIndex].data()), mipHeaders[imageIndex].size() * sizeof(z0::ZRes::MipLevelInfo));
     }
-    outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(z0::ZScene::TextureHeader));
-    outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(z0::ZScene::MaterialHeader));
+    outputFile.write(reinterpret_cast<const char*>(textureHeaders.data()),textureHeaders.size() * sizeof(z0::ZRes::TextureHeader));
+    outputFile.write(reinterpret_cast<const char*>(materialHeaders.data()),materialHeaders.size() * sizeof(z0::ZRes::MaterialHeader));
     for (auto meshIndex = 0; meshIndex < gltf.meshes.size(); meshIndex++) {
         // z0::ZScene::print(meshesHeaders[meshIndex]);
-        outputFile.write(reinterpret_cast<const char*>(&meshesHeaders[meshIndex]),sizeof(z0::ZScene::MeshHeader));
+        outputFile.write(reinterpret_cast<const char*>(&meshesHeaders[meshIndex]),sizeof(z0::ZRes::MeshHeader));
         for(auto surfaceIndex = 0; surfaceIndex < meshesHeaders[meshIndex].surfacesCount; surfaceIndex++) {
             // ZScene::print(surfaceInfo[meshIndex][surfaceIndex]);
-            outputFile.write(reinterpret_cast<const char*>(&surfaceInfo[meshIndex][surfaceIndex]),sizeof(z0::ZScene::SurfaceInfo));
+            outputFile.write(reinterpret_cast<const char*>(&surfaceInfo[meshIndex][surfaceIndex]),sizeof(z0::ZRes::SurfaceInfo));
             // ZScene::print(uvsInfos[meshIndex][surfaceIndex][0]);
             // ZScene::print(uvsInfos[meshIndex][surfaceIndex][1]);
-            outputFile.write(reinterpret_cast<const char*>(uvsInfos[meshIndex][surfaceIndex].data()), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(z0::ZScene::DataInfo));
+            outputFile.write(reinterpret_cast<const char*>(uvsInfos[meshIndex][surfaceIndex].data()), uvsInfos[meshIndex][surfaceIndex].size() * sizeof(z0::ZRes::DataInfo));
         }
     }
     for (auto nodeIndex = 0; nodeIndex < gltf.nodes.size(); ++nodeIndex) {
-        outputFile.write(reinterpret_cast<const char*>(&nodesHeaders[nodeIndex]),sizeof(z0::ZScene::NodeHeader));
+        outputFile.write(reinterpret_cast<const char*>(&nodesHeaders[nodeIndex]),sizeof(z0::ZRes::NodeHeader));
         outputFile.write(reinterpret_cast<const char*>(childrenIndexes[nodeIndex].data()),childrenIndexes[nodeIndex].size() * sizeof(uint32_t));
     }
 

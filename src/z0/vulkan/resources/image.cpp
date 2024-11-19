@@ -15,7 +15,7 @@ module z0.VulkanImage;
 import z0.Constants;
 import z0.Image;
 import z0.Tools;
-import z0.ZScene;
+import z0.ZRes;
 
 import z0.Device;
 import z0.Buffer;
@@ -183,9 +183,9 @@ namespace z0 {
 
      VulkanImage::VulkanImage(const Device &  device,
               const string &                name,
-              const ZScene::ImageHeader &   imageHeader,
-              const vector<ZScene::MipLevelInfo>& mipLevelHeaders,
-              const ZScene::TextureHeader & textureHeader,
+              const ZRes::ImageHeader &   imageHeader,
+              const vector<ZRes::MipLevelInfo>& mipLevelHeaders,
+              const ZRes::TextureHeader & textureHeader,
               const Buffer                  &buffer,
               const uint64_t                bufferOffset,
               const VkImageTiling           tiling):

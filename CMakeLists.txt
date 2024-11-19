@@ -55,7 +55,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/virtual_fs.cppm
 		${Z0_ENGINE_DIR}/window.cppm
 		${Z0_ENGINE_DIR}/z0.cppm
-		${Z0_ENGINE_DIR}/zscene.cppm
+		${Z0_ENGINE_DIR}/zres.cppm
 
 		${Z0_ENGINE_DIR}/vulkan/application.cppm
 		${Z0_ENGINE_DIR}/vulkan/buffer.cppm
@@ -162,7 +162,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/tools.cpp
 		${Z0_ENGINE_DIR}/virtual_fs.cpp
 		${Z0_ENGINE_DIR}/window.cpp
-		${Z0_ENGINE_DIR}/zscene.cpp
+		${Z0_ENGINE_DIR}/zres.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/application.cpp
 		${Z0_ENGINE_DIR}/vulkan/buffer.cpp
@@ -170,7 +170,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/device.cpp
 		${Z0_ENGINE_DIR}/vulkan/instance.cpp
 		${Z0_ENGINE_DIR}/vulkan/shader.cpp
-		${Z0_ENGINE_DIR}/vulkan/zscene.cpp
+		${Z0_ENGINE_DIR}/vulkan/zres.cpp
 
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
@@ -262,34 +262,34 @@ endif()
 #target_precompile_headers(${PROJECT_NAME} PUBLIC ${Z0_INCLUDE_DIR}/libraries.h)
 
 ###########################################################################
-# gltf2zscene tool
+# gltf2zres tool
 ###########################################################################
-set(GLTF2ZSCENE gltf2zscene)
-set(GLTF2ZSCENE_SRC_DIR ${SRC_DIR}/tools/gltf2zscene)
-set(GLTF2ZSCENE_INCLUDE_DIR ${GLTF2ZSCENE_INCLUDE_DIR})
-add_executable(${GLTF2ZSCENE}
-		${GLTF2ZSCENE_SRC_DIR}/main.cpp
-		${GLTF2ZSCENE_SRC_DIR}/image.cpp
-		${GLTF2ZSCENE_SRC_DIR}/converter.cpp
-		${GLTF2ZSCENE_SRC_DIR}/glad/glad.c
+set(GLTF2ZRES gltf2zres)
+set(GLTF2ZRES_SRC_DIR ${SRC_DIR}/tools/gltf2zres)
+set(GLTF2ZRES_INCLUDE_DIR ${GLTF2ZRES_SRC_DIR})
+add_executable(${GLTF2ZRES}
+		${GLTF2ZRES_SRC_DIR}/main.cpp
+		${GLTF2ZRES_SRC_DIR}/image.cpp
+		${GLTF2ZRES_SRC_DIR}/converter.cpp
+		${GLTF2ZRES_SRC_DIR}/glad/glad.c
 )
-target_sources(${GLTF2ZSCENE}
+target_sources(${GLTF2ZRES}
 		PUBLIC
 		FILE_SET CXX_MODULES
 		FILES
-		${GLTF2ZSCENE_SRC_DIR}/miplevel.cppm
-		${GLTF2ZSCENE_SRC_DIR}/image.cppm
-		${GLTF2ZSCENE_SRC_DIR}/converter.cppm
+		${GLTF2ZRES_SRC_DIR}/miplevel.cppm
+		${GLTF2ZRES_SRC_DIR}/image.cppm
+		${GLTF2ZRES_SRC_DIR}/converter.cppm
 )
-compile_options(${GLTF2ZSCENE})
-target_include_directories(${PROJECT_NAME} PUBLIC ${GLTF2ZSCENE_INCLUDE_DIR} ${Z0_INCLUDE_DIR})
-target_link_libraries(${GLTF2ZSCENE} ${Z0_TARGET})
+compile_options(${GLTF2ZRES})
+target_include_directories(${GLTF2ZRES} PUBLIC ${GLTF2ZRES_INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+target_link_libraries(${GLTF2ZRES} ${Z0_TARGET})
 
 ###########################################################################
 # global target
 ###########################################################################
 add_custom_target(ZeroZeroEngine ALL)
-add_dependencies(ZeroZeroEngine ${Z0_TARGET} ${GLTF2ZSCENE})
+add_dependencies(ZeroZeroEngine ${Z0_TARGET} ${GLTF2ZRES})
 
 include(FetchContent)
 include(cmake/std.cmake)

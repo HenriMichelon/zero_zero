@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.ZScene;
+module z0.ZRes;
 
 import z0.Constants;
 import z0.Image;
@@ -24,21 +24,21 @@ import z0.VulkanMesh;
 
 namespace z0 {
 
-    shared_ptr<Node> ZScene::load(const string &filename) {
+    shared_ptr<Node> ZRes::load(const string &filename) {
         auto stream = VirtualFS::openStream(filename);
         return load(stream);
     }
 
-    shared_ptr<Node> ZScene::load(ifstream &stream) {
+    shared_ptr<Node> ZRes::load(ifstream &stream) {
         auto tStart = std::chrono::high_resolution_clock::now();
-        auto zscene = make_shared<ZScene>();
+        auto zscene = make_shared<ZRes>();
         auto rootNode = zscene->loadScene(stream);
         auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         log("ZScene loading time ", to_string(last_transcode_time));
         return rootNode;
     }
 
-    shared_ptr<Node> ZScene::loadScene(ifstream& stream) {
+    shared_ptr<Node> ZRes::loadScene(ifstream& stream) {
         // Read the file global header
         stream.read(reinterpret_cast<istream::char_type *>(&header), sizeof(header));
         if (header.magic[0] != MAGIC[0] &&
@@ -302,7 +302,7 @@ namespace z0 {
         return rootNode;
     }
 
-    void ZScene::print(const Header& header) {
+    void ZRes::print(const Header& header) {
         printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nMeshes count : %d\nHeaders size : %llu\n",
             header.version,
             header.imagesCount,
@@ -311,7 +311,7 @@ namespace z0 {
             header.meshesCount,
             header.headersSize);
     }
-    void ZScene::print(const ImageHeader& header) {
+    void ZRes::print(const ImageHeader& header) {
         printf("Name : %s\nFormat : %d\nWidth : %d\nHeight : %d\nLevels : %d\ndataOffset : %llu\ndataSize : %llu\n",
             header.name,
             header.format,
@@ -321,11 +321,11 @@ namespace z0 {
             header.dataOffset,
             header.dataSize);
     }
-    void ZScene::print(const MipLevelInfo& header) {
+    void ZRes::print(const MipLevelInfo& header) {
         printf("Offset : %llu\nSize: %llu\n", header.offset, header.size);
     }
 
-    void ZScene::print(const TextureHeader& header) {
+    void ZRes::print(const TextureHeader& header) {
         printf("imageIndex : %d\nminFilter : %d\nmagFilter : %d\nsampleAddressModeU : %d\nsampleAddressModeV : %d\n",
             header.imageIndex,
             header.minFilter,
@@ -334,19 +334,19 @@ namespace z0 {
             header.samplerAddressModeV);
     }
 
-    void ZScene::print(const MaterialHeader& header) {
+    void ZRes::print(const MaterialHeader& header) {
         printf("Name : %s\n", header.name);
     }
 
-    void ZScene::print(const MeshHeader& header) {
+    void ZRes::print(const MeshHeader& header) {
         printf("Name : %s\nSurfaces count : %d\n", header.name, header.surfacesCount);
     }
 
-    void ZScene::print(const DataInfo& header) {
+    void ZRes::print(const DataInfo& header) {
         printf("First : %d\nCount : %d\n", header.first, header.count);
     }
 
-    void ZScene::print(const SurfaceInfo& header) {
+    void ZRes::print(const SurfaceInfo& header) {
         printf("materialIndex : %d\nindices : %d,%d\npositions : %d,%d\nnormals : %d,%d\ntangents : %d,%d\nuvsCount : %d\n",
             header.materialIndex,
             header.indices.first, header.indices.count,

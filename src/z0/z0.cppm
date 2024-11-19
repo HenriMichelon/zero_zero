@@ -47,7 +47,7 @@ export import z0.TypeRegistry;
 export import z0.Tween;
 export import z0.Viewport;
 export import z0.VirtualFS;
-export import z0.ZScene;
+export import z0.ZRes;
 
 export import z0.GButton;
 export import z0.GEvent;

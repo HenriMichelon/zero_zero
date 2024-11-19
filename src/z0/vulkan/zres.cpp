@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.ZScene;
+module z0.ZRes;
 
 import z0.Device;
 import z0.Buffer;
@@ -16,7 +16,7 @@ import z0.VulkanImage;
 
 namespace z0 {
 
-    void ZScene::loadImagesAndTextures(ifstream &stream,
+    void ZRes::loadImagesAndTextures(ifstream &stream,
         const vector<ImageHeader>& imageHeaders,
         const vector<vector<MipLevelInfo>>&levelHeaders,
         const vector<TextureHeader>& textureHeaders,
