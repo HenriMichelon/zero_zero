@@ -88,7 +88,7 @@ def convert_vector_degrees(vec):
     if vec.x == 0:
         x = 0
     else:
-        x = -vec.x;
+        x = vec.x;
     if vec.y == 0:
         y = 0
     else:
@@ -121,7 +121,7 @@ def add_resource(nodes, obj, parent):
 
 # adds a node to the JSON scene file
 def add_node(obj):
-    print(obj.name + ":" + obj.type)
+    #print(obj.name + ":" + obj.type)
     settings = bpy.context.scene.zero_zero_settings
     node = { "id": obj.name }
     node["properties"] = {}
