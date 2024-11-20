@@ -306,12 +306,23 @@ class CustomPropertyProperties(bpy.types.PropertyGroup):
         default=""
     )
 
+def class_changed(self, context):
+    obj = context.object
+    if self.class_name == "StaticBody" or self.class_name == "RigidBody":
+        prop = obj.zero_zero_props.properties.add()
+        prop.name = "shape"
+        prop.value = "BoxShape;"
+        prop = obj.zero_zero_props.properties.add()
+        prop.name = "layer"
+        prop.value = "1"
+    
 class CustomProperties(bpy.types.PropertyGroup):
     class_name: bpy.props.EnumProperty(
         name="Class",
         description="The Node's clas",
         items=NODES_CLASSES,
-        default="Node"
+        default="Node",
+        update=class_changed
     )
     custom_class_name: bpy.props.StringProperty(
         name="Custom class",
@@ -319,7 +330,6 @@ class CustomProperties(bpy.types.PropertyGroup):
         default="",
     )
     properties: bpy.props.CollectionProperty(type=CustomPropertyProperties)
-
 
 # Operator to add a custom property
 class OBJECT_OT_AddCustomProperty(bpy.types.Operator):
@@ -329,7 +339,7 @@ class OBJECT_OT_AddCustomProperty(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         prop = obj.zero_zero_props.properties.add()
-        prop.key = ""
+        prop.name = ""
         prop.value = ""
         return {'FINISHED'}
 
