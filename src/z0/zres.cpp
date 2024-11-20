@@ -34,7 +34,7 @@ namespace z0 {
         auto zscene = make_shared<ZRes>();
         auto rootNode = zscene->loadScene(stream);
         auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
-        log("ZScene loading time ", to_string(last_transcode_time));
+        log("ZRes loading time ", to_string(last_transcode_time));
         return rootNode;
     }
 
