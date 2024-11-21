@@ -277,6 +277,13 @@ namespace z0 {
         children.clear();
     }
 
+    string Node::getPath() const {
+        if (parent) {
+            return parent->getPath() + "/" + getName();
+        }
+        return  "/" + name;
+    }
+
     bool Node::isProcessed() const {
         const auto paused = Application::get().isPaused();
         auto       mode   = processMode;

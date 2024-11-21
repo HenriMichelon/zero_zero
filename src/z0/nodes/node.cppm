@@ -26,6 +26,7 @@ import z0.Tween;
 
         //! Node type
         enum Type {
+            ANIMATION_PLAYER,
             CAMERA,
             CHARACTER,
             COLLISION_AREA,
@@ -47,6 +48,7 @@ import z0.Tween;
         };
 
         static constexpr auto TypeNames = array{
+            "AnimationPlayer",
             "Camera",
             "Character",
             "CollisionArea",
@@ -413,6 +415,11 @@ import z0.Tween;
          * Returns the node name
          */
         inline const string &getName() const { return name; }
+
+        /**
+         * Returns the node path
+         */
+        string getPath() const;
 
     protected:
         Type                   type;

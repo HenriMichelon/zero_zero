@@ -138,7 +138,7 @@ namespace z0 {
         if (stopped) { return; }
         processDeferredUpdates(currentFrame);
         if (currentFrame == (applicationConfig.framesInFlight-1)) {
-            ranges::for_each(deferredCalls, [](function<void()> call) { call(); });
+            ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             deferredCalls.clear();
         }
 
@@ -146,8 +146,9 @@ namespace z0 {
         double newTime =
                 std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double frameTime = newTime - currentTime;
-        if (frameTime > 0.25)
+        if (frameTime > 0.25) {
             frameTime = 0.25; // Note: Max frame time to avoid spiral of death
+        }
         currentTime = newTime;
         accumulator += frameTime;
         while (accumulator >= dt) {

@@ -582,7 +582,7 @@ export namespace z0 {
     /**
      * Mouse buttons
      */
-    enum class MouseButton {
+    enum class MouseButton : std::uint8_t {
         NONE = 0b0000,
         //! Left
         LEFT = 0b0001,
@@ -597,7 +597,7 @@ export namespace z0 {
     /**
      * Gamepas buttons
      */
-    enum class GamepadButton {
+    enum class GamepadButton : std::uint8_t {
         //! A or X
         A = 0,
         //! B or ○
@@ -640,7 +640,7 @@ export namespace z0 {
     /**
      * Gamepad thumbs joysticks
      */
-    enum class GamepadAxisJoystick {
+    enum class GamepadAxisJoystick : std::uint8_t {
         //! Left stick/joystick
         LEFT = 0,
         //! Right stick/joystick
@@ -650,7 +650,7 @@ export namespace z0 {
     /**
      * Gamepad axis & triggers
      */
-    enum class GamepadAxis {
+    enum class GamepadAxis : std::uint8_t {
         //! Left stick/joystick X
         LEFT_X = 0,
         //! Left stick/joystick Y
@@ -667,7 +667,7 @@ export namespace z0 {
     /**
      * Mouse visibility & capture mode
      */
-    enum class MouseMode {
+    enum class MouseMode : std::uint8_t {
         //! Makes the mouse cursor visible
         VISIBLE = 0,
         //! Confines the mouse cursor to the game window, and make it visible
@@ -681,7 +681,7 @@ export namespace z0 {
     /**
      * Mouse cursors types
      */
-    enum class MouseCursor {
+    enum class MouseCursor : std::uint8_t {
         //! "Normal" arrow cursor
         ARROW = 0,
         //! Waiting cursor
@@ -695,11 +695,48 @@ export namespace z0 {
     /**
      * Images pixel format
      */
-    enum class ImageFormat {
+    enum class ImageFormat : std::uint8_t {
         //! 32 bits with alpha channel in the sRGB color space
         R8G8B8A8_SRGB  = 0,
         //! 32 bits with alpha channel in the lineara color space
         R8G8B8A8_UNORM = 1,
+    };
+
+    enum class AnimationType : std::uint8_t {
+        /**
+         * The values are the translation along the X, Y, and Z axes.
+         */
+        TRANSLATION = 1,
+        /**
+         * The values are a quaternion in the order x, y, z, w where w is the scalar.
+         */
+        ROTATION = 2,
+        /**
+         * The values are scaling factors along the X, Y, and Z axes.
+         */
+        SCALE = 3,
+        // Weights = 4,
+    };
+
+    enum class AnimationInterpolation : std::uint8_t {
+        /**
+         * The animated values are linearly interpolated between keyframes..
+         */
+        LINEAR = 0,
+        /**
+         * The animated values remain constant to the output of the first keyframe, until the next
+         * keyframe.
+         */
+        STEP = 1,
+        /**
+         * The animation’s interpolation is computed using a cubic spline with specified tangents.
+         */
+        CUBIC = 2,
+    };
+
+    enum class AnimationLoopMode : std::uint8_t {
+        NONE    = 0,
+        LINEAR  = 1,
     };
 
 }

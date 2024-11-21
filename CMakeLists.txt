@@ -64,6 +64,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/instance.cppm
 		${Z0_ENGINE_DIR}/vulkan/shader.cppm
 
+		${Z0_ENGINE_DIR}/nodes/animation_player.cppm
 		${Z0_ENGINE_DIR}/nodes/camera.cppm
 		${Z0_ENGINE_DIR}/nodes/character.cppm
 		${Z0_ENGINE_DIR}/nodes/collision_area.cppm
@@ -83,6 +84,8 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/nodes/static_body.cppm
 		${Z0_ENGINE_DIR}/nodes/viewport.cppm
 
+		${Z0_ENGINE_DIR}/resources/animation.cppm
+		${Z0_ENGINE_DIR}/resources/animation_library.cppm
 		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cppm
 		${Z0_ENGINE_DIR}/resources/cubemap.cppm
 		${Z0_ENGINE_DIR}/resources/font.cppm
@@ -191,6 +194,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/nodes/static_body.cpp
 		${Z0_ENGINE_DIR}/nodes/viewport.cpp
 
+		${Z0_ENGINE_DIR}/resources/animation.cpp
 		${Z0_ENGINE_DIR}/resources/convex_hull_shape.cpp
 		${Z0_ENGINE_DIR}/resources/cubemap.cpp
 		${Z0_ENGINE_DIR}/resources/font.cpp

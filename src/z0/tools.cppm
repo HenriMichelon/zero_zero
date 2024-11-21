@@ -68,7 +68,7 @@ export namespace z0 {
     vector<string_view> split( string_view str,  char delimiter);
 
     /**
-     * lerp for a vec2 using std::lerp for componants
+     * lerp for a vec2 using std::lerp for components
     */
     inline vec2 lerp(const vec2 a, const vec2 b, const float t) {
         return vec2{
@@ -78,7 +78,7 @@ export namespace z0 {
     }
 
     /**
-     * lerp for a vec3 using std::lerp for componants
+     * lerp for a vec3 using std::lerp for components
     */
     inline vec3 lerp(const vec3 a, const vec3 b, const float t) {
         return vec3{
@@ -89,7 +89,7 @@ export namespace z0 {
     }
 
     /**
-     * lerp for a vec4 using std::lerp for componants
+     * lerp for a vec4 using std::lerp for components
     */
     inline vec4 lerp(const vec4 a, const vec4 b, const float t) {
         return vec4{

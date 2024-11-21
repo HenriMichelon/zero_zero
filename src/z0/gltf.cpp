@@ -14,6 +14,7 @@ module;
 
 module z0.GlTF;
 
+import z0.Animation;
 import z0.Constants;
 import z0.Image;
 import z0.Material;
@@ -103,7 +104,7 @@ namespace z0 {
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
         map<Resource::id_t, int> materialsTexCoords;
-        for (auto &mat : gltf.materials) {
+        for (const auto &mat : gltf.materials) {
             auto material = make_shared<StandardMaterial>(mat.name.data());
             material->setAlbedoColor({
                     mat.pbrData.baseColorFactor[0],
@@ -131,13 +132,14 @@ namespace z0 {
             auto wrapU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
             auto wrapV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
             auto convertSamplerData = [&](const fastgltf::Texture &texture) {
-                const auto& sampler = gltf.samplers[texture.samplerIndex.value()];
+                const auto& sampler = gltf.samplers.at(texture.samplerIndex.value());
                 if (sampler.magFilter.has_value())
-                    magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                    magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
                 if (sampler.minFilter.has_value()) {
                     const auto v = sampler.minFilter.value();
-                    minFilter = (v==fastgltf::Filter::Linear || v==fastgltf::Filter::LinearMipMapLinear || v==fastgltf::Filter::LinearMipMapNearest) ?
-                        VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                    minFilter = v == fastgltf::Filter::Linear ||
+                                v == fastgltf::Filter::LinearMipMapLinear ?
+                        VK_FILTER_LINEAR : VK_FILTER_NEAREST;
                 }
                 wrapU = sampler.wrapS ==
                     fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
@@ -172,7 +174,7 @@ namespace z0 {
                 return nullptr;
             };
             auto loadTexture = [&](const fastgltf::TextureInfo& sourceTextureInfo, const VkFormat format) {
-                const auto& texture = gltf.textures[sourceTextureInfo.textureIndex];
+                const auto& texture = gltf.textures.at(sourceTextureInfo.textureIndex);
                 materialsTexCoords[material->getId()] = sourceTextureInfo.texCoordIndex;
                 if (texture.samplerIndex.has_value()) { convertSamplerData(texture); }
                 shared_ptr<Image> image;
@@ -227,7 +229,7 @@ namespace z0 {
         auto meshes = vector<shared_ptr<VulkanMesh>>(gltf.meshes.size());
         auto meshesCount = 0;
         for (size_t i = 0; i < gltf.meshes.size(); i++) {
-            const auto& glftMesh = gltf.meshes[i];
+            const auto& glftMesh = gltf.meshes.at(i);
             auto  mesh     = make_shared<VulkanMesh>(glftMesh.name.data());
             auto &vertices = mesh->getVertices();
             auto &indices  = mesh->getIndices();
@@ -310,10 +312,10 @@ namespace z0 {
                 }
                 // calculate missing tangents
                 if (!haveTangents) {
-                    for (auto i = 0; i < indices.size(); i += 3) {
-                        auto &vertex1  = vertices[indices[i]];
-                        auto &vertex2  = vertices[indices[i + 1]];
-                        auto &vertex3  = vertices[indices[i + 2]];
+                    for (auto index = 0; index < indices.size(); index += 3) {
+                        auto &vertex1  = vertices[indices[index]];
+                        auto &vertex2  = vertices[indices[index + 1]];
+                        auto &vertex3  = vertices[indices[index + 2]];
                         vec3  edge1    = vertex2.position - vertex1.position;
                         vec3  edge2    = vertex3.position - vertex1.position;
                         vec2  deltaUV1 = vertex2.uv - vertex1.uv;
@@ -348,7 +350,7 @@ namespace z0 {
 
         // load all nodes and their meshes
         vector<shared_ptr<Node>> nodes;
-        for (fastgltf::Node &node : gltf.nodes) {
+        for (const auto &node : gltf.nodes) {
             shared_ptr<Node> newNode;
             string           name{node.name.data()};
             // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the
@@ -356,45 +358,100 @@ namespace z0 {
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
                 mesh->buildModel();
-                newNode = std::make_shared<MeshInstance>(mesh, name);
+                newNode = make_shared<MeshInstance>(mesh, name);
             } else {
-                newNode = std::make_shared<Node>(name);
+                newNode = make_shared<Node>(name);
             }
 
             visit(fastgltf::visitor{
-                          [&](fastgltf::math::fmat4x4 matrix) {
-                              memcpy(&newNode->_getTransformLocal(), matrix.data(), sizeof(matrix));
-                          },
-                          [&](fastgltf::TRS transform) {
-                              const vec3 tl(transform.translation[0], transform.translation[1], transform.translation[2]);
-                              const quat rot(transform.rotation[3],
-                                       transform.rotation[0],
-                                       transform.rotation[1],
-                                       transform.rotation[2]);
-                              const vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
-                              const mat4 tm = translate(mat4(1.f), tl);
-                              const mat4 rm = toMat4(rot);
-                              const mat4 sm = scale(mat4(1.f), sc);
-                              newNode->_setTransform(tm * rm * sm);
-                          }},
-                  node.transform);
+              [&](fastgltf::math::fmat4x4 matrix) {
+                  memcpy(&newNode->_getTransformLocal(), matrix.data(), sizeof(matrix));
+              },
+              [&](fastgltf::TRS transform) {
+                  const vec3 tl(transform.translation[0], transform.translation[1], transform.translation[2]);
+                  const quat rot(transform.rotation[3],
+                           transform.rotation[0],
+                           transform.rotation[1],
+                           transform.rotation[2]);
+                  const vec3 sc(transform.scale[0], transform.scale[1], transform.scale[2]);
+                  const mat4 tm = translate(mat4(1.f), tl);
+                  const mat4 rm = toMat4(rot);
+                  const mat4 sm = scale(mat4(1.f), sc);
+                  newNode->_setTransform(tm * rm * sm);
+              }},
+              node.transform);
             newNode->_updateTransform(mat4{1.0f});
             nodes.push_back(newNode);
         }
 
         // Build node tree
         for (uint32_t i = 0; i < gltf.nodes.size(); i++) {
-            fastgltf::Node   &node      = gltf.nodes[i];
-            shared_ptr<Node> &sceneNode = nodes[i];
-            for (auto &child : node.children) {
+            fastgltf::Node   &node      = gltf.nodes.at(i);
+            shared_ptr<Node> &sceneNode = nodes.at(i);
+            for (const auto &child : node.children) {
                 sceneNode->setProcessMode(ProcessMode::DISABLED);
                 sceneNode->addChild(nodes[child]);
             }
         }
 
+        // Read the animations (after building the node tree to get the nodes paths)
+        for (const auto& animation : gltf.animations) {
+            auto anim = make_shared<Animation>(static_cast<uint32_t>(animation.channels.size()), animation.name.data());
+            for (auto trackIndex = 0; trackIndex < animation.channels.size(); trackIndex++) {
+                const auto& channel = animation.channels[trackIndex];
+                if (!channel.nodeIndex.has_value()) {
+                    continue;
+                }
+                auto& track = anim->getTrack(trackIndex);
+
+                const auto &sampler = animation.samplers.at(channel.samplerIndex);
+                const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
+                track.keyTime.resize(inputAccessor.count);
+                fastgltf::copyFromAccessor<float>(gltf, inputAccessor, track.keyTime.data());
+                // for(auto v : track.keyTime) {
+                    // cout << "key frame " << v << endl;
+                // }
+
+                const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
+                track.keyValue.resize(outputAccessor.count);
+                // can't use copyFromAccessor here because of variant
+                switch (channel.path) {
+                    case fastgltf::AnimationPath::Translation: {
+                        track.type = AnimationType::TRANSLATION;
+                        fastgltf::iterateAccessorWithIndex<vec3>(
+                            gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
+                                track.keyValue[index] = vec;
+                        });
+                        // for(const variant<vec3, quat>& v : track.keyValue) {
+                            // cout << to_string(get<vec3>(v)) << endl;
+                        // }
+                        break;
+                    }
+                    case fastgltf::AnimationPath::Rotation: {
+                        track.type = AnimationType::ROTATION;
+                        fastgltf::iterateAccessorWithIndex<vec4>(
+                            gltf, outputAccessor, [&](const vec4 vec, const size_t index) {
+                                track.keyValue[index] = quat(vec.w, vec.x, vec.y, vec.z);
+                        });
+                        break;
+                    }
+                    case fastgltf::AnimationPath::Scale: {
+                        track.type = AnimationType::SCALE;
+                        fastgltf::iterateAccessorWithIndex<vec3>(
+                            gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
+                                track.keyValue[index] = vec;
+                        });
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+
         // find the top nodes, with no parents
         auto rootNode = make_shared<Node>(filepath);
-        for (auto &node : nodes) {
+        for (const auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);

@@ -197,12 +197,13 @@ int main(const int argc, char** argv) {
         if (texture.samplerIndex.has_value()) {
             const auto& sampler = gltf.samplers[texture.samplerIndex.value()];
             if (sampler.magFilter.has_value()) {
-                textureHeaders[textureIndex].magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                textureHeaders[textureIndex].magFilter = sampler.magFilter.value() == fastgltf::Filter::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
             }
             if (sampler.minFilter.has_value()) {
                 const auto v = sampler.minFilter.value();
-                textureHeaders[textureIndex].minFilter = (v==fastgltf::Filter::Linear || v==fastgltf::Filter::LinearMipMapLinear || v==fastgltf::Filter::LinearMipMapNearest) ?
-                    VK_FILTER_LINEAR : VK_FILTER_LINEAR;
+                textureHeaders[textureIndex].minFilter = v == fastgltf::Filter::Linear ||
+                                v == fastgltf::Filter::LinearMipMapLinear?
+                    VK_FILTER_LINEAR : VK_FILTER_NEAREST;
             }
             textureHeaders[textureIndex].samplerAddressModeU = sampler.wrapS ==
                 fastgltf::Wrap::ClampToEdge ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE :
