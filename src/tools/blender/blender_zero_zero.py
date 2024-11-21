@@ -210,7 +210,7 @@ def export_resouces_json():
     filename = APP_URI + directory + "/" + filename.replace("\\", "/") + ext
     nodes = [{
         "id" : RESOURCES_ID,
-        "type" : "model",
+        "type" : "resource",
         "resource" : filename
     }]
     for obj in bpy.context.scene.objects:

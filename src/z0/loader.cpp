@@ -41,7 +41,7 @@ namespace z0 {
         sceneTree[nodeDesc.id] = nodeDesc;
         shared_ptr<Node> node;
         if (nodeDesc.isResource) {
-            if (nodeDesc.resourceType == "model") {
+            if (nodeDesc.resourceType == "resource") {
                 // the model is in a glTF/ZScene file
                 node = load(nodeDesc.resource);
                 node->setName(nodeDesc.id);
