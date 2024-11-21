@@ -29,7 +29,7 @@ namespace z0 {
         type           = orig.type;
     }
 
-    Node::Node(const string &nodeName, Type type):
+    Node::Node(const string &nodeName, const Type type):
         type{type},
         name{std::move(nodeName)},
         id{currentId++} {
@@ -132,7 +132,7 @@ namespace z0 {
         // Decompose the original matrix to extract translation, rotation (orientation), and scale
         decompose(localTransform, scale, orientation, translation, skew, perspective);
         // Create a rotation matrix from the new quaternion
-        mat4 rotationMatrix = toMat4(quater);
+        const mat4 rotationMatrix = toMat4(quater);
         // Reconstruct the transformation matrix with the new rotation, preserving the original translation and scale
         localTransform = glm::translate(mat4{1.0f}, translation)
                 * rotationMatrix

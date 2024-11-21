@@ -15,6 +15,8 @@ module;
 module z0.GlTF;
 
 import z0.Animation;
+import z0.AnimationLibrary;
+import z0.AnimationPlayer;
 import z0.Constants;
 import z0.Image;
 import z0.Material;
@@ -395,6 +397,7 @@ namespace z0 {
         }
 
         // Read the animations (after building the node tree to get the nodes paths)
+        auto animationPlayers = map<uint32_t, shared_ptr<AnimationPlayer>>{};
         for (const auto& animation : gltf.animations) {
             auto anim = make_shared<Animation>(static_cast<uint32_t>(animation.channels.size()), animation.name.data());
             for (auto trackIndex = 0; trackIndex < animation.channels.size(); trackIndex++) {
@@ -402,6 +405,17 @@ namespace z0 {
                 if (!channel.nodeIndex.has_value()) {
                     continue;
                 }
+                auto animationPlayer = shared_ptr<AnimationPlayer>{};
+                auto nodeIndex = channel.nodeIndex.value();
+                if (animationPlayers.contains(nodeIndex)) {
+                    animationPlayer = animationPlayers[nodeIndex];
+                } else {
+                    animationPlayer = make_shared<AnimationPlayer>(nodes.at(nodeIndex));
+                    animationPlayer->add("", make_shared<AnimationLibrary>());
+                    animationPlayers[nodeIndex] = animationPlayer;
+                }
+                animationPlayer->getLibrary()->add(animation.name.data(), anim);
+                animationPlayer->setCurrentAnimation(animation.name.data()); // TODO implements play, stop, ...
                 auto& track = anim->getTrack(trackIndex);
 
                 const auto &sampler = animation.samplers.at(channel.samplerIndex);
@@ -456,6 +470,9 @@ namespace z0 {
                 node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);
             }
+        }
+        for (auto [k,v] : animationPlayers) {
+            rootNode->addChild(v);
         }
 
         auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();

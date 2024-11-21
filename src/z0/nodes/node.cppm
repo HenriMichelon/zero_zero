@@ -454,6 +454,8 @@ import z0.Tween;
 
         virtual void _physicsUpdate(float delta);
 
+        virtual void _update(float alpha) {};
+
         inline void _setParent(Node *p) { parent = p; }
 
         inline void _setAddedToScene(const bool added) { addedToScene = added; }

@@ -20,7 +20,9 @@ export namespace z0 {
      */
     class AnimationPlayer : public Node {
     public:
-        explicit AnimationPlayer(const string &name = TypeNames[ANIMATION_PLAYER]);
+        explicit AnimationPlayer(const string &name = TypeNames[ANIMATION_PLAYER]): Node{name, ANIMATION_PLAYER} {};
+
+        AnimationPlayer(const shared_ptr<Node>& node, const string &name = TypeNames[ANIMATION_PLAYER]);
 
         [[nodiscard]] inline const string& getCurrentLibrary() const { return currentLibrary; }
 
@@ -32,11 +34,17 @@ export namespace z0 {
 
         inline void add(const string& name, const shared_ptr<AnimationLibrary>& library) { libraries[name] = library; }
 
-        [[nodiscard]] inline shared_ptr<Animation> getAnimation() { return libraries[currentLibrary]->get(currentAnimation); }
+        shared_ptr<Animation> getAnimation();
+
+        [[nodiscard]] inline shared_ptr<AnimationLibrary> getLibrary() { return libraries[currentLibrary]; }
+
+        void _update(float alpha) override;
 
     private:
-        string currentLibrary;
-        string currentAnimation;
+        bool autostart{true};
+        shared_ptr<Node> node;
+        string currentLibrary{""};
+        string currentAnimation{""};
         map<string, shared_ptr<AnimationLibrary>> libraries;
     };
 

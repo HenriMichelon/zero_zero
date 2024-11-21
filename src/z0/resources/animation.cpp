@@ -43,7 +43,8 @@ namespace z0 {
         case AnimationType::SCALE:
             return lerp(get<vec3>(currentValue), get<vec3>(nextValue), localAlpha);
         case AnimationType::ROTATION:
-            return slerp(get<quat>(currentValue), get<quat>(nextValue), localAlpha);
+            return currentValue;
+            // return slerp(get<quat>(currentValue), get<quat>(nextValue), localAlpha);
         default:
             die("Unknown animation type");
         }

@@ -23,7 +23,7 @@ export namespace z0 {
          * Creates an AnimationLibrary
          * @param name resource name.
          */
-        explicit inline AnimationLibrary(const string &name) : Resource{name} {}
+        explicit inline AnimationLibrary(const string &name = "AnimationLibrary") : Resource{name} {}
 
         inline void add(const string& name, shared_ptr<Animation> animation) { animations[name] = animation; }
 

@@ -229,13 +229,14 @@ namespace z0 {
         deferredCalls.push_back(func);
     }
 
-    void Application::process(const shared_ptr<Node> &node, const float delta) {
+    void Application::process(const shared_ptr<Node> &node, const float alpha) {
         assert(node != nullptr);
         if (node->isProcessed()) {
-            node->onProcess(delta);
+            node->_update(alpha);
+            node->onProcess(alpha);
         }
         for (auto &child : node->_getChildren()) {
-            process(child, delta);
+            process(child, alpha);
         }
     }
 

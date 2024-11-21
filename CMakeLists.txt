@@ -175,6 +175,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/shader.cpp
 		${Z0_ENGINE_DIR}/vulkan/zres.cpp
 
+		${Z0_ENGINE_DIR}/nodes/animation_player.cpp
 		${Z0_ENGINE_DIR}/nodes/camera.cpp
 		${Z0_ENGINE_DIR}/nodes/character.cpp
 		${Z0_ENGINE_DIR}/nodes/collision_area.cpp
