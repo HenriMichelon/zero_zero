@@ -423,8 +423,10 @@ namespace z0 {
                 track.keyTime.resize(inputAccessor.count);
                 fastgltf::copyFromAccessor<float>(gltf, inputAccessor, track.keyTime.data());
                 // for(auto v : track.keyTime) {
-                    // cout << "key frame " << v << endl;
+                //     cout << "key frame " << v << endl;
                 // }
+                const auto lastKeyTime = track.keyTime.back();
+                track.duration = lastKeyTime / static_cast<float>(inputAccessor.count) + lastKeyTime + track.keyTime.front();
 
                 const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
                 track.keyValue.resize(outputAccessor.count);
@@ -436,8 +438,10 @@ namespace z0 {
                             gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
                                 track.keyValue[index] = vec;
                         });
+                        // auto index = 0;
                         // for(const variant<vec3, quat>& v : track.keyValue) {
-                            // cout << to_string(get<vec3>(v)) << endl;
+                            // cout << to_string(index) << " : " << to_string(get<vec3>(v)) << endl;
+                            // index += 1;
                         // }
                         break;
                     }
@@ -447,6 +451,11 @@ namespace z0 {
                             gltf, outputAccessor, [&](const vec4 vec, const size_t index) {
                                 track.keyValue[index] = quat(vec.w, vec.x, vec.y, vec.z);
                         });
+                        // auto index = 0;
+                        // for(const variant<vec3, quat>& v : track.keyValue) {
+                            // cout << to_string(index) << " : " << to_string(get<quat>(v)) << endl;
+                            // index += 1;
+                        // }
                         break;
                     }
                     case fastgltf::AnimationPath::Scale: {

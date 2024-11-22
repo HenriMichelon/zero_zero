@@ -133,7 +133,6 @@ namespace z0 {
         }
     }
 
-
     void Application::drawFrame() {
         if (stopped) { return; }
         processDeferredUpdates(currentFrame);
@@ -144,7 +143,7 @@ namespace z0 {
 
         // https://gafferongames.com/post/fix_your_timestep/
         double newTime =
-                std::chrono::duration_cast<std::chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+                chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double frameTime = newTime - currentTime;
         if (frameTime > 0.25) {
             frameTime = 0.25; // Note: Max frame time to avoid spiral of death

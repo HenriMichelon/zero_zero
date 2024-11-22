@@ -65,7 +65,13 @@ namespace z0 {
     }
 
     void Node::setScale(const vec3 scale) {
-        localTransform = glm::scale(localTransform, scale);
+        vec3 old_scale, translation, skew;
+        vec4 perspective;
+        quat orientation;
+        decompose(localTransform, old_scale, orientation, translation, skew, perspective);
+        localTransform = glm::translate(translation) *
+                               mat4_cast(orientation) *
+                               glm::scale(scale);
         _updateTransform();
     }
 

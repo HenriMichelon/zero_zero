@@ -6,7 +6,8 @@
 */
 module;
 #include <fastgltf/math.hpp>
-#include <glm/gtx/quaternion.hpp> // for slerp(quat)
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 module z0.Animation;
@@ -16,37 +17,38 @@ import z0.Tools;
 
 namespace z0 {
 
-    variant<vec3, quat> Animation::Track::interpolate(const double alpha) {
+    variant<vec3, quat> Animation::Track::interpolate(const double currentTimeFromStart) const {
         if (!enabled || keyTime.size() < 2) {
             return keyValue[0];
         }
+        const auto currentTime = fmod(currentTimeFromStart, static_cast<double>(duration));
+        // log("--------------------");
+        // log(to_string(currentTime) + " / " + to_string(currentTimeFromStart));
 
-        // Find the current and next keyframe indices
-        auto it = lower_bound(keyTime.begin(), keyTime.end(), static_cast<float>(alpha));
-        size_t nextIndex = std::distance(keyTime.begin(), it);
-        size_t currentIndex = nextIndex > 0 ? nextIndex - 1 : 0;
+        const auto it = lower_bound(keyTime.begin(), keyTime.end(), static_cast<float>(currentTime));
+        auto nextIndex = std::distance(keyTime.begin(), it);
+        auto previousIndex = nextIndex > 0 ? nextIndex - 1 : 0;
+        // log(to_string(previousIndex) + " / " + to_string(nextIndex));
+        bool overflow = nextIndex == keyTime.size();
 
-        if (nextIndex >= keyTime.size()) {
-            nextIndex = keyTime.size() - 1;
-        }
+        const auto& previousTime = nextIndex == 0 ? 0.0f : keyTime[previousIndex];
+        const auto nextTime = overflow ? duration : keyTime[nextIndex];
+        const auto interpolationValue = static_cast<float>((currentTime - previousTime) / (nextTime - previousTime));
+        // log(to_string(previousTime) + " / " + to_string(nextTime));
+        // log(to_string(interpolationValue));
 
-        // Compute normalized time between current and next keyframes
-        float t1 = keyTime[currentIndex];
-        float t2 = keyTime[nextIndex];
-        float localAlpha = (static_cast<float>(alpha) - t1) / (t2 - t1);
-
-        // Interpolate based on type
-        const auto& currentValue = keyValue[currentIndex];
-        const auto& nextValue = keyValue[nextIndex];
+        const auto& previousValue = keyValue[previousIndex];
+        const auto nextValue = overflow ? keyValue[0] : keyValue[nextIndex]; // TODO no loop
         switch (type) {
-        case AnimationType::TRANSLATION:
-        case AnimationType::SCALE:
-            return lerp(get<vec3>(currentValue), get<vec3>(nextValue), localAlpha);
-        case AnimationType::ROTATION:
-            return currentValue;
-            // return slerp(get<quat>(currentValue), get<quat>(nextValue), localAlpha);
-        default:
-            die("Unknown animation type");
+            case AnimationType::TRANSLATION:
+            case AnimationType::SCALE:
+                // log(to_string(get<vec3>(previousValue)) + " / " + to_string(get<vec3>(nextValue)));
+                // log(to_string(lerp(get<vec3>(previousValue), get<vec3>(nextValue), interpolationValue)));
+                return glm::lerp(get<vec3>(previousValue), get<vec3>(nextValue), interpolationValue);
+            case AnimationType::ROTATION:
+                return slerp(get<quat>(previousValue), get<quat>(nextValue), interpolationValue);
+            default:
+                return keyValue[0];
         }
     }
 

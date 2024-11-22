@@ -24,10 +24,11 @@ export namespace z0 {
         struct Track {
             AnimationType                type;
             bool                         enabled{true};
+            float                        duration{0.0f};
             vector<float>                keyTime;
             vector<variant<vec3, quat>>  keyValue;
 
-            variant<vec3, quat> interpolate(double alpha);
+            variant<vec3, quat> interpolate(double currentTimeFromStart) const;
         };
 
         /**

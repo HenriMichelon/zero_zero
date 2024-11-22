@@ -97,6 +97,10 @@ namespace std {
         return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
     }
 
+    string to_string(const quat vec) {
+        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
+    }
+
     string to_lower(const string& str) {
         auto s = str;
         // https://en.cppreference.com/w/cpp/string/byte/tolower

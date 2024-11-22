@@ -40,8 +40,16 @@ export namespace z0 {
 
         void _update(float alpha) override;
 
+        void _onEnterScene() override;
+
+        void play(const string &name);
+
+        void stop();
+
     private:
         bool autostart{true};
+        bool isPlaying{false};
+        chrono::time_point<chrono::steady_clock> startTime;
         shared_ptr<Node> node;
         string currentLibrary{""};
         string currentAnimation{""};

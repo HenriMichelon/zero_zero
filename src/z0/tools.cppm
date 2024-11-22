@@ -67,39 +67,6 @@ export namespace z0 {
      */
     vector<string_view> split( string_view str,  char delimiter);
 
-    /**
-     * lerp for a vec2 using std::lerp for components
-    */
-    inline vec2 lerp(const vec2 a, const vec2 b, const float t) {
-        return vec2{
-                std::lerp(a.x, b.x, t),
-                std::lerp(a.y, b.y, t),
-        };
-    }
-
-    /**
-     * lerp for a vec3 using std::lerp for components
-    */
-    inline vec3 lerp(const vec3 a, const vec3 b, const float t) {
-        return vec3{
-                std::lerp(a.x, b.x, t),
-                std::lerp(a.y, b.y, t),
-                std::lerp(a.z, b.z, t),
-        };
-    }
-
-    /**
-     * lerp for a vec4 using std::lerp for components
-    */
-    inline vec4 lerp(const vec4 a, const vec4 b, const float t) {
-        return vec4{
-                std::lerp(a.x, b.x, t),
-                std::lerp(a.y, b.y, t),
-                std::lerp(a.z, b.z, t),
-                std::lerp(a.w, b.w, t),
-        };
-    }
-
     int numMipmapLevels(const int width, const int height);
 
     vector<byte> createBlankJPG();
@@ -127,6 +94,8 @@ export namespace std {
      * Helper to log a vec4 (std lib code convention)
      */
     string to_string(vec4 vec);
+
+    string to_string(quat vec);
 
     string to_lower(const string &str);
 
