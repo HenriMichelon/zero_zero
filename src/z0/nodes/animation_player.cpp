@@ -19,6 +19,7 @@ namespace z0 {
               Node{name, ANIMATION_PLAYER}, node{node} {}
 
     void AnimationPlayer::_update(float _) {
+        // TODO : no loop
         const auto now = std::chrono::steady_clock::now();
         const auto duration = (std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();

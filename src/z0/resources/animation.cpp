@@ -17,6 +17,8 @@ import z0.Tools;
 
 namespace z0 {
 
+    // TODO : no loop
+    // TODO AnimationInterpolation
     variant<vec3, quat> Animation::Track::interpolate(const double currentTimeFromStart) const {
         if (!enabled || keyTime.size() < 2) {
             return keyValue[0];

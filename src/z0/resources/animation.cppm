@@ -21,6 +21,7 @@ export namespace z0 {
     class Animation : public Resource {
     public:
 
+        // TODO AnimationInterpolation
         struct Track {
             AnimationType                type;
             bool                         enabled{true};

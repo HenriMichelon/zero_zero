@@ -415,18 +415,18 @@ namespace z0 {
                     animationPlayers[nodeIndex] = animationPlayer;
                 }
                 animationPlayer->getLibrary()->add(animation.name.data(), anim);
-                animationPlayer->setCurrentAnimation(animation.name.data()); // TODO implements play, stop, ...
+                animationPlayer->setCurrentAnimation(animation.name.data());
                 auto& track = anim->getTrack(trackIndex);
 
                 const auto &sampler = animation.samplers.at(channel.samplerIndex);
                 const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
                 track.keyTime.resize(inputAccessor.count);
                 fastgltf::copyFromAccessor<float>(gltf, inputAccessor, track.keyTime.data());
-                // for(auto v : track.keyTime) {
-                //     cout << "key frame " << v << endl;
-                // }
-                const auto lastKeyTime = track.keyTime.back();
-                track.duration = lastKeyTime / static_cast<float>(inputAccessor.count) + lastKeyTime + track.keyTime.front();
+                auto index = 0;
+                for(auto v : track.keyTime) {
+                    cout << "key frame "  << index++ << " : " << v << endl;
+                }
+                track.duration = track.keyTime.back() + track.keyTime.front();
 
                 const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
                 track.keyValue.resize(outputAccessor.count);

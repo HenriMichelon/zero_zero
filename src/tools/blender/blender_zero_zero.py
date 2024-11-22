@@ -273,7 +273,19 @@ class ExportOperator(bpy.types.Operator):
                 result = export_resouces_json()
                 with open(resource_desc_export_path, 'w') as json_file:
                     json.dump(result, json_file, indent=2)
-            bpy.ops.export_scene.gltf(filepath=glb_export_path, export_format='GLB')
+            bpy.ops.export_scene.gltf(
+                filepath=glb_export_path, 
+                export_format='GLB',
+                export_jpeg_quality=85,
+                export_image_quality=85,
+                export_tangents=True,
+                export_cameras=False,
+                export_unused_images=False,
+                export_unused_textures=False,
+                export_yup=True,
+                export_animations=True,
+                export_anim_slide_to_zero=True
+                )
         else:
             convert = False
             
