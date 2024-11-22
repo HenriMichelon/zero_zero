@@ -105,8 +105,10 @@ export namespace z0 {
     private:
         bool autoStart{false};
         bool playing{false};
+        bool starting{false};
         chrono::time_point<chrono::steady_clock> startTime;
         double stoppedAt{0.0};
+        double lastDuration{0.0};
         shared_ptr<Node> node;
         string currentLibrary;
         string currentAnimation;

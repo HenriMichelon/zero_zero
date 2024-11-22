@@ -34,14 +34,20 @@ namespace z0 {
         // log(to_string(currentTime) + " / " + to_string(currentTimeFromStart));
 
         const auto it = lower_bound(track.keyTime.begin(), track.keyTime.end(), static_cast<float>(currentTime));
-        auto nextIndex = std::distance(track.keyTime.begin(), it);
-        auto previousIndex = nextIndex > 0 ? nextIndex - 1 : 0;
+        const auto nextIndex = std::distance(track.keyTime.begin(), it);
+        if (nextIndex == 0) {
+            value.value = track.keyValue[0];;
+            return value;
+        }
+
+        const auto previousIndex =nextIndex;
         // log(to_string(previousIndex) + " / " + to_string(nextIndex));
         bool overflow = nextIndex == track.keyTime.size();
 
-        const auto& previousTime = nextIndex == 0 ? 0.0f : track.keyTime[previousIndex];
+        const auto& previousTime = track.keyTime[previousIndex];
         const auto nextTime = overflow ? track.duration : track.keyTime[nextIndex];
-        const auto interpolationValue = static_cast<float>((currentTime - previousTime) / (nextTime - previousTime));
+        const auto diffTime = nextTime - previousTime;
+        const auto interpolationValue = static_cast<float>((currentTime - previousTime) / (diffTime > 0 ? diffTime : 1.0f));
         // log(to_string(previousTime) + " / " + to_string(nextTime));
         // log(to_string(interpolationValue));
 

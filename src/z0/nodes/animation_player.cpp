@@ -20,13 +20,19 @@ namespace z0 {
 
     void AnimationPlayer::_update(const float alpha) {
         Node::_update(alpha);
-        if (!playing) { return; }
+        if (starting) {
+            startTime = chrono::steady_clock::now();
+            playing = true;
+            starting = false;
+        } else if (!playing) {
+            return;
+        }
         const auto now = chrono::steady_clock::now();
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
         if (animation && node) {
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
-                const auto& value = animation->getInterpolatedValue(trackIndex, duration);
+                const auto& value = animation->getInterpolatedValue(trackIndex, duration + stoppedAt);
                 if (value.ended) {
                     stop();
                 } else {
@@ -40,6 +46,7 @@ namespace z0 {
                         break;
                     }
                     case AnimationType::SCALE:
+                        // cout << get<vec3>(value.value) << endl;
                         // node->setScale(get<vec3>(value.value));
                         break;
                     default:
@@ -47,6 +54,7 @@ namespace z0 {
                 }
             }
         }
+        lastDuration = duration;
     }
 
     void AnimationPlayer::_onEnterScene() {
@@ -61,16 +69,14 @@ namespace z0 {
         if (!name.empty()) {
             currentAnimation = name;
         }
-        startTime = chrono::steady_clock::now();
-        playing = true;
+        starting = true;
     }
 
     void AnimationPlayer::stop(const bool keepState) {
         if (!playing) { return; }
         playing = false;
         if (keepState) {
-            const auto now = chrono::steady_clock::now();
-            stoppedAt = chrono::duration_cast<chrono::milliseconds>(now - startTime).count() / 1000.0;
+            stoppedAt = lastDuration;
         } else {
             stoppedAt = 0.0;
         }
