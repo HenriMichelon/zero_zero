@@ -386,17 +386,7 @@ namespace z0 {
             nodes.push_back(newNode);
         }
 
-        // Build node tree
-        for (uint32_t i = 0; i < gltf.nodes.size(); i++) {
-            fastgltf::Node   &node      = gltf.nodes.at(i);
-            shared_ptr<Node> &sceneNode = nodes.at(i);
-            for (const auto &child : node.children) {
-                sceneNode->setProcessMode(ProcessMode::DISABLED);
-                sceneNode->addChild(nodes[child]);
-            }
-        }
-
-        // Read the animations (after building the node tree to get the nodes paths)
+        // Read the animations
         auto animationPlayers = map<uint32_t, shared_ptr<AnimationPlayer>>{};
         for (const auto& animation : gltf.animations) {
             auto anim = make_shared<Animation>(static_cast<uint32_t>(animation.channels.size()), animation.name.data());
@@ -410,7 +400,7 @@ namespace z0 {
                 if (animationPlayers.contains(nodeIndex)) {
                     animationPlayer = animationPlayers[nodeIndex];
                 } else {
-                    animationPlayer = make_shared<AnimationPlayer>(nodes.at(nodeIndex));
+                    animationPlayer = make_shared<AnimationPlayer>(nodes[nodeIndex]);
                     animationPlayer->add("", make_shared<AnimationLibrary>());
                     animationPlayers[nodeIndex] = animationPlayer;
                 }
@@ -422,11 +412,12 @@ namespace z0 {
                 const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
                 track.keyTime.resize(inputAccessor.count);
                 fastgltf::copyFromAccessor<float>(gltf, inputAccessor, track.keyTime.data());
-                auto index = 0;
-                for(auto v : track.keyTime) {
-                    cout << "key frame "  << index++ << " : " << v << endl;
-                }
+
                 track.duration = track.keyTime.back() + track.keyTime.front();
+                track.interpolation =
+                    sampler.interpolation == fastgltf::AnimationInterpolation::Linear ?
+                        AnimationInterpolation::LINEAR :
+                        AnimationInterpolation::STEP;
 
                 const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
                 track.keyValue.resize(outputAccessor.count);
@@ -438,11 +429,6 @@ namespace z0 {
                             gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
                                 track.keyValue[index] = vec;
                         });
-                        // auto index = 0;
-                        // for(const variant<vec3, quat>& v : track.keyValue) {
-                            // cout << to_string(index) << " : " << to_string(get<vec3>(v)) << endl;
-                            // index += 1;
-                        // }
                         break;
                     }
                     case fastgltf::AnimationPath::Rotation: {
@@ -451,11 +437,6 @@ namespace z0 {
                             gltf, outputAccessor, [&](const vec4 vec, const size_t index) {
                                 track.keyValue[index] = quat(vec.w, vec.x, vec.y, vec.z);
                         });
-                        // auto index = 0;
-                        // for(const variant<vec3, quat>& v : track.keyValue) {
-                            // cout << to_string(index) << " : " << to_string(get<quat>(v)) << endl;
-                            // index += 1;
-                        // }
                         break;
                     }
                     case fastgltf::AnimationPath::Scale: {
@@ -472,16 +453,25 @@ namespace z0 {
             }
         }
 
+        for (auto [k,v] : animationPlayers) {
+            v->getNode()->addChild(v);
+        }
+
+        // Build node tree
+        for (uint32_t i = 0; i < gltf.nodes.size(); i++) {
+            fastgltf::Node   &node      = gltf.nodes[i];
+            shared_ptr<Node> &sceneNode = nodes[i];
+            for (const auto &child : node.children) {
+                sceneNode->addChild(nodes[child]);
+            }
+        }
+
         // find the top nodes, with no parents
         auto rootNode = make_shared<Node>(filepath);
         for (const auto &node : nodes) {
             if (node->getParent() == nullptr) {
-                node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);
             }
-        }
-        for (auto [k,v] : animationPlayers) {
-            rootNode->addChild(v);
         }
 
         auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();

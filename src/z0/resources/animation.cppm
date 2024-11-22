@@ -21,15 +21,19 @@ export namespace z0 {
     class Animation : public Resource {
     public:
 
-        // TODO AnimationInterpolation
         struct Track {
             AnimationType                type;
+            AnimationInterpolation       interpolation{AnimationInterpolation::LINEAR};
             bool                         enabled{true};
             float                        duration{0.0f};
             vector<float>                keyTime;
             vector<variant<vec3, quat>>  keyValue;
+        };
 
-            variant<vec3, quat> interpolate(double currentTimeFromStart) const;
+        struct TrackKeyValue {
+            bool                 ended;
+            AnimationType        type;
+            variant<vec3, quat>  value;
         };
 
         /**
@@ -45,11 +49,35 @@ export namespace z0 {
          */
         explicit Animation(uint32_t tracksCount, const string &name);
 
-        [[nodiscard]] inline vector<Track>& getTracks() { return tracks; }
+        /**
+         * Sets the looping mode
+         */
+        inline void setLoopMode(const AnimationLoopMode mode) { loopMode = mode; }
 
+        /**
+         * Returns the looping mode
+         */
+        [[nodiscard]] inline AnimationLoopMode getLoopMode() const { return loopMode; }
+
+        /**
+         * Returns the number of tracks
+         */
+        [[nodiscard]] inline size_t getTracksCount() const { return tracks.size(); }
+
+        /**
+         * Returns a given track
+         */
         [[nodiscard]] inline Track& getTrack(const uint32_t index) { return tracks.at(index); }
 
+        /**
+         * Returns the interpolated value at the given time (in seconds, from start of the animation) for a track.
+         * @param trackIndex
+         * @param currentTimeFromStart
+         */
+        [[nodiscard]] TrackKeyValue getInterpolatedValue(uint32_t trackIndex, double currentTimeFromStart) const;
+
     private:
+        AnimationLoopMode loopMode{AnimationLoopMode::NONE};
         vector<Track> tracks;
     };
 

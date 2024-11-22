@@ -34,6 +34,7 @@ namespace z0 {
         name{std::move(nodeName)},
         id{currentId++} {
         replace(name.begin(), name.end(), '/', '_');
+        replace(name.begin(), name.end(), ':', '_');
         localTransform = mat4{1.0};
         _updateTransform(mat4{1.0f});
     }
@@ -103,34 +104,34 @@ namespace z0 {
         return find(children.begin(), children.end(), child) != children.end();
     }
 
-    shared_ptr<Node> Node::getChild(const string &name) const {
-        const auto it = std::find_if(children.begin(),
-                                     children.end(),
-                                     [name](std::shared_ptr<Node> elem) {
-                                         return elem->name == name;
-                                     });
-        return it == children.end() ? nullptr : *it;
-    }
+    // shared_ptr<Node> Node::getChild(const string &name) const {
+    //     const auto it = std::find_if(children.begin(),
+    //                                  children.end(),
+    //                                  [name](std::shared_ptr<Node> elem) {
+    //                                      return elem->name == name;
+    //                                  });
+    //     return it == children.end() ? nullptr : *it;
+    // }
 
-    shared_ptr<Node> Node::findFirstChild(const string& name) const {
-        for (const auto &node : children) {
-            if (node->name == name) return node;
-            if (const auto& found = node->findFirstChild(name)) return found;
-        }
-        return {nullptr};
-    }
+    // shared_ptr<Node> Node::findFirstChild(const string& name) const {
+    //     for (const auto &node : children) {
+    //         if (node->name == name) return node;
+    //         if (const auto& found = node->findFirstChild(name)) return found;
+    //     }
+    //     return {nullptr};
+    // }
 
-    shared_ptr<Node> Node::getNode(const string &path) const {
-        const size_t pos = path.find('/');
-        if (pos != std::string::npos) {
-            const auto child = getChild(path.substr(0, pos));
-            if (child != nullptr) {
-                return child->getNode(path.substr(pos + 1));
-            }
-            return nullptr;
-        }
-        return getChild(path);
-    }
+    // shared_ptr<Node> Node::getChildByPath(const string &path) const {
+    //     const size_t pos = path.find('/');
+    //     if (pos != std::string::npos) {
+    //         const auto child = getChild(path.substr(0, pos));
+    //         if (child != nullptr) {
+    //             return child->getChildByPath(path.substr(pos + 1));
+    //         }
+    //         return nullptr;
+    //     }
+    //     return getChild(path);
+    // }
 
     void Node::setRotation(const quat quater) {
         vec3 scale, translation, skew;

@@ -25,11 +25,20 @@ export namespace z0 {
          */
         explicit inline AnimationLibrary(const string &name = "AnimationLibrary") : Resource{name} {}
 
-        inline void add(const string& name, shared_ptr<Animation> animation) { animations[name] = animation; }
+        /**
+         * Adds the \ref Animation to the library, accessible by the key name.
+         */
+        inline void add(const string& keyName, const shared_ptr<Animation> &animation) { animations[keyName] = animation; }
 
-        [[nodiscard]] inline shared_ptr<Animation> get(const string& name) const { return animations.at(name); }
+        /**
+         * Returns the \ref Animation with the key name.
+         */
+        [[nodiscard]] inline shared_ptr<Animation> get(const string& keyName) const { return animations.at(keyName); }
 
-        [[nodiscard]] inline bool has(const string& name) const { return animations.contains(name); }
+        /**
+         * Returns `true` if the library stores an \ref Animation with name as the key.
+         */
+        [[nodiscard]] inline bool has(const string& keyName) const { return animations.contains(keyName); }
 
     private:
         map<string, shared_ptr<Animation>> animations;

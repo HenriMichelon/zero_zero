@@ -278,17 +278,47 @@ import z0.Tween;
         /**
         * Returns the child node by is name. Not recursive
         */
-        [[nodiscard]] shared_ptr<Node> getChild(const string &name) const;
+        template <typename T = Node>
+        [[nodiscard]] shared_ptr<T> getChild(const string &name) const {
+            const auto it = std::find_if(children.begin(),
+                                         children.end(),
+                                         [name](const shared_ptr<Node>& elem) {
+                                             return elem->name == name;
+                                         });
+            return it == children.end() ? nullptr : dynamic_pointer_cast<T>(*it);
+        }
 
         /**
-        * Returns the child node by is absolute path
+        * Returns the child node by its relative path (does not start with '/')
         */
-        [[nodiscard]] shared_ptr<Node> getNode(const string &path) const;
+        template <typename T = Node>
+        [[nodiscard]] shared_ptr<T> getChildByPath(const string &path) const {
+            const size_t pos = path.find('/');
+            if (pos != std::string::npos) {
+                const auto child = getChild<Node>(path.substr(0, pos));
+                if (child != nullptr) {
+                    return child->template getChildByPath<T>(path.substr(pos + 1));
+                }
+                return nullptr;
+            }
+            return getChild<T>(path);
+        }
 
         /**
         * Finds the first child by is name.
         */
-        [[nodiscard]] shared_ptr<Node> findFirstChild(const string& name) const;
+        template<typename T = Node>
+        [[nodiscard]] shared_ptr<T> findFirstChild(const string& name) const {
+            for (const auto &node : children) {
+                if (node->name == name) {
+                    return dynamic_pointer_cast<T>(node);
+                }
+                if (const auto& found = node->template findFirstChild<T>(name)) {
+                    return node;
+                }
+            }
+            return nullptr;
+        }
 
         /**
          * Recursively prints the node tree in the log system

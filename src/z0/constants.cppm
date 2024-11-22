@@ -108,7 +108,7 @@ export namespace z0 {
     /**
      * Nodes state when the scene is paused or running
      */
-    enum class ProcessMode {
+    enum class ProcessMode : std::uint8_t {
         //! Inherits mode from the node's parent. This is the default for any newly created node
         INHERIT = 0,
         //! Stops processing when Application::isPaused() is true. This is the inverse of PROCESS_MODE_WHEN_PAUSED
@@ -124,7 +124,7 @@ export namespace z0 {
     /**
      * Rendering window mode
      */
-    enum class WindowMode {
+    enum class WindowMode : std::uint8_t {
         //! A window with a border and a title that can be minimized
         WINDOWED = 0,
         //! A maximized window with a border and a title that can be minimized
@@ -138,7 +138,7 @@ export namespace z0 {
     /**
      * Where to log message using the z0::log() function
      */
-    enum LoggingMode {
+    enum LoggingMode : std::uint32_t {
         //! Disable logging
         LOGGING_MODE_NONE = 0,
         /**
@@ -159,7 +159,7 @@ export namespace z0 {
     /**
      * MSAA samples
      */
-    enum class MSAA {
+    enum class MSAA : std::uint8_t {
         //! Select the best MSAA sample count between 2x and 8x
         AUTO = 0,
         //! 2x MSAA
@@ -179,7 +179,7 @@ export namespace z0 {
     /**
      * Depth frame buffers precision
      */
-    enum class DepthFormat {
+    enum class DepthFormat : std::uint8_t {
         //! Selection the best depth format available
         AUTO   = 0,
         //! 16-bit unsigned normalized
@@ -194,7 +194,7 @@ export namespace z0 {
      * Cull mode for mesh surfaces.
      * Determines which side of the triangle to cull depending on whether the triangle faces towards or away from the camera.
      */
-    enum class CullMode {
+    enum class CullMode : std::uint8_t {
         //! No face culling is performed; both the front face and back face will be visible.
         DISABLED = 0,
         //! Default cull mode. The back of the object is culled when not visible. Back face triangles will be culled when facing the camera. This results in only the front side of triangles being drawn. For closed-surface meshes, this means that only the exterior of the mesh will be visible.
@@ -207,7 +207,7 @@ export namespace z0 {
     * A Material transparency mode
     * Any transparency mode other than Transparency::DISABLED has a greater performance impact compared to opaque rendering.
     */
-    enum class Transparency {
+    enum class Transparency : std::uint8_t {
         //! The material will not use transparency. This is the fastest to render.
         DISABLED      = 0,
         //! The material will use the texture's alpha values for transparency.
@@ -221,7 +221,7 @@ export namespace z0 {
     /**
      * A Tween transition type
      */
-    enum class TransitionType {
+    enum class TransitionType : std::uint8_t {
         /** The animation is interpolated linearly */
         LINEAR = 0,
     };
@@ -229,7 +229,7 @@ export namespace z0 {
     /**
      * Source of an input event
      */
-    enum class InputEventType {
+    enum class InputEventType : std::uint8_t {
         //! A key have been pressed or released
         KEY = 0,
         //! The mouse cursor moved
@@ -243,7 +243,7 @@ export namespace z0 {
     /**
      * Keyboard modifier keys
      */
-    enum class KeyModifier {
+    enum class KeyModifier : std::uint8_t {
         //! Left & right shift keys
         SHIFT = 0x0001,
         //! Left & right control keys
@@ -255,7 +255,7 @@ export namespace z0 {
     /**
      * Key codes, QWERTY layout to keep the WASD keys
      */
-    enum Key {
+    enum Key : std::uint8_t {
         KEY_NONE = 0,
         //! Space
         KEY_SPACE = 1,
@@ -731,7 +731,7 @@ export namespace z0 {
         /**
          * The animation’s interpolation is computed using a cubic spline with specified tangents.
          */
-        CUBIC = 2,
+        // CUBIC = 2,
     };
 
     enum class AnimationLoopMode : std::uint8_t {

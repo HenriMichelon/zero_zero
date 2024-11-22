@@ -51,7 +51,7 @@ namespace z0 {
                     // get the parent resource
                     const auto &resource = nodeTree[nodeDesc.resource];
                     // get the mesh node via the relative path
-                    node = resource->getNode(nodeDesc.resourcePath);
+                    node = resource->getChildByPath(nodeDesc.resourcePath);
                     if (node == nullptr) {
                         resource->printTree();
                         die(log_name, "Mesh with path", nodeDesc.resourcePath, "not found");

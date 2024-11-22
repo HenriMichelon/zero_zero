@@ -6,6 +6,9 @@
 */
 export module z0;
 
+export import z0.Animation;
+export import z0.AnimationLibrary;
+export import z0.AnimationPlayer;
 export import z0.Application;
 export import z0.ApplicationConfig;
 export import z0.Camera;
