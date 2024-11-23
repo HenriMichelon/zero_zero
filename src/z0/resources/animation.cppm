@@ -32,6 +32,7 @@ export namespace z0 {
 
         struct TrackKeyValue {
             bool                 ended;
+            float                frameTime;
             AnimationType        type;
             variant<vec3, quat>  value;
         };

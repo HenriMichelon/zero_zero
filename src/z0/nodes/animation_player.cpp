@@ -32,29 +32,29 @@ namespace z0 {
         const auto animation = getAnimation();
         if (animation && node) {
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
-                const auto& value = animation->getInterpolatedValue(trackIndex, duration + stoppedAt);
+                const auto& value = animation->getInterpolatedValue(
+                    trackIndex,
+                    duration + lastTracksState[trackIndex]);
+                currentTracksState[trackIndex] = value.frameTime;
                 if (value.ended) {
                     stop();
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        // cout << get<vec3>(value.value) << endl;
                         node->setPosition(get<vec3>(value.value));
                         break;
                     case AnimationType::ROTATION: {
-                        // node->setRotation(get<quat>(value.value));
+                        node->setRotation(get<quat>(value.value));
                         break;
                     }
                     case AnimationType::SCALE:
-                        // cout << get<vec3>(value.value) << endl;
-                        // node->setScale(get<vec3>(value.value));
+                        node->setScale(get<vec3>(value.value));
                         break;
                     default:
                     }
                 }
             }
         }
-        lastDuration = duration;
     }
 
     void AnimationPlayer::_onEnterScene() {
@@ -64,10 +64,33 @@ namespace z0 {
         }
     }
 
+    void AnimationPlayer::setCurrentLibrary(const string &name) {
+        if (libraries.contains(name)) {
+            currentLibrary = name;
+            setCurrentAnimation(libraries[currentLibrary]->getDefault());
+
+        }
+    }
+
+
+    void AnimationPlayer::setCurrentAnimation(const string &name) {
+        if (libraries[currentLibrary]->has(name)) {
+            currentAnimation = name;
+            if (currentTracksState.size() != getAnimation()->getTracksCount()) {
+                currentTracksState.resize(getAnimation()->getTracksCount());
+                lastTracksState.resize(getAnimation()->getTracksCount());
+                ranges::fill(lastTracksState, 0.0f);
+            }
+        }
+    }
+
+
     void AnimationPlayer::play(const string &name) {
         if (playing) { return; }
-        if (!name.empty()) {
-            currentAnimation = name;
+        if (name.empty()) {
+            setCurrentAnimation(libraries[currentLibrary]->getDefault());
+        } else {
+            setCurrentAnimation(name);
         }
         starting = true;
     }
@@ -76,14 +99,13 @@ namespace z0 {
         if (!playing) { return; }
         playing = false;
         if (keepState) {
-            stoppedAt = lastDuration;
+            lastTracksState = currentTracksState;
         } else {
-            stoppedAt = 0.0;
+            ranges::fill(lastTracksState, 0.0f);
         }
     }
 
     shared_ptr<Animation> AnimationPlayer::getAnimation() {
-        if (!libraries.contains(currentLibrary)) { return nullptr; }
         return libraries[currentLibrary]->get(currentAnimation);
     }
 

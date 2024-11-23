@@ -46,12 +46,12 @@ export namespace z0 {
         /**
          * Sets the current library name
          */
-        inline void setCurrentLibrary(const string &name) { currentLibrary = name; }
+        void setCurrentLibrary(const string &name);
 
         /**
          * Sets the current animation name (does not start the animation, only useful with auto-starting)
          */
-        inline void setCurrentAnimation(const string &name) { currentAnimation = name; }
+        void setCurrentAnimation(const string &name);
 
         /**
          * Adds a library accessible by the name.
@@ -107,11 +107,11 @@ export namespace z0 {
         bool playing{false};
         bool starting{false};
         chrono::time_point<chrono::steady_clock> startTime;
-        double stoppedAt{0.0};
-        double lastDuration{0.0};
         shared_ptr<Node> node;
         string currentLibrary;
         string currentAnimation;
+        vector<float> currentTracksState;
+        vector<float> lastTracksState;
         map<string, shared_ptr<AnimationLibrary>> libraries;
     };
 

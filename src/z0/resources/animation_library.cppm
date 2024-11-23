@@ -28,7 +28,12 @@ export namespace z0 {
         /**
          * Adds the \ref Animation to the library, accessible by the key name.
          */
-        inline void add(const string& keyName, const shared_ptr<Animation> &animation) { animations[keyName] = animation; }
+        inline void add(const string& keyName, const shared_ptr<Animation> &animation) {
+            if (animations.empty()) {
+                defaultAnimation = keyName;
+            }
+            animations[keyName] = animation;
+        }
 
         /**
          * Returns the \ref Animation with the key name.
@@ -40,7 +45,10 @@ export namespace z0 {
          */
         [[nodiscard]] inline bool has(const string& keyName) const { return animations.contains(keyName); }
 
+        [[nodiscard]] inline const string& getDefault() const { return defaultAnimation; }
+
     private:
+        string defaultAnimation;
         map<string, shared_ptr<Animation>> animations;
     };
 

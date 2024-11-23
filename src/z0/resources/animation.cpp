@@ -30,6 +30,7 @@ namespace z0 {
         if (value.ended)  { return value; }
 
         const auto currentTime = fmod(currentTimeFromStart, static_cast<double>(track.duration));
+        value.frameTime = static_cast<float>(currentTime);
         // log("--------------------");
         // log(to_string(currentTime) + " / " + to_string(currentTimeFromStart));
 
