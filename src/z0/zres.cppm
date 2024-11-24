@@ -85,6 +85,7 @@ export namespace z0 {
             uint32_t meshesCount{0};
             //! Total number of scene nodes
             uint32_t nodesCount{0};
+            uint32_t animationsCount{0};
             //! Size in bytes of all the headers
             uint64_t headersSize;
         };
@@ -227,12 +228,31 @@ export namespace z0 {
         struct NodeHeader {
             //! Name
             char     name[NAME_SIZE];
-            //! Associated mesh, -1 of no mesh. Nodes with mesh will be instanciated as z0::MeshInstance, other nodes as z0::Node
+            //! Associated mesh, -1 of no mesh. Nodes with mesh will be instantiated as z0::MeshInstance, other nodes as z0::Node
             int32_t  meshIndex;
             //! World transform
             mat4     transform;
             //! Number of children nodes, also the number of elements in the uint32_t array following this struct
             uint32_t childrenCount;
+        };
+
+        struct AnimationLibraryHeader {
+            uint32_t nodeIndex;
+            uint32_t animationsCount;
+        };
+
+        struct AnimationInfo {
+            char     name[NAME_SIZE];
+            uint32_t tracksCount;
+            uint32_t loopMode;
+        };
+
+        struct TrackInfo {
+            uint32_t animationType;
+            uint32_t animationInterpolation;
+            uint32_t keysCount;
+            // + keyCount * float keyTime
+            // + keyCount * variant<vec3, quat> keyValue
         };
 
         /**

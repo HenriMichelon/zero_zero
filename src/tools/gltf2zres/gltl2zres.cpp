@@ -18,7 +18,7 @@ import converter;
 import image;
 
 int main(const int argc, char** argv) {
-    cxxopts::Options options("gltl2zscene", "Create a ZScene file from a glTF file");
+    cxxopts::Options options("gltl2zres", "Create a ZRes file from a glTF file");
     options.add_options()
         ("f", "Compression format for color textures : bc1 bc2 bc3 bc4 bc4s bc5 bc5s bc7, default : bc7", cxxopts::value<string>())
         ("t", "Number of threads for transcoding, default : auto", cxxopts::value<int>())
@@ -28,7 +28,7 @@ int main(const int argc, char** argv) {
     options.parse_positional({"input", "output"});
     const auto result = options.parse(argc, argv);
     if (result.count("input") != 1 || result.count("output") != 1) {
-        cerr << "usage: gltl2zscene input.glb output.zscene\n";
+        cerr << "usage: gltl2zres input.glb output.zscene\n";
         return EXIT_FAILURE;
     }
 
@@ -420,6 +420,77 @@ int main(const int argc, char** argv) {
         header.headersSize += sizeof(z0::ZRes::NodeHeader) +
                             sizeof(uint32_t) * childrenIndexes[nodeIndex].size();
     }
+
+    // Fill the animations headers
+    auto animationLibraryHeader = vector<z0::ZRes::AnimationLibraryHeader>{gltf.animations.size()};
+    auto animationInfos = vector<z0::ZRes::AnimationInfo>{gltf.animations.size()};
+    auto tracksInfos = vector<vector<vector<z0::ZRes::TrackInfo>>>{gltf.animations.size()};
+    for (auto animIndex = 0;   {
+        for (auto trackIndex = 0; trackIndex < animation.channels.size(); trackIndex++) {
+            const auto& channel = animation.channels[trackIndex];
+            if (!channel.nodeIndex.has_value()) {
+                continue;
+            }
+            auto nodeIndex = channel.nodeIndex.value();
+            if (animationLibraryHeader[nodeIndex].animationsCount == 0) {
+                animationLibraryHeader[nodeIndex].nodeIndex = nodeIndex;
+                animationLibraryHeader[nodeIndex].animationsCount = animation.channels.size();
+            }
+            auto& animationInfo = animationInfos[nodeIndex];
+            copyName(channel.name.data(), animationInfo[nodeIndex].name, nodeIndex);
+            animationHeader.nodeIndex = nodeIndex;
+            animationHeader.tracksCount = ;
+            animationHeader.loopMode = z0::AnimationLoopMode::NONE;
+            tracksInfos[nodeIndex].resize(animation.channels.size());
+
+
+            const auto &sampler = animation.samplers.at(channel.samplerIndex);
+            const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
+            tracksInfos[nodeIndex][trackIndex].resize(inputAccessor.count);
+            fastgltf::copyFromAccessor<float>(gltf, inputAccessor, tracksInfos[nodeIndex].keyTime.data());
+
+            track.duration = track.keyTime.back() + track.keyTime.front();
+            track.interpolation =
+                sampler.interpolation == fastgltf::AnimationInterpolation::Linear ?
+                    AnimationInterpolation::LINEAR :
+                    AnimationInterpolation::STEP;
+
+            const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
+            track.keyValue.resize(outputAccessor.count);
+            // can't use copyFromAccessor here because of variant
+            switch (channel.path) {
+                case fastgltf::AnimationPath::Translation: {
+                    track.type = AnimationType::TRANSLATION;
+                    fastgltf::iterateAccessorWithIndex<vec3>(
+                        gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
+                            track.keyValue[index] = vec;
+                    });
+                    break;
+                }
+                case fastgltf::AnimationPath::Rotation: {
+                    track.type = AnimationType::ROTATION;
+                    fastgltf::iterateAccessorWithIndex<vec4>(
+                        gltf, outputAccessor, [&](const vec4 vec, const size_t index) {
+                            track.keyValue[index] = quat(vec.w, vec.x, vec.y, vec.z);
+                    });
+                    break;
+                }
+                case fastgltf::AnimationPath::Scale: {
+                    track.type = AnimationType::SCALE;
+                    fastgltf::iterateAccessorWithIndex<vec3>(
+                        gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
+                            track.keyValue[index] = vec;
+                    });
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+
+
     if (verbose) { z0::ZRes::print(header); }
 
     // header.headersPadding = calculatePadding(header.headersSize, VK_FORMAT_BC1_RGBA_UNORM_BLOCK); // use largest padding
