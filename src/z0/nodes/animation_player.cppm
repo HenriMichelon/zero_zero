@@ -33,6 +33,8 @@ export namespace z0 {
          */
         explicit AnimationPlayer(const shared_ptr<Node>& node, const string &name = TypeNames[ANIMATION_PLAYER]);
 
+        // explicit AnimationPlayer(const AnimationPlayer& orig);
+
         /**
          * Returns the current library name
          */
@@ -94,13 +96,16 @@ export namespace z0 {
         inline bool isPlaying() const { return playing; }
 
         /**
-         * Sets the auto start property. Animation are started when entering the node tree.
+         * Sets the auto start property.
          */
         inline void setAutoStart(const bool autoStart) { this->autoStart = autoStart; }
 
         void _update(float alpha) override;
 
         void _onEnterScene() override;
+
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
 
     private:
         bool autoStart{false};

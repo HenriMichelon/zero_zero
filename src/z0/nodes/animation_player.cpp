@@ -31,6 +31,7 @@ namespace z0 {
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
         if (animation && node) {
+            // cout << node->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
                     trackIndex,
@@ -41,7 +42,6 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        // cout << to_string(get<vec3>(value.value)) << endl;
                         node->setPosition(get<vec3>(value.value));
                         break;
                     case AnimationType::ROTATION: {
@@ -109,5 +109,16 @@ namespace z0 {
     shared_ptr<Animation> AnimationPlayer::getAnimation() {
         return libraries[currentLibrary]->get(currentAnimation);
     }
+
+    shared_ptr<Node> AnimationPlayer::duplicateInstance() {
+        return make_shared<AnimationPlayer>(*this);
+    }
+
+    // AnimationPlayer::AnimationPlayer(const AnimationPlayer& orig) {
+    //     libraries = orig.libraries;
+    //     node = orig.node;
+    //     currentAnimation = orig.currentAnimation;
+    //     currentLibrary = orig.currentLibrary;
+    // }
 
 }

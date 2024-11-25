@@ -11,6 +11,7 @@ module;
 
 module z0.Loader;
 
+import z0.AnimationPlayer;
 import z0.Constants;
 import z0.GlTF;
 import z0.Node;
@@ -76,6 +77,9 @@ namespace z0 {
                 }
                 if (nodeDesc.child->needDuplicate) {
                     const auto dup = child->duplicate();
+                    for (const auto& animPlayer : dup->findAllChildren<AnimationPlayer>()) {
+                        animPlayer->setNode(dup);
+                    }
                     dup->setPosition(VEC3ZERO);
                     dup->setRotation(QUATERNION_IDENTITY);
                     dup->setScale(1.0f);
