@@ -451,11 +451,12 @@ int main(const int argc, char** argv) {
                     z0::AnimationInterpolation::STEP);
 
             const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
-            keyTimes.resize(inputAccessor.count);
+            trackInfo.keysCount = inputAccessor.count;
+            keyTimes.resize(trackInfo.keysCount);
             fastgltf::copyFromAccessor<float>(gltf, inputAccessor, keyTimes.data());
 
             const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
-            KeyValues.resize(outputAccessor.count);
+            KeyValues.resize(trackInfo.keysCount);
             // can't use copyFromAccessor here because of variant
             switch (channel.path) {
                 case fastgltf::AnimationPath::Translation: {
@@ -565,6 +566,21 @@ int main(const int argc, char** argv) {
     // for(const auto&p : positions) {
         // cout << to_string(p) << endl;
     // }
+
+    // Write animations data
+    if (verbose) { cout << "\tAnimations data...\n"; }
+    for (auto animationIndex = 0; animationIndex < gltf.animations.size(); animationIndex++) {
+        const auto &animation = animationHeaders[animationIndex];
+        for (auto trackIndex = 0; trackIndex < animation.tracksCount; trackIndex++) {
+            outputFile.write(
+                reinterpret_cast<const char*>(tracksKeyTimes[animationIndex][trackIndex].data()),
+                sizeof(float) * tracksKeyTimes[animationIndex][trackIndex].size());
+            outputFile.write(
+                reinterpret_cast<const char*>(tracksKeyValues[animationIndex][trackIndex].data()),
+                sizeof(variant<glm::vec3, glm::quat>) * tracksKeyValues[animationIndex][trackIndex].size());
+        }
+    }
+
 
     // Write images
     if (verbose) { cout << "\tImages data...\n"; }

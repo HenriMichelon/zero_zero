@@ -48,6 +48,7 @@ export namespace z0 {
      * array<vec2, uvsCount> : uvs data bloc
      * uint32_t : tangentsCount
      * array<vec4, tangentsCount> : tangents data bloc
+     *
      * array<BCn compressed image, imagesCount> : images data bloc
      *  ```
      */

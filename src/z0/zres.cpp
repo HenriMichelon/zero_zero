@@ -10,6 +10,9 @@ module;
 
 module z0.ZRes;
 
+import z0.Animation;
+import z0.AnimationLibrary;
+import z0.AnimationPlayer;
 import z0.Constants;
 import z0.Image;
 import z0.Material;
@@ -139,16 +142,38 @@ namespace z0 {
         vector<vec4> tangents{count};
         stream.read(reinterpret_cast<istream::char_type *>(tangents.data()), count * sizeof(vec4));
 
-        // Skip padding
-        // if (header.meshesDataPadding > 0) {
-            // stream.read(reinterpret_cast<istream::char_type *>(pad.data()), header.meshesDataPadding);
-        // }
-
         // log(format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
             // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()));
         // for(auto& pos : positions) {
         //     log(to_string(pos));
         // }
+
+        // Read the animations data
+        auto animationPlayers = map<uint32_t, shared_ptr<AnimationPlayer>>{};
+        for (auto animationIndex = 0; animationIndex < header.animationsCount; animationIndex++) {
+            auto anim = make_shared<Animation>(static_cast<uint32_t>(animationHeaders[animationIndex].tracksCount), animationHeaders[animationIndex].name);
+            for (auto trackIndex = 0; trackIndex < animationHeaders[animationIndex].tracksCount; trackIndex++) {
+                auto animationPlayer = shared_ptr<AnimationPlayer>{};
+                auto& trackInfo = tracksInfos[animationIndex][trackIndex];
+                auto nodeIndex = trackInfo.nodeIndex;
+                if (animationPlayers.contains(nodeIndex)) {
+                    animationPlayer = animationPlayers[nodeIndex];
+                } else {
+                    animationPlayer = make_shared<AnimationPlayer>(); // node association is made later
+                    animationPlayer->add("", make_shared<AnimationLibrary>());
+                    animationPlayers[nodeIndex] = animationPlayer;
+                }
+                animationPlayer->getLibrary()->add(anim->getName(), anim);
+                animationPlayer->setCurrentAnimation(anim->getName());
+                auto& track = anim->getTrack(trackIndex);
+                track.type = static_cast<AnimationType>(trackInfo.type);
+                track.interpolation = static_cast<AnimationInterpolation>(trackInfo.interpolation);
+                track.keyTime.resize(trackInfo.keysCount);
+                stream.read(reinterpret_cast<istream::char_type *>(track.keyTime.data()), trackInfo.keysCount * sizeof(float));
+                track.keyValue.resize(trackInfo.keysCount);
+                stream.read(reinterpret_cast<istream::char_type *>(track.keyValue.data()), trackInfo.keysCount * sizeof(variant<vec3, quat>));
+            }
+        }
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
         if (header.imagesCount > 0) {
@@ -289,6 +314,18 @@ namespace z0 {
             newNode->_setTransform(nodeHeaders.at(nodeIndex).transform);
             newNode->_updateTransform(mat4{1.0f});
             nodes[nodeIndex] = newNode;
+        }
+
+        for (auto animationIndex = 0; animationIndex < header.animationsCount; animationIndex++) {
+            for (auto trackIndex = 0; trackIndex < animationHeaders[animationIndex].tracksCount; trackIndex++) {
+                auto nodeIndex = tracksInfos[animationIndex][trackIndex].nodeIndex;
+                auto& player = animationPlayers[nodeIndex];
+                if (!player->getNode()) {
+                    auto& node = nodes[nodeIndex];
+                    player->setNode(node);
+                    node->addChild(player);
+                }
+            }
         }
 
         // Build the scene tree
