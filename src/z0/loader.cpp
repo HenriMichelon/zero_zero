@@ -78,7 +78,7 @@ namespace z0 {
                 if (nodeDesc.child->needDuplicate) {
                     const auto dup = child->duplicate();
                     for (const auto& animPlayer : dup->findAllChildren<AnimationPlayer>()) {
-                        animPlayer->setNode(dup);
+                        animPlayer->setNode(node);
                     }
                     dup->setPosition(VEC3ZERO);
                     dup->setRotation(QUATERNION_IDENTITY);
@@ -88,6 +88,9 @@ namespace z0 {
                     }
                     node->addChild(dup);
                 } else {
+                    for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>()) {
+                        animPlayer->setNode(node);
+                    }
                     child->setPosition(VEC3ZERO);
                     child->setRotation(QUATERNION_IDENTITY);
                     child->setScale(1.0f);
