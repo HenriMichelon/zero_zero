@@ -15,6 +15,7 @@ module z0.Physics;
 
 import z0.Signal;
 import z0.CollisionObject;
+import z0.Tools;
 
 namespace z0 {
 
@@ -59,6 +60,7 @@ namespace z0 {
                                                   const JPH::ObjectLayer layersAndMask2) const {
         const auto sourceMask = layersAndMask1 & 0b1111;
         const auto targetLayer = (layersAndMask2 >> 4) & 0b1111;
+        // log("ShouldCollide", to_string(sourceMask), to_string(targetLayer));
         return (targetLayer & sourceMask) != 0;
     }
 

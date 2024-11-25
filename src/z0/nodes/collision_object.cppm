@@ -52,7 +52,7 @@ export namespace z0 {
         /**
          * The physics layers this CollisionObject scans.
          */
-        [[nodiscard]] inline uint32_t getCollistionMask() const { return collisionMask; }
+        [[nodiscard]] inline uint32_t getCollisionMask() const { return collisionMask; }
 
         /**
          * Returns `true` if the object is in the `layer`
