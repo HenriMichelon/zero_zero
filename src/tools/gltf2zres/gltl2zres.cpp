@@ -141,6 +141,7 @@ int main(const int argc, char** argv) {
         .materialsCount = static_cast<uint32_t>(gltf.materials.size()),
         .meshesCount = static_cast<uint32_t>(gltf.meshes.size()),
         .nodesCount = static_cast<uint32_t>(gltf.nodes.size()),
+        .animationsCount = static_cast<uint32_t>(gltf.animations.size()),
         .headersSize = sizeof(z0::ZRes::Header),
     };
     header.magic[0] = z0::ZRes::MAGIC[0];
@@ -422,64 +423,62 @@ int main(const int argc, char** argv) {
     }
 
     // Fill the animations headers
-    auto animationLibraryHeader = vector<z0::ZRes::AnimationLibraryHeader>{gltf.animations.size()};
-    auto animationInfos = vector<z0::ZRes::AnimationInfo>{gltf.animations.size()};
-    auto tracksInfos = vector<vector<vector<z0::ZRes::TrackInfo>>>{gltf.animations.size()};
-    for (auto animIndex = 0;   {
-        for (auto trackIndex = 0; trackIndex < animation.channels.size(); trackIndex++) {
+    auto animationHeaders = vector<z0::ZRes::AnimationHeader>(gltf.animations.size());
+    auto tracksInfos = vector<vector<z0::ZRes::TrackInfo>>(gltf.animations.size());
+    auto tracksKeyTimes = vector<vector<vector<float>>>(gltf.animations.size());
+    auto tracksKeyValues = vector<vector<vector<variant<glm::vec3, glm::quat>>>>(gltf.animations.size());
+    for (auto animationIndex = 0; animationIndex < gltf.animations.size(); ++animationIndex) {
+        const auto &animation = gltf.animations[animationIndex];
+        auto& animationHeader = animationHeaders[animationIndex];
+        animationHeader.tracksCount = animation.channels.size();
+        copyName(animation.name.data(), animationHeader.name, animationIndex);
+        tracksInfos[animationIndex].resize(animationHeader.tracksCount);
+        tracksKeyTimes[animationIndex].resize(animationHeader.tracksCount);
+        tracksKeyValues[animationIndex].resize(animationHeader.tracksCount);
+        for (auto trackIndex = 0; trackIndex < animationHeader.tracksCount; trackIndex++) {
             const auto& channel = animation.channels[trackIndex];
-            if (!channel.nodeIndex.has_value()) {
-                continue;
+            auto& trackInfo = tracksInfos[animationIndex][trackIndex];
+            auto& keyTimes = tracksKeyTimes[animationIndex][trackIndex];
+            auto& KeyValues = tracksKeyValues[animationIndex][trackIndex];
+            if (channel.nodeIndex.has_value()) {
+                trackInfo.nodeIndex = static_cast<int32_t>(channel.nodeIndex.value());
             }
-            auto nodeIndex = channel.nodeIndex.value();
-            if (animationLibraryHeader[nodeIndex].animationsCount == 0) {
-                animationLibraryHeader[nodeIndex].nodeIndex = nodeIndex;
-                animationLibraryHeader[nodeIndex].animationsCount = animation.channels.size();
-            }
-            auto& animationInfo = animationInfos[nodeIndex];
-            copyName(channel.name.data(), animationInfo[nodeIndex].name, nodeIndex);
-            animationHeader.nodeIndex = nodeIndex;
-            animationHeader.tracksCount = ;
-            animationHeader.loopMode = z0::AnimationLoopMode::NONE;
-            tracksInfos[nodeIndex].resize(animation.channels.size());
-
 
             const auto &sampler = animation.samplers.at(channel.samplerIndex);
-            const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
-            tracksInfos[nodeIndex][trackIndex].resize(inputAccessor.count);
-            fastgltf::copyFromAccessor<float>(gltf, inputAccessor, tracksInfos[nodeIndex].keyTime.data());
-
-            track.duration = track.keyTime.back() + track.keyTime.front();
-            track.interpolation =
+            trackInfo.interpolation = static_cast<uint32_t>(
                 sampler.interpolation == fastgltf::AnimationInterpolation::Linear ?
-                    AnimationInterpolation::LINEAR :
-                    AnimationInterpolation::STEP;
+                    z0::AnimationInterpolation::LINEAR :
+                    z0::AnimationInterpolation::STEP);
+
+            const auto&inputAccessor = gltf.accessors.at(sampler.inputAccessor);
+            keyTimes.resize(inputAccessor.count);
+            fastgltf::copyFromAccessor<float>(gltf, inputAccessor, keyTimes.data());
 
             const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
-            track.keyValue.resize(outputAccessor.count);
+            KeyValues.resize(outputAccessor.count);
             // can't use copyFromAccessor here because of variant
             switch (channel.path) {
                 case fastgltf::AnimationPath::Translation: {
-                    track.type = AnimationType::TRANSLATION;
-                    fastgltf::iterateAccessorWithIndex<vec3>(
-                        gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
-                            track.keyValue[index] = vec;
+                    trackInfo.type = static_cast<uint32_t>(z0::AnimationType::TRANSLATION);
+                    fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                        gltf, outputAccessor, [&](const glm::vec3 vec, const size_t index) {
+                            KeyValues[index] = vec;
                     });
                     break;
                 }
                 case fastgltf::AnimationPath::Rotation: {
-                    track.type = AnimationType::ROTATION;
-                    fastgltf::iterateAccessorWithIndex<vec4>(
-                        gltf, outputAccessor, [&](const vec4 vec, const size_t index) {
-                            track.keyValue[index] = quat(vec.w, vec.x, vec.y, vec.z);
+                    trackInfo.type = static_cast<uint32_t>(z0::AnimationType::ROTATION);
+                    fastgltf::iterateAccessorWithIndex<glm::vec4>(
+                        gltf, outputAccessor, [&](const glm::vec4 vec, const size_t index) {
+                            KeyValues[index] = glm::quat(vec.w, vec.x, vec.y, vec.z);
                     });
                     break;
                 }
                 case fastgltf::AnimationPath::Scale: {
-                    track.type = AnimationType::SCALE;
-                    fastgltf::iterateAccessorWithIndex<vec3>(
-                        gltf, outputAccessor, [&](const vec3 vec, const size_t index) {
-                            track.keyValue[index] = vec;
+                    trackInfo.type = static_cast<uint32_t>(z0::AnimationType::SCALE);
+                    fastgltf::iterateAccessorWithIndex<glm::vec3>(
+                        gltf, outputAccessor, [&](const glm::vec3 vec, const size_t index) {
+                            KeyValues[index] = vec;
                     });
                     break;
                 }
@@ -487,9 +486,9 @@ int main(const int argc, char** argv) {
                     break;
             }
         }
+        header.headersSize += sizeof(z0::ZRes::AnimationHeader) +
+            animationHeader.tracksCount * sizeof(z0::ZRes::TrackInfo);
     }
-
-
 
     if (verbose) { z0::ZRes::print(header); }
 
@@ -534,12 +533,10 @@ int main(const int argc, char** argv) {
         outputFile.write(reinterpret_cast<const char*>(&nodesHeaders[nodeIndex]),sizeof(z0::ZRes::NodeHeader));
         outputFile.write(reinterpret_cast<const char*>(childrenIndexes[nodeIndex].data()),childrenIndexes[nodeIndex].size() * sizeof(uint32_t));
     }
-
-    // auto pad = vector<uint8_t>(vector<uint8_t>::size_type(32), 0);
-    // if (header.headersPadding > 0) {
-        // if (verbose) { cout << "Adding header padding for alignment: " << header.headersPadding << endl; };
-        // outputFile.write(reinterpret_cast<const char*>(pad.data()), header.headersPadding);
-    // }
+    for (auto animationIndex = 0; animationIndex < gltf.animations.size(); ++animationIndex) {
+        outputFile.write(reinterpret_cast<const char*>(&animationHeaders[animationIndex]),sizeof(z0::ZRes::AnimationHeader));
+        outputFile.write(reinterpret_cast<const char*>(tracksInfos[animationIndex].data()),tracksInfos[animationIndex].size() * sizeof(z0::ZRes::TrackInfo));
+    }
 
     // Write meshes data
     if (verbose) { cout << "\tMeshes data...\n"; }
@@ -562,11 +559,6 @@ int main(const int argc, char** argv) {
     count = tangents.size();
     outputFile.write(reinterpret_cast<const char*>(&count),sizeof(uint32_t));
     outputFile.write(reinterpret_cast<const char*>(tangents.data()),count * sizeof(glm::vec4));
-
-    // if (header.meshesDataPadding > 0) {
-        // if (verbose) { cout << "Adding meshes data padding for alignment: " << header.meshesDataPadding << endl; };
-        // outputFile.write(reinterpret_cast<const char*>(pad.data()), header.meshesDataPadding);
-    // }
 
     // cout << format("{} indices, {} positions, {} normals, {} uvs, {} tangents",
         // indices.size(), positions.size(), normals.size(), uvs.size(), tangents.size()) << endl;
@@ -599,15 +591,7 @@ int main(const int argc, char** argv) {
                 cerr << "Error writing to file!" << endl;
                 return 1;
             }
-            // if (mipHeaders[imageIndex][mipLevel].padding > 0) {
-                 // if (verbose) { cout << "Adding level padding: " << mipHeaders[imageIndex][mipLevel].padding << endl;}
-                 // outputFile.write(reinterpret_cast<const char*>(pad.data()), mipHeaders[imageIndex][mipLevel].padding);
-            // }
         }
-        // if (imageHeaders[imageIndex].padding > 0) {
-             // if (verbose) {cout << "Adding image padding: " << imageHeaders[imageIndex].padding << endl; }
-             // outputFile.write(reinterpret_cast<const char*>(pad.data()), imageHeaders[imageIndex].padding);
-        // }
     }
 
     outputFile.close();

@@ -50,6 +50,7 @@ namespace z0 {
         if (header.version != VERSION) {
             die("ZScene bad version");
         }
+        print(header);
 
         // Read the images & mips levels headers
         auto imageHeaders = vector<ImageHeader>(header.imagesCount);
@@ -93,12 +94,21 @@ namespace z0 {
 
         // Read the nodes headers
         auto nodeHeaders = vector<NodeHeader>(header.nodesCount);
-        auto childrenIndexes = vector<vector<uint32_t>>{header.nodesCount};
+        auto childrenIndexes = vector<vector<uint32_t>>(header.nodesCount);
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             stream.read(reinterpret_cast<istream::char_type *>(&nodeHeaders.at(nodeIndex)), sizeof(NodeHeader));
             childrenIndexes.at(nodeIndex).resize(nodeHeaders.at(nodeIndex).childrenCount);
             stream.read(reinterpret_cast<istream::char_type *>(childrenIndexes.at(nodeIndex).data()), sizeof(uint32_t) * childrenIndexes[nodeIndex].size());
             // log("Node ", nodeHeaders[nodeIndex].name, " ", to_string(nodeHeaders[nodeIndex].childrenCount), "children");
+        }
+
+        auto animationHeaders = vector<AnimationHeader>(header.animationsCount);
+        auto tracksInfos = vector<vector<TrackInfo>> (header.animationsCount);
+        for (auto animationIndex = 0; animationIndex < header.animationsCount; ++animationIndex) {
+            stream.read(reinterpret_cast<istream::char_type *>(&animationHeaders.at(animationIndex)), sizeof(AnimationHeader));
+            tracksInfos[animationIndex].resize(animationHeaders[animationIndex].tracksCount);
+            stream.read(reinterpret_cast<istream::char_type *>(tracksInfos[animationIndex].data()), sizeof(TrackInfo) * tracksInfos[animationIndex].size());
+            log("Animation ", animationHeaders[animationIndex].name, " ", to_string(animationHeaders[animationIndex].tracksCount), "tracks");
         }
 
         // Skip padding
@@ -303,12 +313,14 @@ namespace z0 {
     }
 
     void ZRes::print(const Header& header) {
-        printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nMeshes count : %d\nHeaders size : %llu\n",
+        printf("Version : %d\nImages count : %d\nTextures count : %d\nMaterials count : %d\nMeshes count : %d\nNodes count : %d\nAnimations count : %d\nHeaders size : %llu\n",
             header.version,
             header.imagesCount,
             header.texturesCount,
             header.materialsCount,
             header.meshesCount,
+            header.nodesCount,
+            header.animationsCount,
             header.headersSize);
     }
     void ZRes::print(const ImageHeader& header) {

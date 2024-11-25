@@ -37,6 +37,7 @@ export namespace z0 {
      * array<MaterialHeader, materialsCount> : materials headers
      * array<MeshHeader + array<SurfaceInfo, surfacesCount> + array<DataInfo, surfacesCount * uvsCount>, meshesCount> : meshes headers
      * array<NodeHeader + array<uint32_t, childrenCount>, nodesCount> : nodes headers
+     * array<AnimationHeader + array<TrackInfo, tracksCount>, animationCount> : animation headers
      * uint32_t : indicesCount
      * array<uint32_t, indicesCount> : indices data bloc
      * uint32_t : positionsCount
@@ -236,20 +237,15 @@ export namespace z0 {
             uint32_t childrenCount;
         };
 
-        struct AnimationLibraryHeader {
-            uint32_t nodeIndex;
-            uint32_t animationsCount;
-        };
-
-        struct AnimationInfo {
+        struct AnimationHeader {
             char     name[NAME_SIZE];
             uint32_t tracksCount;
-            uint32_t loopMode;
         };
 
         struct TrackInfo {
-            uint32_t animationType;
-            uint32_t animationInterpolation;
+            int32_t  nodeIndex{-1};
+            uint32_t type;
+            uint32_t interpolation;
             uint32_t keysCount;
             // + keyCount * float keyTime
             // + keyCount * variant<vec3, quat> keyValue
