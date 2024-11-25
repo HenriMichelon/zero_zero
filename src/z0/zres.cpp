@@ -53,7 +53,7 @@ namespace z0 {
         if (header.version != VERSION) {
             die("ZScene bad version");
         }
-        print(header);
+        // print(header);
 
         // Read the images & mips levels headers
         auto imageHeaders = vector<ImageHeader>(header.imagesCount);
@@ -111,7 +111,7 @@ namespace z0 {
             stream.read(reinterpret_cast<istream::char_type *>(&animationHeaders.at(animationIndex)), sizeof(AnimationHeader));
             tracksInfos[animationIndex].resize(animationHeaders[animationIndex].tracksCount);
             stream.read(reinterpret_cast<istream::char_type *>(tracksInfos[animationIndex].data()), sizeof(TrackInfo) * tracksInfos[animationIndex].size());
-            log("Animation ", animationHeaders[animationIndex].name, " ", to_string(animationHeaders[animationIndex].tracksCount), "tracks");
+            // log("Animation ", animationHeaders[animationIndex].name, " ", to_string(animationHeaders[animationIndex].tracksCount), "tracks");
         }
 
         // Skip padding
@@ -170,6 +170,7 @@ namespace z0 {
                 track.interpolation = static_cast<AnimationInterpolation>(trackInfo.interpolation);
                 track.keyTime.resize(trackInfo.keysCount);
                 stream.read(reinterpret_cast<istream::char_type *>(track.keyTime.data()), trackInfo.keysCount * sizeof(float));
+                track.duration = track.keyTime.back() + track.keyTime.front();
                 track.keyValue.resize(trackInfo.keysCount);
                 stream.read(reinterpret_cast<istream::char_type *>(track.keyValue.data()), trackInfo.keysCount * sizeof(variant<vec3, quat>));
             }
@@ -332,7 +333,6 @@ namespace z0 {
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             auto& sceneNode = nodes[nodeIndex];
             for (auto i = 0; i < nodeHeaders.at(nodeIndex).childrenCount; i++) {
-                sceneNode->setProcessMode(ProcessMode::DISABLED);
                 sceneNode->addChild(nodes[childrenIndexes.at(nodeIndex)[i]]);
             }
         }
@@ -341,7 +341,6 @@ namespace z0 {
         auto rootNode = make_shared<Node>("ZScene");
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
-                node->setProcessMode(ProcessMode::DISABLED);
                 rootNode->addChild(node);
             }
         }

@@ -41,6 +41,7 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
+                        // cout << to_string(get<vec3>(value.value)) << endl;
                         node->setPosition(get<vec3>(value.value));
                         break;
                     case AnimationType::ROTATION: {
