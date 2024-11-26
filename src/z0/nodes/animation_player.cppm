@@ -86,6 +86,11 @@ export namespace z0 {
         void play(const string &name = "");
 
         /**
+         * Starts an animation by its name, playing it backwards
+         */
+        void playBackwards(const string &name = "");
+
+        /**
          * Stops the currently playing animation
          */
         void stop(bool keepState = false);
@@ -111,6 +116,7 @@ export namespace z0 {
         bool autoStart{false};
         bool playing{false};
         bool starting{false};
+        bool reverse{false};
         chrono::time_point<chrono::steady_clock> startTime;
         // shared_ptr<Node> node;
         string currentLibrary;

@@ -70,6 +70,8 @@ namespace z0 {
                 node->setName(nodeDesc.id);
             }
             node->_setParent(parent);
+            auto parentNode = node;
+            auto childrenList = nodeDesc.children;
             if (nodeDesc.child != nullptr) {
                 auto child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr) {
@@ -78,10 +80,6 @@ namespace z0 {
                 if (nodeDesc.child->needDuplicate) {
                     child = child->duplicate();
                 }
-                // for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>(false)) {
-                //     animPlayer->getParent()->removeChild(animPlayer);
-                //     node->addChild(animPlayer);
-                // }
                 child->setPosition(VEC3ZERO);
                 child->setRotation(QUATERNION_IDENTITY);
                 child->setScale(1.0f);
@@ -89,20 +87,22 @@ namespace z0 {
                     child->getParent()->removeChild(child);
                 }
                 node->addChild(child);
+                parentNode = child;
+                childrenList = nodeDesc.child->children;
             }
-            for (const auto &child : nodeDesc.children) {
+            for (const auto &child : childrenList) {
                 if (nodeTree.contains(child.id)) {
                     auto &childNode = nodeTree[child.id];
                     if (child.needDuplicate) {
-                        node->addChild(childNode->duplicate());
+                        parentNode->addChild(childNode->duplicate());
                     } else {
                         if (childNode->getParent() != nullptr) {
                             childNode->getParent()->removeChild(childNode);
                         }
-                        node->addChild(childNode);
+                        parentNode->addChild(childNode);
                     }
                 } else {
-                    addNode(node.get(), nodeTree, sceneTree, child);
+                    addNode(parentNode.get(), nodeTree, sceneTree, child);
                 }
             }
             for (const auto &prop : nodeDesc.properties) {

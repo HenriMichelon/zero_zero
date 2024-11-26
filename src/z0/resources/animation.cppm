@@ -75,7 +75,7 @@ export namespace z0 {
          * @param trackIndex
          * @param currentTimeFromStart
          */
-        [[nodiscard]] TrackKeyValue getInterpolatedValue(uint32_t trackIndex, double currentTimeFromStart) const;
+        [[nodiscard]] TrackKeyValue getInterpolatedValue(uint32_t trackIndex, double currentTimeFromStart, bool reverse=false) const;
 
     private:
         AnimationLoopMode loopMode{AnimationLoopMode::NONE};

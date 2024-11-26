@@ -35,7 +35,8 @@ namespace z0 {
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
                     trackIndex,
-                    duration + lastTracksState[trackIndex]);
+                    duration + lastTracksState[trackIndex],
+                    reverse);
                 currentTracksState[trackIndex] = value.frameTime;
                 if (value.ended) {
                     stop();
@@ -94,6 +95,13 @@ namespace z0 {
             setCurrentAnimation(name);
         }
         starting = true;
+        reverse = false;
+    }
+
+    void AnimationPlayer::playBackwards(const string &name) {
+        if (playing) { return; }
+        play(name);
+        reverse = true;
     }
 
     void AnimationPlayer::stop(const bool keepState) {

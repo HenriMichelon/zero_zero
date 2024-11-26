@@ -18,7 +18,7 @@ namespace z0 {
         signals[name].connect(handler);
     }
 
-    void Object::connect(const Signal::signal &name, const std::function<void()>& handler) {
+    void Object::connect(const Signal::signal &name, const function<void()>& handler) {
         signals[name].connect([handler](Signal::Parameters*) {
             handler();
         });

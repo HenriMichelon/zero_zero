@@ -148,6 +148,10 @@ def add_node(obj):
             mesh_name = obj.name
         node["child"] = { "id": mesh_name + ".mesh" }
         node["child"]["duplicate"] = "true"
+        if obj.children:
+            node["child"]["children"] = [add_node(child) for child in obj.children]
+    elif obj.children:
+        node["children"] = [add_node(child) for child in obj.children]
     if obj.type == "LIGHT":
         original_rotation = obj.rotation_euler
         conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')
@@ -168,8 +172,6 @@ def add_node(obj):
         if obj.data.type == "SPOT":
             node["class"] = "SpotLight"
             node["properties"]["fov"] = str(obj.data.spot_size)
-    if obj.children:
-        node["children"] = [add_node(child) for child in obj.children]
     return node
 
 # Exports the Blender scene to a JSON scene

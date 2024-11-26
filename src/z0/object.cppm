@@ -30,7 +30,7 @@ export namespace z0 {
          * @param name signal name.
          * @param handler the member function to call when emit() is called
         */
-        void connect(const Signal::signal &name, const std::function<void()>& handler);
+        void connect(const Signal::signal &name, const function<void()>& handler);
 
         /**
          * Emits a signal by name by calling all the connected function in the connect order

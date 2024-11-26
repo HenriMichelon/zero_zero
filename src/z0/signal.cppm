@@ -26,7 +26,7 @@ export namespace z0 {
         /**
          * Lambda expression who answer to emitted signals
          */
-        using Handler = std::function<void(Parameters*)>;
+        using Handler = function<void(Parameters*)>;
 
         /**
          * Connects a member function to the signal
