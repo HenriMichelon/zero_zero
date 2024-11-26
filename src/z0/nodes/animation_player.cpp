@@ -15,15 +15,14 @@ import z0.Tools;
 
 namespace z0 {
 
-    // AnimationPlayer::AnimationPlayer(const shared_ptr<Node>& node, const string &name) :
-              // Node{name, ANIMATION_PLAYER} {}
-
     void AnimationPlayer::_update(const float alpha) {
         Node::_update(alpha);
         if (starting) {
             startTime = chrono::steady_clock::now();
             playing = true;
             starting = false;
+            auto params = Playback{.animationName = currentAnimation};
+            emit(on_playback_start, &params);
         } else if (!playing) {
             return;
         }
@@ -40,6 +39,8 @@ namespace z0 {
                 currentTracksState[trackIndex] = value.frameTime;
                 if (value.ended) {
                     stop();
+                    auto params = Playback{.animationName = currentAnimation};
+                    emit(on_playback_finish, &params);
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
@@ -121,12 +122,5 @@ namespace z0 {
     shared_ptr<Node> AnimationPlayer::duplicateInstance() {
         return make_shared<AnimationPlayer>(*this);
     }
-
-    // AnimationPlayer::AnimationPlayer(const AnimationPlayer& orig) {
-    //     libraries = orig.libraries;
-    //     node = orig.node;
-    //     currentAnimation = orig.currentAnimation;
-    //     currentLibrary = orig.currentLibrary;
-    // }
 
 }

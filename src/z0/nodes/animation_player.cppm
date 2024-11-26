@@ -12,6 +12,7 @@ export module z0.AnimationPlayer;
 import z0.Animation;
 import z0.AnimationLibrary;
 import z0.Node;
+import z0.Signal;
 
 export namespace z0 {
 
@@ -20,20 +21,17 @@ export namespace z0 {
      */
     class AnimationPlayer : public Node {
     public:
+        struct Playback : Signal::Parameters {
+            string animationName;
+        };
+        static constexpr Signal::signal on_playback_start  = "on_playback_start";
+        static constexpr Signal::signal on_playback_finish = "on_playback_finish";
+
         /**
          * Creates an AnimationLibrary
          * @param name resource name.
          */
         explicit AnimationPlayer(const string &name = TypeNames[ANIMATION_PLAYER]): Node{name, ANIMATION_PLAYER} {};
-
-        /**
-         * Creates an AnimationLibrary
-         * @param node attached node
-         * @param name resource name.
-         */
-        // explicit AnimationPlayer(const shared_ptr<Node>& node, const string &name = TypeNames[ANIMATION_PLAYER]);
-
-        // explicit AnimationPlayer(const AnimationPlayer& orig);
 
         /**
          * Returns the current library name
@@ -69,16 +67,6 @@ export namespace z0 {
          * Returns the current animation library, if any
          */
         [[nodiscard]] inline shared_ptr<AnimationLibrary> getLibrary() { return libraries[currentLibrary]; }
-
-        /**
-         * Return the attached node, if any
-         */
-        // [[nodiscard]] inline const shared_ptr<Node>& getNode() const { return node; }
-
-        /**
-         * Attach a node to the player
-         */
-        // inline void setNode(const shared_ptr<Node>& node) { this->node = node; }
 
         /**
          * Starts an animation by its name

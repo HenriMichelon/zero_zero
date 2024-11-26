@@ -196,7 +196,4 @@ namespace z0 {
         }
     }
 
-    const Signal::signal CollisionObject::on_collision_starts   = "on_collision_starts";
-    const Signal::signal CollisionObject::on_collision_persists = "on_collision_persists";
-
 }

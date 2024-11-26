@@ -359,10 +359,13 @@ import z0.Tween;
                     return found;
                 }
                 if (recursive) {
-                    return node->findFirstChild<T>(true);
+                    auto result = node->template findFirstChild<T>(true);
+                    if (result) {
+                        return result;
+                    }
                 }
             }
-            return {nullptr};
+            return nullptr;
         }
 
         /**

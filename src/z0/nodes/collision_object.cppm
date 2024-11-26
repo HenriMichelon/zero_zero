@@ -26,11 +26,11 @@ export namespace z0 {
         /**
          * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision
          */
-        static const Signal::signal on_collision_starts;
+        static constexpr Signal::signal on_collision_starts = "on_collision_starts";
         /**
          * Signal called whenever a contact is detected that was also detected last update and reports the first contact point in a CollisionObject::Collision
          */
-        static const Signal::signal on_collision_persists;
+        static constexpr Signal::signal on_collision_persists = "on_collision_persists";
 
         /**
          * Collision data for the CollisionObject::on_collision_starts and CollisionObject::on_collision_persists signal
@@ -40,7 +40,7 @@ export namespace z0 {
             vec3 position;
             /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
             vec3 normal;
-            /** Collising object */
+            /** Colliding object */
             CollisionObject *object;
         };
 
