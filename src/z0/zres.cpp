@@ -321,9 +321,9 @@ namespace z0 {
             for (auto trackIndex = 0; trackIndex < animationHeaders[animationIndex].tracksCount; trackIndex++) {
                 auto nodeIndex = tracksInfos[animationIndex][trackIndex].nodeIndex;
                 auto& player = animationPlayers[nodeIndex];
-                if (!player->getNode()) {
+                if (!player->getParent()) {
                     auto& node = nodes[nodeIndex];
-                    player->setNode(node);
+                    // player->setNode(node);
                     node->addChild(player);
                 }
             }

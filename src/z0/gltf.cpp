@@ -400,9 +400,10 @@ namespace z0 {
                 if (animationPlayers.contains(nodeIndex)) {
                     animationPlayer = animationPlayers[nodeIndex];
                 } else {
-                    animationPlayer = make_shared<AnimationPlayer>(nodes[nodeIndex]);
+                    animationPlayer = make_shared<AnimationPlayer>();
                     animationPlayer->add("", make_shared<AnimationLibrary>());
                     animationPlayers[nodeIndex] = animationPlayer;
+                    nodes[nodeIndex]->addChild(animationPlayer);
                 }
                 animationPlayer->getLibrary()->add(animation.name.data(), anim);
                 animationPlayer->setCurrentAnimation(animation.name.data());
@@ -453,9 +454,9 @@ namespace z0 {
             }
         }
 
-        for (auto [k,v] : animationPlayers) {
-            v->getNode()->addChild(v);
-        }
+        // for (auto [k,v] : animationPlayers) {
+        //     v->getNode()->addChild(v);
+        // }
 
         // Build node tree
         for (uint32_t i = 0; i < gltf.nodes.size(); i++) {

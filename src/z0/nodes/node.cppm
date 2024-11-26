@@ -172,6 +172,11 @@ import z0.Tween;
         void rotateZ(float angle);
 
         /**
+         * Rotates the local transformation
+         */
+        void rotate(quat quater);
+
+        /**
          * Sets the local transformation
          */
         void setRotation(quat quater);

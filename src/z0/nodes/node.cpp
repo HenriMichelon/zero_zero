@@ -148,18 +148,23 @@ namespace z0 {
         _updateTransform();
     }
 
+    void Node::rotate(quat quater) {
+        localTransform =  localTransform * toMat4(quater);
+        _updateTransform();
+    }
+
     void Node::rotateX(const float angle) {
-        localTransform = rotate(localTransform, angle, AXIS_X);
+        localTransform = glm::rotate(localTransform, angle, AXIS_X);
         _updateTransform();
     }
 
     void Node::rotateY(const float angle) {
-        localTransform = rotate(localTransform, angle, AXIS_Y);
+        localTransform = glm::rotate(localTransform, angle, AXIS_Y);
         _updateTransform();
     }
 
     void Node::rotateZ(const float angle) {
-        localTransform = rotate(localTransform, angle, AXIS_Z);
+        localTransform = glm::rotate(localTransform, angle, AXIS_Z);
         _updateTransform();
     }
 
@@ -180,7 +185,7 @@ namespace z0 {
         for (int i = 0; i < (tab * 2); i++) {
             sstream << " ";
         }
-        sstream << " " << toString() << " (" << TypeNames[type] << ")";
+        sstream << " " << toString() << " (" << TypeNames[type] << ") #" << getId();
         log(sstream.str());
         for (auto &child : children)
             child->printTree(tab + 1);
@@ -192,8 +197,8 @@ namespace z0 {
         for (const auto &child : children) {
             dup->addChild(child->duplicate());
         }
-        dup->id   = currentId++;
-        dup->name = name;
+        dup->id     = currentId++;
+        dup->name   = name;
         return dup;
     }
 

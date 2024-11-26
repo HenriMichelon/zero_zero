@@ -15,8 +15,8 @@ import z0.Tools;
 
 namespace z0 {
 
-    AnimationPlayer::AnimationPlayer(const shared_ptr<Node>& node, const string &name) :
-              Node{name, ANIMATION_PLAYER}, node{node} {}
+    // AnimationPlayer::AnimationPlayer(const shared_ptr<Node>& node, const string &name) :
+              // Node{name, ANIMATION_PLAYER} {}
 
     void AnimationPlayer::_update(const float alpha) {
         Node::_update(alpha);
@@ -30,8 +30,8 @@ namespace z0 {
         const auto now = chrono::steady_clock::now();
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
-        if (animation && node) {
-            // cout << node->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
+        if (animation && parent) {
+            // cout << parent->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
                     trackIndex,
@@ -42,14 +42,16 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        node->setPosition(get<vec3>(value.value));
+                        // cout << parent->getName() << " : " << to_string(get<vec3>(value.value)) << endl;
+                        parent->translate(get<vec3>(value.value));
                         break;
                     case AnimationType::ROTATION: {
-                        node->setRotation(get<quat>(value.value));
+                        cout << parent->getName() << " : " << to_string(get<quat>(value.value)) << endl;
+                        parent->rotate(get<quat>(value.value));
                         break;
                     }
                     case AnimationType::SCALE:
-                        node->setScale(get<vec3>(value.value));
+                        // parent->setScale(get<vec3>(value.value));
                         break;
                     default:
                     }
@@ -72,7 +74,6 @@ namespace z0 {
 
         }
     }
-
 
     void AnimationPlayer::setCurrentAnimation(const string &name) {
         if (libraries[currentLibrary]->has(name)) {

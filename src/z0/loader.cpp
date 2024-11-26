@@ -71,34 +71,24 @@ namespace z0 {
             }
             node->_setParent(parent);
             if (nodeDesc.child != nullptr) {
-                const auto& child = nodeTree[nodeDesc.child->id];
+                auto child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr) {
                     die(log_name, "Child node", nodeDesc.child->id, "not found");
                 }
                 if (nodeDesc.child->needDuplicate) {
-                    const auto dup = child->duplicate();
-                    for (const auto& animPlayer : dup->findAllChildren<AnimationPlayer>()) {
-                        animPlayer->setNode(node);
-                    }
-                    dup->setPosition(VEC3ZERO);
-                    dup->setRotation(QUATERNION_IDENTITY);
-                    dup->setScale(1.0f);
-                    if (dup->getParent() != nullptr) {
-                        dup->getParent()->removeChild(dup);
-                    }
-                    node->addChild(dup);
-                } else {
-                    for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>()) {
-                        animPlayer->setNode(node);
-                    }
-                    child->setPosition(VEC3ZERO);
-                    child->setRotation(QUATERNION_IDENTITY);
-                    child->setScale(1.0f);
-                    if (child->getParent() != nullptr) {
-                        child->getParent()->removeChild(child);
-                    }
-                    node->addChild(child);
+                    child = child->duplicate();
                 }
+                for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>(false)) {
+                    animPlayer->getParent()->removeChild(animPlayer);
+                    node->addChild(animPlayer);
+                }
+                child->setPosition(VEC3ZERO);
+                child->setRotation(QUATERNION_IDENTITY);
+                child->setScale(1.0f);
+                if (child->getParent() != nullptr) {
+                    child->getParent()->removeChild(child);
+                }
+                node->addChild(child);
             }
             for (const auto &child : nodeDesc.children) {
                 if (nodeTree.contains(child.id)) {
@@ -124,6 +114,7 @@ namespace z0 {
                 parent->addChild(node);
             }
         }
+        // cout << node->getName() << " -> " << nodeDesc.id << endl;
         nodeTree[nodeDesc.id] = node;
     }
 

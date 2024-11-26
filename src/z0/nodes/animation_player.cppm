@@ -31,7 +31,7 @@ export namespace z0 {
          * @param node attached node
          * @param name resource name.
          */
-        explicit AnimationPlayer(const shared_ptr<Node>& node, const string &name = TypeNames[ANIMATION_PLAYER]);
+        // explicit AnimationPlayer(const shared_ptr<Node>& node, const string &name = TypeNames[ANIMATION_PLAYER]);
 
         // explicit AnimationPlayer(const AnimationPlayer& orig);
 
@@ -73,12 +73,12 @@ export namespace z0 {
         /**
          * Return the attached node, if any
          */
-        [[nodiscard]] inline const shared_ptr<Node>& getNode() const { return node; }
+        // [[nodiscard]] inline const shared_ptr<Node>& getNode() const { return node; }
 
         /**
          * Attach a node to the player
          */
-        inline void setNode(const shared_ptr<Node>& node) { this->node = node; }
+        // inline void setNode(const shared_ptr<Node>& node) { this->node = node; }
 
         /**
          * Starts an animation by its name
@@ -112,7 +112,7 @@ export namespace z0 {
         bool playing{false};
         bool starting{false};
         chrono::time_point<chrono::steady_clock> startTime;
-        shared_ptr<Node> node;
+        // shared_ptr<Node> node;
         string currentLibrary;
         string currentAnimation;
         vector<float> currentTracksState;

@@ -8,6 +8,7 @@
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <volk.h>
 #include <z0/z0.h>
 using namespace std;
@@ -440,8 +441,20 @@ int main(const int argc, char** argv) {
             auto& trackInfo = tracksInfos[animationIndex][trackIndex];
             auto& keyTimes = tracksKeyTimes[animationIndex][trackIndex];
             auto& KeyValues = tracksKeyValues[animationIndex][trackIndex];
+            auto position = z0::VEC3ZERO;
+            auto rotation = z0::QUATERNION_IDENTITY;
+            auto scale = z0::VEC3ZERO;
             if (channel.nodeIndex.has_value()) {
                 trackInfo.nodeIndex = static_cast<int32_t>(channel.nodeIndex.value());
+                glm::vec3 skew;
+                glm::vec4 perspective;
+                glm::decompose(
+                    nodesHeaders[trackInfo.nodeIndex].transform,
+                    scale,
+                    rotation,
+                    position,
+                    skew,
+                    perspective);
             }
 
             const auto &sampler = animation.samplers.at(channel.samplerIndex);
@@ -461,18 +474,29 @@ int main(const int argc, char** argv) {
             switch (channel.path) {
                 case fastgltf::AnimationPath::Translation: {
                     trackInfo.type = static_cast<uint32_t>(z0::AnimationType::TRANSLATION);
+                    auto absolutePositions = vector<glm::vec3>(trackInfo.keysCount);
                     fastgltf::iterateAccessorWithIndex<glm::vec3>(
                         gltf, outputAccessor, [&](const glm::vec3 vec, const size_t index) {
-                            KeyValues[index] = vec;
+                            absolutePositions[index] = vec - position;
                     });
+                    KeyValues[0] = absolutePositions[0];
+                    for (auto index = 1; index < trackInfo.keysCount; ++index) {
+                        KeyValues[index] =  absolutePositions[index] - absolutePositions[index - 1];
+                    }
                     break;
                 }
                 case fastgltf::AnimationPath::Rotation: {
                     trackInfo.type = static_cast<uint32_t>(z0::AnimationType::ROTATION);
+                    auto absoluteRotations = vector<glm::quat>(trackInfo.keysCount);
                     fastgltf::iterateAccessorWithIndex<glm::vec4>(
                         gltf, outputAccessor, [&](const glm::vec4 vec, const size_t index) {
-                            KeyValues[index] = glm::quat(vec.w, vec.x, vec.y, vec.z);
+                            auto q = glm::quat(vec.w, vec.x, vec.y, vec.z);
+                            absoluteRotations[index] = q - rotation;
                     });
+                    KeyValues[0] = absoluteRotations[0];
+                    for (auto index = 1; index < trackInfo.keysCount; ++index) {
+                        KeyValues[index] = absoluteRotations[index] - absoluteRotations[index - 1];
+                    }
                     break;
                 }
                 case fastgltf::AnimationPath::Scale: {
