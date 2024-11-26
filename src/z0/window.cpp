@@ -292,11 +292,16 @@ namespace z0 {
 
             // Getting the dimensions of the monitor
             auto monitorData = MonitorEnumData {
-                .monitorIndex = Application::get().getConfig().windowMonitor
+                .monitorIndex = 0
             };
             EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
             auto screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
             auto screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
+            monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
+            if (EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData))) {
+                screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
+                screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
+            }
 
             int x = CW_USEDEFAULT;
             int y = CW_USEDEFAULT;
