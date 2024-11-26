@@ -423,7 +423,7 @@ namespace z0 {
                 const auto&outputAccessor = gltf.accessors.at(sampler.outputAccessor);
                 track.keyValue.resize(outputAccessor.count);
                 // can't use copyFromAccessor here because of variant
-                switch (channel.path) {
+                /*switch (channel.path) {
                     case fastgltf::AnimationPath::Translation: {
                         track.type = AnimationType::TRANSLATION;
                         fastgltf::iterateAccessorWithIndex<vec3>(
@@ -450,7 +450,7 @@ namespace z0 {
                     }
                     default:
                         break;
-                }
+                }*/
             }
         }
 

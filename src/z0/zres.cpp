@@ -172,7 +172,7 @@ namespace z0 {
                 stream.read(reinterpret_cast<istream::char_type *>(track.keyTime.data()), trackInfo.keysCount * sizeof(float));
                 track.duration = track.keyTime.back() + track.keyTime.front();
                 track.keyValue.resize(trackInfo.keysCount);
-                stream.read(reinterpret_cast<istream::char_type *>(track.keyValue.data()), trackInfo.keysCount * sizeof(variant<vec3, quat>));
+                stream.read(reinterpret_cast<istream::char_type *>(track.keyValue.data()), trackInfo.keysCount * sizeof(vec3));
             }
         }
 

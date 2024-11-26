@@ -42,18 +42,17 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        // cout << parent->getName() << " : " << to_string(get<vec3>(value.value)) << endl;
-                        parent->translate(get<vec3>(value.value));
+                        parent->setPosition(value.value);
                         break;
-                    case AnimationType::ROTATION: {
-                        cout << parent->getName() << " : " << to_string(get<quat>(value.value)) << endl;
-                        parent->rotate(get<quat>(value.value));
+                    case AnimationType::ROTATION:
+                        parent->setRotation(value.value);
                         break;
-                    }
                     case AnimationType::SCALE:
-                        // parent->setScale(get<vec3>(value.value));
+                        // cout << parent->getName() << " : " << to_string(value.value) << endl;
+                        parent->setScale(value.value);
                         break;
                     default:
+                        die("Unknown animation type");
                     }
                 }
             }

@@ -22,19 +22,19 @@ export namespace z0 {
     public:
 
         struct Track {
-            AnimationType                type;
-            AnimationInterpolation       interpolation{AnimationInterpolation::LINEAR};
-            bool                         enabled{true};
-            float                        duration{0.0f};
-            vector<float>                keyTime;
-            vector<variant<vec3, quat>>  keyValue;
+            AnimationType           type;
+            AnimationInterpolation  interpolation{AnimationInterpolation::LINEAR};
+            bool                    enabled{true};
+            float                   duration{0.0f};
+            vector<float>           keyTime;
+            vector<vec3>            keyValue;
         };
 
         struct TrackKeyValue {
-            bool                 ended;
-            float                frameTime;
-            AnimationType        type;
-            variant<vec3, quat>  value;
+            bool           ended;
+            float          frameTime;
+            AnimationType  type;
+            vec3           value;
         };
 
         /**

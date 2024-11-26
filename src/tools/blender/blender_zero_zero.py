@@ -147,8 +147,7 @@ def add_node(obj):
         else:
             mesh_name = obj.name
         node["child"] = { "id": mesh_name + ".mesh" }
-        if mesh_name != obj.name:
-            node["child"]["duplicate"] = "true"
+        node["child"]["duplicate"] = "true"
     if obj.type == "LIGHT":
         original_rotation = obj.rotation_euler
         conversion_matrix = mathutils.Matrix.Rotation(math.radians(-90), 3, 'X')

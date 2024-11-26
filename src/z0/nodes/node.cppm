@@ -174,12 +174,17 @@ import z0.Tween;
         /**
          * Rotates the local transformation
          */
-        void rotate(quat quater);
+        // void rotate(quat quater);
 
         /**
          * Sets the local transformation
          */
         void setRotation(quat quater);
+
+        /**
+         * Sets the local transformation
+         */
+        void setRotation(vec3 rot);
 
         /**
          * Sets the X axis rotation of the local transformation by angle in radians.

@@ -51,9 +51,8 @@ namespace z0 {
     vec3 Node::getRotation() const { return eulerAngles(toQuat(mat3(localTransform))); }
 
     void Node::translate(const vec3 localOffset) {
-        // current orientation * velocity
-        const vec3 worldTranslation = toQuat(mat3(localTransform)) * localOffset;
-        setPosition(getPosition() + worldTranslation);
+        localTransform = glm::translate(localTransform, localOffset);
+        _updateTransform();
     }
 
     void Node::setPositionGlobal(const vec3 position) {
@@ -133,25 +132,26 @@ namespace z0 {
     //     return getChild(path);
     // }
 
+    void Node::setRotation(vec3 rot) {
+        setRotation(glm::quat(rot));
+    }
+
     void Node::setRotation(const quat quater) {
         vec3 scale, translation, skew;
         vec4 perspective;
         quat orientation;
-        // Decompose the original matrix to extract translation, rotation (orientation), and scale
         decompose(localTransform, scale, orientation, translation, skew, perspective);
-        // Create a rotation matrix from the new quaternion
         const mat4 rotationMatrix = toMat4(quater);
-        // Reconstruct the transformation matrix with the new rotation, preserving the original translation and scale
         localTransform = glm::translate(mat4{1.0f}, translation)
                 * rotationMatrix
                 * glm::scale(mat4{1.0f}, scale);
         _updateTransform();
     }
 
-    void Node::rotate(quat quater) {
-        localTransform =  localTransform * toMat4(quater);
-        _updateTransform();
-    }
+    // void Node::rotate(quat quater) {
+    //     localTransform =  localTransform * toMat4(quater);
+    //     _updateTransform();
+    // }
 
     void Node::rotateX(const float angle) {
         localTransform = glm::rotate(localTransform, angle, AXIS_X);
@@ -215,6 +215,8 @@ namespace z0 {
         } else if (property == "rotation") {
             const auto rot = to_vec3(value);
             setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
+        } else if (property == "scale") {
+            setScale(to_vec3(value));
         } else if (property == "process_mode") {
             const auto v = to_lower(value);
             if (v == "inherit") {

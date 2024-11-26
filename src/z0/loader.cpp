@@ -78,10 +78,10 @@ namespace z0 {
                 if (nodeDesc.child->needDuplicate) {
                     child = child->duplicate();
                 }
-                for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>(false)) {
-                    animPlayer->getParent()->removeChild(animPlayer);
-                    node->addChild(animPlayer);
-                }
+                // for (const auto& animPlayer : child->findAllChildren<AnimationPlayer>(false)) {
+                //     animPlayer->getParent()->removeChild(animPlayer);
+                //     node->addChild(animPlayer);
+                // }
                 child->setPosition(VEC3ZERO);
                 child->setRotation(QUATERNION_IDENTITY);
                 child->setScale(1.0f);

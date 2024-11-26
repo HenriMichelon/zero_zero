@@ -54,18 +54,8 @@ namespace z0 {
 
         const auto& previousValue = track.keyValue[previousIndex];
         if (track.interpolation == AnimationInterpolation::LINEAR) {
-            const auto nextValue = overflow ? track.keyValue[0] : track.keyValue[nextIndex]; // TODO no loop
-            switch (track.type) {
-                case AnimationType::TRANSLATION:
-                case AnimationType::SCALE:
-                    value.value = lerp(get<vec3>(previousValue), get<vec3>(nextValue), interpolationValue);
-                    break;
-                case AnimationType::ROTATION:
-                    value.value = slerp(get<quat>(previousValue), get<quat>(nextValue), interpolationValue);
-                    break;
-                default:
-                    value.ended = true;
-            }
+            const auto nextValue = overflow ? track.keyValue[0] : track.keyValue[nextIndex];
+            value.value = lerp(previousValue, nextValue, interpolationValue);
         } else {
             // STEP
             value.value = previousValue;
