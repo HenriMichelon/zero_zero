@@ -217,6 +217,10 @@ namespace z0 {
             setRotation(vec3{radians(rot.x), radians(rot.y), radians(rot.z)});
         } else if (property == "scale") {
             setScale(to_vec3(value));
+        } else if (property == "groups") {
+            for(const auto groupName : split(value, ';')) {
+                addToGroup(groupName.data());
+            }
         } else if (property == "process_mode") {
             const auto v = to_lower(value);
             if (v == "inherit") {

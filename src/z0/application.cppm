@@ -164,7 +164,7 @@ namespace z0 {
          * If the debug renderer is enabled is the application configuration,
          * show or hide the debug.
          */
-        inline void setDisplayDebug(const bool display) { displayDebug = display; }
+        void setDisplayDebug(bool display);
 
         /**
          *

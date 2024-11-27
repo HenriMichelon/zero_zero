@@ -310,8 +310,12 @@ namespace z0 {
     }
 
     vec3 Application::getGravity() const {
-        auto gravity = physicsSystem.GetGravity();
+        const auto gravity = physicsSystem.GetGravity();
         return vec3{gravity.GetX(), gravity.GetY(), gravity.GetZ()};
+    }
+
+    void Application::setDisplayDebug(bool display) {
+        callDeferred([this, display]{ displayDebug = display; });
     }
 
     void Application::registerTypes() const {

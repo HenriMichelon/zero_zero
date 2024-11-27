@@ -464,6 +464,23 @@ import z0.Tween;
          */
         string getPath() const;
 
+        inline const list<string>& getGroups() const { return groups; }
+
+        /**
+         * Adds the node to the group. Groups can be helpful to organize a subset of nodes, for example "enemies" or "stairs".
+         */
+        inline void addToGroup(const string &group) { groups.push_back(group); }
+
+        /**
+         * Removes the node from the given group. Does nothing if the node is not in the group
+         */
+        inline void removeFromGroup(const string &group) { groups.remove(group); }
+
+        /**
+         * Returns true if this node has been added to the given group
+         */
+        inline bool isInGroup(const string& group) { return ranges::find(groups, group) != groups.end(); }
+
     protected:
         Type                   type;
         string                 name;
@@ -481,15 +498,14 @@ import z0.Tween;
         bool                    inReady{false};
         bool                    addedToScene{false};
         list<shared_ptr<Tween>> tweens;
+        list<string>            groups;
 
     public:
         virtual void _onReady();
 
-        inline virtual void _onPause() {
-        }
+        inline virtual void _onPause() { }
 
-        inline virtual void _onResume() {
-        }
+        inline virtual void _onResume() { }
 
         inline virtual void _onEnterScene() { onEnterScene(); }
 
