@@ -239,7 +239,7 @@ namespace z0 {
             const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
             if (data->enumIndex == data->monitorIndex) {
                 data->monitorRect = *lprcMonitor;
-                return FALSE;
+                return TRUE;
             }
             data->enumIndex++;
             return TRUE;
@@ -290,18 +290,22 @@ namespace z0 {
             };
             if (!RegisterClassEx(&wincl)) die("Cannot register Window class");
 
-            // Getting the dimensions of the monitor
+            // Count the numbers of connected monitors
             auto monitorData = MonitorEnumData {
-                .monitorIndex = 0
+                .monitorIndex = -1
             };
+            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
+            // Adjust the monitor selection
+            if (Application::get().getConfig().windowMonitor < monitorData.enumIndex) {
+                monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
+            } else {
+                monitorData.monitorIndex = 0;
+            }
+            monitorData.enumIndex = 0;
+            // Getting the dimensions of the selected screen
             EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
             auto screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
             auto screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
-            monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
-            if (EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData))) {
-                screenWidth = monitorData.monitorRect.right - monitorData.monitorRect.left;
-                screenHeight = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
-            }
 
             int x = CW_USEDEFAULT;
             int y = CW_USEDEFAULT;
