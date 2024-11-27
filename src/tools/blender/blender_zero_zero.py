@@ -262,7 +262,7 @@ class ExportOperator(bpy.types.Operator):
         print("--------------------------------------------")
         bpy.context.window.cursor_set("WAIT")
         #self.report({'INFO'}, "Saving " + blend_file_name);
-        #bpy.ops.wm.save_mainfile()
+        bpy.ops.wm.save_mainfile()
 
         if settings.export == "scene":
             result = export_json()
