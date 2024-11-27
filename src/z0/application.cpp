@@ -52,7 +52,7 @@ namespace z0 {
     Application *Application::_instance = nullptr;
 
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
-        applicationConfig{appConfig}, rootNode{node} {
+        applicationConfig{appConfig}, rootNode{node}, displayDebug{appConfig.debugConfig.displayAtStartup} {
         assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);

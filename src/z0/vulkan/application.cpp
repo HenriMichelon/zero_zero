@@ -130,7 +130,7 @@ namespace z0 {
             }
         }
         sceneRenderer->postUpdateScene(currentFrame);
-        if (applicationConfig.debug &&
+        if (applicationConfig.debug && displayDebug &&
                 (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugConfig.updateDelay / 1000.0f)))) {
             debugRenderer->startDrawing();
             if (applicationConfig.debugConfig.drawCoordinateSystem) {

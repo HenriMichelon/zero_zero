@@ -160,6 +160,18 @@ namespace z0 {
          */
         inline OutlineMaterials& getOutlineMaterials() const { return *outlineMaterials; }
 
+        /**
+         * If the debug renderer is enabled is the application configuration,
+         * show or hide the debug.
+         */
+        inline void setDisplayDebug(const bool display) { displayDebug = display; }
+
+        /**
+         *
+         * Return `true` if the debug renderer display anything.
+         */
+        inline bool getDisplayDebug() const { return displayDebug; }
+
     private:
         // State of the current scene
         bool paused{false};
@@ -232,7 +244,9 @@ namespace z0 {
         // Mesh outlining materials
         unique_ptr<OutlineMaterials> outlineMaterials;
         // Number of seconds since last FPS update
-        float elapsedSeconds = 0.0;
+        float elapsedSeconds{0.0f};
+        // If physics debug is enabled in the application config, it can be disabled at runtime
+        bool displayDebug{true};
 
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame

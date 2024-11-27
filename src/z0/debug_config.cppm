@@ -23,6 +23,8 @@ export namespace z0 {
 
     //! Configuration of the in-game debug
     struct DebugConfig {
+        //! If the debug renderer is enabled, display the debug at startup
+        bool                displayAtStartup{true};
         //! Delay in milliseconds between collision shapes updates for debug (between 0 and 500)
         uint32_t            updateDelay{100};
         //! Draw with depth-testing, can hide center of mass transforms & world transforms
