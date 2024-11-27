@@ -17,7 +17,7 @@ import z0.Signal;
 export namespace z0 {
 
     /**
-     * A node used for animation playback.
+     * %A node used for animation playback.
      */
     class AnimationPlayer : public Node {
     public:

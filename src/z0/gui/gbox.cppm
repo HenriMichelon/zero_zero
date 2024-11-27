@@ -13,7 +13,7 @@ import z0.GPanel;
 export namespace z0 {
 
     /**
-     * A rectangular box
+     * %A rectangular box
      */
     class GBox: public GPanel {
     public:

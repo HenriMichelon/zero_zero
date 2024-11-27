@@ -26,6 +26,7 @@ export namespace z0 {
      * - One big images atlas : all images are read and directly uploaded to the GPU in one pass and without using a big CPU buffer.<br>
      * - Pre calculated mip levels : all images mips levels are pre-calculated and compressed.<br>
      * - Pre calculated data : all transforms are pre-calculated.<br>
+     * - Pre calculated animations data : all animation data are made relative to the original object.<br>
      *<br>
      *%A ZRes file can be created from a glTF file using the `gltf2zres` command line tool.<br>
      *<br>
@@ -48,7 +49,7 @@ export namespace z0 {
      * array<vec2, uvsCount> : uvs data bloc
      * uint32_t : tangentsCount
      * array<vec4, tangentsCount> : tangents data bloc
-     *
+     * array<float, keysCount> + array<vec3, keyCount> for each track, for each animation : animations data
      * array<BCn compressed image, imagesCount> : images data bloc
      *  ```
      */

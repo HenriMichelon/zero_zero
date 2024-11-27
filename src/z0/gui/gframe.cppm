@@ -15,7 +15,7 @@ import z0.GPanel;
 export namespace z0 {
 
     /**
-     * A rectangular frame with an optional title
+     * %A rectangular frame with an optional title
      */
     class GFrame: public GPanel {
     public:

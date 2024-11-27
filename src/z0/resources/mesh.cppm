@@ -18,7 +18,7 @@ import z0.AABB;
 export namespace z0 {
 
     /**
-     * A Mesh vertex
+     * %A Mesh vertex
      */
     struct Vertex {
         //! local position
@@ -36,7 +36,7 @@ export namespace z0 {
     };
 
     /**
-     * A Mesh surface, with counterclockwise triangles
+     * %A Mesh surface, with counterclockwise triangles
      */
     struct Surface {
         //! Index of the first vertex of the surface
@@ -58,7 +58,7 @@ export namespace z0 {
     };
 
     /**
-     * A mesh composed by multiple Surface and an indexes collection of Vertex
+     * %A mesh composed by multiple Surface and an indexes collection of Vertex
      */
     class Mesh : public Resource {
     public:

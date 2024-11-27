@@ -19,7 +19,7 @@ import z0.Shape;
 export namespace z0 {
 
     /**
-     * A 3D physics body specialized for characters moved by code
+     * %A 3D physics body specialized for characters moved by code
      */
     class Character : public CollisionObject,
                       public JPH::BroadPhaseLayerFilter,

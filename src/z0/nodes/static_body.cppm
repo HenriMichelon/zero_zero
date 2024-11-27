@@ -16,7 +16,7 @@ import z0.Shape;
 export namespace z0 {
 
     /**
-     * A 3D physics body that can't be moved by external forces. 
+     * %A 3D physics body that can't be moved by external forces.
      */
     class StaticBody : public PhysicsBody {
     public:

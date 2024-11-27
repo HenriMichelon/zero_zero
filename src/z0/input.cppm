@@ -16,7 +16,7 @@ import z0.Constants;
 
 namespace z0 {
     /**
-     * A singleton for handling inputs
+     * %A singleton for handling inputs
      */
     export class Input {
     public:

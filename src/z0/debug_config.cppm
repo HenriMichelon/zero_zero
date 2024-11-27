@@ -21,7 +21,9 @@ export namespace z0 {
         MotionTypeColor,
     };
 
-    //! Configuration of the in-game debug
+    /**
+     * Configuration of the in-game debug
+     */
     struct DebugConfig {
         //! If the debug renderer is enabled, display the debug at startup
         bool                displayAtStartup{true};

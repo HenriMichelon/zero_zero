@@ -19,7 +19,7 @@ export namespace z0 {
 
     /**
      * Base class for 3D physics objects.
-     * Object A can detect a contact with object B only if object B is in any of the layers that object A scans (mask value)
+     * Object %A can detect a contact with object %B only if object %B is in any of the layers that object %A scans (mask value)
      */
     class CollisionObject : public Node {
     public:

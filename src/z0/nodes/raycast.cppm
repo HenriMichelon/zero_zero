@@ -19,7 +19,7 @@ import z0.Node;
 export namespace z0 {
 
     /**
-     * A ray in 3D space, used to find the first CollisionObject it intersects.
+     * %A ray in 3D space, used to find the first CollisionObject it intersects.
      */
     class RayCast : public Node, public JPH::ObjectLayerFilter, public JPH::BodyFilter {
     public:

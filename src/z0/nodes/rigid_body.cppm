@@ -15,7 +15,7 @@ import z0.Shape;
 
 export namespace z0 {
     /**
-     * A 3D physics body that is moved by a physics simulation.
+     * %A 3D physics body that is moved by a physics simulation.
      */
     class RigidBody : public PhysicsBody {
     public:

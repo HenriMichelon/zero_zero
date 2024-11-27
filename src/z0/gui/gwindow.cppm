@@ -20,7 +20,7 @@ import z0.GWidget;
 export namespace z0 {
 
     /**
-     * A UI window displayed inside the rendering window
+     * %A UI window displayed inside the rendering window
      */
     class GWindow : public Object {
     public:

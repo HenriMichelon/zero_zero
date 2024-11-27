@@ -19,7 +19,7 @@ import z0.Shape;
 export namespace z0 {
 
     /**
-     * A convex hull collision shape
+     * %A convex hull collision shape
      */
     class ConvexHullShape : public Shape {
     public:

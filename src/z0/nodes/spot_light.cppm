@@ -15,7 +15,7 @@ import z0.OmniLight;
 export namespace z0 {
 
     /**
-     * A spotlight, such as a spotlight or a lantern.
+     * %A spotlight, such as a spotlight or a lantern.
      */
     class SpotLight : public OmniLight {
     public:
