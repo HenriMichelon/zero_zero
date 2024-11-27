@@ -30,10 +30,17 @@ export namespace z0 {
             vector<vec3>            keyValue;
         };
 
+        /**
+         * Values returned from getInterpolatedValue()
+         */
         struct TrackKeyValue {
+            //! `true` if we reach the end of the track
             bool           ended;
+            //! corresponding time from the start of the track
             float          frameTime;
+            //! animation type
             AnimationType  type;
+            //! interpolated value
             vec3           value;
         };
 
@@ -72,8 +79,6 @@ export namespace z0 {
 
         /**
          * Returns the interpolated value at the given time (in seconds, from start of the animation) for a track.
-         * @param trackIndex
-         * @param currentTimeFromStart
          */
         [[nodiscard]] TrackKeyValue getInterpolatedValue(uint32_t trackIndex, double currentTimeFromStart, bool reverse=false) const;
 

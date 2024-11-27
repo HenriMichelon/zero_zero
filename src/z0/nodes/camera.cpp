@@ -108,4 +108,8 @@ namespace z0 {
         updateViewMatrix();
     }
 
+    shared_ptr<Node> Camera::duplicateInstance() {
+        return make_shared<Camera>(*this);
+    }
+
 }

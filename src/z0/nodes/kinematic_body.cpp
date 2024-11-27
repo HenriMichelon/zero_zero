@@ -12,6 +12,7 @@ module;
 
 module z0.KinematicBody;
 
+import z0.Node;
 import z0.Shape;
 
 namespace z0 {
@@ -36,6 +37,10 @@ namespace z0 {
                     JPH::EMotionType::Kinematic,
                     name,
                     KINEMATIC_BODY) {
+    }
+
+    shared_ptr<Node> KinematicBody::duplicateInstance() {
+        return make_shared<KinematicBody>(*this);
     }
 
 }

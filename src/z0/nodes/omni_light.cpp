@@ -9,6 +9,8 @@ module;
 
 module z0.OmniLight;
 
+import z0.Node;
+
 namespace z0 {
 
     OmniLight::OmniLight(const string &name, const Type type):
@@ -29,6 +31,10 @@ namespace z0 {
         } else if (property == "near") {
             near = stof(value);
         }
+    }
+
+    shared_ptr<Node> OmniLight::duplicateInstance() {
+        return make_shared<OmniLight>(*this);
     }
 
 }

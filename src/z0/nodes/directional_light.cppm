@@ -42,6 +42,9 @@ export namespace z0 {
 
         void setProperty(const string &property, const string &value) override;
 
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
+
     private:
         uint32_t shadowMapCascadesCount{3};
     };

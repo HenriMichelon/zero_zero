@@ -21,17 +21,24 @@ export namespace z0 {
      */
     class AnimationPlayer : public Node {
     public:
+        /**
+         * Signal playback parameters
+         */
         struct Playback : Signal::Parameters {
+            //! The animation name
             string animationName;
         };
+        //! Signal emitted when an animation began playing
         static constexpr Signal::signal on_playback_start  = "on_playback_start";
+
+        //! Signal emitted when an animation stop playing
         static constexpr Signal::signal on_playback_finish = "on_playback_finish";
 
         /**
          * Creates an AnimationLibrary
          * @param name resource name.
          */
-        explicit AnimationPlayer(const string &name = TypeNames[ANIMATION_PLAYER]): Node{name, ANIMATION_PLAYER} {};
+        explicit AnimationPlayer(const string &name = TypeNames[ANIMATION_PLAYER]): Node{name, ANIMATION_PLAYER} {}
 
         /**
          * Returns the current library name

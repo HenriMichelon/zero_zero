@@ -36,4 +36,8 @@ namespace z0 {
         if (property == "cubemap_file") { cubemap = Cubemap::load(value); }
     }
 
+    shared_ptr<Node> Skybox::duplicateInstance() {
+        return make_shared<Skybox>(*this);
+    }
+
 }

@@ -37,6 +37,9 @@ export namespace z0 {
 
         ~KinematicBody() override = default;
 
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
+
     };
 
 }

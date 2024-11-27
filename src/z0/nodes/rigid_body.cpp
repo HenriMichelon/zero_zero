@@ -16,6 +16,7 @@ module;
 module z0.RigidBody;
 
 import z0.Application;
+import z0.Node;
 import z0.Shape;
 
 namespace z0 {
@@ -65,4 +66,9 @@ namespace z0 {
             setMass(stof(value));
         }
     }
+
+    shared_ptr<Node> RigidBody::duplicateInstance() {
+        return make_shared<RigidBody>(*this);
+    }
+
 }

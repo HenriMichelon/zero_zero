@@ -92,6 +92,9 @@ export namespace z0 {
         */
         void setFov(float fov);
 
+    protected:
+        shared_ptr<Node> duplicateInstance() override;
+
     private:
         // Field of view in degrees
         float fov{75.0};

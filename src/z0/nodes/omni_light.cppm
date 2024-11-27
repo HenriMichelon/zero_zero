@@ -55,6 +55,9 @@ export namespace z0 {
         void setProperty(const string &property, const string &value) override;
 
     protected:
+        shared_ptr<Node> duplicateInstance() override;
+
+    protected:
         // Maximum distance of lighting
         float range{10.0f};
         // clipping distance for shadows

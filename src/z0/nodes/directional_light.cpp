@@ -9,6 +9,8 @@ module;
 
 module z0.DirectionalLight;
 
+import z0.Node;
+
 import z0.ShadowMapFrameBuffer;
 
 namespace z0 {
@@ -27,6 +29,10 @@ namespace z0 {
         if (property == "shadow_map_cascade_count") {
             setShadowMapCascadesCount(stoi(value));
         }
+    }
+
+    shared_ptr<Node> DirectionalLight::duplicateInstance() {
+        return make_shared<DirectionalLight>(*this);
     }
 
 }

@@ -17,7 +17,6 @@ import z0.Tools;
 
 namespace z0 {
 
-    // TODO AnimationInterpolation
     Animation::TrackKeyValue Animation::getInterpolatedValue(const uint32_t trackIndex,
                                                              const double currentTimeFromStart,
                                                              const bool reverse) const {

@@ -702,6 +702,9 @@ export namespace z0 {
         R8G8B8A8_UNORM = 1,
     };
 
+    /**
+    * Animation type for a animation track
+    */
     enum class AnimationType : std::uint8_t {
         /**
          * The values are the translation along the X, Y, and Z axes.
@@ -718,6 +721,9 @@ export namespace z0 {
         // Weights = 4,
     };
 
+    /**
+     * Interpolation type to apply when caculating animation values
+     */
     enum class AnimationInterpolation : std::uint8_t {
         /**
          * The animated values are linearly interpolated between keyframes..
@@ -734,8 +740,13 @@ export namespace z0 {
         // CUBIC = 2,
     };
 
+    /**
+     * Animation loop mode
+     */
     enum class AnimationLoopMode : std::uint8_t {
+        //! No loop (default)
         NONE    = 0,
+        //! Restart from start of the track
         LINEAR  = 1,
     };
 

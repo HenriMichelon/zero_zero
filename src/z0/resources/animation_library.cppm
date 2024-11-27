@@ -45,6 +45,9 @@ export namespace z0 {
          */
         [[nodiscard]] inline bool has(const string& keyName) const { return animations.contains(keyName); }
 
+        /**
+         * Returns the name of the default animation
+         */
         [[nodiscard]] inline const string& getDefault() const { return defaultAnimation; }
 
     private:

@@ -13,6 +13,7 @@ module;
 
 module z0.CollisionArea;
 
+import z0.Node;
 import z0.Shape;
 
 namespace z0 {
@@ -49,5 +50,11 @@ namespace z0 {
         bodyInterface.RemoveBody(_getBodyId());
         bodyInterface.DestroyBody(_getBodyId());
     }
+
+
+    shared_ptr<Node> CollisionArea::duplicateInstance() {
+        return make_shared<CollisionArea>(*this);
+    }
+
 
 }
