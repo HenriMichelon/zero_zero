@@ -254,12 +254,12 @@ export namespace z0 {
         };
 
         /**
-         * Load a scene from a ZScene file and return the root node
+         * Load a scene from a ZRes file and return the root node
          */
         [[nodiscard]] static shared_ptr<Node> load(const string &filename);
 
         /**
-         * Load a scene from a ZScene data stream and return the root node
+         * Load a scene from a ZRes data stream and return the root node
          */
         [[nodiscard]] static shared_ptr<Node> load(ifstream &stream);
 
