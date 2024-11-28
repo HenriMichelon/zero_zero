@@ -24,7 +24,9 @@ namespace z0 {
 
     void CollisionObject::releaseBodyId() {
         if (!bodyId.IsInvalid()) {
-            bodyInterface.RemoveBody(bodyId);
+            if (bodyInterface.IsAdded(bodyId)) {
+                bodyInterface.RemoveBody(bodyId);
+            }
             bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
         }
     }
@@ -128,7 +130,7 @@ namespace z0 {
         if (updating || bodyId.IsInvalid())
             return;
         const auto position = getPositionGlobal();
-        const auto quat     = normalize(toQuat(mat3(worldTransform)));
+        const auto quat = normalize(toQuat(mat3(worldTransform)));
         bodyInterface.SetPositionAndRotation(
                 bodyId,
                 JPH::RVec3(position.x, position.y, position.z),
@@ -174,8 +176,10 @@ namespace z0 {
 
     void CollisionObject::_onEnterScene() {
         // assert(!bodyId.IsInvalid());
-        bodyInterface.ActivateBody(bodyId);
-        setPositionAndRotation();
+        if (bodyInterface.IsAdded(bodyId)) {
+            bodyInterface.ActivateBody(bodyId);
+            setPositionAndRotation();
+        }
         Node::_onEnterScene();
     }
 
@@ -185,14 +189,31 @@ namespace z0 {
     }
 
     void CollisionObject::_onPause() {
-        if (!bodyId.IsInvalid()) {
+        if (!bodyId.IsInvalid() && isProcessed()) {
             bodyInterface.DeactivateBody(bodyId);
         }
     }
 
     void CollisionObject::_onResume() {
-        if (!bodyId.IsInvalid()) {
+        if (!bodyId.IsInvalid() && isProcessed()) {
             bodyInterface.ActivateBody(bodyId);
+        }
+    }
+
+    void CollisionObject::setVisible(const bool visible) {
+        Node::setVisible(visible);
+        if (!bodyId.IsInvalid() && isProcessed()) {
+            if (visible) {
+                if (!bodyInterface.IsAdded(bodyId)) {
+                    bodyInterface.AddBody(bodyId, activationMode);
+                    bodyInterface.ActivateBody(bodyId);
+                    setPositionAndRotation();
+                }
+            } else {
+                if (bodyInterface.IsAdded(bodyId)) {
+                    bodyInterface.RemoveBody(bodyId);
+                }
+            }
         }
     }
 

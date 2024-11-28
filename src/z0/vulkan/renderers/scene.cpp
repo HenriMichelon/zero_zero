@@ -750,7 +750,7 @@ namespace z0 {
         auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
 
         for (const auto &meshInstance : modelsToDraw) {
-            if (frame.cameraFrustum.isOnFrustum(meshInstance)) {
+            if (meshInstance->isVisible() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto &modelIndex = frame.modelsIndices[meshInstance->getId()];
                 const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                 for (const auto &surface : model->getSurfaces()) {
@@ -886,7 +886,7 @@ namespace z0 {
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_BACK_BIT);
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()};
             for (const auto &meshInstance : modelsToDraw) {
-                if (frame.cameraFrustum.isOnFrustum(meshInstance)) {
+                if (meshInstance->isVisible() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
                     const auto &modelIndex = frame.modelsIndices[meshInstance->getId()];
                     const auto &model      = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
                     for (const auto &surface : model->getSurfaces()) {

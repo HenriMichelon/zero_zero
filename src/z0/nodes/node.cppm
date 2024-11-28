@@ -324,7 +324,7 @@ import z0.Tween;
                     return dynamic_pointer_cast<T>(node);
                 }
                 if (const auto& found = node->template findFirstChild<T>(name)) {
-                    return node;
+                    return found;
                 }
             }
             return nullptr;
@@ -481,6 +481,10 @@ import z0.Tween;
          */
         inline bool isInGroup(const string& group) { return ranges::find(groups, group) != groups.end(); }
 
+        inline bool isVisible() const { return visible; }
+
+        virtual void setVisible(bool visible = true);
+
     protected:
         Type                   type;
         string                 name;
@@ -488,6 +492,7 @@ import z0.Tween;
         list<shared_ptr<Node>> children;
         mat4                   localTransform{};
         mat4                   worldTransform{};
+        bool                   visible{true};
 
         virtual shared_ptr<Node> duplicateInstance();
 

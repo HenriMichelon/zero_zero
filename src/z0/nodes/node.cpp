@@ -234,6 +234,8 @@ namespace z0 {
             } else if (v == "disabled") {
                 setProcessMode(ProcessMode::DISABLED);
             }
+        } else if (property == "visible") {
+            setVisible(value == "true");
         }
     }
 
@@ -248,10 +250,12 @@ namespace z0 {
     }
 
     void Node::_updateTransform(const mat4 &parentMatrix) {
-        worldTransform = parentMatrix * localTransform;
-        for (const auto &child : children) {
-            child->_updateTransform(worldTransform);
-        }
+        // Application::get().callDeferred([this, parentMatrix] {
+            worldTransform = parentMatrix * localTransform;
+            for (const auto &child : children) {
+                child->_updateTransform(worldTransform);
+            }
+        // });
     }
 
     void Node::_updateTransform() {
@@ -316,6 +320,15 @@ namespace z0 {
 
     shared_ptr<Node> Node::duplicateInstance() {
         return make_shared<Node>(*this);
+    }
+
+    void Node::setVisible(const bool visible) {
+        // Application::get().callDeferred([this, visible]{
+        this->visible = visible;
+        for (const auto &child : children) {
+            child->setVisible(visible);
+        }
+        // });
     }
 
     void Node::_onReady() {

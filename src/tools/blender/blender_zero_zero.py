@@ -141,6 +141,8 @@ def add_node(obj):
     node["properties"]["position"] = convert_vector(obj.matrix_local.to_translation());
     node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
     node["properties"]["scale"] = convert_scale(obj.scale);
+    if obj.hide_get():
+        node["properties"]["visible"] = "false"
     if obj.type == "MESH":
         if settings.reconcile_mesh:
             mesh_name = re.sub(r"\.\d+$", "", obj.name)
@@ -324,7 +326,7 @@ def class_changed(self, context):
     if self.class_name == "StaticBody" or self.class_name == "RigidBody":
         prop = obj.zero_zero_props.properties.add()
         prop.name = "shape"
-        prop.value = "BoxShape;"
+        prop.value = "MeshShape"
         prop = obj.zero_zero_props.properties.add()
         prop.name = "layer"
         prop.value = "1"

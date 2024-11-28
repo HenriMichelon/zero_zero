@@ -112,6 +112,8 @@ export namespace z0 {
 
         void setProperty(const string &property, const string &value) override;
 
+        void setVisible(bool visible = true) override;
+
     protected:
         bool                updating{false};
         uint32_t            collisionLayer;
@@ -145,6 +147,7 @@ export namespace z0 {
 
 
     private:
+        bool savedState{false};
         JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};
 
     public:
