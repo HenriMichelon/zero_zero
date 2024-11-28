@@ -14,12 +14,23 @@ module z0.MeshShape;
 import z0.Node;
 import z0.MeshInstance;
 import z0.Shape;
+import z0.Tools;
 
 namespace z0 {
 
     MeshShape::MeshShape(const shared_ptr<Node> &node, const string &resName ):
         Shape{resName} {
         tryCreateShape(node);
+    }
+
+    MeshShape::MeshShape(const Node &node, const string &resName):
+        Shape{resName} {
+        const auto& meshInstance = node.findFirstChild<MeshInstance>();
+        if (meshInstance != nullptr) {
+            createShape(meshInstance);
+        } else {
+            die("MeshShape : Node ", node.toString(), "does not have a MeshInstance child");
+        }
     }
 
     void MeshShape::tryCreateShape(const shared_ptr<Node>& node) {

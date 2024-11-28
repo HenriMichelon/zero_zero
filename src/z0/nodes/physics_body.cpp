@@ -13,10 +13,11 @@ module;
 
 module z0.PhysicsBody;
 
-import z0.Tools;
 import z0.CollisionObject;
-import z0.Shape;
 import z0.ConvexHullShape;
+import z0.MeshShape;
+import z0.Shape;
+import z0.Tools;
 
 namespace z0 {
 
@@ -91,6 +92,8 @@ namespace z0 {
                 } else if (parts.at(0) == "CylinderShape") {
                     if (parts.size() < 3) { die("Missing parameter for CylinderShape for", name); }
                     setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), name));
+                } else if (parts.at(0) == "MeshShape") {
+                    setShape(make_shared<MeshShape>(*this));
                 } else {
                     die("Missing or bad shape for ", name);
                 }

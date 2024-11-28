@@ -26,6 +26,11 @@ export namespace z0 {
          */
         explicit MeshShape(const shared_ptr<Node> &node, const string &resName = "MeshShape");
 
+        /**
+         * Creates a MeshShape using the triangles of the Mesh of first MeshInstance found in the `node` tree
+         */
+        explicit MeshShape(const Node &node, const string &resName = "MeshShape");
+
     private:
         void tryCreateShape(const shared_ptr<Node>& node);
 
