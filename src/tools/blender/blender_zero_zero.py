@@ -139,7 +139,11 @@ def add_node(obj):
                 custom_props[custom_prop.name] = custom_prop.value.replace("$$", obj.name)
             node["properties"] = custom_props
     node["properties"]["position"] = convert_vector(obj.matrix_local.to_translation());
-    node["properties"]["rotation"] = convert_vector_degrees( obj.rotation_euler);
+    if obj.rotation_mode == "QUATERNION":
+        rot = obj.rotation_quaternion.to_euler('XYZ');
+    else:
+        rot = obj.rotation_euler
+    node["properties"]["rotation"] = convert_vector_degrees(rot);
     node["properties"]["scale"] = convert_scale(obj.scale);
     if obj.hide_get():
         node["properties"]["visible"] = "false"
