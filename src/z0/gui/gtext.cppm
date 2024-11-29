@@ -9,7 +9,6 @@ module;
 
 export module z0.GText;
 
-import z0.Color;
 import z0.Rect;
 import z0.Application;
 import z0.GWidget;
@@ -36,13 +35,13 @@ export namespace z0 {
             if (!parent) { refresh(); }
         }
 
-        void setTextColor(Color c) {
+        void setTextColor(const vec4 c) {
             textColor = c;
-            textColor.color.a = 1.0f;
+            textColor.a = 1.0f;
             refresh();
         }
 
-        [[nodiscard]] Color getTextColor() const { return textColor; }
+        [[nodiscard]] vec4 getTextColor() const { return textColor; }
 
         /*  void setSize(float, float) override;
          void setRect(const Rect&);
@@ -81,7 +80,7 @@ export namespace z0 {
 
     private:
         string text;
-        Color textColor;
+        vec4   textColor;
 
         /* void computeSize();*/
         void eventCreate() override {

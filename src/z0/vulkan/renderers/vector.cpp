@@ -12,7 +12,6 @@ module z0.VectorRenderer;
 
 import z0.Constants;
 import z0.Tools;
-import z0.Color;
 import z0.Rect;
 import z0.Image;
 import z0.Font;
@@ -49,7 +48,7 @@ namespace z0 {
     void VectorRenderer::drawLine(const vec2 start, const vec2 end) {
         const auto scaled_start = (start + translate) / VECTOR_SCALE;
         const auto scaled_end   = (end + translate) / VECTOR_SCALE;
-        const auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
+        const auto color = vec4{vec3{penColor}, std::max(0.0f, penColor.a - transparency)};
         vertices.emplace_back(scaled_start);
         vertices.emplace_back(scaled_end);
         commands.emplace_back(PRIMITIVE_LINE, 2, color);
@@ -90,7 +89,7 @@ namespace z0 {
         vertices.emplace_back(v3);
         vertices.emplace_back(v2);
 
-        const auto color = vec4{vec3{penColor.color}, std::max(0.0f, penColor.color.a - transparency)};
+        const auto color = vec4{vec3{penColor}, std::max(0.0f, penColor.a - transparency)};
         commands.emplace_back(PRIMITIVE_RECT, 6, color, texture, clip_w / w, clip_h / h);
         if (texture != nullptr) {
             addImage(texture);

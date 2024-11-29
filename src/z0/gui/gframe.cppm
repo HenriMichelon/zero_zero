@@ -9,7 +9,6 @@ module;
 
 export module z0.GFrame;
 
-import z0.Color;
 import z0.GPanel;
 
 export namespace z0 {
@@ -33,13 +32,13 @@ export namespace z0 {
             refresh();
         }
 
-        void setTextColor(const Color c) { textColor = c; }
+        void setTextColor(const vec4 c) { textColor = c; }
 
-        [[nodiscard]] Color getTextColor() const { return textColor; }
+        [[nodiscard]] vec4 getTextColor() const { return textColor; }
 
     private:
-        string  text{};
-        Color   textColor;
+        string text{};
+        vec4   textColor;
     };
 
 }

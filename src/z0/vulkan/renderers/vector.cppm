@@ -13,7 +13,6 @@ module;
 
 export module z0.VectorRenderer;
 
-import z0.Color;
 import z0.Constants;
 import z0.Font;
 import z0.Image;
@@ -70,7 +69,7 @@ namespace z0 {
                       float         clip_w, float                 clip_h);
 
         // Change the color of the fragment for the next drawing commands
-        inline void setPenColor(const Color color) { penColor = color; }
+        inline void setPenColor(const vec4 color) { penColor = color; }
 
         // Change the [x,y] translation for the next drawing commands
         inline void setTranslate(const vec2 t) { translate = t; }
@@ -138,7 +137,7 @@ namespace z0 {
         };
 
         // Fragment color for the next drawing commands
-        Color penColor{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 penColor{1.0f, 1.0f, 1.0f, 1.0f};
         // [x,y] translation for the next drawing commands
         vec2 translate{0.0f, 0.0f};
         // Global transparency for the next drawing commands. Value is subtracted from the vertex alpha

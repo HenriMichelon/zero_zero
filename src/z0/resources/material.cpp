@@ -11,7 +11,6 @@ module;
 module z0.Material;
 
 import z0.Application;
-import z0.Color;
 import z0.Constants;
 import z0.Texture;
 

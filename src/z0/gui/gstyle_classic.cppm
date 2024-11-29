@@ -11,7 +11,6 @@ export module z0.GStyleClassic;
 
 import z0.Rect;
 import z0.Tools;
-import z0.Color;
 import z0.GResource;
 import z0.GStyle;
 import z0.GWidget;
@@ -200,12 +199,12 @@ export namespace z0 {
         }
 
     private:
-        Color background;
-        Color focus;
-        Color shadowDark;
-        Color shadowBright;
-        Color fgUp;
-        Color fgDown;
+        vec4 background;
+        vec4 focus;
+        vec4 shadowDark;
+        vec4 shadowBright;
+        vec4 fgUp;
+        vec4 fgDown;
         //GTexture	*texture;
 
         void updateOptions() override {
@@ -224,14 +223,14 @@ export namespace z0 {
             }*/
         }
 
-        Color extractColor(const string &OPT, const float R, const float G, const float B) {
+        vec4 extractColor(const string &OPT, const float R, const float G, const float B) {
             string opt = getOption(OPT);
             if (!opt.empty()) {
                 const auto &rgb = split(opt, ',');
                 if (rgb.size() == 3) {
-                    return Color(vec3{stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]})});
+                    return vec4({stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), 1.0f});
                 } else if (rgb.size() == 4) {
-                    return Color(vec4{
+                    return vec4(vec4{
                         stof(string{rgb[0]}),
                         stof(string{rgb[1]}),
                         stof(string{rgb[2]}),
@@ -239,7 +238,7 @@ export namespace z0 {
                     });
                 }
             }
-            return Color(vec3{R, G, B});
+            return vec4({R, G, B, 1.0f});
         }
 
         void drawPanel(const GPanel &, GStyleClassicResource &, VectorRenderer &) const;
@@ -271,7 +270,7 @@ export namespace z0 {
     void GStyleClassic::drawPanel(const GPanel &W, GStyleClassicResource &RES, VectorRenderer &D) const {
         if (W.isDrawBackground()) {
             auto c = background;
-            c.color.a = W.getTransparency();
+            c.a = W.getTransparency();
             D.setPenColor(c);
             D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
             //texture->Draw(D, W.Rect());
@@ -286,8 +285,8 @@ export namespace z0 {
         const float h = W.getRect().height;
         auto fd = fgDown;
         auto fu = fgUp;
-        fd.color.a = W.getTransparency();
-        fu.color.a = W.getTransparency();
+        fd.a = W.getTransparency();
+        fu.a = W.getTransparency();
         if (W.isDrawBackground()) {
             if (W.isPushed()) {
                 D.setPenColor(fd);
@@ -298,9 +297,9 @@ export namespace z0 {
         }
         if (RES.style != GStyleClassicResource::FLAT) {
             auto sb = shadowBright;
-            sb.color.a = W.getTransparency();
+            sb.a = W.getTransparency();
             auto sd = shadowDark;
-            sd.color.a = W.getTransparency();
+            sd.a = W.getTransparency();
             switch (RES.style) {
             case GStyleClassicResource::LOWERED:
                 D.setPenColor(sb);
@@ -329,11 +328,11 @@ export namespace z0 {
     }
 
     void GStyleClassic::drawLine(GLine &W, GStyleClassicResource &RES, VectorRenderer &D) const {
-        Color c1, c2;
+        vec4 c1, c2;
         auto sb = shadowBright;
-        sb.color.a = W.getTransparency();
+        sb.a = W.getTransparency();
         auto sd = shadowDark;
-        sd.color.a = W.getTransparency();
+        sd.a = W.getTransparency();
         switch (RES.style) {
         case GStyleClassicResource::RAISED:
             c1 = sd;
@@ -391,10 +390,10 @@ export namespace z0 {
     }
 
     void GStyleClassic::drawText(GText &W, GStyleClassicResource &RES, VectorRenderer &D) const {
-        D.setPenColor(Color{
-            W.getTextColor().color.r,
-            W.getTextColor().color.g,
-            W.getTextColor().color.b,
+        D.setPenColor(vec4{
+            W.getTextColor().r,
+            W.getTextColor().g,
+            W.getTextColor().b,
             W.getTransparency()
         });
         auto rect = W.getRect();
@@ -409,12 +408,12 @@ export namespace z0 {
         float b = W.getRect().y;
         float w = W.getRect().width;
         float h = W.getRect().height;
-        Color c1;
-        Color c2;
+        vec4 c1;
+        vec4 c2;
         auto sb = shadowBright;
-        sb.color.a = W.getTransparency();
+        sb.a = W.getTransparency();
         auto sd = shadowDark;
-        sd.color.a = W.getTransparency();
+        sd.a = W.getTransparency();
         switch (RES.style) {
         case GStyleClassicResource::LOWERED:
             c1 = sb;
@@ -438,10 +437,10 @@ export namespace z0 {
         if ((!W.getText().empty()) && (W.getWidth() >= (fw + LEFTOFFSET)) && (W.getHeight() >= fh)) {
             D.drawLine({l, b + h}, {l + LEFTOFFSET, b + h});
             D.drawLine({l + fw + LEFTOFFSET + 1, b + h}, {l + w, b + h});
-            D.setPenColor(Color{
-                W.getTextColor().color.r,
-                W.getTextColor().color.g,
-                W.getTextColor().color.b,
+            D.setPenColor(vec4{
+                W.getTextColor().r,
+                W.getTextColor().g,
+                W.getTextColor().b,
                 W.getTransparency()
             });
             D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b + h) - (fh / 2), fw, fh, fw, fh);

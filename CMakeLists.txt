@@ -126,7 +126,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
-		${Z0_ENGINE_DIR}/gui/color.cppm
 		${Z0_ENGINE_DIR}/gui/gresource.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle.cppm
 		${Z0_ENGINE_DIR}/gui/gstyle_classic.cppm

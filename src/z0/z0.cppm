@@ -15,7 +15,6 @@ export import z0.Camera;
 export import z0.Character;
 export import z0.CollisionObject;
 export import z0.CollisionArea;
-export import z0.Color;
 export import z0.Constants;
 export import z0.ConvexHullShape;
 export import z0.DebugConfig;

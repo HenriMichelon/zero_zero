@@ -12,7 +12,6 @@ export module z0.Material;
 
 import z0.Constants;
 import z0.Resource;
-import z0.Color;
 import z0.Texture;
 
 export namespace z0 {
