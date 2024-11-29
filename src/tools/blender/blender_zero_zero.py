@@ -239,20 +239,29 @@ class ExportOperator(bpy.types.Operator):
         #print("file: " + blend_file_path)
         if blend_file_path == "":
             show_message("Please save the blender project first")
-            return {'FINISHED'}
+            return {'CANCELLED'}
         if settings.project_directory == "":
             show_message("Please set the project directory in the scene properties first")
-            return {'FINISHED'}
+            return {'CANCELLED'}
+        if not os.path.exists(settings.project_directory):
+            show_message("Incorrect project directory " + settings.project_directory)
+            return {'CANCELLED'}
         if settings.scene_directory == "":
             show_message("Please set the project scene directory in the scene properties first")
-            return {'FINISHED'}
+            return {'CANCELLED'}
+        if not os.path.exists(settings.project_directory + "/" + settings.scene_directory):
+            show_message("Incorrect scene directory " + settings.scene_directory)
+            return {'CANCELLED'}
         if settings.models_directory == "":
             show_message("Please set the project models directory in the scene properties first")
-            return {'FINISHED'}
+            return {'CANCELLED'}
+        if not os.path.exists(settings.project_directory + "/" + settings.models_directory):
+            show_message("Incorrect model directory " + settings.models_directory)
+            return {'CANCELLED'}
         gltf2zres = settings.gltf2zres_path + "/gltf2zres.exe";
         if settings.convert_zres and not os.path.isfile(gltf2zres):
             show_message("Please set the gltf2zres directory in the scene properties first")
-            return {'FINISHED'}
+            return {'CANCELLED'}
         blend_file_name = os.path.basename(blend_file_path)
         file_name = os.path.splitext(blend_file_name)[0];
         export_file_name = file_name + EXPORT_EXT
