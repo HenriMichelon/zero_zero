@@ -20,6 +20,7 @@ module;
 
 module z0.Device;
 
+import z0.Application;
 import z0.ApplicationConfig;
 import z0.Window;
 import z0.Renderer;
@@ -123,7 +124,7 @@ namespace z0 {
                 const VkDeviceQueueCreateInfo queueCreateInfo{
                         .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
                         .queueFamilyIndex = queueFamily,
-                        .queueCount = 1,
+                        .queueCount = 1 + Application::MAX_ASYNC_CALLS,
                         .pQueuePriorities = &queuePriority,
                 };
                 queueCreateInfos.push_back(queueCreateInfo);
@@ -172,15 +173,7 @@ namespace z0 {
 
         ////////////////////  Create the device command pool
 
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-        auto                          queueFamilyIndices = findQueueFamilies(physicalDevice);
-        const VkCommandPoolCreateInfo poolInfo           = {
-                .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
-        };
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-            die("Failed to create the command pool");
+        commandPool = createCommandPool();
 
         //////////////////// Create VMA allocator
 
@@ -560,11 +553,11 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    VkCommandBuffer Device::beginOneTimeCommandBuffer() const {
+    VkCommandBuffer Device::beginOneTimeCommandBuffer(VkCommandPool cmdPool) const {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
         const VkCommandBufferAllocateInfo allocInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                .commandPool = commandPool,
+                .commandPool = cmdPool != VK_NULL_HANDLE ? cmdPool : commandPool,
                 .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                 .commandBufferCount = 1
         };
@@ -579,17 +572,17 @@ namespace z0 {
         return commandBuffer;
     }
 
-    void Device::endOneTimeCommandBuffer(VkCommandBuffer commandBuffer) const {
+    void Device::endOneTimeCommandBuffer(VkCommandBuffer commandBuffer, VkCommandPool cmdPool) const {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
         vkEndCommandBuffer(commandBuffer);
         const VkSubmitInfo submitInfo{
-                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                .commandBufferCount = 1,
-                .pCommandBuffers = &commandBuffer
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffer
         };
         vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(graphicsQueue);
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(device, cmdPool != VK_NULL_HANDLE ? cmdPool : commandPool, 1, &commandBuffer);
     }
 
     void Device::createSwapChain() {
@@ -871,6 +864,25 @@ namespace z0 {
         return ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_DST_BIT) &&
             (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT));
     }
+
+    // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
+    VkCommandPool Device::createCommandPool() const {
+        auto queueFamilyIndices = findQueueFamilies(physicalDevice);
+        const VkCommandPoolCreateInfo poolInfo           = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+            .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
+        };
+        VkCommandPool cmdPool;
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool) != VK_SUCCESS) {
+            die("Failed to create the command pool");
+        }
+        return cmdPool;
+    }
+
+    // void Device::getQueue(uint32_t index) {
+        // vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    // }
 
 #ifdef _WIN32
     // https://dev.to/reg__/there-is-a-way-to-query-gpu-memory-usage-in-vulkan---use-dxgi-1f0d

@@ -182,6 +182,7 @@ namespace z0 {
     }
 
      VulkanImage::VulkanImage(const Device &  device,
+              VkCommandBuffer commandBuffer,
               const string &                name,
               const ZRes::ImageHeader &   imageHeader,
               const vector<ZRes::MipLevelInfo>& mipLevelHeaders,
@@ -212,7 +213,6 @@ namespace z0 {
             };
             copyRegions.push_back(buffer_copy_region);
         }
-
         device.createImage(width,
                            height,
                            mipLevels,
@@ -225,7 +225,6 @@ namespace z0 {
                            textureImage,
                            textureImageMemory);
 
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -253,7 +252,6 @@ namespace z0 {
                                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                    VK_IMAGE_ASPECT_COLOR_BIT,
                                    mipLevels);
-        device.endOneTimeCommandBuffer(commandBuffer);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
         createTextureSampler(
             static_cast<VkFilter>(textureHeader.magFilter),

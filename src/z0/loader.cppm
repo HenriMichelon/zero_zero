@@ -57,6 +57,8 @@ export namespace z0 {
         };
 
     private:
+        static inline map<string, shared_ptr<Node>> resources;
+
         [[nodiscard]] static vector<SceneNode> loadSceneDescriptionFromJSON(const string &filepath);
 
         static void addNode(Node *                         parent,

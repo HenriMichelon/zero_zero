@@ -698,7 +698,7 @@ export namespace z0 {
     enum class ImageFormat : std::uint8_t {
         //! 32 bits with alpha channel in the sRGB color space
         R8G8B8A8_SRGB  = 0,
-        //! 32 bits with alpha channel in the lineara color space
+        //! 32 bits with alpha channel in the linear color space
         R8G8B8A8_UNORM = 1,
     };
 

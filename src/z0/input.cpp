@@ -558,6 +558,8 @@ namespace z0 {
 
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
+        auto &wnd = Application::get().getWindow();
+        PostMessage(wnd._getHandle(), WM_SETCURSOR, 0, 0);
     }
 
     void Input::setMouseMode(const MouseMode mode) {

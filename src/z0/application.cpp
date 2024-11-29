@@ -224,9 +224,9 @@ namespace z0 {
         return false;
     }
 
-    void Application::callDeferred(std::function<void()> func) {
-        deferredCalls.push_back(func);
-    }
+    // void Application::callDeferred(std::function<void()> func) {
+    //     deferredCalls.push_back(func);
+    // }
 
     void Application::process(const shared_ptr<Node> &node, const float alpha) {
         assert(node != nullptr);
@@ -297,6 +297,9 @@ namespace z0 {
         while (!window->shouldClose()) {
             messageLoop();
             drawFrame();
+        }
+        for(auto&t : threadedCalls) {
+            t.join();
         }
         stopped = true;
         waitForRenderingSystem();

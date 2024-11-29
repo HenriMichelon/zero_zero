@@ -10,6 +10,8 @@ module;
 
 module z0.ZRes;
 
+import z0.Tools;
+
 import z0.Device;
 import z0.Buffer;
 import z0.VulkanImage;
@@ -42,6 +44,10 @@ namespace z0 {
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
         const auto& device = Device::get();
+        log("start upload images");
+        VkQueue graphicsQueue;
+        const auto commandPool = device.createCommandPool();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
             const auto& texture = textureHeaders.at(textureIndex);
             if (texture.imageIndex != -1) {
@@ -50,6 +56,7 @@ namespace z0 {
                 textures.push_back(make_shared<ImageTexture>(
                     make_shared<VulkanImage>(
                        device,
+                       commandBuffer,
                        image.name,
                        image,
                        levelHeaders[texture.imageIndex],
@@ -59,6 +66,9 @@ namespace z0 {
                 ));
             }
         }
+        device.endOneTimeCommandBuffer(commandBuffer, commandPool);
+        vkDestroyCommandPool(device.getDevice(), commandPool, nullptr);
+        log("end upload images");
     }
 
 }

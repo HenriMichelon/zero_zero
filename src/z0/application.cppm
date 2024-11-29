@@ -20,9 +20,10 @@ import z0.Object;
 import z0.ApplicationConfig;
 import z0.InputEvent;
 import z0.Material;
-import z0.Physics;
-import z0.Window;
 import z0.Node;
+import z0.Physics;
+import z0.Tools;
+import z0.Window;
 
 import z0.ui.Manager;
 import z0.ui.Window;
@@ -35,6 +36,8 @@ namespace z0 {
      */
     export class Application : public Object {
     public:
+        static constexpr uint32_t MAX_ASYNC_CALLS = 3;
+
         /**
          * Returns the application singleton
          */
@@ -153,7 +156,21 @@ namespace z0 {
         * They will be called before the next frame, after the scene pre-drawing updates where nodes are added/removed
         * from the drawing lists (for all the frames in flight).
         */
-        void callDeferred(std::function<void()> func);
+        template<typename Lambda>
+        void callDeferred(Lambda lambda) {
+            deferredCalls.push_back(lambda);
+        }
+
+        template<typename Lambda>
+        void callAsync(Lambda lambda) {
+            erase_if(threadedCalls, [](const auto& t) {
+                return !t.joinable();
+            });
+            if (threadedCalls.size() >= MAX_ASYNC_CALLS) {
+                die("Maximum number of concurrent async calls reached");
+            }
+            threadedCalls.push_back(thread(lambda));
+        }
 
         /**
          * Returns the meshes outlining materials
@@ -232,6 +249,7 @@ namespace z0 {
         // Registers all nodes types
         void registerTypes() const;
 
+
     protected:
         // The global startup configuration parameters
         const ApplicationConfig &applicationConfig;
@@ -259,7 +277,9 @@ namespace z0 {
         vector<FrameData> frameData;
 
         // Deferred nodes calls, to be called after processDeferredUpdates()
-        list<std::function<void()>> deferredCalls;
+        list<function<void()>> deferredCalls;
+
+        list<thread> threadedCalls;
 
         explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
 

@@ -125,9 +125,11 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer() const;
+        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer(VkCommandPool commandPool = VK_NULL_HANDLE) const;
 
-        void endOneTimeCommandBuffer(VkCommandBuffer commandBuffer) const;
+        void endOneTimeCommandBuffer(VkCommandBuffer commandBuffer, VkCommandPool commandPool = VK_NULL_HANDLE) const;
+
+        [[nodiscard]] VkCommandPool createCommandPool() const;
 
         list<shared_ptr<Renderer>> renderers;
 

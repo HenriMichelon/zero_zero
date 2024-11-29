@@ -63,6 +63,7 @@ export namespace z0 {
                VkBool32             anisotropyEnable   = VK_TRUE);
 
         VulkanImage(const Device &            device,
+                VkCommandBuffer commandBuffer,
                 const string &                name,
                 const ZRes::ImageHeader &   imageHeader,
                 const vector<ZRes::MipLevelInfo>& mipLevelHeaders,

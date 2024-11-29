@@ -23,17 +23,28 @@ import z0.ZRes;
 namespace z0 {
 
     shared_ptr<Node> Loader::load(const string& filepath) {
+        shared_ptr<Node> result{};
+        if (resources.contains(filepath)) {
+            log("re-using resources", filepath);
+            return resources[filepath];
+        }
         if (filepath.ends_with(".zres")) {
-            return ZRes::load(filepath);
+            result = ZRes::load(filepath);
         }
         if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {
-            return GlTF::load(filepath);
+            result = GlTF::load(filepath);
         }
-        die("Loader : unsupported scene file format");
+        if (result) {
+            resources[filepath] = result;
+            return result;
+        }
+        die("Loader : unsupported scene file format for", filepath);
         return nullptr;
     }
 
-    void Loader::addNode(Node *parent, map<string, shared_ptr<Node>> &nodeTree, map<string, SceneNode> &sceneTree,
+    void Loader::addNode(Node *parent,
+                         map<string, shared_ptr<Node>> &nodeTree,
+                         map<string, SceneNode> &sceneTree,
                          const SceneNode &nodeDesc) {
         constexpr auto log_name{"Scene loader :"};
         if (nodeTree.contains(nodeDesc.id)) {

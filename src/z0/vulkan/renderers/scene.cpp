@@ -986,6 +986,7 @@ namespace z0 {
     void SceneRenderer::disableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (shadowMapRenderers.contains(light)) {
+                device.wait(); // wait for all the frames in flights since shadow map renderers are shareds
                 device.unRegisterRenderer(shadowMapRenderers.at(light));
                 shadowMapRenderers.erase(light);
             }
