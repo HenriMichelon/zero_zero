@@ -12,16 +12,18 @@ import z0.GPanel;
 
 export namespace z0 {
 
-    /**
-     * %A rectangular box
-     */
-    class GBox: public GPanel {
-    public:
-        GBox(): GPanel {BOX} {}
+    namespace ui {
+        /**
+         * %A rectangular box
+         */
+        class GBox: public GPanel {
+        public:
+            GBox(): GPanel {BOX} {}
 
-    protected:
-        explicit GBox(const Type T): GPanel{T} {}
-    };
+        protected:
+            explicit GBox(const Type T): GPanel{T} {}
+        };
+    }
 
 
 }

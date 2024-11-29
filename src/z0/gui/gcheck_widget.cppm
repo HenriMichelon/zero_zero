@@ -14,48 +14,50 @@ import z0.GWidget;
 import z0.GEvent;
 
 export namespace z0 {
-    /**
-     * Super class for all two-states widgets
-     */
-    class GCheckWidget : public GWidget {
-    public:
-        //! State of the widget. Change on user action.
-        enum State {
-            CHECK, //! Checked (aka ON)
-            UNCHECK //! Unchecked (aka OFF)
-        };
+    namespace ui {
+        /**
+         * Super class for all two-states widgets
+         */
+        class GCheckWidget : public GWidget {
+        public:
+            //! State of the widget. Change on user action.
+            enum State {
+                CHECK, //! Checked (aka ON)
+                UNCHECK //! Unchecked (aka OFF)
+            };
 
-        //! Return current state of the widget
-        [[nodiscard]] State getState() const { return state; }
+            //! Return current state of the widget
+            [[nodiscard]] State getState() const { return state; }
 
-        //! Change the state of the widget
-        virtual void setState(const State S) {
-            if (state == S) { return; }
-            state = S;
-            resizeChildren();
-            refresh();
-            auto stat = GEventState{.state = S};
-            emit(GEvent::OnStateChange, &stat);
-        }
-
-    protected:
-        explicit GCheckWidget(const Type T): GWidget{T} {
-        }
-
-        bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
-            if (getRect().contains(X, Y)) {
-                if (state == CHECK) {
-                    setState(UNCHECK);
-                }
-                else {
-                    setState(CHECK);
-                }
+            //! Change the state of the widget
+            virtual void setState(const State S) {
+                if (state == S) { return; }
+                state = S;
+                resizeChildren();
+                refresh();
+                auto stat = GEventState{.state = S};
+                emit(GEvent::OnStateChange, &stat);
             }
-            return GWidget::eventMouseDown(B, X, Y);
-        }
 
-    private:
-        State state{UNCHECK};
-    };
+        protected:
+            explicit GCheckWidget(const Type T): GWidget{T} {
+            }
+
+            bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
+                if (getRect().contains(X, Y)) {
+                    if (state == CHECK) {
+                        setState(UNCHECK);
+                    }
+                    else {
+                        setState(CHECK);
+                    }
+                }
+                return GWidget::eventMouseDown(B, X, Y);
+            }
+
+        private:
+            State state{UNCHECK};
+        };
+    }
 
 }

@@ -27,6 +27,8 @@ import z0.Renderer;
 import z0.Renderpass;
 import z0.VulkanImage;
 
+using namespace z0::ui;
+
 namespace z0 {
 
     /*

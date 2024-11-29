@@ -93,7 +93,7 @@ namespace z0 {
         }
         device->registerRenderer(sceneRenderer);
 
-        windowManager = make_unique<GManager>(vectorRenderer,
+        windowManager = make_unique<ui::GManager>(vectorRenderer,
                                               applicationConfig.defaultFontName,
                                               applicationConfig.defaultFontSize);
     }

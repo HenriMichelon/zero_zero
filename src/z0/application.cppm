@@ -47,13 +47,13 @@ namespace z0 {
          * Adds a GUI window to the window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void add(const shared_ptr<GWindow> &window) const;
+        void add(const shared_ptr<ui::GWindow> &window) const;
 
         /**
          * Removes the window from the window manager
          * @param window    The window to remove, must be added to the window manager before
          */
-        void remove(const shared_ptr<GWindow> &window) const;
+        void remove(const shared_ptr<ui::GWindow> &window) const;
 
         /**
          * Exits the application by closing the window (will wait for the current frame to be terminated)
@@ -136,7 +136,7 @@ namespace z0 {
         /**
          * Returns the global window manager
          */
-        GManager &getWindowManager() const { return *windowManager; }
+        ui::GManager &getWindowManager() const { return *windowManager; }
 
         /**
          * Return the vector renderer size ratio
@@ -238,7 +238,7 @@ namespace z0 {
         // The global display window
         unique_ptr<Window> window;
         // The global UI Window manager
-        unique_ptr<GManager> windowManager;
+        unique_ptr<ui::GManager> windowManager;
         // The current scene
         shared_ptr<Node> rootNode;
         // Mesh outlining materials
