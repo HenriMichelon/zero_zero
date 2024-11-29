@@ -8,53 +8,53 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0.GWindow;
+module z0.ui.Window;
 
 import z0.Application;
 import z0.Constants;
 import z0.Font;
-import z0.Rect;
 
-import z0.GEvent;
-import z0.GManager;
-import z0.GPanel;
-import z0.GStyle;
-import z0.GWidget;
+import z0.ui.Event;
+import z0.ui.Manager;
+import z0.ui.Panel;
+import z0.ui.Rect;
+import z0.ui.Style;
+import z0.ui.Widget;
 
 import z0.VectorRenderer;
 
 namespace z0 {
 
     namespace ui {
-        GWindow::GWindow(Rect r):
+        Window::Window(Rect r):
             rect{r} {
         }
 
-        void GWindow::draw() const {
+        void Window::draw() const {
             if (!isVisible()) { return; }
-            const auto *wm = static_cast<GManager *>(windowManager);
+            const auto *wm = static_cast<Manager *>(windowManager);
             wm->getRenderer().setTranslate({rect.x, rect.y});
             wm->getRenderer().setTransparency(1.0f - transparency);
             widget->_draw(wm->getRenderer());
         }
 
-        void GWindow::unFreeze(shared_ptr<GWidget> &W) {
+        void Window::unFreeze(shared_ptr<Widget> &W) {
             for (auto &child : W->_getChildren()) {
                 unFreeze(child);
             }
             W->setFreezed(false);
         }
 
-        shared_ptr<Font> &GWindow::getDefaultFont() const {
-            auto *wm = static_cast<GManager *>(windowManager);
+        shared_ptr<Font> &Window::getDefaultFont() const {
+            auto *wm = static_cast<Manager *>(windowManager);
             return wm->getDefaultFont();
         }
 
-        GWidget &GWindow::setWidget(shared_ptr<GWidget> WIDGET, const string &RES, float PADDING) {
-            assert(windowManager && "GWidow must be added to a window manager before setting the main widget");
+        Widget &Window::setWidget(shared_ptr<Widget> WIDGET, const string &RES, float PADDING) {
+            assert(windowManager && "GWidow must be added to a Window manager before setting the main widget");
             if (layout == nullptr) { setStyle(nullptr); }
             if (WIDGET == nullptr) {
-                widget = make_shared<GPanel>();
+                widget = make_shared<Panel>();
             } else {
                 widget = std::move(WIDGET);
             }
@@ -62,8 +62,8 @@ namespace z0 {
             widget->setPadding(PADDING);
             widget->window  = this;
             widget->style   = layout.get();
-            widget->setFont(static_cast<GStyle*>(widget->style)->getFont());
-            static_cast<GStyle*>(widget->style)->addResource(*widget, RES);
+            widget->setFont(static_cast<Style*>(widget->style)->getFont());
+            static_cast<Style*>(widget->style)->addResource(*widget, RES);
             widget->setDrawBackground(true);
             widget->eventCreate();
             widget->setPos(0, 0);
@@ -73,52 +73,52 @@ namespace z0 {
             return *widget;
         }
 
-        void GWindow::setStyle(shared_ptr<GStyle> LAYOUT) {
+        void Window::setStyle(shared_ptr<Style> LAYOUT) {
             if (layout == nullptr) {
-                layout = GStyle::create();
+                layout = Style::create();
             } else {
                 layout = std::move(LAYOUT);
             }
             refresh();
         }
 
-        void GWindow::setVisible(const bool isVisible) {
+        void Window::setVisible(const bool isVisible) {
             if (visible != isVisible) {
                 visibilityChange  = isVisible;
                 visibilityChanged = true;
             }
         }
 
-        void GWindow::hide() {
+        void Window::hide() {
             setVisible(false);
         }
 
-        void GWindow::show() {
+        void Window::show() {
             setVisible(true);
         }
 
-        void GWindow::eventCreate() {
+        void Window::eventCreate() {
             setWidget();
             onCreate();
-            emit(GEvent::OnCreate);
+            emit(Event::OnCreate);
             if (widget != nullptr) { widget->resizeChildren(); }
         }
 
-        void GWindow::eventDestroy() {
+        void Window::eventDestroy() {
             if (widget) { widget->eventDestroy(); }
-            emit(GEvent::OnDestroy);
+            emit(Event::OnDestroy);
             onDestroy();
             widget.reset();
         }
 
-        void GWindow::eventShow() {
+        void Window::eventShow() {
             if (widget) { widget->eventShow(); }
             onShow();
-            emit(GEvent::OnShow);
+            emit(Event::OnShow);
             refresh();
         }
 
-        bool GWindow::eventKeybDown(const Key K) {
+        bool Window::eventKeybDown(const Key K) {
             bool consumed = false;
             if (focusedWidget) {
                 consumed = focusedWidget->eventKeybDown(K); // XXX consumed
@@ -128,14 +128,14 @@ namespace z0 {
             }
             if (!consumed) {
                 auto event = GEventKeyb{.key = K};
-                emit(GEvent::OnKeyDown, &event);
+                emit(Event::OnKeyDown, &event);
                 consumed = event.consumed;
             }
             refresh();
             return consumed;
         }
 
-        bool GWindow::eventKeybUp(const Key K) {
+        bool Window::eventKeybUp(const Key K) {
             bool consumed = false;
             if (focusedWidget) {
                 focusedWidget->eventKeybUp(K); // XXX consumed
@@ -145,14 +145,14 @@ namespace z0 {
             }
             if (!consumed) {
                 auto event = GEventKeyb{.key = K};
-                emit(GEvent::OnKeyUp, &event);
+                emit(Event::OnKeyUp, &event);
                 consumed = event.consumed;
             }
             refresh();
             return consumed;
         }
 
-        bool GWindow::eventMouseDown(const MouseButton B, const float X, const float Y) {
+        bool Window::eventMouseDown(const MouseButton B, const float X, const float Y) {
             if (!visible) { return false; }
             bool consumed = false;
             if (widget) {
@@ -163,14 +163,14 @@ namespace z0 {
             }
             if (!consumed) {
                 auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
-                emit(GEvent::OnMouseDown, &event);
+                emit(Event::OnMouseDown, &event);
                 consumed = event.consumed;
             }
             refresh();
             return consumed;
         }
 
-        bool GWindow::eventMouseUp(const MouseButton B, const float X, const float Y) {
+        bool Window::eventMouseUp(const MouseButton B, const float X, const float Y) {
             if (!visible) { return false; }
             bool consumed = false;
             if (widget) { consumed = widget->eventMouseUp(B, X, Y); }
@@ -179,14 +179,14 @@ namespace z0 {
             }
             if (!consumed) {
                 auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
-                emit(GEvent::OnMouseUp, &event);
+                emit(Event::OnMouseUp, &event);
                 consumed = event.consumed;
             }
             refresh();
             return consumed;
         }
 
-        bool GWindow::eventMouseMove(const uint32_t B, const float X, const float Y) {
+        bool Window::eventMouseMove(const uint32_t B, const float X, const float Y) {
             if (!visible) { return false; }
             bool consumed = false;
             if ((focusedWidget != nullptr) &&
@@ -200,112 +200,112 @@ namespace z0 {
             }
             if (!consumed) {
                 auto event = GEventMouseMove{.buttonsState = B, .x = X, .y = Y};
-                emit(GEvent::OnMouseMove, &event);
+                emit(Event::OnMouseMove, &event);
                 consumed = event.consumed;
             }
             if (consumed) { refresh(); }
             return consumed;
         }
 
-        void GWindow::refresh() {
-            if (windowManager) { static_cast<GManager*>(windowManager)->refresh(); }
+        void Window::refresh() {
+            if (windowManager) { static_cast<Manager*>(windowManager)->refresh(); }
         }
 
-        void GWindow::setFocusedWidget(const shared_ptr<GWidget> &W) {
+        void Window::setFocusedWidget(const shared_ptr<Widget> &W) {
             focusedWidget = W.get();
         }
 
-        GWidget &GWindow::getWidget() const {
-            assert(windowManager && "GWindow must be added to a window manager before use");
+        Widget &Window::getWidget() const {
+            assert(windowManager && "Window must be added to a Window manager before use");
             return *widget;
         }
 
-        void GWindow::setRect(const Rect &r) {
+        void Window::setRect(const Rect &r) {
             rect        = r;
             rect.width  = std::min(std::max(r.width, minWidth), maxWidth);
             rect.height = std::min(std::max(r.height, minHeight), maxHeight);
             eventResize();
         }
 
-        void GWindow::setHeight(const float h) {
+        void Window::setHeight(const float h) {
             rect.height = std::min(std::max(h, minHeight), maxHeight);
             eventResize();
         }
 
-        void GWindow::setWidth(const float w) {
+        void Window::setWidth(const float w) {
             rect.width = std::min(std::max(w, minWidth), maxWidth);
             eventResize();
         }
 
-        void GWindow::setPos(const float x, const float y) {
+        void Window::setPos(const float x, const float y) {
             rect.x = x;
             rect.y = y;
             eventMove();
         }
 
-        void GWindow::setPos(const vec2 pos) {
+        void Window::setPos(const vec2 pos) {
             rect.x = pos.x;
             rect.y = pos.y;
             eventMove();
         }
 
-        void GWindow::setX(const float x) {
+        void Window::setX(const float x) {
             rect.x = x;
             eventMove();
         }
 
-        void GWindow::setY(const float y) {
+        void Window::setY(const float y) {
             rect.y = y;
             eventMove();
         }
 
-        shared_ptr<GStyle> GWindow::getStyle() const {
+        shared_ptr<Style> Window::getStyle() const {
             return layout;
         }
 
-        void GWindow::setTransparency(const float alpha) {
+        void Window::setTransparency(const float alpha) {
             transparency = alpha;
             refresh();
         }
 
-        void GWindow::eventResize() {
+        void Window::eventResize() {
             if (widget) { widget->setSize(rect.width, rect.height); }
             onResize();
-            emit(GEvent::OnResize);
+            emit(Event::OnResize);
             refresh();
         }
 
-        void GWindow::eventMove() {
+        void Window::eventMove() {
             if (widget) { widget->resizeChildren(); }
             onMove();
-            emit(GEvent::OnMove);
+            emit(Event::OnMove);
             refresh();
         }
 
-        void GWindow::eventHide() {
-            emit(GEvent::OnHide);
+        void Window::eventHide() {
+            emit(Event::OnHide);
             onHide();
             refresh();
         }
 
-        void GWindow::eventGotFocus() {
+        void Window::eventGotFocus() {
             onGotFocus();
-            emit(GEvent::OnGotFocus);
+            emit(Event::OnGotFocus);
             refresh();
         }
 
-        void GWindow::eventLostFocus() {
+        void Window::eventLostFocus() {
             onLostFocus();
-            emit(GEvent::OnLostFocus);
+            emit(Event::OnLostFocus);
             refresh();
         }
 
-        void GWindow::setMinimumSize(const float width, const float height) {
+        void Window::setMinimumSize(const float width, const float height) {
             minWidth  = width;
             minHeight = height;
         }
 
-        void GWindow::setMaximumSize(const float width, const float height) {
+        void Window::setMaximumSize(const float width, const float height) {
             maxWidth  = width;
             maxHeight = height;
         }

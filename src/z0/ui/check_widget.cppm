@@ -7,23 +7,26 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GCheckWidget;
+export module z0.ui.CheckWidget;
 
 import z0.Constants;
-import z0.GWidget;
-import z0.GEvent;
+
+import z0.ui.Event;
+import z0.ui.Widget;
 
 export namespace z0 {
     namespace ui {
         /**
          * Super class for all two-states widgets
          */
-        class GCheckWidget : public GWidget {
+        class CheckWidget : public Widget {
         public:
             //! State of the widget. Change on user action.
             enum State {
-                CHECK, //! Checked (aka ON)
-                UNCHECK //! Unchecked (aka OFF)
+                //! Checked (aka ON)
+                CHECK,
+                //! Unchecked (aka OFF)
+                UNCHECK
             };
 
             //! Return current state of the widget
@@ -36,11 +39,11 @@ export namespace z0 {
                 resizeChildren();
                 refresh();
                 auto stat = GEventState{.state = S};
-                emit(GEvent::OnStateChange, &stat);
+                emit(Event::OnStateChange, &stat);
             }
 
         protected:
-            explicit GCheckWidget(const Type T): GWidget{T} {
+            explicit CheckWidget(const Type T): Widget{T} {
             }
 
             bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
@@ -52,7 +55,7 @@ export namespace z0 {
                         setState(CHECK);
                     }
                 }
-                return GWidget::eventMouseDown(B, X, Y);
+                return Widget::eventMouseDown(B, X, Y);
             }
 
         private:

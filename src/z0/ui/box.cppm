@@ -6,9 +6,9 @@
 */
 module;
 
-export module z0.GBox;
+export module z0.ui.Box;
 
-import z0.GPanel;
+import z0.ui.Panel;
 
 export namespace z0 {
 
@@ -16,12 +16,12 @@ export namespace z0 {
         /**
          * %A rectangular box
          */
-        class GBox: public GPanel {
+        class Box: public Panel {
         public:
-            GBox(): GPanel {BOX} {}
+            Box(): Panel {BOX} {}
 
         protected:
-            explicit GBox(const Type T): GPanel{T} {}
+            explicit Box(const Type T): Panel{T} {}
         };
     }
 

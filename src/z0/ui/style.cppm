@@ -7,16 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GStyle;
+export module z0.ui.Style;
 
 import z0.Font;
 import z0.Object;
-import z0.Rect;
 
 import z0.VectorRenderer;
 
-import z0.GResource;
-import z0.GWidget;
+import z0.ui.Rect;
+import z0.ui.Resource;
+import z0.ui.Widget;
 
 namespace z0 {
 
@@ -24,24 +24,24 @@ namespace z0 {
         /**
          * Widget drawing base class
          */
-        export class GStyle : public Object {
+        export class Style : public Object {
         public:
 
-            GStyle();
+            Style();
 
-            ~GStyle() override = default;
+            ~Style() override = default;
 
             /* Create a new layout.
                   string	: layout name
                    nullptr on error (unknown layout)
             */
-            [[nodiscard]] static shared_ptr<GStyle> create(const string & = "vector");
+            [[nodiscard]] static shared_ptr<Style> create(const string & = "vector");
 
             /* Create a resource from a resource description string.
                   string : string that describe the resources of a widget
                    NEVER return nullptr
             */
-            virtual void addResource(GWidget &, const string &) = 0;
+            virtual void addResource(Widget &, const string &) = 0;
 
             /* Set a layout specific option
                     string	: option name
@@ -56,17 +56,17 @@ namespace z0 {
             [[nodiscard]] string getOption(const string &);
 
             /* Draw a widget.
-                  GWidget	: widget to draw
-                  GResource : resources used for drawing this widget
+                  Widget	: widget to draw
+                  Resource : resources used for drawing this widget
                   bool : TRUE = before drawing children, FALSE = after
             */
-            virtual void draw(const GWidget &, GResource &, VectorRenderer &, bool) const = 0;
+            virtual void draw(const Widget &, Resource &, VectorRenderer &, bool) const = 0;
 
             /* Resize a widget.
-                  GWidget	: widget to draw
-                  GResource : resources used for resizing this widget
+                  Widget	: widget to draw
+                  Resource : resources used for resizing this widget
             */
-            virtual void resize(GWidget &, Rect &, GResource &) = 0;
+            virtual void resize(Widget &, Rect &, Resource &) = 0;
 
             /* Return the default font for the layout.
                   Font	: font to use for the layout

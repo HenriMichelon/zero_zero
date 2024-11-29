@@ -7,26 +7,26 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GWindow;
+export module z0.ui.Window;
 
 import z0.Constants;
 import z0.Font;
 import z0.Object;
-import z0.Rect;
 
-import z0.GStyle;
-import z0.GWidget;
+import z0.ui.Rect;
+import z0.ui.Style;
+import z0.ui.Widget;
 
 export namespace z0 {
 
     namespace ui {
         /**
-         * %A UI window displayed inside the rendering window
+         * %A UI Window displayed inside the rendering Window
          */
-        class GWindow : public Object {
+        class Window : public Object {
         public:
             /**
-             * Which GWindow borders can be used to resize the window
+             * Which Window borders can be used to resize the Window
              */
             enum ResizeableBorder {
                 RESIZEABLE_NONE   = 0b0000,
@@ -37,37 +37,37 @@ export namespace z0 {
             };
 
             /**
-             * Creates a window with a given position & size
+             * Creates a Window with a given position & size
              */
-            explicit GWindow(Rect rect);
+            explicit Window(Rect rect);
 
             /**
-             * Sets the borders that can be used to resize the window
+             * Sets the borders that can be used to resize the Window
              */
             void setResizeableBorders(uint32_t borders) { resizeableBorders = borders; }
 
             /**
-             * Returns the borders that can be used to resize the window
+             * Returns the borders that can be used to resize the Window
              */
             [[nodiscard]] uint32_t getResizeableBorders() const { return resizeableBorders; }
 
             /** Returns the current style layout or nullptr */
-            shared_ptr<GStyle> getStyle() const;
+            shared_ptr<Style> getStyle() const;
 
             /** Sets the current style layout. If nullptr, install a default layout */
-            void setStyle(shared_ptr<GStyle>);
+            void setStyle(shared_ptr<Style>);
 
             /** Returns the main widget .
-                This is the widget that covers the entire window and is the parent
-                of all the widgets in the window. */
-            [[nodiscard]] GWidget &getWidget() const;
+                This is the widget that covers the entire Window and is the parent
+                of all the widgets in the Window. */
+            [[nodiscard]] Widget &getWidget() const;
 
             /** Sets the main widget with optional resource string.
                 Call SetLayout(nullptr) if no layout have been set previously */
-            GWidget &setWidget(shared_ptr<GWidget>  = nullptr, const string & = "", float = 0);
+            Widget &setWidget(shared_ptr<Widget>  = nullptr, const string & = "", float = 0);
 
             /** Changes the focus */
-            void setFocusedWidget(const shared_ptr<GWidget> &);
+            void setFocusedWidget(const shared_ptr<Widget> &);
 
             /** Returns the width of the client area */
             [[nodiscard]] float getWidth() const { return rect.width; };
@@ -84,49 +84,49 @@ export namespace z0 {
             /** Sets the height of the client area */
             void setHeight(float h);
 
-            /** Sets the position of the window, bottom-left */
+            /** Sets the position of the Window, bottom-left */
             void setPos(float x, float y);
 
-            /** Sets the position of the window, bottom-left */
+            /** Sets the position of the Window, bottom-left */
             void setPos(vec2 pos);
 
-            /** Sets the X position of the window, bottom-left */
+            /** Sets the X position of the Window, bottom-left */
             void setX(float);
 
-            /** Sets the Y position of the window, bottom-left */
+            /** Sets the Y position of the Window, bottom-left */
             void setY(float);
 
             /** Returns the size & position of the widget */
             [[nodiscard]] const Rect &getRect() const { return rect; };
 
-            /** Returns true if window is currently visible */
+            /** Returns true if Window is currently visible */
             [[nodiscard]] inline bool isVisible() const { return visible; }
 
-            /** Sets the window visibility. The change will be effective at the start of the next frame */
+            /** Sets the Window visibility. The change will be effective at the start of the next frame */
             void setVisible(bool);
 
-            /** Hides the window. The change will be effective at the start of the next frame : it needs to be called before adding the window to the manager if you want the window to be hidden at startup */
+            /** Hides the Window. The change will be effective at the start of the next frame : it needs to be called before adding the Window to the manager if you want the Window to be hidden at startup */
             void hide();
 
-            /** Shows the window. The change will be effective at the start of the next frame */
+            /** Shows the Window. The change will be effective at the start of the next frame */
             void show();
 
             /** Sets the alpha value for transparency */
             void setTransparency(float);
 
-            /** Event called after window creation (by the window manager) */
+            /** Event called after Window creation (by the Window manager) */
             virtual void onCreate() {
             }
 
-            /** Event called after window destruction (by the window manager) */
+            /** Event called after Window destruction (by the Window manager) */
             virtual void onDestroy() {
             }
 
-            /** Event called when (before) the window manager need to show the window */
+            /** Event called when (before) the Window manager need to show the Window */
             virtual void onShow() {
             }
 
-            /** Event called when (after) the window manager need to hide the window */
+            /** Event called when (after) the Window manager need to hide the Window */
             virtual void onHide() {
             }
 
@@ -144,50 +144,50 @@ export namespace z0 {
             /** Event called when a key was released */
             virtual bool onKeyUp(Key) { return false; }
 
-            /** Event called when a mouse button was pressed inside the window */
+            /** Event called when a mouse button was pressed inside the Window */
             virtual bool onMouseDown(MouseButton button, float x, float y) { return false; }
 
-            /** Event called when a mouse button was released inside the window */
+            /** Event called when a mouse button was released inside the Window */
             virtual bool onMouseUp(MouseButton button, float x, float y) { return false; }
 
-            /** Event called when mouse is moved above the window client area */
+            /** Event called when mouse is moved above the Window client area */
             virtual bool onMouseMove(uint32_t buttonsState, float x, float y) { return false; }
 
-            /** Event called when the window got the keyboard focus */
+            /** Event called when the Window got the keyboard focus */
             virtual void onGotFocus() {
             }
 
-            /** Event called when the window lost the keyboard focus */
+            /** Event called when the Window lost the keyboard focus */
             virtual void onLostFocus() {
             }
 
             /**
-             * Sets the minimum size of the window (default to {2.0f, 2.0f})
+             * Sets the minimum size of the Window (default to {2.0f, 2.0f})
              */
             void setMinimumSize(float width, float height);
 
             /**
-             * Sets the maximum size of the window (default to VECTOR_SCALE)
+             * Sets the maximum size of the Window (default to VECTOR_SCALE)
              */
             void setMaximumSize(float width, float height);
 
             /**
-             * Returns the minimum width of the window
+             * Returns the minimum width of the Window
              */
             [[nodiscard]] inline float getMinimumWidth() const { return minWidth; }
 
             /**
-             * Returns the minimum height of the window
+             * Returns the minimum height of the Window
              */
             [[nodiscard]] inline float getMinimumHeight() const { return minHeight; }
 
             /**
-             * Returns the maximum width of the window
+             * Returns the maximum width of the Window
              */
             [[nodiscard]] inline float getMaximumWidth() const { return maxWidth; }
 
             /**
-             * Returns the maximum height of the window
+             * Returns the maximum height of the Window
              */
             [[nodiscard]] inline float getMaximumHeight() const { return maxHeight; }
 
@@ -237,13 +237,13 @@ export namespace z0 {
             float               minHeight{2.0f};
             float               maxWidth{VECTOR_SCALE.x};
             float               maxHeight{VECTOR_SCALE.y};
-            shared_ptr<GStyle>  layout{nullptr};
-            shared_ptr<GWidget> widget{nullptr};
-            GWidget *           focusedWidget{nullptr};
+            shared_ptr<Style>  layout{nullptr};
+            shared_ptr<Widget> widget{nullptr};
+            Widget *           focusedWidget{nullptr};
             float               transparency{1.0};
             uint32_t            resizeableBorders{RESIZEABLE_NONE};
 
-            void unFreeze(shared_ptr<GWidget> &);
+            void unFreeze(shared_ptr<Widget> &);
 
         };
     }

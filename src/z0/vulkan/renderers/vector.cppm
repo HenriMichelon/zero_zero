@@ -16,7 +16,7 @@ export module z0.VectorRenderer;
 import z0.Constants;
 import z0.Font;
 import z0.Image;
-import z0.Rect;
+import z0.ui.Rect;
 import z0.Resource;
 
 import z0.Buffer;

@@ -46,7 +46,7 @@ namespace z0 {
         return state;
     }
 
-    // Rendering window proc
+    // Rendering Window proc
     LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static float lastMouseX = -1.0f;
         static float lastMouseY = -1.0f;
@@ -59,7 +59,7 @@ namespace z0 {
                 return 0;
             case WM_SIZE: {
                 if (!IsIconic(hwnd)) {
-                    // Get window content size
+                    // Get Window content size
                     RECT rect = {};
                     GetClientRect(hwnd, &rect);
                     window->_setSize(rect.right - rect.left, rect.bottom - rect.top);
@@ -555,7 +555,7 @@ namespace z0 {
             item.append(msg);
             if (static_cast<int>(logMode) & static_cast<int>(LOGGING_MODE_WINDOW)) {
                 // Store the log message in the deferred log queue if we log from another thread
-                // because the log window proc run on the main thread
+                // because the log Window proc run on the main thread
                 if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
                     SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(item.c_str()));
                     const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);

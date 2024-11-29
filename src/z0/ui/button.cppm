@@ -6,20 +6,21 @@
 */
 module;
 
-export module z0.GButton;
+export module z0.ui.Button;
 
 import z0.Constants;
-import z0.GBox;
-import z0.GEvent;
+
+import z0.ui.Box;
+import z0.ui.Event;
 
 export namespace z0 {
     namespace ui {
         /**
-         * %A clickable GBox
+         * %A clickable Box
          */
-        class GButton : public GBox {
+        class Button : public Box {
         public:
-            GButton(): GBox{BUTTON} {
+            Button(): Box{BUTTON} {
                 moveChildrenOnPush = true;
                 redrawOnMouseEvent = true;
                 allowFocus = true;
@@ -31,12 +32,12 @@ export namespace z0 {
                 if (p && (!getRect().contains(X, Y))) {
                     setPushed(false);
                     resizeChildren();
-                    return GBox::eventMouseUp(B, X, Y);
+                    return Box::eventMouseUp(B, X, Y);
                 }
-                const bool consumed = GBox::eventMouseUp(B, X, Y);
+                const bool consumed = Box::eventMouseUp(B, X, Y);
                 if ((!consumed) && p) {
                     auto event = GEventClick{};
-                    emit(GEvent::OnClick, &event);
+                    emit(Event::OnClick, &event);
                     return event.consumed;
                 }
                 return consumed;

@@ -7,15 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GStyleClassicResource;
+export module z0.ui.StyleClassicResource;
 
 import z0.Tools;
-import z0.GResource;
+
+import z0.ui.Resource;
 
 export namespace z0 {
 
     namespace ui {
-        class GStyleClassicResource : public GResource {
+        class StyleClassicResource : public Resource {
         public:
             enum Style {
                 FLAT,
@@ -28,8 +29,8 @@ export namespace z0 {
             float height{0};
             bool flat{false};
 
-            explicit GStyleClassicResource(const string& RES):
-                GResource(RES) {
+            explicit StyleClassicResource(const string& RES):
+                Resource(RES) {
                 splitResString(RES);
             }
 

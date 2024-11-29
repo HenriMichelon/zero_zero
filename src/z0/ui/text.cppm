@@ -7,11 +7,12 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GText;
+export module z0.ui.Text;
 
-import z0.Rect;
 import z0.Application;
-import z0.GWidget;
+
+import z0.ui.Rect;
+import z0.ui.Widget;
 
 export namespace z0 {
 
@@ -19,9 +20,9 @@ export namespace z0 {
         /**
          * %A widget to display a line of text
          */
-        class GText : public GWidget {
+        class Text : public Widget {
         public:
-            explicit GText(string C): GWidget(TEXT), text(std::move(C)) {
+            explicit Text(string C): Widget(TEXT), text(std::move(C)) {
                 allowChildren = false;
                 drawBackground = false;
             }
@@ -66,7 +67,7 @@ export namespace z0 {
                     setSize(w, h);
                 }
                 else {
-                    GWidget::setSize(width, height);
+                    Widget::setSize(width, height);
                 }
             }
 
@@ -77,7 +78,7 @@ export namespace z0 {
                     getSize(w, h);
                     setSize(w, h);
                 }
-                return GWidget::_getDefaultRect();
+                return Widget::_getDefaultRect();
             }
 
         private:
@@ -87,7 +88,7 @@ export namespace z0 {
             /* void computeSize();*/
             void eventCreate() override {
                 getSize(rect.width, rect.height);
-                GWidget::eventCreate();
+                Widget::eventCreate();
             }
         };
     }

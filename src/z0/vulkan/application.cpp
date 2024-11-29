@@ -18,7 +18,7 @@ import z0.Material;
 import z0.Node;
 import z0.Tools;
 
-import z0.GManager;
+import z0.ui.Manager;
 
 import z0.Instance;
 import z0.Device;
@@ -93,7 +93,7 @@ namespace z0 {
         }
         device->registerRenderer(sceneRenderer);
 
-        windowManager = make_unique<ui::GManager>(vectorRenderer,
+        windowManager = make_unique<ui::Manager>(vectorRenderer,
                                               applicationConfig.defaultFontName,
                                               applicationConfig.defaultFontSize);
     }

@@ -126,27 +126,27 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
-		${Z0_ENGINE_DIR}/gui/gresource.cppm
-		${Z0_ENGINE_DIR}/gui/gstyle.cppm
-		${Z0_ENGINE_DIR}/gui/gstyle_classic.cppm
-		${Z0_ENGINE_DIR}/gui/gstyle_classic_resource.cppm
-		${Z0_ENGINE_DIR}/gui/gwidget.cppm
-		${Z0_ENGINE_DIR}/gui/gpanel.cppm
-		${Z0_ENGINE_DIR}/gui/gline.cppm
-		${Z0_ENGINE_DIR}/gui/gbox.cppm
-		${Z0_ENGINE_DIR}/gui/gbutton.cppm
-		${Z0_ENGINE_DIR}/gui/gcheck_widget.cppm
-		${Z0_ENGINE_DIR}/gui/gevent.cppm
-		${Z0_ENGINE_DIR}/gui/gframe.cppm
-		${Z0_ENGINE_DIR}/gui/gvalue_select.cppm
-		${Z0_ENGINE_DIR}/gui/gtext.cppm
-		${Z0_ENGINE_DIR}/gui/gtext_edit.cppm
-		${Z0_ENGINE_DIR}/gui/gtoggle_button.cppm
-		${Z0_ENGINE_DIR}/gui/gscroll_bar.cppm
-		${Z0_ENGINE_DIR}/gui/gtree_view.cppm
-		${Z0_ENGINE_DIR}/gui/gwindow.cppm
-		${Z0_ENGINE_DIR}/gui/gmanager.cppm
-		${Z0_ENGINE_DIR}/gui/rect.cppm
+		${Z0_ENGINE_DIR}/ui/resource.cppm
+		${Z0_ENGINE_DIR}/ui/style.cppm
+		${Z0_ENGINE_DIR}/ui/style_classic.cppm
+		${Z0_ENGINE_DIR}/ui/style_classic_resource.cppm
+		${Z0_ENGINE_DIR}/ui/widget.cppm
+		${Z0_ENGINE_DIR}/ui/panel.cppm
+		${Z0_ENGINE_DIR}/ui/line.cppm
+		${Z0_ENGINE_DIR}/ui/box.cppm
+		${Z0_ENGINE_DIR}/ui/button.cppm
+		${Z0_ENGINE_DIR}/ui/check_widget.cppm
+		${Z0_ENGINE_DIR}/ui/event.cppm
+		${Z0_ENGINE_DIR}/ui/frame.cppm
+		${Z0_ENGINE_DIR}/ui/value_select.cppm
+		${Z0_ENGINE_DIR}/ui/text.cppm
+		${Z0_ENGINE_DIR}/ui/text_edit.cppm
+		${Z0_ENGINE_DIR}/ui/toggle_button.cppm
+		${Z0_ENGINE_DIR}/ui/scroll_bar.cppm
+		${Z0_ENGINE_DIR}/ui/tree_view.cppm
+		${Z0_ENGINE_DIR}/ui/window.cppm
+		${Z0_ENGINE_DIR}/ui/manager.cppm
+		${Z0_ENGINE_DIR}/ui/rect.cppm
 )
 
 # engine sources
@@ -233,10 +233,10 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cpp
 
-		${Z0_ENGINE_DIR}/gui/gmanager.cpp
-		${Z0_ENGINE_DIR}/gui/gstyle.cpp
-		${Z0_ENGINE_DIR}/gui/gwidget.cpp
-		${Z0_ENGINE_DIR}/gui/gwindow.cpp
+		${Z0_ENGINE_DIR}/ui/manager.cpp
+		${Z0_ENGINE_DIR}/ui/style.cpp
+		${Z0_ENGINE_DIR}/ui/widget.cpp
+		${Z0_ENGINE_DIR}/ui/window.cpp
 )
 target_sources(${Z0_TARGET}
 	PUBLIC

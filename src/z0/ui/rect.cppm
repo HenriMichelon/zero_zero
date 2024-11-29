@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Rect;
+export module z0.ui.Rect;
 
 export namespace z0 {
 
@@ -26,13 +26,13 @@ export namespace z0 {
             float height{0.0f};
 
             /*! Returns true if the given point is inside the rect */
-            bool contains(const float X, const float Y) const {
+            inline bool contains(const float X, const float Y) const {
                 return ((X >= x) && (X < (x + width)) &&
                         (Y >= y) && (Y < (y + height)));
             }
 
             /*! Returns true if the given rect is inside the rect */
-            bool contains(const Rect& R) const {
+            inline bool contains(const Rect& R) const {
                 return ((R.x >= x) && (R.y >= y) &&
                         ((R.x + R.width) <= (x + width)) &&
                         ((R.y + R.height) <= (y + height)));

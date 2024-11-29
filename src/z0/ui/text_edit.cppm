@@ -7,27 +7,28 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GTextEdit;
+export module z0.ui.TextEdit;
 
 import z0.Tools;
 import z0.Constants;
-import z0.GWidget;
-import z0.GBox;
-import z0.GText;
-import z0.GEvent;
+
+import z0.ui.Box;
+import z0.ui.Event;
+import z0.ui.Text;
+import z0.ui.Widget;
 
 export namespace z0 {
 
     namespace ui {
-        class GTextEdit : public GWidget {
+        class TextEdit : public Widget {
         public:
-            explicit GTextEdit(const string& TXT = ""): GWidget(TEXTEDIT),
+            explicit TextEdit(const string& TXT = ""): Widget(TEXTEDIT),
                                         selStart(0), selLen(0), startPos(0), nDispChar(0) {
                 allowFocus = true;
                 text = TXT;
             }
 
-            ~GTextEdit() override = default;
+            ~TextEdit() override = default;
 
             bool isReadOnly() const {
                 return readonly;
@@ -51,7 +52,7 @@ export namespace z0 {
                 refresh();
                 auto event = GEventTextChange{.text = text};
                 event.source = this;
-                emit(GEvent::OnTextChange, &event);
+                emit(Event::OnTextChange, &event);
             }
 
             void setSelStart(uint32_t S) {
@@ -71,8 +72,8 @@ export namespace z0 {
             }
 
             void setResources(const string& BRES) {
-                add(box, GWidget::FILL, BRES);
-                box->add(gtext, GWidget::HCENTER);
+                add(box, Widget::FILL, BRES);
+                box->add(gtext, Widget::HCENTER);
                 selStart = 0;
                 startPos = 0;
                 computeNDispChar();
@@ -85,11 +86,11 @@ export namespace z0 {
             uint32_t selLen;
             uint32_t startPos;
             uint32_t nDispChar;
-            shared_ptr<GBox> box;
-            shared_ptr<GText> gtext;
+            shared_ptr<Box> box;
+            shared_ptr<Text> gtext;
 
             bool eventKeybDown(Key K) override {
-                const auto consumed = GWidget::eventKeybDown(K);
+                const auto consumed = Widget::eventKeybDown(K);
                 if (isReadOnly()) { return K; }
 
                 setFreezed(true);

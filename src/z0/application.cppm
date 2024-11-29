@@ -24,8 +24,8 @@ import z0.Physics;
 import z0.Window;
 import z0.Node;
 
-import z0.GWindow;
-import z0.GManager;
+import z0.ui.Manager;
+import z0.ui.Window;
 
 namespace z0 {
 
@@ -44,19 +44,19 @@ namespace z0 {
         }
 
         /**
-         * Adds a GUI window to the window manager for display
+         * Adds a GUI Window to the Window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void add(const shared_ptr<ui::GWindow> &window) const;
+        void add(const shared_ptr<ui::Window> &window) const;
 
         /**
-         * Removes the window from the window manager
+         * Removes the Window from the Window manager
          * @param window    The window to remove, must be added to the window manager before
          */
-        void remove(const shared_ptr<ui::GWindow> &window) const;
+        void remove(const shared_ptr<ui::Window> &window) const;
 
         /**
-         * Exits the application by closing the window (will wait for the current frame to be terminated)
+         * Exits the application by closing the Window (will wait for the current frame to be terminated)
          */
         void quit() const;
 
@@ -69,7 +69,7 @@ namespace z0 {
         }
 
         /**
-         * Returns the current display window
+         * Returns the current display Window
          * @return The main window
          */
         [[nodiscard]] const Window &getWindow() const {
@@ -134,9 +134,9 @@ namespace z0 {
         virtual void setShadowCasting(bool) const = 0;
 
         /**
-         * Returns the global window manager
+         * Returns the global Window manager
          */
-        ui::GManager &getWindowManager() const { return *windowManager; }
+        ui::Manager &getWindowManager() const { return *windowManager; }
 
         /**
          * Return the vector renderer size ratio
@@ -144,7 +144,7 @@ namespace z0 {
         const vec2 &getVectorRatio() const { return vectorRatio; }
 
         /**
-         * Returns the rendering window aspect ratio
+         * Returns the rendering Window aspect ratio
          */
         [[nodiscard]] virtual float getAspectRatio() const = 0;
 
@@ -235,10 +235,10 @@ namespace z0 {
     protected:
         // The global startup configuration parameters
         const ApplicationConfig &applicationConfig;
-        // The global display window
+        // The global display Window
         unique_ptr<Window> window;
         // The global UI Window manager
-        unique_ptr<ui::GManager> windowManager;
+        unique_ptr<ui::Manager> windowManager;
         // The current scene
         shared_ptr<Node> rootNode;
         // Mesh outlining materials

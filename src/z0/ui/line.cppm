@@ -6,9 +6,9 @@
 */
 module;
 
-export module z0.GLine;
+export module z0.ui.Line;
 
-import z0.GWidget;
+import z0.ui.Widget;
 
 export namespace z0 {
 
@@ -16,18 +16,18 @@ export namespace z0 {
         /**
          * %A horizontal or vertical line
          */
-        class GLine : public GWidget {
+        class Line : public Widget {
         public:
             enum LineStyle {
                 HORIZ,
                 VERT
             };
 
-            explicit GLine(const LineStyle K = HORIZ): GWidget{LINE}, style{K} {
+            explicit Line(const LineStyle K = HORIZ): Widget{LINE}, style{K} {
                 allowChildren = false;
             }
 
-            [[nodiscard]] LineStyle getStyle() const { return style; };
+            [[nodiscard]] LineStyle getStyle() const { return style; }
 
             void setStyle(const LineStyle K) {
                 if (style != K) {
@@ -41,15 +41,15 @@ export namespace z0 {
             LineStyle style;
         };
 
-        class GHLine : public GLine {
+        class HLine : public Line {
         public:
-            GHLine(): GLine(HORIZ) {
+            HLine(): Line(HORIZ) {
             }
         };
 
-        class GVLine : public GLine {
+        class VLine : public Line {
         public:
-            GVLine(): GLine(VERT) {
+            VLine(): Line(VERT) {
             }
         };
     }

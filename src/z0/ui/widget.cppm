@@ -7,16 +7,16 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GWidget;
+export module z0.ui.Widget;
 
 import z0.Constants;
 import z0.Font;
 import z0.Object;
-import z0.Rect;
+
+import z0.ui.Rect;
+import z0.ui.Resource;
 
 import z0.VectorRenderer;
-
-import z0.GResource;
 
 namespace z0 {
 
@@ -24,7 +24,7 @@ namespace z0 {
         /**
          * Base class for all UI widgets
          */
-        export class GWidget : public Object {
+        export class Widget : public Object {
         public:
 
             //! Widget type
@@ -35,21 +35,21 @@ namespace z0 {
                 PANEL,
                 //! rectangular widget with a border and a background
                 BOX,
-                //! An horizontal or vertical line
+                //! %A horizontal or vertical line
                 LINE,
-                //! A box with a title
+                //! %A box with a title
                 FRAME,
-                //! A push button
+                //! %A push button
                 BUTTON,
-                //! A two states button
+                //! %A two states button
                 TOGGLEBUTTON,
-                //! A single line of text
+                //! %A single line of text
                 TEXT,
                 //! An editable single line of text
                 TEXTEDIT,
-                //! A scroll bar. with min, max & pos
+                //! %A scroll bar. with min, max & pos
                 SCROLLBAR,
-                //! Tree of GWidget
+                //! Tree of Widget
                 TREEVIEW,
             };
 
@@ -107,9 +107,9 @@ namespace z0 {
             };
 
             /** Creates a widget of a particular type */
-            explicit GWidget(Type = WIDGET);
+            explicit Widget(Type = WIDGET);
 
-            ~GWidget() override {};
+            ~Widget() override {};
 
             /** Returns the type of the widget */
             [[nodiscard]] Type getType() const;
@@ -169,7 +169,7 @@ namespace z0 {
             [[nodiscard]] bool isFocused() const;
 
             /** Returns the parent widget, or nullptr */
-            [[nodiscard]] shared_ptr<GWidget> getParent() const;
+            [[nodiscard]] shared_ptr<Widget> getParent() const;
 
             /** Adds a child widget.
                   Children widgets will be destroyed on parent destruction.
@@ -178,13 +178,13 @@ namespace z0 {
                     \param resource	: resource string
                     \param defaultPadding	: default padding
             */
-            virtual shared_ptr<GWidget> add(shared_ptr<GWidget> child,
+            virtual shared_ptr<Widget> add(shared_ptr<Widget> child,
                                             AlignmentType       alignment,
                                             const string & resource = "",
                                             float          defaultPadding= 0);
 
             /** Removes a child widget */
-            virtual void remove(shared_ptr<GWidget> &);
+            virtual void remove(shared_ptr<Widget> &);
 
             /** Removes all children widgets recusivly */
             virtual void removeAll();
@@ -227,7 +227,7 @@ namespace z0 {
             void refresh() const;
 
             /** Changes widget resources. Use with caution ! */
-            void setResource(shared_ptr<GResource>);
+            void setResource(shared_ptr<Resource>);
 
             /** Return the user defined group index */
             [[nodiscard]] uint32_t getGroupIndex() const;
@@ -253,10 +253,10 @@ namespace z0 {
 
             void _setMoveChildrenOnPush(const bool r) { moveChildrenOnPush = r; }
 
-            [[nodiscard]] virtual list<shared_ptr<GWidget>> &_getChildren() { return children; }
+            [[nodiscard]] virtual list<shared_ptr<Widget>> &_getChildren() { return children; }
 
             void _draw(VectorRenderer &) const;
-            GWidget *setFocus(bool = true);
+            Widget *setFocus(bool = true);
 
             virtual void eventCreate();
 
@@ -312,17 +312,17 @@ namespace z0 {
             bool                      redrawOnMouseEvent{false};
             bool                      redrawOnMouseMove{false};
             float                     transparency{1.0f};
-            GWidget *                 parent{nullptr};
+            Widget *                 parent{nullptr};
             Type                      type;
             AlignmentType             alignment{NONE};
-            shared_ptr<GResource>     resource;
-            list<shared_ptr<GWidget>> children;
+            shared_ptr<Resource>     resource;
+            list<shared_ptr<Widget>> children;
 
             void allowingFocus(bool = true);
 
             [[nodiscard]] inline virtual Rect _getDefaultRect() { return defaultRect; }
 
-            virtual void _init(GWidget &,
+            virtual void _init(Widget &,
                                AlignmentType,
                                const string &,
                                float);
@@ -338,7 +338,7 @@ namespace z0 {
             int32_t          groupIndex{0};
             Rect             childrenRect;
 
-            GWidget *setNextFocus();
+            Widget *setNextFocus();
 
 
         };

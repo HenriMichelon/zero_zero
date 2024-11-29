@@ -8,30 +8,30 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0.GWidget;
+module z0.ui.Widget;
 
 import z0.Application;
 import z0.Constants;
 import z0.Font;
-import z0.Rect;
 import z0.Tools;
 
-import z0.GEvent;
-import z0.GResource;
-import z0.GStyle;
-import z0.GWindow;
+import z0.ui.Event;
+import z0.ui.Rect;
+import z0.ui.Resource;
+import z0.ui.Style;
+import z0.ui.Window;
 
 import z0.VectorRenderer;
 
 namespace z0 {
 
     namespace ui {
-        GWidget::GWidget(Type T): type{T} {
+        Widget::Widget(Type T): type{T} {
         }
 
-        void GWidget::_draw(VectorRenderer& R) const {
+        void Widget::_draw(VectorRenderer& R) const {
             if (!isVisible()) { return; }
-            const auto* s = static_cast<GStyle *>(style);
+            const auto* s = static_cast<Style *>(style);
             s->draw(*this, *resource, R, true);
             for (auto& child : children) {
                 child->_draw(R);
@@ -39,15 +39,15 @@ namespace z0 {
             s->draw(*this, *resource, R, false);
         }
 
-        bool GWidget::isVisible() const {
+        bool Widget::isVisible() const {
             auto p = this;
             do {
                 if (!p->visible) { return false; }
             } while ((p = p->parent) != nullptr);
-            return (window && static_cast<GWindow*>(window)->isVisible());
+            return (window && static_cast<Window*>(window)->isVisible());
         }
 
-        void GWidget::show(bool S) {
+        void Widget::show(const bool S) {
             if (visible == S) return;
             visible = S;
             if (visible) {
@@ -57,7 +57,7 @@ namespace z0 {
             }
         }
 
-        void GWidget::enable(bool S) {
+        void Widget::enable(const bool S) {
             if (enabled == S) return;
             enabled = S;
             if (enabled) {
@@ -67,14 +67,14 @@ namespace z0 {
             }
         }
 
-        void GWidget::setPos(float x,
-                             float y) {
+        void Widget::setPos(const float x,
+                            const float y) {
             if ((x == rect.x) && (y == rect.y)) return;
             eventMove(x, y);
         }
 
-        void GWidget::setSize(float W,
-                              float H) {
+        void Widget::setSize(const float W,
+                             const float H) {
             if (parent) { parent->refresh(); }
             if ((W != 0) && (H != 0) && (rect.width == 0) && (rect.height == 0)) {
                 defaultRect = rect;
@@ -86,23 +86,23 @@ namespace z0 {
             eventResize();
         }
 
-        void GWidget::setResource(shared_ptr<GResource> R) {
+        void Widget::setResource(shared_ptr<Resource> R) {
             resource = std::move(R);
             refresh();
         }
 
-        GWidget* GWidget::setNextFocus() {
+        Widget* Widget::setNextFocus() {
             if (focused) {
                 setFocus(false);
             } else {
-                GWidget* r = setFocus();
+                Widget* r = setFocus();
                 if (r) return r;
             }
 
             if (!parent) return nullptr;
             /* uint32_t idx;
-             GWidget* p = parent;
-             GWidget* s = this;
+             Widget* p = parent;
+             Widget* s = this;
 
              auto it = children.begin();
              do {
@@ -117,7 +117,7 @@ namespace z0 {
             return nullptr;
         }
 
-        GWidget* GWidget::setFocus(bool F) {
+        Widget* Widget::setFocus(const bool F) {
             if (!enabled) return nullptr;
 
             if (F && (!allowFocus)) {
@@ -130,13 +130,13 @@ namespace z0 {
 
             if (focused != F) {
                 focused = F;
-                auto event = GEvent{.source = this};
+                auto event = Event{.source = this};
                 if (F) {
                     if (!freeze) { refresh(); }
-                    emit(GEvent::OnGotFocus, &event);
+                    emit(Event::OnGotFocus, &event);
                 } else {
-                    emit(GEvent::OnLostFocus, &event);
-                    /*shared_ptr<GWidget>p = parent;
+                    emit(Event::OnLostFocus, &event);
+                    /*shared_ptr<Widget>p = parent;
                     while (p && (!p->DrawBackground())) p = p->parent;
                     if (p) { p->Refresh(rect); }*/
                 }
@@ -144,36 +144,36 @@ namespace z0 {
             return this;
         }
 
-        void GWidget::allowingFocus(bool A) {
+        void Widget::allowingFocus(const bool A) {
             allowFocus = A;
             for (const auto& child : children) {
                 child->allowingFocus(false);
             }
         }
 
-        shared_ptr<Font>& GWidget::getFont() {
-            return (font == nullptr ? static_cast<GWindow*>(window)->getDefaultFont() : font);
+        shared_ptr<Font>& Widget::getFont() {
+            return (font == nullptr ? static_cast<Window*>(window)->getDefaultFont() : font);
         }
 
-        void GWidget::_init(GWidget& WND,
-                            AlignmentType ALIGN,
+        void Widget::_init(Widget& WND,
+                            const AlignmentType ALIGN,
                             const string& RES,
-                            float P) {
+                            const float P) {
             WND.padding = P;
             WND.alignment = ALIGN;
             if (!WND.font) { WND.font = font; }
             WND.window = window;
             WND.style = style;
             WND.parent = this;
-            static_cast<GStyle*>(style)->addResource(WND, RES);
+            static_cast<Style*>(style)->addResource(WND, RES);
             WND.eventCreate();
             WND.freeze = false;
-            if (static_cast<GWindow*>(window)->isVisible() && (resource != nullptr)) {
+            if (static_cast<Window*>(window)->isVisible() && (resource != nullptr)) {
                 resizeChildren();
             }
         }
 
-        void GWidget::remove(shared_ptr<GWidget>& W) {
+        void Widget::remove(shared_ptr<Widget>& W) {
             auto it = std::find(children.begin(), children.end(), W);
             if (it != children.end()) {
                 W->parent = nullptr;
@@ -186,7 +186,7 @@ namespace z0 {
             refresh();
         }
 
-        void GWidget::removeAll() {
+        void Widget::removeAll() {
             for (const auto& child : children) {
                 child->removeAll();
             }
@@ -194,35 +194,35 @@ namespace z0 {
             refresh();
         }
 
-        shared_ptr<GWidget> GWidget::add(shared_ptr<GWidget> WND,
+        shared_ptr<Widget> Widget::add(const shared_ptr<Widget> WND,
                                          const AlignmentType ALIGN,
                                          const string& RES,
                                          const float P) {
-            assert(window && "GWidget must be added to a window before adding child");
+            assert(window && "Widget must be added to a Window before adding child");
             if (!allowChildren) return WND;
             children.push_back(WND);
             _init(*WND, ALIGN, RES, P);
             return WND;
         }
 
-        void GWidget::eventCreate() {
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnCreate, &event);
+        void Widget::eventCreate() {
+            auto event = Event{.source = this};
+            emit(Event::OnCreate, &event);
         }
 
-        void GWidget::eventDestroy() {
+        void Widget::eventDestroy() {
             for (const auto& child : children) {
                 child->eventDestroy();
             }
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnDestroy, &event);
+            auto event = Event{.source = this};
+            emit(Event::OnDestroy, &event);
             children.clear();
         }
 
-        void GWidget::eventShow() {
+        void Widget::eventShow() {
             if (visible) {
-                auto event = GEvent{.source = this};
-                emit(GEvent::OnShow, &event);
+                auto event = Event{.source = this};
+                emit(Event::OnShow, &event);
                 for (const auto& child : children) {
                     child->eventShow();
                 }
@@ -230,36 +230,36 @@ namespace z0 {
             }
         }
 
-        void GWidget::eventHide() {
+        void Widget::eventHide() {
             if (!visible) {
                 for (const auto& child : children) {
                     child->eventHide();
                 }
                 if (parent) { parent->refresh(); }
-                auto event = GEvent{.source = this};
-                emit(GEvent::OnHide, &event);
+                auto event = Event{.source = this};
+                emit(Event::OnHide, &event);
             }
         }
 
-        void GWidget::eventEnable() {
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnEnable, &event);
+        void Widget::eventEnable() {
+            auto event = Event{.source = this};
+            emit(Event::OnEnable, &event);
             for (const auto& child : children) {
                 child->enable();
             }
             refresh();
         }
 
-        void GWidget::eventDisable() {
+        void Widget::eventDisable() {
             for (const auto& child : children) {
                 child->enable(false);
             }
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnDisable, &event);
+            auto event = Event{.source = this};
+            emit(Event::OnDisable, &event);
             refresh();
         }
 
-        void GWidget::eventMove(const float X,
+        void Widget::eventMove(const float X,
                                 const float Y) {
             const float diffX = rect.x - X;
             const float diffY = rect.y - Y;
@@ -272,7 +272,7 @@ namespace z0 {
             refresh();
         }
 
-        void GWidget::eventResize() {
+        void Widget::eventResize() {
             if (freeze) return;
             if (parent) {
                 parent->resizeChildren();
@@ -283,11 +283,11 @@ namespace z0 {
             freeze = false;
         }
 
-        void GWidget::resizeChildren() {
+        void Widget::resizeChildren() {
             if ((!style) || (freeze)) { return; }
             freeze = true;
             Rect r = getRect();
-            static_cast<GStyle*>(style)->resize(*this, r, *resource);
+            static_cast<Style*>(style)->resize(*this, r, *resource);
 
             Rect clientRect = rect;
             clientRect.x += hborder + padding;
@@ -470,33 +470,33 @@ namespace z0 {
             freeze = false;
         }
 
-        bool GWidget::eventKeybDown(const Key K) {
+        bool Widget::eventKeybDown(const Key K) {
             if (!enabled) { return false; }
             auto event = GEventKeyb{.key = K};
             event.source = this;
-            emit(GEvent::OnKeyDown, &event);
+            emit(Event::OnKeyDown, &event);
             return event.consumed;
         }
 
-        bool GWidget::eventKeybUp(const Key K) {
+        bool Widget::eventKeybUp(const Key K) {
             if (!enabled) { return false; }
             if (focused) {
                 auto event = GEventKeyb{.key = K};
                 event.source = this;
-                emit(GEvent::OnKeyUp, &event);
+                emit(Event::OnKeyUp, &event);
                 return event.consumed;
             }
             return false;
         }
 
-        bool GWidget::eventMouseDown(const MouseButton B,
+        bool Widget::eventMouseDown(const MouseButton B,
                                      const float X,
                                      const float Y) {
             if (!enabled) { return false; }
             auto consumed = false;
             pushed = true;
             if (redrawOnMouseEvent) resizeChildren();
-            GWidget* wfocus = nullptr;
+            Widget* wfocus = nullptr;
             for (auto& w : children) {
                 if (w->getRect().contains(X, Y)) {
                     consumed |= w->eventMouseDown(B, X, Y);
@@ -511,12 +511,12 @@ namespace z0 {
             if (redrawOnMouseEvent) { refresh(); }
             auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
             event.source = this;
-            emit(GEvent::OnMouseDown, &event);
+            emit(Event::OnMouseDown, &event);
             consumed |= event.consumed;
             return consumed;
         }
 
-        bool GWidget::eventMouseUp(const MouseButton B,
+        bool Widget::eventMouseUp(const MouseButton B,
                                    const float X,
                                    const float Y) {
             if (!enabled) { return false; }
@@ -533,12 +533,12 @@ namespace z0 {
             if (redrawOnMouseEvent) { refresh(); }
             auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
             event.source = this;
-            emit(GEvent::OnMouseUp, &event);
+            emit(Event::OnMouseUp, &event);
             consumed |= event.consumed;
             return consumed;
         }
 
-        bool GWidget::eventMouseMove(const uint32_t B,
+        bool Widget::eventMouseMove(const uint32_t B,
                                      const float X,
                                      const float Y) {
             if (!enabled) { return false; }
@@ -560,98 +560,98 @@ namespace z0 {
             if (redrawOnMouseMove && (pointed != p)) { refresh(); }
             auto event = GEventMouseMove{.buttonsState = B, .x = X, .y = Y};
             event.source = this;
-            emit(GEvent::OnMouseMove, &event);
+            emit(Event::OnMouseMove, &event);
             consumed |= event.consumed;
             return consumed;
         }
 
-        void GWidget::eventGotFocus() {
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnGotFocus, &event);
+        void Widget::eventGotFocus() {
+            auto event = Event{.source = this};
+            emit(Event::OnGotFocus, &event);
         }
 
-        void GWidget::eventLostFocus() {
-            auto event = GEvent{.source = this};
-            emit(GEvent::OnLostFocus, &event);
+        void Widget::eventLostFocus() {
+            auto event = Event{.source = this};
+            emit(Event::OnLostFocus, &event);
         }
 
-        void GWidget::setTransparency(const float alpha) {
+        void Widget::setTransparency(const float alpha) {
             transparency = alpha;
             refresh();
         }
 
-        void GWidget::setPadding(const float P) {
+        void Widget::setPadding(const float P) {
             padding = P;
             eventResize();
         }
 
-        void GWidget::setDrawBackground(const bool D) {
+        void Widget::setDrawBackground(const bool D) {
             drawBackground = D;
             refresh();
         }
 
-        void GWidget::setAlignment(const AlignmentType ALIGN) {
+        void Widget::setAlignment(const AlignmentType ALIGN) {
             alignment = ALIGN;
             eventResize();
         }
 
-        void GWidget::refresh() const {
+        void Widget::refresh() const {
             if ((!freeze) && (window)) {
-                static_cast<GWindow*>(window)->refresh();
+                static_cast<Window*>(window)->refresh();
             }
         }
 
-        void GWidget::setFont(const shared_ptr<Font>& F) {
+        void Widget::setFont(const shared_ptr<Font>& F) {
             font = F;
             resizeChildren();
             refresh();
         }
 
-        void GWidget::setGroupIndex(int32_t IDX) {
+        void Widget::setGroupIndex(const int32_t IDX) {
             groupIndex = IDX;
         }
 
-        void GWidget::setUserData(void* DATA) {
+        void Widget::setUserData(void* DATA) {
             userData = DATA;
         }
 
-        bool GWidget::isDrawBackground() const {
+        bool Widget::isDrawBackground() const {
             return drawBackground;
         }
 
-        Rect GWidget::getChildrenRect() const {
+        Rect Widget::getChildrenRect() const {
             return childrenRect;
         }
 
-        bool GWidget::isPointed() const {
+        bool Widget::isPointed() const {
             return pointed;
         }
 
-        GWidget::AlignmentType GWidget::getAlignment() const {
+        Widget::AlignmentType Widget::getAlignment() const {
             return alignment;
         }
 
-        GWidget::Type GWidget::getType() const {
+        Widget::Type Widget::getType() const {
             return type;
         }
 
-        shared_ptr<GWidget> GWidget::getParent() const {
-            return shared_ptr<GWidget>(parent);
+        shared_ptr<Widget> Widget::getParent() const {
+            return shared_ptr<Widget>(parent);
         }
 
-        bool GWidget::isEnabled() const {
+        bool Widget::isEnabled() const {
             return enabled;
         }
 
-        bool GWidget::isFocused() const {
+        bool Widget::isFocused() const {
             return focused;
         }
 
-        const Rect& GWidget::getRect() const {
+        const Rect& Widget::getRect() const {
             return rect;
         }
 
-        void GWidget::setRect(const float L,
+        void Widget::setRect(const float L,
                               const float T,
                               const float W,
                               const float H) {
@@ -659,51 +659,51 @@ namespace z0 {
             setSize(W, H);
         }
 
-        void GWidget::setRect(const Rect& R) {
+        void Widget::setRect(const Rect& R) {
             setRect(R.x, R.y, R.width, R.height);
         }
 
-        bool GWidget::isPushed() const {
+        bool Widget::isPushed() const {
             return pushed;
         }
 
-        bool GWidget::isFreezed() const {
+        bool Widget::isFreezed() const {
             return freeze;
         }
 
-        bool GWidget::isRedrawOnMouseEvent() const {
+        bool Widget::isRedrawOnMouseEvent() const {
             return redrawOnMouseEvent;
         }
 
-        float GWidget::getPadding() const {
+        float Widget::getPadding() const {
             return padding;
         }
 
-        float GWidget::getVBorder() const {
+        float Widget::getVBorder() const {
             return vborder;
         }
 
-        float GWidget::getHBorder() const {
+        float Widget::getHBorder() const {
             return hborder;
         }
 
-        void GWidget::setVBorder(const float B) {
+        void Widget::setVBorder(const float B) {
             vborder = B;
             if (!freeze) { resizeChildren(); }
             refresh();
         }
 
-        void GWidget::setHBorder(const float B) {
+        void Widget::setHBorder(const float B) {
             hborder = B;
             if (!freeze) { resizeChildren(); }
             refresh();
         }
 
-        uint32_t GWidget::getGroupIndex() const {
+        uint32_t Widget::getGroupIndex() const {
             return groupIndex;
         }
 
-        void* GWidget::getUserData() const {
+        void* Widget::getUserData() const {
             return userData;
         }
     }

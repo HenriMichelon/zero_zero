@@ -7,29 +7,29 @@
 module;
 #include <cassert>
 
-export module z0.GValueSelect;
+export module z0.ui.ValueSelect;
 
-import z0.GWidget;
-import z0.GEvent;
+import z0.ui.Event;
+import z0.ui.Widget;
 
 export namespace z0 {
 
     namespace ui {
-        class GValueSelect : public GWidget {
+        class ValueSelect : public Widget {
         public:
-            GValueSelect(const Type T,
+            ValueSelect(const Type T,
                          const float MIN,
                          const float MAX,
                          const float VAL,
                          const float STEP):
-                GWidget{T},
+                Widget{T},
                 min{MIN},
                 max{MAX},
                 value{VAL},
                 step{STEP} {
             }
 
-            ~GValueSelect() override = default;
+            ~ValueSelect() override = default;
 
             float getMin() const { return min; }
             float getMax() const { return max; }
@@ -45,7 +45,7 @@ export namespace z0 {
                 eventRangeChange();
                 refresh();
                 auto event = GEventRange{.min = min, .max = max, .value = value};
-                emit(GEvent::OnRangeChange, &event);
+                emit(Event::OnRangeChange, &event);
             }
 
             virtual void setMax(const float V) {
@@ -56,7 +56,7 @@ export namespace z0 {
                 resizeChildren();
                 eventRangeChange();
                 auto event = GEventRange{.min = min, .max = max, .value = value};
-                emit(GEvent::OnRangeChange, &event);
+                emit(Event::OnRangeChange, &event);
             }
 
             virtual void setValue(const float V) {
@@ -73,11 +73,11 @@ export namespace z0 {
                 refresh();
                 if (parent) parent->refresh();
                 auto event = GEventValue{.value = value, .previous = prev};
-                emit(GEvent::OnValueChange, &event);
+                emit(Event::OnValueChange, &event);
             }
 
             virtual void setStep(const float V) {
-                assert(V != 0 && "GValueSelect: can't use a step of 0");
+                assert(V != 0 && "ValueSelect: can't use a step of 0");
                 if (step == V) return;
                 step = V;
                 eventRangeChange();
@@ -91,18 +91,18 @@ export namespace z0 {
             float step;
 
             void eventResize() override {
-                GWidget::eventResize();
+                Widget::eventResize();
                 eventRangeChange();
             }
 
             virtual void eventRangeChange() {
                 auto event = GEventRange{.min = min, .max = max, .value = value};
-                emit(GEvent::OnRangeChange, &event);
+                emit(Event::OnRangeChange, &event);
             }
 
             virtual void eventValueChange(const float prev) {
                 auto event = GEventValue{.value = value, .previous = prev};
-                emit(GEvent::OnValueChange, &event);
+                emit(Event::OnValueChange, &event);
             }
         };
     }

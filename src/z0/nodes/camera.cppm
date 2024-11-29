@@ -58,7 +58,7 @@ export namespace z0 {
         [[nodiscard]] inline const mat4 &getView() const { return viewMatrix; }
 
         /**
-         * Returns the 2D coordinates in the rendering window that maps to the given 3D point in world space.
+         * Returns the 2D coordinates in the rendering Window that maps to the given 3D point in world space.
          */
         [[nodiscard]] vec2 unproject(vec3 worldCoords);
 

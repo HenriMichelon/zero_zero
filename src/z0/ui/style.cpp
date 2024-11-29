@@ -7,21 +7,21 @@
 module;
 #include "z0/libraries.h"
 
-module z0.GStyle;
+module z0.ui.Style;
 
-import z0.GStyleClassic;
+import z0.ui.StyleClassic;
 
 namespace z0 {
 
     namespace ui {
-        GStyle::GStyle() {
+        Style::Style() {
             font = nullptr;
         }
 
-        shared_ptr<GStyle> GStyle::create(const string&NAME) {
-            shared_ptr<GStyle> tmp;
+        shared_ptr<Style> Style::create(const string&NAME) {
+            shared_ptr<Style> tmp;
             if (NAME == "vector") {
-                tmp = make_shared<GStyleClassic>();
+                tmp = make_shared<StyleClassic>();
             }
             /*else if (NAME == "pixmap") {
                 tmp = (GLayout*) new GLayoutPixmap;
@@ -34,7 +34,7 @@ namespace z0 {
             return tmp;
         }
 
-        void GStyle :: setOption(const string&NAME, const string&VAL) {
+        void Style :: setOption(const string&NAME, const string&VAL) {
             shared_ptr<GLayoutOption> option;
             for(const auto& opt: options) {
                 if (opt->name == NAME) {
@@ -50,7 +50,7 @@ namespace z0 {
             updateOptions();
         }
 
-        string GStyle :: getOption(const string&NAME) {
+        string Style :: getOption(const string&NAME) {
             shared_ptr<GLayoutOption> option;
             for(const auto& opt: options) {
                 if (opt->name == NAME) {

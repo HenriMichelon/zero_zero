@@ -21,7 +21,7 @@ export namespace z0 {
     constexpr auto ENGINE_NAME{"ZeroZero"};
 
     /**
-     * Default background color for the display window
+     * Default background color for the display Window
      */
     constexpr vec3 WINDOW_CLEAR_COLOR{0, 0, 0};
 
@@ -122,16 +122,16 @@ export namespace z0 {
     };
 
     /**
-     * Rendering window mode
+     * Rendering Window mode
      */
     enum class WindowMode : std::uint8_t {
-        //! A window with a border and a title that can be minimized
+        //! A Window with a border and a title that can be minimized
         WINDOWED = 0,
-        //! A maximized window with a border and a title that can be minimized
+        //! A maximized Window with a border and a title that can be minimized
         WINDOWED_MAXIMIZED = 1,
-        //! A maximized window without a border and without a title
+        //! A maximized Window without a border and without a title
         WINDOWED_FULLSCREEN = 2,
-        //! A full screen window. The screen resolution will be changed
+        //! A full screen Window. The screen resolution will be changed
         FULLSCREEN = 3,
     };
 
@@ -142,8 +142,8 @@ export namespace z0 {
         //! Disable logging
         LOGGING_MODE_NONE = 0,
         /**
-        * Open an external window (on the first screen if you have multiple screen) to display the log messages.
-        * Log message appearance in the window can be deferred to the next frame if the log message is sent from a thread different from the main thread
+        * Open an external Window (on the first screen if you have multiple screen) to display the log messages.
+        * Log message appearance in the Window can be deferred to the next frame if the log message is sent from a thread different from the main thread
         */
         LOGGING_MODE_WINDOW = 0x001,
         /**
@@ -670,11 +670,11 @@ export namespace z0 {
     enum class MouseMode : std::uint8_t {
         //! Makes the mouse cursor visible
         VISIBLE = 0,
-        //! Confines the mouse cursor to the game window, and make it visible
+        //! Confines the mouse cursor to the game Window, and make it visible
         VISIBLE_CAPTURED = 1,
         //! Makes the mouse cursor hidden
         HIDDEN = 2,
-        //! Confines the mouse cursor to the game window, and make it hidden.
+        //! Confines the mouse cursor to the game Window, and make it hidden.
         HIDDEN_CAPTURED = 3,
     };
 

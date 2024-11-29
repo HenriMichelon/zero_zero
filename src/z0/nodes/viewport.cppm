@@ -15,7 +15,7 @@ export namespace z0 {
 
     /**
      * Node that define the scene renderer viewport position & size<br>
-     * If no Viewport is defined in the scene the whole rendering window surface is used
+     * If no Viewport is defined in the scene the whole rendering Window surface is used
      */
     class Viewport : public Node {
     public:

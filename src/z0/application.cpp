@@ -44,7 +44,7 @@ import z0.TypeRegistry;
 import z0.Viewport;
 import z0.Window;
 
-import z0.GManager;
+import z0.ui.Manager;
 
 namespace z0 {
 
@@ -56,7 +56,7 @@ namespace z0 {
         assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
-        // The rendering window
+        // The rendering Window
         if (node != nullptr) { window = make_unique<Window>(applicationConfig); };
     }
 
@@ -189,12 +189,12 @@ namespace z0 {
         stopped = false;
     }
 
-    void Application::add(const shared_ptr<ui::GWindow> &window) const {
+    void Application::add(const shared_ptr<ui::Window> &window) const {
         assert(window != nullptr);
         _instance->windowManager->add(window);
     }
 
-    void Application::remove(const shared_ptr<ui::GWindow> &window) const {
+    void Application::remove(const shared_ptr<ui::Window> &window) const {
         assert(window != nullptr);
         _instance->windowManager->remove(window);
     }

@@ -20,22 +20,22 @@ import z0.Object;
 namespace z0 {
 
     /**
-    * Rendering target window, one per application
+    * Rendering target Window, one per application
    */
     export class Window: public Object {
     public:
         /**
-         * Returns the width of the client area of the window, in pixels
+         * Returns the width of the client area of the Window, in pixels
          */
         [[nodiscard]] uint32_t getWidth() const { return width; }
 
         /**
-         * Returns the height of the client area of the window, in pixels
+         * Returns the height of the client area of the Window, in pixels
          */
         [[nodiscard]] uint32_t getHeight() const { return height; }
 
         /**
-         * Closes the window, effectively quitting the application, at the end of the current frame
+         * Closes the Window, effectively quitting the application, at the end of the current frame
          */
         void close() { closing = true; }
 
@@ -51,7 +51,7 @@ namespace z0 {
         uint32_t width;
         // height of the client area
         uint32_t height;
-        // If true close the window and quit the application at the end of the current frame
+        // If true close the Window and quit the application at the end of the current frame
         bool closing{false};
 
 #ifdef _WIN32

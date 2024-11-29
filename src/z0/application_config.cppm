@@ -19,17 +19,17 @@ export namespace z0 {
      * via the Z0_APP macro
      */
     struct ApplicationConfig {
-        //! Name to display in the window title bar
+        //! Name to display in the Window title bar
         string           appName                    = "MyApp";
         //! Directory to search for resources and compiled shaders
         filesystem::path appDir                     = ".";
-        //! State of the display window
+        //! State of the display Window
         WindowMode       windowMode                 = WindowMode::WINDOWED;
-        //! Width in pixels of the display window
+        //! Width in pixels of the display Window
         uint32_t         windowWidth                = 1280;
-        //! Height in pixels of the display window
+        //! Height in pixels of the display Window
         uint32_t         windowHeight               = 720;
-        //! Monitor index to display the window
+        //! Monitor index to display the Window
         int32_t          windowMonitor              = 0;
         //! Default font name, the file must exist in the path
         string           defaultFontName            = "DefaultFont.ttf";
@@ -37,7 +37,7 @@ export namespace z0 {
         uint32_t         defaultFontSize            = 20;
         //! Where to log message using log()
         int              loggingMode                = LOGGING_MODE_NONE;
-        //! Monitor index for the logging window
+        //! Monitor index for the logging Window
         int32_t          loggingMonitor             = 0;
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa                       = MSAA::X4;

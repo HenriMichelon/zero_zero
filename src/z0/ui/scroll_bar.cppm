@@ -7,33 +7,34 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GScrollBar;
+export module z0.ui.ScrollBar;
 
 import z0.Constants;
-import z0.Rect;
 import z0.Signal;
-import z0.GEvent;
-import z0.GValueSelect;
-import z0.GBox;
+
+import z0.ui.Box;
+import z0.ui.Event;
+import z0.ui.Rect;
+import z0.ui.ValueSelect;
 
 export namespace z0 {
 #define LIFT_MINWIDTH 	10
 #define LONGSTEP_MUX	5
 
     namespace ui {
-        class GScrollBar : public GValueSelect {
+        class ScrollBar : public ValueSelect {
         public:
             enum Type {
                 HORIZONTAL,
                 VERTICAL
             };
 
-            explicit GScrollBar(const Type T = HORIZONTAL,
+            explicit ScrollBar(const Type T = HORIZONTAL,
                                 const float min = 0,
                                 const float max = 100,
                                 const float value = 0,
                                 const float step = 1):
-                GValueSelect{SCROLLBAR, min, max, value, step},
+                ValueSelect{SCROLLBAR, min, max, value, step},
                 type{T} {
             }
 
@@ -41,14 +42,14 @@ export namespace z0 {
 
             void setResources(const string& RAREA, const string& RCAGE) {
                 if (liftArea == nullptr) {
-                    liftArea = make_shared<GBox>();
-                    liftCage = make_shared<GBox>();
+                    liftArea = make_shared<Box>();
+                    liftCage = make_shared<Box>();
                     mouseMoveOnFocus = true;
                     add(liftArea, FILL, RAREA);
                     add(liftCage, NONE, RCAGE);
-                    liftArea->connect(GEvent::OnMouseDown,
+                    liftArea->connect(Event::OnMouseDown,
                         [this](auto p) { this->onLiftAreaDown(static_cast<const GEventMouseButton *>(p)); });
-                    liftCage->connect(GEvent::OnMouseDown,
+                    liftCage->connect(Event::OnMouseDown,
                         [this](auto p) { this->onLiftCageDown(static_cast<const GEventMouseButton *>(p)); });
                     liftCage->_setRedrawOnMouseEvent(true);
                     liftCage->_setMoveChildrenOnPush(true);
@@ -59,12 +60,12 @@ export namespace z0 {
             Type type;
             bool onScroll{false};
             float scrollStart{0};
-            shared_ptr<GBox> liftArea;
-            shared_ptr<GBox> liftCage;
+            shared_ptr<Box> liftArea;
+            shared_ptr<Box> liftCage;
 
             bool eventMouseUp(const MouseButton B, const float X, const float Y) override {
                 onScroll = false;
-                return GValueSelect::eventMouseUp(B, X, Y);
+                return ValueSelect::eventMouseUp(B, X, Y);
             }
 
             bool eventMouseMove(const uint32_t B, const float X, const float Y) override {
@@ -95,7 +96,7 @@ export namespace z0 {
                         onScroll = false;
                     }
                 }
-                GValueSelect::eventMouseMove(B, X, Y);
+                ValueSelect::eventMouseMove(B, X, Y);
                 return true;
             }
 
@@ -105,7 +106,7 @@ export namespace z0 {
                 const Rect& rect = liftArea->getRect();
                 if (rect.width && rect.height && ((max - min) > 0.0f)) {
                     liftRefresh(rect);
-                    GValueSelect::eventRangeChange();
+                    ValueSelect::eventRangeChange();
                 }
             }
 
@@ -114,7 +115,7 @@ export namespace z0 {
                 const Rect& rect = liftArea->getRect();
                 if (rect.width && rect.height && ((max - min) > 0.0f)) {
                     liftRefresh(rect);
-                    GValueSelect::eventValueChange(prev);
+                    ValueSelect::eventValueChange(prev);
                 }
             }
 
@@ -141,7 +142,7 @@ export namespace z0 {
                 const float prev = value;
                 value = std::min(std::max(value + diff, min), max);
                 eventRangeChange();
-                GValueSelect::eventValueChange(prev);
+                ValueSelect::eventValueChange(prev);
             }
 
             void onLiftCageDown(const GEventMouseButton* event) {
@@ -188,17 +189,17 @@ export namespace z0 {
             }
         };
 
-        class GVScrollBar : public GScrollBar {
+        class VScrollBar : public ScrollBar {
         public:
-            explicit GVScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
-                GScrollBar(VERTICAL, min, max, value, step) {
+            explicit VScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
+                ScrollBar(VERTICAL, min, max, value, step) {
             }
         };
 
-        class GHScrollBar : public GScrollBar {
+        class HScrollBar : public ScrollBar {
         public:
-            explicit GHScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
-                GScrollBar(HORIZONTAL, min, max, value, step) {
+            explicit HScrollBar(const float min = 0, const float max = 100, const float value = 0, const float step = 1):
+                ScrollBar(HORIZONTAL, min, max, value, step) {
             }
         };
     }

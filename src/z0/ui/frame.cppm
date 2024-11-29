@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GFrame;
+export module z0.ui.Frame;
 
-import z0.GPanel;
+import z0.ui.Panel;
 
 export namespace z0 {
 
@@ -17,10 +17,10 @@ export namespace z0 {
         /**
          * %A rectangular frame with an optional title
          */
-        class GFrame: public GPanel {
+        class Frame: public Panel {
         public:
-            // Create a GFrame widget with an optional title
-            explicit GFrame(const string& STR= ""): GPanel(GWidget::FRAME), text(STR) {
+            // Create a Frame widget with an optional title
+            explicit Frame(const string& STR= ""): Panel(Widget::FRAME), text(STR) {
             }
 
             // Return the current title of the widget
@@ -39,7 +39,7 @@ export namespace z0 {
 
         private:
             string text{};
-            vec4   textColor;
+            vec4   textColor{1.0f};
         };
     }
 

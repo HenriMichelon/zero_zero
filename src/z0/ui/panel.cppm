@@ -6,9 +6,9 @@
 */
 module;
 
-export module z0.GPanel;
+export module z0.ui.Panel;
 
-import z0.GWidget;
+import z0.ui.Widget;
 
 export namespace z0 {
 
@@ -16,12 +16,12 @@ export namespace z0 {
         /**
          * %A rectangular widget with only a background (no borders)
          */
-        class GPanel: public GWidget {
+        class Panel: public Widget {
         public:
-            GPanel(): GWidget(PANEL) {};
+            Panel(): Widget(PANEL) {}
 
         protected:
-            explicit GPanel(const Type T): GWidget(T) {};
+            explicit Panel(const Type T): Widget(T) {}
         };
     }
 

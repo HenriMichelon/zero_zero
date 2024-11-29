@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.GResource;
+export module z0.ui.Resource;
 
 import z0.Object;
 
@@ -17,15 +17,15 @@ export namespace z0 {
         /**
          * Super class for style resources descriptions
          */
-        class GResource: public Object {
+        class Resource: public Object {
         public:
-            explicit GResource(const string& R): res(std::move(R)) {};
-            ~GResource() override = default;
+            explicit Resource(const string& R): res(std::move(R)) {}
+            ~Resource() override = default;
 
-            [[nodiscard]] const string& Resource() const { return res; };
+            [[nodiscard]] const string& getResource() const { return res; }
 
         private:
-            string res;
+            string res{};
         };
     }
 

@@ -12,37 +12,37 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0.GManager;
+module z0.ui.Manager;
 
 import z0.Application;
 import z0.Constants;
 import z0.Font;
 import z0.Input;
 import z0.InputEvent;
-import z0.Rect;
 
-import z0.GWindow;
+import z0.ui.Rect;
+import z0.ui.Window;
 
 import z0.VectorRenderer;
 
 namespace z0 {
 
     namespace ui {
-        GManager::GManager(shared_ptr<VectorRenderer> &renderer,
+        Manager::Manager(shared_ptr<VectorRenderer> &renderer,
                            const string& defaultFontName,
                            const uint32_t defaultFontSize):
             vectorRenderer{renderer} {
             defaultFont = make_shared<Font>(defaultFontName, defaultFontSize);
         }
 
-        GManager::~GManager() {
+        Manager::~Manager() {
             for (const auto& window: windows) {
                 window->eventDestroy();
             }
             windows.clear();
         }
 
-        void GManager::drawFrame() {
+        void Manager::drawFrame() {
             for(const auto&window : removedWindows) {
                 window->windowManager = nullptr;
                 if (window->isVisible()) { window->eventHide(); }
@@ -84,7 +84,7 @@ namespace z0 {
             vectorRenderer->endDraw();
         }
 
-        void GManager::add(const shared_ptr<GWindow> &window) {
+        void Manager::add(const shared_ptr<Window> &window) {
             assert(window->windowManager == nullptr);
             windows.push_back(window);
             window->windowManager = this;
@@ -93,12 +93,12 @@ namespace z0 {
             needRedraw = true;
         }
 
-        void GManager::remove(const shared_ptr<GWindow>&window) {
+        void Manager::remove(const shared_ptr<Window>&window) {
             assert(window->windowManager != nullptr);
             removedWindows.push_back(window);
         }
 
-        bool GManager::onInput(InputEvent &inputEvent) {
+        bool Manager::onInput(InputEvent &inputEvent) {
             if (inputEvent.getType() == InputEventType::KEY) {
                 const auto &keyInputEvent = dynamic_cast<InputEventKey &>(inputEvent);
                 if ((focusedWindow != nullptr) && (focusedWindow->isVisible())) {
@@ -164,22 +164,22 @@ namespace z0 {
                         const auto ly = ceil(y - window->getRect().y);
                         if (window->getRect().contains(x, y)) {
                             if (enableWindowResizing && window->getWidget().isDrawBackground()) {
-                                if ((window->getResizeableBorders() & GWindow::RESIZEABLE_RIGHT) &&
+                                if ((window->getResizeableBorders() & Window::RESIZEABLE_RIGHT) &&
                                     (lx >= (window->getRect().width - resizeDelta))) {
                                     currentCursor = MouseCursor::RESIZE_H;
                                     resizedWindow = window;
                                     resizingWindowOriginBorder = false;
-                                    } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_LEFT) &&
+                                    } else if ((window->getResizeableBorders() & Window::RESIZEABLE_LEFT) &&
                                                (lx < resizeDelta)) {
                                         currentCursor = MouseCursor::RESIZE_H;
                                         resizedWindow = window;
                                         resizingWindowOriginBorder = true;
-                                               } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_TOP) &&
+                                               } else if ((window->getResizeableBorders() & Window::RESIZEABLE_TOP) &&
                                                           (ly >= (window->getRect().height - resizeDeltaY))) {
                                                    currentCursor = MouseCursor::RESIZE_V;
                                                    resizedWindow = window;
                                                    resizingWindowOriginBorder = false;
-                                                          } else if ((window->getResizeableBorders() & GWindow::RESIZEABLE_BOTTOM) &&
+                                                          } else if ((window->getResizeableBorders() & Window::RESIZEABLE_BOTTOM) &&
                                                                      (ly < resizeDeltaY)) {
                                                               currentCursor = MouseCursor::RESIZE_V;
                                                               resizedWindow = window;
