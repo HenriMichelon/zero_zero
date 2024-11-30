@@ -17,7 +17,9 @@ export module z0.Device;
 import z0.Constants;
 import z0.ApplicationConfig;
 import z0.Window;
+
 import z0.Renderer;
+import z0.SubmitQueue;
 
 export namespace z0 {
 
@@ -134,9 +136,10 @@ export namespace z0 {
         list<shared_ptr<Renderer>> renderers;
 
     private:
-        static Device *            _instance;
-        const Window &             window;
-        VkInstance                 vkInstance;
+        static Device *             _instance;
+        const Window &              window;
+        VkInstance                  vkInstance;
+        VmaAllocator                allocator;
 
         // Physical & logical device management
         VkSurfaceKHR                surface;
@@ -151,32 +154,24 @@ export namespace z0 {
         VkPhysicalDeviceIDProperties physDeviceIDProps{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };
-        VkSampleCountFlagBits samples;
-        list<VkCommandPool>   commandPools;
-        mutex                 commandPoolsMutex;
+        VkSampleCountFlagBits        samples;
+        list<VkCommandPool>          commandPools;
+        mutex                        commandPoolsMutex;
+        unique_ptr<SubmitQueue>      submitQueue;
 
         // Total video memory given by the OS (not Vulkan)
-        uint64_t dedicatedVideoMemory;
+        uint64_t                     dedicatedVideoMemory;
         // GPU description given by the OS (not Vulkan)
-        string adapterDescription;
+        string                       adapterDescription;
 #ifdef _WIN32
-        IDXGIAdapter3 *dxgiAdapter{nullptr};
+        IDXGIAdapter3 *              dxgiAdapter{nullptr};
 #endif
 
-        // Vulkan Memory Allocator
-        VmaAllocator allocator;
-
         // Drawing a frame
-        struct FrameData {
-            VkCommandBuffer commandBuffer;
-            VkSemaphore     imageAvailableSemaphore;
-            VkSemaphore     renderFinishedSemaphore;
-            VkFence         inFlightFence;
-        };
         const uint32_t    framesInFlight;
         VkCommandPool     commandPool;
-        vector<FrameData> framesData;
         VkImageBlit       colorImageBlit{};
+        vector<SubmitQueue::FrameData> framesData;
 
         // Swap chain management
         VkSwapchainKHR             swapChain;
@@ -184,7 +179,6 @@ export namespace z0 {
         VkFormat                   swapChainImageFormat;
         VkExtent2D                 swapChainExtent;
         vector<VkImageView>        swapChainImageViews;
-        shared_ptr<VkSwapchainKHR> oldSwapChain;
 
         void createSwapChain();
 

@@ -130,7 +130,10 @@ namespace z0 {
     }
 
     void Loader::addScene(const shared_ptr<Node> &parent, const string &filepath) {
+        auto tStart = chrono::high_resolution_clock::now();
         addScene(parent.get(), filepath);
+        auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        log("addScene loading time ", to_string(last_time));
     }
 
     void Loader::addScene(Node *parent, const string &filepath) {

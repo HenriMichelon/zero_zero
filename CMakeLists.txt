@@ -63,6 +63,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/device.cppm
 		${Z0_ENGINE_DIR}/vulkan/instance.cppm
 		${Z0_ENGINE_DIR}/vulkan/shader.cppm
+		${Z0_ENGINE_DIR}/vulkan/submit_queue.cppm
 
 		${Z0_ENGINE_DIR}/nodes/animation_player.cppm
 		${Z0_ENGINE_DIR}/nodes/camera.cppm
@@ -172,6 +173,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/device.cpp
 		${Z0_ENGINE_DIR}/vulkan/instance.cpp
 		${Z0_ENGINE_DIR}/vulkan/shader.cpp
+		${Z0_ENGINE_DIR}/vulkan/submit_queue.cpp
 		${Z0_ENGINE_DIR}/vulkan/zres.cpp
 
 		${Z0_ENGINE_DIR}/nodes/animation_player.cpp
