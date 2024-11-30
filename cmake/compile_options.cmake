@@ -1,19 +1,19 @@
 function(compile_options TARGET_NAME )
     if(MSVC)
-    target_compile_options(${TARGET_NAME} PRIVATE
-            /nologo
-            /W2
-            /WX
-            /std:c++latest
-            /experimental:module
-            /fp:fast
-    )
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_options(${TARGET_NAME} PRIVATE
-                /Od
-                /GS
-                /Ob0
-                /RTC1
+                /nologo
+                /W2
+                /WX
+                /std:c++latest
+                /experimental:module
+                /fp:fast
+        )
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            target_compile_options(${TARGET_NAME} PRIVATE
+                    /Od
+                    /GS
+                    /Ob0
+                    /RTC1
         )
     else()
         target_compile_options(${TARGET_NAME} PRIVATE
@@ -31,6 +31,7 @@ function(compile_options TARGET_NAME )
                 -Wno-nullability-completeness
                 -Werror
         )
+        target_link_libraries(${TARGET_NAME} -static)
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             target_compile_options(${TARGET_NAME} PRIVATE
                     -O0
