@@ -481,9 +481,7 @@ namespace z0 {
 
         // Create an in-memory default blank images
         if (blankImage == nullptr) {
-            const auto commandPool = device.beginCommandPool();
-            blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device, commandPool));
-            device.endCommandPool(commandPool);
+            blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device));
         }
         if (blankCubemap == nullptr) { blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap()); }
 

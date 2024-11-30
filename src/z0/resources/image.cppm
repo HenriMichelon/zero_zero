@@ -51,7 +51,7 @@ export namespace z0 {
          */
         static shared_ptr<Image> load(const void* data, uint64_t dataSize, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
-        static shared_ptr<Image> createBlankImage(const Device& device, VkCommandPool commandPool);
+        static shared_ptr<Image> createBlankImage(const Device& device);
 
     protected:
         uint32_t width;
@@ -59,7 +59,7 @@ export namespace z0 {
 
         Image(uint32_t width, uint32_t height, const string & name);
 
-        static shared_ptr<Image> create(const Device& device, VkCommandPool commandPool,
+        static shared_ptr<Image> create(const Device& device,
                                     uint32_t width, uint32_t height,
                                     uint64_t imageSize, const void *data,
                                     const string & name, ImageFormat format = ImageFormat::R8G8B8A8_SRGB);

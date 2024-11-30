@@ -27,13 +27,12 @@ namespace z0 {
 
 
     VulkanMesh::VulkanMesh(
-            const VkCommandPool              commandPool,
             const vector<Vertex> &             vertices,
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
             const string &                      meshName) :
             Mesh(vertices, indices, surfaces, meshName) {
-        buildModel(commandPool);
+        buildModel();
     };
 
     vector<VkVertexInputBindingDescription2EXT> VulkanMesh::getBindingDescription() {
@@ -99,27 +98,26 @@ namespace z0 {
         vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
     }
 
-    void VulkanMesh::buildModel(const VkCommandPool commandPool) {
+    void VulkanMesh::buildModel() {
         const auto &device = Device::get();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
         constexpr auto vertexSize = sizeof(vertices[0]);
-        const Buffer   vtxStagingBuffer{
-                device,
+        const auto command = device.beginOneTimeCommandBuffer();
+        const auto& vtxStagingBuffer = device.createOneTimeBuffer(
+                command,
                 vertexSize,
                 vertexCount,
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-        };
+        );
         vtxStagingBuffer.writeToBuffer(vertices.data());
         vertexBuffer = make_unique<Buffer>(
-                device,
                 vertexSize,
                 vertexCount,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        vtxStagingBuffer.copyTo(commandBuffer, *vertexBuffer, sizeof (vertices[0]) * vertexCount);
+        vtxStagingBuffer.copyTo(command.commandBuffer, *vertexBuffer, sizeof (vertices[0]) * vertexCount);
 
         ////////////// Create indices buffer
         const auto indexCount = static_cast<uint32_t>(indices.size());
@@ -127,21 +125,20 @@ namespace z0 {
             die("Unindexed meshes aren't supported");
         }
         constexpr auto indexSize = sizeof(indices[0]);
-        const Buffer   idxStagingBuffer{
-                device,
+        const auto&  idxStagingBuffer = device.createOneTimeBuffer(
+                command,
                 indexSize,
                 indexCount,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        };
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        );
         idxStagingBuffer.writeToBuffer(indices.data());
         indexBuffer = make_unique<Buffer>(
-                device,
                 indexSize,
                 indexCount,
                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        idxStagingBuffer.copyTo(commandBuffer, *indexBuffer, sizeof (indices[0]) * indexCount);
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        idxStagingBuffer.copyTo(command.commandBuffer, *indexBuffer, sizeof (indices[0]) * indexCount);
+        device.endOneTimeCommandBuffer(command);
 
         buildAABB();
     }

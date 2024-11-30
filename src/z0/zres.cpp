@@ -179,9 +179,8 @@ namespace z0 {
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
         auto& device = Device::get();
-        const auto commandPool = device.beginCommandPool();
         if (header.imagesCount > 0) {
-            loadImagesAndTextures(device, commandPool, stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
+            loadImagesAndTextures(device, stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
         }
 
         // Create the Material objects
@@ -298,11 +297,9 @@ namespace z0 {
                 }
                 mesh->getSurfaces().push_back(surface);
             }
-            mesh->buildModel(commandPool);
+            mesh->buildModel();
             meshes[meshIndex] = mesh;
         }
-
-        device.endCommandPool(commandPool);
 
         // Create the Node objects
         vector<shared_ptr<Node>> nodes{static_cast<vector<shared_ptr<Node>>::size_type>(header.nodesCount)};

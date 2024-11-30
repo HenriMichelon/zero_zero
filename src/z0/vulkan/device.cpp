@@ -255,9 +255,6 @@ namespace z0 {
         submitQueue->stop();
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
-        for (const auto& commandPool : commandPools) {
-            vkDestroyCommandPool(device, commandPool, nullptr);
-        }
         for (const auto& data : framesData) {
             vkDestroySemaphore(device, data.renderFinishedSemaphore, nullptr);
             vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
@@ -559,34 +556,12 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    VkCommandBuffer Device::beginOneTimeCommandBuffer(const VkCommandPool commandPool) const {
-        const VkCommandBufferAllocateInfo allocInfo{
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1
-        };
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-        constexpr VkCommandBufferBeginInfo beginInfo{
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
-        };
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-        return commandBuffer;
+    SubmitQueue::OneTimeCommand Device::beginOneTimeCommandBuffer() const {
+        return submitQueue->beginOneTimeCommand();
     }
 
-    void Device::endOneTimeCommandBuffer(const VkCommandPool commandPool, const VkCommandBuffer commandBuffer) const {
-        vkEndCommandBuffer(commandBuffer);
-        const VkSubmitInfo submitInfo{
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer
-        };
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue);
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    void Device::endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& command) const {
+        submitQueue->endOneTimeCommand(command);
     }
 
     void Device::createSwapChain() {
@@ -874,7 +849,7 @@ namespace z0 {
         const auto queueFamilyIndices = findQueueFamilies(physicalDevice);
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+            .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // TODO optional
             .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
         };
         VkCommandPool cmdPool;
@@ -882,24 +857,6 @@ namespace z0 {
             die("Failed to create a command pool");
         }
         return cmdPool;
-    }
-
-    VkCommandPool Device::beginCommandPool() {
-        auto lock = lock_guard(commandPoolsMutex);
-        if (commandPools.empty()) {
-            log("beginCommandPool create");
-            return createCommandPool();
-        }
-        const auto result = commandPools.front();
-        commandPools.pop_front();
-        log("beginCommandPool reuse", to_string(commandPools.size()), "left");
-        return result;
-    }
-
-    void Device::endCommandPool(const VkCommandPool commandPool) {
-        auto lock = lock_guard(commandPoolsMutex);
-        commandPools.push_back(commandPool);
-        log("endCommandPool recycle", to_string(commandPools.size()), "dispo");
     }
 
 #ifdef _WIN32

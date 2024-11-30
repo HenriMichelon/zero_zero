@@ -11,8 +11,6 @@ module;
 
 export module z0.Buffer;
 
-import z0.Device;
-
 export namespace z0 {
 
     /*
@@ -20,8 +18,7 @@ export namespace z0 {
      */
     class Buffer {
     public:
-        Buffer(const Device &     dev,
-               VkDeviceSize       instanceSize,
+        Buffer(VkDeviceSize       instanceSize,
                uint32_t           instanceCount,
                VkBufferUsageFlags usageFlags,
                VkDeviceSize       minOffsetAlignment = 1);
@@ -47,7 +44,6 @@ export namespace z0 {
         void copyTo(VkCommandBuffer commandBuffer, const Buffer &dstBuffer, VkDeviceSize size) const;
 
     private:
-        const Device &device;
         VmaAllocator  allocator;
         VkBuffer      buffer     = VK_NULL_HANDLE;
         VmaAllocation allocation = VK_NULL_HANDLE;

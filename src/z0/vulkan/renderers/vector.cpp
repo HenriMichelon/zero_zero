@@ -130,13 +130,11 @@ namespace z0 {
                 vertexCount      = vertices.size();
                 vertexBufferSize = VERTEX_BUFFER_SIZE * vertexCount;
                 stagingBuffer    = make_shared<Buffer>(
-                        device,
                         VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT
                         );
                 vertexBuffer = make_shared<Buffer>(
-                        device,
                         VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
@@ -144,9 +142,9 @@ namespace z0 {
             }
             // Push new vertices data to GPU memory
             stagingBuffer->writeToBuffer(vertices.data());
-            const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-            stagingBuffer->copyTo(commandBuffer, *(vertexBuffer), vertexBufferSize);
-            device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+            const auto commandBuffer = device.beginOneTimeCommandBuffer();
+            stagingBuffer->copyTo(commandBuffer.commandBuffer, *(vertexBuffer), vertexBufferSize);
+            device.endOneTimeCommandBuffer(commandBuffer);
         }
         for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
             frame.commands = commands;
@@ -364,7 +362,7 @@ namespace z0 {
                 offsetof(Vertex, uv)
         });
         // Create an in-memory default blank image
-        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device, commandPool)); }
+        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device)); }
         createOrUpdateResources(true, &pushConstantRange, 1);
     }
 

@@ -68,8 +68,7 @@ namespace z0 {
         vkDestroySampler(device.getDevice(), computeSampler, nullptr);
     }
 
-    void IBLPipeline::convert(const VkCommandPool commandPool,
-                              const shared_ptr<VulkanImage>&   hdrFile,
+    void IBLPipeline::convert(const shared_ptr<VulkanImage>&   hdrFile,
                               const shared_ptr<VulkanCubemap>& cubemap) const {
         const auto shaderModule = createShaderModule( VirtualFS::loadShader("equirect2cube.comp"));
         const auto pipeline = createPipeline(shaderModule);
@@ -81,8 +80,8 @@ namespace z0 {
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
             .update(descriptorSet);
 
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        pipelineBarrier(commandBuffer,
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        pipelineBarrier(commandBuffer.commandBuffer,
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
             {
                 imageMemoryBarrier(
@@ -90,10 +89,10 @@ namespace z0 {
                     0, VK_ACCESS_SHADER_WRITE_BIT,
                     VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-        vkCmdDispatch(commandBuffer, cubemap->getWidth()/32, cubemap->getWidth()/32, 6);
-        pipelineBarrier(commandBuffer,
+        vkCmdBindPipeline(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+        vkCmdBindDescriptorSets(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+        vkCmdDispatch(commandBuffer.commandBuffer, cubemap->getWidth()/32, cubemap->getWidth()/32, 6);
+        pipelineBarrier(commandBuffer.commandBuffer,
                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                    {
                        imageMemoryBarrier(
@@ -101,19 +100,18 @@ namespace z0 {
                            VK_ACCESS_SHADER_WRITE_BIT, 0,
                            VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeSpecular(const VkCommandPool commandPool,
-                                         const shared_ptr<VulkanCubemap>& unfilteredCubemap,
+    void IBLPipeline::preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap,
                                          const shared_ptr<VulkanCubemap>& cubemap) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("specular_map.comp"));
         const auto pipeline = createPipeline(shaderModule, &specializationInfo);
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
         // Copy base mipmap level into destination environment map.
         {
-            pipelineBarrier(commandBuffer,
+            pipelineBarrier(commandBuffer.commandBuffer,
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,
                 {
                     imageMemoryBarrier(
@@ -134,12 +132,12 @@ namespace z0 {
                 .extent = { cubemap->getWidth(), cubemap->getHeight(), 1 },
             };
             copyRegion.dstSubresource = copyRegion.srcSubresource;
-            vkCmdCopyImage(commandBuffer,
+            vkCmdCopyImage(commandBuffer.commandBuffer,
                 unfilteredCubemap->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                 cubemap->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 1, &copyRegion);
 
-            pipelineBarrier(commandBuffer,
+            pipelineBarrier(commandBuffer.commandBuffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 {
                     imageMemoryBarrier(
@@ -174,8 +172,8 @@ namespace z0 {
                 .writeImage(BINDING_OUTPUT_MIPMAPS, outputInfo.data())
                 .update(descriptorSet);
 
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
+            vkCmdBindPipeline(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+            vkCmdBindDescriptorSets(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
                                     0, 1, &descriptorSet,
                                     0, nullptr);
 
@@ -183,11 +181,11 @@ namespace z0 {
             for(uint32_t level = 1, size = EnvironmentCubemap::ENVIRONMENT_MAP_SIZE/2; level<EnvironmentCubemap::ENVIRONMENT_MAP_MIPMAP_LEVELS; ++level, size /= 2) {
                 const auto numGroups = std::max<uint32_t>(1, size/32);
                 const auto pushConstants = SpecularFilterPushConstants{ level-1, level * deltaRoughness };
-                vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(SpecularFilterPushConstants), &pushConstants);
-                vkCmdDispatch(commandBuffer, numGroups, numGroups, 6);
+                vkCmdPushConstants(commandBuffer.commandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(SpecularFilterPushConstants), &pushConstants);
+                vkCmdDispatch(commandBuffer.commandBuffer, numGroups, numGroups, 6);
             }
 
-            pipelineBarrier(commandBuffer,
+            pipelineBarrier(commandBuffer.commandBuffer,
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                 vector{
                     imageMemoryBarrier(cubemap->getImage(),
@@ -195,15 +193,14 @@ namespace z0 {
                         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
         }
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
         for (const VkImageView mipTailView : envTextureMipTailViews) {
             vkDestroyImageView(device.getDevice(), mipTailView, nullptr);
         }
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeIrradiance(const VkCommandPool commandPool,
-                                           const shared_ptr<VulkanCubemap>& cubemap,
+    void IBLPipeline::preComputeIrradiance( const shared_ptr<VulkanCubemap>& cubemap,
                                            const shared_ptr<VulkanCubemap>& irradianceCubemap) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("irradiance_map.comp"));
         const auto pipeline = createPipeline(shaderModule);
@@ -216,8 +213,8 @@ namespace z0 {
             .update(descriptorSet);
 
         // Compute diffuse irradiance cubemap
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        pipelineBarrier(commandBuffer,
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        pipelineBarrier(commandBuffer.commandBuffer,
            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
            {
                imageMemoryBarrier(
@@ -225,15 +222,15 @@ namespace z0 {
                    0, VK_ACCESS_SHADER_WRITE_BIT,
                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
+        vkCmdBindPipeline(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+        vkCmdBindDescriptorSets(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
             0, 1, &descriptorSet,
             0, nullptr);
-        vkCmdDispatch(commandBuffer,
+        vkCmdDispatch(commandBuffer.commandBuffer,
             EnvironmentCubemap::IRRADIANCE_MAP_SIZE/32,
             EnvironmentCubemap::IRRADIANCE_MAP_SIZE/32,
             6);
-        pipelineBarrier(commandBuffer,
+        pipelineBarrier(commandBuffer.commandBuffer,
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
            {
                imageMemoryBarrier(
@@ -241,12 +238,11 @@ namespace z0 {
                    VK_ACCESS_SHADER_WRITE_BIT, 0,
                    VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeBRDF(const VkCommandPool commandPool,
-                                     const shared_ptr<VulkanImage>& brdfLut) const {
+    void IBLPipeline::preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("brdf.comp"));
         const auto pipeline = createPipeline(shaderModule);
         const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, brdfLut->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
@@ -255,8 +251,8 @@ namespace z0 {
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
             .update(descriptorSet);
 		// Compute Cook-Torrance BRDF 2D LUT for split-sum approximation.
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        pipelineBarrier(commandBuffer,
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        pipelineBarrier(commandBuffer.commandBuffer,
           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           {
               imageMemoryBarrier(
@@ -264,14 +260,14 @@ namespace z0 {
                   0, VK_ACCESS_SHADER_WRITE_BIT,
                   VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL)
         });
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
-        vkCmdBindDescriptorSets(commandBuffer,
+        vkCmdBindPipeline(commandBuffer.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+        vkCmdBindDescriptorSets(commandBuffer.commandBuffer,
             VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
             0, 1, &descriptorSet,
             0, nullptr);
-        vkCmdDispatch(commandBuffer,
+        vkCmdDispatch(commandBuffer.commandBuffer,
             EnvironmentCubemap::BRDFLUT_SIZE/32, EnvironmentCubemap::BRDFLUT_SIZE/32, 6);
-        pipelineBarrier(commandBuffer,
+        pipelineBarrier(commandBuffer.commandBuffer,
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
             {
                imageMemoryBarrier(
@@ -279,7 +275,7 @@ namespace z0 {
                    VK_ACCESS_SHADER_WRITE_BIT, 0,
                    VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 } // namespace z0

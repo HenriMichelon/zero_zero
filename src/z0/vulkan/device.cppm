@@ -18,6 +18,7 @@ import z0.Constants;
 import z0.ApplicationConfig;
 import z0.Window;
 
+import z0.Buffer;
 import z0.Renderer;
 import z0.SubmitQueue;
 
@@ -125,13 +126,18 @@ export namespace z0 {
 
         [[nodiscard]] VkCommandPool createCommandPool() const;
 
-        [[nodiscard]] VkCommandPool beginCommandPool();
+        [[nodiscard]] SubmitQueue::OneTimeCommand beginOneTimeCommandBuffer() const;
 
-        void endCommandPool(VkCommandPool commandPool);
+        void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer) const;
 
-        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer(VkCommandPool commandPool) const;
-
-        void endOneTimeCommandBuffer(VkCommandPool commandPool, VkCommandBuffer commandBuffer) const;
+        inline Buffer& createOneTimeBuffer(
+           const SubmitQueue::OneTimeCommand& oneTimeCommand,
+           VkDeviceSize       instanceSize,
+           uint32_t           instanceCount,
+           VkBufferUsageFlags usageFlags,
+           VkDeviceSize       minOffsetAlignment = 1) const {
+            return submitQueue->createOneTimeBuffer(oneTimeCommand, instanceSize, instanceCount, usageFlags, minOffsetAlignment);
+        }
 
         list<shared_ptr<Renderer>> renderers;
 
@@ -155,8 +161,7 @@ export namespace z0 {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };
         VkSampleCountFlagBits        samples;
-        list<VkCommandPool>          commandPools;
-        mutex                        commandPoolsMutex;
+
         unique_ptr<SubmitQueue>      submitQueue;
 
         // Total video memory given by the OS (not Vulkan)

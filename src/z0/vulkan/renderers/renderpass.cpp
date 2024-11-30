@@ -102,7 +102,6 @@ namespace z0 {
     unique_ptr<Buffer> Renderpass::createUniformBuffer(const VkDeviceSize size,
                                                        const uint32_t     count) const {
         auto buffer = make_unique<Buffer>(
-                device,
                 size,
                 count,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,

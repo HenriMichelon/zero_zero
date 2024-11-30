@@ -26,7 +26,6 @@ export namespace z0 {
     class VulkanImage : public Image {
     public:
         VulkanImage(const Device &  device,
-                VkCommandPool commandPool,
                const string &       name,
                uint32_t             width,
                uint32_t             height,
@@ -39,7 +38,6 @@ export namespace z0 {
                bool                 noMipmaps          = false);
 
         VulkanImage(const Device &  device,
-                VkCommandPool commandPool,
                const string &       name,
                uint32_t             width,
                uint32_t             height,
@@ -122,7 +120,7 @@ export namespace z0 {
             createTextureSampler(filter, filter, samplerAddressMode, samplerAddressMode, anisotropyEnable);
         }
 
-        void generateMipmaps(VkCommandPool commandPool, VkFormat imageFormat) const;
+        void generateMipmaps(VkFormat imageFormat) const;
     };
 
     // class KTXVulkanImage : public VulkanImage {

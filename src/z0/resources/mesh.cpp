@@ -27,10 +27,7 @@ namespace z0 {
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
             const string &                     meshName) {
-        auto& device = Device::get();
-        const auto commandPool = device.beginCommandPool();
-        return make_shared<VulkanMesh>(commandPool, vertices, indices, surfaces, meshName);
-        device.endCommandPool(commandPool);
+        return make_shared<VulkanMesh>(vertices, indices, surfaces, meshName);
     }
 
 

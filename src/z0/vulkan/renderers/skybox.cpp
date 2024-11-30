@@ -72,24 +72,22 @@ namespace z0 {
         vertexCount                   = 108 / 3;
         uint32_t           vertexSize{sizeof(float) * 3};
         const VkDeviceSize bufferSize{vertexSize * vertexCount};
-        const Buffer       stagingBuffer{
-                device,
+
+        const auto command = device.beginOneTimeCommandBuffer();
+        const auto& stagingBuffer = device.createOneTimeBuffer(
+                command,
                 vertexSize,
                 vertexCount,
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-        };
+        );
         stagingBuffer.writeToBuffer(skyboxVertices);
         vertexBuffer = make_unique<Buffer>(
-                device,
                 vertexSize,
                 vertexCount,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        const auto commandPool = device.beginCommandPool();
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        stagingBuffer.copyTo(commandBuffer, *vertexBuffer, bufferSize);
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
-        device.endCommandPool(commandPool);
+        stagingBuffer.copyTo(command.commandBuffer, *vertexBuffer, bufferSize);
+        device.endOneTimeCommandBuffer(command);
     }
 
     void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &cubemap) {

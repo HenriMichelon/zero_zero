@@ -20,7 +20,6 @@ namespace z0 {
 
     void ZRes::loadImagesAndTextures(
         const Device& device,
-        VkCommandPool commandPool,
         ifstream &stream,
         const vector<ImageHeader>& imageHeaders,
         const vector<vector<MipLevelInfo>>&levelHeaders,
@@ -28,12 +27,13 @@ namespace z0 {
         const uint64_t totalImageSize) {
 
         // Upload all images into VRAM using one big staging buffer
-        const auto textureStagingBuffer = Buffer{
-            device,
+        const auto command = device.beginOneTimeCommandBuffer();
+        const auto& textureStagingBuffer = device.createOneTimeBuffer(
+            command,
             totalImageSize,
             1,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        };
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        );
         static constexpr size_t BLOCK_SIZE = 64 * 1024;
         auto transferBuffer = vector<char> (BLOCK_SIZE);
         auto transferOffset = VkDeviceSize{0};
@@ -47,7 +47,6 @@ namespace z0 {
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
         log("start upload images");
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
             const auto& texture = textureHeaders.at(textureIndex);
             if (texture.imageIndex != -1) {
@@ -56,7 +55,7 @@ namespace z0 {
                 textures.push_back(make_shared<ImageTexture>(
                     make_shared<VulkanImage>(
                        device,
-                       commandBuffer,
+                       command.commandBuffer,
                        image.name,
                        image,
                        levelHeaders[texture.imageIndex],
@@ -66,7 +65,7 @@ namespace z0 {
                 ));
             }
         }
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(command);
         log("end upload images");
     }
 

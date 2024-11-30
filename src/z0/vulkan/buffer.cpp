@@ -23,13 +23,11 @@ import z0.Tools;
 
 namespace z0 {
 
-    Buffer::Buffer(const Device &           dev,
-                   const VkDeviceSize       instanceSize,
+    Buffer::Buffer(const VkDeviceSize       instanceSize,
                    const uint32_t           instanceCount,
                    const VkBufferUsageFlags usageFlags,
                    const VkDeviceSize       minOffsetAlignment):
-        device{dev},
-        allocator{dev.getAllocator()} {
+        allocator{Device::get().getAllocator()} {
         alignmentSize = minOffsetAlignment > 0
                 ? (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1)
                 : instanceSize;

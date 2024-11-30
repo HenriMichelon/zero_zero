@@ -24,7 +24,6 @@ namespace z0 {
 
 
     VulkanImage::VulkanImage(const Device &device,
-                const VkCommandPool commandPool,
                  const string &             name,
                  const uint32_t             width,
                  const uint32_t             height,
@@ -35,14 +34,13 @@ namespace z0 {
                  const VkSamplerAddressMode samplerAddressMode,
                  const VkFilter             samplerFilter,
                  const bool                 noMipmaps):
-        VulkanImage(device, commandPool, name, width, height, imageSize, data, format,
+        VulkanImage(device, name, width, height, imageSize, data, format,
             samplerFilter, samplerFilter,
             samplerAddressMode, samplerAddressMode,
             tiling, noMipmaps) {
     }
 
     VulkanImage::VulkanImage(const Device &device,
-                const VkCommandPool commandPool,
                const string &             name,
                const uint32_t             width,
                const uint32_t             height,
@@ -58,12 +56,13 @@ namespace z0 {
         Image(width, height, name),
         device{device} {
 
-        const auto textureStagingBuffer = Buffer{
-                device,
+        const auto command = device.beginOneTimeCommandBuffer();
+        const auto& textureStagingBuffer = device.createOneTimeBuffer(
+                command,
                 imageSize,
                 1,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        };
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        );
         textureStagingBuffer.writeToBuffer(data);
 
         mipLevels = noMipmaps ? 1 : numMipmapLevels(width, height); //static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
@@ -93,8 +92,7 @@ namespace z0 {
                 .imageOffset = {0, 0, 0},
                 .imageExtent = {width, height, 1},
         };
-        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-        Device::transitionImageLayout(commandBuffer,
+        Device::transitionImageLayout(command.commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -105,7 +103,7 @@ namespace z0 {
                                       VK_IMAGE_ASPECT_COLOR_BIT,
                                       mipLevels);
         vkCmdCopyBufferToImage(
-                commandBuffer,
+                command.commandBuffer,
                 textureStagingBuffer.getBuffer(),
                 textureImage,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -113,7 +111,7 @@ namespace z0 {
                 &region
                 );
         if (noMipmaps) {
-            Device::transitionImageLayout(commandBuffer,
+            Device::transitionImageLayout(command.commandBuffer,
                                        textureImage,
                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -124,11 +122,11 @@ namespace z0 {
                                        VK_IMAGE_ASPECT_COLOR_BIT,
                                        mipLevels);
         }
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(command);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
         if (!noMipmaps) {
             //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
-            generateMipmaps(commandPool, format);
+            generateMipmaps(format);
         }
 
         createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
@@ -183,8 +181,7 @@ namespace z0 {
         createTextureSampler(samplerFilter, samplerAddressMode, anisotropyEnable);
     }
 
-     VulkanImage::VulkanImage(const Device &  device,
-              VkCommandBuffer commandBuffer,
+     VulkanImage::VulkanImage(const Device &  device, const VkCommandBuffer commandBuffer,
               const string &                name,
               const ZRes::ImageHeader &   imageHeader,
               const vector<ZRes::MipLevelInfo>& mipLevelHeaders,
@@ -299,7 +296,7 @@ namespace z0 {
         }
     }
 
-    void VulkanImage::generateMipmaps(VkCommandPool commandPool, const VkFormat imageFormat) const {
+    void VulkanImage::generateMipmaps(const VkFormat imageFormat) const {
         // https://vulkan-tutorial.com/en/Generating_Mipmaps
         // Check if image format supports linear blitting
         VkFormatProperties formatProperties;
@@ -307,7 +304,7 @@ namespace z0 {
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
             die("texture image format does not support linear blitting!"); // TODO
         }
-        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+        const auto commandBuffer = device.beginOneTimeCommandBuffer();
 
         VkImageMemoryBarrier barrier{
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -330,7 +327,7 @@ namespace z0 {
             barrier.newLayout                     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
-            vkCmdPipelineBarrier(commandBuffer,
+            vkCmdPipelineBarrier(commandBuffer.commandBuffer,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  0,
@@ -354,7 +351,7 @@ namespace z0 {
             blit.dstSubresource.mipLevel = i;
             blit.dstSubresource.baseArrayLayer = 0;
             blit.dstSubresource.layerCount = 1;
-            vkCmdBlitImage(commandBuffer,
+            vkCmdBlitImage(commandBuffer.commandBuffer,
                            textureImage,
                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            textureImage,
@@ -367,7 +364,7 @@ namespace z0 {
             barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            vkCmdPipelineBarrier(commandBuffer,
+            vkCmdPipelineBarrier(commandBuffer.commandBuffer,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                  0,
@@ -389,7 +386,7 @@ namespace z0 {
         barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
-        vkCmdPipelineBarrier(commandBuffer,
+        vkCmdPipelineBarrier(commandBuffer.commandBuffer,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                              0,
@@ -400,7 +397,7 @@ namespace z0 {
                              1,
                              &barrier);
 
-        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endOneTimeCommandBuffer(commandBuffer);
     }
 
     // ktxVulkanDeviceInfo KTXVulkanImage::vdi;

@@ -137,12 +137,10 @@ namespace z0 {
                 vertexCount      = linesVertices.size() + triangleVertices.size();
                 vertexBufferSize = VERTEX_BUFFER_SIZE * vertexCount;
                 stagingBuffer    = make_shared<Buffer>(
-                        device,
                         VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
                 vertexBuffer = make_shared<Buffer>(
-                        device,
                         VERTEX_BUFFER_SIZE,
                         vertexCount,
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -155,9 +153,9 @@ namespace z0 {
                 if (!triangleVertices.empty()) {
                     stagingBuffer->writeToBuffer(triangleVertices.data(), triangleVertices.size() * sizeof(Vertex), linesVertices.size() * sizeof(Vertex));
                 }
-                const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
-                stagingBuffer->copyTo(commandBuffer, *(vertexBuffer), vertexBufferSize);
-                device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+                const auto commandBuffer = device.beginOneTimeCommandBuffer();
+                stagingBuffer->copyTo(commandBuffer.commandBuffer, *(vertexBuffer), vertexBufferSize);
+                device.endOneTimeCommandBuffer(commandBuffer);
                 vertexBufferDirty = false;
             }
         }

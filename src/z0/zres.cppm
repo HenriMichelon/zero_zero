@@ -284,7 +284,6 @@ export namespace z0 {
 
         void loadImagesAndTextures(
             const Device& device,
-            VkCommandPool commandPool,
             ifstream& stream,
             const vector<ImageHeader>&,
             const vector<vector<MipLevelInfo>>&,

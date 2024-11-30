@@ -25,7 +25,7 @@ namespace z0 {
         /*  auto name = str;
          name.append(".png");
          stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<VulkanImage>(Device::get(), commandPool,
+        return make_shared<VulkanImage>(Device::get(),
                                   text,
                                   static_cast<uint32_t>(width),
                                   static_cast<uint32_t>(height),
