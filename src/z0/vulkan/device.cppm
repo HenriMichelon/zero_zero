@@ -143,12 +143,12 @@ export namespace z0 {
         VkQueue                     graphicsQueue;
         VkQueue                     presentQueue;
         VkPhysicalDeviceProperties2 deviceProperties{
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
-        };
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
+    };
         VkPhysicalDeviceFeatures     deviceFeatures {};
         VkPhysicalDeviceIDProperties physDeviceIDProps{
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
-        };
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
+    };
         VkSampleCountFlagBits samples;
 
         // Total video memory given by the OS (not Vulkan)
@@ -163,13 +163,16 @@ export namespace z0 {
         VmaAllocator allocator;
 
         // Drawing a frame
-        const uint32_t          framesInFlight;
-        VkCommandPool           commandPool;
-        vector<VkCommandBuffer> commandBuffers;
-        vector<VkSemaphore>     imageAvailableSemaphores;
-        vector<VkSemaphore>     renderFinishedSemaphores;
-        vector<VkFence>         inFlightFences;
-        VkImageBlit             colorImageBlit{};
+        struct FrameData {
+            VkCommandBuffer commandBuffer;
+            VkSemaphore     imageAvailableSemaphore;
+            VkSemaphore     renderFinishedSemaphore;
+            VkFence         inFlightFence;
+        };
+        const uint32_t    framesInFlight;
+        VkCommandPool     commandPool;
+        vector<FrameData> framesData;
+        VkImageBlit       colorImageBlit{};
 
         // Swap chain management
         VkSwapchainKHR             swapChain;
@@ -184,6 +187,8 @@ export namespace z0 {
         void cleanupSwapChain() const;
 
         void recreateSwapChain();
+
+        [[nodiscard]] VkCommandPool createCommandPool() const;
 
         // Check if all the requested Vulkan extensions are supported by a device
         [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice            vkPhysicalDevice,

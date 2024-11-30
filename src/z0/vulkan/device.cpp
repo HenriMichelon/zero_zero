@@ -41,10 +41,7 @@ namespace z0 {
         window{theWindow} {
         assert(_instance == nullptr);
         _instance = this;
-        commandBuffers.resize(framesInFlight);
-        imageAvailableSemaphores.resize(framesInFlight);
-        renderFinishedSemaphores.resize(framesInFlight);
-        inFlightFences.resize(framesInFlight);
+        framesData.resize(framesInFlight);
 
         //////////////////// Find the best GPU
         // Check for at least one supported Vulkan physical device
@@ -172,9 +169,6 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
-        ////////////////////  Create the first command pool
-        commandPool = beginCommandPool();
-
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
         const VmaVulkanFunctions vulkanFunctions{
@@ -217,17 +211,20 @@ namespace z0 {
         //////////////////// Create swap chain
         createSwapChain();
 
-        //////////////////// Create command buffers
+        //////////////////// Create command pools & buffers
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Command_buffers
         {
-            const VkCommandBufferAllocateInfo allocInfo{
+            commandPool = createCommandPool();
+            for (auto& data : framesData) {
+                const VkCommandBufferAllocateInfo allocInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                     .commandPool = commandPool,
                     .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                    .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())
-            };
-            if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-                die("failed to allocate command buffers!");
+                    .commandBufferCount = 1
+                };
+                if (vkAllocateCommandBuffers(device, &allocInfo, &data.commandBuffer) != VK_SUCCESS) {
+                    die("failed to allocate command buffers!");
+                }
             }
         }
 
@@ -240,12 +237,12 @@ namespace z0 {
                     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                     .flags = VK_FENCE_CREATE_SIGNALED_BIT
             };
-            for (size_t i = 0; i < framesInFlight; i++) {
-                if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS
+            for (auto& data : framesData) {
+                if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &data.imageAvailableSemaphore) != VK_SUCCESS
                     ||
-                    vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS
+                    vkCreateSemaphore(device, &semaphoreInfo, nullptr, &data.renderFinishedSemaphore) != VK_SUCCESS
                     ||
-                    vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+                    vkCreateFence(device, &fenceInfo, nullptr, &data.inFlightFence) != VK_SUCCESS) {
                     die("failed to create semaphores!");
                 }
             }
@@ -255,13 +252,13 @@ namespace z0 {
     void Device::cleanup() {
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
-        for (size_t i = 0; i < framesInFlight; i++) {
-            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(device, inFlightFences[i], nullptr);
+        for (const auto& data : framesData) {
+            vkDestroySemaphore(device, data.renderFinishedSemaphore, nullptr);
+            vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
+            vkDestroyFence(device, data.inFlightFence, nullptr);
         }
-        cleanupSwapChain();
         vkDestroyCommandPool(device, commandPool, nullptr);
+        cleanupSwapChain();
         vmaDestroyAllocator(allocator);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
@@ -271,16 +268,17 @@ namespace z0 {
     }
 
     void Device::drawFrame(const uint32_t currentFrame) {
+        const auto& data = framesData[currentFrame];
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the last frame.
-        vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+        vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
+        vkResetFences(device, 1, &data.inFlightFence);
 
         uint32_t imageIndex;
         auto     result = vkAcquireNextImageKHR(device,
                                                 swapChain,
                                                 UINT64_MAX,
-                                                imageAvailableSemaphores[currentFrame],
+                                                data.imageAvailableSemaphore,
                                                 VK_NULL_HANDLE,
                                                 &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -290,27 +288,27 @@ namespace z0 {
         }
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
         {
-            vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+            vkResetCommandBuffer(data.commandBuffer, 0);
             for (const auto &renderer : renderers) { renderer->update(currentFrame); }
             constexpr VkCommandBufferBeginInfo beginInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
                 .flags = 0,
                 .pInheritanceInfo = nullptr
             };
-            if (vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
+            if (vkBeginCommandBuffer(data.commandBuffer, &beginInfo) != VK_SUCCESS) {
                 die("failed to begin recording command buffer!");
             }
 
-            setInitialState(commandBuffers[currentFrame]);
+            setInitialState(data.commandBuffer);
             const auto &lastRenderer = renderers.back();
             for (const auto &renderer : renderers) {
-                renderer->beginRendering(commandBuffers[currentFrame], currentFrame);
-                renderer->recordCommands(commandBuffers[currentFrame], currentFrame);
-                renderer->endRendering(commandBuffers[currentFrame], currentFrame, renderer == lastRenderer);
+                renderer->beginRendering(data.commandBuffer, currentFrame);
+                renderer->recordCommands(data.commandBuffer, currentFrame);
+                renderer->endRendering(data.commandBuffer, currentFrame, renderer == lastRenderer);
             }
 
             transitionImageLayout(
-                    commandBuffers[currentFrame],
+                    data.commandBuffer,
                     swapChainImages[imageIndex],
                     VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -319,7 +317,7 @@ namespace z0 {
                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                     VK_IMAGE_ASPECT_COLOR_BIT);
-            vkCmdBlitImage(commandBuffers[currentFrame],
+            vkCmdBlitImage(data.commandBuffer,
                            lastRenderer->getImage(currentFrame),
                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            swapChainImages[imageIndex],
@@ -328,7 +326,7 @@ namespace z0 {
                            &colorImageBlit,
                            VK_FILTER_LINEAR);
             transitionImageLayout(
-                    commandBuffers[currentFrame],
+                    data.commandBuffer,
                     swapChainImages[imageIndex],
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
@@ -338,14 +336,14 @@ namespace z0 {
                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                     VK_IMAGE_ASPECT_COLOR_BIT);
 
-            if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS) {
+            if (vkEndCommandBuffer(data.commandBuffer) != VK_SUCCESS) {
                 die("failed to record command buffer!");
             }
         }
 
-        const VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+        const VkSemaphore signalSemaphores[] = {data.renderFinishedSemaphore};
         {
-            const VkSemaphore              waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+            const VkSemaphore              waitSemaphores[] = {data.imageAvailableSemaphore};
             constexpr VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
             const VkSubmitInfo             submitInfo{
                     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -353,11 +351,11 @@ namespace z0 {
                     .pWaitSemaphores = waitSemaphores,
                     .pWaitDstStageMask = waitStages,
                     .commandBufferCount = 1,
-                    .pCommandBuffers = &commandBuffers[currentFrame],
+                    .pCommandBuffers = &data.commandBuffer,
                     .signalSemaphoreCount = 1,
                     .pSignalSemaphores = signalSemaphores
             };
-            if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+            if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
         }
@@ -383,8 +381,8 @@ namespace z0 {
     }
 
     void Device::wait() const {
-        for(auto i = 0; i < getFramesInFlight(); i++) {
-            vkWaitForFences(device, 1, &inFlightFences[i], VK_TRUE, UINT64_MAX);
+        for(auto& data : framesData) {
+            vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
         }
         vkQueueWaitIdle(graphicsQueue);
         vkDeviceWaitIdle(device);
@@ -861,7 +859,7 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-    VkCommandPool Device::beginCommandPool() const {
+    VkCommandPool Device::createCommandPool() const {
         const auto queueFamilyIndices = findQueueFamilies(physicalDevice);
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -873,6 +871,10 @@ namespace z0 {
             die("Failed to create a command pool");
         }
         return cmdPool;
+    }
+
+    VkCommandPool Device::beginCommandPool() const {
+        return createCommandPool();
     }
 
     void Device::endCommandPool(const VkCommandPool commandPool) const {
