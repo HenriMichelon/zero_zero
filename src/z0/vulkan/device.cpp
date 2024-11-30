@@ -252,6 +252,9 @@ namespace z0 {
     void Device::cleanup() {
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
+        for (const auto& commandPool : commandPools) {
+            vkDestroyCommandPool(device, commandPool, nullptr);
+        }
         for (const auto& data : framesData) {
             vkDestroySemaphore(device, data.renderFinishedSemaphore, nullptr);
             vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
@@ -402,23 +405,24 @@ namespace z0 {
                                         const uint32_t           baseMipLevel) const {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Image_views
         const VkImageViewCreateInfo viewInfo{
-                .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-                .image = image,
-                .viewType = type,
-                .format = format,
-                .subresourceRange = {
-                        .aspectMask = aspectFlags,
-                        .baseMipLevel = baseMipLevel,
-                        .levelCount = mipLevels,
-                        .baseArrayLayer = baseArrayLayer,
-                        // Note : VK_REMAINING_ARRAY_LAYERS does not work for VK_IMAGE_VIEW_TYPE_2D_ARRAY
-                        // we have to specify the exact number of layers or texture() only read the first layer
-                        .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : layers
-                }
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .image = image,
+            .viewType = type,
+            .format = format,
+            .subresourceRange = {
+                .aspectMask = aspectFlags,
+                .baseMipLevel = baseMipLevel,
+                .levelCount = mipLevels,
+                .baseArrayLayer = baseArrayLayer,
+                // Note : VK_REMAINING_ARRAY_LAYERS does not work for VK_IMAGE_VIEW_TYPE_2D_ARRAY
+                // we have to specify the exact number of layers or texture() only read the first layer
+                .layerCount = type == VK_IMAGE_VIEW_TYPE_CUBE ? VK_REMAINING_ARRAY_LAYERS : layers
+            }
         };
         VkImageView imageView;
-        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
             die("failed to create texture image view!");
+        }
         return imageView;
     }
 
@@ -436,18 +440,18 @@ namespace z0 {
                              const uint32_t              layers) const {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Texture-Image
         const VkImageCreateInfo imageInfo{
-                .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-                .flags = flags,
-                .imageType =  VK_IMAGE_TYPE_2D,
-                .format = format,
-                .extent = {width, height, 1},
-                .mipLevels = mipLevels,
-                .arrayLayers = layers,
-                .samples = numSamples,
-                .tiling = tiling,
-                .usage = usage,
-                .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .flags = flags,
+            .imageType =  VK_IMAGE_TYPE_2D,
+            .format = format,
+            .extent = {width, height, 1},
+            .mipLevels = mipLevels,
+            .arrayLayers = layers,
+            .samples = numSamples,
+            .tiling = tiling,
+            .usage = usage,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         };
         if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) { die("failed to create image!"); }
 
@@ -455,9 +459,9 @@ namespace z0 {
         vkGetImageMemoryRequirements(device, image, &memRequirements);
 
         const VkMemoryAllocateInfo allocInfo{
-                .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-                .allocationSize = memRequirements.size,
-                .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
+            .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+            .allocationSize = memRequirements.size,
+            .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
         };
         if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             die("failed to allocate image memory!");
@@ -491,21 +495,21 @@ namespace z0 {
         // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
         // https://vulkan-tutorial.com/Generating_Mipmaps#page_Generating-Mipmaps
         const VkImageMemoryBarrier barrier = {
-                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                .srcAccessMask = srcAccessMask,
-                .dstAccessMask = dstAccessMask,
-                .oldLayout = oldLayout,
-                .newLayout = newLayout,
-                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .image = image,
-                .subresourceRange = {
-                        .aspectMask = aspectMask,
-                        .baseMipLevel = 0,
-                        .levelCount = mipLevels,
-                        .baseArrayLayer = 0,
-                        .layerCount = VK_REMAINING_ARRAY_LAYERS,
-                }
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask = srcAccessMask,
+            .dstAccessMask = dstAccessMask,
+            .oldLayout = oldLayout,
+            .newLayout = newLayout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image,
+            .subresourceRange = {
+                .aspectMask = aspectMask,
+                .baseMipLevel = 0,
+                .levelCount = mipLevels,
+                .baseArrayLayer = 0,
+                .layerCount = VK_REMAINING_ARRAY_LAYERS,
+            }
         };
         vkCmdPipelineBarrier(
                 commandBuffer,
@@ -593,20 +597,20 @@ namespace z0 {
 
         {
             VkSwapchainCreateInfoKHR createInfo = {
-                    .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-                    .surface = surface,
-                    .minImageCount = imageCount,
-                    .imageFormat = surfaceFormat.format,
-                    .imageColorSpace = surfaceFormat.colorSpace,
-                    .imageExtent = extent,
-                    .imageArrayLayers = 1,
-                    // VK_IMAGE_USAGE_TRANSFER_DST_BIT for Blit or Revolve (see presentToSwapChain())
-                    .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                    .preTransform = swapChainSupport.capabilities.currentTransform,
-                    .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-                    .presentMode = presentMode,
-                    .clipped = VK_TRUE
+                .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+                .surface = surface,
+                .minImageCount = imageCount,
+                .imageFormat = surfaceFormat.format,
+                .imageColorSpace = surfaceFormat.colorSpace,
+                .imageExtent = extent,
+                .imageArrayLayers = 1,
+                // VK_IMAGE_USAGE_TRANSFER_DST_BIT for Blit or Revolve (see presentToSwapChain())
+                .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                .preTransform = swapChainSupport.capabilities.currentTransform,
+                .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+                .presentMode = presentMode,
+                .clipped = VK_TRUE
             };
             const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
             const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -620,9 +624,10 @@ namespace z0 {
                 createInfo.pQueueFamilyIndices   = nullptr; // Optional
             }
             createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : *oldSwapChain;
-            // Need VK_KHR_SWAPCHAIN extension or it will crash (no validation error)
-            if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+            // Need VK_KHR_SWAPCHAIN extension, or it will crash (no validation error)
+            if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
                 die("Failed to create Vulkan swap chain!");
+            }
         }
 
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
@@ -642,9 +647,9 @@ namespace z0 {
         // For bliting image to swapchain
         constexpr VkOffset3D vkOffset0{0, 0, 0};
         const VkOffset3D     vkOffset1{
-                static_cast<int32_t>(swapChainExtent.width),
-                static_cast<int32_t>(swapChainExtent.height),
-                1,
+            static_cast<int32_t>(swapChainExtent.width),
+            static_cast<int32_t>(swapChainExtent.height),
+            1,
         };
         colorImageBlit.srcOffsets[0]                 = vkOffset0;
         colorImageBlit.srcOffsets[1]                 = vkOffset1;
@@ -873,12 +878,22 @@ namespace z0 {
         return cmdPool;
     }
 
-    VkCommandPool Device::beginCommandPool() const {
-        return createCommandPool();
+    VkCommandPool Device::beginCommandPool() {
+        auto lock = lock_guard(commandPoolsMutex);
+        if (commandPools.empty()) {
+            log("beginCommandPool create");
+            return createCommandPool();
+        }
+        const auto result = commandPools.front();
+        commandPools.pop_front();
+        log("beginCommandPool reuse", to_string(commandPools.size()), "left");
+        return result;
     }
 
-    void Device::endCommandPool(const VkCommandPool commandPool) const {
-        vkDestroyCommandPool(device, commandPool, nullptr);
+    void Device::endCommandPool(const VkCommandPool commandPool) {
+        auto lock = lock_guard(commandPoolsMutex);
+        commandPools.push_back(commandPool);
+        log("endCommandPool recycle", to_string(commandPools.size()), "dispo");
     }
 
     // void Device::getQueue(uint32_t index) {

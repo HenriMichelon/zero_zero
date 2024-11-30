@@ -84,7 +84,7 @@ namespace z0 {
 
     shared_ptr<Node> GlTF::load(const string &filepath) {
         auto tStart = std::chrono::high_resolution_clock::now();
-        const auto &device = Device::get();
+        auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
                                 fastgltf::Extensions::KHR_texture_transform |

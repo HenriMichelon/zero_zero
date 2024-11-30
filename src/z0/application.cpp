@@ -31,6 +31,7 @@ import z0.Environment;
 import z0.Input;
 import z0.InputEvent;
 import z0.KinematicBody;
+import z0.Loader;
 import z0.Material;
 import z0.Node;
 import z0.OmniLight;
@@ -302,8 +303,9 @@ namespace z0 {
             t.join();
         }
         stopped = true;
-        waitForRenderingSystem();
         Input::_closeInput();
+        Loader::_cleanup();
+        waitForRenderingSystem();
         windowManager.reset();
         cleanup(rootNode);
 #ifdef _WIN32

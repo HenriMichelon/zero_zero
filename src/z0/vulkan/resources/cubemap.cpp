@@ -23,7 +23,7 @@ import z0.IBLPipeline;
 namespace z0 {
 
     VulkanCubemap::VulkanCubemap(
-        const Device &       device,
+        Device &       device,
         const uint32_t       width,
         const uint32_t       height,
         const uint32_t       imageSize,

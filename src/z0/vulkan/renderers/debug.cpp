@@ -62,13 +62,13 @@ namespace z0 {
                VK_FORMAT_R32G32B32A32_SFLOAT,
                offsetof(Vertex, color)
         });
-        commandPool = device.beginCommandPool();
+        commandPool = device.createCommandPool();
         createOrUpdateResources();
         Initialize();
     }
 
     void DebugRenderer::cleanup() {
-        device.endCommandPool(commandPool);
+        vkDestroyCommandPool(device.getDevice(), commandPool, nullptr);
         ranges::for_each(frameData, [](FrameData& frame) {
             frame.globalBuffer.reset();
         });

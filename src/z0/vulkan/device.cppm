@@ -121,9 +121,11 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandPool beginCommandPool() const;
+        [[nodiscard]] VkCommandPool createCommandPool() const;
 
-        void endCommandPool(VkCommandPool commandPool) const;
+        [[nodiscard]] VkCommandPool beginCommandPool();
+
+        void endCommandPool(VkCommandPool commandPool);
 
         [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer(VkCommandPool commandPool) const;
 
@@ -142,14 +144,16 @@ export namespace z0 {
         VkPhysicalDevice            physicalDevice;
         VkQueue                     graphicsQueue;
         VkQueue                     presentQueue;
+        VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceProperties2 deviceProperties{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
-    };
-        VkPhysicalDeviceFeatures     deviceFeatures {};
+        };
         VkPhysicalDeviceIDProperties physDeviceIDProps{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
-    };
+        };
         VkSampleCountFlagBits samples;
+        list<VkCommandPool>   commandPools;
+        mutex                 commandPoolsMutex;
 
         // Total video memory given by the OS (not Vulkan)
         uint64_t dedicatedVideoMemory;
@@ -187,8 +191,6 @@ export namespace z0 {
         void cleanupSwapChain() const;
 
         void recreateSwapChain();
-
-        [[nodiscard]] VkCommandPool createCommandPool() const;
 
         // Check if all the requested Vulkan extensions are supported by a device
         [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice            vkPhysicalDevice,

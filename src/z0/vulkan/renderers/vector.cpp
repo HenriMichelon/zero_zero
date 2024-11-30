@@ -292,7 +292,7 @@ namespace z0 {
     }
 
     void VectorRenderer::cleanup() {
-        device.endCommandPool(commandPool);
+        vkDestroyCommandPool(device.getDevice(), commandPool, nullptr);
         commands.clear();
         textures.clear();
         vertexBuffer.reset();
@@ -345,7 +345,7 @@ namespace z0 {
     }
 
     void VectorRenderer::init() {
-        commandPool = device.beginCommandPool();
+        commandPool = device.createCommandPool();
         createImagesResources();
         attributeDescriptions.push_back({
                 VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,

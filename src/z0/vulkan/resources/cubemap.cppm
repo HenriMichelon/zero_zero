@@ -17,7 +17,7 @@ export namespace z0 {
 
     class VulkanCubemap : public Cubemap {
     public:
-        VulkanCubemap(const Device & device,
+        VulkanCubemap(Device & device,
                 uint32_t             width,
                 uint32_t             height,
                 uint32_t             imageSize,

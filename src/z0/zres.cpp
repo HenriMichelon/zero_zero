@@ -178,7 +178,7 @@ namespace z0 {
         }
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
-        const auto& device = Device::get();
+        auto& device = Device::get();
         const auto commandPool = device.beginCommandPool();
         if (header.imagesCount > 0) {
             loadImagesAndTextures(device, commandPool, stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);

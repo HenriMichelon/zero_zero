@@ -116,7 +116,7 @@ namespace z0 {
 
     shared_ptr<Image> Image::load(const string &filepath, const ImageFormat imageFormat) {
         shared_ptr<Image> result;
-        const auto &device = Device::get();
+        auto &device = Device::get();
         const auto commandPool = device.beginCommandPool();
         if (filepath.ends_with(".dds")) {
             auto ddsData = VirtualFS::loadBinary(filepath);

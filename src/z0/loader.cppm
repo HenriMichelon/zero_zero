@@ -37,6 +37,8 @@ export namespace z0 {
          **/
         static void addScene(const shared_ptr<Node> &parent, const string &filepath);
 
+        static inline void _cleanup() { resources.clear(); }
+
         // Node description inside a JSON file
         struct SceneNode {
             string id{};
