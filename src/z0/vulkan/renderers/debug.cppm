@@ -111,6 +111,8 @@ namespace z0 {
         list<shared_ptr<Buffer>> oldBuffers;
         // For vkCmdSetVertexInputEXT
         vector<VkVertexInputAttributeDescription2EXT> attributeDescriptions{};
+        // To upload vertices to GPU
+        VkCommandPool commandPool;
 
         void update( uint32_t currentFrame) override;
 

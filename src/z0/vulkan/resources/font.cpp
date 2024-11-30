@@ -19,13 +19,13 @@ import z0.VulkanImage;
 
 namespace z0 {
 
-    shared_ptr<Image> Font::renderToImage(const string &text) {
+    shared_ptr<Image> Font::renderToImage(VkCommandPool commandPool, const string &text) {
         float width, height;
         auto  bitmap = renderToBitmap(text, width, height);
         /*  auto name = str;
          name.append(".png");
          stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<VulkanImage>(Device::get(),
+        return make_shared<VulkanImage>(Device::get(), commandPool,
                                   text,
                                   static_cast<uint32_t>(width),
                                   static_cast<uint32_t>(height),

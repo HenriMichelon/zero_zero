@@ -85,7 +85,11 @@ namespace z0 {
                 vertexCount,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        stagingBuffer.copyTo(*vertexBuffer, bufferSize);
+        const auto commandPool = device.beginCommandPool();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+        stagingBuffer.copyTo(commandBuffer, *vertexBuffer, bufferSize);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endCommandPool(commandPool);
     }
 
     void SkyboxRenderer::loadScene(const shared_ptr<Cubemap> &cubemap) {

@@ -46,10 +46,6 @@ export namespace z0 {
 
         [[nodiscard]] inline VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
 
-        [[nodiscard]] inline VkQueue getGraphicQueue() const { return graphicsQueue; }
-
-        [[nodiscard]] inline VkCommandPool getCommandPool() const { return commandPool; }
-
         [[nodiscard]] inline VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
 
         [[nodiscard]] inline VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
@@ -125,11 +121,13 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer(VkCommandPool commandPool = VK_NULL_HANDLE) const;
+        [[nodiscard]] VkCommandPool beginCommandPool() const;
 
-        void endOneTimeCommandBuffer(VkCommandBuffer commandBuffer, VkCommandPool commandPool = VK_NULL_HANDLE) const;
+        void endCommandPool(VkCommandPool commandPool) const;
 
-        [[nodiscard]] VkCommandPool createCommandPool() const;
+        [[nodiscard]] VkCommandBuffer beginOneTimeCommandBuffer(VkCommandPool commandPool) const;
+
+        void endOneTimeCommandBuffer(VkCommandPool commandPool, VkCommandBuffer commandBuffer) const;
 
         list<shared_ptr<Renderer>> renderers;
 
@@ -144,11 +142,10 @@ export namespace z0 {
         VkPhysicalDevice            physicalDevice;
         VkQueue                     graphicsQueue;
         VkQueue                     presentQueue;
-        VkCommandPool               commandPool;
         VkPhysicalDeviceProperties2 deviceProperties{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
         };
-        VkPhysicalDeviceFeatures    deviceFeatures {};
+        VkPhysicalDeviceFeatures     deviceFeatures {};
         VkPhysicalDeviceIDProperties physDeviceIDProps{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };
@@ -167,6 +164,7 @@ export namespace z0 {
 
         // Drawing a frame
         const uint32_t          framesInFlight;
+        VkCommandPool           commandPool;
         vector<VkCommandBuffer> commandBuffers;
         vector<VkSemaphore>     imageAvailableSemaphores;
         vector<VkSemaphore>     renderFinishedSemaphores;

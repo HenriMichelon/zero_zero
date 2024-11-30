@@ -18,7 +18,10 @@ import z0.VulkanImage;
 
 namespace z0 {
 
-    void ZRes::loadImagesAndTextures(ifstream &stream,
+    void ZRes::loadImagesAndTextures(
+        const Device& device,
+        VkCommandPool commandPool,
+        ifstream &stream,
         const vector<ImageHeader>& imageHeaders,
         const vector<vector<MipLevelInfo>>&levelHeaders,
         const vector<TextureHeader>& textureHeaders,
@@ -26,7 +29,7 @@ namespace z0 {
 
         // Upload all images into VRAM using one big staging buffer
         const auto textureStagingBuffer = Buffer{
-            Device::get(),
+            device,
             totalImageSize,
             1,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -43,10 +46,7 @@ namespace z0 {
 
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
-        const auto& device = Device::get();
         log("start upload images");
-        VkQueue graphicsQueue;
-        const auto commandPool = device.createCommandPool();
         const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
             const auto& texture = textureHeaders.at(textureIndex);
@@ -66,8 +66,7 @@ namespace z0 {
                 ));
             }
         }
-        device.endOneTimeCommandBuffer(commandBuffer, commandPool);
-        vkDestroyCommandPool(device.getDevice(), commandPool, nullptr);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         log("end upload images");
     }
 

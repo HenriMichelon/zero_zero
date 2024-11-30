@@ -95,13 +95,11 @@ namespace z0 {
         }
     }
 
-    void Buffer::copyTo(const Buffer &dstBuffer, const VkDeviceSize size) const {
-        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
+    void Buffer::copyTo(const VkCommandBuffer commandBuffer, const Buffer &dstBuffer, const VkDeviceSize size) const {
         const VkBufferCopy copyRegion {
             .size = size
         };
         vkCmdCopyBuffer(commandBuffer, buffer, dstBuffer.buffer, 1, &copyRegion);
-        device.endOneTimeCommandBuffer(commandBuffer);
     }
 
 

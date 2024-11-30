@@ -44,7 +44,7 @@ export namespace z0 {
                            VkDeviceSize size   = VK_WHOLE_SIZE,
                            VkDeviceSize offset = 0) const;
 
-        void copyTo(const Buffer &dstBuffer, VkDeviceSize size) const;
+        void copyTo(VkCommandBuffer commandBuffer, const Buffer &dstBuffer, VkDeviceSize size) const;
 
     private:
         const Device &device;

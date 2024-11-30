@@ -21,6 +21,7 @@ export namespace z0 {
         inline explicit VulkanMesh(const string &meshName ) : Mesh{meshName} {}
 
         VulkanMesh(
+            VkCommandPool              commandPool,
             const vector<Vertex> &             vertices,
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
@@ -39,7 +40,7 @@ export namespace z0 {
         // Only send the drawing command without binding vertices & indexes
         void bindlessDraw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
 
-        void buildModel();
+        void buildModel(VkCommandPool commandPool);
 
     private:
         unique_ptr<Buffer> vertexBuffer;

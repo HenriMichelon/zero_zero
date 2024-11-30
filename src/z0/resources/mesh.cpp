@@ -13,6 +13,7 @@ module z0.Mesh;
 import z0.Material;
 import z0.Tools;
 
+import z0.Device;
 import z0.VulkanMesh;
 
 namespace z0 {
@@ -26,7 +27,10 @@ namespace z0 {
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
             const string &                     meshName) {
-        return make_shared<VulkanMesh>(vertices, indices, surfaces, meshName);
+        const auto& device = Device::get();
+        const auto commandPool = device.beginCommandPool();
+        return make_shared<VulkanMesh>(commandPool, vertices, indices, surfaces, meshName);
+        device.endCommandPool(commandPool);
     }
 
 

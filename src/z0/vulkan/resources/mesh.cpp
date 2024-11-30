@@ -27,12 +27,13 @@ namespace z0 {
 
 
     VulkanMesh::VulkanMesh(
+            const VkCommandPool              commandPool,
             const vector<Vertex> &             vertices,
             const vector<uint32_t> &           indices,
             const vector<shared_ptr<Surface>> &surfaces,
-            const string &                     meshName) :
+            const string &                      meshName) :
             Mesh(vertices, indices, surfaces, meshName) {
-        buildModel();
+        buildModel(commandPool);
     };
 
     vector<VkVertexInputBindingDescription2EXT> VulkanMesh::getBindingDescription() {
@@ -98,7 +99,7 @@ namespace z0 {
         vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
     }
 
-    void VulkanMesh::buildModel() {
+    void VulkanMesh::buildModel(const VkCommandPool commandPool) {
         const auto &device = Device::get();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());
@@ -117,12 +118,14 @@ namespace z0 {
                 vertexCount,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        vtxStagingBuffer.copyTo(*vertexBuffer, sizeof (vertices[0]) * vertexCount);
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+        vtxStagingBuffer.copyTo(commandBuffer, *vertexBuffer, sizeof (vertices[0]) * vertexCount);
 
         ////////////// Create indices buffer
         const auto indexCount = static_cast<uint32_t>(indices.size());
-        if (indexCount <= 0)
+        if (indexCount <= 0) {
             die("Unindexed meshes aren't supported");
+        }
         constexpr auto indexSize = sizeof(indices[0]);
         const Buffer   idxStagingBuffer{
                 device,
@@ -137,7 +140,8 @@ namespace z0 {
                 indexCount,
                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT
                 );
-        idxStagingBuffer.copyTo(*indexBuffer, sizeof (indices[0]) * indexCount);
+        idxStagingBuffer.copyTo(commandBuffer, *indexBuffer, sizeof (indices[0]) * indexCount);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
 
         buildAABB();
     }

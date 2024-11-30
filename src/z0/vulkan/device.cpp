@@ -13,9 +13,10 @@ module;
 #include <dxgi1_4.h>
 #endif
 #define VK_USE_PLATFORM_WIN32_KHR
+#include <cassert>
+#include <mutex>
 #include <volk.h>
 #include <vk_mem_alloc.h>
-#include <cassert>
 #include "z0/libraries.h"
 
 module z0.Device;
@@ -116,16 +117,16 @@ namespace z0 {
         // Find a graphical command queue and a presentation command queue
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
         vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        QueueFamilyIndices              indices = findQueueFamilies(physicalDevice);
+        auto indices = findQueueFamilies(physicalDevice);
         {
-            auto queuePriority       = 1.0f;
-            set  uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+            constexpr auto queuePriority = 1.0f;
+            const auto uniqueQueueFamilies = set{indices.graphicsFamily.value(), indices.presentFamily.value()};
             for (auto queueFamily : uniqueQueueFamilies) {
                 const VkDeviceQueueCreateInfo queueCreateInfo{
-                        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-                        .queueFamilyIndex = queueFamily,
-                        .queueCount = 1 + Application::MAX_ASYNC_CALLS,
-                        .pQueuePriorities = &queuePriority,
+                    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                    .queueFamilyIndex = queueFamily,
+                    .queueCount = 1,
+                    .pQueuePriorities = &queuePriority,
                 };
                 queueCreateInfos.push_back(queueCreateInfo);
             }
@@ -171,12 +172,10 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
-        ////////////////////  Create the device command pool
-
-        commandPool = createCommandPool();
+        ////////////////////  Create the first command pool
+        commandPool = beginCommandPool();
 
         //////////////////// Create VMA allocator
-
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
         const VmaVulkanFunctions vulkanFunctions{
                 .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
@@ -216,11 +215,9 @@ namespace z0 {
         vmaCreateAllocator(&allocatorInfo, &allocator);
 
         //////////////////// Create swap chain
-
         createSwapChain();
 
         //////////////////// Create command buffers
-
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Command_buffers
         {
             const VkCommandBufferAllocateInfo allocInfo{
@@ -229,8 +226,9 @@ namespace z0 {
                     .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                     .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())
             };
-            if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+            if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
                 die("failed to allocate command buffers!");
+            }
         }
 
         //////////////////// Create sync objects
@@ -295,9 +293,9 @@ namespace z0 {
             vkResetCommandBuffer(commandBuffers[currentFrame], 0);
             for (const auto &renderer : renderers) { renderer->update(currentFrame); }
             constexpr VkCommandBufferBeginInfo beginInfo{
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                    .flags = 0,
-                    .pInheritanceInfo = nullptr
+                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                .flags = 0,
+                .pInheritanceInfo = nullptr
             };
             if (vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
                 die("failed to begin recording command buffer!");
@@ -362,19 +360,18 @@ namespace z0 {
             if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
-            // vkQueueWaitIdle(graphicsQueue);
         }
 
         {
             const VkSwapchainKHR   swapChains[] = {swapChain};
             const VkPresentInfoKHR presentInfo{
-                    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-                    .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = signalSemaphores,
-                    .swapchainCount = 1,
-                    .pSwapchains = swapChains,
-                    .pImageIndices = &imageIndex,
-                    .pResults = nullptr // Optional
+                .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                .waitSemaphoreCount = 1,
+                .pWaitSemaphores = signalSemaphores,
+                .swapchainCount = 1,
+                .pSwapchains = swapChains,
+                .pImageIndices = &imageIndex,
+                .pResults = nullptr // Optional
             };
             result = vkQueuePresentKHR(presentQueue, &presentInfo);
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
@@ -553,27 +550,25 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    VkCommandBuffer Device::beginOneTimeCommandBuffer(VkCommandPool cmdPool) const {
-        // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
+    VkCommandBuffer Device::beginOneTimeCommandBuffer(const VkCommandPool commandPool) const {
         const VkCommandBufferAllocateInfo allocInfo{
-                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                .commandPool = cmdPool != VK_NULL_HANDLE ? cmdPool : commandPool,
-                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                .commandBufferCount = 1
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .commandPool = commandPool,
+            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            .commandBufferCount = 1
         };
         VkCommandBuffer commandBuffer;
         vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
         constexpr VkCommandBufferBeginInfo beginInfo{
-                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
         };
         vkBeginCommandBuffer(commandBuffer, &beginInfo);
         return commandBuffer;
     }
 
-    void Device::endOneTimeCommandBuffer(VkCommandBuffer commandBuffer, VkCommandPool cmdPool) const {
-        // https://vulkan-tutorial.com/Texture_mapping/Images#page_Layout-transitions
+    void Device::endOneTimeCommandBuffer(const VkCommandPool commandPool, const VkCommandBuffer commandBuffer) const {
         vkEndCommandBuffer(commandBuffer);
         const VkSubmitInfo submitInfo{
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -582,7 +577,7 @@ namespace z0 {
         };
         vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(graphicsQueue);
-        vkFreeCommandBuffers(device, cmdPool != VK_NULL_HANDLE ? cmdPool : commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
     void Device::createSwapChain() {
@@ -866,8 +861,8 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-    VkCommandPool Device::createCommandPool() const {
-        auto queueFamilyIndices = findQueueFamilies(physicalDevice);
+    VkCommandPool Device::beginCommandPool() const {
+        const auto queueFamilyIndices = findQueueFamilies(physicalDevice);
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
@@ -875,9 +870,13 @@ namespace z0 {
         };
         VkCommandPool cmdPool;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool) != VK_SUCCESS) {
-            die("Failed to create the command pool");
+            die("Failed to create a command pool");
         }
         return cmdPool;
+    }
+
+    void Device::endCommandPool(const VkCommandPool commandPool) const {
+        vkDestroyCommandPool(device, commandPool, nullptr);
     }
 
     // void Device::getQueue(uint32_t index) {

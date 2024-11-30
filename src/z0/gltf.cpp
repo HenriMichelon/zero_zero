@@ -103,6 +103,8 @@ namespace z0 {
         map<size_t, shared_ptr<Image>> images;
         map<size_t, shared_ptr<Image>> compressedImages;
 
+        const auto commandPool = device.beginCommandPool();
+
         // load all materials
         vector<std::shared_ptr<StandardMaterial>> materials{};
         map<Resource::id_t, int> materialsTexCoords;
@@ -166,7 +168,7 @@ namespace z0 {
                 if (data) {
                     const VkDeviceSize imageSize = width * height * STBI_rgb_alpha;
                     const auto newImage = make_shared<VulkanImage>(
-                        device, name,
+                        device, commandPool, name,
                         width, height,
                         imageSize, data, format,
                           magFilter, minFilter, wrapU, wrapV);
@@ -359,7 +361,7 @@ namespace z0 {
             // MeshInstance class
             if (node.meshIndex.has_value()) {
                 auto mesh = meshes[*node.meshIndex];
-                mesh->buildModel();
+                mesh->buildModel(commandPool);
                 newNode = make_shared<MeshInstance>(mesh, name);
             } else {
                 newNode = make_shared<Node>(name);
@@ -385,6 +387,7 @@ namespace z0 {
             newNode->_updateTransform(mat4{1.0f});
             nodes.push_back(newNode);
         }
+        device.endCommandPool(commandPool);
 
         // Read the animations
         auto animationPlayers = map<uint32_t, shared_ptr<AnimationPlayer>>{};

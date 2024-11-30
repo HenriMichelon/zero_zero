@@ -29,11 +29,11 @@ export namespace z0 {
         explicit IBLPipeline(Device &device);
         ~IBLPipeline() override;
 
-        void convert(const shared_ptr<VulkanImage>&   hdrFile,
+        void convert(VkCommandPool commandPool, const shared_ptr<VulkanImage>&   hdrFile,
                      const shared_ptr<VulkanCubemap>& cubemap) const;
-        void preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const;
-        void preComputeIrradiance(const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const;
-        void preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const;
+        void preComputeSpecular(VkCommandPool commandPool, const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const;
+        void preComputeIrradiance(VkCommandPool commandPool, const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const;
+        void preComputeBRDF(VkCommandPool commandPool, const shared_ptr<VulkanImage>& brdfLut) const;
 
     private:
         struct SpecularFilterPushConstants {

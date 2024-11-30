@@ -23,11 +23,12 @@ import z0.VulkanImage;
 namespace z0 {
 
     shared_ptr<Image> Image::create(
-    uint32_t width, uint32_t height,
-    uint64_t imageSize, const void *data,
-    const string & name, const ImageFormat format) {
+                const Device& device, VkCommandPool commandPool,
+                uint32_t width, uint32_t height,
+                uint64_t imageSize, const void *data,
+                const string & name, const ImageFormat format) {
         return make_shared<VulkanImage>(
-            Device::get(),
+            device, commandPool,
             name, width, height, imageSize, data,
             format == ImageFormat::R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
     }
@@ -108,12 +109,15 @@ namespace z0 {
         const string & name):
         Resource{name}, width{width}, height{height} {};
 
-    shared_ptr<Image> Image::createBlankImage() {
+    shared_ptr<Image> Image::createBlankImage(const Device& device, VkCommandPool commandPool) {
         const auto& blankJPEG = createBlankJPG();
-        return create(1, 1, blankJPEG.size(), blankJPEG.data(), "Blank");
+        return create(device, commandPool, 1, 1, blankJPEG.size(), blankJPEG.data(), "Blank");
     }
 
     shared_ptr<Image> Image::load(const string &filepath, const ImageFormat imageFormat) {
+        shared_ptr<Image> result;
+        const auto &device = Device::get();
+        const auto commandPool = device.beginCommandPool();
         if (filepath.ends_with(".dds")) {
             auto ddsData = VirtualFS::loadBinary(filepath);
             ddspp::Descriptor desc;
@@ -121,8 +125,8 @@ namespace z0 {
                 die("Failed to decode DDS header for", filepath);
             }
             const auto format = dxgiToVulkanFormat.at(static_cast<DXGI_FORMAT>(desc.format));
-            return make_shared<VulkanImage>(
-                    Device::get(),
+            result = make_shared<VulkanImage>(
+                    device, commandPool,
                     filepath, desc.width, desc.height,
                     ddsData.size() - desc.headerSize, ddsData.data() + desc.headerSize,
                     imageFormat == ImageFormat::R8G8B8A8_SRGB ? VulkanImage::formatSRGB(format, filepath): format,
@@ -158,13 +162,16 @@ namespace z0 {
         //     fclose(ktxFile);
         //     return image;
         // }
-        uint32_t texWidth, texHeight;
-        uint64_t imageSize;
-        auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);
-        if (!pixels) { die("failed to load texture image!"); }
-        auto image = create(texWidth, texHeight, imageSize, pixels, filepath);
-        VirtualFS::destroyImage(pixels);
-        return image;
+        else {
+            uint32_t texWidth, texHeight;
+            uint64_t imageSize;
+            auto *pixels = VirtualFS::loadRGBAImage(filepath, texWidth, texHeight, imageSize, imageFormat);
+            if (!pixels) { die("failed to load texture image!"); }
+            result = create(device, commandPool, texWidth, texHeight, imageSize, pixels, filepath);
+            VirtualFS::destroyImage(pixels);
+        }
+        device.endCommandPool(commandPool);
+        return result;
     }
 
 }

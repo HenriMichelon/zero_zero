@@ -82,7 +82,8 @@ namespace z0 {
             };
         }
         // prepare for CPU to GPU transfer
-        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandPool = device.beginCommandPool();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -111,7 +112,8 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
                                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                       VK_IMAGE_ASPECT_COLOR_BIT);
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
+        device.endCommandPool(commandPool);
 
         textureImageView = device.createImageView(textureImage,
                                                   textureFormat,

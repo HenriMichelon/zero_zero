@@ -15,6 +15,8 @@ import z0.Material;
 import z0.Mesh;
 import z0.Node;
 
+import z0.Device;
+
 export namespace z0 {
 
     /**
@@ -280,7 +282,10 @@ export namespace z0 {
 
         shared_ptr<Node> loadScene(ifstream& stream);
 
-        void loadImagesAndTextures(ifstream& stream,
+        void loadImagesAndTextures(
+            const Device& device,
+            VkCommandPool commandPool,
+            ifstream& stream,
             const vector<ImageHeader>&,
             const vector<vector<MipLevelInfo>>&,
             const vector<TextureHeader>&,

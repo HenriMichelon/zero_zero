@@ -5,7 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "stb_truetype.h"
+#include <stb_truetype.h>
+#include <volk.h>
 #include "z0/libraries.h"
 
 export module z0.Font;
@@ -48,13 +49,7 @@ export namespace z0 {
         */
         [[nodiscard]] vector<uint32_t> renderToBitmap(const string &text, float &wwidth, float &hheight);
 
-        /**
-         * Renders a string into an RGBA Image resource (stored in GPU memory).
-         * Glyphs are white with alpha channel mapped to the glyphs geometry
-         * @param text : text to render
-         * @result 32 bits RGBA bitmap stored in GPU memory with a VK_FORMAT_R8G8B8A8_SRGB format, clamped to border and VK_IMAGE_TILING_OPTIMAL tiling
-         */
-        [[nodiscard]] shared_ptr<Image> renderToImage(const string &text);
+        [[nodiscard]] shared_ptr<Image> renderToImage(VkCommandPool commandPool, const string &text);
 
         /**
          * Returns the font path. Useful to create another Font resource with a different size

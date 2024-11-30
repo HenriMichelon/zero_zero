@@ -68,7 +68,8 @@ namespace z0 {
         vkDestroySampler(device.getDevice(), computeSampler, nullptr);
     }
 
-    void IBLPipeline::convert(const shared_ptr<VulkanImage>&   hdrFile,
+    void IBLPipeline::convert(const VkCommandPool commandPool,
+                              const shared_ptr<VulkanImage>&   hdrFile,
                               const shared_ptr<VulkanCubemap>& cubemap) const {
         const auto shaderModule = createShaderModule( VirtualFS::loadShader("equirect2cube.comp"));
         const auto pipeline = createPipeline(shaderModule);
@@ -80,7 +81,7 @@ namespace z0 {
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
             .update(descriptorSet);
 
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         pipelineBarrier(commandBuffer,
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
             {
@@ -100,14 +101,16 @@ namespace z0 {
                            VK_ACCESS_SHADER_WRITE_BIT, 0,
                            VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const {
+    void IBLPipeline::preComputeSpecular(const VkCommandPool commandPool,
+                                         const shared_ptr<VulkanCubemap>& unfilteredCubemap,
+                                         const shared_ptr<VulkanCubemap>& cubemap) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("specular_map.comp"));
         const auto pipeline = createPipeline(shaderModule, &specializationInfo);
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         // Copy base mipmap level into destination environment map.
         {
             pipelineBarrier(commandBuffer,
@@ -192,14 +195,16 @@ namespace z0 {
                         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
         }
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         for (const VkImageView mipTailView : envTextureMipTailViews) {
             vkDestroyImageView(device.getDevice(), mipTailView, nullptr);
         }
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeIrradiance(const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const {
+    void IBLPipeline::preComputeIrradiance(const VkCommandPool commandPool,
+                                           const shared_ptr<VulkanCubemap>& cubemap,
+                                           const shared_ptr<VulkanCubemap>& irradianceCubemap) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("irradiance_map.comp"));
         const auto pipeline = createPipeline(shaderModule);
 
@@ -211,7 +216,7 @@ namespace z0 {
             .update(descriptorSet);
 
         // Compute diffuse irradiance cubemap
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         pipelineBarrier(commandBuffer,
            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
            {
@@ -236,11 +241,12 @@ namespace z0 {
                    VK_ACCESS_SHADER_WRITE_BIT, 0,
                    VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 
-    void IBLPipeline::preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const {
+    void IBLPipeline::preComputeBRDF(const VkCommandPool commandPool,
+                                     const shared_ptr<VulkanImage>& brdfLut) const {
         const auto shaderModule = createShaderModule(VirtualFS::loadShader("brdf.comp"));
         const auto pipeline = createPipeline(shaderModule);
         const auto outputInfo = VkDescriptorImageInfo{ VK_NULL_HANDLE, brdfLut->getImageView(), VK_IMAGE_LAYOUT_GENERAL };
@@ -249,7 +255,7 @@ namespace z0 {
             .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo)
             .update(descriptorSet);
 		// Compute Cook-Torrance BRDF 2D LUT for split-sum approximation.
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         pipelineBarrier(commandBuffer,
           VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
           {
@@ -273,7 +279,7 @@ namespace z0 {
                    VK_ACCESS_SHADER_WRITE_BIT, 0,
                    VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         });
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         vkDestroyPipeline(device.getDevice(), pipeline, nullptr);
     }
 } // namespace z0

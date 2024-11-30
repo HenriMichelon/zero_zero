@@ -180,6 +180,8 @@ namespace z0 {
         bool internalColorFrameBuffer;
         // Default blank image
         shared_ptr<VulkanImage> blankImage{nullptr};
+        // To upload images & vertices to the GPU
+        VkCommandPool commandPool;
 
         void init();
 

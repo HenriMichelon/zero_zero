@@ -106,7 +106,7 @@ namespace z0 {
                                   const float   w,
                                   const float   h, const float clip_w,
                                   const float   clip_h) {
-        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(text));
+        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(commandPool, text));
     }
 
     void VectorRenderer::beginDraw() {
@@ -144,7 +144,9 @@ namespace z0 {
             }
             // Push new vertices data to GPU memory
             stagingBuffer->writeToBuffer(vertices.data());
-            stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
+            const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+            stagingBuffer->copyTo(commandBuffer, *(vertexBuffer), vertexBufferSize);
+            device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         }
         for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
             frame.commands = commands;
@@ -290,6 +292,7 @@ namespace z0 {
     }
 
     void VectorRenderer::cleanup() {
+        device.endCommandPool(commandPool);
         commands.clear();
         textures.clear();
         vertexBuffer.reset();
@@ -342,6 +345,7 @@ namespace z0 {
     }
 
     void VectorRenderer::init() {
+        commandPool = device.beginCommandPool();
         createImagesResources();
         attributeDescriptions.push_back({
                 VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
@@ -360,7 +364,7 @@ namespace z0 {
                 offsetof(Vertex, uv)
         });
         // Create an in-memory default blank image
-        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage()); }
+        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device, commandPool)); }
         createOrUpdateResources(true, &pushConstantRange, 1);
     }
 

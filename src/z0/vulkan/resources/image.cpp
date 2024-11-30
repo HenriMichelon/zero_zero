@@ -24,6 +24,7 @@ namespace z0 {
 
 
     VulkanImage::VulkanImage(const Device &device,
+                const VkCommandPool commandPool,
                  const string &             name,
                  const uint32_t             width,
                  const uint32_t             height,
@@ -34,13 +35,14 @@ namespace z0 {
                  const VkSamplerAddressMode samplerAddressMode,
                  const VkFilter             samplerFilter,
                  const bool                 noMipmaps):
-        VulkanImage(device, name, width, height, imageSize, data, format,
+        VulkanImage(device, commandPool, name, width, height, imageSize, data, format,
             samplerFilter, samplerFilter,
             samplerAddressMode, samplerAddressMode,
             tiling, noMipmaps) {
     }
 
     VulkanImage::VulkanImage(const Device &device,
+                const VkCommandPool commandPool,
                const string &             name,
                const uint32_t             width,
                const uint32_t             height,
@@ -91,7 +93,7 @@ namespace z0 {
                 .imageOffset = {0, 0, 0},
                 .imageExtent = {width, height, 1},
         };
-        const auto commandBuffer = device.beginOneTimeCommandBuffer();
+        const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
         Device::transitionImageLayout(commandBuffer,
                                       textureImage,
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -122,11 +124,11 @@ namespace z0 {
                                        VK_IMAGE_ASPECT_COLOR_BIT,
                                        mipLevels);
         }
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
         if (!noMipmaps) {
             //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
-            generateMipmaps(format);
+            generateMipmaps(commandPool, format);
         }
 
         createTextureSampler(magFiter, minFiler, samplerAddressModeU, samplerAddressModeV);
@@ -297,7 +299,7 @@ namespace z0 {
         }
     }
 
-    void VulkanImage::generateMipmaps(const VkFormat imageFormat) const {
+    void VulkanImage::generateMipmaps(VkCommandPool commandPool, const VkFormat imageFormat) const {
         // https://vulkan-tutorial.com/en/Generating_Mipmaps
         // Check if image format supports linear blitting
         VkFormatProperties formatProperties;
@@ -305,7 +307,7 @@ namespace z0 {
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
             die("texture image format does not support linear blitting!"); // TODO
         }
-        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer();
+        const VkCommandBuffer commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
 
         VkImageMemoryBarrier barrier{
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -398,7 +400,7 @@ namespace z0 {
                              1,
                              &barrier);
 
-        device.endOneTimeCommandBuffer(commandBuffer);
+        device.endOneTimeCommandBuffer(commandPool, commandBuffer);
     }
 
     // ktxVulkanDeviceInfo KTXVulkanImage::vdi;

@@ -62,11 +62,13 @@ namespace z0 {
                VK_FORMAT_R32G32B32A32_SFLOAT,
                offsetof(Vertex, color)
         });
+        commandPool = device.beginCommandPool();
         createOrUpdateResources();
         Initialize();
     }
 
     void DebugRenderer::cleanup() {
+        device.endCommandPool(commandPool);
         ranges::for_each(frameData, [](FrameData& frame) {
             frame.globalBuffer.reset();
         });
@@ -153,7 +155,9 @@ namespace z0 {
                 if (!triangleVertices.empty()) {
                     stagingBuffer->writeToBuffer(triangleVertices.data(), triangleVertices.size() * sizeof(Vertex), linesVertices.size() * sizeof(Vertex));
                 }
-                stagingBuffer->copyTo(*(vertexBuffer), vertexBufferSize);
+                const auto commandBuffer = device.beginOneTimeCommandBuffer(commandPool);
+                stagingBuffer->copyTo(commandBuffer, *(vertexBuffer), vertexBufferSize);
+                device.endOneTimeCommandBuffer(commandPool, commandBuffer);
                 vertexBufferDirty = false;
             }
         }

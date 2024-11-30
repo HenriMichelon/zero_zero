@@ -23,6 +23,7 @@ import z0.Texture;
 import z0.Tools;
 import z0.VirtualFS;
 
+import z0.Device;
 import z0.VulkanMesh;
 
 namespace z0 {
@@ -177,8 +178,10 @@ namespace z0 {
         }
 
         // Read, upload and create the Image and Texture objets (Vulkan specific)
+        const auto& device = Device::get();
+        const auto commandPool = device.beginCommandPool();
         if (header.imagesCount > 0) {
-            loadImagesAndTextures(stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
+            loadImagesAndTextures(device, commandPool, stream, imageHeaders, levelHeaders, textureHeaders, totalImageSize);
         }
 
         // Create the Material objects
@@ -295,18 +298,20 @@ namespace z0 {
                 }
                 mesh->getSurfaces().push_back(surface);
             }
-            mesh->buildModel();
+            mesh->buildModel(commandPool);
             meshes[meshIndex] = mesh;
         }
+
+        device.endCommandPool(commandPool);
 
         // Create the Node objects
         vector<shared_ptr<Node>> nodes{static_cast<vector<shared_ptr<Node>>::size_type>(header.nodesCount)};
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             shared_ptr<Node> newNode;
-            string           name{nodeHeaders.at(nodeIndex).name};
+            string           name{nodeHeaders[nodeIndex].name};
             // find if the node has a mesh, and if it does hook it to the mesh pointer and allocate it with the
             // MeshInstance class
-            if (nodeHeaders.at(nodeIndex).meshIndex != -1) {
+            if (nodeHeaders[nodeIndex].meshIndex != -1) {
                 auto mesh = meshes[nodeHeaders.at(nodeIndex).meshIndex];
                 newNode = std::make_shared<MeshInstance>(mesh, name);
             } else {

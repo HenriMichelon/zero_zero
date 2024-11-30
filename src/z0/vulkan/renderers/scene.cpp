@@ -480,7 +480,11 @@ namespace z0 {
                             .build();
 
         // Create an in-memory default blank images
-        if (blankImage == nullptr) { blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage()); }
+        if (blankImage == nullptr) {
+            const auto commandPool = device.beginCommandPool();
+            blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device, commandPool));
+            device.endCommandPool(commandPool);
+        }
         if (blankCubemap == nullptr) { blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap()); }
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
