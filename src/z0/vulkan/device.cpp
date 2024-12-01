@@ -263,7 +263,7 @@ namespace z0 {
         }
         vkDestroyCommandPool(device, commandPool, nullptr);
         cleanupSwapChain();
-        vmaDestroyAllocator(allocator);
+        vmaDestroyAllocator(allocator); // If it crash here check for non deallocated Buffers
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
 #ifdef _WIN32
@@ -272,6 +272,16 @@ namespace z0 {
     }
 
     void Device::drawFrame(const uint32_t currentFrame) {
+        if (!renderersToRemove.empty()) {
+            auto lock = lock_guard(renderersToRemoveMutex);
+            for (auto i = 0; i < framesData.size(); i++) {
+                vkWaitForFences(device, 1, &framesData[i].inFlightFence, VK_TRUE, UINT64_MAX);
+            }
+            for (const auto&renderer : renderersToRemove) {
+                renderers.remove(renderer);
+            }
+            renderersToRemove.clear();
+        }
         auto& data = framesData[currentFrame];
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
@@ -347,6 +357,43 @@ namespace z0 {
             }
         }
         submitQueue->submit(data, swapChain);
+        // const VkSemaphore signalSemaphores[] = {data.renderFinishedSemaphore};
+        // {
+        //     const VkSemaphore              waitSemaphores[] = {data.imageAvailableSemaphore};
+        //     constexpr VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        //     const VkSubmitInfo             submitInfo{
+        //         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        //         .waitSemaphoreCount = 1,
+        //         .pWaitSemaphores = waitSemaphores,
+        //         .pWaitDstStageMask = waitStages,
+        //         .commandBufferCount = 1,
+        //         .pCommandBuffers = &data.commandBuffer,
+        //         .signalSemaphoreCount = 1,
+        //         .pSignalSemaphores = signalSemaphores
+        //     };
+        //     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
+        //         die("failed to submit draw command buffer!");
+        //     }
+        // }
+        //
+        // {
+        //     const VkSwapchainKHR   swapChains[] = {swapChain};
+        //     const VkPresentInfoKHR presentInfo{
+        //         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        //         .waitSemaphoreCount = 1,
+        //         .pWaitSemaphores = signalSemaphores,
+        //         .swapchainCount = 1,
+        //         .pSwapchains = swapChains,
+        //         .pImageIndices = &data.imageIndex,
+        //         .pResults = nullptr // Optional
+        //     };
+        //     auto lock = lock_guard(submitQueue->getSwapChainMutex());
+        //     auto result = vkQueuePresentKHR(presentQueue, &presentInfo);
+        //     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        //         recreateSwapChain();
+        //         for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
+        //     } else if (result != VK_SUCCESS) { die("failed to present swap chain image!"); }
+        // }
     }
 
     void Device::wait() const {
@@ -357,9 +404,14 @@ namespace z0 {
         vkDeviceWaitIdle(device);
     }
 
-    void Device::registerRenderer(const shared_ptr<Renderer> &renderer) { renderers.push_front(renderer); }
+    void Device::registerRenderer(const shared_ptr<Renderer> &renderer) {
+        renderers.push_front(renderer);
+    }
 
-    void Device::unRegisterRenderer(const shared_ptr<Renderer> &renderer) { renderers.remove(renderer); }
+    void Device::unRegisterRenderer(const shared_ptr<Renderer> &renderer) {
+        auto lock = lock_guard(renderersToRemoveMutex);
+        renderersToRemove.push_back(renderer);
+    }
 
     VkImageView Device::createImageView(const VkImage            image,
                                         const VkFormat           format,

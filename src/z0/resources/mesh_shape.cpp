@@ -45,14 +45,14 @@ namespace z0 {
 
     void MeshShape::createShape(const shared_ptr<MeshInstance>& meshInstance) {
         JPH::VertexList vertexList;
-        const auto &    transform = meshInstance->getTransformLocal();
-        const auto &    vertices  = meshInstance->getMesh()->getVertices();
+        const auto & transform = meshInstance->getTransformLocal();
+        const auto & vertices  = meshInstance->getMesh()->getVertices();
         for (const auto &vertex : vertices) {
             const auto &v1 = transform * vec4{vertex.position, 1.0f};
             vertexList.push_back(JPH::Float3{v1.x, v1.y, v1.z});
         }
         JPH::IndexedTriangleList triangles;
-        const auto &             indices = meshInstance->getMesh()->getIndices();
+        const auto & indices = meshInstance->getMesh()->getIndices();
         for (int i = 0; i < indices.size(); i += 3) {
             triangles.push_back({
                     indices[i + 0],
@@ -60,7 +60,11 @@ namespace z0 {
                     indices[i + 2]
             });
         }
+        // auto tStart = chrono::high_resolution_clock::now();
         shapeSettings = new JPH::MeshShapeSettings(vertexList, triangles);
+
+        // auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        // log("MeshShape createShape time ", meshInstance->getName(), to_string(last_time), to_string(indices.size()));
     }
 
 }

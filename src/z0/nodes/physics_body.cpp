@@ -73,7 +73,7 @@ namespace z0 {
         CollisionObject::setProperty(property, value);
         if (property == "shape") {
             // split shape class name from parameters
-            auto parts = split(value, ';');
+            const auto parts = split(value, ';');
             // we must have at least a class name
             if (parts.size() > 0) {
                 if (parts.at(0) == "ConvexHullShape") {

@@ -250,12 +250,10 @@ namespace z0 {
     }
 
     void Node::_updateTransform(const mat4 &parentMatrix) {
-        // Application::get().callDeferred([this, parentMatrix] {
-            worldTransform = parentMatrix * localTransform;
-            for (const auto &child : children) {
-                child->_updateTransform(worldTransform);
-            }
-        // });
+        worldTransform = parentMatrix * localTransform;
+        for (const auto &child : children) {
+            child->_updateTransform(worldTransform);
+        }
     }
 
     void Node::_updateTransform() {
@@ -271,7 +269,7 @@ namespace z0 {
         child->parent = this;
         children.push_back(child);
         child->_updateTransform(worldTransform);
-        if ((inReady || (parent != nullptr)) && isProcessed()) { child->_onReady(); }
+        child->_onReady();
         if (addedToScene) { Application::get()._addNode(child); }
         return true;
     }
@@ -332,9 +330,10 @@ namespace z0 {
     }
 
     void Node::_onReady() {
-        inReady = true;
-        onReady();
-        inReady = false;
+        if (!isReady) {
+            onReady();
+            isReady = true;
+        }
     }
 
 }

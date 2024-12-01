@@ -139,8 +139,6 @@ export namespace z0 {
             return submitQueue->createOneTimeBuffer(oneTimeCommand, instanceSize, instanceCount, usageFlags, minOffsetAlignment);
         }
 
-        list<shared_ptr<Renderer>> renderers;
-
     private:
         static Device *             _instance;
         const Window &              window;
@@ -163,6 +161,9 @@ export namespace z0 {
         VkSampleCountFlagBits        samples;
 
         unique_ptr<SubmitQueue>      submitQueue;
+        list<shared_ptr<Renderer>>   renderers;
+        list<shared_ptr<Renderer>>   renderersToRemove;
+        mutex                        renderersToRemoveMutex;
 
         // Total video memory given by the OS (not Vulkan)
         uint64_t                     dedicatedVideoMemory;

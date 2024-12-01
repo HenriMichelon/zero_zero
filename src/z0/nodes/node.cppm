@@ -500,7 +500,7 @@ import z0.Tween;
         static id_t             currentId;
         id_t                    id;
         ProcessMode             processMode{ProcessMode::INHERIT};
-        bool                    inReady{false};
+        bool                    isReady{false};
         bool                    addedToScene{false};
         list<shared_ptr<Tween>> tweens;
         list<string>            groups;
