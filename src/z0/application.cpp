@@ -107,9 +107,7 @@ namespace z0 {
                 frame.addedNodes.push_back(node);
             }
         }
-        if (node->isProcessed()) {
-            node->_onEnterScene();
-        }
+        node->_onEnterScene();
         for (const auto &child : node->_getChildren()) {
             _addNode(child);
         }
@@ -128,9 +126,7 @@ namespace z0 {
             }
         }
         node->_setAddedToScene(false);
-        if (node->isProcessed()) {
-            node->_onExitScene();
-        }
+        node->_onExitScene();
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
@@ -283,11 +279,11 @@ namespace z0 {
     }
 
     void Application::cleanup(shared_ptr<Node> &node) {
-        assert(node != nullptr);
-        for (auto &child : node->_getChildren()) {
-            cleanup(child);
-        }
-        node.reset();
+        // assert(node != nullptr);
+        // for (auto &child : node->_getChildren()) {
+        //     cleanup(child);
+        // }
+        // node.reset();
     }
 
     void Application::quit() const { window->close(); }
@@ -320,7 +316,8 @@ namespace z0 {
         Loader::_cleanup();
         waitForRenderingSystem();
         windowManager.reset();
-        cleanup(rootNode);
+        rootNode.reset();
+        // cleanup(rootNode);
 #ifdef _WIN32
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);

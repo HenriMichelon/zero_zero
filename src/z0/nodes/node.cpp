@@ -270,11 +270,12 @@ namespace z0 {
         children.push_back(child);
         child->_updateTransform(worldTransform);
         child->_onReady();
+        child->visible = visible && child->visible;
         if (addedToScene) { Application::get()._addNode(child); }
         return true;
     }
 
-    bool Node::removeChild(const shared_ptr<Node> &node) {
+    bool Node::removeChild(const shared_ptr<Node> node) {
         if (!haveChild(node, false)) { return false; }
         node->parent = nullptr;
         if (node->addedToScene) { Application::get()._removeNode(node); }
@@ -282,12 +283,12 @@ namespace z0 {
         return true;
     }
 
-    list<shared_ptr<Node>>::const_iterator Node::removeChild(const list<shared_ptr<Node>>::const_iterator &it) {
-        auto &node   = *it;
-        node->parent = nullptr;
-        if (node->addedToScene) { Application::get()._removeNode(node); }
-        return children.erase(it);
-    }
+    // list<shared_ptr<Node>>::const_iterator Node::removeChild(const list<shared_ptr<Node>>::const_iterator &it) {
+    //     auto &node   = *it;
+    //     node->parent = nullptr;
+    //     if (node->addedToScene) { Application::get()._removeNode(node); }
+    //     return children.erase(it);
+    // }
 
     void Node::removeAllChildren() {
         auto& app = Application::get();
@@ -321,12 +322,10 @@ namespace z0 {
     }
 
     void Node::setVisible(const bool visible) {
-        // Application::get().callDeferred([this, visible]{
         this->visible = visible;
         for (const auto &child : children) {
             child->setVisible(visible);
         }
-        // });
     }
 
     void Node::_onReady() {

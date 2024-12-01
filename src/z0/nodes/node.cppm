@@ -268,7 +268,7 @@ import z0.Tween;
          * Use the iterator version in a for-each loop.<br>
          * The node will be removed from the scene at the start of the next frame.
          */
-        bool removeChild(const shared_ptr<Node> &child);
+        bool removeChild(const shared_ptr<Node> child);
 
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
