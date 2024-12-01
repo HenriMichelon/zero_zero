@@ -98,8 +98,9 @@ namespace z0 {
             // Select the better suitable device found
             physicalDevice = candidates.rbegin()->second;
             // Select the best MSAA samples count if requested
-            if (applicationConfig.msaa == MSAA::AUTO)
+            if (applicationConfig.msaa == MSAA::AUTO) {
                 samples = getMaxUsableMSAASampleCount();
+            }
             deviceProperties.pNext = &physDeviceIDProps;
             vkGetPhysicalDeviceProperties2(physicalDevice, &deviceProperties);
             // Get the GPU description and total memory
@@ -276,9 +277,8 @@ namespace z0 {
         // wait until the GPU has finished rendering the frame.
         vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
         vkResetFences(device, 1, &data.inFlightFence);
-
         {
-            const auto lock = unique_lock(submitQueue->getSwapChainMutex());
+            const auto lock = lock_guard(submitQueue->getSwapChainMutex());
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,
                                                  UINT64_MAX,
@@ -347,44 +347,6 @@ namespace z0 {
             }
         }
         submitQueue->submit(data, swapChain);
-
-        //
-        // {
-        //     constexpr VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-        //     const VkSubmitInfo             submitInfo{
-        //             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        //             .waitSemaphoreCount = 1,
-        //             .pWaitSemaphores = &data.imageAvailableSemaphore,
-        //             .pWaitDstStageMask = waitStages,
-        //             .commandBufferCount = 1,
-        //             .pCommandBuffers = &data.commandBuffer,
-        //             .signalSemaphoreCount = 1,
-        //             .pSignalSemaphores = &data.renderFinishedSemaphore
-        //     };
-        //     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
-        //         die("failed to submit draw command buffer!");
-        //     }
-        // }
-        //
-        // {
-        //     const VkPresentInfoKHR presentInfo{
-        //         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        //         .waitSemaphoreCount = 1,
-        //         .pWaitSemaphores = &data.renderFinishedSemaphore,
-        //         .swapchainCount = 1,
-        //         .pSwapchains = &swapChain,
-        //         .pImageIndices = &data.imageIndex,
-        //         .pResults = nullptr // Optional
-        //     };
-        //     result = vkQueuePresentKHR(presentQueue, &presentInfo);
-        //     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        //         recreateSwapChain();
-        //         for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
-        //     } else if (result != VK_SUCCESS) {
-        //         die("failed to present swap chain image!");
-        //     }
-        // }
-
     }
 
     void Device::wait() const {

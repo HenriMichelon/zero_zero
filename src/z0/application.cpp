@@ -101,8 +101,11 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
-        for (auto& frame : frameData) {
-            frame.addedNodes.push_back(node);
+        {
+            auto lock = lock_guard(frameDataMutex);
+            for (auto& frame : frameData) {
+                frame.addedNodes.push_back(node);
+            }
         }
         if (node->isProcessed()) {
             node->_onEnterScene();
@@ -118,8 +121,11 @@ namespace z0 {
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
         }
-        for (auto& frame : frameData) {
-            frame.removedNodes.push_back(node);
+        {
+            auto lock = lock_guard(frameDataMutex);
+            for (auto& frame : frameData) {
+                frame.removedNodes.push_back(node);
+            }
         }
         node->_setAddedToScene(false);
         if (node->isProcessed()) {
@@ -138,6 +144,7 @@ namespace z0 {
         if (stopped) { return; }
         processDeferredUpdates(currentFrame);
         if (currentFrame == (applicationConfig.framesInFlight-1)) {
+            auto lock = lock_guard(deferredCallsMutex);
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             deferredCalls.clear();
         }
@@ -151,14 +158,17 @@ namespace z0 {
         }
         currentTime = newTime;
         accumulator += frameTime;
-        while (accumulator >= dt) {
-            physicsSystem.Update(dt, 1, temp_allocator.get(), job_system.get());
-            physicsProcess(rootNode, dt);
-            t += dt;
-            accumulator -= dt;
+        {
+            auto lock = lock_guard(rootNodeMutex);
+            while (accumulator >= dt) {
+                physicsSystem.Update(dt, 1, temp_allocator.get(), job_system.get());
+                physicsProcess(rootNode, dt);
+                t += dt;
+                accumulator -= dt;
+            }
+            const double alpha = accumulator / dt;
+            process(rootNode, static_cast<float>(alpha));
         }
-        const double alpha = accumulator / dt;
-        process(rootNode, static_cast<float>(alpha));
         renderFrame(currentFrame);
         elapsedSeconds += static_cast<float>(frameTime);
         frameCount++;
@@ -179,8 +189,11 @@ namespace z0 {
     void Application::setRootNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->getParent() == nullptr && !node->_isAddedToScene());
         waitForRenderingSystem();
-        _removeNode(rootNode);
-        rootNode = node;
+        {
+            auto lock = lock_guard(rootNodeMutex);
+            _removeNode(rootNode);
+            rootNode = node;
+        }
         start();
     }
 

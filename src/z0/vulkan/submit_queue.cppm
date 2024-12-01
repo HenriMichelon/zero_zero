@@ -17,11 +17,11 @@ export namespace z0 {
     class SubmitQueue {
     public:
         struct FrameData {
-            VkCommandBuffer commandBuffer;
-            VkSemaphore     imageAvailableSemaphore;
-            VkSemaphore     renderFinishedSemaphore;
-            VkFence         inFlightFence;
-            uint32_t        imageIndex;
+            VkCommandBuffer   commandBuffer;
+            VkSemaphore       imageAvailableSemaphore;
+            VkSemaphore       renderFinishedSemaphore;
+            VkFence           inFlightFence;
+            uint32_t          imageIndex;
         };
 
         struct OneTimeCommand {
@@ -30,15 +30,15 @@ export namespace z0 {
         };
 
         struct SubmitInfo {
-            VkSubmitInfo     submitInfo;
-            VkPresentInfoKHR presentInfo;
-            VkFence          fence{VK_NULL_HANDLE};
-            OneTimeCommand   command;
+            VkSubmitInfo      submitInfo;
+            VkPresentInfoKHR  presentInfo;
+            VkFence           fence{VK_NULL_HANDLE};
+            OneTimeCommand    command;
         };
 
         explicit SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue);
 
-        void submit(const FrameData& frameData, VkSwapchainKHR& swapChain);
+        void submit(FrameData& frameData, VkSwapchainKHR& swapChain);
 
         void stop();
 

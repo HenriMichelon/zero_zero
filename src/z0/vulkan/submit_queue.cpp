@@ -35,7 +35,6 @@ namespace z0 {
     SubmitQueue::OneTimeCommand SubmitQueue::beginOneTimeCommand() {
         auto lock = lock_guard(oneTimeMutex);
         if (oneTimeCommands.empty()) {
-            log("beginOneTimeCommand create");
             const auto& device = Device::get();
             const auto commandPool = device.createCommandPool();
             const VkCommandBufferAllocateInfo allocInfo{
@@ -82,9 +81,11 @@ namespace z0 {
                 if (vkQueueSubmit(graphicQueue, 1, &submitInfo.submitInfo, submitInfo.fence) != VK_SUCCESS) {
                     die("failed to submit draw command buffer!");
                 }
-                auto swapChainLock = unique_lock{swapChainMutex};
-                if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
-                    die("failed to present swap chain image!");
+                {
+                    const auto swapChainLock = unique_lock{swapChainMutex};
+                    if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
+                        die("failed to present swap chain image!");
+                    }
                 }
             } else {
                 auto vkSubmitInfo = VkSubmitInfo {
@@ -97,7 +98,7 @@ namespace z0 {
                 }
                 vkQueueWaitIdle(graphicQueue);
                 {
-                    auto lock = lock_guard(oneTimeMutex);
+                    const auto lock = lock_guard(oneTimeMutex);
                     oneTimeCommands.push_back(submitInfo.command);
                     {
                         auto lockBuffer = lock_guard(oneTimeBuffersMutex);
@@ -116,11 +117,11 @@ namespace z0 {
         queueCv.notify_one();
     }
 
-    void SubmitQueue::submit(const FrameData& data, VkSwapchainKHR& swapChain) {
+    void SubmitQueue::submit(FrameData& data, VkSwapchainKHR& swapChain) {
         {
             auto lock = lock_guard{queueMutex};
             submitInfos.push_back({
-                {
+                .submitInfo = {
                     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                     .waitSemaphoreCount = 1,
                     .pWaitSemaphores = &data.imageAvailableSemaphore,
@@ -130,7 +131,7 @@ namespace z0 {
                     .signalSemaphoreCount = 1,
                     .pSignalSemaphores = &data.renderFinishedSemaphore
                 },
-    {
+                .presentInfo = {
                     .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
                     .waitSemaphoreCount = 1,
                     .pWaitSemaphores = &data.renderFinishedSemaphore,
@@ -139,7 +140,7 @@ namespace z0 {
                     .pImageIndices = &data.imageIndex,
                     .pResults = nullptr // Optional
                 },
-                data.inFlightFence
+                .fence = data.inFlightFence,
             });
         }
         queueCv.notify_one();

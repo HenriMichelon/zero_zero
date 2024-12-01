@@ -101,31 +101,35 @@ namespace z0 {
     void VulkanApplication::processDeferredUpdates(const uint32_t currentFrame) {
         sceneRenderer->preUpdateScene(currentFrame);
         windowManager->drawFrame();
-        if (!frameData.at(currentFrame).removedNodes.empty()) {
-            for (const auto &node : frameData.at(currentFrame).removedNodes) {
-                sceneRenderer->removeNode(node, currentFrame);
+        {
+            auto lock = lock_guard(frameDataMutex);
+            auto &data = frameData[currentFrame];
+            if (!data.removedNodes.empty()) {
+                for (const auto &node : data.removedNodes) {
+                    sceneRenderer->removeNode(node, currentFrame);
+                }
+                data.removedNodes.clear();
             }
-            frameData.at(currentFrame).removedNodes.clear();
-        }
-        if (!frameData.at(currentFrame).addedNodes.empty()) {
-            for (const auto &node : frameData.at(currentFrame).addedNodes) {
-                sceneRenderer->addNode(node, currentFrame);
+            if (!data.addedNodes.empty()) {
+                for (const auto &node : data.addedNodes) {
+                    sceneRenderer->addNode(node, currentFrame);
+                }
+                data.addedNodes.clear();
             }
-            frameData.at(currentFrame).addedNodes.clear();
-        }
-        if (frameData.at(currentFrame).activeCamera != nullptr) {
-            sceneRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
-            if (applicationConfig.debug) {
-                debugRenderer->activateCamera(frameData.at(currentFrame).activeCamera, currentFrame);
-            }
-            frameData.at(currentFrame).activeCamera = nullptr;
-        }
-        if (sceneRenderer->getCamera(currentFrame) == nullptr) {
-            const auto &camera = rootNode->findFirstChild<Camera>(true);
-            if (camera && camera->isProcessed()) {
-                sceneRenderer->activateCamera(camera, currentFrame);
+            if (data.activeCamera != nullptr) {
+                sceneRenderer->activateCamera(data.activeCamera, currentFrame);
                 if (applicationConfig.debug) {
-                    debugRenderer->activateCamera(camera, currentFrame);
+                    debugRenderer->activateCamera(data.activeCamera, currentFrame);
+                }
+                data.activeCamera = nullptr;
+            }
+            if (sceneRenderer->getCamera(currentFrame) == nullptr) {
+                const auto &camera = rootNode->findFirstChild<Camera>(true);
+                if (camera && camera->isProcessed()) {
+                    sceneRenderer->activateCamera(camera, currentFrame);
+                    if (applicationConfig.debug) {
+                        debugRenderer->activateCamera(camera, currentFrame);
+                    }
                 }
             }
         }

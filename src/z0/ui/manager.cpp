@@ -43,6 +43,7 @@ namespace z0 {
         }
 
         void Manager::drawFrame() {
+            auto lock = lock_guard(windowsMutex);
             for(const auto&window : removedWindows) {
                 window->windowManager = nullptr;
                 if (window->isVisible()) { window->eventHide(); }
@@ -86,8 +87,11 @@ namespace z0 {
 
         void Manager::add(const shared_ptr<Window> &window) {
             assert(window->windowManager == nullptr);
-            windows.push_back(window);
-            window->windowManager = this;
+            {
+                auto lock = lock_guard(windowsMutex);
+                windows.push_back(window);
+                window->windowManager = this;
+            }
             window->eventCreate();
             if (window->isVisible()) { window->eventShow(); }
             needRedraw = true;

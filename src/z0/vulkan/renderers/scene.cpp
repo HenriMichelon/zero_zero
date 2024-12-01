@@ -121,7 +121,7 @@ namespace z0 {
 
     void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
         for (const auto &material : Application::get().getOutlineMaterials().getAll()) {
-            if (!frameData.at(currentFrame).materialsIndices.contains(material->getId())) {
+            if (!frameData[currentFrame].materialsIndices.contains(material->getId())) {
                 addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
             }
@@ -179,7 +179,7 @@ namespace z0 {
     }
 
     void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
-        const auto& camera = ModelsRenderer::frameData.at(currentFrame).currentCamera;
+        const auto& camera = ModelsRenderer::frameData[currentFrame].currentCamera;
         if (camera == nullptr) { return; }
         frameData.at(currentFrame).cameraFrustum = Frustum{
             camera,
@@ -193,7 +193,7 @@ namespace z0 {
         }
         for (const auto &pair : shadowMapRenderers) {
             if (!pair.second->isInitialized()) {
-                pair.second->loadScene(ModelsRenderer::frameData.at(currentFrame).models);
+                pair.second->loadScene(ModelsRenderer::frameData[currentFrame].models);
             }
         }
     }

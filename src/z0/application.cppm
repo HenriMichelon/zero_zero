@@ -158,17 +158,20 @@ namespace z0 {
         */
         template<typename Lambda>
         void callDeferred(Lambda lambda) {
+            auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.push_back(lambda);
         }
 
         template<typename Lambda>
         void callAsync(Lambda lambda) {
-            erase_if(threadedCalls, [](const auto& t) {
-                return !t.joinable();
-            });
-            if (threadedCalls.size() >= MAX_ASYNC_CALLS) {
-                die("Maximum number of concurrent async calls reached");
-            }
+            auto lock = lock_guard(threadedCallsMutex);
+            // put thread in a lambda with state
+            // erase_if(threadedCalls, [](const auto& t) {
+            //     return !t.joinable();
+            // });
+            // if (threadedCalls.size() >= MAX_ASYNC_CALLS) {
+            //     die("Maximum number of concurrent async calls reached");
+            // }
             threadedCalls.push_back(thread(lambda));
         }
 
@@ -259,6 +262,7 @@ namespace z0 {
         unique_ptr<ui::Manager> windowManager;
         // The current scene
         shared_ptr<Node> rootNode;
+        mutex rootNodeMutex;
         // Mesh outlining materials
         unique_ptr<OutlineMaterials> outlineMaterials;
         // Number of seconds since last FPS update
@@ -275,11 +279,14 @@ namespace z0 {
             shared_ptr<Camera> activeCamera;
         };
         vector<FrameData> frameData;
+        mutex frameDataMutex;
 
         // Deferred nodes calls, to be called after processDeferredUpdates()
         list<function<void()>> deferredCalls;
+        mutex deferredCallsMutex;
 
         list<thread> threadedCalls;
+        mutex threadedCallsMutex;
 
         explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
 

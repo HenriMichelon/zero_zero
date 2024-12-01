@@ -24,10 +24,10 @@ namespace z0 {
 
     shared_ptr<Node> Loader::load(const string& filepath) {
         shared_ptr<Node> result{};
-        // if (resources.contains(filepath)) {
-        //     log("re-using resources", filepath);
-        //     return resources[filepath];
-        // }
+        if (resources.contains(filepath)) {
+            log("re-using resources", filepath);
+            return resources[filepath];
+        }
         if (filepath.ends_with(".zres")) {
             result = ZRes::load(filepath);
         }

@@ -46,7 +46,6 @@ namespace z0 {
 
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
-        log("start upload images");
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
             const auto& texture = textureHeaders.at(textureIndex);
             if (texture.imageIndex != -1) {
@@ -66,7 +65,6 @@ namespace z0 {
             }
         }
         device.endOneTimeCommandBuffer(command);
-        log("end upload images");
     }
 
 }

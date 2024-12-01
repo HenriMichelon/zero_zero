@@ -59,6 +59,7 @@ export namespace z0 {
             shared_ptr<Font>            defaultFont;
             shared_ptr<VectorRenderer>& vectorRenderer;
             list<shared_ptr<Window>>   windows;
+            mutex                      windowsMutex;
             vector<shared_ptr<Window>> removedWindows{};
             shared_ptr<Window>         focusedWindow{nullptr};
             shared_ptr<Window>         resizedWindow{nullptr};
