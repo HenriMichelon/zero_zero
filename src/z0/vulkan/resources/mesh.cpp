@@ -25,7 +25,6 @@ import z0.Buffer;
 
 namespace z0 {
 
-
     VulkanMesh::VulkanMesh(
             const vector<Vertex> &             vertices,
             const vector<uint32_t> &           indices,
@@ -99,6 +98,7 @@ namespace z0 {
     }
 
     void VulkanMesh::buildModel() {
+        optimize();
         const auto &device = Device::get();
         ////////////// Create vertices buffer
         const auto vertexCount = static_cast<uint32_t>(vertices.size());

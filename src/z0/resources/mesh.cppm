@@ -148,6 +148,8 @@ export namespace z0 {
 
         void buildAABB();
 
+        void optimize();
+
         explicit Mesh(const string &meshName = "Mesh");
 
         Mesh(const vector<Vertex> &             vertices,

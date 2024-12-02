@@ -71,6 +71,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fetch_glfw)
 target_link_libraries(${GLTF2ZRES} glfw)
 
+###### Using meshoptimizer to optimize meshes
+message(NOTICE "Fetching meshoptimizer from https://github.com/zeux/meshoptimizer ...")
+FetchContent_Declare(
+        fetch_meshopt
+        GIT_REPOSITORY https://github.com/zeux/meshoptimizer
+        GIT_TAG        v0.22
+)
+FetchContent_MakeAvailable(fetch_meshopt)
+target_link_libraries(${Z0_TARGET} meshoptimizer)
+
+
 ###### Using KTX to transcode KTX2 to compressed images
 #message(NOTICE "Fetching LibKTX from https://github.com/KhronosGroup/KTX-Software ...")
 #set(KTX_FEATURE_STATIC_LIBRARY ON CACHE BOOL "Build KTX as a static library" FORCE)

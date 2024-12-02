@@ -60,11 +60,12 @@ namespace z0 {
                     indices[i + 2]
             });
         }
-        // auto tStart = chrono::high_resolution_clock::now();
+        auto tStart = chrono::high_resolution_clock::now();
         shapeSettings = new JPH::MeshShapeSettings(vertexList, triangles);
-
-        // auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        // log("MeshShape createShape time ", meshInstance->getName(), to_string(last_time), to_string(indices.size()));
+        auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        if (last_time > 100) {
+            log("MeshShape createShape time ", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
+        }
     }
 
 }

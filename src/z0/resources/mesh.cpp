@@ -6,6 +6,9 @@
 */
 module;
 #include <cassert>
+namespace meshopt {
+#include <meshoptimizer.h>
+}
 #include "z0/libraries.h"
 
 module z0.Mesh;
@@ -66,7 +69,80 @@ namespace z0 {
                 materials == other.materials;
     }
 
-     void Mesh::buildAABB() {
+    void Mesh::optimize() {
+        vector<uint32_t> remap(indices.size()); // allocate temporary memory for the remap table
+        auto vertex_count = meshopt::meshopt_generateVertexRemap(
+            &remap[0],
+            indices.data(),
+            indices.size(),
+            vertices.data(),
+            vertices.size(),
+            sizeof(Vertex));
+        auto optIndices = vector<uint32_t>(indices.size());
+        auto optVertices = vector<Vertex>(vertex_count);
+        meshopt::meshopt_remapIndexBuffer(
+            optIndices.data(),
+            indices.data(),
+            indices.size(),
+            remap.data());
+        meshopt::meshopt_remapVertexBuffer(
+            optVertices.data(),
+            vertices.data(),
+            vertices.size(),
+            sizeof(Vertex),
+            remap.data());
+        // cout << vertices.size() << " -> " << optVertices.size() << endl;
+        // indices = optIndices;
+        // vertices = optVertices;
+
+        // Step 1: Optimize for vertex cache
+        meshopt::meshopt_optimizeVertexCache(
+            indices.data(),
+            optIndices.data(),
+            optIndices.size(),
+            optVertices.size());
+
+        // Step 2: Optimize for overdraw
+        meshopt::meshopt_optimizeOverdraw(
+            optIndices.data(),
+            indices.data(),
+            indices.size(),
+            &optVertices[0].position.x,
+            optVertices.size(),
+            sizeof(Vertex),
+            1.05f);
+
+        // Step 3: Optimize vertex fetch
+        meshopt::meshopt_optimizeVertexFetch(
+            vertices.data(),
+            indices.data(),
+            indices.size(),
+            optVertices.data(),
+            optVertices.size(),
+            sizeof(Vertex));
+
+        float threshold = 0.2f;
+        size_t target_index_count = static_cast<size_t>(indices.size() * threshold);
+        float target_error = 1e-2f;
+
+        vector<uint32_t> lod(indices.size());
+        float lod_error = 0.f;
+        lod.resize(meshopt::meshopt_simplify(
+            &lod[0],
+            indices.data(),
+            indices.size(),
+            &vertices[0].position.x,
+            vertices.size(),
+            sizeof(Vertex),
+            target_index_count,
+            target_error,
+            /* options= */ 0,
+            &lod_error));
+        // indices = lod;
+        log(to_string(optIndices.size()), " -> ", to_string(indices.size()));
+    }
+
+    void Mesh::buildAABB() {
         auto min = vec3{numeric_limits<float>::max()};
         auto max = vec3{numeric_limits<float>::lowest()};
         for (const auto index : indices) {
