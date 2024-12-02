@@ -82,7 +82,7 @@ namespace z0 {
                     die("failed to submit draw command buffer!");
                 }
                 {
-                    const auto swapChainLock = unique_lock{swapChainMutex};
+                    const auto swapChainLock = lock_guard{swapChainMutex};
                     if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
                         die("failed to present swap chain image!");
                     }
@@ -150,9 +150,9 @@ namespace z0 {
         quit = true;
         queueCv.notify_one();
         queueThread.join();
-        const auto &device = Device::get();
+        const auto &device = Device::get().getDevice();
         for (const auto& command : oneTimeCommands) {
-            vkDestroyCommandPool(device.getDevice(), command.commandPool, nullptr);
+            vkDestroyCommandPool(device, command.commandPool, nullptr);
         }
     }
 

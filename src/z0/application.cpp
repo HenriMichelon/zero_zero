@@ -312,11 +312,12 @@ namespace z0 {
             t.join();
         }
         stopped = true;
+        stopRenderingSystem();
         Input::_closeInput();
         Loader::_cleanup();
-        waitForRenderingSystem();
         windowManager.reset();
         rootNode.reset();
+        waitForRenderingSystem();
         // cleanup(rootNode);
 #ifdef _WIN32
         DestroyWindow(window->_getHandle());

@@ -298,6 +298,8 @@ namespace z0 {
 
         virtual void waitForRenderingSystem() = 0;
 
+        virtual void stopRenderingSystem() = 0;
+
         // Process scene updates before drawing a frame
         virtual void processDeferredUpdates(uint32_t currentFrame) = 0;
 

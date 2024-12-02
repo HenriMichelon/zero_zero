@@ -77,6 +77,8 @@ export namespace z0 {
 
         void wait() const;
 
+        void stop();
+
         void registerRenderer(const shared_ptr<Renderer> &renderer);
 
         void unRegisterRenderer(const shared_ptr<Renderer> &renderer);

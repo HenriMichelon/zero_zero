@@ -252,8 +252,11 @@ namespace z0 {
         }
     }
 
-    void Device::cleanup() {
+    void Device::stop() {
         submitQueue->stop();
+    }
+
+    void Device::cleanup() {
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
         for (const auto& data : framesData) {
