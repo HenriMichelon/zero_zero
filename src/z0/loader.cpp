@@ -24,9 +24,12 @@ namespace z0 {
 
     shared_ptr<Node> Loader::load(const string& filepath) {
         shared_ptr<Node> result{};
-        if (resources.contains(filepath)) {
-            log("re-using resources", filepath);
-            return resources[filepath];
+        {
+            auto lock = lock_guard(resourcesMutex);
+            if (resources.contains(filepath)) {
+                log("re-using resources", filepath);
+                return resources[filepath];
+            }
         }
         if (filepath.ends_with(".zres")) {
             result = ZRes::load(filepath);
@@ -35,11 +38,16 @@ namespace z0 {
             result = GlTF::load(filepath);
         }
         if (result) {
+            auto lock = lock_guard(resourcesMutex);
             resources[filepath] = result;
             return result;
         }
         die("Loader : unsupported scene file format for", filepath);
         return nullptr;
+    }
+
+    void Loader::_cleanup() {
+        resources.clear();
     }
 
     void Loader::addNode(Node *parent,

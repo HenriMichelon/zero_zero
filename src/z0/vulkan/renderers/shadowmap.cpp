@@ -38,10 +38,10 @@ namespace z0 {
         Renderpass{device, WINDOW_CLEAR_COLOR},
         light{light} {
         frameData.resize(device.getFramesInFlight());
-        for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
+        for (auto& frame : frameData) {
             frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
             if (isCascaded()) { frame.cascadesCount = reinterpret_pointer_cast<DirectionalLight>(light)->getShadowMapCascadesCount(); }
-        });
+        };
     }
 
     void ShadowMapRenderer::loadScene(const list<shared_ptr<MeshInstance>> &meshes) {
@@ -54,17 +54,17 @@ namespace z0 {
 
     void ShadowMapRenderer::cleanup() {
         cleanupImagesResources();
-        for_each(frameData.begin(), frameData.end(), [](FrameData& frame) {
+        for (auto& frame : frameData) {
             frame.globalBuffer.reset();
             frame.shadowMap.reset();
-        });
+        }
         Renderpass::cleanup();
     }
 
     ShadowMapRenderer::~ShadowMapRenderer() { ShadowMapRenderer::cleanup(); }
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
-        auto& data = frameData.at(currentFrame);
+        auto& data = frameData[currentFrame];
         if (data.currentCamera == nullptr) { return; }
         auto globalUBO = GlobalBuffer{};
         switch (light->getLightType()) {

@@ -184,7 +184,7 @@ namespace z0 {
 
     void Application::setRootNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->getParent() == nullptr && !node->_isAddedToScene());
-        waitForRenderingSystem();
+        // waitForRenderingSystem();
         {
             auto lock = lock_guard(rootNodeMutex);
             _removeNode(rootNode);
@@ -280,10 +280,10 @@ namespace z0 {
 
     void Application::cleanup(shared_ptr<Node> &node) {
         // assert(node != nullptr);
-        // for (auto &child : node->_getChildren()) {
-        //     cleanup(child);
-        // }
-        // node.reset();
+        for (auto &child : node->_getChildren()) {
+            cleanup(child);
+        }
+        node.reset();
     }
 
     void Application::quit() const { window->close(); }
@@ -308,17 +308,17 @@ namespace z0 {
             messageLoop();
             drawFrame();
         }
+        stopped = true;
+        stopRenderingSystem();
         for(auto&t : threadedCalls) {
             t.join();
         }
-        stopped = true;
-        stopRenderingSystem();
         Input::_closeInput();
         Loader::_cleanup();
+        cleanup(rootNode);
         windowManager.reset();
         rootNode.reset();
         waitForRenderingSystem();
-        // cleanup(rootNode);
 #ifdef _WIN32
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);

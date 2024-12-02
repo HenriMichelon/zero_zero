@@ -256,7 +256,17 @@ namespace z0 {
         submitQueue->stop();
     }
 
+    void Device::wait() const {
+        // for(auto& data : framesData) {
+        //     vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
+        // }
+        vkQueueWaitIdle(graphicsQueue);
+        vkDeviceWaitIdle(device);
+    }
+
     void Device::cleanup() {
+        for (const auto &renderer : renderersToRemove) { renderer->cleanup(); }
+        renderersToRemove.clear();
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
         for (const auto& data : framesData) {
@@ -266,7 +276,7 @@ namespace z0 {
         }
         vkDestroyCommandPool(device, commandPool, nullptr);
         cleanupSwapChain();
-        vmaDestroyAllocator(allocator); // If it crash here check for non deallocated Buffers
+        vmaDestroyAllocator(allocator); // If it crashes here check for non deallocated Buffers
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vkInstance, surface, nullptr);
 #ifdef _WIN32
@@ -399,21 +409,15 @@ namespace z0 {
         // }
     }
 
-    void Device::wait() const {
-        for(auto& data : framesData) {
-            vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
-        }
-        vkQueueWaitIdle(graphicsQueue);
-        vkDeviceWaitIdle(device);
-    }
-
     void Device::registerRenderer(const shared_ptr<Renderer> &renderer) {
         renderers.push_front(renderer);
     }
 
     void Device::unRegisterRenderer(const shared_ptr<Renderer> &renderer) {
-        auto lock = lock_guard(renderersToRemoveMutex);
-        renderersToRemove.push_back(renderer);
+        // auto lock = lock_guard(renderersToRemoveMutex);
+        // renderersToRemove.push_back(renderer);
+        wait();
+        renderers.remove(renderer);
     }
 
     VkImageView Device::createImageView(const VkImage            image,

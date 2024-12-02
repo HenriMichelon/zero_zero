@@ -37,7 +37,7 @@ export namespace z0 {
          **/
         static void addScene(const shared_ptr<Node> &parent, const string &filepath);
 
-        static inline void _cleanup() { resources.clear(); }
+        static void _cleanup();
 
         // Node description inside a JSON file
         struct SceneNode {
@@ -60,6 +60,7 @@ export namespace z0 {
 
     private:
         static inline map<string, shared_ptr<Node>> resources;
+        static inline mutex resourcesMutex;
 
         [[nodiscard]] static vector<SceneNode> loadSceneDescriptionFromJSON(const string &filepath);
 

@@ -23,6 +23,8 @@ import z0.Tools;
 
 namespace z0 {
 
+    // static list<VkBuffer> buffers;
+
     Buffer::Buffer(const VkDeviceSize       instanceSize,
                    const uint32_t           instanceCount,
                    const VkBufferUsageFlags usageFlags,
@@ -52,9 +54,12 @@ namespace z0 {
                             nullptr) != VK_SUCCESS) {
             die("failed to create buffer!");
         }
+        // buffers.push_back(buffer);
     }
 
     Buffer::~Buffer() {
+        // log(to_string(buffers.size()) + " buffers remaining.");
+        // buffers.remove(buffer);
         if (mapped) {
             vmaUnmapMemory(allocator, allocation);
             mapped = nullptr;

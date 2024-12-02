@@ -275,7 +275,7 @@ namespace z0 {
         return true;
     }
 
-    bool Node::removeChild(const shared_ptr<Node> node) {
+    bool Node::removeChild(const shared_ptr<Node>& node) {
         if (!haveChild(node, false)) { return false; }
         node->parent = nullptr;
         if (node->addedToScene) { Application::get()._removeNode(node); }

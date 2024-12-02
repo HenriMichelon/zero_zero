@@ -98,6 +98,14 @@ namespace z0 {
                                               applicationConfig.defaultFontSize);
     }
 
+    void VulkanApplication::stopRenderingSystem() {
+        device->stop();
+    }
+
+    void VulkanApplication::waitForRenderingSystem() {
+        device->wait();
+    }
+
     void VulkanApplication::processDeferredUpdates(const uint32_t currentFrame) {
         sceneRenderer->preUpdateScene(currentFrame);
         windowManager->drawFrame();

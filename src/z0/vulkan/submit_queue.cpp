@@ -110,6 +110,7 @@ namespace z0 {
     }
 
     void SubmitQueue::submit(const OneTimeCommand& oneTimeCommand) {
+        if (quit) { return; }
         {
             auto lock = lock_guard{queueMutex};
             submitInfos.push_back({.command = oneTimeCommand});
@@ -118,6 +119,7 @@ namespace z0 {
     }
 
     void SubmitQueue::submit(FrameData& data, VkSwapchainKHR& swapChain) {
+        if (quit) { return; }
         {
             auto lock = lock_guard{queueMutex};
             submitInfos.push_back({

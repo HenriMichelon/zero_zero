@@ -988,7 +988,7 @@ namespace z0 {
     void SceneRenderer::disableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (shadowMapRenderers.contains(light)) {
-                device.unRegisterRenderer(shadowMapRenderers.at(light));
+                device.unRegisterRenderer(shadowMapRenderers[light]);
                 shadowMapRenderers.erase(light);
             }
         }

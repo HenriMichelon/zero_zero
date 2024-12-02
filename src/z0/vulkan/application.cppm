@@ -44,9 +44,9 @@ export namespace z0 {
 
         inline void renderFrame(const uint32_t currentFrame) override {  device->drawFrame(currentFrame); }
 
-        inline void stopRenderingSystem() override { device->stop(); }
+        void stopRenderingSystem() override;
 
-        inline void waitForRenderingSystem() override { device->wait(); }
+        void waitForRenderingSystem() override;
 
         void setShadowCasting(bool enable) const override;
 
