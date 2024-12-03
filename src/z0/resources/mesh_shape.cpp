@@ -63,7 +63,7 @@ namespace z0 {
         auto tStart = chrono::high_resolution_clock::now();
         shapeSettings = new JPH::MeshShapeSettings(vertexList, triangles);
         auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        if (last_time > 100) {
+        if (last_time > 10) {
             log("MeshShape createShape time ", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
         }
     }
