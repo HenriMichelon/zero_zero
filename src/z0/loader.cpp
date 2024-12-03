@@ -84,7 +84,7 @@ namespace z0 {
             if (nodeDesc.clazz.empty() || nodeDesc.isCustom) {
                 node = make_shared<Node>(nodeDesc.id);
             } else {
-                // The node class is an engine registered class
+                // The node class is a registered class
                 node = TypeRegistry::makeShared<Node>(nodeDesc.clazz);
                 node->setName(nodeDesc.id);
             }
