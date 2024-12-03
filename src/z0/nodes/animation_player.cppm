@@ -29,10 +29,10 @@ export namespace z0 {
             string animationName;
         };
         //! Signal emitted when an animation began playing
-        static constexpr Signal::signal on_playback_start  = "on_playback_start";
+        static inline const Signal::signal on_playback_start  = "on_playback_start";
 
         //! Signal emitted when an animation stop playing
-        static constexpr Signal::signal on_playback_finish = "on_playback_finish";
+        static inline const Signal::signal on_playback_finish = "on_playback_finish";
 
         /**
          * Creates an AnimationLibrary

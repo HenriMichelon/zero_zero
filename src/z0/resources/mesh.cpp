@@ -6,10 +6,15 @@
 */
 module;
 #include <cassert>
-namespace meshopt {
-#include <meshoptimizer.h>
-}
 #include "z0/libraries.h"
+#ifndef _MSC_VER
+namespace meshopt {
+#endif
+#include <meshoptimizer.h>
+#ifndef _MSC_VER
+using namespace meshopt;
+}
+#endif
 
 module z0.Mesh;
 
@@ -71,7 +76,7 @@ namespace z0 {
 
     void Mesh::optimize() {
         vector<uint32_t> remap(indices.size());
-        auto newVertexCount = meshopt::meshopt_generateVertexRemap(
+        const auto newVertexCount = meshopt_generateVertexRemap(
             remap.data(),
             indices.data(),
             indices.size(),
@@ -79,14 +84,14 @@ namespace z0 {
             vertices.size(),
             sizeof(Vertex));
 
-        meshopt::meshopt_remapIndexBuffer(
+        meshopt_remapIndexBuffer(
            indices.data(),
            indices.data(),
            indices.size(),
            remap.data());
 
         auto remappedVertices = vector<Vertex>(newVertexCount);
-        meshopt::meshopt_remapVertexBuffer(
+        meshopt_remapVertexBuffer(
             remappedVertices.data(),
             vertices.data(),
             vertices.size(),
@@ -98,13 +103,13 @@ namespace z0 {
 
         // https://github.com/zeux/meshoptimizer/issues/624
         for (const auto& surface : surfaces) {
-            meshopt::meshopt_optimizeVertexCache(
+            meshopt_optimizeVertexCache(
                 &indices[surface->firstVertexIndex],
                 &indices[surface->firstVertexIndex],
                 surface->indexCount,
                 vertices.size());
 
-            meshopt::meshopt_optimizeOverdraw(
+            meshopt_optimizeOverdraw(
                 &indices[surface->firstVertexIndex],
                 &indices[surface->firstVertexIndex],
                 surface->indexCount,
@@ -114,7 +119,7 @@ namespace z0 {
                 1.05f);
 
         }
-        meshopt::meshopt_optimizeVertexFetch(
+        meshopt_optimizeVertexFetch(
             vertices.data(),
             indices.data(),
             indices.size(),

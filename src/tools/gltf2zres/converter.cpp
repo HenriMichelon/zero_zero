@@ -31,8 +31,7 @@
 module;
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-import std;
-using namespace std;
+#include "z0/libraries.h"
 
 module converter;
 

@@ -11,8 +11,8 @@ module;
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize2.h"
-import std;
-using namespace std;
+#include "z0/libraries.h"
+
 
 module image;
 
@@ -63,7 +63,7 @@ inline bool isMultipleOfBlockSize(const uint64_t dimension, const uint32_t block
 
 // Calculate a power of two aligned (inferior) size
 inline uint32_t calculateAlignedSize(const uint32_t dimension) {
-    return 1u << static_cast<uint32_t>(floor(log2(dimension)));
+    return 1u << static_cast<uint32_t>(floor(std::log2(dimension)));
 }
 
 // Generate all mipmaps for an image and create the mipmaps levels collection

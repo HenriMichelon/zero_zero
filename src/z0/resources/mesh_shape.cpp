@@ -55,17 +55,13 @@ namespace z0 {
         JPH::IndexedTriangleList triangles;
         triangles.reserve(indices.size()/3);
         for (int i = 0; i < indices.size(); i += 3) {
-            triangles.push_back({
-                    indices[i + 0],
-                    indices[i + 1],
-                    indices[i + 2]
-            });
+            triangles.push_back({indices[i + 0], indices[i + 1], indices[i + 2]});
         }
 
-        // auto tStart = chrono::high_resolution_clock::now();
-        shapeSettings = new JPH::MeshShapeSettings(vertexList, triangles);
-        // auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        // log("MeshShape createShape time", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
+        const auto tStart = chrono::high_resolution_clock::now();
+        shapeSettings        = new JPH::MeshShapeSettings(vertexList, triangles);
+        const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        log("MeshShape createShape time", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
     }
 
 }

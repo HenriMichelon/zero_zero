@@ -5,8 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-import std;
-using namespace std;
+#include "z0/libraries.h"
 
 export module miplevel;
 
