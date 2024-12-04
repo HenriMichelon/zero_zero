@@ -280,6 +280,7 @@ namespace z0 {
         };
         vector<FrameData> frameData;
         mutex frameDataMutex;
+        bool doDeferredUpdates{true};
 
         // Deferred nodes calls, to be called after processDeferredUpdates()
         list<function<void()>> deferredCalls;
@@ -327,6 +328,10 @@ namespace z0 {
 
         // Remove a node from the current scene
         void _removeNode(const shared_ptr<Node> &node);
+
+        void _lockDeferredUpdate();
+
+        void _unlockDeferredUpdate();
 
         // Propagate input event to the UI Window manager and to the current scene tree
         void _onInput(InputEvent &inputEvent);

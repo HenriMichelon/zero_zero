@@ -47,8 +47,12 @@ namespace z0 {
     }
 
     CollisionArea::~CollisionArea() {
-        bodyInterface.RemoveBody(_getBodyId());
-        bodyInterface.DestroyBody(_getBodyId());
+        if (!_getBodyId().IsInvalid()) {
+            if (bodyInterface.IsAdded(_getBodyId())) {
+                bodyInterface.RemoveBody(_getBodyId());
+            }
+            bodyInterface.DestroyBody(_getBodyId());
+        }
     }
 
 

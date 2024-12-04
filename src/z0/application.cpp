@@ -101,6 +101,7 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
+        _lockDeferredUpdate();
         {
             auto lock = lock_guard(frameDataMutex);
             for (auto& frame : frameData) {
@@ -112,10 +113,12 @@ namespace z0 {
             _addNode(child);
         }
         node->_setAddedToScene(true);
+        _unlockDeferredUpdate();
     }
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->_isAddedToScene());
+        _lockDeferredUpdate();
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
         }
@@ -127,6 +130,7 @@ namespace z0 {
         }
         node->_setAddedToScene(false);
         node->_onExitScene();
+        _unlockDeferredUpdate();
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
@@ -136,9 +140,17 @@ namespace z0 {
         }
     }
 
+    void Application::_lockDeferredUpdate() {
+        doDeferredUpdates = false;
+    }
+
+    void Application::_unlockDeferredUpdate() {
+        doDeferredUpdates = true;
+    }
+
     void Application::drawFrame() {
         if (stopped) { return; }
-        processDeferredUpdates(currentFrame);
+        if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
         if (currentFrame == (applicationConfig.framesInFlight-1)) {
             auto lock = lock_guard(deferredCallsMutex);
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });

@@ -322,10 +322,12 @@ namespace z0 {
     }
 
     void Node::setVisible(const bool visible) {
+        Application::get()._lockDeferredUpdate();
         this->visible = visible;
         for (const auto &child : children) {
             child->setVisible(visible);
         }
+        Application::get()._unlockDeferredUpdate();
     }
 
     void Node::_onReady() {

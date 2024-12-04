@@ -36,23 +36,27 @@ namespace z0 {
     }
 
     void CollisionObject::setCollistionLayer(const uint32_t layer, const bool value) {
-        assert(!bodyId.IsInvalid());
+        // assert(!bodyId.IsInvalid());
         if (value) {
             collisionLayer |= layer;
         } else {
             collisionLayer &= ~layer;
         }
-        bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+        if (bodyInterface.IsAdded(bodyId)) {
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+        }
     }
 
     void CollisionObject::setCollistionMask(const uint32_t layer, const bool value) {
-        assert(!bodyId.IsInvalid());
+        // assert(!bodyId.IsInvalid());
         if (value) {
             collisionMask |= layer;
         } else {
             collisionMask &= ~layer;
         }
-        bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+        if (bodyInterface.IsAdded(bodyId)) {
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+        }
     }
 
     void CollisionObject::setVelocity(const vec3 velocity) {
@@ -160,8 +164,8 @@ namespace z0 {
     }
 
     void CollisionObject::_physicsUpdate(const float delta) {
-        assert(shape != nullptr && !bodyId.IsInvalid() && "CollisionObject have with invalid shape");
         Node::_physicsUpdate(delta);
+        if (!shape || bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
         updating = true;
         JPH::Vec3 position;
         JPH::Quat rotation;
@@ -175,7 +179,6 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
-        // assert(!bodyId.IsInvalid());
         if (bodyInterface.IsAdded(bodyId)) {
             bodyInterface.ActivateBody(bodyId);
             setPositionAndRotation();
@@ -207,6 +210,7 @@ namespace z0 {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
                     bodyInterface.ActivateBody(bodyId);
+                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
                     setPositionAndRotation();
                 }
             } else {

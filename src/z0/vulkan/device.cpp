@@ -311,6 +311,7 @@ namespace z0 {
                 for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
                 return;
             }
+            if (result == VK_NOT_READY) { return;}
             if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
         }
 
