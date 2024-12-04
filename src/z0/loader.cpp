@@ -22,6 +22,8 @@ import z0.ZRes;
 
 namespace z0 {
 
+    mutex Loader::resourcesMutex;
+
     shared_ptr<Node> Loader::load(const string& filepath) {
         shared_ptr<Node> result{};
         {

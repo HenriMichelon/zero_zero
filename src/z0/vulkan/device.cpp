@@ -5,7 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cstddef>
+#include <cassert>
 #ifdef _WIN32
 #define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
 #define WIN32_LEAN_AND_MEAN
@@ -13,8 +13,6 @@ module;
 #include <dxgi1_4.h>
 #endif
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <cassert>
-#include <mutex>
 #include <volk.h>
 #include <vk_mem_alloc.h>
 #include "z0/libraries.h"

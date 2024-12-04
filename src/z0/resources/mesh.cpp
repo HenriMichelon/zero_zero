@@ -12,8 +12,8 @@ namespace meshopt {
 #endif
 #include <meshoptimizer.h>
 #ifndef _MSC_VER
-using namespace meshopt;
 }
+using namespace meshopt;
 #endif
 
 module z0.Mesh;

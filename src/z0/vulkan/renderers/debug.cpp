@@ -107,14 +107,14 @@ namespace z0 {
     }
 
     void DebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, const JPH::ColorArg inColor) {
-        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0;
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0f;
         linesVertices.push_back( {{ inFrom.GetX(), inFrom.GetY(), inFrom.GetZ() }, color });
         linesVertices.push_back( {{ inTo.GetX(), inTo.GetY(), inTo.GetZ() }, color});
         vertexBufferDirty = true;
     }
 
     void DebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow) {
-        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0;
+        const auto color = vec4{inColor.r, inColor.g, inColor.b, inColor.a} / 255.0f;
         triangleVertices.push_back( {{ inV1.GetX(), inV1.GetY(), inV1.GetZ() }, color });
         triangleVertices.push_back( {{ inV2.GetX(), inV2.GetY(), inV2.GetZ() }, color});
         triangleVertices.push_back( {{ inV3.GetX(), inV3.GetY(), inV3.GetZ() }, color});

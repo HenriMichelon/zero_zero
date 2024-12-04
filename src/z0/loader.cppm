@@ -60,7 +60,7 @@ export namespace z0 {
 
     private:
         static inline map<string, shared_ptr<Node>> resources;
-        static inline mutex resourcesMutex;
+        static mutex resourcesMutex;
 
         [[nodiscard]] static vector<SceneNode> loadSceneDescriptionFromJSON(const string &filepath);
 

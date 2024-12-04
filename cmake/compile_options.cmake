@@ -14,17 +14,18 @@ function(compile_options TARGET_NAME )
                     /GS
                     /Ob0
                     /RTC1
+                    /MDd
         )
-    else()
-        target_compile_options(${TARGET_NAME} PRIVATE
-                /O2
-                /GS-
-                /Gy
-                /Oi
-                /Ot
-        )
-    endif()
-    set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
+        else()
+            target_compile_options(${TARGET_NAME} PRIVATE
+                    /O2
+                    /GS-
+                    /Gy
+                    /Oi
+                    /Ot
+                    /MD
+            )
+        endif()
     else()
         target_compile_options(${TARGET_NAME} PRIVATE
                 -Wno-deprecated-declarations

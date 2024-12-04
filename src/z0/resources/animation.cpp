@@ -5,9 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <fastgltf/math.hpp>
+#include <cassert>
 #include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 module z0.Animation;
