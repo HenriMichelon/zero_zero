@@ -12,6 +12,7 @@ module;
 module z0.Loader;
 
 import z0.AnimationPlayer;
+import z0.Application;
 import z0.Constants;
 import z0.GlTF;
 import z0.Node;
@@ -152,6 +153,7 @@ namespace z0 {
             // log("addNode", nodeDesc.id);
         }
         const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        //Application::get()._getPhysicsSystem().OptimizeBroadPhase(); // https://jrouwe.github.io/JoltPhysics/index.html#creating-bodies
         log("loadScene loading time ", to_string(last_time));
         return scene;
     }

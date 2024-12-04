@@ -104,7 +104,7 @@ namespace std {
     string to_lower(const string& str) {
         auto s = str;
         // https://en.cppreference.com/w/cpp/string/byte/tolower
-         std::transform(s.begin(), s.end(), s.begin(), 
+         ranges::transform(s, s.begin(),
                    [](unsigned char c){ return std::tolower(c); }
                   );
         return s;

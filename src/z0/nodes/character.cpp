@@ -60,7 +60,7 @@ namespace z0 {
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << 4 | collisionMask;
-        settings.mShape  = new JPH::BoxShape(shapeHe * 0.90f);
+        settings.mShape  = new JPH::BoxShape(shapeHe);
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,
@@ -136,12 +136,19 @@ namespace z0 {
                           *this,
                           {},
                           *Application::get()._getTempAllocator().get());
-        const auto pos    = character->GetPosition();
+        const auto pos = character->GetPosition();
         const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {
             setPositionGlobal(newPos);
-            bodyInterface.MoveKinematic(physicsCharacter->GetBodyID(), pos, character->GetRotation(), delta);
+            physicsCharacter->SetPosition(pos);
         }
+        const auto rot = character->GetRotation();
+        const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
+        if (newRot != getRotationQuaternion()) {
+            setRotation(newRot);
+            physicsCharacter->SetRotation(rot);
+        }
+        physicsCharacter->PostSimulation(0.01f);
         updating = false;
     }
 

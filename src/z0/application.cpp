@@ -72,14 +72,10 @@ namespace z0 {
         temp_allocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
         job_system     = std::make_unique<JPH::JobSystemThreadPool>(
                 JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
-        constexpr uint32_t cMaxBodies             = 1024;
-        constexpr uint32_t cNumBodyMutexes        = 0;
-        constexpr uint32_t cMaxBodyPairs          = 1024;
-        constexpr uint32_t cMaxContactConstraints = 1024;
-        physicsSystem.Init(cMaxBodies,
-                           cNumBodyMutexes,
-                           cMaxBodyPairs,
-                           cMaxContactConstraints,
+        physicsSystem.Init(1024,
+                           0,
+                           2048,
+                           104,
                            broad_phase_layer_interface,
                            object_vs_broadphase_layer_filter,
                            object_vs_object_layer_filter);
@@ -151,9 +147,9 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) { return; }
         if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
-        if (currentFrame == (applicationConfig.framesInFlight-1)) {
-            auto lock = lock_guard(deferredCallsMutex);
+        if (!deferredCalls.empty()) {
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
+            auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.clear();
         }
 
@@ -178,7 +174,7 @@ namespace z0 {
             process(rootNode, static_cast<float>(alpha));
         }
         renderFrame(currentFrame);
-        elapsedSeconds += static_cast<float>(frameTime);
+        elapsedSeconds += static_cast<float>(accumulator);
         frameCount++;
         if (elapsedSeconds >= 1.0) {
             fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);

@@ -34,12 +34,13 @@ namespace z0 {
         emit(CollisionObject::on_collision_persists, inBody1, inBody2, inManifold);
     }
 
-    void ContactListener::emit(Signal::signal signal,
+    void ContactListener::emit(const Signal::signal &signal,
                                const JPH::Body &body1,
                                const JPH::Body &body2,
                                const JPH::ContactManifold &inManifold) const {
         const auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
         const auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
+        // if (signal == "on_collision_starts") log("emit", node1->getName(), node2->getName());
         assert(node1 && node2 && "physics body not associated with a node");
         Application::get().callDeferred([=] {
             const auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);

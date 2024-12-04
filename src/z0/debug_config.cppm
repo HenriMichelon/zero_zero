@@ -19,6 +19,10 @@ export namespace z0 {
         ShapeTypeColor,
         //! Static = grey, keyframed = green, dynamic = random color per instance
         MotionTypeColor,
+        //! Static = grey, keyframed = green, dynamic = yellow, sleeping = red
+        SleepColor,
+        //! Static = grey, active = random color per island, sleeping = light grey
+        IslandColor
     };
 
     /**

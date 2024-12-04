@@ -206,6 +206,8 @@ import z0.Tween;
          */
         [[nodiscard]] vec3 getRotation() const;
 
+        [[nodiscard]] quat getRotationQuaternion() const;
+
         /**
          * Returns the X axis rotation of the local transformation
          */

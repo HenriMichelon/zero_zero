@@ -18,7 +18,7 @@ import z0.Tween;
 
 namespace z0 {
 
-    Node::id_t Node::currentId = 0;
+    Node::id_t Node::currentId = 1;
 
     Node::Node(const Node &orig):
         id{currentId++} {
@@ -33,8 +33,8 @@ namespace z0 {
         type{type},
         name{std::move(nodeName)},
         id{currentId++} {
-        replace(name.begin(), name.end(), '/', '_');
-        replace(name.begin(), name.end(), ':', '_');
+        ranges::replace(name, '/', '_');
+        ranges::replace(name, ':', '_');
         localTransform = mat4{1.0};
         _updateTransform(mat4{1.0f});
     }
@@ -49,6 +49,8 @@ namespace z0 {
     }
 
     vec3 Node::getRotation() const { return eulerAngles(toQuat(mat3(localTransform))); }
+
+    quat Node::getRotationQuaternion() const { return toQuat(mat3(localTransform)); }
 
     void Node::translate(const vec3 localOffset) {
         localTransform = glm::translate(localTransform, localOffset);
@@ -322,12 +324,13 @@ namespace z0 {
     }
 
     void Node::setVisible(const bool visible) {
-        Application::get()._lockDeferredUpdate();
+        auto &app = Application::get();
+        app._lockDeferredUpdate();
         this->visible = visible;
         for (const auto &child : children) {
             child->setVisible(visible);
         }
-        Application::get()._unlockDeferredUpdate();
+        app._unlockDeferredUpdate();
     }
 
     void Node::_onReady() {

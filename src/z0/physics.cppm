@@ -51,7 +51,7 @@ export namespace z0 {
                                 JPH::ContactSettings &ioSettings) override;
 
     private:
-        void emit(Signal::signal signal,
+        void emit(const Signal::signal &signal,
                   const JPH::Body &body1, 
                   const JPH::Body &body2, 
                   const JPH::ContactManifold &inManifold) const;

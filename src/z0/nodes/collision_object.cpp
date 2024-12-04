@@ -175,7 +175,10 @@ namespace z0 {
         if (pos != getPositionGlobal()) {
             setPositionGlobal(pos);
         }
-        setRotation(quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()});
+        const auto rot = quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()};
+        if (rot != getRotationQuaternion()) {
+            setRotation(rot);
+        }
         updating = false;
     }
 
@@ -225,10 +228,10 @@ namespace z0 {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
-                    bodyInterface.ActivateBody(bodyId);
                     bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
                     setPositionAndRotation();
                 }
+                bodyInterface.ActivateBody(bodyId);
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.DeactivateBody(bodyId);

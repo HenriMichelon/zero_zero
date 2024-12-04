@@ -7,7 +7,6 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/EActivation.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
@@ -42,7 +41,8 @@ namespace z0 {
                 collisionLayer << 4 | collisionMask
         };
         settings.mIsSensor                     = true;
-        settings.mCollideKinematicVsNonDynamic = true;
+        settings.mUseManifoldReduction         = true;
+        // settings.mCollideKinematicVsNonDynamic = false;
         settings.mGravityFactor                = 0.0f;
         const auto body = bodyInterface.CreateBody(settings);
         setBodyId(body->GetID());
