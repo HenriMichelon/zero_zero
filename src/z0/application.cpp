@@ -146,7 +146,7 @@ namespace z0 {
         }
 
         // https://gafferongames.com/post/fix_your_timestep/
-        double newTime =
+        const double newTime =
                 chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double frameTime = newTime - currentTime;
         if (frameTime > 0.25) {

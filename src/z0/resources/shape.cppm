@@ -11,8 +11,9 @@ module;
 
 export module z0.Shape;
 
-import z0.Tools;
+import z0.Node;
 import z0.Resource;
+import z0.Tools;
 
 export namespace z0 {
 
@@ -56,7 +57,7 @@ export namespace z0 {
         explicit SphereShape(float radius, const string &resName = "SphereShape");
 
     private:
-        explicit SphereShape(const string &resName) : Shape(resName) {};
+        explicit SphereShape(const string &resName) : Shape(resName) {}
     };
 
     /**
@@ -70,7 +71,22 @@ export namespace z0 {
         explicit CylinderShape(float radius, float height, const string &resName = "CylinderShape");
 
     private:
-        explicit CylinderShape(const string &resName) : Shape(resName) {};
+        explicit CylinderShape(const string &resName) : Shape(resName) {}
+    };
+
+    /**
+     * AABB based collision Shape
+     */
+    class AABBShape : public Shape {
+    public:
+        /**
+         * Create a CylinderShape with the given radius
+         */
+        explicit AABBShape(const shared_ptr<Node> &node, const string &resName = "AABBShape");
+        explicit AABBShape(const Node &node, const string &resName = "AABBShape");
+
+    private:
+        explicit AABBShape(const string &resName) : Shape(resName) {}
     };
 
 }

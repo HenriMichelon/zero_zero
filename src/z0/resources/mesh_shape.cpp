@@ -58,10 +58,10 @@ namespace z0 {
             triangles.push_back({indices[i + 0], indices[i + 1], indices[i + 2]});
         }
 
-        const auto tStart = chrono::high_resolution_clock::now();
+        // const auto tStart = chrono::high_resolution_clock::now();
         shapeSettings        = new JPH::MeshShapeSettings(vertexList, triangles);
-        const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        log("MeshShape createShape time", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
+        // const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        // log("MeshShape createShape time", meshInstance->getName(), to_string(last_time), to_string(indices.size() / 3));
     }
 
 }

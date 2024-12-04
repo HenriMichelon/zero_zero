@@ -94,6 +94,8 @@ namespace z0 {
                     setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), name));
                 } else if (parts.at(0) == "MeshShape") {
                     setShape(make_shared<MeshShape>(*this));
+                } else if (parts.at(0) == "AABBShape") {
+                    setShape(make_shared<AABBShape>(*this));
                 } else {
                     die("Missing or bad shape for ", name);
                 }

@@ -15,14 +15,28 @@ module;
 
 module z0.Shape;
 
-import z0.Tools;
+import z0.MeshInstance;
 import z0.Resource;
+import z0.Tools;
 
 namespace z0 {
 
     Shape::Shape(const string &resName):
         Resource{resName} {
     }
+
+    AABBShape::AABBShape(const Node &node, const string &resName ): Shape{resName} {
+        const auto& meshInstance = node.findFirstChild<MeshInstance>();
+        if (meshInstance && meshInstance->isValid()) {
+            const auto& aabb = meshInstance->getMesh()->getAABB();
+            const auto& extends = (aabb.max - aabb.min) * 0.5f;
+            shapeSettings = new JPH::BoxShapeSettings(JPH::Vec3(extends.x, extends.y, extends.z));
+        } else {
+            die("AABBShape : Node ", node.toString(), "does not have a MeshInstance child");
+        }
+    }
+
+    AABBShape::AABBShape(const shared_ptr<Node> &node, const string &resName) : AABBShape{*node, resName} {}
 
     BoxShape::BoxShape(const vec3& extends, const string &resName):
         Shape{resName}, extends

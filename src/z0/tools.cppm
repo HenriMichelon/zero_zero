@@ -31,7 +31,12 @@ export namespace z0 {
                    ENGINE_NAME,
                    MB_OK | MB_ICONINFORMATION);
 #endif
+#if defined(_DEBUG) && defined(_WIN32)
+        __debugbreak();
+#else
         throw runtime_error(stringstream.str());
+#endif
+
     }
 
     /**
