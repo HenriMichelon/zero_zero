@@ -86,19 +86,19 @@ namespace std {
     }
 
     string to_string(const vec3 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "]";
+        return "{" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "}";
     }
 
     string to_string(const vec2 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "]";
+        return "{" + to_string(vec.x) + "," + to_string(vec.y) + "}";
     }
 
     string to_string(const vec4 vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
+        return "{" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "}";
     }
 
     string to_string(const quat vec) {
-        return "[" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "]";
+        return "{" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + to_string(vec.w) + "}";
     }
 
     string to_lower(const string& str) {

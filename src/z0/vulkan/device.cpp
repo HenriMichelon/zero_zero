@@ -412,11 +412,13 @@ namespace z0 {
         renderers.push_front(renderer);
     }
 
-    void Device::unRegisterRenderer(const shared_ptr<Renderer> &renderer) {
-        // auto lock = lock_guard(renderersToRemoveMutex);
-        // renderersToRemove.push_back(renderer);
-        wait();
-        renderers.remove(renderer);
+    void Device::unRegisterRenderer(const shared_ptr<Renderer> &renderer, const bool immediate) {
+        if (immediate) {
+            renderers.remove(renderer);
+        } else {
+            auto lock = lock_guard(renderersToRemoveMutex);
+            renderersToRemove.push_back(renderer);
+        }
     }
 
     VkImageView Device::createImageView(const VkImage            image,

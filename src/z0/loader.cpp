@@ -25,6 +25,9 @@ namespace z0 {
     mutex Loader::resourcesMutex;
 
     shared_ptr<Node> Loader::load(const string& filepath) {
+        if (filepath.ends_with(".json")) {
+            return loadScene(filepath);
+        }
         shared_ptr<Node> result{};
         {
             auto lock = lock_guard(resourcesMutex);
@@ -139,20 +142,18 @@ namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    void Loader::addScene(const shared_ptr<Node> &parent, const string &filepath) {
-        auto tStart = chrono::high_resolution_clock::now();
-        addScene(parent.get(), filepath);
-        auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        log("addScene loading time ", to_string(last_time));
-    }
-
-    void Loader::addScene(Node *parent, const string &filepath) {
+    shared_ptr<Node> Loader::loadScene(const string &filepath) {
+        const auto tStart = chrono::high_resolution_clock::now();
+        auto scene = make_shared<Node>(filepath);
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
-            addNode(parent, nodeTree, sceneTree, nodeDesc);
+            addNode(scene.get(), nodeTree, sceneTree, nodeDesc);
             // log("addNode", nodeDesc.id);
         }
+        const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        log("loadScene loading time ", to_string(last_time));
+        return scene;
     }
 
     void from_json(const nlohmann::ordered_json &j, Loader::SceneNode &node) {

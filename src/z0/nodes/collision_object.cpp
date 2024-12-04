@@ -180,7 +180,7 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
-        if (visible && isProcessed()) {
+        if (isProcessed()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
@@ -192,13 +192,17 @@ namespace z0 {
     }
 
     void CollisionObject::_onExitScene() {
-        bodyInterface.DeactivateBody(bodyId);
+        if (isProcessed() && bodyInterface.IsAdded(bodyId)) {
+            bodyInterface.DeactivateBody(bodyId);
+            bodyInterface.RemoveBody(bodyId);
+        }
         Node::_onExitScene();
     }
 
     void CollisionObject::_onPause() {
-        if (!bodyId.IsInvalid() && isProcessed()) {
+        if (isProcessed() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.DeactivateBody(bodyId);
+            bodyInterface.RemoveBody(bodyId);
         }
     }
 
@@ -227,6 +231,7 @@ namespace z0 {
                 }
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
+                    bodyInterface.DeactivateBody(bodyId);
                     bodyInterface.RemoveBody(bodyId);
                 }
             }

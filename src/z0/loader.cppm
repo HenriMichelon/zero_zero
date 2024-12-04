@@ -23,20 +23,6 @@ export namespace z0 {
          */
         [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
 
-        /**
-         * Creates new instances of nodes described in a JSON file and add them to the parent's tree
-         * @param parent Node to add the new nodes to
-         * @param filepath path of the glTF file, relative to the application path
-         **/
-        static void addScene(Node *parent, const string &filepath);
-
-        /**
-         * Creates new instances of nodes described in a JSON file and add them to the parent's tree
-         * @param parent Node to add the new nodes to
-         * @param filepath path of the glTF file, relative to the application path
-         **/
-        static void addScene(const shared_ptr<Node> &parent, const string &filepath);
-
         static void _cleanup();
 
         // Node description inside a JSON file
@@ -61,6 +47,8 @@ export namespace z0 {
     private:
         static inline map<string, shared_ptr<Node>> resources;
         static mutex resourcesMutex;
+
+        static shared_ptr<Node> loadScene(const string &filepath);
 
         [[nodiscard]] static vector<SceneNode> loadSceneDescriptionFromJSON(const string &filepath);
 

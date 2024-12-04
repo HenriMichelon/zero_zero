@@ -77,7 +77,7 @@ namespace z0 {
             frame.lights.clear();
         });
         for (const auto &pair : shadowMapRenderers) {
-            device.unRegisterRenderer(pair.second);
+            device.unRegisterRenderer(pair.second, true);
             pair.second->cleanup();
         }
         shadowMapRenderers.clear();
@@ -992,7 +992,7 @@ namespace z0 {
     void SceneRenderer::disableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (shadowMapRenderers.contains(light)) {
-                device.unRegisterRenderer(shadowMapRenderers[light]);
+                device.unRegisterRenderer(shadowMapRenderers[light], false);
                 shadowMapRenderers.erase(light);
             }
         }

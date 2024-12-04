@@ -81,7 +81,7 @@ export namespace z0 {
 
         void registerRenderer(const shared_ptr<Renderer> &renderer);
 
-        void unRegisterRenderer(const shared_ptr<Renderer> &renderer);
+        void unRegisterRenderer(const shared_ptr<Renderer> &renderer, bool immediate);
 
         [[nodiscard]] VkImageView createImageView(VkImage            image,
                                                   VkFormat           format,

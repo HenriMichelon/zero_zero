@@ -485,6 +485,8 @@ import z0.Tween;
 
         virtual void setVisible(bool visible = true);
 
+        inline bool isInsideTree() const { return addedToScene; }
+
     protected:
         Type                   type;
         string                 name;

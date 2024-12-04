@@ -68,6 +68,6 @@ private:
     // we use a mutex to create the window & initialize the OpenGL resources
     static inline mutex initMutex;
 
-    void checkShaderStatus(const GLuint shader) const;
+    void checkShaderStatus(GLuint shader) const;
     void checkProgramStatus() const;
 };
