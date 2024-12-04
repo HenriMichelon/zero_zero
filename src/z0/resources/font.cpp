@@ -86,6 +86,8 @@ namespace z0 {
         return static_cast<uint32_t>(ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor)));
     }
 
+    Font::Font(const Font &font, const uint32_t size) : Font{font.getFontName(), size} {}
+
 
 #ifdef __STB_INCLUDE_STB_TRUETYPE_H__
 

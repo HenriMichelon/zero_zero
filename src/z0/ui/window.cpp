@@ -45,7 +45,7 @@ namespace z0 {
             W->setFreezed(false);
         }
 
-        shared_ptr<Font> &Window::getDefaultFont() const {
+        Font &Window::getDefaultFont() const {
             auto *wm = static_cast<Manager *>(windowManager);
             return wm->getDefaultFont();
         }
@@ -55,6 +55,7 @@ namespace z0 {
             if (layout == nullptr) { setStyle(nullptr); }
             if (WIDGET == nullptr) {
                 widget = make_shared<Panel>();
+                widget->setDrawBackground(false);
             } else {
                 widget = std::move(WIDGET);
             }
@@ -64,7 +65,6 @@ namespace z0 {
             widget->style   = layout.get();
             widget->setFont(static_cast<Style*>(widget->style)->getFont());
             static_cast<Style*>(widget->style)->addResource(*widget, RES);
-            widget->setDrawBackground(true);
             widget->eventCreate();
             widget->setPos(0, 0);
             widget->setSize(getWidth(), getHeight());

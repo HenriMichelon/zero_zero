@@ -182,7 +182,7 @@ export namespace z0 {
                 case Widget::FRAME: {
                     W.setHBorder(4);
                     float w, h;
-                    W.getFont()->getSize(((Frame &)W).getText(), w, h);
+                    W.getFont().getSize(static_cast<Frame &>(W).getText(), w, h);
                     W.setVBorder(h - 2);
                 }
                     break;
@@ -433,7 +433,7 @@ export namespace z0 {
                 break;
             }
             float fh, fw;
-            W.getFont()->getSize(W.getText(), fw, fh);
+            W.getFont().getSize(W.getText(), fw, fh);
             const auto &ratio = Application::get().getVectorRatio();
             fw = roundf(fw / ratio.x);
             fh = roundf(fh / ratio.y);

@@ -194,7 +194,7 @@ export namespace z0 {
             /**
              * Returns the default font loaded at startup
              */
-            [[nodiscard]] shared_ptr<Font> &getDefaultFont() const;
+            [[nodiscard]] Font& getDefaultFont() const;
 
             void refresh();
 

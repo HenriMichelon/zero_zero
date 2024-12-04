@@ -96,17 +96,17 @@ namespace z0 {
         }
     }
 
-    void VectorRenderer::drawText(const string &text, const shared_ptr<Font> &font, const Rect &rect, const float clip_w,
+    void VectorRenderer::drawText(const string &text, Font &font, const Rect &rect, const float clip_w,
                                   const float   clip_h) {
         //log(text, to_string(rect.width), to_string(clip_w));
         drawText(text, font, rect.x, rect.y, rect.width, rect.height, clip_w, clip_h);
     }
 
-    void VectorRenderer::drawText(const string &text, const shared_ptr<Font> &font, const float x, const float y,
+    void VectorRenderer::drawText(const string &text, Font &font, const float x, const float y,
                                   const float   w,
                                   const float   h, const float clip_w,
                                   const float   clip_h) {
-        drawFilledRect(x, y, w, h, clip_w, clip_h, font->renderToImage(commandPool, text));
+        drawFilledRect(x, y, w, h, clip_w, clip_h, font.renderToImage(commandPool, text));
     }
 
     void VectorRenderer::beginDraw() {

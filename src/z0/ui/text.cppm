@@ -25,6 +25,7 @@ export namespace z0 {
             explicit Text(string C): Widget(TEXT), text(std::move(C)) {
                 allowChildren = false;
                 drawBackground = false;
+                textColor = vec4{1.0f};
             }
 
             [[nodiscard]] const string& getText() const { return text; }
@@ -40,7 +41,6 @@ export namespace z0 {
 
             void setTextColor(const vec4 c) {
                 textColor = c;
-                textColor.a = 1.0f;
                 refresh();
             }
 
@@ -54,7 +54,7 @@ export namespace z0 {
             * Returns the size (in screen units, VECTOR_SCALE ratio applied) for the text.
             */
             void getSize(float& width, float& height) {
-                getFont()->getSize(text, width, height);
+                getFont().getSize(text, width, height);
                 const auto& ratio = Application::get().getVectorRatio();
                 width = roundf(width / ratio.x);
                 height = roundf(height / ratio.y);

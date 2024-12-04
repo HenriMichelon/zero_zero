@@ -59,13 +59,13 @@ namespace z0 {
                             const shared_ptr<Image> &texture);
 
         // Draw a rectangle filled with a text
-        void drawText(const string &    text, const shared_ptr<Font> &font,
+        void drawText(const string &    text, Font &font,
                       const Rect &      rect,
                       float             clip_w,
                       float             clip_h);
 
         // Draw a rectangle filled with a text
-        void drawText(const string &text, const shared_ptr<Font> &font,
+        void drawText(const string &text, Font &font,
                       float         x, float                      y,
                       float         w, float                      h,
                       float         clip_w, float                 clip_h);

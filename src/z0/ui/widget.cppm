@@ -160,7 +160,7 @@ namespace z0 {
             void setAlignment(AlignmentType);
 
             /** Returns the current font of the widget */
-            [[nodiscard]] shared_ptr<Font> &getFont();
+            [[nodiscard]] Font& getFont();
 
             /** Sets the current font of the widget */
             void setFont(const shared_ptr<Font> &);

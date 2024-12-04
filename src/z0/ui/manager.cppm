@@ -39,7 +39,7 @@ export namespace z0 {
             /**
              * Returns the default font loaded at startup
              */
-            [[nodiscard]] inline shared_ptr<Font>& getDefaultFont() { return defaultFont; }
+            [[nodiscard]] inline Font& getDefaultFont() { return *defaultFont; }
 
             /**
              * Forces a redraw of all the UI at the start of the next frame

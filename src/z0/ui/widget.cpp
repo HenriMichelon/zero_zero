@@ -151,8 +151,8 @@ namespace z0 {
             }
         }
 
-        shared_ptr<Font>& Widget::getFont() {
-            return (font == nullptr ? static_cast<Window*>(window)->getDefaultFont() : font);
+        Font& Widget::getFont() {
+            return (font ? *font : Application::get().getWindowManager().getDefaultFont());
         }
 
         void Widget::_init(Widget& WND,

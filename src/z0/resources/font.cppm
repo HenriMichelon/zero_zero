@@ -32,6 +32,8 @@ export namespace z0 {
          */
         explicit Font(const string &path, uint32_t size);
 
+        explicit Font(const Font &font, uint32_t size);
+
         ~Font() override;
 
         /**
