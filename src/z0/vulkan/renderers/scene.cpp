@@ -303,6 +303,10 @@ namespace z0 {
             auto lightsArray = make_unique<LightBuffer[]>(globalUbo.lightsCount);
             auto lightIndex = 0;
             for (const auto& light : frame.lights) {
+                if (!light->isVisible()) {
+                    lightsArray[lightIndex].type = Light::LIGHT_UNKNOWN;
+                    continue;
+                }
                 lightsArray[lightIndex].type      = light->getLightType();
                 lightsArray[lightIndex].position  = light->getPositionGlobal();
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();

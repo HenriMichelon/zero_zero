@@ -45,7 +45,7 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::loadScene(const list<shared_ptr<MeshInstance>> &meshes) {
-        for_each(frameData.begin(), frameData.end(), [&meshes](FrameData& frame) {
+        ranges::for_each(frameData, [&meshes](FrameData& frame) {
             frame.models = meshes;
             frame.models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
         });
@@ -65,7 +65,7 @@ namespace z0 {
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
-        if (data.currentCamera == nullptr) { return; }
+        if (!light->isVisible() || !data.currentCamera) { return; }
         auto globalUBO = GlobalBuffer{};
         switch (light->getLightType()) {
             case Light::LIGHT_DIRECTIONAL: {
@@ -255,25 +255,21 @@ namespace z0 {
                 break;
             }
             case Light::LIGHT_SPOT: {
-                const auto& spotLight = reinterpret_pointer_cast<SpotLight>(light);
-                const auto lightDirection           = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
-                const auto lightPosition                   = light->getPositionGlobal();
-                const auto sceneCenter              = lightPosition + lightDirection;
-                const auto lightProjection = perspective(
-                    spotLight->getFov() * 1.5f,
-                    data.shadowMap->getRatio(),
-                    spotLight->getNearClipDistance(),
-                    spotLight->getRange());
-                data.lightSpace[0] = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
-                data.frustum[0] = Frustum{
-                    spotLight,
-                    spotLight->getFov()*1.5f,
-                    spotLight->getNearClipDistance(),
-                    spotLight->getRange()
-                };
+                const auto &spotLight       = reinterpret_pointer_cast<SpotLight>(light);
+                const auto  lightDirection  = normalize(mat3{spotLight->getTransformGlobal()} * AXIS_FRONT);
+                const auto  lightPosition   = light->getPositionGlobal();
+                const auto  sceneCenter     = lightPosition + lightDirection;
+                const auto  lightProjection = perspective(spotLight->getFov() * 1.5f,
+                                                         data.shadowMap->getRatio(),
+                                                         spotLight->getNearClipDistance(),
+                                                         spotLight->getRange());
+                data.lightSpace[0]          = lightProjection * lookAt(lightPosition, sceneCenter, AXIS_UP);
+                data.frustum[0]             = Frustum{
+                        spotLight, spotLight->getFov() * 1.5f, spotLight->getNearClipDistance(), spotLight->getRange()};
                 break;
             }
-        }
+            default:;
+            }
         for(auto i = 0; i < 6; i++) {
             globalUBO.lightSpace[i] = data.lightSpace[i];
         }
@@ -282,6 +278,7 @@ namespace z0 {
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         const auto& data = frameData.at(currentFrame);
+        if (!light->isVisible() || !data.currentCamera) { return; }
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
         auto pushConstants = PushConstants {};
         for (int passIndex = 0; passIndex < passCount; passIndex++) {
@@ -390,7 +387,7 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::cleanupImagesResources() {
-        for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
+        ranges::for_each(frameData, [](const FrameData & frame) {
             if (frame.shadowMap != nullptr) {
                 frame.shadowMap->cleanupImagesResources();
             }

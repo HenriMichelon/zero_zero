@@ -131,8 +131,9 @@ namespace z0 {
     }
 
     void CollisionObject::setPositionAndRotation() {
-        if (updating || bodyId.IsInvalid())
+        if (updating || bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) {
             return;
+        }
         const auto position = getPositionGlobal();
         const auto quat = normalize(toQuat(mat3(worldTransform)));
         bodyInterface.SetPositionAndRotation(
@@ -179,9 +180,13 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
-        if (bodyInterface.IsAdded(bodyId)) {
+        if (visible && isProcessed()) {
+            if (!bodyInterface.IsAdded(bodyId)) {
+                bodyInterface.AddBody(bodyId, activationMode);
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+                setPositionAndRotation();
+            }
             bodyInterface.ActivateBody(bodyId);
-            setPositionAndRotation();
         }
         Node::_onEnterScene();
     }
@@ -198,14 +203,21 @@ namespace z0 {
     }
 
     void CollisionObject::_onResume() {
-        if (!bodyId.IsInvalid() && isProcessed()) {
-            bodyInterface.ActivateBody(bodyId);
+        if (isProcessed()) {
+            if (visible) {
+                if (!bodyInterface.IsAdded(bodyId)) {
+                    bodyInterface.AddBody(bodyId, activationMode);
+                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+                    setPositionAndRotation();
+                }
+                bodyInterface.ActivateBody(bodyId);
+            }
         }
     }
 
     void CollisionObject::setVisible(const bool visible) {
         Node::setVisible(visible);
-        if (!bodyId.IsInvalid() && isProcessed()) {
+        if (!bodyId.IsInvalid()) {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);

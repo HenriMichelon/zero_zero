@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2024 Henri Michelon
- * 
+ *
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
@@ -20,7 +20,6 @@ import z0.Shape;
 import z0.Tools;
 
 namespace z0 {
-
 
     void PhysicsBody::setGravityScale(const float value) {
         assert(!_getBodyId().IsInvalid());
@@ -62,7 +61,8 @@ namespace z0 {
                 motionType,
                 collisionLayer << 4 | collisionMask
         };
-        setBodyId(bodyInterface.CreateAndAddBody(settings, JPH::EActivation::DontActivate));
+        const auto body = bodyInterface.CreateBody(settings);
+        setBodyId(body->GetID());
     }
 
     void PhysicsBody::recreateBody() {
@@ -97,7 +97,7 @@ namespace z0 {
                 } else if (parts.at(0) == "AABBShape") {
                     setShape(make_shared<AABBShape>(*this));
                 } else {
-                    die("Missing or bad shape for ", name);
+                    die("PhysicsBody : missing or invalid shape for ", name);
                 }
             }
         }

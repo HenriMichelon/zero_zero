@@ -37,6 +37,8 @@ export namespace z0 {
 
         ~CollisionArea() override;
 
+        void setProperty(const string &property, const string &value) override;
+
     protected:
         shared_ptr<Node> duplicateInstance() override;
 
