@@ -16,6 +16,7 @@ export namespace z0 {
          * Define a rectangular area with a bottom-left origin
          */
         struct Rect {
+
             /*! Bottom-Left corner X position*/
             float	x{0.0f};
             /*! Bottom-Left corner Y position*/
@@ -55,6 +56,10 @@ export namespace z0 {
                 height = std::min(A.y + A.height, B.y + B.height) - y;
             }
         };
+
+        constexpr Rect FULLSCREEN {0,0,1000,1000};
+
+
     }
 
 }

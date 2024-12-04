@@ -165,13 +165,6 @@ namespace z0 {
         template<typename Lambda>
         void callAsync(Lambda lambda) {
             auto lock = lock_guard(threadedCallsMutex);
-            // put thread in a lambda with state
-            // erase_if(threadedCalls, [](const auto& t) {
-            //     return !t.joinable();
-            // });
-            // if (threadedCalls.size() >= MAX_ASYNC_CALLS) {
-            //     die("Maximum number of concurrent async calls reached");
-            // }
             threadedCalls.push_back(thread(lambda));
         }
 
