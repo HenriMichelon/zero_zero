@@ -27,6 +27,7 @@ namespace z0 {
             if (bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.RemoveBody(bodyId);
             }
+            bodyInterface.DestroyBody(bodyId);
             bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
         }
     }
@@ -35,7 +36,7 @@ namespace z0 {
         releaseBodyId();
     }
 
-    void CollisionObject::setCollistionLayer(const uint32_t layer, const bool value) {
+    void CollisionObject::setCollisionLayer(const uint32_t layer, const bool value) {
         // assert(!bodyId.IsInvalid());
         if (value) {
             collisionLayer |= layer;
@@ -47,7 +48,7 @@ namespace z0 {
         }
     }
 
-    void CollisionObject::setCollistionMask(const uint32_t layer, const bool value) {
+    void CollisionObject::setCollisionMask(const uint32_t layer, const bool value) {
         // assert(!bodyId.IsInvalid());
         if (value) {
             collisionMask |= layer;
@@ -99,9 +100,9 @@ namespace z0 {
     void CollisionObject::setProperty(const string &property, const string &value) {
         Node::setProperty(property, value);
         if (property == "layer") {
-            setCollistionLayer(stoul(value), true);
+            setCollisionLayer(stoul(value), true);
         } else if (property == "mask") {
-            setCollistionMask(stoul(value), true);
+            setCollisionMask(stoul(value), true);
         }
     }
 

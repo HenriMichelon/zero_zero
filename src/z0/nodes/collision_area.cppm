@@ -35,7 +35,7 @@ export namespace z0 {
 
         void setShape(const shared_ptr<Shape> &shape);
 
-        ~CollisionArea() override;
+        ~CollisionArea() override = default;
 
         void setProperty(const string &property, const string &value) override;
 

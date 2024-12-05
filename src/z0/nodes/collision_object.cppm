@@ -71,12 +71,12 @@ export namespace z0 {
         /**
          * Adds or removes a collision layer
          */
-        virtual void setCollistionLayer(uint32_t layer, bool value);
+        virtual void setCollisionLayer(uint32_t layer, bool value);
 
         /**
          * Adds or removes a collision mask
          */
-        virtual void setCollistionMask(uint32_t layer, bool value);
+        virtual void setCollisionMask(uint32_t layer, bool value);
 
         /**
          * Returns `true` if the object can collide with an object with the layer `layer`

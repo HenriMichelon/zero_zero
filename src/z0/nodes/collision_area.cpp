@@ -49,15 +49,6 @@ namespace z0 {
         setBodyId(body->GetID());
     }
 
-    CollisionArea::~CollisionArea() {
-        if (!_getBodyId().IsInvalid()) {
-            if (bodyInterface.IsAdded(_getBodyId())) {
-                bodyInterface.RemoveBody(_getBodyId());
-            }
-            bodyInterface.DestroyBody(_getBodyId());
-        }
-    }
-
     shared_ptr<Node> CollisionArea::duplicateInstance() {
         return make_shared<CollisionArea>(*this);
     }
