@@ -306,6 +306,7 @@ namespace z0 {
                                                  data.imageAvailableSemaphore,
                                                  VK_NULL_HANDLE,
                                                  &data.imageIndex);
+            //log("Acquire", to_string(currentFrame), to_string(data.imageIndex));
             if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                 recreateSwapChain();
                 for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }

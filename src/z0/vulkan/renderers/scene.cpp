@@ -299,7 +299,6 @@ namespace z0 {
             .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
         };
-        writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         if (frame.lights.size() > 0) {
             auto lightsArray = vector<LightBuffer>(frame.lights.size());
@@ -363,6 +362,7 @@ namespace z0 {
             writeUniformBuffer(frame.lightBuffer, lightsArray.data());
             globalUbo.lightsCount = lightIndex;
         }
+        writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         uint32_t modelIndex = 0;
         auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData.at(currentFrame).models.size());
