@@ -24,6 +24,7 @@ add_compile_definitions(GLM_ENABLE_EXPERIMENTAL ON)
 add_compile_definitions(GLM_ENABLE_CXX_20 ON)
 add_compile_definitions(JPH_DISABLE_CUSTOM_ALLOCATOR)
 add_compile_definitions(JPH_USE_STD_VECTOR)
+add_compile_definitions(JPH_ENABLE_DETERMINISM_LOG)
 include(cmake/shaders.cmake)
 include(cmake/compile_options.cmake)
 

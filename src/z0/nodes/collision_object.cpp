@@ -22,90 +22,6 @@ import z0.Tools;
 
 namespace z0 {
 
-    void CollisionObject::releaseBodyId() {
-        if (!bodyId.IsInvalid()) {
-            if (bodyInterface.IsAdded(bodyId)) {
-                bodyInterface.RemoveBody(bodyId);
-            }
-            bodyInterface.DestroyBody(bodyId);
-            bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
-        }
-    }
-
-    CollisionObject::~CollisionObject() {
-        releaseBodyId();
-    }
-
-    void CollisionObject::setCollisionLayer(const uint32_t layer, const bool value) {
-        // assert(!bodyId.IsInvalid());
-        if (value) {
-            collisionLayer |= layer;
-        } else {
-            collisionLayer &= ~layer;
-        }
-        if (bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-        }
-    }
-
-    void CollisionObject::setCollisionMask(const uint32_t layer, const bool value) {
-        // assert(!bodyId.IsInvalid());
-        if (value) {
-            collisionMask |= layer;
-        } else {
-            collisionMask &= ~layer;
-        }
-        if (bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-        }
-    }
-
-    void CollisionObject::setVelocity(const vec3 velocity) {
-        assert(!bodyId.IsInvalid());
-        if (velocity == VEC3ZERO) {
-            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
-        } else {
-            // current orientation * velocity
-            const auto vel = toQuat(mat3(localTransform)) * velocity;
-            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{vel.x, vel.y, vel.z});
-        }
-    }
-
-    vec3 CollisionObject::getVelocity() const {
-        assert(!bodyId.IsInvalid());
-        const auto velocity = bodyInterface.GetLinearVelocity(bodyId);
-        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
-    }
-
-    void CollisionObject::applyForce(const vec3 force) const {
-        assert(!bodyId.IsInvalid());
-        bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z});
-    }
-
-    void CollisionObject::applyForce(const vec3 force, const vec3 position) const {
-        assert(!bodyId.IsInvalid());
-        bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z},
-                JPH::Vec3{position.x, position.y, position.z});
-    }
-
-    bool CollisionObject::wereInContact(const CollisionObject *obj) const {
-        assert(!bodyId.IsInvalid());
-        return Application::get()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
-    }
-
-    void CollisionObject::setProperty(const string &property, const string &value) {
-        Node::setProperty(property, value);
-        if (property == "layer") {
-            setCollisionLayer(stoul(value), true);
-        } else if (property == "mask") {
-            setCollisionMask(stoul(value), true);
-        }
-    }
-
     CollisionObject::CollisionObject(const shared_ptr<Shape> &_shape,
                                      const uint32_t           layer,
                                      const uint32_t           mask,
@@ -129,6 +45,88 @@ namespace z0 {
         shape{nullptr},
         activationMode{JPH::EActivation::Activate},
         bodyInterface{Application::get()._getBodyInterface()} {
+    }
+
+    void CollisionObject::releaseBodyId() {
+        if (!bodyId.IsInvalid()) {
+            if (bodyInterface.IsAdded(bodyId)) {
+                bodyInterface.RemoveBody(bodyId);
+            }
+            bodyInterface.DestroyBody(bodyId);
+            bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
+        }
+    }
+
+    CollisionObject::~CollisionObject() {
+        releaseBodyId();
+    }
+
+    void CollisionObject::setCollisionLayer(const uint32_t layer, const bool value) {
+        if (value) {
+            collisionLayer |= layer;
+        } else {
+            collisionLayer &= ~layer;
+        }
+        if (!bodyId.IsInvalid()) {
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+        }
+    }
+
+    void CollisionObject::setCollisionMask(const uint32_t layer, const bool value) {
+        if (value) {
+            collisionMask |= layer;
+        } else {
+            collisionMask &= ~layer;
+        }
+        if (!bodyId.IsInvalid()) {
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+        }
+    }
+
+    void CollisionObject::setVelocity(const vec3 velocity) {
+        if (bodyId.IsInvalid()) { return; }
+        if (velocity == VEC3ZERO) {
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
+        } else {
+            // current orientation * velocity
+            const auto vel = toQuat(mat3(localTransform)) * velocity;
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{vel.x, vel.y, vel.z});
+        }
+    }
+
+    vec3 CollisionObject::getVelocity() const {
+        if (bodyId.IsInvalid()) { return VEC3ZERO; }
+        const auto velocity = bodyInterface.GetLinearVelocity(bodyId);
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    void CollisionObject::applyForce(const vec3 force) const {
+        if (bodyId.IsInvalid()) { return; }
+        bodyInterface.AddForce(
+                bodyId,
+                JPH::Vec3{force.x, force.y, force.z});
+    }
+
+    void CollisionObject::applyForce(const vec3 force, const vec3 position) const {
+        if (bodyId.IsInvalid()) { return; }
+        bodyInterface.AddForce(
+                bodyId,
+                JPH::Vec3{force.x, force.y, force.z},
+                JPH::Vec3{position.x, position.y, position.z});
+    }
+
+    bool CollisionObject::wereInContact(const CollisionObject *obj) const {
+        if (bodyId.IsInvalid()) { return false; }
+        return Application::get()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
+    }
+
+    void CollisionObject::setProperty(const string &property, const string &value) {
+        Node::setProperty(property, value);
+        if (property == "layer") {
+            setCollisionLayer(stoul(value), true);
+        } else if (property == "mask") {
+            setCollisionMask(stoul(value), true);
+        }
     }
 
     void CollisionObject::setPositionAndRotation() {
@@ -187,10 +185,10 @@ namespace z0 {
         if (isProcessed() && !bodyId.IsInvalid()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-                setPositionAndRotation();
                 Application::get()._setOptimizeBroadPhase();
             }
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+            setPositionAndRotation();
         }
         Node::_onEnterScene();
     }
@@ -213,29 +211,28 @@ namespace z0 {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
-                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-                    setPositionAndRotation();
                     Application::get()._setOptimizeBroadPhase();
                 }
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                setPositionAndRotation();
             }
         }
     }
 
     void CollisionObject::setVisible(const bool visible) {
         Node::setVisible(visible);
-        if (!bodyId.IsInvalid()) {
-            if (visible) {
-                if (!bodyInterface.IsAdded(bodyId)) {
-                    log("adding", this->getName(), to_string(collisionMask));
-                    bodyInterface.AddBody(bodyId, activationMode);
-                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-                    setPositionAndRotation();
-                    Application::get()._setOptimizeBroadPhase();
-                }
-            } else {
-                if (bodyInterface.IsAdded(bodyId)) {
-                    bodyInterface.RemoveBody(bodyId);
-                }
+        if (bodyId.IsInvalid()) { return; }
+        if (visible) {
+            if (!bodyInterface.IsAdded(bodyId)) {
+                // log("adding", this->getName(), to_string(collisionMask));
+                bodyInterface.AddBody(bodyId, activationMode);
+                Application::get()._setOptimizeBroadPhase();
+            }
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+            setPositionAndRotation();
+        } else {
+            if (bodyInterface.IsAdded(bodyId)) {
+                bodyInterface.RemoveBody(bodyId);
             }
         }
     }

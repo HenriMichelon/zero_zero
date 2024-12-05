@@ -293,20 +293,17 @@ namespace z0 {
             .projection      = ModelsRenderer::frameData.at(currentFrame).currentCamera->getProjection(),
             .view            = ModelsRenderer::frameData.at(currentFrame).currentCamera->getView(),
             .cameraPosition  = ModelsRenderer::frameData.at(currentFrame).currentCamera->getPositionGlobal(),
-            .lightsCount     = static_cast<uint32_t>(frame.lights.size()),
+            .lightsCount     = 0,
             .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
         };
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
-        if (globalUbo.lightsCount > 0) {
-            auto lightsArray = make_unique<LightBuffer[]>(globalUbo.lightsCount);
+        if (frame.lights.size() > 0) {
+            auto lightsArray = vector<LightBuffer>(frame.lights.size());
             auto lightIndex = 0;
             for (const auto& light : frame.lights) {
-                if (!light->isVisible()) {
-                    lightsArray[lightIndex].type = Light::LIGHT_UNKNOWN;
-                    continue;
-                }
+                if (!light->isVisible()) { continue;}
                 lightsArray[lightIndex].type      = light->getLightType();
                 lightsArray[lightIndex].position  = light->getPositionGlobal();
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();
@@ -351,15 +348,18 @@ namespace z0 {
                         case Light::LIGHT_OMNI: {
                             lightsArray[lightIndex].farPlane = shadowMapRenderer->getFarPlane();
                             for (int faceIndex = 0; faceIndex < 6; faceIndex++) {
-                                lightsArray[lightIndex].lightSpace[faceIndex] =shadowMapRenderer->getLightSpace(faceIndex, currentFrame);
+                                lightsArray[lightIndex].lightSpace[faceIndex] =
+                                        shadowMapRenderer->getLightSpace(faceIndex, currentFrame);
                             }
                             break;
                         }
-                    }
+                        default:;
+                        }
                 }
                 lightIndex += 1;
             }
-            writeUniformBuffer(frame.lightBuffer, lightsArray.get());
+            writeUniformBuffer(frame.lightBuffer, lightsArray.data());
+            globalUbo.lightsCount = lightIndex;
         }
 
         uint32_t modelIndex = 0;
@@ -539,7 +539,7 @@ namespace z0 {
             }
             imageIndex = 0;
             for (const auto &pair : shadowMapRenderers) {
-                const auto &shadowMap      = pair.second->getShadowMap(frameIndex);
+                const auto &shadowMap = pair.second->getShadowMap(frameIndex);
                 shadowMap->_setBufferIndex(imageIndex);
                 const auto shadowMapInfo = VkDescriptorImageInfo{
                     .sampler     = shadowMap->getSampler(),
@@ -559,7 +559,7 @@ namespace z0 {
                  MODEL_BUFFER_SIZE *
                  frame.modelBufferCount);
             auto materialBufferInfo   = frame.materialsBuffer->descriptorInfo(MATERIAL_BUFFER_SIZE * MAX_MATERIALS);
-            auto textureBufferInfo   = frame.texturesBuffer->descriptorInfo(TEXTURE_BUFFER_SIZE * MAX_MATERIALS);
+            auto textureBufferInfo    = frame.texturesBuffer->descriptorInfo(TEXTURE_BUFFER_SIZE * MAX_MATERIALS);
             auto pointLightBufferInfo = frame.lightBuffer->descriptorInfo(LIGHT_BUFFER_SIZE * frame.lightBufferCount);
 
             VkDescriptorImageInfo specularInfo;

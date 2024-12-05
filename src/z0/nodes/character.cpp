@@ -56,10 +56,9 @@ namespace z0 {
         character                      = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                        pos,
                                                        rot,
-                                                       0,
+                                                       reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
         character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
-        character->SetUserData(reinterpret_cast<uint64>(this));
         character->SetListener(this);
 
         JPH::CharacterSettings settings;
@@ -68,14 +67,15 @@ namespace z0 {
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,
-                                                       0,
+                                                       reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
-        bodyInterface.SetUserData(physicsCharacter->GetBodyID(), reinterpret_cast<uint64>(this));
         physicsCharacter->AddToPhysicsSystem();
     }
 
     Character::~Character() {
-        physicsCharacter->RemoveFromPhysicsSystem();
+        if (physicsCharacter) {
+            physicsCharacter->RemoveFromPhysicsSystem();
+        }
     }
 
     vec3 Character::getGroundVelocity() const {
@@ -105,17 +105,19 @@ namespace z0 {
     }
 
     vec3 Character::getVelocity() const {
-        const auto velocity = character->GetLinearVelocity();
+        const auto velocity = physicsCharacter->GetLinearVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
     void Character::setVelocity(const vec3 velocity) {
         if (velocity == VEC3ZERO) {
             character->SetLinearVelocity(JPH::Vec3::sZero());
+            physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
         } else {
             // current orientation * velocity
             const auto vel = toQuat(mat3(localTransform)) * velocity;
             character->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
+            physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
         }
     }
 
@@ -131,7 +133,7 @@ namespace z0 {
     }
 
     void Character::_physicsUpdate(const float delta) {
-        Node::_physicsUpdate(delta);
+        physicsCharacter->PostSimulation(0.01f);
         updating = true;
         character->Update(delta,
                           character->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
@@ -144,16 +146,16 @@ namespace z0 {
         const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {
             setPositionGlobal(newPos);
-            physicsCharacter->SetPosition(pos);
+            // physicsCharacter->SetPosition(pos);
         }
         const auto rot = character->GetRotation();
         const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
         if (newRot != getRotationQuaternion()) {
             setRotation(newRot);
-            physicsCharacter->SetRotation(rot);
+            // physicsCharacter->SetRotation(rot);
         }
-        physicsCharacter->PostSimulation(0.01f);
         updating = false;
+        Node::_physicsUpdate(delta);
     }
 
     void Character::OnContactAdded(const JPH::CharacterVirtual *  inCharacter,
