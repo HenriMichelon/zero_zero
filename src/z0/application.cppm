@@ -153,8 +153,8 @@ namespace z0 {
 
         /**
         * Add a lambda expression in the deferred calls queue.<br>
-        * They will be called before the next frame, after the scene pre-drawing updates where nodes are added/removed
-        * from the drawing lists (for all the frames in flight).
+        * They will be called before the next frame, after the scene pre-drawing updates
+        * where nodes are added/removed from the drawing lists (for all the frames in flight).
         */
         template<typename Lambda>
         void callDeferred(Lambda lambda) {
@@ -162,10 +162,19 @@ namespace z0 {
             deferredCalls.push_back(lambda);
         }
 
-        template<typename Lambda>
+        /**
+         * Starts a new thread that can access the GPU/VRAM.<br>
+         * Use this instead of starting a thread manually because the rendering system needs
+         * to wait for all the threads completion before releasing resources.
+         */
+        template <typename Lambda>
         void callAsync(Lambda lambda) {
-            auto lock = lock_guard(threadedCallsMutex);
-            threadedCalls.push_back(thread(lambda));
+            const auto add_lock = lock_guard(threadedCallsMutex);
+            threadedCalls.push_back(thread([this, lambda] {
+                lambda();
+                const auto remove_lock = lock_guard(threadedCallsMutex);
+                threadedCalls.erase(threadedCalls.begin() + threadedCalls.size());
+            }));
         }
 
         /**
@@ -279,7 +288,7 @@ namespace z0 {
         list<function<void()>> deferredCalls;
         mutex deferredCallsMutex;
 
-        list<thread> threadedCalls;
+        vector<thread> threadedCalls;
         mutex threadedCallsMutex;
 
         explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);

@@ -52,7 +52,7 @@ export namespace z0 {
     class SphereShape : public Shape {
     public:
         /**
-         * Create a SphereShape with the given radius
+         * Creates a SphereShape with the given radius
          */
         explicit SphereShape(float radius, const string &resName = "SphereShape");
 
@@ -66,7 +66,7 @@ export namespace z0 {
     class CylinderShape : public Shape {
     public:
         /**
-         * Create a CylinderShape with the given radius
+         * Creates a CylinderShape with the given radius
          */
         explicit CylinderShape(float radius, float height, const string &resName = "CylinderShape");
 
@@ -80,9 +80,13 @@ export namespace z0 {
     class AABBShape : public Shape {
     public:
         /**
-         * Create a CylinderShape with the given radius
+         * Creates an AABBShape for a given node
          */
         explicit AABBShape(const shared_ptr<Node> &node, const string &resName = "AABBShape");
+
+        /**
+         * Creates an AABBShape for a given node
+         */
         explicit AABBShape(const Node &node, const string &resName = "AABBShape");
 
     private:

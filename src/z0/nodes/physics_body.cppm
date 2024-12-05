@@ -45,6 +45,9 @@ export namespace z0 {
                     const string &   name = TypeNames[PHYSICS_BODY],
                     Type             type = PHYSICS_BODY);
 
+        /**
+         * Sets a new collision shape, recreates the body in the physic system
+         */
         void setShape(const shared_ptr<Shape> &shape);
 
         void setProperty(const string &property, const string &value) override;

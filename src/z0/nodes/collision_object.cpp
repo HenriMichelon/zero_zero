@@ -43,7 +43,7 @@ namespace z0 {
             collisionLayer &= ~layer;
         }
         if (bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
         }
     }
 
@@ -55,7 +55,7 @@ namespace z0 {
             collisionMask &= ~layer;
         }
         if (bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
         }
     }
 
@@ -186,7 +186,7 @@ namespace z0 {
         if (isProcessed()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                 setPositionAndRotation();
             }
             bodyInterface.ActivateBody(bodyId);
@@ -214,7 +214,7 @@ namespace z0 {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
-                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                     setPositionAndRotation();
                 }
                 bodyInterface.ActivateBody(bodyId);
@@ -227,8 +227,9 @@ namespace z0 {
         if (!bodyId.IsInvalid()) {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
+                    // log("adding", this->getName(), to_string(collisionMask));
                     bodyInterface.AddBody(bodyId, activationMode);
-                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << 4 | collisionMask);
+                    bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                     setPositionAndRotation();
                 }
                 bodyInterface.ActivateBody(bodyId);

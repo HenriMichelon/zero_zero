@@ -57,6 +57,7 @@ namespace z0 {
         assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
+        threadedCalls.reserve(10);
         // The rendering Window
         if (node != nullptr) { window = make_unique<Window>(applicationConfig); };
     }

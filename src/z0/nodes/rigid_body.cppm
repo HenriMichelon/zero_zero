@@ -42,6 +42,9 @@ export namespace z0 {
          */
         void setBounce(float value) const;
 
+        /**
+         * Sets the body's mass.
+         */
         void setMass(float value) const;
 
         void setProperty(const string &property, const string &value) override;

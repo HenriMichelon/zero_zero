@@ -48,7 +48,7 @@ namespace z0 {
         _updateTransform();
     }
 
-    vec3 Node::getRotation() const { return eulerAngles(toQuat(mat3(localTransform))); }
+    vec3 Node::getRotation() const { return eulerAngles(getRotationQuaternion()); }
 
     quat Node::getRotationQuaternion() const { return toQuat(mat3(localTransform)); }
 

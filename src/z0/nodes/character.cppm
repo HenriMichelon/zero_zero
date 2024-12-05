@@ -42,6 +42,9 @@ export namespace z0 {
          */
         explicit Character(const string &name = TypeNames[CHARACTER]);
 
+        /**
+         * Sets a new collision shape, recreates the character in the physic system
+         */
         void setShape(const shared_ptr<Shape> &shape);
 
         ~Character() override;
@@ -80,8 +83,14 @@ export namespace z0 {
         */
         [[nodiscard]] list<Collision> getCollisions() const;
 
+        /**
+         * Moves the character using this velocity
+         */
         void setVelocity(vec3 velocity) override;
 
+        /**
+         * Returns the current character velocity
+         */
         [[nodiscard]] vec3 getVelocity() const override;
 
     protected:

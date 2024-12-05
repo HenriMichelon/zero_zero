@@ -98,17 +98,16 @@ export namespace z0 {
     */
     constexpr vec2 VECTOR_SCALE{1000.0f};
 
-    /**
-    * 2D vector drawing default client area size.
-    * Coordinates of the vector screen are [ 0.0, 0.0 ], [ 1000.0, 1000 ] which means a [ 1001.0, 1001.0 ] size for
-    * the client area.
-    */
     constexpr vec2 VECTOR_SIZE{1001.0f};
+
+    constexpr auto PHYSICS_LAYERS_BITS{16};
+
+    constexpr auto PHYSICS_LAYERS_MASK{0xffff};
 
     /**
      * Nodes state when the scene is paused or running
      */
-    enum class ProcessMode : std::uint8_t {
+    enum class ProcessMode : uint8_t {
         //! Inherits mode from the node's parent. This is the default for any newly created node
         INHERIT = 0,
         //! Stops processing when Application::isPaused() is true. This is the inverse of PROCESS_MODE_WHEN_PAUSED
@@ -124,7 +123,7 @@ export namespace z0 {
     /**
      * Rendering Window mode
      */
-    enum class WindowMode : std::uint8_t {
+    enum class WindowMode : uint8_t {
         //! A Window with a border and a title that can be minimized
         WINDOWED = 0,
         //! A maximized Window with a border and a title that can be minimized
@@ -138,7 +137,7 @@ export namespace z0 {
     /**
      * Where to log message using the z0::log() function
      */
-    enum LoggingMode : std::uint32_t {
+    enum LoggingMode : uint32_t {
         //! Disable logging
         LOGGING_MODE_NONE = 0,
         /**
@@ -151,7 +150,7 @@ export namespace z0 {
          */
         LOGGING_MODE_FILE = 0x010,
         /**
-         * Log the messages to std::cout. WIN32 applications needs to be linked with `-mconsole`
+         * Log the messages to cout. WIN32 applications needs to be linked with `-mconsole`
          */
         LOGGING_MODE_STDOUT = 0x100
     };
@@ -159,7 +158,7 @@ export namespace z0 {
     /**
      * MSAA samples
      */
-    enum class MSAA : std::uint8_t {
+    enum class MSAA : uint8_t {
         //! Select the best MSAA sample count between 2x and 8x
         AUTO = 0,
         //! 2x MSAA
@@ -179,7 +178,7 @@ export namespace z0 {
     /**
      * Depth frame buffers precision
      */
-    enum class DepthFormat : std::uint8_t {
+    enum class DepthFormat : uint8_t {
         //! Selection the best depth format available
         AUTO   = 0,
         //! 16-bit unsigned normalized
@@ -194,7 +193,7 @@ export namespace z0 {
      * Cull mode for mesh surfaces.
      * Determines which side of the triangle to cull depending on whether the triangle faces towards or away from the camera.
      */
-    enum class CullMode : std::uint8_t {
+    enum class CullMode : uint8_t {
         //! No face culling is performed; both the front face and back face will be visible.
         DISABLED = 0,
         //! Default cull mode. The back of the object is culled when not visible. Back face triangles will be culled when facing the camera. This results in only the front side of triangles being drawn. For closed-surface meshes, this means that only the exterior of the mesh will be visible.
@@ -207,7 +206,7 @@ export namespace z0 {
     * A Material transparency mode
     * Any transparency mode other than Transparency::DISABLED has a greater performance impact compared to opaque rendering.
     */
-    enum class Transparency : std::uint8_t {
+    enum class Transparency : uint8_t {
         //! The material will not use transparency. This is the fastest to render.
         DISABLED      = 0,
         //! The material will use the texture's alpha values for transparency.
@@ -221,7 +220,7 @@ export namespace z0 {
     /**
      * A Tween transition type
      */
-    enum class TransitionType : std::uint8_t {
+    enum class TransitionType : uint8_t {
         /** The animation is interpolated linearly */
         LINEAR = 0,
     };
@@ -229,7 +228,7 @@ export namespace z0 {
     /**
      * Source of an input event
      */
-    enum class InputEventType : std::uint8_t {
+    enum class InputEventType : uint8_t {
         //! A key have been pressed or released
         KEY = 0,
         //! The mouse cursor moved
@@ -243,7 +242,7 @@ export namespace z0 {
     /**
      * Keyboard modifier keys
      */
-    enum class KeyModifier : std::uint8_t {
+    enum class KeyModifier : uint8_t {
         //! Left & right shift keys
         SHIFT = 0x0001,
         //! Left & right control keys
@@ -255,7 +254,7 @@ export namespace z0 {
     /**
      * Key codes, QWERTY layout to keep the WASD keys
      */
-    enum Key : std::uint8_t {
+    enum Key : uint8_t {
         KEY_NONE = 0,
         //! Space
         KEY_SPACE = 1,
@@ -582,7 +581,7 @@ export namespace z0 {
     /**
      * Mouse buttons
      */
-    enum class MouseButton : std::uint8_t {
+    enum class MouseButton : uint8_t {
         NONE = 0b0000,
         //! Left
         LEFT = 0b0001,
@@ -597,7 +596,7 @@ export namespace z0 {
     /**
      * Gamepas buttons
      */
-    enum class GamepadButton : std::uint8_t {
+    enum class GamepadButton : uint8_t {
         //! A or X
         A = 0,
         //! B or ○
@@ -640,7 +639,7 @@ export namespace z0 {
     /**
      * Gamepad thumbs joysticks
      */
-    enum class GamepadAxisJoystick : std::uint8_t {
+    enum class GamepadAxisJoystick : uint8_t {
         //! Left stick/joystick
         LEFT = 0,
         //! Right stick/joystick
@@ -650,7 +649,7 @@ export namespace z0 {
     /**
      * Gamepad axis & triggers
      */
-    enum class GamepadAxis : std::uint8_t {
+    enum class GamepadAxis : uint8_t {
         //! Left stick/joystick X
         LEFT_X = 0,
         //! Left stick/joystick Y
@@ -667,7 +666,7 @@ export namespace z0 {
     /**
      * Mouse visibility & capture mode
      */
-    enum class MouseMode : std::uint8_t {
+    enum class MouseMode : uint8_t {
         //! Makes the mouse cursor visible
         VISIBLE = 0,
         //! Confines the mouse cursor to the game Window, and make it visible
@@ -681,7 +680,7 @@ export namespace z0 {
     /**
      * Mouse cursors types
      */
-    enum class MouseCursor : std::uint8_t {
+    enum class MouseCursor : uint8_t {
         //! "Normal" arrow cursor
         ARROW = 0,
         //! Waiting cursor
@@ -695,7 +694,7 @@ export namespace z0 {
     /**
      * Images pixel format
      */
-    enum class ImageFormat : std::uint8_t {
+    enum class ImageFormat : uint8_t {
         //! 32 bits with alpha channel in the sRGB color space
         R8G8B8A8_SRGB  = 0,
         //! 32 bits with alpha channel in the linear color space
@@ -705,7 +704,7 @@ export namespace z0 {
     /**
     * Animation type for a animation track
     */
-    enum class AnimationType : std::uint8_t {
+    enum class AnimationType : uint8_t {
         /**
          * The values are the translation along the X, Y, and Z axes.
          */
@@ -724,7 +723,7 @@ export namespace z0 {
     /**
      * Interpolation type to apply when caculating animation values
      */
-    enum class AnimationInterpolation : std::uint8_t {
+    enum class AnimationInterpolation : uint8_t {
         /**
          * The animated values are linearly interpolated between keyframes..
          */
@@ -743,7 +742,7 @@ export namespace z0 {
     /**
      * Animation loop mode
      */
-    enum class AnimationLoopMode : std::uint8_t {
+    enum class AnimationLoopMode : uint8_t {
         //! No loop (default)
         NONE    = 0,
         //! Restart from start of the track

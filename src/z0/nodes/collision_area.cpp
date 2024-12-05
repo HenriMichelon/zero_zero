@@ -12,6 +12,7 @@ module;
 
 module z0.CollisionArea;
 
+import z0.Constants;
 import z0.Node;
 import z0.Shape;
 import z0.Tools;
@@ -38,7 +39,7 @@ namespace z0 {
                 JPH::RVec3{position.x, position.y, position.z},
                 JPH::Quat{quat.x, quat.y, quat.z, quat.w},
                 JPH::EMotionType::Dynamic,
-                collisionLayer << 4 | collisionMask
+                collisionLayer << PHYSICS_LAYERS_BITS | collisionMask
         };
         settings.mIsSensor                     = true;
         settings.mUseManifoldReduction         = true;

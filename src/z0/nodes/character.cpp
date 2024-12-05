@@ -18,6 +18,7 @@ import z0.Application;
 import z0.Constants;
 import z0.CollisionObject;
 import z0.Shape;
+import z0.Tools;
 
 namespace z0 {
     Character::Character(const shared_ptr<Shape> &shape,
@@ -37,9 +38,12 @@ namespace z0 {
     }
 
     void Character::setShape(const shared_ptr<Shape> &shape) {
-        this->shape         = shape;
-        const auto position = getPositionGlobal();
-        const auto quat     = normalize(toQuat(mat3(worldTransform)));
+        if (physicsCharacter) {
+            physicsCharacter->RemoveFromPhysicsSystem();
+        }
+        this->shape = shape;
+        const auto position= getPositionGlobal();
+        const auto quat = normalize(toQuat(mat3(worldTransform)));
         // TODO : use a capsule shape
         const auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings *>(this->shape->_getShapeSettings())->
                 mHalfExtent;
@@ -59,7 +63,7 @@ namespace z0 {
         character->SetListener(this);
 
         JPH::CharacterSettings settings;
-        settings.mLayer  = collisionLayer << 4 | collisionMask;
+        settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
         settings.mShape  = new JPH::BoxShape(shapeHe);
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
@@ -170,17 +174,20 @@ namespace z0 {
     }
 
     bool Character::ShouldCollide(const JPH::ObjectLayer inLayer) const {
-        const auto targetLayer = (inLayer >> 4) & 0b1111;
+        const auto targetLayer = (inLayer >> PHYSICS_LAYERS_BITS) & PHYSICS_LAYERS_MASK;
+        // log("Character::ShouldCollide", to_string(targetLayer), to_string(collisionMask), to_string((targetLayer & collisionMask) != 0));
         return (targetLayer & collisionMask) != 0;
     }
 
     bool Character::ShouldCollide(const JPH::BodyID &inBodyID) const {
         const auto node1 = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID));
+        // log("Character::ShouldCollide", getName(), node1->getName());
         return (node1->getCollisionLayer() & collisionMask) != 0;
     }
 
     bool Character::ShouldCollideLocked(const JPH::Body &inBody) const {
         const auto node1 = reinterpret_cast<CollisionObject *>(inBody.GetUserData());
+        // log("Character::ShouldCollideLocked", getName(), node1->getName());
         return (node1->getCollisionLayer() & collisionMask) != 0;
     }
 

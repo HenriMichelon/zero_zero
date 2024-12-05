@@ -15,6 +15,7 @@ module z0.RayCast;
 
 import z0.Application;
 import z0.CollisionObject;
+import z0.Constants;
 
 namespace z0 {
 
@@ -53,7 +54,7 @@ namespace z0 {
     }
 
     bool RayCast::ShouldCollide(const JPH::ObjectLayer inLayer) const {
-        const auto targetLayer = (inLayer >> 4) & 0b1111;
+        const auto targetLayer = (inLayer >> PHYSICS_LAYERS_BITS) & PHYSICS_LAYERS_MASK;
         return (targetLayer & collisionMask) != 0;
     }
 

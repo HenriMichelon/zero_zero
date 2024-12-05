@@ -84,32 +84,27 @@ import z0.Tween;
         /**
          * Called when a node is ready to initialize, before being added to the scene
          */
-        virtual void onReady() {
-        }
+        virtual void onReady() {}
 
         /**
          * Called when a node is added to the scene
          */
-        virtual void onEnterScene() {
-        }
+        virtual void onEnterScene() {}
 
         /**
          * Called when a node is removed from the scene
          */
-        virtual void onExitScene() {
-        }
+        virtual void onExitScene() {}
 
         /**
          * Called each frame after the physics have been updated and just before drawing the frame
          */
-        virtual void onProcess(const float alpha) {
-        }
+        virtual void onProcess(const float alpha) {}
 
         /**
          * Called just after the physics system have been updated (can be called multiple times if we have free time between frames)
          */
-        virtual void onPhysicsProcess(const float delta) {
-        }
+        virtual void onPhysicsProcess(const float delta) {}
 
         /**
          * Called on a keyboard, mouse or gamepad event
@@ -202,10 +197,13 @@ import z0.Tween;
         void setRotationZ(float angle);
 
         /**
-         * Returns the rotation of the local transformation
+         * Returns the rotation of the local transformation, in euler angles in radians
          */
         [[nodiscard]] vec3 getRotation() const;
 
+        /**
+         * Returns the rotation of the local transformation
+         */
         [[nodiscard]] quat getRotationQuaternion() const;
 
         /**
@@ -466,6 +464,9 @@ import z0.Tween;
          */
         string getPath() const;
 
+        /**
+        * Returns a list of group names that the node has been added to.
+        */
         inline const list<string>& getGroups() const { return groups; }
 
         /**
@@ -483,10 +484,20 @@ import z0.Tween;
          */
         inline bool isInGroup(const string& group) { return ranges::find(groups, group) != groups.end(); }
 
+        /**
+         * Returns the visibility of the node.
+         */
         inline bool isVisible() const { return visible; }
 
+        /**
+         * Changes the visibility of the node.<br>
+         * The node stays in the scene tree and the data in VRAM.
+         */
         virtual void setVisible(bool visible = true);
 
+        /**
+         * Returns `true` if this node is currently inside the scene tree
+         */
         inline bool isInsideTree() const { return addedToScene; }
 
     protected:

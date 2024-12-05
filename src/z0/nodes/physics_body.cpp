@@ -14,6 +14,7 @@ module;
 module z0.PhysicsBody;
 
 import z0.CollisionObject;
+import z0.Constants;
 import z0.ConvexHullShape;
 import z0.MeshShape;
 import z0.Shape;
@@ -51,6 +52,7 @@ namespace z0 {
     }
 
     void PhysicsBody::setShape(const shared_ptr<Shape> &shape) {
+        releaseBodyId();
         const auto &position = getPositionGlobal();
         const auto &quat     = normalize(toQuat(mat3(worldTransform)));
         this->shape = shape;
@@ -59,7 +61,7 @@ namespace z0 {
                 JPH::RVec3{position.x, position.y, position.z},
                 JPH::Quat{quat.x, quat.y, quat.z, quat.w},
                 motionType,
-                collisionLayer << 4 | collisionMask
+                collisionLayer << PHYSICS_LAYERS_BITS | collisionMask
         };
         const auto body = bodyInterface.CreateBody(settings);
         setBodyId(body->GetID());

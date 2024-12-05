@@ -18,8 +18,8 @@ export namespace z0 {
     class Loader {
     public:
         /**
-         * Load a glTF or ZScene scene
-         * @param filepath path of the glTF/ZScene file, relative to the application path
+         * Load a JSON, glTF or ZScene file
+         * @param filepath path of the JSON/glTF/ZScene file, relative to the application path
          */
         [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
 
