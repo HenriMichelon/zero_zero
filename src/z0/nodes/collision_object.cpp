@@ -183,41 +183,39 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
-        if (isProcessed()) {
+        if (isProcessed() && !bodyId.IsInvalid()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                 setPositionAndRotation();
+                Application::get()._setOptimizeBroadPhase();
             }
-            bodyInterface.ActivateBody(bodyId);
         }
         Node::_onEnterScene();
     }
 
     void CollisionObject::_onExitScene() {
-        if (isProcessed() && bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.DeactivateBody(bodyId);
+        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
         }
         Node::_onExitScene();
     }
 
     void CollisionObject::_onPause() {
-        if (isProcessed() && bodyInterface.IsAdded(bodyId)) {
-            bodyInterface.DeactivateBody(bodyId);
+        if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
         }
     }
 
     void CollisionObject::_onResume() {
-        if (isProcessed()) {
+        if (isProcessed() && !bodyId.IsInvalid()) {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
                     bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                     setPositionAndRotation();
+                    Application::get()._setOptimizeBroadPhase();
                 }
-                bodyInterface.ActivateBody(bodyId);
             }
         }
     }
@@ -227,15 +225,14 @@ namespace z0 {
         if (!bodyId.IsInvalid()) {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
-                    // log("adding", this->getName(), to_string(collisionMask));
+                    log("adding", this->getName(), to_string(collisionMask));
                     bodyInterface.AddBody(bodyId, activationMode);
                     bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
                     setPositionAndRotation();
+                    Application::get()._setOptimizeBroadPhase();
                 }
-                bodyInterface.ActivateBody(bodyId);
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
-                    bodyInterface.DeactivateBody(bodyId);
                     bodyInterface.RemoveBody(bodyId);
                 }
             }

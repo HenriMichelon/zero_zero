@@ -147,6 +147,10 @@ namespace z0 {
     void Application::drawFrame() {
         if (stopped) { return; }
         if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
+        if (optimizeBroadPhaseNeeded) {
+            physicsSystem.OptimizeBroadPhase();
+            optimizeBroadPhaseNeeded = false;
+        }
         if (!deferredCalls.empty()) {
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             auto lock = lock_guard(deferredCallsMutex);

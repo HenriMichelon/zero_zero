@@ -221,6 +221,7 @@ namespace z0 {
         ObjectLayerPairFilterImpl            object_vs_object_layer_filter;
         unique_ptr<JPH::TempAllocatorImpl>   temp_allocator;
         unique_ptr<JPH::JobSystemThreadPool> job_system;
+        bool                                 optimizeBroadPhaseNeeded{false};
 
         // Called on startup and after each root node change
         void start();
@@ -325,6 +326,8 @@ namespace z0 {
 
         // Remove a node from the current scene
         void _removeNode(const shared_ptr<Node> &node);
+
+        inline void _setOptimizeBroadPhase() { optimizeBroadPhaseNeeded = true; };
 
         void _lockDeferredUpdate();
 
