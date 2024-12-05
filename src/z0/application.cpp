@@ -57,7 +57,6 @@ namespace z0 {
         assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
-        threadedCalls.reserve(10);
         // The rendering Window
         if (node != nullptr) { window = make_unique<Window>(applicationConfig); };
     }
@@ -152,6 +151,16 @@ namespace z0 {
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.clear();
+        }
+        if (!threadedCalls.empty()) {
+            auto lock = lock_guard(threadedCallsMutex);
+            for (auto it = threadedCalls.begin(); it != threadedCalls.end();) {
+                if (it->joinable()) {
+                    ++it;
+                } else {
+                    it = threadedCalls.erase(it);
+                }
+            }
         }
 
         // https://gafferongames.com/post/fix_your_timestep/

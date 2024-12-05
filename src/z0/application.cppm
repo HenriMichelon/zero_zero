@@ -169,12 +169,7 @@ namespace z0 {
          */
         template <typename Lambda>
         void callAsync(Lambda lambda) {
-            const auto add_lock = lock_guard(threadedCallsMutex);
-            threadedCalls.push_back(thread([this, lambda] {
-                lambda();
-                const auto remove_lock = lock_guard(threadedCallsMutex);
-                threadedCalls.erase(threadedCalls.begin() + threadedCalls.size());
-            }));
+            threadedCalls.push_back(jthread(lambda));
         }
 
         /**
@@ -288,7 +283,7 @@ namespace z0 {
         list<function<void()>> deferredCalls;
         mutex deferredCallsMutex;
 
-        vector<thread> threadedCalls;
+        list<jthread> threadedCalls;
         mutex threadedCallsMutex;
 
         explicit Application(const ApplicationConfig &applicationConfig, const shared_ptr<Node> &rootNode);
