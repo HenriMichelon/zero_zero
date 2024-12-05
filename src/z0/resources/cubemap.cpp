@@ -9,11 +9,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.Cubemap;
+module z0.resources.Cubemap;
 
 import z0.Application;
 import z0.Constants;
-import z0.Image;
+import z0.resources.Image;
 import z0.Tools;
 import z0.VirtualFS;
 

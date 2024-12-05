@@ -9,11 +9,13 @@ module;
 #include <Jolt/Physics/PhysicsSystem.h>
 #include "z0/libraries.h"
 
-export module z0.CollisionObject;
+export module z0.nodes.CollisionObject;
 
-import z0.Node;
 import z0.Signal;
-import z0.Shape;
+
+import z0.nodes.Node;
+
+import z0.resources.Shape;
 
 export namespace z0 {
 

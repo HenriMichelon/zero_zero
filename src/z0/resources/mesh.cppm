@@ -8,12 +8,13 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-export module z0.Mesh;
+export module z0.resources.Mesh;
 
-import z0.Resource;
-import z0.Material;
-import z0.Tools;
 import z0.AABB;
+import z0.Tools;
+
+import z0.resources.Material;
+import z0.resources.Resource;
 
 export namespace z0 {
 

@@ -13,14 +13,16 @@ export module z0.ModelsRenderer;
 import z0.Constants;
 import z0.Renderer;
 import z0.Renderpass;
-import z0.Node;
-import z0.Camera;
 import z0.Buffer;
-import z0.MeshInstance;
 import z0.Device;
 import z0.DepthFrameBuffer;
-import z0.Viewport;
-import z0.Mesh;
+
+import z0.nodes.Node;
+import z0.nodes.Camera;
+import z0.nodes.MeshInstance;
+import z0.nodes.Viewport;
+
+import z0.resources.Mesh;
 
 export namespace z0 {
 

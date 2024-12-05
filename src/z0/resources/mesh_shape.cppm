@@ -8,11 +8,12 @@ module;
 #include <Jolt/Jolt.h>
 #include "z0/libraries.h"
 
-export module z0.MeshShape;
+export module z0.resources.MeshShape;
 
-import z0.Node;
-import z0.MeshInstance;
-import z0.Shape;
+import z0.nodes.Node;
+import z0.nodes.MeshInstance;
+
+import z0.resources.Shape;
 
 export namespace z0 {
 

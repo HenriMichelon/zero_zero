@@ -8,7 +8,7 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
-module z0.AnimationPlayer;
+module z0.nodes.AnimationPlayer;
 
 import z0.Constants;
 import z0.Tools;

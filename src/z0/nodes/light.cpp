@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-module z0.Light;
+module z0.nodes.Light;
 
 import z0.Tools;
 

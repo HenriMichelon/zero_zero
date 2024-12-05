@@ -10,10 +10,11 @@ module;
 #include <Jolt/Physics/EActivation.h>
 #include "z0/libraries.h"
 
-module z0.KinematicBody;
+module z0.nodes.KinematicBody;
 
-import z0.Node;
-import z0.Shape;
+import z0.nodes.Node;
+
+import z0.resources.Shape;
 
 namespace z0 {
 

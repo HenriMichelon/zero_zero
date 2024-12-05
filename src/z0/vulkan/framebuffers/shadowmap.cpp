@@ -12,10 +12,11 @@ module z0.ShadowMapFrameBuffer;
 
 import z0.Application;
 import z0.Constants;
-import z0.DirectionalLight;
-import z0.Light;
-import z0.SpotLight;
 import z0.Tools;
+
+import z0.nodes.DirectionalLight;
+import z0.nodes.Light;
+import z0.nodes.SpotLight;
 
 import z0.Device;
 

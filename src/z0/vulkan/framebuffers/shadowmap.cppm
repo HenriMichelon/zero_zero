@@ -10,8 +10,10 @@ module;
 
 export module z0.ShadowMapFrameBuffer;
 
-import z0.Light;
 import z0.Device;
+
+import z0.nodes.Light;
+
 import z0.SampledFrameBuffer;
 
 export namespace z0{

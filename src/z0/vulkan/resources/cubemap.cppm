@@ -10,7 +10,8 @@ module;
 
 export module z0.VulkanCubemap;
 
-import z0.Cubemap;
+import z0.resources.Cubemap;
+
 import z0.Device;
 
 export namespace z0 {

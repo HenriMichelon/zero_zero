@@ -12,13 +12,15 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
-module z0.Character;
+module z0.nodes.Character;
 
 import z0.Application;
 import z0.Constants;
-import z0.CollisionObject;
-import z0.Shape;
 import z0.Tools;
+
+import z0.nodes.CollisionObject;
+
+import z0.resources.Shape;
 
 namespace z0 {
     Character::Character(const shared_ptr<Shape> &shape,

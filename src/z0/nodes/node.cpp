@@ -9,7 +9,7 @@ module;
 #include <glm/gtx/matrix_decompose.hpp>
 #include "z0/libraries.h"
 
-module z0.Node;
+module z0.nodes.Node;
 
 import z0.Constants;
 import z0.Application;

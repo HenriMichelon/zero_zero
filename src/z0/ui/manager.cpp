@@ -16,7 +16,7 @@ module z0.ui.Manager;
 
 import z0.Application;
 import z0.Constants;
-import z0.Font;
+import z0.resources.Font;
 import z0.Input;
 import z0.InputEvent;
 

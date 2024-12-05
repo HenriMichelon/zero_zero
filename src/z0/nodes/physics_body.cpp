@@ -11,14 +11,16 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
-module z0.PhysicsBody;
+module z0.nodes.PhysicsBody;
 
-import z0.CollisionObject;
 import z0.Constants;
-import z0.ConvexHullShape;
-import z0.MeshShape;
-import z0.Shape;
 import z0.Tools;
+
+import z0.nodes.CollisionObject;
+
+import z0.resources.ConvexHullShape;
+import z0.resources.MeshShape;
+import z0.resources.Shape;
 
 namespace z0 {
 

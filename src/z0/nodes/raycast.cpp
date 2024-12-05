@@ -11,11 +11,12 @@ module;
 #include <Jolt/Physics/Collision/RayCast.h>
 #include "z0/libraries.h"
 
-module z0.RayCast;
+module z0.nodes.RayCast;
 
 import z0.Application;
-import z0.CollisionObject;
 import z0.Constants;
+
+import z0.nodes.CollisionObject;
 
 namespace z0 {
 

@@ -9,13 +9,15 @@ module;
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include "z0/libraries.h"
 
-module z0.ConvexHullShape;
+module z0.resources.ConvexHullShape;
 
-import z0.Mesh;
-import z0.MeshInstance;
-import z0.Node;
-import z0.Resource;
 import z0.Tools;
+
+import z0.nodes.MeshInstance;
+import z0.nodes.Node;
+
+import z0.resources.Mesh;
+import z0.resources.Resource;
 
 namespace z0 {
 

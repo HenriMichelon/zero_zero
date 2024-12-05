@@ -22,28 +22,30 @@ module;
 module z0.Application;
 
 import z0.ApplicationConfig;
-import z0.Camera;
-import z0.Character;
-import z0.CollisionArea;
 import z0.Constants;
-import z0.DirectionalLight;
-import z0.Environment;
 import z0.Input;
 import z0.InputEvent;
-import z0.KinematicBody;
 import z0.Loader;
-import z0.Material;
-import z0.Node;
-import z0.OmniLight;
-import z0.RayCast;
-import z0.RigidBody;
-import z0.Skybox;
-import z0.SpotLight;
-import z0.StaticBody;
 import z0.Tools;
 import z0.TypeRegistry;
-import z0.Viewport;
 import z0.Window;
+
+import z0.nodes.Camera;
+import z0.nodes.Character;
+import z0.nodes.CollisionArea;
+import z0.nodes.DirectionalLight;
+import z0.nodes.Environment;
+import z0.nodes.KinematicBody;
+import z0.nodes.Node;
+import z0.nodes.OmniLight;
+import z0.nodes.RayCast;
+import z0.nodes.RigidBody;
+import z0.nodes.Skybox;
+import z0.nodes.SpotLight;
+import z0.nodes.StaticBody;
+import z0.nodes.Viewport;
+
+import z0.resources.Material;
 
 import z0.ui.Manager;
 

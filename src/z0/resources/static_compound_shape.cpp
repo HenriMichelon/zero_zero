@@ -10,11 +10,12 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
-module z0.StaticCompoundShape;
+module z0.resources.StaticCompoundShape;
 
 import z0.Tools;
-import z0.Shape;
-import z0.SubShape;
+
+import z0.resources.Shape;
+import z0.resources.SubShape;
 
 namespace z0 {
 

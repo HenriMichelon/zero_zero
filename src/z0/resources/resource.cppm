@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Resource;
+export module z0.resources.Resource;
 
 import z0.Tools;
 import z0.Object;

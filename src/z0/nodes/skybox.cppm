@@ -7,10 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Skybox;
+export module z0.nodes.Skybox;
 
-import z0.Node;
-import z0.Cubemap;
+import z0.nodes.Node;
+
+import z0.resources.Cubemap;
 
 export namespace z0 {
 

@@ -9,10 +9,10 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.Font;
+export module z0.resources.Font;
 
-import z0.Resource;
-import z0.Image;
+import z0.resources.Image;
+import z0.resources.Resource;
 
 export namespace z0 {
 

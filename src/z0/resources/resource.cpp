@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-module z0.Resource;
+module z0.resources.Resource;
 
 namespace z0 {
 

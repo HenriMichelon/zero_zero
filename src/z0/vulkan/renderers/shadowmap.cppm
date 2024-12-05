@@ -10,15 +10,17 @@ module;
 
 export module z0.ShadowMapRenderer;
 
-import z0.Camera;
 import z0.Constants;
-import z0.DirectionalLight;
 import z0.FrustumCulling;
-import z0.Light;
-import z0.Mesh;
-import z0.MeshInstance;
-import z0.OmniLight;
-import z0.SpotLight;
+
+import z0.nodes.Camera;
+import z0.nodes.DirectionalLight;
+import z0.nodes.Light;
+import z0.nodes.MeshInstance;
+import z0.nodes.OmniLight;
+import z0.nodes.SpotLight;
+
+import z0.resources.Mesh;
 
 import z0.Buffer;
 import z0.ColorFrameBuffer;

@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-module z0.Environment;
+module z0.nodes.Environment;
 
 import z0.Tools;
 

@@ -23,9 +23,9 @@ module;
 
 export module z0.DebugRenderer;
 
-import z0.Camera;
-import z0.CollisionObject;
-import z0.Node;
+import z0.nodes.Camera;
+import z0.nodes.CollisionObject;
+import z0.nodes.Node;
 
 import z0.Buffer;
 import z0.Device;

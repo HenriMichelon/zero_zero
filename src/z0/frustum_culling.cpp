@@ -12,8 +12,9 @@ module z0.FrustumCulling;
 import z0.AABB;
 import z0.Application;
 import z0.Constants;
-import z0.MeshInstance;
-import z0.Node;
+
+import z0.nodes.MeshInstance;
+import z0.nodes.Node;
 
 namespace z0 {
 

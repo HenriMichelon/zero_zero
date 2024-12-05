@@ -10,10 +10,11 @@ module;
 #include <Jolt/Physics/EActivation.h>
 #include "z0/libraries.h"
 
-export module z0.PhysicsBody;
+export module z0.nodes.PhysicsBody;
 
-import z0.CollisionObject;
-import z0.Shape;
+import z0.nodes.CollisionObject;
+
+import z0.resources.Shape;
 
 export namespace z0 {
 

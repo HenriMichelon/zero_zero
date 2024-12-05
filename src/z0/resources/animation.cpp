@@ -9,7 +9,7 @@ module;
 #include <glm/gtx/compatibility.hpp>
 #include "z0/libraries.h"
 
-module z0.Animation;
+module z0.resources.Animation;
 
 import z0.Constants;
 import z0.Tools;

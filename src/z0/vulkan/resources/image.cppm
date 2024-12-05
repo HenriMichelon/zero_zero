@@ -12,8 +12,9 @@ module;
 
 export module z0.VulkanImage;
 
-import z0.Image;
 import z0.ZRes;
+
+import z0.resources.Image;
 
 import z0.Device;
 import z0.Buffer;

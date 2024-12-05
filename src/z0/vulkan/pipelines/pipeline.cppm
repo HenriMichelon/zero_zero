@@ -11,7 +11,8 @@ module;
 export module z0.Pipeline;
 
 import z0.Device;
-import z0.Image;
+
+import z0.resources.Image;
 
 export namespace z0 {
 

@@ -11,15 +11,16 @@ module;
 
 module z0.Loader;
 
-import z0.AnimationPlayer;
 import z0.Application;
 import z0.Constants;
 import z0.GlTF;
-import z0.Node;
 import z0.Tools;
 import z0.TypeRegistry;
 import z0.VirtualFS;
 import z0.ZRes;
+
+import z0.nodes.AnimationPlayer;
+import z0.nodes.Node;
 
 namespace z0 {
 

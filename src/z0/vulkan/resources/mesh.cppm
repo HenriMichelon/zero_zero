@@ -10,7 +10,7 @@ module;
 
 export module z0.VulkanMesh;
 
-import z0.Mesh;
+import z0.resources.Mesh;
 
 import z0.Buffer;
 

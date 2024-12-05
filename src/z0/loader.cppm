@@ -9,7 +9,7 @@ module;
 
 export module z0.Loader;
 
-import z0.Node;
+import z0.nodes.Node;
 
 export namespace z0 {
     /**

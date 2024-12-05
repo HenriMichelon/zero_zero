@@ -11,10 +11,10 @@ module;
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include "z0/libraries.h"
 
-export module z0.RayCast;
+export module z0.nodes.RayCast;
 
-import z0.CollisionObject;
-import z0.Node;
+import z0.nodes.CollisionObject;
+import z0.nodes.Node;
 
 export namespace z0 {
 

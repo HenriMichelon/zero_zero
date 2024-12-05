@@ -7,11 +7,13 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Animation;
+export module z0.resources.Animation;
 
 import z0.Constants;
-import z0.Node;
-import z0.Resource;
+
+import z0.nodes.Node;
+
+import z0.resources.Resource;
 
 export namespace z0 {
 

@@ -14,19 +14,21 @@ module;
 
 module z0.GlTF;
 
-import z0.Animation;
-import z0.AnimationLibrary;
-import z0.AnimationPlayer;
 import z0.Constants;
-import z0.Image;
-import z0.Material;
-import z0.Mesh;
-import z0.MeshInstance;
-import z0.Node;
-import z0.Resource;
-import z0.Texture;
 import z0.Tools;
 import z0.VirtualFS;
+
+import z0.nodes.AnimationPlayer;
+import z0.nodes.MeshInstance;
+import z0.nodes.Node;
+
+import z0.resources.Animation;
+import z0.resources.AnimationLibrary;
+import z0.resources.Image;
+import z0.resources.Material;
+import z0.resources.Mesh;
+import z0.resources.Resource;
+import z0.resources.Texture;
 
 import z0.Buffer;
 import z0.Device;

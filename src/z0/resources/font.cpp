@@ -9,12 +9,13 @@ module;
 #include <stb_truetype.h>
 #include "z0/libraries.h"
 
-module z0.Font;
+module z0.resources.Font;
 
 import z0.Application;
-import z0.Image;
 import z0.Tools;
 import z0.VirtualFS;
+
+import z0.resources.Image;
 
 namespace z0 {
 

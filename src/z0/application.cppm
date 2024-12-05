@@ -14,16 +14,18 @@ module;
 
 export module z0.Application;
 
-import z0.Camera;
 import z0.Constants;
 import z0.Object;
 import z0.ApplicationConfig;
 import z0.InputEvent;
-import z0.Material;
-import z0.Node;
 import z0.Physics;
 import z0.Tools;
 import z0.Window;
+
+import z0.nodes.Camera;
+import z0.nodes.Node;
+
+import z0.resources.Material;
 
 import z0.ui.Manager;
 import z0.ui.Window;

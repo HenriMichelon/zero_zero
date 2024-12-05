@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-module z0.Viewport;
+module z0.nodes.Viewport;
 
 namespace z0 {
 

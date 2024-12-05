@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Viewport;
+export module z0.nodes.Viewport;
 
-import z0.Node;
+import z0.nodes.Node;
 
 export namespace z0 {
 

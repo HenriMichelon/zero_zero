@@ -11,9 +11,11 @@ module;
 export module z0.SkyboxRenderer;
 
 import z0.Constants;
-import z0.Cubemap;
-import z0.Environment;
-import z0.Camera;
+
+import z0.nodes.Environment;
+import z0.nodes.Camera;
+
+import z0.resources.Cubemap;
 
 import z0.Device;
 import z0.Buffer;

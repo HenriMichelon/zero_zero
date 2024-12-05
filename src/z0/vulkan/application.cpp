@@ -13,10 +13,12 @@ module;
 module z0.VulkanApplication;
 
 import z0.ApplicationConfig;
-import z0.Camera;
-import z0.Material;
-import z0.Node;
 import z0.Tools;
+
+import z0.nodes.Camera;
+import z0.nodes.Node;
+
+import z0.resources.Material;
 
 import z0.ui.Manager;
 

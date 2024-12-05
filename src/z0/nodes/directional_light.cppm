@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.DirectionalLight;
+export module z0.nodes.DirectionalLight;
 
-import z0.Light;
+import z0.nodes.Light;
 
 export namespace z0 {
 

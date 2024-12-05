@@ -8,10 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.Image;
+export module z0.resources.Image;
 
 import z0.Constants;
-import z0.Resource;
+
+import z0.resources.Resource;
 
 import z0.Device;
 

@@ -10,21 +10,23 @@ module;
 
 export module z0.SceneRenderer;
 
-import z0.Camera;
 import z0.Constants;
-import z0.Node;
-import z0.MeshInstance;
-import z0.Environment;
-import z0.Material;
-import z0.Resource;
-import z0.Image;
-import z0.Cubemap;
 import z0.FrustumCulling;
-import z0.Light;
-import z0.DirectionalLight;
-import z0.OmniLight;
-import z0.SpotLight;
-import z0.Skybox;
+
+import z0.nodes.Camera;
+import z0.nodes.Node;
+import z0.nodes.MeshInstance;
+import z0.nodes.Environment;
+import z0.nodes.Light;
+import z0.nodes.DirectionalLight;
+import z0.nodes.OmniLight;
+import z0.nodes.SpotLight;
+import z0.nodes.Skybox;
+
+import z0.resources.Material;
+import z0.resources.Resource;
+import z0.resources.Image;
+import z0.resources.Cubemap;
 
 import z0.DebugRenderer;
 import z0.ModelsRenderer;

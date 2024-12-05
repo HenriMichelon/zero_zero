@@ -16,10 +16,11 @@ namespace meshopt {
 using namespace meshopt;
 #endif
 
-module z0.Mesh;
+module z0.resources.Mesh;
 
-import z0.Material;
 import z0.Tools;
+
+import z0.resources.Material;
 
 import z0.Device;
 import z0.VulkanMesh;

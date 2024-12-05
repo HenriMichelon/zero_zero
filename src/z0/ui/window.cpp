@@ -12,7 +12,7 @@ module z0.ui.Window;
 
 import z0.Application;
 import z0.Constants;
-import z0.Font;
+import z0.resources.Font;
 
 import z0.ui.Event;
 import z0.ui.Manager;

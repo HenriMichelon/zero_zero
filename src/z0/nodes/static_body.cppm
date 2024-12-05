@@ -8,10 +8,11 @@ module;
 #include <Jolt/Jolt.h>
 #include "z0/libraries.h"
 
-export module z0.StaticBody;
+export module z0.nodes.StaticBody;
 
-import z0.PhysicsBody;
-import z0.Shape;
+import z0.nodes.PhysicsBody;
+
+import z0.resources.Shape;
 
 export namespace z0 {
 

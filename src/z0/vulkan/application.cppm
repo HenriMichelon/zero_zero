@@ -13,7 +13,8 @@ export module z0.VulkanApplication;
 
 import z0.Application;
 import z0.ApplicationConfig;
-import z0.Node;
+
+import z0.nodes.Node;
 
 import z0.Instance;
 import z0.DebugRenderer;

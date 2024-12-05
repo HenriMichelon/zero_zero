@@ -13,11 +13,13 @@ module;
 
 #include "z0/libraries.h"
 
-module z0.Shape;
+module z0.resources.Shape;
 
-import z0.MeshInstance;
-import z0.Resource;
 import z0.Tools;
+
+import z0.nodes.MeshInstance;
+
+import z0.resources.Resource;
 
 namespace z0 {
 

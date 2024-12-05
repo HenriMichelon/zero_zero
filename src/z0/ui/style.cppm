@@ -9,7 +9,7 @@ module;
 
 export module z0.ui.Style;
 
-import z0.Font;
+import z0.resources.Font;
 import z0.Object;
 
 import z0.VectorRenderer;

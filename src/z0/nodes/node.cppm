@@ -7,7 +7,7 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.Node;
+export module z0.nodes.Node;
 
 import z0.Object;
 import z0.Constants;

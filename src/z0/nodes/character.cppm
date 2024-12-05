@@ -10,11 +10,13 @@ module;
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include "z0/libraries.h"
 
-export module z0.Character;
+export module z0.nodes.Character;
 
 import z0.Constants;
-import z0.CollisionObject;
-import z0.Shape;
+
+import z0.nodes.CollisionObject;
+
+import z0.resources.Shape;
 
 export namespace z0 {
 

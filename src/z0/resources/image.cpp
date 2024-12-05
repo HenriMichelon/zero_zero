@@ -11,7 +11,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.Image;
+module z0.resources.Image;
 
 import z0.Constants;
 import z0.Tools;

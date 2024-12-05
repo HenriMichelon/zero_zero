@@ -10,12 +10,14 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
-module z0.CollisionArea;
+module z0.nodes.CollisionArea;
 
 import z0.Constants;
-import z0.Node;
-import z0.Shape;
 import z0.Tools;
+
+import z0.nodes.Node;
+
+import z0.resources.Shape;
 
 namespace z0 {
 

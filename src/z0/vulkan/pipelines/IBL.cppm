@@ -10,8 +10,8 @@ module;
 
 export module z0.IBLPipeline;
 
-import z0.Image;
-import z0.Cubemap;
+import z0.resources.Cubemap;
+import z0.resources.Image;
 
 import z0.Device;
 import z0.ComputePipeline;

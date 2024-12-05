@@ -7,10 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.SpotLight;
+export module z0.nodes.SpotLight;
 
 import z0.Constants;
-import z0.OmniLight;
+
+import z0.nodes.OmniLight;
 
 export namespace z0 {
 

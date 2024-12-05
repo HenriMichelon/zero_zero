@@ -10,10 +10,11 @@ module;
 
 export module z0.ZRes;
 
-import z0.Texture;
-import z0.Material;
-import z0.Mesh;
-import z0.Node;
+import z0.nodes.Node;
+
+import z0.resources.Material;
+import z0.resources.Mesh;
+import z0.resources.Texture;
 
 import z0.Device;
 

@@ -7,9 +7,9 @@
 module;
 #include "z0/libraries.h"
 
-module z0.SpotLight;
+module z0.nodes.SpotLight;
 
-import z0.Node;
+import z0.nodes.Node;
 
 namespace z0 {
 
