@@ -50,7 +50,7 @@ export namespace z0 {
                 gtext->setText(text.substr(startPos, nDispChar + 1));
                 box->refresh();
                 refresh();
-                auto event = GEventTextChange{.text = text};
+                auto event = EventTextChange{.text = text};
                 event.source = this;
                 emit(Event::OnTextChange, &event);
             }

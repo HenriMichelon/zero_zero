@@ -35,7 +35,7 @@ export namespace z0 {
             bool eventMouseDown(const MouseButton B, const float X, const float Y) override {
                 const bool r = CheckWidget::eventMouseDown(B, X, Y);
                 if (getRect().contains(X, Y)) {
-                    auto event = GEventClick{};
+                    auto event = EventClick{};
                     emit(Event::OnClick, &event);
                     return event.consumed;
                 }

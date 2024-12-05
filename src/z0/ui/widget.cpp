@@ -472,7 +472,7 @@ namespace z0 {
 
         bool Widget::eventKeybDown(const Key K) {
             if (!enabled) { return false; }
-            auto event = GEventKeyb{.key = K};
+            auto event = EventKeyb{.key = K};
             event.source = this;
             emit(Event::OnKeyDown, &event);
             return event.consumed;
@@ -481,7 +481,7 @@ namespace z0 {
         bool Widget::eventKeybUp(const Key K) {
             if (!enabled) { return false; }
             if (focused) {
-                auto event = GEventKeyb{.key = K};
+                auto event = EventKeyb{.key = K};
                 event.source = this;
                 emit(Event::OnKeyUp, &event);
                 return event.consumed;
@@ -509,7 +509,7 @@ namespace z0 {
                 wfocus->setFocus();
             }
             if (redrawOnMouseEvent) { refresh(); }
-            auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
+            auto event = EventMouseButton{.button = B, .x = X, .y = Y};
             event.source = this;
             emit(Event::OnMouseDown, &event);
             consumed |= event.consumed;
@@ -531,7 +531,7 @@ namespace z0 {
                 }
             }
             if (redrawOnMouseEvent) { refresh(); }
-            auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
+            auto event = EventMouseButton{.button = B, .x = X, .y = Y};
             event.source = this;
             emit(Event::OnMouseUp, &event);
             consumed |= event.consumed;
@@ -558,7 +558,7 @@ namespace z0 {
                 if (consumed) { break; }
             }
             if (redrawOnMouseMove && (pointed != p)) { refresh(); }
-            auto event = GEventMouseMove{.buttonsState = B, .x = X, .y = Y};
+            auto event = EventMouseMove{.buttonsState = B, .x = X, .y = Y};
             event.source = this;
             emit(Event::OnMouseMove, &event);
             consumed |= event.consumed;

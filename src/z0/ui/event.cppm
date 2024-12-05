@@ -74,7 +74,7 @@ export namespace z0 {
         /**
          * Parameter for Event::OnClick
          */
-        struct GEventClick : Event {
+        struct EventClick : Event {
             //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
             bool consumed{false};
         };
@@ -82,7 +82,7 @@ export namespace z0 {
         /**
          * Parameters for Event::OnKeyDown and Event::OnKeyUp
          */
-        struct GEventKeyb : Event {
+        struct EventKeyb : Event {
             //! Key code
             Key key;
             //! set this to true if the event have been consumed and will not be passed to widgets & nodes below
@@ -92,7 +92,7 @@ export namespace z0 {
         /**
          * Parameters for Event::OnMouseDown and Event::OnMouseUp
          */
-        struct GEventMouseButton : Event {
+        struct EventMouseButton : Event {
             //! Mouse button
             MouseButton button;
             //! X coord
@@ -106,7 +106,7 @@ export namespace z0 {
         /**
          * Parameters for Event::OnMouseMove
          */
-        struct GEventMouseMove : Event {
+        struct EventMouseMove : Event {
             //! Mouse button states
             uint32_t buttonsState;
             //! X coord
@@ -120,29 +120,29 @@ export namespace z0 {
         /**
          * Parameters for Event::OnStateChange
          */
-        struct GEventState : Event {
+        struct EventState : Event {
             //! CheckWidget::State
             int32_t state;
         };
 
         /**
-         * Parameters for Event::GEventValue
+         * Parameters for Event::EventValue
          */
-        struct GEventValue : Event {
+        struct EventValue : Event {
             float value;
             float previous;
         };
 
         /**
-         * Parameters for Event::GEventRange
+         * Parameters for Event::EventRange
          */
-        struct GEventRange : Event {
+        struct EventRange : Event {
             float min;
             float max;
             float value;
         };
 
-        struct GEventTextChange : Event {
+        struct EventTextChange : Event {
             const string text;
         };
 

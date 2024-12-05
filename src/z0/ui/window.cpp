@@ -127,7 +127,7 @@ namespace z0 {
                 consumed |= onKeyDown(K);
             }
             if (!consumed) {
-                auto event = GEventKeyb{.key = K};
+                auto event = EventKeyb{.key = K};
                 emit(Event::OnKeyDown, &event);
                 consumed = event.consumed;
             }
@@ -144,7 +144,7 @@ namespace z0 {
                 consumed |= onKeyUp(K);
             }
             if (!consumed) {
-                auto event = GEventKeyb{.key = K};
+                auto event = EventKeyb{.key = K};
                 emit(Event::OnKeyUp, &event);
                 consumed = event.consumed;
             }
@@ -162,7 +162,7 @@ namespace z0 {
                 consumed |= onMouseDown(B, X, Y);
             }
             if (!consumed) {
-                auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
+                auto event = EventMouseButton{.button = B, .x = X, .y = Y};
                 emit(Event::OnMouseDown, &event);
                 consumed = event.consumed;
             }
@@ -178,7 +178,7 @@ namespace z0 {
                 consumed |= onMouseUp(B, X, Y);
             }
             if (!consumed) {
-                auto event = GEventMouseButton{.button = B, .x = X, .y = Y};
+                auto event = EventMouseButton{.button = B, .x = X, .y = Y};
                 emit(Event::OnMouseUp, &event);
                 consumed = event.consumed;
             }
@@ -199,7 +199,7 @@ namespace z0 {
                 consumed |= onMouseMove(B, X, Y);
             }
             if (!consumed) {
-                auto event = GEventMouseMove{.buttonsState = B, .x = X, .y = Y};
+                auto event = EventMouseMove{.buttonsState = B, .x = X, .y = Y};
                 emit(Event::OnMouseMove, &event);
                 consumed = event.consumed;
             }

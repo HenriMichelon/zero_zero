@@ -44,7 +44,7 @@ export namespace z0 {
                 resizeChildren();
                 eventRangeChange();
                 refresh();
-                auto event = GEventRange{.min = min, .max = max, .value = value};
+                auto event = EventRange{.min = min, .max = max, .value = value};
                 emit(Event::OnRangeChange, &event);
             }
 
@@ -55,7 +55,7 @@ export namespace z0 {
                 if (value > max) setValue(max);
                 resizeChildren();
                 eventRangeChange();
-                auto event = GEventRange{.min = min, .max = max, .value = value};
+                auto event = EventRange{.min = min, .max = max, .value = value};
                 emit(Event::OnRangeChange, &event);
             }
 
@@ -72,7 +72,7 @@ export namespace z0 {
                 eventRangeChange();
                 refresh();
                 if (parent) parent->refresh();
-                auto event = GEventValue{.value = value, .previous = prev};
+                auto event = EventValue{.value = value, .previous = prev};
                 emit(Event::OnValueChange, &event);
             }
 
@@ -96,12 +96,12 @@ export namespace z0 {
             }
 
             virtual void eventRangeChange() {
-                auto event = GEventRange{.min = min, .max = max, .value = value};
+                auto event = EventRange{.min = min, .max = max, .value = value};
                 emit(Event::OnRangeChange, &event);
             }
 
             virtual void eventValueChange(const float prev) {
-                auto event = GEventValue{.value = value, .previous = prev};
+                auto event = EventValue{.value = value, .previous = prev};
                 emit(Event::OnValueChange, &event);
             }
         };

@@ -48,9 +48,9 @@ export namespace z0 {
                     add(liftArea, FILL, RAREA);
                     add(liftCage, NONE, RCAGE);
                     liftArea->connect(Event::OnMouseDown,
-                        [this](auto p) { this->onLiftAreaDown(static_cast<const GEventMouseButton *>(p)); });
+                        [this](auto p) { this->onLiftAreaDown(static_cast<const EventMouseButton *>(p)); });
                     liftCage->connect(Event::OnMouseDown,
-                        [this](auto p) { this->onLiftCageDown(static_cast<const GEventMouseButton *>(p)); });
+                        [this](auto p) { this->onLiftCageDown(static_cast<const EventMouseButton *>(p)); });
                     liftCage->_setRedrawOnMouseEvent(true);
                     liftCage->_setMoveChildrenOnPush(true);
                 }
@@ -119,7 +119,7 @@ export namespace z0 {
                 }
             }
 
-            void onLiftAreaDown(const GEventMouseButton* event) {
+            void onLiftAreaDown(const EventMouseButton* event) {
                 if (liftCage->getRect().contains(event->x, event->y)) { return; }
                 const float longStep = step * LONGSTEP_MUX;
                 float diff = 0;
@@ -145,7 +145,7 @@ export namespace z0 {
                 ValueSelect::eventValueChange(prev);
             }
 
-            void onLiftCageDown(const GEventMouseButton* event) {
+            void onLiftCageDown(const EventMouseButton* event) {
                 onScroll = true;
                 if (type == VERTICAL) {
                     scrollStart = event->y - liftCage->getRect().y;

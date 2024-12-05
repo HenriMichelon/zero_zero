@@ -36,7 +36,7 @@ export namespace z0 {
                 }
                 const bool consumed = Box::eventMouseUp(B, X, Y);
                 if ((!consumed) && p) {
-                    auto event = GEventClick{};
+                    auto event = EventClick{};
                     emit(Event::OnClick, &event);
                     return event.consumed;
                 }

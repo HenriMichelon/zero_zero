@@ -38,7 +38,7 @@ export namespace z0 {
                 state = S;
                 resizeChildren();
                 refresh();
-                auto stat = GEventState{.state = S};
+                auto stat = EventState{.state = S};
                 emit(Event::OnStateChange, &stat);
             }
 
