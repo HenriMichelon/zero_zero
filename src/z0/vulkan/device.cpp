@@ -17,13 +17,14 @@ module;
 #include <vk_mem_alloc.h>
 #include "z0/libraries.h"
 
-module z0.Device;
+module z0.vulkan.Device;
 
 import z0.Application;
 import z0.ApplicationConfig;
 import z0.Window;
-import z0.Renderer;
 import z0.Tools;
+
+import z0.vulkan.Renderer;
 
 namespace z0 {
 

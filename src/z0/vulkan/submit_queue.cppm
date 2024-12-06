@@ -8,9 +8,9 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module z0.SubmitQueue;
+export module z0.vulkan.SubmitQueue;
 
-import z0.Buffer;
+import z0.vulkan.Buffer;
 
 export namespace z0 {
 
@@ -48,8 +48,6 @@ export namespace z0 {
 
         OneTimeCommand beginOneTimeCommand();
 
-        OneTimeCommand beginOneTimeCommand(const Buffer& buffer);
-
         void endOneTimeCommand(const OneTimeCommand& oneTimeCommand);
 
         Buffer& createOneTimeBuffer(
@@ -62,19 +60,28 @@ export namespace z0 {
     private:
         // Queue to submit commands to the GPU
         const VkQueue&          graphicQueue;
+        // Queue to present swap chain
         const VkQueue&          presentQueue;
+        // Stop the submit queue thread
         bool                    quit{false};
+        // Submission queue
         list<SubmitInfo>        submitInfos;
+        // To prevent present & acquire at the same time
+        mutex                   swapChainMutex;
+        // To prevent the main thread to acquire images too fast
+        counting_semaphore<5>   swapChainSemaphore;
+
+        // The submission thread & locks
         thread                  queueThread;
         mutex                   queueMutex;
         condition_variable      queueCv;
-        mutex                   swapChainMutex;
-        counting_semaphore<5>   swapChainSemaphore;
 
-        list<OneTimeCommand> oneTimeCommands;
-        mutex                oneTimeMutex;
+        // Temporary one time command buffers, associated buffers and command pools
+        // One command pool per command buffer
+        list<OneTimeCommand>    oneTimeCommands;
+        mutex                   oneTimeMutex;
+        mutex                   oneTimeBuffersMutex;
         map<VkCommandBuffer, list<Buffer>> oneTimeBuffers;
-        mutex oneTimeBuffersMutex;
 
         static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 

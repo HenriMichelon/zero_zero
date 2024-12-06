@@ -6,10 +6,10 @@
 */
 module;
 
-export module z0.ColorFrameBuffer;
+export module z0.vulkan.ColorFrameBuffer;
 
-import z0.Device;
-import z0.FrameBuffer;
+import z0.vulkan.Device;
+import z0.vulkan.FrameBuffer;
 
 export namespace z0 {
 

@@ -8,13 +8,12 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.ShadowMapFrameBuffer;
-
-import z0.Device;
+export module z0.vulkan.ShadowMapFrameBuffer;
 
 import z0.nodes.Light;
 
-import z0.SampledFrameBuffer;
+import z0.vulkan.Device;
+import z0.vulkan.SampledFrameBuffer;
 
 export namespace z0{
 

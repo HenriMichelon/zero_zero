@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.SceneRenderer;
+export module z0.vulkan.SceneRenderer;
 
 import z0.Constants;
 import z0.FrustumCulling;
@@ -28,21 +28,22 @@ import z0.resources.Resource;
 import z0.resources.Image;
 import z0.resources.Cubemap;
 
-import z0.DebugRenderer;
-import z0.ModelsRenderer;
-import z0.Device;
-import z0.Descriptors;
-import z0.ShadowMapRenderer;
-import z0.SkyboxRenderer;
-import z0.Buffer;
-import z0.Shader;
-import z0.VulkanCubemap;
-import z0.VulkanImage;
-import z0.ColorFrameBufferHDR;
-import z0.ColorFrameBuffer;
-import z0.DepthFrameBuffer;
-import z0.ShadowMapFrameBuffer;
-import z0.SampledFrameBuffer;
+import z0.vulkan.Buffer;
+import z0.vulkan.ColorFrameBuffer;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.DebugRenderer;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Device;
+import z0.vulkan.Descriptors;
+import z0.vulkan.ModelsRenderer;
+import z0.vulkan.Shader;
+import z0.vulkan.ShadowMapFrameBuffer;
+import z0.vulkan.ShadowMapRenderer;
+import z0.vulkan.SampledFrameBuffer;
+import z0.vulkan.SkyboxRenderer;
+import z0.vulkan.Cubemap;
+import z0.vulkan.Image;
+
 
 namespace z0 {
 

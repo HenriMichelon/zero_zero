@@ -20,7 +20,7 @@ module;
 
 #include "z0/libraries.h"
 
-module z0.DebugRenderer;
+module z0.vulkan.DebugRenderer;
 
 import z0.Application;
 import z0.Constants;
@@ -29,10 +29,10 @@ import z0.Tools;
 import z0.nodes.CollisionObject;
 import z0.nodes.RayCast;
 
-import z0.ColorFrameBufferHDR;
-import z0.DepthFrameBuffer;
-import z0.Descriptors;
-import z0.Device;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
 
 namespace z0 {
 

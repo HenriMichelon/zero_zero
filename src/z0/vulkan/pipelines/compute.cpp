@@ -7,10 +7,11 @@
 module;
 #include <volk.h>
 
-module z0.ComputePipeline;
+module z0.vulkan.ComputePipeline;
 
 import z0.Tools;
-import z0.Device;
+
+import z0.vulkan.Device;
 
 namespace z0 {
 

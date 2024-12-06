@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.VulkanMesh;
+export module z0.vulkan.Mesh;
 
 import z0.resources.Mesh;
 
-import z0.Buffer;
+import z0.vulkan.Buffer;
 
 export namespace z0 {
 

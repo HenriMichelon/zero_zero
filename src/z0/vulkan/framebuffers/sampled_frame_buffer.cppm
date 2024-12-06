@@ -7,10 +7,10 @@
 module;
 #include <volk.h>
 
-export module z0.SampledFrameBuffer;
+export module z0.vulkan.SampledFrameBuffer;
 
-import z0.Device;
-import z0.FrameBuffer;
+import z0.vulkan.Device;
+import z0.vulkan.FrameBuffer;
 
 export namespace z0 {
 

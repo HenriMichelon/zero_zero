@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.SkyboxRenderer;
+module z0.vulkan.SkyboxRenderer;
 
 import z0.Tools;
 
@@ -17,10 +17,10 @@ import z0.nodes.Camera;
 
 import z0.resources.Cubemap;
 
-import z0.Device;
-import z0.Buffer;
-import z0.Descriptors;
-import z0.VulkanCubemap;
+import z0.vulkan.Buffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.Cubemap;
 
 namespace z0 {
 

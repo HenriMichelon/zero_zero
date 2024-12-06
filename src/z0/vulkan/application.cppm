@@ -9,19 +9,19 @@ module;
 #include <Jolt/Physics/Body/BodyManager.h>
 #include "z0/libraries.h"
 
-export module z0.VulkanApplication;
+export module z0.vulkan.Application;
 
 import z0.Application;
 import z0.ApplicationConfig;
 
 import z0.nodes.Node;
 
-import z0.Instance;
-import z0.DebugRenderer;
-import z0.Device;
-import z0.SceneRenderer;
-import z0.VectorRenderer;
-import z0.TonemappingPostprocessingRenderer;
+import z0.vulkan.DebugRenderer;
+import z0.vulkan.Device;
+import z0.vulkan.Instance;
+import z0.vulkan.SceneRenderer;
+import z0.vulkan.TonemappingPostprocessingRenderer;
+import z0.vulkan.VectorRenderer;
 
 export namespace z0 {
 

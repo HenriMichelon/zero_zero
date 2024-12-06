@@ -8,9 +8,9 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module z0.Descriptors;
+export module z0.vulkan.Descriptors;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 export namespace z0 {
 

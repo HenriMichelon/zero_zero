@@ -7,11 +7,11 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.SimplePostprocessingRenderer;
+export module z0.vulkan.SimplePostprocessingRenderer;
 
-import z0.PostprocessingRenderer;
-import z0.Device;
-import z0.ColorFrameBufferHDR;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.Device;
+import z0.vulkan.PostprocessingRenderer;
 
 export namespace z0 {
 

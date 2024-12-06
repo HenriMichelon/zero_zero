@@ -106,7 +106,7 @@ export namespace z0 {
     private:
         float height;
         float radius;
-        float yDelta;
+        float yDelta; // https://jrouwe.github.io/JoltPhysics/class_character_base_settings.html#aee9be06866efe751ab7e2df57edee6b1
         vec3                              upVector{AXIS_UP};
         unique_ptr<JPH::CharacterVirtual> virtualCharacter;
         unique_ptr<JPH::Character>        physicsCharacter;

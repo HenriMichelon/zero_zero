@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.ShadowMapRenderer;
+export module z0.vulkan.ShadowMapRenderer;
 
 import z0.Constants;
 import z0.FrustumCulling;
@@ -22,13 +22,13 @@ import z0.nodes.SpotLight;
 
 import z0.resources.Mesh;
 
-import z0.Buffer;
-import z0.ColorFrameBuffer;
-import z0.Descriptors;
-import z0.Device;
-import z0.Renderer;
-import z0.Renderpass;
-import z0.ShadowMapFrameBuffer;
+import z0.vulkan.Buffer;
+import z0.vulkan.ColorFrameBuffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.Renderer;
+import z0.vulkan.Renderpass;
+import z0.vulkan.ShadowMapFrameBuffer;
 
 export namespace z0 {
 

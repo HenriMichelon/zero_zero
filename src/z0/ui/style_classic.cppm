@@ -10,7 +10,6 @@ module;
 export module z0.ui.StyleClassic;
 
 import z0.Tools;
-import z0.VectorRenderer;
 import z0.Application;
 
 import z0.ui.Button;
@@ -28,6 +27,7 @@ import z0.ui.ToggleButton;
 import z0.ui.TreeView;
 import z0.ui.Widget;
 
+import z0.vulkan.VectorRenderer;
 
 export namespace z0 {
 

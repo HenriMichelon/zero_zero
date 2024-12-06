@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.SimplePostprocessingRenderer;
+module z0.vulkan.SimplePostprocessingRenderer;
 
-import z0.PostprocessingRenderer;
-import z0.Device;
-import z0.ColorFrameBufferHDR;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.Device;
+import z0.vulkan.PostprocessingRenderer;
 
 namespace z0 {
 

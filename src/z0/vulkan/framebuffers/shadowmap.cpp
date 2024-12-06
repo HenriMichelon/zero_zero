@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.ShadowMapFrameBuffer;
+module z0.vulkan.ShadowMapFrameBuffer;
 
 import z0.Application;
 import z0.Constants;
@@ -18,7 +18,7 @@ import z0.nodes.DirectionalLight;
 import z0.nodes.Light;
 import z0.nodes.SpotLight;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 namespace z0 {
 

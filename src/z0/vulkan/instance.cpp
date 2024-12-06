@@ -14,13 +14,13 @@ module;
 #include <cassert>
 #include "z0/libraries.h"
 
-module z0.Instance;
+module z0.vulkan.Instance;
 
 import z0.ApplicationConfig;
 import z0.Tools;
 import z0.Window;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 namespace z0 {
 

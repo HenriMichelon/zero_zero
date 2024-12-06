@@ -12,7 +12,7 @@ export module z0.VirtualFS;
 
 import z0.Constants;
 
-import z0.Buffer;
+import z0.vulkan.Buffer;
 
 export namespace z0 {
 

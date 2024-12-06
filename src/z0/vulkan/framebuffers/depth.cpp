@@ -7,10 +7,11 @@
 module;
 #include <volk.h>
 
-module z0.DepthFrameBuffer;
+module z0.vulkan.DepthFrameBuffer;
 
 import z0.Application;
-import z0.Device;
+
+import z0.vulkan.Device;
 
 namespace z0 {
 

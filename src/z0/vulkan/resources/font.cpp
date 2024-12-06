@@ -15,8 +15,8 @@ import z0.Tools;
 
 import z0.resources.Image;
 
-import z0.Device;
-import z0.VulkanImage;
+import z0.vulkan.Device;
+import z0.vulkan.Image;
 
 namespace z0 {
 

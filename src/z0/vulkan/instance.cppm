@@ -9,11 +9,12 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.Instance;
+export module z0.vulkan.Instance;
 
 import z0.ApplicationConfig;
-import z0.Device;
 import z0.Window;
+
+import z0.vulkan.Device;
 
 export namespace z0 {
 

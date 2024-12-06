@@ -11,7 +11,7 @@ module z0.nodes.DirectionalLight;
 
 import z0.nodes.Node;
 
-import z0.ShadowMapFrameBuffer;
+import z0.vulkan.ShadowMapFrameBuffer;
 
 namespace z0 {
 

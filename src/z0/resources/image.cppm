@@ -14,7 +14,7 @@ import z0.Constants;
 
 import z0.resources.Resource;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 export namespace z0 {
 

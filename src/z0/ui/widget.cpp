@@ -21,7 +21,7 @@ import z0.ui.Resource;
 import z0.ui.Style;
 import z0.ui.Window;
 
-import z0.VectorRenderer;
+import z0.vulkan.VectorRenderer;
 
 namespace z0 {
 

@@ -23,7 +23,7 @@ import z0.InputEvent;
 import z0.ui.Rect;
 import z0.ui.Window;
 
-import z0.VectorRenderer;
+import z0.vulkan.VectorRenderer;
 
 namespace z0 {
 

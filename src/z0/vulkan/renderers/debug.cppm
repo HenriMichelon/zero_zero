@@ -21,18 +21,18 @@ module;
 #include <Jolt/Renderer/DebugRendererSimple.h>
 #include "z0/libraries.h"
 
-export module z0.DebugRenderer;
+export module z0.vulkan.DebugRenderer;
 
 import z0.nodes.Camera;
 import z0.nodes.CollisionObject;
 import z0.nodes.Node;
 
-import z0.Buffer;
-import z0.Device;
-import z0.ColorFrameBufferHDR;
-import z0.DepthFrameBuffer;
-import z0.Renderer;
-import z0.Renderpass;
+import z0.vulkan.Buffer;
+import z0.vulkan.Device;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Renderer;
+import z0.vulkan.Renderpass;
 
 namespace z0 {
 

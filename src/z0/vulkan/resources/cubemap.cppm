@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.VulkanCubemap;
+export module z0.vulkan.Cubemap;
 
 import z0.resources.Cubemap;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 export namespace z0 {
 

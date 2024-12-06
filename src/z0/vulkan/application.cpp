@@ -10,7 +10,7 @@ module;
 #include <Jolt/Physics/Body/BodyManager.h>
 #include "z0/libraries.h"
 
-module z0.VulkanApplication;
+module z0.vulkan.Application;
 
 import z0.ApplicationConfig;
 import z0.Tools;
@@ -22,13 +22,13 @@ import z0.resources.Material;
 
 import z0.ui.Manager;
 
-import z0.Instance;
-import z0.Device;
-import z0.DebugRenderer;
-import z0.SceneRenderer;
-import z0.VectorRenderer;
-import z0.TonemappingPostprocessingRenderer;
-import z0.VulkanImage;
+import z0.vulkan.DebugRenderer;
+import z0.vulkan.Device;
+import z0.vulkan.Instance;
+import z0.vulkan.SceneRenderer;
+import z0.vulkan.VectorRenderer;
+import z0.vulkan.TonemappingPostprocessingRenderer;
+import z0.vulkan.Image;
 
 namespace z0 {
 

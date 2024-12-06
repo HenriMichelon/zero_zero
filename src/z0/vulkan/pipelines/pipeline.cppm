@@ -8,11 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.Pipeline;
-
-import z0.Device;
+export module z0.vulkan.Pipeline;
 
 import z0.resources.Image;
+
+import z0.vulkan.Device;
 
 export namespace z0 {
 

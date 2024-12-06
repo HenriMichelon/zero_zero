@@ -22,8 +22,8 @@ import z0.Tools;
 
 import z0.resources.Material;
 
-import z0.Device;
-import z0.VulkanMesh;
+import z0.vulkan.Device;
+import z0.vulkan.Mesh;
 
 namespace z0 {
 

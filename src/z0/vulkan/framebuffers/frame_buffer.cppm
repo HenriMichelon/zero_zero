@@ -7,9 +7,9 @@
 module;
 #include <volk.h>
 
-export module z0.FrameBuffer;
+export module z0.vulkan.FrameBuffer;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 export namespace z0 {
 

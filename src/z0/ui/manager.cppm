@@ -10,13 +10,14 @@ module;
 export module z0.ui.Manager;
 
 import z0.Constants;
-import z0.resources.Font;
 import z0.InputEvent;
 import z0.Object;
 
+import z0.resources.Font;
+
 import z0.ui.Window;
 
-import z0.VectorRenderer;
+import z0.vulkan.VectorRenderer;
 
 export namespace z0 {
 

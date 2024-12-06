@@ -12,15 +12,15 @@ module;
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "vk_mem_alloc.h"
 
-export module z0.Device;
+export module z0.vulkan.Device;
 
 import z0.Constants;
 import z0.ApplicationConfig;
 import z0.Window;
 
-import z0.Buffer;
-import z0.Renderer;
-import z0.SubmitQueue;
+import z0.vulkan.Buffer;
+import z0.vulkan.Renderer;
+import z0.vulkan.SubmitQueue;
 
 export namespace z0 {
 

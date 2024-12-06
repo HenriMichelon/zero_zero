@@ -7,13 +7,13 @@
 module;
 #include "z0/libraries.h"
 
-export module z0.TonemappingPostprocessingRenderer;
+export module z0.vulkan.TonemappingPostprocessingRenderer;
 
-import z0.PostprocessingRenderer;
-import z0.Device;
-import z0.Buffer;
-import z0.ColorFrameBufferHDR;
-import z0.DepthFrameBuffer;
+import z0.vulkan.Buffer;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Device;
+import z0.vulkan.PostprocessingRenderer;
 
 export namespace z0 {
 

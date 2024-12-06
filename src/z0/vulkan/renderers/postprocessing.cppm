@@ -8,14 +8,15 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-export module z0.PostprocessingRenderer;
+export module z0.vulkan.PostprocessingRenderer;
 
 import z0.Constants;
-import z0.Renderer;
-import z0.Renderpass;
-import z0.Device;
-import z0.ColorFrameBufferHDR;
-import z0.Descriptors;
+
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.Renderer;
+import z0.vulkan.Renderpass;
 
 export namespace z0 {
 

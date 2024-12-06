@@ -16,10 +16,11 @@ module;
 #include <volk.h>
 #include "vk_mem_alloc.h"
 
-module z0.Buffer;
+module z0.vulkan.Buffer;
 
-import z0.Device;
 import z0.Tools;
+
+import z0.vulkan.Device;
 
 namespace z0 {
 

@@ -7,11 +7,11 @@
 module;
 #include <volk.h>
 
-module z0.ColorFrameBuffer;
+module z0.vulkan.ColorFrameBuffer;
 
-import z0.Device;
-import z0.FrameBuffer;
-import z0.ColorFrameBufferHDR;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.Device;
+import z0.vulkan.FrameBuffer;
 
 namespace z0 {
 

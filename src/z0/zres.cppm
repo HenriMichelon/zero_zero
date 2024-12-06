@@ -16,7 +16,7 @@ import z0.resources.Material;
 import z0.resources.Mesh;
 import z0.resources.Texture;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 export namespace z0 {
 

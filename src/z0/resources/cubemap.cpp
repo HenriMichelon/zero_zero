@@ -17,10 +17,10 @@ import z0.resources.Image;
 import z0.Tools;
 import z0.VirtualFS;
 
-import z0.Device;
-import z0.VulkanCubemap;
-import z0.VulkanImage;
-import z0.IBLPipeline;
+import z0.vulkan.Device;
+import z0.vulkan.IBLPipeline;
+import z0.vulkan.Cubemap;
+import z0.vulkan.Image;
 
 namespace z0 {
 

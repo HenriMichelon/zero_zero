@@ -8,13 +8,14 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-export module z0.Renderpass;
+export module z0.vulkan.Renderpass;
 
 import z0.Constants;
-import z0.Device;
-import z0.Shader;
-import z0.Buffer;
-import z0.Descriptors;
+
+import z0.vulkan.Buffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.Shader;
 
 export namespace z0 {
 

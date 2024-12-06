@@ -9,7 +9,7 @@ module;
 #include <vk_mem_alloc.h>
 #include "z0/libraries.h"
 
-export module z0.Buffer;
+export module z0.vulkan.Buffer;
 
 export namespace z0 {
 

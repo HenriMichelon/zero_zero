@@ -16,10 +16,11 @@ module;
 #include <cassert>
 #include <volk.h>
 
-module z0.Descriptors;
+module z0.vulkan.Descriptors;
 
 import z0.Tools;
-import z0.Device;
+
+import z0.vulkan.Device;
 
 namespace z0 {
     DescriptorSetLayout::Builder::Builder(const Device &dev) :

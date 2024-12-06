@@ -8,7 +8,7 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-module z0.VectorRenderer;
+module z0.vulkan.VectorRenderer;
 
 import z0.Constants;
 import z0.Tools;
@@ -19,13 +19,13 @@ import z0.resources.Resource;
 
 import z0.ui.Rect;
 
-import z0.Renderer;
-import z0.Renderpass;
-import z0.ColorFrameBufferHDR;
-import z0.Device;
-import z0.Descriptors;
-import z0.Buffer;
-import z0.VulkanImage;
+import z0.vulkan.Buffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.Renderer;
+import z0.vulkan.Renderpass;
+import z0.vulkan.Image;
 
 namespace z0 {
 

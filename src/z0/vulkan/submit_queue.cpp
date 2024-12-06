@@ -8,10 +8,11 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.SubmitQueue;
+module z0.vulkan.SubmitQueue;
 
-import z0.Device;
 import z0.Tools;
+
+import z0.vulkan.Device;
 
 namespace z0 {
 

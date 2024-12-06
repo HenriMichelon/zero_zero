@@ -8,16 +8,16 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.TonemappingPostprocessingRenderer;
+module z0.vulkan.TonemappingPostprocessingRenderer;
 
 import z0.Application;
 import z0.Tools;
 
-import z0.Device;
-import z0.ColorFrameBufferHDR;
-import z0.DepthFrameBuffer;
-import z0.Descriptors;
-import z0.PostprocessingRenderer;
+import z0.vulkan.ColorFrameBufferHDR;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Descriptors;
+import z0.vulkan.Device;
+import z0.vulkan.PostprocessingRenderer;
 
 namespace z0 {
 

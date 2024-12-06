@@ -8,9 +8,9 @@ module;
 #include "z0/libraries.h"
 #include <volk.h>
 
-module z0.Shader;
+module z0.vulkan.Shader;
 
-import z0.Device;
+import z0.vulkan.Device;
 
 namespace z0 {
 

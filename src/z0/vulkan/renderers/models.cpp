@@ -8,7 +8,7 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.ModelsRenderer;
+module z0.vulkan.ModelsRenderer;
 
 import z0.Tools;
 
@@ -19,12 +19,12 @@ import z0.nodes.Viewport;
 
 import z0.resources.Mesh;
 
-import z0.Buffer;
-import z0.Device;
-import z0.DepthFrameBuffer;
-import z0.Renderer;
-import z0.Renderpass;
-import z0.VulkanMesh;
+import z0.vulkan.Buffer;
+import z0.vulkan.Device;
+import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.Renderer;
+import z0.vulkan.Renderpass;
+import z0.vulkan.Mesh;
 
  namespace z0 {
 

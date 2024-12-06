@@ -15,14 +15,14 @@ module;
 #include <volk.h>
 #include "z0/libraries.h"
 
-module z0.VulkanMesh;
+module z0.vulkan.Mesh;
 
 import z0.Tools;
 
 import z0.resources.Material;
 
-import z0.Device;
-import z0.Buffer;
+import z0.vulkan.Buffer;
+import z0.vulkan.Device;
 
 namespace z0 {
 
