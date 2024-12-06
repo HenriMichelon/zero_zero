@@ -168,7 +168,7 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
-        submitQueue = make_unique<SubmitQueue>(graphicsQueue, presentQueue);
+        submitQueue = make_unique<SubmitQueue>(graphicsQueue, presentQueue, applicationConfig.framesInFlight);
 
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html

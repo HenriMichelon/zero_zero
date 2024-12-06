@@ -36,7 +36,7 @@ export namespace z0 {
             OneTimeCommand    command;
         };
 
-        explicit SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue);
+        explicit SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue, uint32_t framesInFlight);
 
         void submit(FrameData& frameData, VkSwapchainKHR& swapChain);
 
@@ -44,7 +44,7 @@ export namespace z0 {
 
         inline mutex& getSwapChainMutex() { return swapChainMutex; }
 
-        inline counting_semaphore<2>& getSwapChainSemaphore() { return swapChainSemaphore; }
+        inline counting_semaphore<5>& getSwapChainSemaphore() { return swapChainSemaphore; }
 
         OneTimeCommand beginOneTimeCommand();
 
@@ -69,7 +69,7 @@ export namespace z0 {
         mutex                   queueMutex;
         condition_variable      queueCv;
         mutex                   swapChainMutex;
-        counting_semaphore<2>   swapChainSemaphore{2};
+        counting_semaphore<5>   swapChainSemaphore;
 
         list<OneTimeCommand> oneTimeCommands;
         mutex                oneTimeMutex;

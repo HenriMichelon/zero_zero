@@ -15,10 +15,11 @@ import z0.Tools;
 
 namespace z0 {
 
-    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue) :
+    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue, const uint32_t framesInFlight) :
         graphicQueue{graphicQueue},
         presentQueue{presentQueue},
-        queueThread{&SubmitQueue::run, this} {
+        queueThread{&SubmitQueue::run, this},
+        swapChainSemaphore{framesInFlight-1} {
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
