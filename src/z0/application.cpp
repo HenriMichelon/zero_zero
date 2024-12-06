@@ -31,7 +31,6 @@ import z0.TypeRegistry;
 import z0.Window;
 
 import z0.nodes.Camera;
-import z0.nodes.Character;
 import z0.nodes.CollisionArea;
 import z0.nodes.DirectionalLight;
 import z0.nodes.Environment;
@@ -360,7 +359,6 @@ namespace z0 {
 
     void Application::registerTypes() const {
         TypeRegistry::registerType<Camera>("Camera");
-        TypeRegistry::registerType<Character>("Character");
         TypeRegistry::registerType<CollisionArea>("CollisionArea");
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");

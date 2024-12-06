@@ -44,7 +44,6 @@ namespace z0 {
         Node{name, type},
         collisionLayer{layer},
         collisionMask{mask},
-        shape{nullptr},
         activationMode{JPH::EActivation::Activate},
         bodyInterface{Application::get()._getBodyInterface()} {
     }
@@ -167,7 +166,7 @@ namespace z0 {
 
     void CollisionObject::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
-        if (!shape || bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
+        if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
         updating = true;
         JPH::Vec3 position;
         JPH::Quat rotation;
@@ -228,6 +227,7 @@ namespace z0 {
             if (!bodyInterface.IsAdded(bodyId)) {
                 // log("adding", this->getName(), to_string(collisionMask));
                 bodyInterface.AddBody(bodyId, activationMode);
+                Application::get()._setOptimizeBroadPhase();
             }
             bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
             setPositionAndRotation();
@@ -236,7 +236,6 @@ namespace z0 {
                 bodyInterface.RemoveBody(bodyId);
             }
         }
-        Application::get()._setOptimizeBroadPhase();
     }
 
 }

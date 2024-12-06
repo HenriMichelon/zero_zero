@@ -34,20 +34,21 @@ export namespace z0 {
          * belonging to the `layer` layers and detecting collisions
          * with bodies having a layer in the `mask` value.
          */
-        explicit Character(const shared_ptr<Shape> &shape,
-                           uint32_t                 layer,
-                           uint32_t                 mask,
-                           const string &           name = TypeNames[CHARACTER]);
+        explicit Character(float      height,
+                           float      radius,
+                           uint32_t      layer,
+                           uint32_t      mask,
+                           const string &name = TypeNames[CHARACTER]);
 
         /**
          * Creates a Character without a collision `shape`,
          */
-        explicit Character(const string &name = TypeNames[CHARACTER]);
+        // explicit Character(const string &name = TypeNames[CHARACTER]);
 
         /**
-         * Sets a new collision shape, recreates the character in the physic system
+         * Sets a new capsule shape, recreates the virtualCharacter in the physic system
          */
-        void setShape(const shared_ptr<Shape> &shape);
+        void setShape(float height, float radius);
 
         ~Character() override;
 
@@ -55,14 +56,14 @@ export namespace z0 {
          * Returns `true` if the Character is on a ground
          */
         [[nodiscard]] inline bool isOnGround() const {
-            return character->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
+            return virtualCharacter->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
         }
 
         /**
          * Returns `true` if `object` is the ground
          */
         [[nodiscard]] inline bool isGround(const CollisionObject *object) const {
-            return object->_getBodyId() == character->GetGroundBodyID();
+            return object->_getBodyId() == virtualCharacter->GetGroundBodyID();
         }
 
         /**
@@ -86,21 +87,28 @@ export namespace z0 {
         [[nodiscard]] list<Collision> getCollisions() const;
 
         /**
-         * Moves the character using this velocity
+         * Moves the virtualCharacter using this velocity
          */
         void setVelocity(vec3 velocity) override;
 
         /**
-         * Returns the current character velocity
+         * Returns the current virtualCharacter velocity
          */
-        [[nodiscard]] vec3 getVelocity() const override;
+        // [[nodiscard]] vec3 getVelocity() const override;
+
+        inline float getHeight() const { return height; }
+
+        inline float getRadius() const { return radius; }
 
     protected:
         void setPositionAndRotation() override;
 
     private:
+        float height;
+        float radius;
+        float yDelta;
         vec3                              upVector{AXIS_UP};
-        unique_ptr<JPH::CharacterVirtual> character;
+        unique_ptr<JPH::CharacterVirtual> virtualCharacter;
         unique_ptr<JPH::Character>        physicsCharacter;
 
     public:

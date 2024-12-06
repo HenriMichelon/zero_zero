@@ -9,6 +9,7 @@ module;
 #include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
@@ -23,49 +24,47 @@ import z0.nodes.CollisionObject;
 import z0.resources.Shape;
 
 namespace z0 {
-    Character::Character(const shared_ptr<Shape> &shape,
+    Character::Character(const float      height,
+                         const float      radius,
                          const uint32_t           layer,
                          const uint32_t           mask,
                          const string &           name):
-        CollisionObject(shape,
-                        layer,
+        CollisionObject(layer,
                         mask,
                         name,
                         CHARACTER) {
-        setShape(shape);
+        setShape(height, radius);
     }
 
-    Character::Character(const string &name):
-        CollisionObject(0, 0, name, CHARACTER) {
-    }
+    // Character::Character(const string &name):
+        // CollisionObject(0, 0, name, CHARACTER) {
+    // }
 
-    void Character::setShape(const shared_ptr<Shape> &shape) {
+    void Character::setShape(const float height, const float radius) {
+        assert(height/2 > radius);
         if (physicsCharacter) {
             physicsCharacter->RemoveFromPhysicsSystem();
         }
-        this->shape = shape;
+        yDelta = height/2;
         const auto position= getPositionGlobal();
         const auto quat = normalize(toQuat(mat3(worldTransform)));
-        // TODO : use a capsule shape
-        const auto shapeHe = reinterpret_cast<JPH::BoxShapeSettings *>(this->shape->_getShapeSettings())->
-                mHalfExtent;
-        auto pos = JPH::RVec3(position.x, position.y, position.z);
-        auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
+        const auto pos = JPH::RVec3(position.x, position.y + yDelta, position.z);
+        const auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
 
         JPH::CharacterVirtualSettings settingsVirtual;
-        settingsVirtual.mShape         = new JPH::BoxShape(shapeHe);
+        settingsVirtual.mShape         = new JPH::CapsuleShape(height/2 - radius, radius);
         settingsVirtual.mMaxSlopeAngle = radians(45.0);
-        character                      = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
+        virtualCharacter               = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                        pos,
                                                        rot,
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
-        character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
-        // character->SetListener(this);
+        virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
+        // virtualCharacter->SetListener(this);
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
-        settings.mShape  = new JPH::BoxShape(shapeHe);
+        settings.mShape  = new JPH::CapsuleShape(height/2 - radius, radius);
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,
@@ -83,18 +82,19 @@ namespace z0 {
     }
 
     vec3 Character::getGroundVelocity() const {
-        const auto velocity = character->GetGroundVelocity();
+        const auto velocity = physicsCharacter->GetGroundVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
     void Character::setUpVector(const vec3 vector) {
         upVector = vector;
-        character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
+        virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
+        physicsCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
     }
 
     list<CollisionObject::Collision> Character::getCollisions() const {
         list<Collision> contacts;
-        for (const auto &contact : character->GetActiveContacts()) {
+        for (const auto &contact : virtualCharacter->GetActiveContacts()) {
             auto *node = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(contact.mBodyB));
             assert(node && "physics body not associated with a node");
             contacts.push_back({
@@ -108,60 +108,76 @@ namespace z0 {
         return contacts;
     }
 
-    vec3 Character::getVelocity() const {
-        const auto velocity = physicsCharacter->GetLinearVelocity();
-        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
-    }
+    // vec3 Character::getVelocity() const {
+        // const auto velocity = physicsCharacter->GetLinearVelocity();
+        // return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    // }
 
     void Character::setVelocity(const vec3 velocity) {
-        if (velocity == VEC3ZERO) {
-            character->SetLinearVelocity(JPH::Vec3::sZero());
-            physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
-        } else {
-            // current orientation * velocity
-            const auto vel = toQuat(mat3(localTransform)) * velocity;
-            character->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
-            physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
-        }
+        CollisionObject::setVelocity(velocity);
+        virtualCharacter->SetLinearVelocity(physicsCharacter->GetLinearVelocity());
+        // if (velocity == VEC3ZERO) {
+            // virtualCharacter->SetLinearVelocity(JPH::Vec3::sZero());
+            // physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
+        // } else {
+            // const auto vel = toQuat(mat3(localTransform)) * velocity;
+            // virtualCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
+            // physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
+        // }
     }
 
     void Character::setPositionAndRotation() {
-        if (updating) { return; }
-        const auto pos   = getPositionGlobal();
-        const auto quat  = normalize(toQuat(mat3(worldTransform)));
-        const auto jpos  = JPH::RVec3(pos.x, pos.y, pos.z);
-        const auto jquat = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
-        character->SetPosition(jpos);
-        character->SetRotation(jquat);
-        physicsCharacter->SetPositionAndRotation(jpos, jquat);
+        if (updating || bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) {
+            return;
+        }
+        const auto position = getPositionGlobal();
+        const auto quat = normalize(toQuat(mat3(worldTransform)));
+        const auto pos = JPH::RVec3(position.x, position.y + yDelta, position.z);
+        const auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
+        virtualCharacter->SetPosition(pos);
+        virtualCharacter->SetRotation(rot);
+        physicsCharacter->SetPositionAndRotation(pos, rot);
     }
 
     void Character::_physicsUpdate(const float delta) {
-        physicsCharacter->PostSimulation(0.01f);
+        Node::_physicsUpdate(delta);
+        if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
         updating = true;
-        character->Update(delta,
-                          character->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
+        physicsCharacter->PostSimulation(0.01f);
+        JPH::Vec3 position;
+        JPH::Quat rotation;
+        bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
+        const auto pos = vec3{position.GetX(), position.GetY() - yDelta, position.GetZ()};
+        if (pos != getPositionGlobal()) {
+            setPositionGlobal(pos);
+        }
+        const auto rot = quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()};
+        if (rot != getRotationQuaternion()) {
+            setRotation(rot);
+        }
+        virtualCharacter->Update(delta,
+                          virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
                           *this,
                           *this,
                           *this,
                           {},
                           *Application::get()._getTempAllocator().get());
-        const auto pos = character->GetPosition();
-        const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
-        if (newPos != getPositionGlobal()) {
-            setPositionGlobal(newPos);
-        }
-        if (pos != physicsCharacter->GetPosition()) {
-            physicsCharacter->SetPosition(pos);
-        }
-        const auto rot = character->GetRotation();
-        const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
-        if (newRot != getRotationQuaternion()) {
-            setRotation(newRot);
-        }
-        if (rot != physicsCharacter->GetRotation()) {
-            physicsCharacter->SetRotation(rot);
-        }
+        // const auto pos = virtualCharacter->GetPosition();
+        // const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
+        // if (newPos != getPositionGlobal()) {
+        //     setPositionGlobal(newPos);
+        // }
+        // if (pos != physicsCharacter->GetPosition()) {
+        //     physicsCharacter->SetPosition(pos);
+        // }
+        // const auto rot = virtualCharacter->GetRotation();
+        // const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
+        // if (newRot != getRotationQuaternion()) {
+        //     setRotation(newRot);
+        // }
+        // if (rot != physicsCharacter->GetRotation()) {
+        //     physicsCharacter->SetRotation(rot);
+        // }
         updating = false;
         Node::_physicsUpdate(delta);
     }

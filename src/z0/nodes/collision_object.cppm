@@ -120,7 +120,7 @@ export namespace z0 {
         bool                updating{false};
         uint32_t            collisionLayer;
         uint32_t            collisionMask;
-        shared_ptr<Shape>   shape;
+        shared_ptr<Shape>   shape{nullptr};
         JPH::EActivation    activationMode;
         JPH::BodyInterface &bodyInterface;
         JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};

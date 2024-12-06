@@ -67,7 +67,7 @@ namespace z0 {
         const auto sourceMask = layersAndMask1 & PHYSICS_LAYERS_MASK;
         const auto targetLayer = (layersAndMask2 >> PHYSICS_LAYERS_BITS) & PHYSICS_LAYERS_MASK;
         // if (sourceMask == 4 && targetLayer == 4) {
-        //     log("ShouldCollide", to_string(sourceMask), to_string(targetLayer), to_string((targetLayer & sourceMask) != 0));
+        // log("ShouldCollide", to_string(sourceMask), to_string(targetLayer), to_string((targetLayer & sourceMask) != 0));
         // }
         return (targetLayer & sourceMask) != 0;
     }
