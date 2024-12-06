@@ -61,7 +61,7 @@ namespace z0 {
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
         character->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
-        character->SetListener(this);
+        // character->SetListener(this);
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
@@ -72,11 +72,13 @@ namespace z0 {
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
         physicsCharacter->AddToPhysicsSystem();
+        setBodyId(physicsCharacter->GetBodyID());
     }
 
     Character::~Character() {
         if (physicsCharacter) {
             physicsCharacter->RemoveFromPhysicsSystem();
+            bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
         }
     }
 

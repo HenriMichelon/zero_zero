@@ -123,6 +123,7 @@ export namespace z0 {
         shared_ptr<Shape>   shape;
         JPH::EActivation    activationMode;
         JPH::BodyInterface &bodyInterface;
+        JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};
 
         CollisionObject(const shared_ptr<Shape> &_shape,
                         uint32_t                 layer,
@@ -150,7 +151,6 @@ export namespace z0 {
 
     private:
         bool savedState{false};
-        JPH::BodyID bodyId{JPH::BodyID::cInvalidBodyID};
 
     public:
         void _physicsUpdate(float delta) override;

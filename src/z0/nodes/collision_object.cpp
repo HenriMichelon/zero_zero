@@ -147,7 +147,7 @@ namespace z0 {
     void CollisionObject::setBodyId(const JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
-        // log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()));
+        // log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()), getName());
     }
 
     CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) const {
@@ -228,7 +228,6 @@ namespace z0 {
             if (!bodyInterface.IsAdded(bodyId)) {
                 // log("adding", this->getName(), to_string(collisionMask));
                 bodyInterface.AddBody(bodyId, activationMode);
-                Application::get()._setOptimizeBroadPhase();
             }
             bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
             setPositionAndRotation();
@@ -237,6 +236,7 @@ namespace z0 {
                 bodyInterface.RemoveBody(bodyId);
             }
         }
+        Application::get()._setOptimizeBroadPhase();
     }
 
 }
