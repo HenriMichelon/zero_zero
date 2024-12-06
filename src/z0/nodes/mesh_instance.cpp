@@ -20,6 +20,15 @@ namespace z0 {
         mesh{mesh} {
     }
 
+    // MeshInstance::MeshInstance(const MeshInstance & original):
+    //     Node{original.name, MESH_INSTANCE},
+    //     mesh{original.mesh},
+    //     worldAABB{original.worldAABB},
+    //     outlined{original.outlined},
+    //     outlineMaterial{original.outlineMaterial} {
+    //     log("mesh instance copy");
+    // }
+
     shared_ptr<Node> MeshInstance::duplicateInstance() {
         return make_shared<MeshInstance>(*this);
     }

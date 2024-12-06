@@ -20,8 +20,9 @@ export namespace z0 {
         /**
          * Load a JSON, glTF or ZScene file
          * @param filepath path of the JSON/glTF/ZScene file, relative to the application path
+         * @param usecache put loaded resources in the global resources cache
          */
-        [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
+        [[nodiscard]] static shared_ptr<Node> load(const string& filepath, bool usecache = false);
 
         static void _cleanup();
 

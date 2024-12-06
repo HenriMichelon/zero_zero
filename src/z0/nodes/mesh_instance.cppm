@@ -5,6 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include "../../../../../zero_zero_thecard/cmake-build-debug-msvc/_deps/fetch_glfw-src/src/internal.h"
 #include "z0/libraries.h"
 
 export module z0.nodes.MeshInstance;
@@ -28,6 +29,8 @@ namespace z0 {
          * Creates a MeshInstance with the given Mesh
          */
         explicit MeshInstance(const shared_ptr<Mesh> &mesh, const string &name = TypeNames[MESH_INSTANCE]);
+
+        // explicit MeshInstance(const MeshInstance & original);
 
         /**
          * Returns the associated Mesh

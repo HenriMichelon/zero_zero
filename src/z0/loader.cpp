@@ -26,12 +26,12 @@ namespace z0 {
 
     mutex Loader::resourcesMutex;
 
-    shared_ptr<Node> Loader::load(const string& filepath) {
+    shared_ptr<Node> Loader::load(const string& filepath, const bool usecache) {
         if (filepath.ends_with(".json")) {
             return loadScene(filepath);
         }
         shared_ptr<Node> result{};
-        {
+        if (usecache) {
             auto lock = lock_guard(resourcesMutex);
             if (resources.contains(filepath)) {
                 log("re-using resources", filepath);
@@ -45,8 +45,10 @@ namespace z0 {
             result = GlTF::load(filepath);
         }
         if (result) {
-            auto lock = lock_guard(resourcesMutex);
-            resources[filepath] = result;
+            if (usecache) {
+                auto lock = lock_guard(resourcesMutex);
+                resources[filepath] = result;
+            }
             return result;
         }
         die("Loader : unsupported scene file format for", filepath);
@@ -70,7 +72,7 @@ namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "resource") {
                 // the model is in a glTF/ZScene file
-                node = load(nodeDesc.resource);
+                node = load(nodeDesc.resource, false);
                 node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 // the model is part of another, already loaded, model

@@ -273,7 +273,7 @@ import z0.Tween;
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
          */
-        list<shared_ptr<Node>>::const_iterator removeChild(const list<shared_ptr<Node>>::const_iterator &it);
+        // list<shared_ptr<Node>>::const_iterator removeChild(const list<shared_ptr<Node>>::const_iterator &it);
 
         /**
          * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.

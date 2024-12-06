@@ -71,10 +71,10 @@ namespace z0 {
     }
 
     Character::~Character() {
-        if (physicsCharacter) {
+        if (physicsCharacter && bodyInterface.IsAdded(bodyId)) {
             physicsCharacter->RemoveFromPhysicsSystem();
-            bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
         }
+        bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
     }
 
     vec3 Character::getGroundVelocity() const {
@@ -182,6 +182,62 @@ namespace z0 {
         const auto node1 = reinterpret_cast<CollisionObject *>(inBody.GetUserData());
         // log("Character::ShouldCollideLocked", getName(), node1->getName());
         return (node1->getCollisionLayer() & collisionMask) != 0;
+    }
+
+    void Character::_onEnterScene() {
+        if (isProcessed() && !bodyId.IsInvalid()) {
+            if (!bodyInterface.IsAdded(bodyId)) {
+                physicsCharacter->AddToPhysicsSystem();
+                Application::get()._setOptimizeBroadPhase();
+            }
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+            setPositionAndRotation();
+        }
+        Node::_onEnterScene();
+    }
+
+    void Character::_onExitScene() {
+        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
+            physicsCharacter->RemoveFromPhysicsSystem();
+        }
+        Node::_onExitScene();
+    }
+
+    void Character::_onPause() {
+        if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
+            physicsCharacter->RemoveFromPhysicsSystem();
+        }
+    }
+
+    void Character::_onResume() {
+        if (isProcessed() && !bodyId.IsInvalid()) {
+            if (visible) {
+                if (!bodyInterface.IsAdded(bodyId)) {
+                    physicsCharacter->AddToPhysicsSystem();
+                    Application::get()._setOptimizeBroadPhase();
+                }
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                setPositionAndRotation();
+            }
+        }
+    }
+
+    void Character::setVisible(const bool visible) {
+        if (!bodyId.IsInvalid() && visible != this->visible) {
+            if (visible) {
+                if (!bodyInterface.IsAdded(bodyId)) {
+                    physicsCharacter->AddToPhysicsSystem();
+                    Application::get()._setOptimizeBroadPhase();
+                }
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                setPositionAndRotation();
+            } else {
+                if (bodyInterface.IsAdded(bodyId)) {
+                    physicsCharacter->RemoveFromPhysicsSystem();
+                }
+            }
+        }
+        Node::setVisible(visible);
     }
 
 }

@@ -90,6 +90,8 @@ export namespace z0 {
 
         inline float getRadius() const { return radius; }
 
+        void setVisible(bool visible = true) override;
+
     protected:
         void setPositionAndRotation() override;
 
@@ -103,6 +105,14 @@ export namespace z0 {
 
     public:
         void _physicsUpdate(float delta) override;
+
+        void _onEnterScene() override;
+
+        void _onExitScene() override;
+
+        void _onPause() override;
+
+        void _onResume() override;
 
         void OnContactAdded(const JPH::CharacterVirtual *  inCharacter,
                             const JPH::BodyID &            inBodyID2,
