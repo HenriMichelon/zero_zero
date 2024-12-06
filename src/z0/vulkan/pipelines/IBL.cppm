@@ -29,11 +29,11 @@ export namespace z0 {
         explicit IBLPipeline(Device &device);
         ~IBLPipeline() override;
 
-        void convert(const shared_ptr<VulkanImage>&   hdrFile,
-                     const shared_ptr<VulkanCubemap>& cubemap) const;
-        void preComputeSpecular(const shared_ptr<VulkanCubemap>& unfilteredCubemap, const shared_ptr<VulkanCubemap>& cubemap) const;
-        void preComputeIrradiance(const shared_ptr<VulkanCubemap>& cubemap, const shared_ptr<VulkanCubemap>& irradianceCubemap) const;
-        void preComputeBRDF(const shared_ptr<VulkanImage>& brdfLut) const;
+        void convert(const shared_ptr<VulkanImage>&    hdrFile,
+                     const shared_ptr<VulkanCubemap>&  unfilteredCubemap,
+                     const shared_ptr<VulkanCubemap>&  filteredCubemap,
+                     const shared_ptr<VulkanCubemap>&  irradianceCubemap,
+                     const shared_ptr<VulkanImage>&    brdfLut) const;
 
     private:
         struct SpecularFilterPushConstants {
@@ -43,7 +43,6 @@ export namespace z0 {
 
         unique_ptr<DescriptorPool>      descriptorPool;
         unique_ptr<DescriptorSetLayout> descriptorSetLayout;
-        VkDescriptorSet                 descriptorSet{VK_NULL_HANDLE};
         VkSampler                       computeSampler{VK_NULL_HANDLE};
 
         static constexpr auto BINDING_INPUT_TEXTURE{0};

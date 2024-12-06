@@ -185,10 +185,13 @@ namespace z0 {
         const auto &vkIrradiance = reinterpret_pointer_cast<VulkanCubemap>(envCubemap->irradianceCubemap);
         const auto &vkBRDF = reinterpret_pointer_cast<VulkanImage>(envCubemap->brdfLut);
         const auto iblPipeline = IBLPipeline{device};
-        iblPipeline.convert(reinterpret_pointer_cast<VulkanImage>(Image::load(filename, imageFormat)), unfilteredCubemap);
-        iblPipeline.preComputeSpecular(unfilteredCubemap, vkSpecular);
-        iblPipeline.preComputeIrradiance(vkSpecular, vkIrradiance);
-        iblPipeline.preComputeBRDF(vkBRDF);
+        iblPipeline.convert(
+            reinterpret_pointer_cast<VulkanImage>(
+                Image::load(filename, imageFormat)),
+                unfilteredCubemap,
+                vkSpecular,
+                vkIrradiance,
+                vkBRDF);
         return envCubemap;
     }
 

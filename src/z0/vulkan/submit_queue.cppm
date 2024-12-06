@@ -48,7 +48,7 @@ export namespace z0 {
 
         OneTimeCommand beginOneTimeCommand();
 
-        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand);
+        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand, bool immediate = false);
 
         Buffer& createOneTimeBuffer(
             const OneTimeCommand& oneTimeCommand,
@@ -88,6 +88,8 @@ export namespace z0 {
         void run();
 
         void submit(const OneTimeCommand& command);
+
+        void submit(const SubmitInfo& submitInfo);
 
     public:
         SubmitQueue(const SubmitQueue &) = delete;

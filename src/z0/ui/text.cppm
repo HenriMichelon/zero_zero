@@ -25,7 +25,7 @@ export namespace z0 {
             explicit Text(string C): Widget(TEXT), text(std::move(C)) {
                 allowChildren = false;
                 drawBackground = false;
-                textColor = vec4{1.0f};
+                textColor = vec4{0.0f, 0.0f, 0.0f, 1.0f};
             }
 
             [[nodiscard]] const string& getText() const { return text; }

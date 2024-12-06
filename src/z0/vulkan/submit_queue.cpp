@@ -65,9 +65,14 @@ namespace z0 {
         return command;
     }
 
-    void SubmitQueue::endOneTimeCommand(const SubmitQueue::OneTimeCommand& oneTimeCommand) {
+    void SubmitQueue::endOneTimeCommand(const SubmitQueue::OneTimeCommand& oneTimeCommand, const bool immediate) {
         vkEndCommandBuffer(oneTimeCommand.commandBuffer);
-        submit(oneTimeCommand);
+        if (immediate) {
+            auto lock = lock_guard{queueMutex};
+            submit({.command = oneTimeCommand});
+        } else {
+            submit(oneTimeCommand);
+        }
     }
 
     void SubmitQueue::run() {
@@ -91,23 +96,27 @@ namespace z0 {
                     swapChainSemaphore.release();
                 }
             } else {
-                auto vkSubmitInfo = VkSubmitInfo {
-                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                    .commandBufferCount = 1,
-                    .pCommandBuffers = &submitInfo.command.commandBuffer,
-                };
-                if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
-                    die("failed to submit draw command buffer!");
-                }
-                vkQueueWaitIdle(graphicQueue);
-                {
-                    const auto lock = lock_guard(oneTimeMutex);
-                    oneTimeCommands.push_back(submitInfo.command);
-                    {
-                        auto lockBuffer = lock_guard(oneTimeBuffersMutex);
-                        oneTimeBuffers.erase(submitInfo.command.commandBuffer);
-                    }
-                }
+                submit(submitInfo);
+            }
+        }
+    }
+
+    void SubmitQueue::submit(const SubmitInfo& submitInfo) {
+        const auto vkSubmitInfo = VkSubmitInfo {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &submitInfo.command.commandBuffer,
+        };
+        if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+            die("failed to submit draw command buffer!");
+        }
+        vkQueueWaitIdle(graphicQueue);
+        {
+            const auto lock = lock_guard(oneTimeMutex);
+            oneTimeCommands.push_back(submitInfo.command);
+            {
+                auto lockBuffer = lock_guard(oneTimeBuffersMutex);
+                oneTimeBuffers.erase(submitInfo.command.commandBuffer);
             }
         }
     }

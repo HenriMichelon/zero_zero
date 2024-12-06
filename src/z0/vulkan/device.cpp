@@ -585,8 +585,8 @@ namespace z0 {
         return submitQueue->beginOneTimeCommand();
     }
 
-    void Device::endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& command) const {
-        submitQueue->endOneTimeCommand(command);
+    void Device::endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& command, const bool immediate) const {
+        submitQueue->endOneTimeCommand(command, immediate);
     }
 
     void Device::createSwapChain() {

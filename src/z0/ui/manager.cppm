@@ -40,7 +40,7 @@ export namespace z0 {
             /**
              * Returns the default font loaded at startup
              */
-            [[nodiscard]] inline Font& getDefaultFont() { return *defaultFont; }
+            [[nodiscard]] inline Font& getDefaultFont() const { return *defaultFont; }
 
             /**
              * Forces a redraw of all the UI at the start of the next frame
@@ -59,11 +59,11 @@ export namespace z0 {
             const float                 resizeDelta{5.0f};
             shared_ptr<Font>            defaultFont;
             shared_ptr<VectorRenderer>& vectorRenderer;
-            list<shared_ptr<Window>>   windows;
-            mutex                      windowsMutex;
-            vector<shared_ptr<Window>> removedWindows{};
-            shared_ptr<Window>         focusedWindow{nullptr};
-            shared_ptr<Window>         resizedWindow{nullptr};
+            list<shared_ptr<Window>>    windows;
+            mutex                       windowsMutex;
+            vector<shared_ptr<Window>>  removedWindows{};
+            shared_ptr<Window>          focusedWindow{nullptr};
+            shared_ptr<Window>          resizedWindow{nullptr};
             bool                        needRedraw{false};
             bool                        enableWindowResizing{true};
             bool                        resizingWindow{false};

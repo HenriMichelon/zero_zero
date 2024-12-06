@@ -129,7 +129,7 @@ namespace z0 {
     }
 
     vector<char> VirtualFS::loadShader(const string &filepath) {
-        auto path = string{APP_URI} + "shaders/" + filepath + ".spv";
+        const auto path = string{APP_URI} + "shaders/" + filepath + ".spv";
         ifstream file(getPath(path), std::ios::ate | std::ios::binary);
         if (!file.is_open()) { die("failed to open file : ", filepath); }
         const size_t fileSize = file.tellg();
