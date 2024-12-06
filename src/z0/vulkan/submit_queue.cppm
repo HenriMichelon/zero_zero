@@ -44,6 +44,8 @@ export namespace z0 {
 
         inline mutex& getSwapChainMutex() { return swapChainMutex; }
 
+        inline counting_semaphore<2>& getSwapChainSemaphore() { return swapChainSemaphore; }
+
         OneTimeCommand beginOneTimeCommand();
 
         OneTimeCommand beginOneTimeCommand(const Buffer& buffer);
@@ -58,14 +60,16 @@ export namespace z0 {
             VkDeviceSize       minOffsetAlignment = 1);
 
     private:
-        const VkQueue&     graphicQueue;
-        const VkQueue&     presentQueue;
-        bool               quit{false};
-        list<SubmitInfo>   submitInfos;
-        thread             queueThread;
-        mutex              queueMutex;
-        condition_variable queueCv;
-        mutex              swapChainMutex;
+        // Queue to submit commands to the GPU
+        const VkQueue&          graphicQueue;
+        const VkQueue&          presentQueue;
+        bool                    quit{false};
+        list<SubmitInfo>        submitInfos;
+        thread                  queueThread;
+        mutex                   queueMutex;
+        condition_variable      queueCv;
+        mutex                   swapChainMutex;
+        counting_semaphore<2>   swapChainSemaphore{2};
 
         list<OneTimeCommand> oneTimeCommands;
         mutex                oneTimeMutex;

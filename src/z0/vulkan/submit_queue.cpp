@@ -86,6 +86,7 @@ namespace z0 {
                     if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
                         die("failed to present swap chain image!");
                     }
+                    swapChainSemaphore.release();
                 }
             } else {
                 auto vkSubmitInfo = VkSubmitInfo {

@@ -299,6 +299,7 @@ namespace z0 {
         vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
         vkResetFences(device, 1, &data.inFlightFence);
         {
+            submitQueue->getSwapChainSemaphore().acquire();
             const auto lock = lock_guard(submitQueue->getSwapChainMutex());
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,

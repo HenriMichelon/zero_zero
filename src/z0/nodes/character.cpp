@@ -148,13 +148,17 @@ namespace z0 {
         const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
         if (newPos != getPositionGlobal()) {
             setPositionGlobal(newPos);
-            // physicsCharacter->SetPosition(pos);
+        }
+        if (pos != physicsCharacter->GetPosition()) {
+            physicsCharacter->SetPosition(pos);
         }
         const auto rot = character->GetRotation();
         const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
         if (newRot != getRotationQuaternion()) {
             setRotation(newRot);
-            // physicsCharacter->SetRotation(rot);
+        }
+        if (rot != physicsCharacter->GetRotation()) {
+            physicsCharacter->SetRotation(rot);
         }
         updating = false;
         Node::_physicsUpdate(delta);
