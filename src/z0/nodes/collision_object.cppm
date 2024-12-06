@@ -140,7 +140,7 @@ export namespace z0 {
 
         void setBodyId(JPH::BodyID id);
 
-        [[nodiscard]] CollisionObject *_getByBodyId(JPH::BodyID id) const;
+        [[nodiscard]] static CollisionObject *_getByBodyId(JPH::BodyID id);
 
         void _updateTransform() override;
 

@@ -149,9 +149,8 @@ namespace z0 {
         // log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()), getName());
     }
 
-    CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) const {
-        assert(!bodyId.IsInvalid());
-        return reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(id));
+    CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) {
+        return reinterpret_cast<CollisionObject *>(Application::get()._getBodyInterface().GetUserData(id));
     }
 
     void CollisionObject::_updateTransform() {
@@ -221,21 +220,22 @@ namespace z0 {
     }
 
     void CollisionObject::setVisible(const bool visible) {
-        Node::setVisible(visible);
-        if (bodyId.IsInvalid()) { return; }
-        if (visible) {
-            if (!bodyInterface.IsAdded(bodyId)) {
-                // log("adding", this->getName(), to_string(collisionMask));
-                bodyInterface.AddBody(bodyId, activationMode);
-                Application::get()._setOptimizeBroadPhase();
-            }
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-            setPositionAndRotation();
-        } else {
-            if (bodyInterface.IsAdded(bodyId)) {
-                bodyInterface.RemoveBody(bodyId);
+        if (!bodyId.IsInvalid() && visible != this->visible) {
+            if (visible) {
+                if (!bodyInterface.IsAdded(bodyId)) {
+                    // log("adding", this->getName(), to_string(collisionMask));
+                    bodyInterface.AddBody(bodyId, activationMode);
+                    Application::get()._setOptimizeBroadPhase();
+                }
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                setPositionAndRotation();
+            } else {
+                if (bodyInterface.IsAdded(bodyId)) {
+                    bodyInterface.RemoveBody(bodyId);
+                }
             }
         }
+        Node::setVisible(visible);
     }
 
 }

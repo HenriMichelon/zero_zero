@@ -24,21 +24,17 @@ import z0.nodes.CollisionObject;
 import z0.resources.Shape;
 
 namespace z0 {
-    Character::Character(const float      height,
-                         const float      radius,
-                         const uint32_t           layer,
-                         const uint32_t           mask,
-                         const string &           name):
+    Character::Character(const float    height,
+                         const float    radius,
+                         const uint32_t layer,
+                         const uint32_t mask,
+                         const string & name):
         CollisionObject(layer,
                         mask,
                         name,
                         CHARACTER) {
         setShape(height, radius);
     }
-
-    // Character::Character(const string &name):
-        // CollisionObject(0, 0, name, CHARACTER) {
-    // }
 
     void Character::setShape(const float height, const float radius) {
         assert(height/2 > radius);
@@ -53,18 +49,18 @@ namespace z0 {
 
         JPH::CharacterVirtualSettings settingsVirtual;
         settingsVirtual.mShape         = new JPH::CapsuleShape(height/2 - radius, radius);
-        settingsVirtual.mMaxSlopeAngle = radians(45.0);
+        settingsVirtual.mMaxSlopeAngle = radians(30.0);
         virtualCharacter               = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                        pos,
                                                        rot,
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
         virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
-        // virtualCharacter->SetListener(this);
+        virtualCharacter->SetListener(this);
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
-        settings.mShape  = new JPH::CapsuleShape(height/2 - radius, radius);
+        settings.mShape  = settingsVirtual.mShape;
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,
@@ -98,32 +94,19 @@ namespace z0 {
             auto *node = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(contact.mBodyB));
             assert(node && "physics body not associated with a node");
             contacts.push_back({
-                    .position = vec3{contact.mPosition.GetX(), contact.mPosition.GetY(), contact.mPosition.GetZ()},
-                    .normal = vec3{contact.mSurfaceNormal.GetX(),
-                                   contact.mSurfaceNormal.GetY(),
-                                   contact.mSurfaceNormal.GetZ()},
-                    .object = node
+                .position = vec3{contact.mPosition.GetX(), contact.mPosition.GetY(), contact.mPosition.GetZ()},
+                .normal = vec3{contact.mSurfaceNormal.GetX(),
+                               contact.mSurfaceNormal.GetY(),
+                               contact.mSurfaceNormal.GetZ()},
+                .object = node
             });
         }
         return contacts;
     }
 
-    // vec3 Character::getVelocity() const {
-        // const auto velocity = physicsCharacter->GetLinearVelocity();
-        // return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
-    // }
-
     void Character::setVelocity(const vec3 velocity) {
         CollisionObject::setVelocity(velocity);
         virtualCharacter->SetLinearVelocity(physicsCharacter->GetLinearVelocity());
-        // if (velocity == VEC3ZERO) {
-            // virtualCharacter->SetLinearVelocity(JPH::Vec3::sZero());
-            // physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
-        // } else {
-            // const auto vel = toQuat(mat3(localTransform)) * velocity;
-            // virtualCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
-            // physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
-        // }
     }
 
     void Character::setPositionAndRotation() {
@@ -156,28 +139,12 @@ namespace z0 {
             setRotation(rot);
         }
         virtualCharacter->Update(delta,
-                          virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
-                          *this,
-                          *this,
-                          *this,
-                          {},
-                          *Application::get()._getTempAllocator().get());
-        // const auto pos = virtualCharacter->GetPosition();
-        // const auto newPos = vec3{pos.GetX(), pos.GetY(), pos.GetZ()};
-        // if (newPos != getPositionGlobal()) {
-        //     setPositionGlobal(newPos);
-        // }
-        // if (pos != physicsCharacter->GetPosition()) {
-        //     physicsCharacter->SetPosition(pos);
-        // }
-        // const auto rot = virtualCharacter->GetRotation();
-        // const auto newRot = quat{rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ()};
-        // if (newRot != getRotationQuaternion()) {
-        //     setRotation(newRot);
-        // }
-        // if (rot != physicsCharacter->GetRotation()) {
-        //     physicsCharacter->SetRotation(rot);
-        // }
+              virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
+              *this,
+              *this,
+              *this,
+              {},
+              *Application::get()._getTempAllocator().get());
         updating = false;
         Node::_physicsUpdate(delta);
     }

@@ -41,11 +41,6 @@ export namespace z0 {
                            const string &name = TypeNames[CHARACTER]);
 
         /**
-         * Creates a Character without a collision `shape`,
-         */
-        // explicit Character(const string &name = TypeNames[CHARACTER]);
-
-        /**
          * Sets a new capsule shape, recreates the virtualCharacter in the physic system
          */
         void setShape(float height, float radius);
@@ -90,11 +85,6 @@ export namespace z0 {
          * Moves the virtualCharacter using this velocity
          */
         void setVelocity(vec3 velocity) override;
-
-        /**
-         * Returns the current virtualCharacter velocity
-         */
-        // [[nodiscard]] vec3 getVelocity() const override;
 
         inline float getHeight() const { return height; }
 
