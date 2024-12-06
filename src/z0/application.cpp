@@ -149,7 +149,7 @@ namespace z0 {
         if (stopped) { return; }
         if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
         if (optimizeBroadPhaseNeeded) {
-            physicsSystem.OptimizeBroadPhase();
+            // physicsSystem.OptimizeBroadPhase();
             optimizeBroadPhaseNeeded = false;
         }
         if (!deferredCalls.empty()) {

@@ -314,7 +314,6 @@ namespace z0 {
                 for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
                 return;
             }
-            if (result == VK_NOT_READY) { return;}
             if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
         }
 
@@ -402,7 +401,6 @@ namespace z0 {
         //         .pImageIndices = &data.imageIndex,
         //         .pResults = nullptr // Optional
         //     };
-        //     auto lock = lock_guard(submitQueue->getSwapChainMutex());
         //     auto result = vkQueuePresentKHR(presentQueue, &presentInfo);
         //     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         //         recreateSwapChain();
@@ -682,7 +680,6 @@ namespace z0 {
     void Device::recreateSwapChain() {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Swap_chain_recreation
         // TODO wait for all Window events to be processed
-
         vkDeviceWaitIdle(device);
         cleanupSwapChain();
         createSwapChain();

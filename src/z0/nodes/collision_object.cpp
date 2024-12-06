@@ -185,7 +185,7 @@ namespace z0 {
         if (isProcessed() && !bodyId.IsInvalid()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
-                log("_onEnterScene add", this->getName());
+                // log("_onEnterScene add", this->getName());
                 Application::get()._setOptimizeBroadPhase();
             }
             bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
@@ -197,7 +197,7 @@ namespace z0 {
     void CollisionObject::_onExitScene() {
         if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            log("_onExitScene remove", this->getName());
+            // log("_onExitScene remove", this->getName());
         }
         Node::_onExitScene();
     }
@@ -205,7 +205,7 @@ namespace z0 {
     void CollisionObject::_onPause() {
         if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            log("_onPause remove", this->getName());
+            // log("_onPause remove", this->getName());
         }
     }
 
@@ -214,7 +214,7 @@ namespace z0 {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
-                    log("_onResume add", this->getName());
+                    // log("_onResume add", this->getName());
                     Application::get()._setOptimizeBroadPhase();
                 }
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
@@ -227,7 +227,7 @@ namespace z0 {
         if (!bodyId.IsInvalid() && visible != this->visible) {
             if (visible) {
                 if (!bodyInterface.IsAdded(bodyId)) {
-                    log("setVisible add", this->getName());
+                    // log("setVisible add", this->getName());
                     bodyInterface.AddBody(bodyId, activationMode);
                     Application::get()._setOptimizeBroadPhase();
                 }
@@ -236,7 +236,7 @@ namespace z0 {
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.RemoveBody(bodyId);
-                    log("setVisible remove", this->getName());
+                    // log("setVisible remove", this->getName());
                 }
             }
         }

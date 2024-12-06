@@ -67,6 +67,7 @@ namespace z0 {
 
     void SubmitQueue::endOneTimeCommand(const SubmitQueue::OneTimeCommand& oneTimeCommand, const bool immediate) {
         vkEndCommandBuffer(oneTimeCommand.commandBuffer);
+        log("endOneTimeCommand", to_string(immediate));
         if (immediate) {
             auto lock = lock_guard{queueMutex};
             submit({.command = oneTimeCommand});
@@ -93,8 +94,8 @@ namespace z0 {
                     if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
                         die("failed to present swap chain image!");
                     }
-                    swapChainSemaphore.release();
                 }
+                swapChainSemaphore.release();
             } else {
                 submit(submitInfo);
             }
@@ -130,7 +131,7 @@ namespace z0 {
         queueCv.notify_one();
     }
 
-    void SubmitQueue::submit(FrameData& data, VkSwapchainKHR& swapChain) {
+    void SubmitQueue::submit(FrameData& frameData, VkSwapchainKHR& swapChain) {
         if (quit) { return; }
         {
             auto lock = lock_guard{queueMutex};
@@ -138,23 +139,23 @@ namespace z0 {
                 .submitInfo = {
                     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                     .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = &data.imageAvailableSemaphore,
+                    .pWaitSemaphores = &frameData.imageAvailableSemaphore,
                     .pWaitDstStageMask = waitStages,
                     .commandBufferCount = 1,
-                    .pCommandBuffers = &data.commandBuffer,
+                    .pCommandBuffers = &frameData.commandBuffer,
                     .signalSemaphoreCount = 1,
-                    .pSignalSemaphores = &data.renderFinishedSemaphore
+                    .pSignalSemaphores = &frameData.renderFinishedSemaphore
                 },
                 .presentInfo = {
                     .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
                     .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = &data.renderFinishedSemaphore,
+                    .pWaitSemaphores = &frameData.renderFinishedSemaphore,
                     .swapchainCount = 1,
                     .pSwapchains = &swapChain,
-                    .pImageIndices = &data.imageIndex,
+                    .pImageIndices = &frameData.imageIndex,
                     .pResults = nullptr // Optional
                 },
-                .fence = data.inFlightFence,
+                .fence = frameData.inFlightFence,
             });
         }
         queueCv.notify_one();

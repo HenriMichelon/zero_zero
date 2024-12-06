@@ -146,7 +146,6 @@ namespace z0 {
               {},
               *Application::get()._getTempAllocator().get());
         updating = false;
-        Node::_physicsUpdate(delta);
     }
 
     void Character::OnContactAdded(const JPH::CharacterVirtual *  inCharacter,
