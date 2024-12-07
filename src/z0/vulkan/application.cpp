@@ -73,8 +73,7 @@ namespace z0 {
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
             applicationConfig.clearColor,
-            applicationConfig.useDepthPrepass,
-            applicationConfig.debug);
+            applicationConfig.useDepthPrepass);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
         *device,
         sceneRenderer->getColorAttachments(),

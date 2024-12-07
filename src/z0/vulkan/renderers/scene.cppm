@@ -52,7 +52,7 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass, bool enableDebugCollisionObject);
+        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass);
 
         [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
 

@@ -51,7 +51,7 @@ import z0.vulkan.Mesh;
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass, const bool enableDebugCollisionObject) :
+    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass) :
         ModelsRenderer{device, clearColor},
         enableDepthPrepass{enableDepthPrepass} {
         frameData.resize(device.getFramesInFlight());
