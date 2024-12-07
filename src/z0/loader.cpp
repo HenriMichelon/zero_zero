@@ -72,7 +72,7 @@ namespace z0 {
         if (nodeDesc.isResource) {
             if (nodeDesc.resourceType == "resource") {
                 // the model is in a glTF/ZScene file
-                node = load(nodeDesc.resource, false);
+                node = load(nodeDesc.resource, true);
                 node->setName(nodeDesc.id);
             } else if (nodeDesc.resourceType == "mesh") {
                 // the model is part of another, already loaded, model

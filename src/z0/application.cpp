@@ -70,9 +70,8 @@ namespace z0 {
         JPH::RegisterDefaultAllocator();
         JPH::Factory::sInstance = new JPH::Factory();
         JPH::RegisterTypes();
-        temp_allocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
-        job_system     = std::make_unique<JPH::JobSystemThreadPool>(
-                JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
+        temp_allocator = make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
+        job_system     = make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers);
         physicsSystem.Init(1024,
                            0,
                            2048,
@@ -151,7 +150,8 @@ namespace z0 {
         if (stopped) { return; }
         if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
         if (optimizeBroadPhaseNeeded) {
-            // physicsSystem.OptimizeBroadPhase();
+            log("OptimizeBroadPhase");
+            physicsSystem.OptimizeBroadPhase();
             optimizeBroadPhaseNeeded = false;
         }
         if (!deferredCalls.empty()) {

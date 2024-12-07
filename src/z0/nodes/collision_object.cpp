@@ -197,6 +197,7 @@ namespace z0 {
     void CollisionObject::_onExitScene() {
         if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
+            // Application::get()._setOptimizeBroadPhase();
             // log("_onExitScene remove", this->getName());
         }
         Node::_onExitScene();
@@ -205,6 +206,7 @@ namespace z0 {
     void CollisionObject::_onPause() {
         if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
+            // Application::get()._setOptimizeBroadPhase();
             // log("_onPause remove", this->getName());
         }
     }
@@ -236,6 +238,7 @@ namespace z0 {
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.RemoveBody(bodyId);
+                    // Application::get()._setOptimizeBroadPhase();
                     // log("setVisible remove", this->getName());
                 }
             }
