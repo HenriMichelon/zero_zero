@@ -132,6 +132,7 @@ namespace z0 {
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
         // Force material data to be written to GPU memory
         material->_setDirty();
+        frameData[currentFrame].materialsIndices[material->getId()] = static_cast<int32_t>(frameData[currentFrame].materials.size());
         frameData[currentFrame].materials.push_back(material);
         frameData[currentFrame].materialsRefCounter[material->getId()]++;
     }
@@ -161,6 +162,14 @@ namespace z0 {
                 }
                 // Remove the material from the scene
                 frameData[currentFrame].materials.remove(material);
+                // Rebuild the material index
+                frameData[currentFrame].materialsIndices.clear();
+                uint32_t materialIndex = 0;
+                for (const auto &mat : frameData[currentFrame].materials) {
+                    frameData[currentFrame].materialsIndices[mat->getId()] = static_cast<int32_t>(materialIndex);
+                    materialIndex += 1;
+                }
+
             }
         }
     }
@@ -349,7 +358,6 @@ namespace z0 {
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         uint32_t modelIndex = 0;
-        frame.modelsIndices.clear();
         auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
         for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
             modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
@@ -360,7 +368,6 @@ namespace z0 {
 
         // Update in GPU memory only the materials modified since the last frame
         uint32_t materialIndex = 0;
-        frame.materialsIndices.clear();
         for (const auto& material : frame.materials) {
             if (material->_isDirty()) {
                 auto materialUBO = MaterialBuffer{
@@ -399,10 +406,9 @@ namespace z0 {
                     &materialUBO,
                     MATERIAL_BUFFER_SIZE,
                     MATERIAL_BUFFER_SIZE * materialIndex);
+                material->_clearDirty();
             }
-            material->_clearDirty();
-            frame.materialsIndices[material->getId()] = materialIndex;
-            materialIndex += 1;
+            materialIndex++;
         }
     }
 
@@ -710,17 +716,19 @@ namespace z0 {
     void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
         frameData[currentFrame].imagesRefCounter[vkImage->getId()]++;
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end())
+        if (ranges::find(frameData[currentFrame].images, vkImage) != frameData[currentFrame].images.end()) {
             return;
-        if (frameData[currentFrame].images.size() == MAX_IMAGES)
+        }
+        if (frameData[currentFrame].images.size() == MAX_IMAGES) {
             die("Maximum images count reached for the scene renderer");
+        }
         frameData[currentFrame].imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
         frameData[currentFrame].images.push_back(vkImage);
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
-        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end()) {
+        if (ranges::find(frameData[currentFrame].images, vkImage) != frameData[currentFrame].images.end()) {
             if (--frameData[currentFrame].imagesRefCounter[vkImage->getId()] == 0) {
                 frameData[currentFrame].imagesRefCounter.erase(vkImage->getId());
                 frameData[currentFrame].images.remove(vkImage);
