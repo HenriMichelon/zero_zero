@@ -105,7 +105,14 @@ namespace z0 {
     }
 
     void Character::setVelocity(const vec3 velocity) {
-        CollisionObject::setVelocity(velocity);
+        if (!bodyInterface.IsAdded(bodyId)) { return; }
+        if (velocity == VEC3ZERO) {
+            physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
+        } else {
+            // current orientation * velocity
+            const auto vel = toQuat(mat3(localTransform)) * velocity;
+            physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
+        }
         virtualCharacter->SetLinearVelocity(physicsCharacter->GetLinearVelocity());
     }
 

@@ -109,7 +109,7 @@ namespace z0 {
                                VK_ACCESS_SHADER_WRITE_BIT, 0,
                                VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endOneTimeCommandBuffer(command);
             vkDestroyPipeline(device.getDevice(), pipeline1, nullptr);
         }
 
@@ -204,7 +204,7 @@ namespace z0 {
                         VK_ACCESS_SHADER_WRITE_BIT, 0,
                         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endOneTimeCommandBuffer(command);
             for (const VkImageView mipTailView : envTextureMipTailViews) {
                 vkDestroyImageView(device.getDevice(), mipTailView, nullptr);
             }
@@ -254,7 +254,7 @@ namespace z0 {
                        VK_ACCESS_SHADER_WRITE_BIT, 0,
                        VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endOneTimeCommandBuffer(command);
             vkDestroyPipeline(device.getDevice(), pipeline3, nullptr);
         }
 
@@ -299,7 +299,7 @@ namespace z0 {
                        VK_ACCESS_SHADER_WRITE_BIT, 0,
                        VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endOneTimeCommandBuffer(command);
             vkDestroyPipeline(device.getDevice(), pipeline4, nullptr);
         }
 

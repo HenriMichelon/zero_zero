@@ -48,7 +48,7 @@ export namespace z0 {
 
         OneTimeCommand beginOneTimeCommand();
 
-        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand, bool immediate = false);
+        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand);
 
         Buffer& createOneTimeBuffer(
             const OneTimeCommand& oneTimeCommand,
@@ -58,6 +58,7 @@ export namespace z0 {
             VkDeviceSize       minOffsetAlignment = 1);
 
     private:
+        thread::id              mainThreadId;
         // Queue to submit commands to the GPU
         const VkQueue&          graphicQueue;
         // Queue to present swap chain

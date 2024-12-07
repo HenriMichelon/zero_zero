@@ -17,10 +17,11 @@ import z0.vulkan.Device;
 namespace z0 {
 
     SubmitQueue::SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue, const uint32_t framesInFlight) :
+        mainThreadId(this_thread::get_id()),
         graphicQueue{graphicQueue},
         presentQueue{presentQueue},
         queueThread{&SubmitQueue::run, this},
-        swapChainSemaphore{framesInFlight-1} {
+        swapChainSemaphore{framesInFlight > 1 ? framesInFlight-1 : 1} {
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
@@ -65,10 +66,9 @@ namespace z0 {
         return command;
     }
 
-    void SubmitQueue::endOneTimeCommand(const SubmitQueue::OneTimeCommand& oneTimeCommand, const bool immediate) {
+    void SubmitQueue::endOneTimeCommand(const OneTimeCommand& oneTimeCommand) {
         vkEndCommandBuffer(oneTimeCommand.commandBuffer);
-        log("endOneTimeCommand", to_string(immediate));
-        if (immediate) {
+        if (this_thread::get_id() == mainThreadId) {
             auto lock = lock_guard{queueMutex};
             submit({.command = oneTimeCommand});
         } else {

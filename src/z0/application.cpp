@@ -327,6 +327,7 @@ namespace z0 {
             }
 #endif
         };
+        currentTime = chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         while (!window->shouldClose()) {
             messageLoop();
             drawFrame();

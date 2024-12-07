@@ -209,7 +209,7 @@ namespace z0 {
         using Clock = chrono::steady_clock;
         static constexpr float dt = 1.0f/60.0f;
         double t = 0.0;
-        double currentTime = chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+        double currentTime = 0.0;
         double accumulator = 0.0;
         uint32_t frameCount = 0;
 
