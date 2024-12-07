@@ -79,7 +79,7 @@ import z0.Tween;
          */
         explicit Node(const string &nodeName = "Node", Type type = NODE);
 
-        ~Node() override = default;
+        ~Node() override;
 
         /**
          * Called when a node is ready to initialize, before being added to the scene

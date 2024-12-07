@@ -18,6 +18,10 @@ import z0.Tween;
 
 namespace z0 {
 
+    Node::~Node() {
+        // log("~", getName(), to_string(getId()));
+    }
+
     Node::id_t Node::currentId = 1;
 
     Node::Node(const Node &orig):

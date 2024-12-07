@@ -60,7 +60,6 @@ namespace z0 {
         createImagesResources();
         ranges::for_each(frameData, [&device](FrameData& frame) {
             frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
-            frame.materialsIndicesAllocation = vector(MAX_MATERIALS, Resource::INVALID_ID);
         });
         createOrUpdateResources(true, &pushConstantRange, 1);
     }
@@ -88,18 +87,18 @@ namespace z0 {
 
     void SceneRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (auto *skybox = dynamic_cast<Skybox *>(node.get())) {
-            frameData.at(currentFrame).skyboxRenderer = make_unique<SkyboxRenderer>(device, clearColor);
-            frameData.at(currentFrame).skyboxRenderer->loadScene(skybox->getCubemap());
+            frameData[currentFrame].skyboxRenderer = make_unique<SkyboxRenderer>(device, clearColor);
+            frameData[currentFrame].skyboxRenderer->loadScene(skybox->getCubemap());
             return;
         }
-        if (frameData.at(currentFrame).currentEnvironment == nullptr) {
+        if (frameData[currentFrame].currentEnvironment == nullptr) {
             if (const auto& environment = dynamic_pointer_cast<Environment>(node)) {
-                frameData.at(currentFrame).currentEnvironment = environment;
+                frameData[currentFrame].currentEnvironment = environment;
                 return;
             }
         }
         if (const auto& light = dynamic_pointer_cast<Light>(node)) {
-            frameData.at(currentFrame).lights.push_back(light);
+            frameData[currentFrame].lights.push_back(light);
             descriptorSetNeedUpdate = true;
             enableLightShadowCasting(light);
         }
@@ -108,14 +107,14 @@ namespace z0 {
 
     void SceneRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
         if (dynamic_cast<Skybox *>(node.get())) {
-            frameData.at(currentFrame).skyboxRenderer.reset();
+            frameData[currentFrame].skyboxRenderer.reset();
         } else if (const auto& environment = dynamic_pointer_cast<Environment>(node)) {
-            if (frameData.at(currentFrame).currentEnvironment == environment) {
-                frameData.at(currentFrame).currentEnvironment = nullptr;
+            if (frameData[currentFrame].currentEnvironment == environment) {
+                frameData[currentFrame].currentEnvironment = nullptr;
             }
         } else if (const auto& light = dynamic_pointer_cast<Light>(node)) {
             disableLightShadowCasting(light);
-            std::erase(frameData.at(currentFrame).lights, light);
+            std::erase(frameData[currentFrame].lights, light);
         } else {
             ModelsRenderer::removeNode(node, currentFrame);
         }
@@ -131,28 +130,17 @@ namespace z0 {
     }
 
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
-        // Allocate the first free buffer index
-        const auto it = ranges::find_if(
-            frameData.at(currentFrame).materialsIndicesAllocation,
-            [&](const Resource::id_t &id) {
-                return id == Resource::INVALID_ID;
-            });
-        if (it == frameData.at(currentFrame).materialsIndicesAllocation.end()) {
-            die("Maximum number of materials reached");
-        }
-        const auto index = it - frameData.at(currentFrame).materialsIndicesAllocation.begin();
-        frameData.at(currentFrame).materialsIndices[material->getId()] = index;
-        frameData.at(currentFrame).materialsIndicesAllocation[index] = material->getId();
         // Force material data to be written to GPU memory
         material->_setDirty();
-        frameData.at(currentFrame).materials.push_back(material);
-        frameData.at(currentFrame).materialsRefCounter[material->getId()]++;
+        frameData[currentFrame].materials.push_back(material);
+        frameData[currentFrame].materialsRefCounter[material->getId()]++;
     }
 
     void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
-        if (frameData.at(currentFrame).materialsIndices.contains(material->getId())) {
+        if (frameData[currentFrame].materialsRefCounter.contains(material->getId())) {
             // Check if we need to remove the material from the scene
-            if (--frameData.at(currentFrame).materialsRefCounter[material->getId()] == 0) {
+            if (--frameData[currentFrame].materialsRefCounter[material->getId()] == 0) {
+                frameData[currentFrame].materialsRefCounter.erase(material->getId());
                 // Try to remove the associated textures or shaders
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     if (standardMaterial->getAlbedoTexture().texture != nullptr)
@@ -166,16 +154,13 @@ namespace z0 {
                     if (standardMaterial->getEmissiveTexture().texture != nullptr)
                         removeImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
-                    const auto &shader = frameData.at(currentFrame).materialShaders[shaderMaterial->getFragFileName()];
+                    const auto &shader = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()];
                     if (shader->_decrementReferenceCounter()) {
-                        frameData.at(currentFrame).materialShaders.erase(shaderMaterial->getFragFileName());
+                        frameData[currentFrame].materialShaders.erase(shaderMaterial->getFragFileName());
                     }
                 }
-                // Free the material index and remove the material from the scene
-                const auto index = frameData.at(currentFrame).materialsIndices[material->getId()];
-                frameData.at(currentFrame).materialsIndicesAllocation[index] = Resource::INVALID_ID;
-                frameData.at(currentFrame).materialsIndices.erase(material->getId());
-                frameData.at(currentFrame).materials.remove(material);
+                // Remove the material from the scene
+                frameData[currentFrame].materials.remove(material);
             }
         }
     }
@@ -183,7 +168,7 @@ namespace z0 {
     void SceneRenderer::postUpdateScene(const uint32_t currentFrame) {
         const auto& camera = ModelsRenderer::frameData[currentFrame].currentCamera;
         if (camera == nullptr) { return; }
-        frameData.at(currentFrame).cameraFrustum = Frustum{
+        frameData[currentFrame].cameraFrustum = Frustum{
             camera,
             camera->getFov(),
             camera->getNearDistance(),
@@ -206,16 +191,15 @@ namespace z0 {
             for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
                 if (material->getTransparency() != Transparency::DISABLED) {
                     transparent = true;
-                    frameData.at(currentFrame).transparentModels.push_back(meshInstance);
+                    frameData[currentFrame].transparentModels.push_back(meshInstance);
                     break;
                 }
             }
         }
-        if (!transparent) { frameData.at(currentFrame).opaquesModels.push_back(meshInstance); }
-        frameData.at(currentFrame).modelsIndices[meshInstance->getId()] = modelIndex;
+        if (!transparent) { frameData[currentFrame].opaquesModels.push_back(meshInstance); }
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-            if (frameData.at(currentFrame).materialsIndices.contains(material->getId())) {
-                frameData.at(currentFrame).materialsRefCounter[material->getId()]++;
+            if (frameData[currentFrame].materialsRefCounter.contains(material->getId())) {
+                frameData[currentFrame].materialsRefCounter[material->getId()]++;
                 continue;
             }
             addMaterial(material, currentFrame);
@@ -241,7 +225,9 @@ namespace z0 {
                 loadShadersMaterials(shaderMaterial, currentFrame);
             }
         }
-        frameData.at(currentFrame).opaquesModels.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) { return *a < *b; });
+        frameData[currentFrame].opaquesModels.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
+            return *a < *b;
+        });
     }
 
     void SceneRenderer::removingModel(const shared_ptr<MeshInstance>&meshInstance, const uint32_t currentFrame) {
@@ -249,29 +235,27 @@ namespace z0 {
            removeMaterial(material, currentFrame);
         }
 
-        const auto it = ranges::find(frameData.at(currentFrame).opaquesModels, meshInstance);
-        if (it != frameData.at(currentFrame).opaquesModels.end()) {
-            frameData.at(currentFrame).opaquesModels.erase(it);
-            frameData.at(currentFrame).modelsIndices.erase(meshInstance->getId());
+        const auto it = ranges::find(frameData[currentFrame].opaquesModels, meshInstance);
+        if (it != frameData[currentFrame].opaquesModels.end()) {
+            frameData[currentFrame].opaquesModels.erase(it);
         }
-        const auto itTransparent = ranges::find(frameData.at(currentFrame).transparentModels, meshInstance);
-        if (itTransparent != frameData.at(currentFrame).transparentModels.end()) {
-            frameData.at(currentFrame).transparentModels.erase(itTransparent);
-            frameData.at(currentFrame).modelsIndices.erase(meshInstance->getId());
+        const auto itTransparent = ranges::find(frameData[currentFrame].transparentModels, meshInstance);
+        if (itTransparent != frameData[currentFrame].transparentModels.end()) {
+            frameData[currentFrame].transparentModels.erase(itTransparent);
         }
     }
 
     void SceneRenderer::loadShadersMaterials(const shared_ptr<ShaderMaterial>&material, const uint32_t currentFrame) {
-        if (!frameData.at(currentFrame).materialShaders.contains(material->getFragFileName())) {
+        if (!frameData[currentFrame].materialShaders.contains(material->getFragFileName())) {
             if (!material->getVertFileName().empty()) {
-                frameData.at(currentFrame).materialShaders[material->getVertFileName()] = createShader(
+                frameData[currentFrame].materialShaders[material->getVertFileName()] = createShader(
                         material->getVertFileName(), VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-                frameData.at(currentFrame).materialShaders[material->getVertFileName()]->_incrementReferenceCounter();
+                frameData[currentFrame].materialShaders[material->getVertFileName()]->_incrementReferenceCounter();
             }
             if (!material->getFragFileName().empty()) {
-                frameData.at(currentFrame).materialShaders[material->getFragFileName()] =
+                frameData[currentFrame].materialShaders[material->getFragFileName()] =
                         createShader(material->getFragFileName(), VK_SHADER_STAGE_FRAGMENT_BIT, 0);
-                frameData.at(currentFrame).materialShaders[material->getFragFileName()]->_incrementReferenceCounter();
+                frameData[currentFrame].materialShaders[material->getFragFileName()]->_incrementReferenceCounter();
             }
         }
     }
@@ -284,17 +268,17 @@ namespace z0 {
     }
 
     void SceneRenderer::update(uint32_t currentFrame) {
-        const auto& frame = frameData.at(currentFrame);
-        if (ModelsRenderer::frameData.at(currentFrame).currentCamera == nullptr) { return; }
+        auto& frame = frameData[currentFrame];
+        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return; }
         if (frame.skyboxRenderer != nullptr) {
-            frame.skyboxRenderer->update(ModelsRenderer::frameData.at(currentFrame).currentCamera, frameData.at(currentFrame).currentEnvironment, currentFrame);
+            frame.skyboxRenderer->update(ModelsRenderer::frameData[currentFrame].currentCamera, frameData[currentFrame].currentEnvironment, currentFrame);
         }
-        if (ModelsRenderer::frameData.at(currentFrame).models.empty()) { return; }
+        if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
 
         GlobalBuffer globalUbo{
-            .projection      = ModelsRenderer::frameData.at(currentFrame).currentCamera->getProjection(),
-            .view            = ModelsRenderer::frameData.at(currentFrame).currentCamera->getView(),
-            .cameraPosition  = ModelsRenderer::frameData.at(currentFrame).currentCamera->getPositionGlobal(),
+            .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
+            .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
+            .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
             .lightsCount     = 0,
             .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
@@ -365,75 +349,81 @@ namespace z0 {
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
         uint32_t modelIndex = 0;
-        auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData.at(currentFrame).models.size());
-        for (const auto &meshInstance : ModelsRenderer::frameData.at(currentFrame).models) {
+        frame.modelsIndices.clear();
+        auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
+        for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
             modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
+            frame.modelsIndices[meshInstance->getId()] = modelIndex;
             modelIndex += 1;
         }
-        writeUniformBuffer(ModelsRenderer::frameData.at(currentFrame).modelUniformBuffer, modelUBOArray.get());
+        writeUniformBuffer(ModelsRenderer::frameData[currentFrame].modelUniformBuffer, modelUBOArray.get());
 
         // Update in GPU memory only the materials modified since the last frame
+        uint32_t materialIndex = 0;
+        frame.materialsIndices.clear();
         for (const auto& material : frame.materials) {
-            if (!material->_isDirty()) { continue; }
-            auto materialUBO = MaterialBuffer{
-                .transparency = static_cast<int>(material->getTransparency()),
-                .alphaScissor = material->getAlphaScissor()
-            };
-            const auto materialIndex = frame.materialsIndices.at(material->getId());
-            if (const auto *standardMaterial = dynamic_cast<const StandardMaterial *>(material.get())) {
-                materialUBO.albedoColor = standardMaterial->getAlbedoColor();
-                materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
-                materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
-                materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
-                materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
-                materialUBO.normalScale = standardMaterial->getNormalScale();
-                auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
-                    dest.transform = texInfo.transform;
-                    if (texInfo.texture != nullptr) {
-                        dest.index = frame.imagesIndices.at(texInfo.texture->getImage()->getId());
-                    }
+            if (material->_isDirty()) {
+                auto materialUBO = MaterialBuffer{
+                    .transparency = static_cast<int>(material->getTransparency()),
+                    .alphaScissor = material->getAlphaScissor()
                 };
-                auto textureUBO = TextureBuffer{};
-                convert(textureUBO.albedoTexture, standardMaterial->getAlbedoTexture());
-                convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
-                convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
-                convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
-                convert(textureUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
-                frame.texturesBuffer->writeToBuffer(
-                    &textureUBO,
-                    TEXTURE_BUFFER_SIZE,
-                    TEXTURE_BUFFER_SIZE * materialIndex);
-            } else if (const auto *shaderMaterial = dynamic_cast<const ShaderMaterial *>(material.get())) {
-                for (auto i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
-                   materialUBO.parameters[i] = shaderMaterial->getParameter(i);
+                if (const auto *standardMaterial = dynamic_cast<const StandardMaterial *>(material.get())) {
+                    materialUBO.albedoColor = standardMaterial->getAlbedoColor();
+                    materialUBO.metallicFactor = standardMaterial->getMetallicFactor();
+                    materialUBO.roughnessFactor = standardMaterial->getRoughnessFactor();
+                    materialUBO.emissiveFactor = standardMaterial->getEmissiveFactor();
+                    materialUBO.emissiveStrength = standardMaterial->getEmissiveStrength();
+                    materialUBO.normalScale = standardMaterial->getNormalScale();
+                    auto convert = [&](TextureInfo& dest, const StandardMaterial::TextureInfo& texInfo) {
+                        dest.transform = texInfo.transform;
+                        if (texInfo.texture != nullptr) {
+                            dest.index = frame.imagesIndices.at(texInfo.texture->getImage()->getId());
+                        }
+                    };
+                    auto textureUBO = TextureBuffer{};
+                    convert(textureUBO.albedoTexture, standardMaterial->getAlbedoTexture());
+                    convert(textureUBO.normalTexture, standardMaterial->getNormalTexture());
+                    convert(textureUBO.metallicTexture, standardMaterial->getMetallicTexture());
+                    convert(textureUBO.roughnessTexture, standardMaterial->getRoughnessTexture());
+                    convert(textureUBO.emissiveTexture, standardMaterial->getEmissiveTexture());
+                    frame.texturesBuffer->writeToBuffer(
+                        &textureUBO,
+                        TEXTURE_BUFFER_SIZE,
+                        TEXTURE_BUFFER_SIZE * materialIndex);
+                } else if (const auto *shaderMaterial = dynamic_cast<const ShaderMaterial *>(material.get())) {
+                    for (auto i = 0; i < ShaderMaterial::MAX_PARAMETERS; i++) {
+                        materialUBO.parameters[i] = shaderMaterial->getParameter(i);
+                    }
                 }
+                frame.materialsBuffer->writeToBuffer(
+                    &materialUBO,
+                    MATERIAL_BUFFER_SIZE,
+                    MATERIAL_BUFFER_SIZE * materialIndex);
             }
-            frame.materialsBuffer->writeToBuffer(
-                &materialUBO,
-                MATERIAL_BUFFER_SIZE,
-                MATERIAL_BUFFER_SIZE * materialIndex);
             material->_clearDirty();
+            frame.materialsIndices[material->getId()] = materialIndex;
+            materialIndex += 1;
         }
     }
 
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         setInitialState(commandBuffer, currentFrame);
-        if (ModelsRenderer::frameData.at(currentFrame).currentCamera == nullptr)
+        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr)
             return;
-        if (!ModelsRenderer::frameData.at(currentFrame).models.empty()) {
+        if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
-            drawModels(commandBuffer, currentFrame, frameData.at(currentFrame).opaquesModels);
-            if (!frameData.at(currentFrame).transparentModels.empty()) {
+            drawModels(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels);
+            if (!frameData[currentFrame].transparentModels.empty()) {
                 vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-                drawModels(commandBuffer, currentFrame, frameData.at(currentFrame).transparentModels);
+                drawModels(commandBuffer, currentFrame, frameData[currentFrame].transparentModels);
             }
         }
-        if (frameData.at(currentFrame).skyboxRenderer != nullptr)
-            frameData.at(currentFrame).skyboxRenderer->recordCommands(commandBuffer, currentFrame);
+        if (frameData[currentFrame].skyboxRenderer != nullptr)
+            frameData[currentFrame].skyboxRenderer->recordCommands(commandBuffer, currentFrame);
     }
 
     void SceneRenderer::createDescriptorSetLayout() {
@@ -639,10 +629,10 @@ namespace z0 {
     }
 
     void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (enableDepthPrepass) { depthPrepass(commandBuffer, currentFrame, frameData.at(currentFrame).opaquesModels); }
+        if (enableDepthPrepass) { depthPrepass(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels); }
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
-                                      frameData.at(currentFrame).colorFrameBufferMultisampled->getImage(),
+                                      frameData[currentFrame].colorFrameBufferMultisampled->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                       0,
@@ -663,7 +653,7 @@ namespace z0 {
         // Resolved into a non-multi sampled image
         const VkRenderingAttachmentInfo colorAttachmentInfo{
                 .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView          = frameData.at(currentFrame).colorFrameBufferMultisampled->getImageView(),
+                .imageView          = frameData[currentFrame].colorFrameBufferMultisampled->getImageView(),
                 .imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
                 .resolveImageView   = colorFrameBufferHdr.at(currentFrame)->getImageView(),
@@ -674,7 +664,7 @@ namespace z0 {
         };
         const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                .imageView          = ModelsRenderer::frameData.at(currentFrame).depthFrameBuffer->getImageView(),
+                .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
                 .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
                 .resolveImageView   = resolvedDepthFrameBuffer.at(currentFrame)->getImageView(),
@@ -719,25 +709,26 @@ namespace z0 {
 
     void SceneRenderer::addImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
-        frameData.at(currentFrame).imagesRefCounter[vkImage->getId()]++;
-        if (find(frameData.at(currentFrame).images.begin(), frameData.at(currentFrame).images.end(), vkImage) != frameData.at(currentFrame).images.end())
+        frameData[currentFrame].imagesRefCounter[vkImage->getId()]++;
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end())
             return;
-        if (frameData.at(currentFrame).images.size() == MAX_IMAGES)
+        if (frameData[currentFrame].images.size() == MAX_IMAGES)
             die("Maximum images count reached for the scene renderer");
-        frameData.at(currentFrame).imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData.at(currentFrame).images.size());
-        frameData.at(currentFrame).images.push_back(vkImage);
+        frameData[currentFrame].imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
+        frameData[currentFrame].images.push_back(vkImage);
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
         const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
-        if (find(frameData.at(currentFrame).images.begin(), frameData.at(currentFrame).images.end(), vkImage) != frameData.at(currentFrame).images.end()) {
-            if (--frameData.at(currentFrame).imagesRefCounter[vkImage->getId()] == 0) {
-                frameData.at(currentFrame).images.remove(vkImage);
+        if (find(frameData[currentFrame].images.begin(), frameData[currentFrame].images.end(), vkImage) != frameData[currentFrame].images.end()) {
+            if (--frameData[currentFrame].imagesRefCounter[vkImage->getId()] == 0) {
+                frameData[currentFrame].imagesRefCounter.erase(vkImage->getId());
+                frameData[currentFrame].images.remove(vkImage);
                 // Rebuild the image index
-                frameData.at(currentFrame).imagesIndices.clear();
+                frameData[currentFrame].imagesIndices.clear();
                 uint32_t imageIndex = 0;
-                for (const auto &img : frameData.at(currentFrame).images) {
-                    frameData.at(currentFrame).imagesIndices[img->getId()] = static_cast<int32_t>(imageIndex);
+                for (const auto &img : frameData[currentFrame].images) {
+                    frameData[currentFrame].imagesIndices[img->getId()] = static_cast<int32_t>(imageIndex);
                     imageIndex += 1;
                 }
             }
@@ -747,7 +738,7 @@ namespace z0 {
     void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer,
                                    const uint32_t currentFrame,
                                    const list<shared_ptr<MeshInstance>> &modelsToDraw) {
-        auto &frame = frameData.at(currentFrame);
+        auto &frame = frameData[currentFrame];
         auto shadersChanged = false;
 
         // Used to reduce vkCmdSetCullMode calls
@@ -839,7 +830,7 @@ namespace z0 {
 
     void SceneRenderer::depthPrepass(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw) {
         Device::transitionImageLayout(commandBuffer,
-                                      ModelsRenderer::frameData.at(currentFrame).depthFrameBuffer->getImage(),
+                                      ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                      0,
@@ -858,7 +849,7 @@ namespace z0 {
                              VK_IMAGE_ASPECT_DEPTH_BIT);
         const VkRenderingAttachmentInfo depthAttachmentInfo{
             .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-            .imageView          = ModelsRenderer::frameData.at(currentFrame).depthFrameBuffer->getImageView(),
+            .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
             .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
             .resolveImageView   = resolvedDepthFrameBuffer.at(currentFrame)->getImageView(),
@@ -877,9 +868,9 @@ namespace z0 {
                                             .pStencilAttachment   = nullptr};
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
 
-        if ((ModelsRenderer::frameData.at(currentFrame).currentCamera != nullptr) &&
-            (!ModelsRenderer::frameData.at(currentFrame).models.empty())) {
-            auto &frame = frameData.at(currentFrame);
+        if ((ModelsRenderer::frameData[currentFrame].currentCamera != nullptr) &&
+            (!ModelsRenderer::frameData[currentFrame].models.empty())) {
+            auto &frame = frameData[currentFrame];
             setInitialState(commandBuffer, currentFrame, false);
             vkCmdBindShadersEXT(commandBuffer, 1, depthPrepassVertShader->getStage(), depthPrepassVertShader->getShader());
             constexpr VkShaderStageFlagBits stageFlagBits{VK_SHADER_STAGE_FRAGMENT_BIT};
@@ -966,7 +957,7 @@ namespace z0 {
                                       VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                       VK_IMAGE_ASPECT_DEPTH_BIT);
         Device::transitionImageLayout(commandBuffer,
-                                   ModelsRenderer::frameData.at(currentFrame).depthFrameBuffer->getImage(),
+                                   ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,

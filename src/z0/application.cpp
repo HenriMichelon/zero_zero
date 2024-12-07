@@ -98,6 +98,7 @@ namespace z0 {
 
     void Application::_addNode(const shared_ptr<Node> &node) {
         assert(node != nullptr);
+        // log("_addNode", node->getName(), to_string(node->getId()));
         _lockDeferredUpdate();
         {
             auto lock = lock_guard(frameDataMutex);
@@ -115,6 +116,7 @@ namespace z0 {
 
     void Application::_removeNode(const shared_ptr<Node> &node) {
         assert(node != nullptr && node->_isAddedToScene());
+        // log("_removeNode", node->getName(), to_string(node->getId()));
         _lockDeferredUpdate();
         for (auto &child : node->_getChildren()) {
             _removeNode(child);
