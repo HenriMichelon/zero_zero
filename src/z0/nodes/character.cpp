@@ -6,9 +6,8 @@
 */
 module;
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
@@ -27,10 +26,8 @@ namespace z0 {
     Character::Character(const float    height,
                          const float    radius,
                          const uint32_t layer,
-                         const uint32_t mask,
                          const string & name):
         CollisionObject(layer,
-                        mask,
                         name,
                         CHARACTER) {
         setShape(height, radius);
@@ -38,9 +35,6 @@ namespace z0 {
 
     void Character::setShape(const float height, const float radius) {
         assert(height/2 > radius);
-        if (physicsCharacter) {
-            physicsCharacter->RemoveFromPhysicsSystem();
-        }
         yDelta = height/2;
         const auto position= getPositionGlobal();
         const auto quat = normalize(getRotationQuaternion());
@@ -48,48 +42,32 @@ namespace z0 {
         const auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
 
         JPH::CharacterVirtualSettings settingsVirtual;
-        settingsVirtual.mShape         = new JPH::CapsuleShape(height/2 - radius, radius);
-        settingsVirtual.mMaxSlopeAngle = radians(30.0);
+        settingsVirtual.mShape          = new JPH::CapsuleShape(height/2 - radius, radius);
+        // settingsVirtual.mInnerBodyLayer = collisionLayer;
+        // settingsVirtual.mInnerBodyShape = new JPH::CapsuleShape(height/2 - radius, radius);
+        settingsVirtual.mMaxSlopeAngle  = radians(30.0);
         settingsVirtual.mEnhancedInternalEdgeRemoval = true;
         settingsVirtual.mUp = JPH::Vec3{upVector.x, upVector.y, upVector.z};
-        virtualCharacter               = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
+        virtualCharacter = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                        pos,
                                                        rot,
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
+        setCollisionLayer(collisionLayer);
         virtualCharacter->SetListener(this);
-
-        JPH::CharacterSettings settings;
-        settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
-        settings.mShape  = settingsVirtual.mShape;
-        settings.mMaxSlopeAngle = settingsVirtual.mMaxSlopeAngle;
-        settings.mEnhancedInternalEdgeRemoval = settingsVirtual.mEnhancedInternalEdgeRemoval;
-        settings.mUp = settingsVirtual.mUp;
-        physicsCharacter = make_unique<JPH::Character>(&settings,
-                                                       pos,
-                                                       rot,
-                                                       reinterpret_cast<uint64>(this),
-                                                       &Application::get()._getPhysicsSystem());
-        physicsCharacter->AddToPhysicsSystem();
-        setBodyId(physicsCharacter->GetBodyID());
     }
 
     Character::~Character() {
-        if (physicsCharacter && bodyInterface.IsAdded(bodyId)) {
-            physicsCharacter->RemoveFromPhysicsSystem();
-        }
-        bodyId = JPH::BodyID{JPH::BodyID::cInvalidBodyID};
     }
 
     vec3 Character::getGroundVelocity() const {
-        const auto velocity = physicsCharacter->GetGroundVelocity();
+        const auto velocity = virtualCharacter->GetGroundVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
     void Character::setUpVector(const vec3 vector) {
         upVector = vector;
         virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
-        physicsCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
     }
 
     list<CollisionObject::Collision> Character::getCollisions() const {
@@ -109,19 +87,17 @@ namespace z0 {
     }
 
     void Character::setVelocity(const vec3 velocity) {
-        if (!bodyInterface.IsAdded(bodyId)) { return; }
         if (velocity == VEC3ZERO) {
-            physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
+            virtualCharacter->SetLinearVelocity(JPH::Vec3::sZero());
         } else {
             // current orientation * velocity
             const auto vel = getRotationQuaternion() * velocity;
-            physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
+            virtualCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
         }
-        virtualCharacter->SetLinearVelocity(physicsCharacter->GetLinearVelocity());
     }
 
     void Character::setPositionAndRotation() {
-        if (updating || bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) {
+        if (updating) {
             return;
         }
         const auto position = getPositionGlobal();
@@ -130,17 +106,14 @@ namespace z0 {
         const auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
         virtualCharacter->SetPosition(pos);
         virtualCharacter->SetRotation(rot);
-        physicsCharacter->SetPositionAndRotation(pos, rot);
     }
 
     void Character::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
-        if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
-        physicsCharacter->PostSimulation(0.01f);
         virtualCharacter->Update(delta,
               virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
               *this,
-              *this,
+              *objectLayerFilter,
               *this,
               {},
               *Application::get()._getTempAllocator().get());
@@ -148,15 +121,13 @@ namespace z0 {
 
     void Character::_update(const float alpha) {
         Node::_update(alpha);
-        if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
         updating = true;
-        JPH::Vec3 position;
-        JPH::Quat rotation;
-        physicsCharacter->GetPositionAndRotation( position, rotation);
+        const auto position = virtualCharacter->GetPosition();
         const auto pos = vec3{position.GetX(), position.GetY() - yDelta, position.GetZ()};
         if (pos != getPositionGlobal()) {
             setPositionGlobal(pos);
         }
+        const auto rotation = virtualCharacter->GetRotation();
         const auto rot = quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()};
         if (rot != getRotationQuaternion()) {
             setRotation(rot);
@@ -170,87 +141,68 @@ namespace z0 {
                                    JPH::RVec3Arg                  inContactPosition,
                                    JPH::Vec3Arg                   inContactNormal,
                                    JPH::CharacterContactSettings &ioSettings) {
-        const auto *charac = reinterpret_cast<Character *>(inCharacter->GetUserData());
-        auto *      node   = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID2));
-        assert(charac && node && "physics body not associated with a node");
-        auto event = Collision{
+        auto *node   = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID2));
+        assert(node && "physics body not associated with a node");
+        if (!virtualCharacter->HasCollidedWith(inBodyID2)) {
+            auto event = Collision{
                 .position = vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
                 .normal = vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
                 .object = node
-        };
-        this->emit(on_collision_starts, &event);
+            };
+            log("Character::OnContactAdded");
+            this->_emitDeferred(on_collision_starts, &event);
+            node->_emitDeferred(on_collision_starts, &event);
+        }
     }
 
-    bool Character::ShouldCollide(const JPH::ObjectLayer inLayer) const {
-        const auto targetLayer = (inLayer >> PHYSICS_LAYERS_BITS) & PHYSICS_LAYERS_MASK;
-        // log("Character::ShouldCollide", to_string(targetLayer), to_string(collisionMask), to_string((targetLayer & collisionMask) != 0));
-        return (targetLayer & collisionMask) != 0;
+    bool Character::OnContactValidate(const JPH::CharacterVirtual *  inCharacter,
+                                    const JPH::BodyID &            inBodyID2,
+                                    const JPH::SubShapeID &        inSubShapeID2) {
+        const auto *node = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID2));
+        return isProcessed() && node->isProcessed();
     }
 
     bool Character::ShouldCollide(const JPH::BodyID &inBodyID) const {
+        if (!isProcessed()) { return false; }
         const auto node1 = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID));
-        // log("Character::ShouldCollide", getName(), node1->getName());
-        return (node1->getCollisionLayer() & collisionMask) != 0;
+        return objectLayerFilter->ShouldCollide(node1->getCollisionLayer());
     }
 
     bool Character::ShouldCollideLocked(const JPH::Body &inBody) const {
+        if (!isProcessed()) { return false; }
         const auto node1 = reinterpret_cast<CollisionObject *>(inBody.GetUserData());
-        // log("Character::ShouldCollideLocked", getName(), node1->getName());
-        return (node1->getCollisionLayer() & collisionMask) != 0;
+        return objectLayerFilter->ShouldCollide(node1->getCollisionLayer());
+    }
+
+    vec3 Character::getVelocity() const {
+        if (bodyId.IsInvalid()) { return VEC3ZERO; }
+        const auto velocity = virtualCharacter->GetLinearVelocity();
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    void Character::setCollisionLayer(const uint32_t layer) {
+        collisionLayer = layer;
+        objectLayerFilter = make_unique<JPH::DefaultObjectLayerFilter>(
+            Application::get()._getObjectLayerPairFilter(),
+            collisionLayer);
     }
 
     void Character::_onEnterScene() {
-        if (isProcessed() && !bodyId.IsInvalid()) {
-            if (!bodyInterface.IsAdded(bodyId)) {
-                physicsCharacter->AddToPhysicsSystem();
-                Application::get()._setOptimizeBroadPhase();
-            }
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-            setPositionAndRotation();
-        }
+        setPositionAndRotation();
         Node::_onEnterScene();
     }
 
     void Character::_onExitScene() {
-        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
-            physicsCharacter->RemoveFromPhysicsSystem();
-        }
         Node::_onExitScene();
     }
 
-    void Character::_onPause() {
-        if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
-            physicsCharacter->RemoveFromPhysicsSystem();
-        }
-    }
-
     void Character::_onResume() {
-        if (isProcessed() && !bodyId.IsInvalid()) {
-            if (visible) {
-                if (!bodyInterface.IsAdded(bodyId)) {
-                    physicsCharacter->AddToPhysicsSystem();
-                    Application::get()._setOptimizeBroadPhase();
-                }
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-                setPositionAndRotation();
-            }
-        }
+        setPositionAndRotation();
     }
 
     void Character::setVisible(const bool visible) {
-        if (!bodyId.IsInvalid() && visible != this->visible) {
-            if (visible) {
-                if (!bodyInterface.IsAdded(bodyId)) {
-                    physicsCharacter->AddToPhysicsSystem();
-                    Application::get()._setOptimizeBroadPhase();
-                }
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-                setPositionAndRotation();
-            } else {
-                if (bodyInterface.IsAdded(bodyId)) {
-                    physicsCharacter->RemoveFromPhysicsSystem();
-                }
-            }
+        if (visible != this->visible && visible) {
+            setPositionAndRotation();
         }
         Node::setVisible(visible);
     }

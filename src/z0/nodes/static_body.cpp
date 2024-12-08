@@ -24,7 +24,6 @@ namespace z0 {
                            const string &           name):
         PhysicsBody(shape,
                     layer,
-                    0,
                     JPH::EActivation::DontActivate,
                     JPH::EMotionType::Static,
                     name,
@@ -34,7 +33,6 @@ namespace z0 {
     StaticBody::StaticBody(const uint32_t layer,
                            const string & name):
         PhysicsBody(layer,
-                    0,
                     JPH::EActivation::DontActivate,
                     JPH::EMotionType::Static,
                     name,
@@ -43,7 +41,6 @@ namespace z0 {
 
     StaticBody::StaticBody(const string &name):
         PhysicsBody(0,
-                    0,
                     JPH::EActivation::DontActivate,
                     JPH::EMotionType::Static,
                     name,

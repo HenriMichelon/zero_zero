@@ -26,8 +26,7 @@ export namespace z0 {
          * with bodies having a layer in the `mask` value.
          */
         explicit RigidBody(const shared_ptr<Shape> &shape,
-                           uint32_t                 layer = 0xff,
-                           uint32_t                 mask  = 0xff,
+                           uint32_t                 layer = 0,
                            const string &           name  = TypeNames[RIGID_BODY]);
 
         /**

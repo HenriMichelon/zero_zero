@@ -6,8 +6,8 @@
 */
 module;
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/EActivation.h>
 #include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/EActivation.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
@@ -26,24 +26,20 @@ namespace z0 {
 
     CollisionObject::CollisionObject(const shared_ptr<Shape> &_shape,
                                      const uint32_t           layer,
-                                     const uint32_t           mask,
                                      const string &           name,
                                      const Type               type):
         Node{name, type},
         collisionLayer{layer},
-        collisionMask{mask},
         shape{_shape},
         activationMode{JPH::EActivation::Activate},
         bodyInterface{Application::get()._getBodyInterface()} {
     }
 
     CollisionObject::CollisionObject(const uint32_t layer,
-                                     const uint32_t mask,
                                      const string & name,
                                      const Type     type):
         Node{name, type},
         collisionLayer{layer},
-        collisionMask{mask},
         activationMode{JPH::EActivation::Activate},
         bodyInterface{Application::get()._getBodyInterface()} {
     }
@@ -62,25 +58,10 @@ namespace z0 {
         releaseBodyId();
     }
 
-    void CollisionObject::setCollisionLayer(const uint32_t layer, const bool value) {
-        if (value) {
-            collisionLayer |= layer;
-        } else {
-            collisionLayer &= ~layer;
-        }
+    void CollisionObject::setCollisionLayer(const uint32_t layer) {
+        collisionLayer = layer;
         if (!bodyId.IsInvalid()) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
-        }
-    }
-
-    void CollisionObject::setCollisionMask(const uint32_t layer, const bool value) {
-        if (value) {
-            collisionMask |= layer;
-        } else {
-            collisionMask &= ~layer;
-        }
-        if (!bodyId.IsInvalid()) {
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer);
         }
     }
 
@@ -124,9 +105,7 @@ namespace z0 {
     void CollisionObject::setProperty(const string &property, const string &value) {
         Node::setProperty(property, value);
         if (property == "layer") {
-            setCollisionLayer(stoul(value), true);
-        } else if (property == "mask") {
-            setCollisionMask(stoul(value), true);
+            setCollisionLayer(stoul(value));
         }
     }
 
@@ -188,7 +167,7 @@ namespace z0 {
                 // log("_onEnterScene add", this->getName());
                 Application::get()._setOptimizeBroadPhase();
             }
-            bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+            bodyInterface.SetObjectLayer(bodyId, collisionLayer);
             setPositionAndRotation();
         }
         Node::_onEnterScene();
@@ -219,7 +198,7 @@ namespace z0 {
                     // log("_onResume add", this->getName());
                     Application::get()._setOptimizeBroadPhase();
                 }
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer);
                 setPositionAndRotation();
             }
         }
@@ -233,7 +212,7 @@ namespace z0 {
                     bodyInterface.AddBody(bodyId, activationMode);
                     Application::get()._setOptimizeBroadPhase();
                 }
-                bodyInterface.SetObjectLayer(bodyId, collisionLayer << PHYSICS_LAYERS_BITS | collisionMask);
+                bodyInterface.SetObjectLayer(bodyId, collisionLayer);
                 setPositionAndRotation();
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {

@@ -20,20 +20,9 @@ namespace z0 {
 
     KinematicBody::KinematicBody(const shared_ptr<Shape> &shape,
                                  const uint32_t           layer,
-                                 const uint32_t           mask,
                                  const string &           name):
         PhysicsBody(shape,
                     layer,
-                    mask,
-                    JPH::EActivation::Activate,
-                    JPH::EMotionType::Kinematic,
-                    name,
-                    KINEMATIC_BODY) {
-    }
-
-    KinematicBody::KinematicBody(const string &name):
-        PhysicsBody(0xff,
-                    0xff,
                     JPH::EActivation::Activate,
                     JPH::EMotionType::Kinematic,
                     name,

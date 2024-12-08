@@ -34,7 +34,6 @@ import z0.nodes.Camera;
 import z0.nodes.CollisionArea;
 import z0.nodes.DirectionalLight;
 import z0.nodes.Environment;
-import z0.nodes.KinematicBody;
 import z0.nodes.Node;
 import z0.nodes.OmniLight;
 import z0.nodes.RayCast;
@@ -54,12 +53,23 @@ namespace z0 {
     Application *Application::_instance = nullptr;
 
     Application::Application(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
-        applicationConfig{appConfig}, rootNode{node}, displayDebug{appConfig.debugConfig.displayAtStartup} {
+        object_vs_object_layer_filter{appConfig.layerCollisionTable.layersCount},
+        applicationConfig{appConfig},
+        rootNode{node},
+        displayDebug{appConfig.debugConfig.displayAtStartup} {
         assert(_instance == nullptr);
         _instance = this;
         frameData.resize(applicationConfig.framesInFlight);
         // The rendering Window
-        if (node != nullptr) { window = make_unique<Window>(applicationConfig); };
+        if (node != nullptr) {
+            window = make_unique<Window>(applicationConfig);
+        }
+        // The layer vs layer collision table initialization
+        for (const auto &layerCollide : appConfig.layerCollisionTable.layersCollideWith) {
+            for (const auto &layer : layerCollide.collideWith) {
+                object_vs_object_layer_filter.EnableCollision(layerCollide.layer, layer);
+            }
+        }
     }
 
     void Application::init() {
@@ -365,7 +375,6 @@ namespace z0 {
         TypeRegistry::registerType<CollisionArea>("CollisionArea");
         TypeRegistry::registerType<DirectionalLight>("DirectionalLight");
         TypeRegistry::registerType<Environment>("Environment");
-        TypeRegistry::registerType<KinematicBody>("KinematicBody");
         TypeRegistry::registerType<Node>("Node");
         TypeRegistry::registerType<OmniLight>("OmniLight");
         TypeRegistry::registerType<RayCast>("RayCast");

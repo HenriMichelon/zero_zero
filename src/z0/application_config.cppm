@@ -14,6 +14,15 @@ import z0.DebugConfig;
 
 export namespace z0 {
 
+    struct LayerCollideWith {
+        uint32_t         layer;
+        vector<uint32_t> collideWith;
+    };
+    struct LayerCollisionTable {
+        uint32_t                 layersCount;
+        vector<LayerCollideWith> layersCollideWith;
+    };
+
     /**
      * Global application configuration, given to the Application object at startup
      * via the Z0_APP macro
@@ -23,6 +32,8 @@ export namespace z0 {
         string           appName                    = "MyApp";
         //! Directory to search for resources and compiled shaders
         filesystem::path appDir                     = ".";
+        //! Layers vs Layers collision table
+        LayerCollisionTable layerCollisionTable     = {};
         //! State of the display Window
         WindowMode       windowMode                 = WindowMode::WINDOWED;
         //! Width in pixels of the display Window

@@ -7,6 +7,7 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterTable.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include "z0/libraries.h"
 
@@ -17,9 +18,10 @@ import z0.Signal;
 export namespace z0 {
 
     // Class that determines if two nodes can collide
-    class ObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter {
+    class ObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilterTable {
     public:
-        [[nodiscard]] bool ShouldCollide(JPH::ObjectLayer layersAndMask1, JPH::ObjectLayer layersAndMask2) const override;
+        explicit ObjectLayerPairFilterImpl(uint inNumObjectLayers): ObjectLayerPairFilterTable(inNumObjectLayers) {}
+        [[nodiscard]] bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override;
     };
 
     // This defines a mapping between object and broadphase layers.
@@ -41,6 +43,10 @@ export namespace z0 {
 
     class ContactListener : public JPH::ContactListener {
     public:
+        JPH::ValidateResult	OnContactValidate(const JPH::Body &inBody1,
+                                              const JPH::Body &inBody2,
+                                              JPH::RVec3Arg inBaseOffset,
+                                              const JPH::CollideShapeResult &inCollisionResult);
         void OnContactAdded(const JPH::Body &inBody1,
                             const JPH::Body &inBody2,
                             const JPH::ContactManifold &inManifold,

@@ -6,7 +6,6 @@
 */
 module;
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include "z0/libraries.h"
 
@@ -25,7 +24,6 @@ export namespace z0 {
      */
     class Character : public CollisionObject,
                       public JPH::BroadPhaseLayerFilter,
-                      public JPH::ObjectLayerFilter,
                       public JPH::BodyFilter,
                       public JPH::CharacterContactListener {
     public:
@@ -34,10 +32,9 @@ export namespace z0 {
          * belonging to the `layer` layers and detecting collisions
          * with bodies having a layer in the `mask` value.
          */
-        explicit Character(float      height,
-                           float      radius,
-                           uint32_t      layer,
-                           uint32_t      mask,
+        explicit Character(float    height,
+                           float    radius,
+                           uint32_t layer,
                            const string &name = TypeNames[CHARACTER]);
 
         /**
@@ -92,6 +89,10 @@ export namespace z0 {
 
         void setVisible(bool visible = true) override;
 
+        void setCollisionLayer(uint32_t layer) override;
+
+        vec3 getVelocity() const override;
+
     protected:
         void setPositionAndRotation() override;
 
@@ -99,9 +100,9 @@ export namespace z0 {
         float height;
         float radius;
         float yDelta; // https://jrouwe.github.io/JoltPhysics/class_character_base_settings.html#aee9be06866efe751ab7e2df57edee6b1
-        vec3                              upVector{AXIS_UP};
+        vec3  upVector{AXIS_UP};
         unique_ptr<JPH::CharacterVirtual> virtualCharacter;
-        unique_ptr<JPH::Character>        physicsCharacter;
+        unique_ptr<JPH::ObjectLayerFilter> objectLayerFilter;
 
     public:
         void _physicsUpdate(float delta) override;
@@ -112,8 +113,6 @@ export namespace z0 {
 
         void _onExitScene() override;
 
-        void _onPause() override;
-
         void _onResume() override;
 
         void OnContactAdded(const JPH::CharacterVirtual *  inCharacter,
@@ -122,12 +121,15 @@ export namespace z0 {
                             JPH::RVec3Arg                  inContactPosition,
                             JPH::Vec3Arg                   inContactNormal,
                             JPH::CharacterContactSettings &ioSettings) override;
+        bool OnContactValidate(const JPH::CharacterVirtual *  inCharacter,
+                            const JPH::BodyID &            inBodyID2,
+                            const JPH::SubShapeID &        inSubShapeID2) override;
 
         inline bool ShouldCollide(const JPH::BroadPhaseLayer inLayer) const override {
             return true;
         }
 
-        bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
+        // bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 
         bool ShouldCollide(const JPH::BodyID &inBodyID) const override;
 

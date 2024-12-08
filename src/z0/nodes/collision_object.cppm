@@ -21,14 +21,16 @@ export namespace z0 {
 
     /**
      * Base class for 3D physics objects.
-     * Object %A can detect a contact with object %B only if object %B is in any of the layers that object %A scans (mask value)
      */
     class CollisionObject : public Node {
     public:
+
+
         /**
          * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision
          */
         static inline const Signal::signal on_collision_starts = "on_collision_starts";
+
         /**
          * Signal called whenever a contact is detected that was also detected last update and reports the first contact point in a CollisionObject::Collision
          */
@@ -52,40 +54,9 @@ export namespace z0 {
         [[nodiscard]] inline uint32_t getCollisionLayer() const { return collisionLayer; }
 
         /**
-         * The physics layers this CollisionObject scans.
+         * Sets the collision layer
          */
-        [[nodiscard]] inline uint32_t getCollisionMask() const { return collisionMask; }
-
-        /**
-         * Returns `true` if the object is in the `layer`
-         */
-        [[nodiscard]] inline bool haveCollisionLayer(const uint32_t layer) const {
-            return collisionLayer & layer;
-        }
-
-        /**
-         * Returns `true` if the object have the `mask`
-         */
-        [[nodiscard]] inline bool haveCollisionMask(const uint32_t mask) const {
-            return collisionMask & mask;
-        }
-
-        /**
-         * Adds or removes a collision layer
-         */
-        virtual void setCollisionLayer(uint32_t layer, bool value);
-
-        /**
-         * Adds or removes a collision mask
-         */
-        virtual void setCollisionMask(uint32_t layer, bool value);
-
-        /**
-         * Returns `true` if the object can collide with an object with the layer `layer`
-         */
-        [[nodiscard]] inline bool shouldCollide(const uint32_t layer) const {
-            return (layer & collisionMask) != 0;
-        }
+        virtual void setCollisionLayer(uint32_t layer);
 
         /**
          * Sets the linear velocity
@@ -118,8 +89,7 @@ export namespace z0 {
 
     protected:
         bool                updating{false};
-        uint32_t            collisionLayer;
-        uint32_t            collisionMask;
+        JPH::ObjectLayer    collisionLayer;
         shared_ptr<Shape>   shape{nullptr};
         JPH::EActivation    activationMode;
         JPH::BodyInterface &bodyInterface;
@@ -127,12 +97,10 @@ export namespace z0 {
 
         CollisionObject(const shared_ptr<Shape> &_shape,
                         uint32_t                 layer,
-                        uint32_t                 mask,
                         const string &           name = TypeNames[COLLISION_OBJECT],
                         Type                     type = COLLISION_OBJECT);
 
         CollisionObject(uint32_t      layer,
-                        uint32_t      mask,
                         const string &name = TypeNames[COLLISION_OBJECT],
                         Type          type = COLLISION_OBJECT);
 

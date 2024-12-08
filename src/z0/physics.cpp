@@ -22,6 +22,18 @@ import z0.nodes.CollisionObject;
 
 namespace z0 {
 
+    JPH::ValidateResult	ContactListener::OnContactValidate(const JPH::Body &inBody1,
+                                      const JPH::Body &inBody2,
+                                      JPH::RVec3Arg inBaseOffset,
+                                      const JPH::CollideShapeResult &inCollisionResult) {
+        const auto node1 = reinterpret_cast<CollisionObject*>(inBody1.GetUserData());
+        const auto node2 = reinterpret_cast<CollisionObject*>(inBody2.GetUserData());
+        assert(node1 && node2 && "physics body not associated with a node");
+        return (node1->isProcessed() && node2->isProcessed())  ?
+            JPH::ValidateResult::AcceptAllContactsForThisBodyPair :
+            JPH::ValidateResult::RejectAllContactsForThisBodyPair;
+    }
+
     void ContactListener::OnContactAdded(const JPH::Body &inBody1,
                                          const JPH::Body &inBody2,
                                          const JPH::ContactManifold &inManifold,
@@ -42,7 +54,6 @@ namespace z0 {
                                const JPH::ContactManifold &inManifold) const {
         const auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
         const auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
-        //if (signal == "on_collision_starts" && node2->getCollisionMask() == 4) log("emit", node1->getName(), node2->getName());
         assert(node1 && node2 && "physics body not associated with a node");
         const auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);
         auto event1 = CollisionObject::Collision {
@@ -60,14 +71,13 @@ namespace z0 {
         node2->_emitDeferred(signal, &event2);
     }
 
-    bool ObjectLayerPairFilterImpl::ShouldCollide(const JPH::ObjectLayer layersAndMask1,
-                                                  const JPH::ObjectLayer layersAndMask2) const {
-        const auto sourceMask = layersAndMask1 & PHYSICS_LAYERS_MASK;
-        const auto targetLayer = (layersAndMask2 >> PHYSICS_LAYERS_BITS) & PHYSICS_LAYERS_MASK;
-        // if (sourceMask == 4 && targetLayer == 4) {
-        // log("ShouldCollide", to_string(sourceMask), to_string(targetLayer), to_string((targetLayer & sourceMask) != 0));
-        // }
-        return (targetLayer & sourceMask) != 0;
+    bool ObjectLayerPairFilterImpl::ShouldCollide(const JPH::ObjectLayer inObject1,
+                                                  const JPH::ObjectLayer inObject2) const {
+        // if (inObject2 != 1)
+            // log("ShouldCollide", to_string(inObject1), to_string(inObject2),
+                // to_string(JPH::ObjectLayerPairFilterTable::ShouldCollide(inObject1, inObject2)));
+        // return true;
+        return JPH::ObjectLayerPairFilterTable::ShouldCollide(inObject1, inObject2);
     }
 
 }

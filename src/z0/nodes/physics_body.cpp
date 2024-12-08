@@ -7,6 +7,7 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
 #include <Jolt/Physics/EActivation.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
@@ -31,24 +32,22 @@ namespace z0 {
 
     PhysicsBody::PhysicsBody(const shared_ptr<Shape> &shape,
                              const uint32_t           layer,
-                             const uint32_t           mask,
                              const JPH::EActivation   activationMode,
                              const JPH::EMotionType   motionType,
                              const string &           name,
                              const Type               type):
-        CollisionObject{shape, layer, mask, name, type},
+        CollisionObject{shape, layer, name, type},
         motionType{motionType} {
         this->activationMode = activationMode;
         setShape(shape);
     }
 
     PhysicsBody::PhysicsBody(const uint32_t         layer,
-                             const uint32_t         mask,
                              const JPH::EActivation activationMode,
                              const JPH::EMotionType motionType,
                              const string &         name,
                              const Type             type):
-        CollisionObject{layer, mask, name, type},
+        CollisionObject{layer, name, type},
         motionType{motionType} {
         this->activationMode = activationMode;
     }
@@ -63,7 +62,7 @@ namespace z0 {
                 JPH::RVec3{position.x, position.y, position.z},
                 JPH::Quat{quat.x, quat.y, quat.z, quat.w},
                 motionType,
-                collisionLayer << PHYSICS_LAYERS_BITS | collisionMask
+                collisionLayer,
         };
         const auto body = bodyInterface.CreateBody(settings);
         setBodyId(body->GetID());

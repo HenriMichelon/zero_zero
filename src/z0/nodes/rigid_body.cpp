@@ -25,11 +25,9 @@ namespace z0 {
 
     RigidBody::RigidBody(const shared_ptr<Shape> &shape,
                          const uint32_t           layer,
-                         const uint32_t           mask,
                          const string &           name):
         PhysicsBody(shape,
                     layer,
-                    mask,
                     JPH::EActivation::Activate,
                     JPH::EMotionType::Dynamic,
                     name,
@@ -38,8 +36,7 @@ namespace z0 {
 
 
     RigidBody::RigidBody(const string &name):
-        PhysicsBody(255,
-                    0,
+        PhysicsBody(0,
                     JPH::EActivation::Activate,
                     JPH::EMotionType::Dynamic,
                     name,

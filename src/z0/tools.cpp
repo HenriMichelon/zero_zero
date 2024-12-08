@@ -85,6 +85,12 @@ namespace std {
         return ss.str();
     }
 
+    string to_hexstring(const uint32_t ptr) {
+        stringstream ss;
+        ss << "0x" << std::hex << ptr;
+        return ss.str();
+    }
+
     string to_string(const vec3 vec) {
         return "{" + to_string(vec.x) + "," + to_string(vec.y) + "," + to_string(vec.z) + "}";
     }

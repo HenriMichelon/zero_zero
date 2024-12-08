@@ -6,8 +6,9 @@
 */
 module;
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterTable.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <cassert>
 
 #include "z0/libraries.h"
@@ -318,6 +319,8 @@ namespace z0 {
         JPH::BodyInterface &_getBodyInterface() { return physicsSystem.GetBodyInterface(); }
 
         JPH::PhysicsSystem &_getPhysicsSystem() { return physicsSystem; }
+
+        ObjectLayerPairFilterImpl &_getObjectLayerPairFilter() { return object_vs_object_layer_filter; }
 
         BPLayerInterfaceImpl &_getBPLayerInterfaceImpl() { return broad_phase_layer_interface; }
 

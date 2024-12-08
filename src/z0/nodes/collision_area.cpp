@@ -7,6 +7,7 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
@@ -22,14 +23,14 @@ import z0.resources.Shape;
 namespace z0 {
 
     CollisionArea::CollisionArea(const shared_ptr<Shape> &shape,
-                                 const uint32_t           mask,
+                                 const uint32_t           layer,
                                  const string &           name):
-        CollisionObject{shape, 0, mask, name, COLLISION_AREA} {
+        CollisionObject{shape, layer, name, COLLISION_AREA} {
         setShape(shape);
     }
 
     CollisionArea::CollisionArea(const string &name):
-        CollisionObject{0, 0, name, COLLISION_AREA} {
+        CollisionObject{ 0, name, COLLISION_AREA} {
     }
 
     void CollisionArea::setShape(const shared_ptr<Shape> &shape) {
@@ -41,11 +42,11 @@ namespace z0 {
                 JPH::RVec3{position.x, position.y, position.z},
                 JPH::Quat{quat.x, quat.y, quat.z, quat.w},
                 JPH::EMotionType::Dynamic,
-                collisionLayer << PHYSICS_LAYERS_BITS | collisionMask
+                collisionLayer,
         };
         settings.mIsSensor                     = true;
         settings.mUseManifoldReduction         = true;
-        // settings.mCollideKinematicVsNonDynamic = false;
+        // settings.mCollideKinematicVsNonDynamic = true;
         settings.mGravityFactor                = 0.0f;
         const auto body = bodyInterface.CreateBody(settings);
         setBodyId(body->GetID());

@@ -117,6 +117,7 @@ export namespace std {
      * Helper to log a memory address in hexadecimal
      */
     string to_hexstring(const void* ptr);
+    string to_hexstring(const uint32_t ptr);
 
     /**
      * Helper to log a vec3 (std lib code convention)

@@ -26,7 +26,7 @@ export namespace z0 {
          * to detect collision with bodies having a layer in the `mask` value.
          */
         CollisionArea(const shared_ptr<Shape> &shape,
-                      uint32_t                 mask,
+                      uint32_t                 layer,
                       const string &           name = TypeNames[COLLISION_AREA]);
 
         /**

@@ -100,10 +100,6 @@ export namespace z0 {
 
     constexpr vec2 VECTOR_SIZE{1001.0f};
 
-    constexpr auto PHYSICS_LAYERS_BITS{16};
-
-    constexpr auto PHYSICS_LAYERS_MASK{0xffff};
-
     /**
      * Nodes state when the scene is paused or running
      */
