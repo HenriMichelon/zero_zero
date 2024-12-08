@@ -160,7 +160,6 @@ namespace z0 {
         if (stopped) { return; }
         if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
         if (optimizeBroadPhaseNeeded) {
-            log("OptimizeBroadPhase");
             physicsSystem.OptimizeBroadPhase();
             optimizeBroadPhaseNeeded = false;
         }

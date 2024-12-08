@@ -149,9 +149,9 @@ namespace z0 {
                 .normal = vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
                 .object = node
             };
-            log("Character::OnContactAdded");
-            this->_emitDeferred(on_collision_starts, &event);
-            node->_emitDeferred(on_collision_starts, &event);
+            // log("Character::OnContactAdded");
+            this->_emitDeferred(on_collision_added, &event);
+            node->_emitDeferred(on_collision_added, &event);
         }
     }
 

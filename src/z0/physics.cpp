@@ -38,14 +38,14 @@ namespace z0 {
                                          const JPH::Body &inBody2,
                                          const JPH::ContactManifold &inManifold,
                                          JPH::ContactSettings &ioSettings) {
-        emit(CollisionObject::on_collision_starts, inBody1, inBody2, inManifold);
+        emit(CollisionObject::on_collision_added, inBody1, inBody2, inManifold);
     }
 
     void ContactListener::OnContactPersisted(const JPH::Body &inBody1,
                         const JPH::Body &inBody2,
                         const JPH::ContactManifold &inManifold,
                         JPH::ContactSettings &ioSettings) {
-        emit(CollisionObject::on_collision_persists, inBody1, inBody2, inManifold);
+        emit(CollisionObject::on_collision_persisted, inBody1, inBody2, inManifold);
     }
 
     void ContactListener::emit(const Signal::signal &signal,
