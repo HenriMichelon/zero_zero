@@ -30,4 +30,10 @@ namespace z0 {
         }
     }
 
+    void Object::_emitDeferred(const Signal::signal &name, Signal::Parameters *params) {
+        if (signals.contains(name)) {
+            signals[name]._emitDeferred(params);
+        }
+    }
+
 }

@@ -533,7 +533,7 @@ import z0.Tween;
 
         virtual void _physicsUpdate(float delta);
 
-        virtual void _update(float alpha) {};
+        virtual void _update(float alpha) {}
 
         inline void _setParent(Node *p) { parent = p; }
 

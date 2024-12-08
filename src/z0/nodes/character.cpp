@@ -43,24 +43,28 @@ namespace z0 {
         }
         yDelta = height/2;
         const auto position= getPositionGlobal();
-        const auto quat = normalize(toQuat(mat3(worldTransform)));
+        const auto quat = normalize(getRotationQuaternion());
         const auto pos = JPH::RVec3(position.x, position.y + yDelta, position.z);
         const auto rot = JPH::Quat(quat.x, quat.y, quat.z, quat.w);
 
         JPH::CharacterVirtualSettings settingsVirtual;
         settingsVirtual.mShape         = new JPH::CapsuleShape(height/2 - radius, radius);
         settingsVirtual.mMaxSlopeAngle = radians(30.0);
+        settingsVirtual.mEnhancedInternalEdgeRemoval = true;
+        settingsVirtual.mUp = JPH::Vec3{upVector.x, upVector.y, upVector.z};
         virtualCharacter               = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
                                                        pos,
                                                        rot,
                                                        reinterpret_cast<uint64>(this),
                                                        &Application::get()._getPhysicsSystem());
-        virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
         virtualCharacter->SetListener(this);
 
         JPH::CharacterSettings settings;
         settings.mLayer  = collisionLayer << PHYSICS_LAYERS_BITS | collisionMask;
         settings.mShape  = settingsVirtual.mShape;
+        settings.mMaxSlopeAngle = settingsVirtual.mMaxSlopeAngle;
+        settings.mEnhancedInternalEdgeRemoval = settingsVirtual.mEnhancedInternalEdgeRemoval;
+        settings.mUp = settingsVirtual.mUp;
         physicsCharacter = make_unique<JPH::Character>(&settings,
                                                        pos,
                                                        rot,
@@ -110,7 +114,7 @@ namespace z0 {
             physicsCharacter->SetLinearVelocity(JPH::Vec3::sZero());
         } else {
             // current orientation * velocity
-            const auto vel = toQuat(mat3(localTransform)) * velocity;
+            const auto vel = getRotationQuaternion() * velocity;
             physicsCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
         }
         virtualCharacter->SetLinearVelocity(physicsCharacter->GetLinearVelocity());
@@ -132,11 +136,23 @@ namespace z0 {
     void Character::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
         if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
-        updating = true;
         physicsCharacter->PostSimulation(0.01f);
+        virtualCharacter->Update(delta,
+              virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
+              *this,
+              *this,
+              *this,
+              {},
+              *Application::get()._getTempAllocator().get());
+    }
+
+    void Character::_update(const float alpha) {
+        Node::_update(alpha);
+        if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
+        updating = true;
         JPH::Vec3 position;
         JPH::Quat rotation;
-        bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
+        physicsCharacter->GetPositionAndRotation( position, rotation);
         const auto pos = vec3{position.GetX(), position.GetY() - yDelta, position.GetZ()};
         if (pos != getPositionGlobal()) {
             setPositionGlobal(pos);
@@ -145,13 +161,6 @@ namespace z0 {
         if (rot != getRotationQuaternion()) {
             setRotation(rot);
         }
-        virtualCharacter->Update(delta,
-              virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
-              *this,
-              *this,
-              *this,
-              {},
-              *Application::get()._getTempAllocator().get());
         updating = false;
     }
 

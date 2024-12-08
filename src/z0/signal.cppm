@@ -40,6 +40,8 @@ export namespace z0 {
          * @param params parameters to pass to the function connected to the signal
          */
         void emit(Parameters* params) const;
+
+        void _emitDeferred(Parameters* params) const;
         
     private:
         list<Handler> handlers;

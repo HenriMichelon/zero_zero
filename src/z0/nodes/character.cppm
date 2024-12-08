@@ -106,6 +106,8 @@ export namespace z0 {
     public:
         void _physicsUpdate(float delta) override;
 
+        void _update(float alpha) override;
+
         void _onEnterScene() override;
 
         void _onExitScene() override;

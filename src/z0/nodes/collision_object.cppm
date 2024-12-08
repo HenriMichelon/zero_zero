@@ -153,7 +153,7 @@ export namespace z0 {
         bool savedState{false};
 
     public:
-        void _physicsUpdate(float delta) override;
+        void _update(float alpha) override;
 
         void _onEnterScene() override;
 

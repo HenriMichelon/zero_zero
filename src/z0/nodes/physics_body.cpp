@@ -56,7 +56,7 @@ namespace z0 {
     void PhysicsBody::setShape(const shared_ptr<Shape> &shape) {
         releaseBodyId();
         const auto &position = getPositionGlobal();
-        const auto &quat     = normalize(toQuat(mat3(worldTransform)));
+        const auto &quat     = normalize(getRotationQuaternion());
         this->shape = shape;
         const JPH::BodyCreationSettings settings{
                 shape->_getShapeSettings(),

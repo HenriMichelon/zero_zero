@@ -90,7 +90,7 @@ namespace z0 {
             bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
         } else {
             // current orientation * velocity
-            const auto vel = toQuat(mat3(localTransform)) * velocity;
+            const auto vel = getRotationQuaternion() * velocity;
             bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{vel.x, vel.y, vel.z});
         }
     }
@@ -163,8 +163,8 @@ namespace z0 {
         setPositionAndRotation();
     }
 
-    void CollisionObject::_physicsUpdate(const float delta) {
-        Node::_physicsUpdate(delta);
+    void CollisionObject::_update(const float alpha) {
+        Node::_update(alpha);
         if (bodyId.IsInvalid() || !bodyInterface.IsAdded(bodyId)) { return; }
         updating = true;
         JPH::Vec3 position;

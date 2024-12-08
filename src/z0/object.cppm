@@ -56,8 +56,11 @@ export namespace z0 {
         Object() = default;
         virtual ~Object() = default;
 
+        void _emitDeferred(const Signal::signal &name, Signal::Parameters *params = nullptr);
+
     private:
         map<string, Signal> signals;
+
     };
 
 }
