@@ -176,10 +176,18 @@ export namespace z0 {
 #endif
 
         // Drawing a frame
+        struct FrameData {
+            VkCommandBuffer   commandBuffer;
+            VkSemaphore       imageAvailableSemaphore;
+            VkSemaphore       renderFinishedSemaphore;
+            VkFence           inFlightFence;
+            uint32_t          imageIndex;
+        };
+        vector<FrameData> framesData;
         const uint32_t    framesInFlight;
         VkCommandPool     commandPool;
         VkImageBlit       colorImageBlit{};
-        vector<SubmitQueue::FrameData> framesData;
+        static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         // Swap chain management
         VkSwapchainKHR             swapChain;

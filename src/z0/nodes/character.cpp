@@ -57,9 +57,6 @@ namespace z0 {
         virtualCharacter->SetListener(this);
     }
 
-    Character::~Character() {
-    }
-
     vec3 Character::getGroundVelocity() const {
         const auto velocity = virtualCharacter->GetGroundVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};

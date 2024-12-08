@@ -56,7 +56,7 @@ namespace z0 {
         if (header.version != VERSION) {
             die("ZScene bad version");
         }
-        print(header);
+        // print(header);
 
         // Read the images & mips levels headers
         auto imageHeaders = vector<ImageHeader>(header.imagesCount);

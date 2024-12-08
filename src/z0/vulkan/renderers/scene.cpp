@@ -280,7 +280,7 @@ namespace z0 {
         auto& frame = frameData[currentFrame];
         if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return; }
         if (frame.skyboxRenderer != nullptr) {
-            frame.skyboxRenderer->update(ModelsRenderer::frameData[currentFrame].currentCamera, frameData[currentFrame].currentEnvironment, currentFrame);
+            frame.skyboxRenderer->update(ModelsRenderer::frameData[currentFrame].currentCamera, frame.currentEnvironment, currentFrame);
         }
         if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
 
@@ -297,7 +297,7 @@ namespace z0 {
             auto lightsArray = vector<LightBuffer>(frame.lights.size());
             auto lightIndex = 0;
             for (const auto& light : frame.lights) {
-                if (!light->isVisible()) { continue;}
+                if (!light->isVisible()) { continue; }
                 lightsArray[lightIndex].type      = light->getLightType();
                 lightsArray[lightIndex].position  = light->getPositionGlobal();
                 lightsArray[lightIndex].color     = light->getColorAndIntensity();
@@ -977,15 +977,14 @@ namespace z0 {
 
     void SceneRenderer::enableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
-            if (!shadowMapRenderers.contains(light)) {
-                if (light->getCastShadows() && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
-                    const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
-                    for(auto i = 0; i < device.getFramesInFlight(); i++) {
-                        shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
-                    }
-                    shadowMapRenderers[light] = shadowMapRenderer;
-                    device.registerRenderer(shadowMapRenderer);
+            if (light->getCastShadows() && !shadowMapRenderers.contains(light) && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+                const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
+                for(auto i = 0; i < device.getFramesInFlight(); i++) {
+                    shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
                 }
+                shadowMapRenderers[light] = shadowMapRenderer;
+                device.registerRenderer(shadowMapRenderer);
+                // log("enableLightShadowCasting", light->getName());
             }
         }
     }
@@ -995,6 +994,7 @@ namespace z0 {
             if (shadowMapRenderers.contains(light)) {
                 device.unRegisterRenderer(shadowMapRenderers[light], false);
                 shadowMapRenderers.erase(light);
+                // log("disableLightShadowCasting", light->getName());
             }
         }
     }

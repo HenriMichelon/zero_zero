@@ -42,7 +42,7 @@ export namespace z0 {
          */
         void setShape(float height, float radius);
 
-        ~Character() override;
+        ~Character() override = default;
 
         /**
          * Returns `true` if the Character is on a ground

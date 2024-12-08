@@ -164,6 +164,7 @@ namespace z0 {
             optimizeBroadPhaseNeeded = false;
         }
         if (!deferredCalls.empty()) {
+            // log(to_string(deferredCalls.size()) + " deferred calls");
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.clear();
@@ -202,7 +203,7 @@ namespace z0 {
         renderFrame(currentFrame);
         elapsedSeconds += static_cast<float>(accumulator);
         frameCount++;
-        if (elapsedSeconds >= 1.0) {
+        if (elapsedSeconds >= 2.5) {
             fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);
             frameCount     = 0;
             elapsedSeconds = 0;

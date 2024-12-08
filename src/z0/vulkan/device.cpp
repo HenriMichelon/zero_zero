@@ -169,7 +169,7 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
-        submitQueue = make_unique<SubmitQueue>(graphicsQueue, presentQueue, applicationConfig.framesInFlight);
+        submitQueue = make_unique<SubmitQueue>(graphicsQueue);
 
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
@@ -300,21 +300,20 @@ namespace z0 {
         vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
         vkResetFences(device, 1, &data.inFlightFence);
         {
-            submitQueue->getSwapChainSemaphore().acquire();
-            const auto lock = lock_guard(submitQueue->getSwapChainMutex());
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,
                                                  UINT64_MAX,
                                                  data.imageAvailableSemaphore,
                                                  VK_NULL_HANDLE,
                                                  &data.imageIndex);
-            //log("Acquire", to_string(currentFrame), to_string(data.imageIndex));
             if (result == VK_ERROR_OUT_OF_DATE_KHR) {
                 recreateSwapChain();
                 for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
                 return;
             }
-            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) { die("failed to acquire swap chain image!"); }
+            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+                die("failed to acquire swap chain image :", to_string(result));
+            }
         }
 
         {
@@ -370,43 +369,37 @@ namespace z0 {
                 die("failed to record command buffer!");
             }
         }
-        submitQueue->submit(data, swapChain);
-        // const VkSemaphore signalSemaphores[] = {data.renderFinishedSemaphore};
-        // {
-        //     const VkSemaphore              waitSemaphores[] = {data.imageAvailableSemaphore};
-        //     constexpr VkPipelineStageFlags waitStages[]     = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-        //     const VkSubmitInfo             submitInfo{
-        //         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-        //         .waitSemaphoreCount = 1,
-        //         .pWaitSemaphores = waitSemaphores,
-        //         .pWaitDstStageMask = waitStages,
-        //         .commandBufferCount = 1,
-        //         .pCommandBuffers = &data.commandBuffer,
-        //         .signalSemaphoreCount = 1,
-        //         .pSignalSemaphores = signalSemaphores
-        //     };
-        //     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
-        //         die("failed to submit draw command buffer!");
-        //     }
-        // }
-        //
-        // {
-        //     const VkSwapchainKHR   swapChains[] = {swapChain};
-        //     const VkPresentInfoKHR presentInfo{
-        //         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        //         .waitSemaphoreCount = 1,
-        //         .pWaitSemaphores = signalSemaphores,
-        //         .swapchainCount = 1,
-        //         .pSwapchains = swapChains,
-        //         .pImageIndices = &data.imageIndex,
-        //         .pResults = nullptr // Optional
-        //     };
-        //     auto result = vkQueuePresentKHR(presentQueue, &presentInfo);
-        //     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        //         recreateSwapChain();
-        //         for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
-        //     } else if (result != VK_SUCCESS) { die("failed to present swap chain image!"); }
-        // }
+        {
+            const VkSubmitInfo             submitInfo{
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                .waitSemaphoreCount = 1,
+                .pWaitSemaphores = &data.imageAvailableSemaphore,
+                .pWaitDstStageMask = waitStages,
+                .commandBufferCount = 1,
+                .pCommandBuffers = &data.commandBuffer,
+                .signalSemaphoreCount = 1,
+                .pSignalSemaphores =  &data.renderFinishedSemaphore
+            };
+            const VkSwapchainKHR   swapChains[] = {swapChain};
+            const VkPresentInfoKHR presentInfo{
+                .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                .waitSemaphoreCount = 1,
+                .pWaitSemaphores    = &data.renderFinishedSemaphore,
+                .swapchainCount     = 1,
+                .pSwapchains        = swapChains,
+                .pImageIndices      = &data.imageIndex,
+                .pResults           = nullptr // Optional
+            };
+            {
+                const auto lock = lock_guard(submitQueue->getSubmitMutex());
+                if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
+                    die("failed to submit draw command buffer!");
+                }
+                if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
+                    die("failed to present swap chain image!");
+                }
+            }
+        }
     }
 
     void Device::registerRenderer(const shared_ptr<Renderer> &renderer) {

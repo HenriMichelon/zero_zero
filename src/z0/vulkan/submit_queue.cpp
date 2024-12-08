@@ -16,12 +16,15 @@ import z0.vulkan.Device;
 
 namespace z0 {
 
-    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue, const uint32_t framesInFlight) :
+    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue) :
         mainThreadId(this_thread::get_id()),
         graphicQueue{graphicQueue},
-        presentQueue{presentQueue},
-        queueThread{&SubmitQueue::run, this},
-        swapChainSemaphore{framesInFlight > 1 ? framesInFlight-1 : 1} {
+        queueThread{&SubmitQueue::run, this} {
+        constexpr VkFenceCreateInfo fenceInfo{
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .flags = 0
+        };
+        vkCreateFence(Device::get().getDevice(), &fenceInfo, nullptr, &submitFence);
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
@@ -68,97 +71,52 @@ namespace z0 {
 
     void SubmitQueue::endOneTimeCommand(const OneTimeCommand& oneTimeCommand) {
         vkEndCommandBuffer(oneTimeCommand.commandBuffer);
-        if (this_thread::get_id() == mainThreadId) {
+        // if (this_thread::get_id() == mainThreadId) {
+            // auto lock = lock_guard{queueMutex};
+            // submit(oneTimeCommand);
+        // } else {
             auto lock = lock_guard{queueMutex};
-            submit({.command = oneTimeCommand});
-        } else {
-            submit(oneTimeCommand);
-        }
+            commands.push_back(oneTimeCommand);
+            queueCv.notify_one();
+        // }
     }
 
     void SubmitQueue::run() {
         while (!quit) {
             auto lock = unique_lock{queueMutex};
             queueCv.wait(lock, [this] {
-                return quit || !submitInfos.empty();
+                return quit || !commands.empty();
             });
             if (quit) { break; }
-            auto submitInfo = submitInfos.front();
-            submitInfos.pop_front();
-            if (submitInfo.fence != VK_NULL_HANDLE) {
-                if (vkQueueSubmit(graphicQueue, 1, &submitInfo.submitInfo, submitInfo.fence) != VK_SUCCESS) {
-                    die("failed to submit draw command buffer!");
-                }
-                {
-                    const auto swapChainLock = lock_guard{swapChainMutex};
-                    if (vkQueuePresentKHR(presentQueue, &submitInfo.presentInfo) != VK_SUCCESS) {
-                        die("failed to present swap chain image!");
-                    }
-                }
-                swapChainSemaphore.release();
-            } else {
-                submit(submitInfo);
-            }
+            auto command = commands.front();
+            commands.pop_front();
+            submit(command);
         }
     }
 
-    void SubmitQueue::submit(const SubmitInfo& submitInfo) {
+    void SubmitQueue::submit(const OneTimeCommand& command) {
         const auto vkSubmitInfo = VkSubmitInfo {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .commandBufferCount = 1,
-            .pCommandBuffers = &submitInfo.command.commandBuffer,
+            .pCommandBuffers = &command.commandBuffer,
         };
-        if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
-            die("failed to submit draw command buffer!");
+        const auto&device = Device::get().getDevice();
+        vkResetFences(device, 1, &submitFence);
+        {
+            const auto lock = lock_guard(getSubmitMutex());
+            if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
+                die("failed to submit draw command buffer!");
+            }
+            vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
         }
-        vkQueueWaitIdle(graphicQueue);
         {
             const auto lock = lock_guard(oneTimeMutex);
-            oneTimeCommands.push_back(submitInfo.command);
+            oneTimeCommands.push_back(command);
             {
                 auto lockBuffer = lock_guard(oneTimeBuffersMutex);
-                oneTimeBuffers.erase(submitInfo.command.commandBuffer);
+                oneTimeBuffers.erase(command.commandBuffer);
             }
         }
-    }
-
-    void SubmitQueue::submit(const OneTimeCommand& oneTimeCommand) {
-        if (quit) { return; }
-        {
-            auto lock = lock_guard{queueMutex};
-            submitInfos.push_back({.command = oneTimeCommand});
-        }
-        queueCv.notify_one();
-    }
-
-    void SubmitQueue::submit(FrameData& frameData, VkSwapchainKHR& swapChain) {
-        if (quit) { return; }
-        {
-            auto lock = lock_guard{queueMutex};
-            submitInfos.push_back({
-                .submitInfo = {
-                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                    .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = &frameData.imageAvailableSemaphore,
-                    .pWaitDstStageMask = waitStages,
-                    .commandBufferCount = 1,
-                    .pCommandBuffers = &frameData.commandBuffer,
-                    .signalSemaphoreCount = 1,
-                    .pSignalSemaphores = &frameData.renderFinishedSemaphore
-                },
-                .presentInfo = {
-                    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-                    .waitSemaphoreCount = 1,
-                    .pWaitSemaphores = &frameData.renderFinishedSemaphore,
-                    .swapchainCount = 1,
-                    .pSwapchains = &swapChain,
-                    .pImageIndices = &frameData.imageIndex,
-                    .pResults = nullptr // Optional
-                },
-                .fence = frameData.inFlightFence,
-            });
-        }
-        queueCv.notify_one();
     }
 
     void SubmitQueue::stop() {
@@ -169,6 +127,7 @@ namespace z0 {
         for (const auto& command : oneTimeCommands) {
             vkDestroyCommandPool(device, command.commandPool, nullptr);
         }
+        vkDestroyFence(device, submitFence, nullptr);
     }
 
 }

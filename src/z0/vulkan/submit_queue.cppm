@@ -16,35 +16,17 @@ export namespace z0 {
 
     class SubmitQueue {
     public:
-        struct FrameData {
-            VkCommandBuffer   commandBuffer;
-            VkSemaphore       imageAvailableSemaphore;
-            VkSemaphore       renderFinishedSemaphore;
-            VkFence           inFlightFence;
-            uint32_t          imageIndex;
-        };
 
         struct OneTimeCommand {
             VkCommandPool   commandPool;
             VkCommandBuffer commandBuffer;
         };
 
-        struct SubmitInfo {
-            VkSubmitInfo      submitInfo;
-            VkPresentInfoKHR  presentInfo;
-            VkFence           fence{VK_NULL_HANDLE};
-            OneTimeCommand    command;
-        };
-
-        explicit SubmitQueue(const VkQueue& graphicQueue, const VkQueue& presentQueue, uint32_t framesInFlight);
-
-        void submit(FrameData& frameData, VkSwapchainKHR& swapChain);
+        explicit SubmitQueue(const VkQueue& graphicQueue);
 
         void stop();
 
-        inline mutex& getSwapChainMutex() { return swapChainMutex; }
-
-        inline counting_semaphore<5>& getSwapChainSemaphore() { return swapChainSemaphore; }
+        inline mutex& getSubmitMutex() { return submitMutex; }
 
         OneTimeCommand beginOneTimeCommand();
 
@@ -61,16 +43,13 @@ export namespace z0 {
         thread::id              mainThreadId;
         // Queue to submit commands to the GPU
         const VkQueue&          graphicQueue;
-        // Queue to present swap chain
-        const VkQueue&          presentQueue;
         // Stop the submit queue thread
         bool                    quit{false};
         // Submission queue
-        list<SubmitInfo>        submitInfos;
-        // To prevent present & acquire at the same time
-        mutex                   swapChainMutex;
-        // To prevent the main thread to acquire images too fast
-        counting_semaphore<5>   swapChainSemaphore;
+        list<OneTimeCommand>    commands;
+        // To synchronize between main thread & submit thread
+        mutex                   submitMutex;
+        VkFence                 submitFence;
 
         // The submission thread & locks
         thread                  queueThread;
@@ -84,13 +63,10 @@ export namespace z0 {
         mutex                   oneTimeBuffersMutex;
         map<VkCommandBuffer, list<Buffer>> oneTimeBuffers;
 
-        static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         void run();
 
         void submit(const OneTimeCommand& command);
-
-        void submit(const SubmitInfo& submitInfo);
 
     public:
         SubmitQueue(const SubmitQueue &) = delete;
