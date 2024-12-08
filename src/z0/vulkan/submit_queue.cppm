@@ -30,7 +30,7 @@ export namespace z0 {
 
         OneTimeCommand beginOneTimeCommand();
 
-        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand);
+        void endOneTimeCommand(const OneTimeCommand& oneTimeCommand, bool immediate = false);
 
         Buffer& createOneTimeBuffer(
             const OneTimeCommand& oneTimeCommand,

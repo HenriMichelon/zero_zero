@@ -130,7 +130,7 @@ export namespace z0 {
 
         [[nodiscard]] SubmitQueue::OneTimeCommand beginOneTimeCommandBuffer() const;
 
-        void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer) const;
+        void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer, bool immediate = false) const;
 
         inline Buffer& createOneTimeBuffer(
            const SubmitQueue::OneTimeCommand& oneTimeCommand,

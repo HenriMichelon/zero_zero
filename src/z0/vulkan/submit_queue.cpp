@@ -69,16 +69,16 @@ namespace z0 {
         return command;
     }
 
-    void SubmitQueue::endOneTimeCommand(const OneTimeCommand& oneTimeCommand) {
+    void SubmitQueue::endOneTimeCommand(const OneTimeCommand& oneTimeCommand, const bool immediate) {
         vkEndCommandBuffer(oneTimeCommand.commandBuffer);
-        // if (this_thread::get_id() == mainThreadId) {
-            // auto lock = lock_guard{queueMutex};
-            // submit(oneTimeCommand);
-        // } else {
+        if (immediate) {
+            auto lock = lock_guard{queueMutex};
+            submit(oneTimeCommand);
+        } else {
             auto lock = lock_guard{queueMutex};
             commands.push_back(oneTimeCommand);
             queueCv.notify_one();
-        // }
+        }
     }
 
     void SubmitQueue::run() {
