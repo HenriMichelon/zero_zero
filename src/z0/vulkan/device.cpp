@@ -114,16 +114,18 @@ namespace z0 {
         // Find a graphical command queue and a presentation command queue
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
         vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        constexpr auto queuePriority = array{1.0f};
+        // constexpr auto queuePriority = array{1.0f,1.0f};
+        // const auto graphicsQueueCount = getFirstGraphicQueueCount(physicalDevice);
         auto indices = findQueueFamilies(physicalDevice);
         {
-            constexpr auto queuePriority = 1.0f;
             const auto uniqueQueueFamilies = set{indices.graphicsFamily.value(), indices.presentFamily.value()};
             for (auto queueFamily : uniqueQueueFamilies) {
                 const VkDeviceQueueCreateInfo queueCreateInfo{
                     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
                     .queueFamilyIndex = queueFamily,
                     .queueCount = 1,
-                    .pQueuePriorities = &queuePriority,
+                    .pQueuePriorities = queuePriority.data(),
                 };
                 queueCreateInfos.push_back(queueCreateInfo);
             }
@@ -135,29 +137,29 @@ namespace z0 {
         {
             // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
             VkPhysicalDeviceShaderObjectFeaturesEXT deviceShaderObjectFeatures{
-                    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
-                    .pNext = VK_NULL_HANDLE,
-                    .shaderObject = VK_TRUE,
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
+                .pNext = VK_NULL_HANDLE,
+                .shaderObject = VK_TRUE,
             };
             // https://lesleylai.info/en/vk-khr-dynamic-rendering/
             const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature{
-                    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-                    .pNext = &deviceShaderObjectFeatures,
-                    .dynamicRendering = VK_TRUE,
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+                .pNext = &deviceShaderObjectFeatures,
+                .dynamicRendering = VK_TRUE,
             };
             constexpr VkPhysicalDeviceFeatures deviceFeatures{
-                    .samplerAnisotropy = VK_TRUE
+                .samplerAnisotropy = VK_TRUE
             };
             const VkDeviceCreateInfo createInfo{
-                    .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-                    .pNext = &dynamicRenderingFeature,
-                    .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
-                    .pQueueCreateInfos = queueCreateInfos.data(),
-                    .enabledLayerCount = static_cast<uint32_t>(requestedLayers.size()),
-                    .ppEnabledLayerNames = requestedLayers.data(),
-                    .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
-                    .ppEnabledExtensionNames = deviceExtensions.data(),
-                    .pEnabledFeatures = &deviceFeatures,
+                .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                .pNext = &dynamicRenderingFeature,
+                .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+                .pQueueCreateInfos = queueCreateInfos.data(),
+                .enabledLayerCount = static_cast<uint32_t>(requestedLayers.size()),
+                .ppEnabledLayerNames = requestedLayers.data(),
+                .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                .ppEnabledExtensionNames = deviceExtensions.data(),
+                .pEnabledFeatures = &deviceFeatures,
             };
             if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
                 die("Failed to create logical device!");
@@ -174,39 +176,39 @@ namespace z0 {
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
         const VmaVulkanFunctions vulkanFunctions{
-                .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
-                .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
-                .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
-                .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
-                .vkAllocateMemory = vkAllocateMemory,
-                .vkFreeMemory = vkFreeMemory,
-                .vkMapMemory = vkMapMemory,
-                .vkUnmapMemory = vkUnmapMemory,
-                .vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges,
-                .vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges,
-                .vkBindBufferMemory = vkBindBufferMemory,
-                .vkBindImageMemory = vkBindImageMemory,
-                .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
-                .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
-                .vkCreateBuffer = vkCreateBuffer,
-                .vkDestroyBuffer = vkDestroyBuffer,
-                .vkCreateImage = vkCreateImage,
-                .vkDestroyImage = vkDestroyImage,
-                .vkCmdCopyBuffer = vkCmdCopyBuffer,
-                .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
-                .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR,
-                .vkBindBufferMemory2KHR = vkBindBufferMemory2KHR,
-                .vkBindImageMemory2KHR = vkBindImageMemory2KHR,
-                .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
-                .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
-                .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
+            .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = vkAllocateMemory,
+            .vkFreeMemory = vkFreeMemory,
+            .vkMapMemory = vkMapMemory,
+            .vkUnmapMemory = vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = vkBindBufferMemory,
+            .vkBindImageMemory = vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
+            .vkCreateBuffer = vkCreateBuffer,
+            .vkDestroyBuffer = vkDestroyBuffer,
+            .vkCreateImage = vkCreateImage,
+            .vkDestroyImage = vkDestroyImage,
+            .vkCmdCopyBuffer = vkCmdCopyBuffer,
+            .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
+            .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR,
+            .vkBindBufferMemory2KHR = vkBindBufferMemory2KHR,
+            .vkBindImageMemory2KHR = vkBindImageMemory2KHR,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
+            .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
+            .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
         };
         const VmaAllocatorCreateInfo allocatorInfo = {
-                .physicalDevice = physicalDevice,
-                .device = device,
-                .pVulkanFunctions = &vulkanFunctions,
-                .instance = vkInstance,
-                .vulkanApiVersion = deviceProperties.properties.apiVersion,
+            .physicalDevice = physicalDevice,
+            .device = device,
+            .pVulkanFunctions = &vulkanFunctions,
+            .instance = vkInstance,
+            .vulkanApiVersion = deviceProperties.properties.apiVersion,
         };
         vmaCreateAllocator(&allocatorInfo, &allocator);
 
@@ -801,6 +803,20 @@ namespace z0 {
         return details;
     }
 
+    uint32_t Device::getFirstGraphicQueueCount(const VkPhysicalDevice physicalDevice) const {
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+        for (const auto& queueFamily : queueFamilies) {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                return queueFamily.queueCount;
+            }
+        }
+        die("Failed to find graphics queue count");
+        return 0;
+    }
+
     Device::QueueFamilyIndices Device::findQueueFamilies(const VkPhysicalDevice vkPhysicalDevice) const {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
         QueueFamilyIndices indices;
@@ -810,14 +826,17 @@ namespace z0 {
         vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, queueFamilies.data());
         int i = 0;
         for (const auto &queueFamily : queueFamilies) {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.graphicsFamily = i;
+            }
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, surface, &presentSupport);
-            if (presentSupport)
+            if (presentSupport) {
                 indices.presentFamily = i;
-            if (indices.isComplete())
+            }
+            if (indices.isComplete()) {
                 break;
+            }
             i++;
         }
         return indices;

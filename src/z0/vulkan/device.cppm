@@ -152,6 +152,7 @@ export namespace z0 {
         VkDevice                    device;
         VkPhysicalDevice            physicalDevice;
         VkQueue                     graphicsQueue;
+        // VkQueue                     submitGraphicsQueue;
         VkQueue                     presentQueue;
         VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceProperties2 deviceProperties{
@@ -243,6 +244,8 @@ export namespace z0 {
 
         // Get the supported queues families for a particular GPU
         [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
+
+        uint32_t getFirstGraphicQueueCount(VkPhysicalDevice physicalDevice) const;
 
         // Get the maximum MSAA samples
         [[nodiscard]] VkSampleCountFlagBits getMaxUsableMSAASampleCount() const;
