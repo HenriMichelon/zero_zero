@@ -21,10 +21,11 @@ import z0.nodes.CollisionObject;
 
 namespace z0 {
 
-    RayCast::RayCast(const vec3 &target, const uint32_t mask, const string &name):
+    RayCast::RayCast(const vec3 &target, const uint32_t layer, const string &name):
         Node{name, RAYCAST},
         target{target},
-        collisionMask{mask} {
+        collisionLayer{layer} {
+        setCollisionLayer(collisionLayer);
     }
 
     RayCast::RayCast(const string &name):
@@ -44,7 +45,7 @@ namespace z0 {
                 ray,
                 result,
                 broadPhaseLayerFilter,
-                *this,
+                *objectLayerFilter,
                 *this)) {
             collider = reinterpret_cast<CollisionObject *>(
                     Application::get()._getBodyInterface().GetUserData(result.mBodyID));
@@ -55,13 +56,20 @@ namespace z0 {
         }
     }
 
-    bool RayCast::ShouldCollide(const JPH::ObjectLayer inLayer) const {
-        return (JPH::ObjectLayerPairFilterMask::sGetGroup(inLayer) & JPH::ObjectLayerPairFilterMask::sGetMask(collisionMask)) != 0;
+    void RayCast::setCollisionLayer(const uint32_t layer) {
+        collisionLayer = layer;
+        objectLayerFilter = make_unique<JPH::DefaultObjectLayerFilter>(
+            Application::get()._getObjectLayerPairFilter(),
+            collisionLayer);
     }
+
+    // bool RayCast::ShouldCollide(const JPH::ObjectLayer inLayer) const {
+    //     return (JPH::ObjectLayerPairFilterMask::sGetGroup(inLayer) & JPH::ObjectLayerPairFilterMask::sGetMask(collisionMask)) != 0;
+    // }
 
     bool RayCast::ShouldCollideLocked(const JPH::Body &inBody) const {
         const auto *node = reinterpret_cast<CollisionObject *>(inBody.GetUserData());
-        return (node != nullptr) && (!(excludeParent && (node == parent)));
+        return (node != nullptr) && (!(excludeParent && (node == parent))) && isProcessed() && node->isProcessed();
     }
 
 }

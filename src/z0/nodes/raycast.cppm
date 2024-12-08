@@ -20,15 +20,15 @@ export namespace z0 {
     /**
      * %A ray in 3D space, used to find the first CollisionObject it intersects.
      */
-    class RayCast : public Node, public JPH::ObjectLayerFilter, public JPH::BodyFilter {
+    class RayCast : public Node, public JPH::BodyFilter {
     public:
         /**
          * Creates a RayCast
          * @param target The ray's destination point, relative to the RayCast's position
-         * @param mask The ray's collision mask. Only objects in at least one collision layer enabled in the mask will be detected
+         * @param layer The ray's collision layer
          * @param name The node's name
          */
-        RayCast(const vec3 &target, uint32_t mask, const string &name = TypeNames[RAYCAST]);
+        RayCast(const vec3 &target, uint32_t layer, const string &name = TypeNames[RAYCAST]);
 
         /**
          * Creates a RayCast with a [0.0, 0.0, 0.0] target
@@ -72,18 +72,21 @@ export namespace z0 {
          */
         inline const vec3& getTarget() const { return this->target; }
 
+        void setCollisionLayer(uint32_t layer);
+
     private:
         vec3                       target{};
         vec3                       hitPoint{};
-        uint32_t                   collisionMask{};
+        uint32_t                   collisionLayer{};
         bool                       excludeParent{true};
         CollisionObject *          collider{nullptr};
         JPH::BroadPhaseLayerFilter broadPhaseLayerFilter{};
+        unique_ptr<JPH::ObjectLayerFilter> objectLayerFilter;
 
     public:
         void _physicsUpdate(float delta) override;
 
-        bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
+        // bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 
         bool ShouldCollideLocked(const JPH::Body &inBody) const override;
 
