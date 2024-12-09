@@ -13,6 +13,7 @@ import z0.ui.Widget;
 export namespace z0 {
 
     namespace ui {
+
         /**
          * %A horizontal or vertical line
          */
@@ -23,19 +24,11 @@ export namespace z0 {
                 VERT
             };
 
-            explicit Line(const LineStyle K = HORIZ): Widget{LINE}, style{K} {
-                allowChildren = false;
-            }
+            explicit Line(LineStyle K = HORIZ);
 
-            [[nodiscard]] LineStyle getStyle() const { return style; }
+            [[nodiscard]] inline LineStyle getStyle() const { return style; }
 
-            void setStyle(const LineStyle K) {
-                if (style != K) {
-                    style = K;
-                    resizeChildren();
-                    refresh();
-                }
-            }
+            void setStyle(LineStyle K);
 
         private:
             LineStyle style;
@@ -43,14 +36,12 @@ export namespace z0 {
 
         class HLine : public Line {
         public:
-            HLine(): Line(HORIZ) {
-            }
+            HLine(): Line(HORIZ) {}
         };
 
         class VLine : public Line {
         public:
-            VLine(): Line(VERT) {
-            }
+            VLine(): Line(VERT) {}
         };
     }
 }

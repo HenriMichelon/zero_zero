@@ -22,27 +22,13 @@ export namespace z0 {
          */
         class Text : public Widget {
         public:
-            explicit Text(string C): Widget(TEXT), text(std::move(C)) {
-                allowChildren = false;
-                drawBackground = false;
-                textColor = vec4{0.0f, 0.0f, 0.0f, 1.0f};
-            }
+            explicit Text(string C);
 
             [[nodiscard]] const string& getText() const { return text; }
 
-            void setText(const string& C) {
-                text = C;
-                if (parent) { parent->refresh(); }
-                float w, h;
-                getSize(w, h);
-                setSize(w, h);
-                if (!parent) { refresh(); }
-            }
+            void setText(const string& C);
 
-            void setTextColor(const vec4 c) {
-                textColor = c;
-                refresh();
-            }
+            void setTextColor(const vec4& c);
 
             [[nodiscard]] vec4 getTextColor() const { return textColor; }
 
@@ -53,43 +39,19 @@ export namespace z0 {
             /**
             * Returns the size (in screen units, VECTOR_SCALE ratio applied) for the text.
             */
-            void getSize(float& width, float& height) {
-                getFont().getSize(text, width, height);
-                const auto& ratio = Application::get().getVectorRatio();
-                width = roundf(width / ratio.x);
-                height = roundf(height / ratio.y);
-            }
+            void getSize(float& width, float& height);
 
-            void setSize(const float width, const float height) override {
-                if (width == 0 && height == 0 && rect.width == 0 && rect.height == 0) {
-                    float w, h;
-                    getSize(w, h);
-                    setSize(w, h);
-                }
-                else {
-                    Widget::setSize(width, height);
-                }
-            }
+            void setSize(const float width, const float height) override;
 
         protected:
-            [[nodiscard]] Rect _getDefaultRect() override {
-                if (rect.width == 0 && rect.height == 0) {
-                    float w, h;
-                    getSize(w, h);
-                    setSize(w, h);
-                }
-                return Widget::_getDefaultRect();
-            }
+            [[nodiscard]] Rect _getDefaultRect() override;
 
         private:
             string text;
             vec4   textColor;
 
             /* void computeSize();*/
-            void eventCreate() override {
-                getSize(rect.width, rect.height);
-                Widget::eventCreate();
-            }
+            void eventCreate() override;
         };
     }
 }

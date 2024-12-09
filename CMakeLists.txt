@@ -239,8 +239,20 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cpp
 
+		${Z0_ENGINE_DIR}/ui/button.cpp
+		${Z0_ENGINE_DIR}/ui/check_widget.cpp
+		${Z0_ENGINE_DIR}/ui/frame.cpp
+		${Z0_ENGINE_DIR}/ui/line.cpp
 		${Z0_ENGINE_DIR}/ui/manager.cpp
+		${Z0_ENGINE_DIR}/ui/scroll_bar.cpp
 		${Z0_ENGINE_DIR}/ui/style.cpp
+		${Z0_ENGINE_DIR}/ui/style_classic.cpp
+		${Z0_ENGINE_DIR}/ui/style_classic_resource.cpp
+		${Z0_ENGINE_DIR}/ui/text.cpp
+		${Z0_ENGINE_DIR}/ui/text_edit.cpp
+		${Z0_ENGINE_DIR}/ui/toggle_button.cpp
+		${Z0_ENGINE_DIR}/ui/tree_view.cpp
+		${Z0_ENGINE_DIR}/ui/value_select.cpp
 		${Z0_ENGINE_DIR}/ui/widget.cpp
 		${Z0_ENGINE_DIR}/ui/window.cpp
 )
