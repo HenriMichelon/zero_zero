@@ -158,17 +158,22 @@ namespace z0 {
 
     void Application::drawFrame() {
         if (stopped) { return; }
-        if (doDeferredUpdates) { processDeferredUpdates(currentFrame);}
+        // Add/removes nodes from the scene
+        if (doDeferredUpdates) {
+            processDeferredUpdates(currentFrame);
+        }
+        // https://jrouwe.github.io/JoltPhysics/class_physics_system.html#ab3cd9f2562f0f051c032b3bc298d9604
         if (optimizeBroadPhaseNeeded) {
             physicsSystem.OptimizeBroadPhase();
             optimizeBroadPhaseNeeded = false;
         }
+        // Physics events & others deferred calls
         if (!deferredCalls.empty()) {
-            // log(to_string(deferredCalls.size()) + " deferred calls");
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });
             auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.clear();
         }
+        // Clean up the async calls
         if (!threadedCalls.empty()) {
             auto lock = lock_guard(threadedCallsMutex);
             for (auto it = threadedCalls.begin(); it != threadedCalls.end();) {
@@ -181,9 +186,18 @@ namespace z0 {
         }
 
         // https://gafferongames.com/post/fix_your_timestep/
-        const double newTime =
-                chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
+        const double newTime = chrono::duration_cast<chrono::duration<double>>(Clock::now().time_since_epoch()).count();
         double frameTime = newTime - currentTime;
+
+        // Calculate the FPS
+        elapsedSeconds += static_cast<float>(frameTime);
+        frameCount++;
+        if (elapsedSeconds >= 1.0) {
+            fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);
+            frameCount     = 0;
+            elapsedSeconds = 0;
+        }
+
         if (frameTime > 0.25) {
             frameTime = 0.25; // Note: Max frame time to avoid spiral of death
         }
@@ -197,17 +211,9 @@ namespace z0 {
                 t += dt;
                 accumulator -= dt;
             }
-            const double alpha = accumulator / dt;
-            process(rootNode, static_cast<float>(alpha));
+            process(rootNode, static_cast<float>(accumulator / dt));
         }
         renderFrame(currentFrame);
-        elapsedSeconds += static_cast<float>(accumulator);
-        frameCount++;
-        if (elapsedSeconds >= 2.5) {
-            fps            = static_cast<uint32_t>(frameCount / elapsedSeconds);
-            frameCount     = 0;
-            elapsedSeconds = 0;
-        }
         currentFrame = (currentFrame + 1) % applicationConfig.framesInFlight;
     }
 
