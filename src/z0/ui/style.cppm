@@ -54,7 +54,7 @@ namespace z0 {
                     string	: option name
                  option value
             */
-            [[nodiscard]] string getOption(const string &);
+            [[nodiscard]] string getOption(const string &) const;
 
             /* Draw a widget.
                   Widget	: widget to draw

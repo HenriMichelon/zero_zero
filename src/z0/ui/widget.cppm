@@ -52,6 +52,8 @@ namespace z0 {
                 SCROLLBAR,
                 //! Tree of Widget
                 TREEVIEW,
+                //! 2D Image
+                IMAGE,
             };
 
             //! Widget placement (relative to the parent widget)
@@ -61,9 +63,9 @@ namespace z0 {
                 FILL,
                 //! The child widget is centered (and take all the parent content size)
                 CENTER,
-                //! The child widget is horizontaly centered
+                //! The child widget is horizontally centered
                 HCENTER,
-                //! The child widget is verticaly centered
+                //! The child widget is vertically centered
                 VCENTER,
                 //! The children are stack on the top
                 TOP,
@@ -73,9 +75,9 @@ namespace z0 {
                 LEFT,
                 //! The children are stack on the right
                 RIGHT,
-                //! The children are stack on the top and horizontaly centered
+                //! The children are stack on the top and horizontally centered
                 TOPCENTER,
-                //! The children are stack on the bottom and horizontaly centered
+                //! The children are stack on the bottom and horizontally centered
                 BOTTOMCENTER,
                 //! The children are stack on the left and vertically centered
                 LEFTCENTER,
@@ -110,7 +112,7 @@ namespace z0 {
             /** Creates a widget of a particular type */
             explicit Widget(Type = WIDGET);
 
-            ~Widget() override {};
+            ~Widget() override {}
 
             /** Returns the type of the widget */
             [[nodiscard]] Type getType() const;
@@ -187,7 +189,7 @@ namespace z0 {
             /** Removes a child widget */
             virtual void remove(shared_ptr<Widget> &);
 
-            /** Removes all children widgets recusivly */
+            /** Removes all children widgets recursively */
             virtual void removeAll();
 
             /** Changes children padding (space between children) */

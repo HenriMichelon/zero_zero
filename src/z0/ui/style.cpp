@@ -34,7 +34,7 @@ namespace z0 {
             return tmp;
         }
 
-        void Style :: setOption(const string&NAME, const string&VAL) {
+        void Style::setOption(const string&NAME, const string&VAL) {
             shared_ptr<GLayoutOption> option;
             for(const auto& opt: options) {
                 if (opt->name == NAME) {
@@ -50,7 +50,7 @@ namespace z0 {
             updateOptions();
         }
 
-        string Style :: getOption(const string&NAME) {
+        string Style::getOption(const string&NAME) const {
             shared_ptr<GLayoutOption> option;
             for(const auto& opt: options) {
                 if (opt->name == NAME) {

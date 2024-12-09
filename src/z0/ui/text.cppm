@@ -9,8 +9,6 @@ module;
 
 export module z0.ui.Text;
 
-import z0.Application;
-
 import z0.ui.Rect;
 import z0.ui.Widget;
 

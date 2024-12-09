@@ -9,6 +9,8 @@ module;
 
 module z0.ui.Text;
 
+import z0.Application;
+
 namespace z0 {
     namespace ui {
 

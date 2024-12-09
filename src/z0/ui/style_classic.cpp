@@ -9,8 +9,9 @@ module;
 
 module z0.ui.StyleClassic;
 
-namespace z0 {
+import z0.ui.Image;
 
+namespace z0 {
     namespace ui {
 
         bool StyleClassic::init() {
@@ -25,8 +26,11 @@ namespace z0 {
             return true;
         }
 
-        void StyleClassic::draw(const Widget &W, Resource &RES, VectorRenderer &D, bool BEFORE) const {
-            auto &res = (StyleClassicResource &)RES;
+        void StyleClassic::draw(const Widget &W,
+                                Resource &RES,
+                                VectorRenderer &D,
+                                const bool BEFORE) const {
+            auto &res = static_cast<StyleClassicResource &>(RES);
             if (!W.isVisible()) { return; }
             if (BEFORE) {
                 switch (W.getType()) {
@@ -55,6 +59,13 @@ namespace z0 {
                 case Widget::FRAME:
                     drawFrame((Frame &)W, res, D);
                     break;
+                case Widget::IMAGE:
+                {
+                    auto &pic = dynamic_cast<const Image &>(W);
+                    if (pic.getImage()) {
+                        D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height, pic.getImage());
+                    }
+                }
                     /*case Widget::GRIDCELL:
                         DrawGridCell((GGridCell&)W, D, res);
                         break;
@@ -76,11 +87,7 @@ namespace z0 {
                     case Widget::TABBUTTON:
                         DrawTabButton((GTabButton&)W, D, res);
                         break;
-                    case Widget::PICTURE:
-                    {
-                        GPicture &pic = (GPicture&)W;
-                        if (pic.Pixmap()) { pic.Pixmap()->Draw(D, pic.Left(), pic.Top(), pic.Transparency(), true); }
-                    }
+
                         break;*/
                 default:
                     break;
@@ -199,7 +206,8 @@ namespace z0 {
                 const auto &rgb = split(opt, ',');
                 if (rgb.size() == 3) {
                     return vec4({stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), 1.0f});
-                } else if (rgb.size() == 4) {
+                }
+                if (rgb.size() == 4) {
                     return vec4(vec4{
                         stof(string{rgb[0]}),
                         stof(string{rgb[1]}),
@@ -346,8 +354,10 @@ namespace z0 {
         }
 
         void StyleClassic::drawFrame(Frame &W, StyleClassicResource &RES, VectorRenderer &D) const {
-            if ((W.getWidth() < 4) || (W.getHeight() < 4)) { return; }
-            const int32_t LEFTOFFSET = 8;
+            if ((W.getWidth() < 4) || (W.getHeight() < 4)) {
+                return;
+            }
+            constexpr int32_t LEFTOFFSET = 8;
             float l = W.getRect().x;
             float b = W.getRect().y;
             float w = W.getRect().width;

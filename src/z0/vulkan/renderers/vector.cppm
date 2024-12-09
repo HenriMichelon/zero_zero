@@ -54,6 +54,9 @@ namespace z0 {
         // Draw a filled rectangle
         void drawFilledRect(const Rect &rect, float clip_w, float clip_h);
 
+        // Draw a filled rectangle with image
+        void drawFilledRect(const Rect &rect, float clip_w, float clip_h, const shared_ptr<Image> &texture);
+
         // Draw a filled rectangle
         void drawFilledRect(float                    x, float      y,
                             float                    w, float      h,

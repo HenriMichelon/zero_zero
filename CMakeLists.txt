@@ -131,27 +131,28 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
-		${Z0_ENGINE_DIR}/ui/resource.cppm
-		${Z0_ENGINE_DIR}/ui/style.cppm
-		${Z0_ENGINE_DIR}/ui/style_classic.cppm
-		${Z0_ENGINE_DIR}/ui/style_classic_resource.cppm
-		${Z0_ENGINE_DIR}/ui/widget.cppm
-		${Z0_ENGINE_DIR}/ui/panel.cppm
-		${Z0_ENGINE_DIR}/ui/line.cppm
 		${Z0_ENGINE_DIR}/ui/box.cppm
 		${Z0_ENGINE_DIR}/ui/button.cppm
 		${Z0_ENGINE_DIR}/ui/check_widget.cppm
 		${Z0_ENGINE_DIR}/ui/event.cppm
 		${Z0_ENGINE_DIR}/ui/frame.cppm
-		${Z0_ENGINE_DIR}/ui/value_select.cppm
+		${Z0_ENGINE_DIR}/ui/image.cppm
+		${Z0_ENGINE_DIR}/ui/line.cppm
+		${Z0_ENGINE_DIR}/ui/manager.cppm
+		${Z0_ENGINE_DIR}/ui/panel.cppm
+		${Z0_ENGINE_DIR}/ui/rect.cppm
+		${Z0_ENGINE_DIR}/ui/resource.cppm
+		${Z0_ENGINE_DIR}/ui/scroll_bar.cppm
+		${Z0_ENGINE_DIR}/ui/style.cppm
+		${Z0_ENGINE_DIR}/ui/style_classic.cppm
+		${Z0_ENGINE_DIR}/ui/style_classic_resource.cppm
 		${Z0_ENGINE_DIR}/ui/text.cppm
 		${Z0_ENGINE_DIR}/ui/text_edit.cppm
 		${Z0_ENGINE_DIR}/ui/toggle_button.cppm
-		${Z0_ENGINE_DIR}/ui/scroll_bar.cppm
 		${Z0_ENGINE_DIR}/ui/tree_view.cppm
+		${Z0_ENGINE_DIR}/ui/value_select.cppm
+		${Z0_ENGINE_DIR}/ui/widget.cppm
 		${Z0_ENGINE_DIR}/ui/window.cppm
-		${Z0_ENGINE_DIR}/ui/manager.cppm
-		${Z0_ENGINE_DIR}/ui/rect.cppm
 )
 
 # engine sources
@@ -242,6 +243,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/ui/button.cpp
 		${Z0_ENGINE_DIR}/ui/check_widget.cpp
 		${Z0_ENGINE_DIR}/ui/frame.cpp
+		${Z0_ENGINE_DIR}/ui/image.cpp
 		${Z0_ENGINE_DIR}/ui/line.cpp
 		${Z0_ENGINE_DIR}/ui/manager.cpp
 		${Z0_ENGINE_DIR}/ui/scroll_bar.cpp

@@ -66,6 +66,16 @@ namespace z0 {
                        nullptr);
     }
 
+    void VectorRenderer::drawFilledRect(const Rect &rect, const float clip_w, const float clip_h, const shared_ptr<Image> &texture) {
+        drawFilledRect(rect.x,
+                       rect.y,
+                       rect.width,
+                       rect.height,
+                       clip_w,
+                       clip_h,
+                       texture);
+    }
+
     void VectorRenderer::drawFilledRect(const float              x, const float      y,
                                         const float              w, const float      h,
                                         const float              clip_w, const float clip_h,
