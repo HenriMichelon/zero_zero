@@ -38,14 +38,15 @@ namespace z0 {
      * Coordinates system :<br>
      *  - origin : {0.0, 0.0} bottom left<br>
      *  - max values : { 1000.0, 1000.0 } top right (use VECTOR_SCALE constant)<br>
+     *  Currently not very efficient since all data are re-uploaded to the GPU on any UI change
      */
     export class VectorRenderer : public Renderpass, public Renderer {
     public:
         // Used when this renderer is the only renderer
-        VectorRenderer(Device &device);
+        explicit VectorRenderer(Device &device);
 
-        // Used when this renderer is in a renderer chain
-        VectorRenderer(Device &                                     device,
+        // Used when this renderer is in a rendering chain
+        VectorRenderer(Device &device,
                        const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr);
 
         // Draw a 1-fragment width line
@@ -54,7 +55,7 @@ namespace z0 {
         // Draw a filled rectangle
         void drawFilledRect(const Rect &rect, float clip_w, float clip_h);
 
-        // Draw a filled rectangle with image
+        // Draw a filled rectangle with an image
         void drawFilledRect(const Rect &rect, float clip_w, float clip_h, const shared_ptr<Image> &texture);
 
         // Draw a filled rectangle
@@ -75,7 +76,7 @@ namespace z0 {
                       float         w, float                      h,
                       float         clip_w, float                 clip_h);
 
-        // Change the color of the fragment for the next drawing commands
+        // Change the color of the fragments for the next drawing commands
         inline void setPenColor(const vec4 color) { penColor = color; }
 
         // Change the [x,y] translation for the next drawing commands

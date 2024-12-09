@@ -42,7 +42,7 @@ namespace z0 {
         internalColorFrameBuffer{false} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {
-            frameData.at(i).colorFrameBufferHdr = inputColorAttachmentHdr.at(i);
+            frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr.at(i);
         }
         init();
     }
@@ -158,7 +158,7 @@ namespace z0 {
             stagingBuffer->copyTo(commandBuffer.commandBuffer, *(vertexBuffer), vertexBufferSize);
             device.endOneTimeCommandBuffer(commandBuffer);
         }
-        for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
+        ranges::for_each(frameData, [&](FrameData& frame) {
             frame.commands = commands;
         });
         // Initialize or update pipeline layout & descriptors sets if needed
@@ -177,8 +177,7 @@ namespace z0 {
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
 
-        vkCmdSetLineWidth(commandBuffer, 1);
-        // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+        vkCmdSetLineWidth(commandBuffer, 1); // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
         vkCmdSetVertexInputEXT(commandBuffer,
                                1,
                                &bindingDescription,
@@ -203,7 +202,7 @@ namespace z0 {
                                              : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
                 lastPrimitive = command.primitive;
             }
-            const auto pushConstants = PushConstants{
+            const auto pushConstants = PushConstants {
                 .color = command.color,
                 .textureIndex = (command.texture == nullptr ? -1 : texturesIndices[command.texture->getId()]),
                 .clipX = command.clipW,
@@ -278,7 +277,7 @@ namespace z0 {
 
     void VectorRenderer::createImagesResources() {
         if (internalColorFrameBuffer) {
-            for_each(frameData.begin(), frameData.end(), [&](FrameData& frame) {
+            ranges::for_each(frameData, [&](FrameData& frame) {
                 frame.colorFrameBufferHdr = make_shared<ColorFrameBufferHDR>(device);
             });
         }
@@ -286,7 +285,7 @@ namespace z0 {
 
     void VectorRenderer::cleanupImagesResources() {
         if (internalColorFrameBuffer) {
-            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
+            ranges::for_each(frameData, [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->cleanupImagesResources();
             });
         }
@@ -295,7 +294,7 @@ namespace z0 {
     void VectorRenderer::recreateImagesResources() {
         cleanupImagesResources();
         if (internalColorFrameBuffer) {
-            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
+            ranges::for_each(frameData, [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->createImagesResources();
             });
         }
@@ -309,7 +308,7 @@ namespace z0 {
         stagingBuffer.reset();
         oldBuffers.clear();
         if (internalColorFrameBuffer) {
-            for_each(frameData.begin(), frameData.end(), [](const FrameData & frame) {
+            ranges::for_each(frameData, [](const FrameData & frame) {
                 frame.colorFrameBufferHdr->cleanupImagesResources();
             });
         }
@@ -340,17 +339,18 @@ namespace z0 {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {
-                frameData.at(i).imagesInfo[imageIndex] = image->getImageInfo();
+                frameData[i].imagesInfo[imageIndex] = image->getImageInfo();
                 imageIndex += 1;
             }
             // initialize the rest of the image info array with the blank image
-            for (uint32_t j = imageIndex; j < frameData.at(i).imagesInfo.size(); j++) {
-                frameData.at(i).imagesInfo[j] = blankImage->getImageInfo();
+            for (uint32_t j = imageIndex; j < frameData[i].imagesInfo.size(); j++) {
+                frameData[i].imagesInfo[j] = blankImage->getImageInfo();
             }
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
-                .writeImage(0, frameData.at(i).imagesInfo.data());
-            if (!writer.build(descriptorSet.at(i), create))
+                .writeImage(0, frameData[i].imagesInfo.data());
+            if (!writer.build(descriptorSet.at(i), create)) {
                 die("Cannot allocate descriptor set for vector renderer");
+            }
         }
     }
 
@@ -380,10 +380,12 @@ namespace z0 {
 
     void VectorRenderer::addImage(const shared_ptr<Image> &image) {
         const auto& vkImage = reinterpret_pointer_cast<VulkanImage>(image);
-        if (std::find(textures.begin(), textures.end(), vkImage) != textures.end())
+        if (ranges::find(textures, vkImage) != textures.end()) {
             return;
-        if (textures.size() == MAX_IMAGES)
+        }
+        if (textures.size() == MAX_IMAGES) {
             die("Maximum images count reached for the vector renderer");
+        }
         texturesIndices[vkImage->getId()] = static_cast<int32_t>(textures.size());
         textures.push_back(vkImage);
     }
