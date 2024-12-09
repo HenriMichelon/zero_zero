@@ -38,8 +38,8 @@ namespace z0 {
 
     void TonemappingPostprocessingRenderer::update(const uint32_t currentFrame) {
         const GlobalUniformBuffer globalUbo {
-            .gamma = Application::get().getConfig().gamma,
-            .exposure = Application::get().getConfig().exposure,
+            .gamma = app().getConfig().gamma,
+            .exposure = app().getConfig().exposure,
         };
         writeUniformBuffer(globalBuffer.at(currentFrame), &globalUbo);
     }

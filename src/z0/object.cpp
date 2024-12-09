@@ -19,20 +19,14 @@ namespace z0 {
     }
 
     void Object::connect(const Signal::signal &name, const function<void()>& handler) {
-        signals[name].connect([handler](Signal::Parameters*) {
+        signals[name].connect([handler](void*) {
             handler();
         });
     }
 
-    void Object::emit(const Signal::signal &name, Signal::Parameters *params) {
+    void Object::emit(const Signal::signal &name, void *params) {
         if (signals.contains(name)) {
             signals[name].emit(params);
-        }
-    }
-
-    void Object::_emitDeferred(const Signal::signal &name, Signal::Parameters *params) {
-        if (signals.contains(name)) {
-            signals[name]._emitDeferred(params);
         }
     }
 

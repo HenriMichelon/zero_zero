@@ -26,33 +26,22 @@ namespace z0 {
 
     mutex Loader::resourcesMutex;
 
-    shared_ptr<Node> Loader::load(const string& filepath, const bool usecache) {
+    void Loader::load(const shared_ptr<Node>&rootNode, const string& filepath, const bool usecache) {
         if (filepath.ends_with(".json")) {
-            return loadScene(filepath);
-        }
-        shared_ptr<Node> result{};
-        if (usecache) {
-            auto lock = lock_guard(resourcesMutex);
-            if (resources.contains(filepath)) {
-                // log("re-using resources", filepath);
-                return resources[filepath];
-            }
+            return loadScene(rootNode, filepath);
         }
         if (filepath.ends_with(".zres")) {
-            result = ZRes::load(filepath);
+            ZRes::load(rootNode, filepath);
         }
-        if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {
-            result = GlTF::load(filepath);
+        else if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {
+            GlTF::load(rootNode, filepath);
+        } else {
+            die("Loader : unsupported file format for", filepath);
         }
-        if (result) {
-            if (usecache) {
-                auto lock = lock_guard(resourcesMutex);
-                resources[filepath] = result;
-            }
-            return result;
+        if (usecache) {
+            auto lock = lock_guard(resourcesMutex);
+            resources[filepath] = rootNode;
         }
-        die("Loader : unsupported scene file format for", filepath);
-        return nullptr;
     }
 
     void Loader::_cleanup() {
@@ -146,18 +135,18 @@ namespace z0 {
         nodeTree[nodeDesc.id] = node;
     }
 
-    shared_ptr<Node> Loader::loadScene(const string &filepath) {
+    void Loader::loadScene(const shared_ptr<Node>&rootNode, const string &filepath) {
         // const auto tStart = chrono::high_resolution_clock::now();
-        auto scene = make_shared<Node>(filepath);
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
-            addNode(scene.get(), nodeTree, sceneTree, nodeDesc);
+            addNode(rootNode.get(), nodeTree, sceneTree, nodeDesc);
             // log("addNode", nodeDesc.id);
         }
+        // https://jrouwe.github.io/JoltPhysics/class_physics_system.html#ab3cd9f2562f0f051c032b3bc298d9604
+        app()._getPhysicsSystem().OptimizeBroadPhase();
         // const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
         // log("loadScene loading time ", to_string(last_time));
-        return scene;
     }
 
     void from_json(const nlohmann::ordered_json &j, Loader::SceneNode &node) {

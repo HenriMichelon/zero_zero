@@ -20,7 +20,7 @@ export namespace z0 {
         /**
          * List of widgets events signals
          */
-        struct Event : Signal::Parameters {
+        struct Event {
             //! called after widget creation (all widgets)
             static const string OnCreate;
             //! called before widget destruction (all widgets)

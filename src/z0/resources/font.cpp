@@ -79,8 +79,8 @@ namespace z0 {
     uint32_t Font::scaleFontSize(const uint32_t baseFontSize) const {
         constexpr int baseWidth               = 1920;
         constexpr int baseHeight              = 1080;
-        const auto    newHeight               = Application::get().getWindow().getHeight();
-        const auto    newWidth                = Application::get().getWindow().getWidth();
+        const auto    newHeight               = app().getWindow().getHeight();
+        const auto    newWidth                = app().getWindow().getWidth();
         const auto    horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
         const auto    verticalScalingFactor   = static_cast<float>(newHeight) / baseHeight;
         const auto    averageScalingFactor    = (horizontalScalingFactor + verticalScalingFactor) / 2.0f;

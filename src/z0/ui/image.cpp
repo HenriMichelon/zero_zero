@@ -21,7 +21,7 @@ namespace z0 {
         }
 
         void Image::autoResize() {
-            const auto& ratio = Application::get().getVectorRatio();
+            const auto& ratio = app().getVectorRatio();
             setSize(round(image->getWidth() / ratio.x), round(image->getHeight() / ratio.y));
         }
 

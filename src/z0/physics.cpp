@@ -66,7 +66,9 @@ namespace z0 {
                 .object = node2
             };
             // log("ContactListener::emit 1", signal, node1->getName(), node2->getName());
-            node1->_emitDeferred(signal, &event1);
+            app().callDeferred([this, signal, node1, event1]{
+               node1->emit(signal, (void*)&event1);
+            });
         }
         const auto pos2 = inManifold.GetWorldSpaceContactPointOn1(0);
         auto event2 = CollisionObject::Collision {
@@ -75,7 +77,9 @@ namespace z0 {
             .object = node1
         };
         // log("ContactListener::emit 2", signal, node1->getName(), node2->getName());
-        node2->_emitDeferred(signal, &event2);
+        app().callDeferred([this, signal, node2, event2]{
+           node2->emit(signal, (void*)&event2);
+        });
     }
 
     bool ObjectLayerPairFilterImpl::ShouldCollide(const JPH::ObjectLayer inObject1,

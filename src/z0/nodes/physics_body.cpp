@@ -80,27 +80,27 @@ namespace z0 {
             // we must have at least a class name
             if (parts.size() > 0) {
                 if (parts.at(0) == "ConvexHullShape") {
-                    if (parts.size() > 2) { die("Missing parameter for ConvexHullShape for", name); }
+                    if (parts.size() > 2) { die("Missing parameter for ConvexHullShape for", getName()); }
                     // get the children who provide the mesh for the shape
                     const auto mesh = getChild(parts[1].data());
-                    if (mesh == nullptr) { die("Child with path", parts[1].data(), "not found in", name); }
-                    if (mesh->getType() != MESH_INSTANCE) { die("Child with path", parts[1].data(), "not a MeshInstance in", name); }
-                    setShape(make_shared<ConvexHullShape>(mesh, name));
+                    if (mesh == nullptr) { die("Child with path", parts[1].data(), "not found in", getName()); }
+                    if (mesh->getType() != MESH_INSTANCE) { die("Child with path", parts[1].data(), "not a MeshInstance in", getName()); }
+                    setShape(make_shared<ConvexHullShape>(mesh, getName()));
                 } else if (parts.at(0) == "BoxShape") {
-                    if (parts.size() < 2) { die("Missing parameter for BoxShape for", name); }
-                    setShape(make_shared<BoxShape>(to_vec3(parts[1].data()), name));
+                    if (parts.size() < 2) { die("Missing parameter for BoxShape for", getName()); }
+                    setShape(make_shared<BoxShape>(to_vec3(parts[1].data()), getName()));
                 } else if (parts.at(0) == "SphereShape") {
-                    if (parts.size() < 2) { die("Missing parameter for SphereShape for", name); }
-                    setShape(make_shared<SphereShape>(stof(parts[1].data()), name));
+                    if (parts.size() < 2) { die("Missing parameter for SphereShape for", getName()); }
+                    setShape(make_shared<SphereShape>(stof(parts[1].data()), getName()));
                 } else if (parts.at(0) == "CylinderShape") {
-                    if (parts.size() < 3) { die("Missing parameter for CylinderShape for", name); }
-                    setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), name));
+                    if (parts.size() < 3) { die("Missing parameter for CylinderShape for", getName()); }
+                    setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), getName()));
                 } else if (parts.at(0) == "MeshShape") {
                     setShape(make_shared<MeshShape>(*this));
                 } else if (parts.at(0) == "AABBShape") {
                     setShape(make_shared<AABBShape>(*this));
                 } else {
-                    die("PhysicsBody : missing or invalid shape for ", name);
+                    die("PhysicsBody : missing or invalid shape for ", getName());
                 }
             }
         }

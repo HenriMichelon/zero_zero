@@ -52,7 +52,7 @@ namespace z0 {
                                                        pos,
                                                        rot,
                                                        reinterpret_cast<uint64>(this),
-                                                       &Application::get()._getPhysicsSystem());
+                                                       &app()._getPhysicsSystem());
         setCollisionLayer(collisionLayer);
         virtualCharacter->SetListener(this);
     }
@@ -108,12 +108,12 @@ namespace z0 {
     void Character::_physicsUpdate(const float delta) {
         Node::_physicsUpdate(delta);
         virtualCharacter->Update(delta,
-              virtualCharacter->GetUp() * Application::get()._getPhysicsSystem().GetGravity().Length(),
+              virtualCharacter->GetUp() * app()._getPhysicsSystem().GetGravity().Length(),
               *this,
               *objectLayerFilter,
               *this,
               {},
-              *Application::get()._getTempAllocator().get());
+              *app()._getTempAllocator().get());
     }
 
     void Character::_update(const float alpha) {
@@ -146,7 +146,9 @@ namespace z0 {
             .object = node
         };
         // log("Character::OnContactAdded", on_collision, node->getName());
-        this->_emitDeferred(on_collision, &event);
+        app().callDeferred([this, event]{
+            this->emit(on_collision, (void*)&event);
+        });
     }
 
     bool Character::OnContactValidate(const JPH::CharacterVirtual *  inCharacter,
@@ -177,7 +179,7 @@ namespace z0 {
     void Character::setCollisionLayer(const uint32_t layer) {
         collisionLayer = layer;
         objectLayerFilter = make_unique<JPH::DefaultObjectLayerFilter>(
-            Application::get()._getObjectLayerPairFilter(),
+            app()._getObjectLayerPairFilter(),
             collisionLayer);
     }
 
@@ -195,7 +197,7 @@ namespace z0 {
     }
 
     void Character::setVisible(const bool visible) {
-        if (visible != this->visible && visible) {
+        if (visible != isVisible() && visible) {
             setPositionAndRotation();
         }
         Node::setVisible(visible);

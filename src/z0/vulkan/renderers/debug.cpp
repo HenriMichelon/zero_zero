@@ -124,7 +124,7 @@ namespace z0 {
 
     void DebugRenderer::update(const uint32_t currentFrame) {
         const auto& frame = frameData.at(currentFrame);
-        if (!frame.currentCamera || !Application::get().getDisplayDebug()) { return; }
+        if (!frame.currentCamera || !app().getDisplayDebug()) { return; }
         // Destroy the previous buffer when we are sure they aren't used by another frame
         oldBuffers.clear();
         if (!linesVertices.empty() || !triangleVertices.empty()) {
@@ -168,7 +168,7 @@ namespace z0 {
     }
 
     void DebugRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if ((!frameData.at(currentFrame).currentCamera) || !Application::get().getDisplayDebug() || (vertexCount == 0)) { return; }
+        if ((!frameData.at(currentFrame).currentCamera) || !app().getDisplayDebug() || (vertexCount == 0)) { return; }
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         vkCmdSetVertexInputEXT(commandBuffer,

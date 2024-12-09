@@ -83,7 +83,7 @@ namespace z0 {
         return newImage;
     }
 
-    shared_ptr<Node> GlTF::load(const string &filepath) {
+    void GlTF::load(const shared_ptr<Node>&rootNode, const string &filepath) {
         // auto tStart = std::chrono::high_resolution_clock::now();
         auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
@@ -469,7 +469,6 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        auto rootNode = make_shared<Node>(filepath);
         for (const auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 rootNode->addChild(node);
@@ -478,7 +477,6 @@ namespace z0 {
 
         // auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         // log("glTF loading time ", to_string(last_time));
-        return rootNode;
     }
 
 } // namespace z0

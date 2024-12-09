@@ -36,7 +36,7 @@ namespace z0 {
 
         void Text::getSize(float& width, float& height) {
             getFont().getSize(text, width, height);
-            const auto& ratio = Application::get().getVectorRatio();
+            const auto& ratio = app().getVectorRatio();
             width = roundf(width / ratio.x);
             height = roundf(height / ratio.y);
         }

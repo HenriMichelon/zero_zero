@@ -20,7 +20,7 @@ import z0.vulkan.Device;
 
 export namespace z0 {
 
-    /**
+    /*
      * ZRes binary file format containing resources for a scene : meshes, materials, textures and images.<br>
      * It can also be used as a complete scene file since it contains a node tree.<br>
      * This file format is adapted to ZeroZero and have the following advantages :<br>
@@ -256,15 +256,15 @@ export namespace z0 {
             // + keyCount * variant<vec3, quat> keyValue
         };
 
-        /**
-         * Load a scene from a ZRes file and return the root node
+        /*
+         * Load a scene from a ZRes file
          */
-        [[nodiscard]] static shared_ptr<Node> load(const string &filename);
+        [[nodiscard]] static void load(const shared_ptr<Node>& rootNode, const string &filename);
 
-        /**
-         * Load a scene from a ZRes data stream and return the root node
+        /*
+         * Load a scene from a ZRes data stream
          */
-        [[nodiscard]] static shared_ptr<Node> load(ifstream &stream);
+        [[nodiscard]] static void load(const shared_ptr<Node>& rootNode, ifstream &stream);
 
         ZRes() = default;
 
@@ -281,7 +281,7 @@ export namespace z0 {
         Header header{};
         vector<shared_ptr<Texture>>  textures{};
 
-        shared_ptr<Node> loadScene(ifstream& stream);
+        void loadScene(const shared_ptr<Node>& rootNode, ifstream& stream);
 
         void loadImagesAndTextures(
             const Device& device,

@@ -26,7 +26,7 @@ export namespace z0 {
         /**
          * Signal playback parameters
          */
-        struct Playback : Signal::Parameters {
+        struct Playback {
             //! The animation name
             string animationName;
         };

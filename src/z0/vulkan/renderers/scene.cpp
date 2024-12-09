@@ -121,7 +121,7 @@ namespace z0 {
     }
 
     void SceneRenderer::preUpdateScene(const uint32_t currentFrame) {
-        for (const auto &material : Application::get().getOutlineMaterials().getAll()) {
+        for (const auto &material : app().getOutlineMaterials().getAll()) {
             if (!frameData[currentFrame].materialsIndices.contains(material->getId())) {
                 addMaterial(material, currentFrame);
                 descriptorSetNeedUpdate = true;
@@ -184,7 +184,7 @@ namespace z0 {
             camera->getFarDistance()
         };
         createOrUpdateResources(true, &pushConstantRange);
-        for (const auto &material : Application::get().getOutlineMaterials().getAll()) {
+        for (const auto &material : app().getOutlineMaterials().getAll()) {
             loadShadersMaterials(material, currentFrame);
         }
         for (const auto &pair : shadowMapRenderers) {

@@ -162,11 +162,6 @@ namespace z0 {
         if (doDeferredUpdates) {
             processDeferredUpdates(currentFrame);
         }
-        // https://jrouwe.github.io/JoltPhysics/class_physics_system.html#ab3cd9f2562f0f051c032b3bc298d9604
-        if (optimizeBroadPhaseNeeded) {
-            physicsSystem.OptimizeBroadPhase();
-            optimizeBroadPhaseNeeded = false;
-        }
         // Physics events & others deferred calls
         if (!deferredCalls.empty()) {
             ranges::for_each(deferredCalls, [](const function<void()> &call) { call(); });

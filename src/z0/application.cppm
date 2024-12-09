@@ -16,10 +16,10 @@ module;
 export module z0.Application;
 
 import z0.Constants;
-import z0.Object;
 import z0.ApplicationConfig;
 import z0.InputEvent;
 import z0.Physics;
+import z0.Signal;
 import z0.Tools;
 import z0.Window;
 
@@ -37,7 +37,7 @@ namespace z0 {
      * Global application.<br>
      * Automatically instantiated by the `Z0_APP(CONFIG, ROOTNODE)` macro.<br>
      */
-    export class Application : public Object {
+    export class Application {
     public:
         static constexpr uint32_t MAX_ASYNC_CALLS = 3;
 
@@ -224,7 +224,6 @@ namespace z0 {
         ObjectLayerPairFilterImpl            object_vs_object_layer_filter;
         unique_ptr<JPH::TempAllocatorImpl>   temp_allocator;
         unique_ptr<JPH::JobSystemThreadPool> job_system;
-        bool                                 optimizeBroadPhaseNeeded{false};
 
         // Called on startup and after each root node change
         void start();
@@ -332,8 +331,6 @@ namespace z0 {
         // Remove a node from the current scene
         void _removeNode(const shared_ptr<Node> &node);
 
-        inline void _setOptimizeBroadPhase() { optimizeBroadPhaseNeeded = true; };
-
         void _lockDeferredUpdate();
 
         void _unlockDeferredUpdate();
@@ -345,6 +342,9 @@ namespace z0 {
 
         Application &operator=(const Application &) = delete;
 
-        ~Application() override;
+        virtual ~Application();
     };
+
+    export inline Application& app() { return Application::get(); }
+
 }

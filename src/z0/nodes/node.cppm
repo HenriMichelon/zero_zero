@@ -501,19 +501,19 @@ import z0.Tween;
         inline bool isInsideTree() const { return addedToScene; }
 
     protected:
-        Type                   type;
-        string                 name;
-        Node *                 parent{nullptr};
-        list<shared_ptr<Node>> children;
-        mat4                   localTransform{};
-        mat4                   worldTransform{};
-        bool                   visible{true};
+        mat4 localTransform{};
+        mat4 worldTransform{};
 
         virtual shared_ptr<Node> duplicateInstance();
 
     private:
         static id_t             currentId;
         id_t                    id;
+        Type                    type;
+        string                  name;
+        Node *                  parent{nullptr};
+        list<shared_ptr<Node>>  children;
+        bool                    visible{true};
         ProcessMode             processMode{ProcessMode::INHERIT};
         bool                    isReady{false};
         bool                    addedToScene{false};

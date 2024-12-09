@@ -439,11 +439,11 @@ namespace z0 {
     void Input::generateGamepadButtonEvent(const GamepadButton button, const bool pressed) {
         if (pressed && (!_gamepadButtonPressedStates[button])) {
             auto event = InputEventGamepadButton(button, pressed);
-            Application::get()._onInput(event);
+            app()._onInput(event);
         }
         if ((!pressed) && (_gamepadButtonPressedStates[button])) {
             auto event = InputEventGamepadButton(button, pressed);
-            Application::get()._onInput(event);
+            app()._onInput(event);
         }
         _gamepadButtonPressedStates[button] = pressed;
     }
@@ -558,12 +558,12 @@ namespace z0 {
 
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
-        auto &wnd = Application::get().getWindow();
+        auto &wnd = app().getWindow();
         PostMessage(wnd._getHandle(), WM_SETCURSOR, 0, 0);
     }
 
     void Input::setMouseMode(const MouseMode mode) {
-        auto &wnd = Application::get().getWindow();
+        auto &wnd = app().getWindow();
         MSG   msg;
         while (PeekMessageW(&msg, wnd._getHandle(), 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);

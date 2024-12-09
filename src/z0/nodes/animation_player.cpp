@@ -29,7 +29,7 @@ namespace z0 {
         const auto now = chrono::steady_clock::now();
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
-        if (animation && parent) {
+        if (animation && getParent()) {
             // cout << parent->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
@@ -44,14 +44,14 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        parent->setPosition(value.value);
+                        getParent()->setPosition(value.value);
                         break;
                     case AnimationType::ROTATION:
-                        parent->setRotation(value.value);
+                        getParent()->setRotation(value.value);
                         break;
                     case AnimationType::SCALE:
                         // cout << parent->getName() << " : " << to_string(value.value) << endl;
-                        parent->setScale(value.value);
+                        getParent()->setScale(value.value);
                         break;
                     default:
                         die("Unknown animation type");

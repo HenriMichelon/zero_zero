@@ -126,7 +126,7 @@ namespace z0 {
                 }
 #endif
                 auto &mouseEvent = dynamic_cast<InputEventMouse&>(inputEvent);
-                const auto& wnd = Application::get().getWindow();
+                const auto& wnd = app().getWindow();
                 const auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
                 const auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
                 const auto x = mouseEvent.getX() * scaleX;

@@ -64,16 +64,16 @@ namespace z0 {
             // we must have at least a class name
             if (parts.size() > 0) {
                 if (parts.at(0) == "BoxShape") {
-                    if (parts.size() < 2) { die("Missing parameter for BoxShape for", name); }
-                    setShape(make_shared<BoxShape>(to_vec3(parts[1].data()), name));
+                    if (parts.size() < 2) { die("Missing parameter for BoxShape for", getName()); }
+                    setShape(make_shared<BoxShape>(to_vec3(parts[1].data()), getName()));
                 } else if (parts.at(0) == "SphereShape") {
-                    if (parts.size() < 2) { die("Missing parameter for SphereShape for", name); }
-                    setShape(make_shared<SphereShape>(stof(parts[1].data()), name));
+                    if (parts.size() < 2) { die("Missing parameter for SphereShape for", getName()); }
+                    setShape(make_shared<SphereShape>(stof(parts[1].data()), getName()));
                 } else if (parts.at(0) == "CylinderShape") {
-                    if (parts.size() < 3) { die("Missing parameter for CylinderShape for", name); }
-                    setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), name));
+                    if (parts.size() < 3) { die("Missing parameter for CylinderShape for", getName()); }
+                    setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), getName()));
                 } else {
-                    die("CollisionArea : missing or invalid shape for ", name);
+                    die("CollisionArea : missing or invalid shape for ", getName());
                 }
             }
         }

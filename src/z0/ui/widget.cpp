@@ -152,7 +152,7 @@ namespace z0 {
         }
 
         Font& Widget::getFont() {
-            return (font ? *font : Application::get().getWindowManager().getDefaultFont());
+            return (font ? *font : app().getWindowManager().getDefaultFont());
         }
 
         void Widget::_init(Widget& WND,
@@ -177,9 +177,9 @@ namespace z0 {
             const auto it = ranges::find(children, W);
             if (it != children.end()) {
                 W->parent = nullptr;
-                for (const auto& child : W->_getChildren()) {
-                    W->remove(child);
-                }
+                // for (const auto& child : W->_getChildren()) {
+                //     W->remove(child);
+                // }
                 children.remove(W);
                 resizeChildren();
             }
@@ -633,10 +633,6 @@ namespace z0 {
 
         Widget::Type Widget::getType() const {
             return type;
-        }
-
-        shared_ptr<Widget> Widget::getParent() const {
-            return shared_ptr<Widget>(parent);
         }
 
         bool Widget::isEnabled() const {

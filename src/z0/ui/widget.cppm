@@ -172,7 +172,7 @@ namespace z0 {
             [[nodiscard]] bool isFocused() const;
 
             /** Returns the parent widget, or nullptr */
-            [[nodiscard]] shared_ptr<Widget> getParent() const;
+            inline Widget* getParent() const { return parent; }
 
             /** Adds a child widget.
                   Children widgets will be destroyed on parent destruction.

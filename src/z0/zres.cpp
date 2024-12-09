@@ -30,21 +30,20 @@ import z0.vulkan.Mesh;
 
 namespace z0 {
 
-    shared_ptr<Node> ZRes::load(const string &filename) {
+    void ZRes::load(const shared_ptr<Node>& rootNode, const string &filename) {
         auto stream = VirtualFS::openStream(filename);
-        return load(stream);
+        return load(rootNode, stream);
     }
 
-    shared_ptr<Node> ZRes::load(ifstream &stream) {
+    void ZRes::load(const shared_ptr<Node>& rootNode, ifstream &stream) {
         // auto tStart = std::chrono::high_resolution_clock::now();
-        auto zscene = make_shared<ZRes>();
-        auto rootNode = zscene->loadScene(stream);
+        ZRes loader;
+        loader.loadScene(rootNode, stream);
         // auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
         // log("ZRes loading time ", to_string(last_transcode_time));
-        return rootNode;
     }
 
-    shared_ptr<Node> ZRes::loadScene(ifstream& stream) {
+    void ZRes::loadScene(const shared_ptr<Node>& rootNode, ifstream& stream) {
         // Read the file global header
         stream.read(reinterpret_cast<istream::char_type *>(&header), sizeof(header));
         if (header.magic[0] != MAGIC[0] &&
@@ -304,7 +303,7 @@ namespace z0 {
         }
 
         // Create the Node objects
-        vector<shared_ptr<Node>> nodes{static_cast<vector<shared_ptr<Node>>::size_type>(header.nodesCount)};
+        vector<shared_ptr<Node>> nodes{(header.nodesCount)};
         for (auto nodeIndex = 0; nodeIndex < header.nodesCount; ++nodeIndex) {
             shared_ptr<Node> newNode;
             string           name{nodeHeaders[nodeIndex].name};
@@ -342,14 +341,11 @@ namespace z0 {
         }
 
         // find the top nodes, with no parents
-        auto rootNode = make_shared<Node>("ZScene");
         for (auto &node : nodes) {
             if (node->getParent() == nullptr) {
                 rootNode->addChild(node);
             }
         }
-
-        return rootNode;
     }
 
     void ZRes::print(const Header& header) {

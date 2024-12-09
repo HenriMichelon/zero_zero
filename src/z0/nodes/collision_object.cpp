@@ -32,7 +32,7 @@ namespace z0 {
         collisionLayer{layer},
         shape{_shape},
         activationMode{JPH::EActivation::Activate},
-        bodyInterface{Application::get()._getBodyInterface()} {
+        bodyInterface{app()._getBodyInterface()} {
     }
 
     CollisionObject::CollisionObject(const uint32_t layer,
@@ -41,7 +41,7 @@ namespace z0 {
         Node{name, type},
         collisionLayer{layer},
         activationMode{JPH::EActivation::Activate},
-        bodyInterface{Application::get()._getBodyInterface()} {
+        bodyInterface{app()._getBodyInterface()} {
     }
 
     void CollisionObject::releaseBodyId() {
@@ -99,7 +99,7 @@ namespace z0 {
 
     bool CollisionObject::wereInContact(const CollisionObject *obj) const {
         if (bodyId.IsInvalid()) { return false; }
-        return Application::get()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
+        return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);
     }
 
     void CollisionObject::setProperty(const string &property, const string &value) {
@@ -129,7 +129,7 @@ namespace z0 {
     }
 
     CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) {
-        return reinterpret_cast<CollisionObject *>(Application::get()._getBodyInterface().GetUserData(id));
+        return reinterpret_cast<CollisionObject *>(app()._getBodyInterface().GetUserData(id));
     }
 
     void CollisionObject::_updateTransform() {
@@ -165,7 +165,6 @@ namespace z0 {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
                 // log("_onEnterScene add", this->getName());
-                Application::get()._setOptimizeBroadPhase();
             }
             bodyInterface.SetObjectLayer(bodyId, collisionLayer);
             setPositionAndRotation();
@@ -176,7 +175,7 @@ namespace z0 {
     void CollisionObject::_onExitScene() {
         if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            // Application::get()._setOptimizeBroadPhase();
+            // app()._setOptimizeBroadPhase();
             // log("_onExitScene remove", this->getName());
         }
         Node::_onExitScene();
@@ -185,18 +184,16 @@ namespace z0 {
     void CollisionObject::_onPause() {
         if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            // Application::get()._setOptimizeBroadPhase();
             // log("_onPause remove", this->getName());
         }
     }
 
     void CollisionObject::_onResume() {
         if (isProcessed() && !bodyId.IsInvalid()) {
-            if (visible) {
+            if (isVisible()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
                     // log("_onResume add", this->getName());
-                    Application::get()._setOptimizeBroadPhase();
                 }
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer);
                 setPositionAndRotation();
@@ -205,19 +202,17 @@ namespace z0 {
     }
 
     void CollisionObject::setVisible(const bool visible) {
-        if (!bodyId.IsInvalid() && visible != this->visible) {
-            if (visible) {
+        if (!bodyId.IsInvalid() && visible != this->isVisible()) {
+            if (isVisible()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     // log("setVisible add", this->getName());
                     bodyInterface.AddBody(bodyId, activationMode);
-                    Application::get()._setOptimizeBroadPhase();
                 }
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer);
                 setPositionAndRotation();
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.RemoveBody(bodyId);
-                    // Application::get()._setOptimizeBroadPhase();
                     // log("setVisible remove", this->getName());
                 }
             }

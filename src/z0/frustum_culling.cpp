@@ -32,7 +32,7 @@ namespace z0 {
 
     Frustum::Frustum(const vec3& position, const vec3& front, const vec3& right, const vec3&up, float fovY, float zNear, float zFar) {
         const float halfVSide = zFar * tanf(radians(fovY) * .5f);
-        const float halfHSide = halfVSide *  Application::get().getAspectRatio();
+        const float halfHSide = halfVSide *  app().getAspectRatio();
         const vec3 frontMultFar = zFar * front;
 
         nearFace = { position + zNear * front, front };

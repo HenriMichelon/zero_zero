@@ -66,6 +66,25 @@ export namespace z0 {
                 Call SetLayout(nullptr) if no layout have been set previously */
             Widget &setWidget(shared_ptr<Widget>  = nullptr, const string & = "", float = 0);
 
+            /** Adds a child widget.
+                Children widgets will be destroyed on parent destruction.
+                  \param child	: child widget to add
+                  \param alignment: placement
+                  \param resource	: resource string
+                  \param defaultPadding	: default padding
+          */
+            inline shared_ptr<Widget> add(shared_ptr<Widget> child,
+                                            Widget::AlignmentType alignment,
+                                            const string & resource = "",
+                                            float          defaultPadding= 0) const {
+                return getWidget().add(child, alignment, resource, defaultPadding);
+            }
+
+            /** Removes a child widget */
+            inline void remove(shared_ptr<Widget> child) const {
+                getWidget().remove(child);
+            }
+
             /** Changes the focus */
             void setFocusedWidget(const shared_ptr<Widget> &);
 

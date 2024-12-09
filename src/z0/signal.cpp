@@ -10,18 +10,10 @@ import z0.Application;
 
 namespace z0 {
 
-    void Signal::emit(Parameters *params) const {
+    void Signal::emit(void *params) const {
         for (const auto &callable : handlers) {
             callable(params);
         }
-    }
-
-    void Signal::_emitDeferred(Parameters* params) const {
-        Application::get().callDeferred([this, params] {
-            for (const auto &callable : handlers) {
-                callable(params);
-            }
-        });
     }
 
 }

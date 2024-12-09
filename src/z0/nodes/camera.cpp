@@ -56,7 +56,7 @@ namespace z0 {
         this->fov                = fov;
         nearDistance             = near;
         farDistance              = far;
-        const auto aspect      = Application::get().getAspectRatio();
+        const auto aspect      = app().getAspectRatio();
         const auto tanHalfFovy = tan(radians(fov) / 2.f);
         projectionMatrix       = mat4{0.0f};
         projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);

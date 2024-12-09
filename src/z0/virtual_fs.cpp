@@ -170,7 +170,7 @@ namespace z0 {
     string VirtualFS::getPath(const string& filepath) {
         string filename;
         if (filepath.starts_with(APP_URI)) {
-            filename = Application::get().getConfig().appDir.string();
+            filename = app().getConfig().appDir.string();
         } else {
             die("Unknown resource type ", filepath);
         }

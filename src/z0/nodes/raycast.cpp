@@ -41,14 +41,14 @@ namespace z0 {
             JPH::Vec3{worldDirection.x, worldDirection.y, worldDirection.z}
         };
         JPH::RayCastResult result;
-        if (Application::get()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(
+        if (app()._getPhysicsSystem().GetNarrowPhaseQuery().CastRay(
                 ray,
                 result,
                 broadPhaseLayerFilter,
                 *objectLayerFilter,
                 *this)) {
             collider = reinterpret_cast<CollisionObject *>(
-                    Application::get()._getBodyInterface().GetUserData(result.mBodyID));
+                    app()._getBodyInterface().GetUserData(result.mBodyID));
             const auto posInRay = ray.GetPointOnRay(result.mFraction);
             hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
         } else {
@@ -59,7 +59,7 @@ namespace z0 {
     void RayCast::setCollisionLayer(const uint32_t layer) {
         collisionLayer = layer;
         objectLayerFilter = make_unique<JPH::DefaultObjectLayerFilter>(
-            Application::get()._getObjectLayerPairFilter(),
+            app()._getObjectLayerPairFilter(),
             collisionLayer);
     }
 
@@ -69,7 +69,7 @@ namespace z0 {
 
     bool RayCast::ShouldCollideLocked(const JPH::Body &inBody) const {
         const auto *node = reinterpret_cast<CollisionObject *>(inBody.GetUserData());
-        return (node != nullptr) && (!(excludeParent && (node == parent))) && isProcessed() && node->isProcessed();
+        return (node != nullptr) && (!(excludeParent && (node == getParent()))) && isProcessed() && node->isProcessed();
     }
 
 }

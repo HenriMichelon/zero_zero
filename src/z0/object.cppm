@@ -37,7 +37,7 @@ export namespace z0 {
          * @param name signal name
          * @param params parameters to pass to the function connected to the signal
          */
-        void emit(const Signal::signal &name, Signal::Parameters *params = nullptr);
+        void emit(const Signal::signal &name, void *params = nullptr);
 
         /**
          * Converts the objet to a readable text
@@ -55,8 +55,6 @@ export namespace z0 {
         Object(Object &&) = delete;
         Object() = default;
         virtual ~Object() = default;
-
-        void _emitDeferred(const Signal::signal &name, Signal::Parameters *params = nullptr);
 
     private:
         map<string, Signal> signals;

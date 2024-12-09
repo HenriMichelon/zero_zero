@@ -9,24 +9,19 @@ module;
 
 export module z0.Signal;
 
-export namespace z0 {
+namespace z0 {
 
     /**
      * %A signal of an Object
      */
-    class Signal {
+    export class Signal {
     public:
         using signal = string;
 
         /**
-         * Base struct for emit() parameters
-         */
-        struct Parameters {};
-
-        /**
          * Lambda expression who answer to emitted signals
          */
-        using Handler = function<void(Parameters*)>;
+        using Handler = function<void(void*)>;
 
         /**
          * Connects a member function to the signal
@@ -39,10 +34,8 @@ export namespace z0 {
          * Emits the signal by calling all the connected functions in the connect order
          * @param params parameters to pass to the function connected to the signal
          */
-        void emit(Parameters* params) const;
+        void emit(void* params) const;
 
-        void _emitDeferred(Parameters* params) const;
-        
     private:
         list<Handler> handlers;
     };

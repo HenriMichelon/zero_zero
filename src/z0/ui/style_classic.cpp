@@ -385,7 +385,7 @@ namespace z0 {
             }
             float fh, fw;
             W.getFont().getSize(W.getText(), fw, fh);
-            const auto &ratio = Application::get().getVectorRatio();
+            const auto &ratio = app().getVectorRatio();
             fw = roundf(fw / ratio.x);
             fh = roundf(fh / ratio.y);
             D.setPenColor(c2);

@@ -13,16 +13,16 @@ import z0.nodes.Node;
 
 export namespace z0 {
 
-    /**
+    /*
      * glTF scene loading
      */
     class GlTF {
     public:
-        /**
+        /*
          * Loads a glTF scene
          * @param filepath path of the (binary) glTF file, relative to the application path
          */
-        [[nodiscard]] static shared_ptr<Node> load(const string& filepath);
+        [[nodiscard]] static void load(const shared_ptr<Node>&rootNode, const string& filepath);
     };
 
 }

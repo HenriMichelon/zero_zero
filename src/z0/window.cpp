@@ -50,7 +50,7 @@ namespace z0 {
 
     void Input::resetMousePosition() {
         Window::resettingMousePosition = true;
-        auto &wnd = Application::get().getWindow();
+        auto &wnd = app().getWindow();
         SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
                          wnd._getRect().top + wnd.getHeight() / 2);
     }
@@ -60,7 +60,6 @@ namespace z0 {
         static float lastMouseX = -1.0f;
         static float lastMouseY = -1.0f;
         auto* window = reinterpret_cast<z0::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-        auto& app = Application::get();
         switch (message) {
             case WM_CREATE:
                 // Save the Window pointer passed to CreateWindowEx
@@ -81,11 +80,11 @@ namespace z0 {
                     return 0;
                 }
                 if (wParam == SC_MINIMIZE) {
-                    app._stop(true);
+                    app()._stop(true);
                     ShowWindow(hwnd, SW_MINIMIZE);
                 } else if (wParam == SC_RESTORE ) {
                     ShowWindow(hwnd, SW_RESTORE);
-                    app._stop(false);
+                    app()._stop(false);
                 }
             }
             break;
@@ -97,7 +96,7 @@ namespace z0 {
                 Input::_keyJustReleasedStates[key] = false;
                 if (Input::_keyJustPressedStates[key]) {
                     auto event = InputEventKey{key, true, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-                    app._onInput(event);
+                    app()._onInput(event);
                 }
                 break;
             }
@@ -108,7 +107,7 @@ namespace z0 {
                 Input::_keyJustPressedStates[key] = false;
                 Input::_keyJustReleasedStates[key] = true;
                 auto event = InputEventKey{key, false, static_cast<int>(lParam & 0xFFFF), _getKeyboardModifiers()};
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_LBUTTONDOWN: {
@@ -121,7 +120,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_LBUTTONUP: {
@@ -134,7 +133,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_RBUTTONDOWN: {
@@ -147,7 +146,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_RBUTTONUP: {
@@ -160,7 +159,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_MBUTTONDOWN: {
@@ -173,7 +172,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_MBUTTONUP: {
@@ -186,7 +185,7 @@ namespace z0 {
                                                        _getMouseButtonState(wParam),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_MOUSEWHEEL: {
@@ -199,7 +198,7 @@ namespace z0 {
                                                        _getMouseButtonState(GET_KEYSTATE_WPARAM(wParam)),
                                                        static_cast<float>(GET_X_LPARAM(lParam)),
                                                        static_cast<float>(window->getHeight())-GET_Y_LPARAM(lParam));
-                app._onInput(event);
+                app()._onInput(event);
                 break;
             }
             case WM_MOUSEMOVE: {
@@ -216,10 +215,10 @@ namespace z0 {
                         auto dx = xPos - lastMouseX;
                         auto dy = yPos - lastMouseY;
                         auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
-                        app._onInput(event);
+                        app()._onInput(event);
                     } else {
                         auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
-                        app._onInput(event);
+                        app()._onInput(event);
                     }
                 } else {
                     Window::resettingMousePosition = false;
@@ -273,16 +272,16 @@ namespace z0 {
             auto hInstance = GetModuleHandle(nullptr);
     #ifndef DISABLE_LOG
             _mainThreadId = GetCurrentThreadId();
-            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
+            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 createLogWindow(hInstance);
             }
-            if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
+            if (app().getConfig().loggingMode & LOGGING_MODE_FILE) {
                 _logFile = fopen("log.txt", "w");
                 if(_logFile == nullptr) {
                     die("Error opening log file");
                 }
             }
-            if (Application::get().getConfig().loggingMode != LOGGING_MODE_NONE) {
+            if (app().getConfig().loggingMode != LOGGING_MODE_NONE) {
                 log("===== START OF LOG =====");
             }
     #endif
@@ -309,8 +308,8 @@ namespace z0 {
             };
             EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
             // Adjust the monitor selection
-            if (Application::get().getConfig().windowMonitor < monitorData.enumIndex) {
-                monitorData.monitorIndex = Application::get().getConfig().windowMonitor;
+            if (app().getConfig().windowMonitor < monitorData.enumIndex) {
+                monitorData.monitorIndex = app().getConfig().windowMonitor;
             } else {
                 monitorData.monitorIndex = 0;
             }
@@ -411,10 +410,10 @@ namespace z0 {
         Window::~Window() {
             DeleteObject(background);
     #ifndef DISABLE_LOG
-            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
+            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 CloseWindow(_hwndLog);
             }
-            if (Application::get().getConfig().loggingMode & LOGGING_MODE_FILE) {
+            if (app().getConfig().loggingMode & LOGGING_MODE_FILE) {
                 fclose(_logFile);
             }
     #endif
@@ -517,7 +516,7 @@ namespace z0 {
 
         void Window::createLogWindow(const HMODULE hInstance) {
             auto monitorEnumData = MonitorEnumData {
-                .monitorIndex = Application::get().getConfig().loggingMonitor
+                .monitorIndex = app().getConfig().loggingMonitor
             };
             EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorEnumData));
 
@@ -557,7 +556,7 @@ namespace z0 {
         }
 
         void Window::_log(string msg) {
-            const auto logMode = Application::get().getConfig().loggingMode;
+            const auto logMode = app().getConfig().loggingMode;
             if (logMode == LOGGING_MODE_NONE) { return; }
             using namespace chrono;
             const auto in_time_t = system_clock::to_time_t(system_clock::now());
@@ -587,7 +586,7 @@ namespace z0 {
         }
 
         void Window::_processDeferredLog() {
-            if (Application::get().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
+            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
                 for(const auto& msg: _deferredLogMessages) {
                     SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(msg.c_str()));
                     const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);

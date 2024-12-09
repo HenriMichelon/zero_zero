@@ -45,7 +45,7 @@ namespace z0 {
 
     void RigidBody::setMass(const float value) const {
         assert(!_getBodyId().IsInvalid());
-        const JPH::BodyLockWrite lock(Application::get()._getPhysicsSystem().GetBodyLockInterface(), _getBodyId());
+        const JPH::BodyLockWrite lock(app()._getPhysicsSystem().GetBodyLockInterface(), _getBodyId());
         if (lock.Succeeded()) {
             JPH::MotionProperties *mp = lock.GetBody().GetMotionProperties();
             mp->SetInverseMass(1.0f/std::max<float>(0.01f, value));

@@ -18,11 +18,23 @@ export namespace z0 {
     class Loader {
     public:
         /**
-         * Load a JSON, glTF or ZScene file
-         * @param filepath path of the JSON/glTF/ZScene file, relative to the application path
+         * Load a JSON, glTF or ZRes file
+         * @param filepath path of the JSON/glTF/ZRes file, relative to the application path
          * @param usecache put loaded resources in the global resources cache
          */
-        [[nodiscard]] static shared_ptr<Node> load(const string& filepath, bool usecache = false);
+        template<typename T = Node>
+        [[nodiscard]] static shared_ptr<T> load(const string& filepath, bool usecache = false) {
+            if (usecache) {
+                auto lock = lock_guard(resourcesMutex);
+                if (resources.contains(filepath)) {
+                    // log("re-using resources", filepath);
+                    return dynamic_pointer_cast<T>(resources[filepath]);
+                }
+            }
+            const auto rootNode = make_shared<T>(filepath);
+            load(rootNode, filepath, usecache);
+            return rootNode;
+        }
 
         static void _cleanup();
 
@@ -49,7 +61,9 @@ export namespace z0 {
         static inline map<string, shared_ptr<Node>> resources;
         static mutex resourcesMutex;
 
-        static shared_ptr<Node> loadScene(const string &filepath);
+        [[nodiscard]] static void load(const shared_ptr<Node>&rootNode, const string& filepath, bool usecache);
+
+        static void loadScene(const shared_ptr<Node>&rootNode, const string &filepath);
 
         [[nodiscard]] static vector<SceneNode> loadSceneDescriptionFromJSON(const string &filepath);
 
