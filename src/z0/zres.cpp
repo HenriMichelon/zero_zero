@@ -36,11 +36,11 @@ namespace z0 {
     }
 
     shared_ptr<Node> ZRes::load(ifstream &stream) {
-        auto tStart = std::chrono::high_resolution_clock::now();
+        // auto tStart = std::chrono::high_resolution_clock::now();
         auto zscene = make_shared<ZRes>();
         auto rootNode = zscene->loadScene(stream);
-        auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
-        log("ZRes loading time ", to_string(last_transcode_time));
+        // auto last_transcode_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+        // log("ZRes loading time ", to_string(last_transcode_time));
         return rootNode;
     }
 

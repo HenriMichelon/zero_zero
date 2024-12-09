@@ -30,13 +30,13 @@ export namespace z0 {
          * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision<br>
          * For characters, called whenever the character collides with a body.
          */
-        static inline const Signal::signal on_collision_added = "on_collision_added";
+        static inline const Signal::signal on_collision_starts = "on_collision_starts";
 
         /**
          * Signal called whenever a contact is detected that was also detected last update and reports the first contact point in a CollisionObject::Collision<br>
          * Never called for characters since on_collision_added is called during the whole contact.
          */
-        static inline const Signal::signal on_collision_persisted = "on_collision_persisted";
+        static inline const Signal::signal on_collision_persists = "on_collision_persists";
 
         /**
          * Collision data for the CollisionObject::on_collision_starts and CollisionObject::on_collision_persists signal

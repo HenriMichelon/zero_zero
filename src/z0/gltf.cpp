@@ -84,7 +84,7 @@ namespace z0 {
     }
 
     shared_ptr<Node> GlTF::load(const string &filepath) {
-        auto tStart = std::chrono::high_resolution_clock::now();
+        // auto tStart = std::chrono::high_resolution_clock::now();
         auto &device = Device::get();
         auto getter = VirtualFS::openGltf(filepath);
         fastgltf::Parser parser{fastgltf::Extensions::KHR_materials_specular |
@@ -476,8 +476,8 @@ namespace z0 {
             }
         }
 
-        auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
-        log("glTF loading time ", to_string(last_time));
+        // auto last_time = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - tStart).count();
+        // log("glTF loading time ", to_string(last_time));
         return rootNode;
     }
 

@@ -278,7 +278,7 @@ set(GLTF2ZRES gltf2zres)
 set(GLTF2ZRES_SRC_DIR ${SRC_DIR}/tools/gltf2zres)
 set(GLTF2ZRES_INCLUDE_DIR ${GLTF2ZRES_SRC_DIR})
 add_executable(${GLTF2ZRES}
-		${GLTF2ZRES_SRC_DIR}/gltl2zres.cpp
+		${GLTF2ZRES_SRC_DIR}/gltf2zres.cpp
 		${GLTF2ZRES_SRC_DIR}/image.cpp
 		${GLTF2ZRES_SRC_DIR}/converter.cpp
 		${GLTF2ZRES_SRC_DIR}/glad/glad.c

@@ -43,9 +43,9 @@ namespace z0 {
 
         JPH::CharacterVirtualSettings settingsVirtual;
         settingsVirtual.mShape          = new JPH::CapsuleShape(height/2 - radius, radius);
-        // settingsVirtual.mInnerBodyLayer = collisionLayer;
-        // settingsVirtual.mInnerBodyShape = new JPH::CapsuleShape(height/2 - radius, radius);
-        settingsVirtual.mMaxSlopeAngle  = radians(30.0);
+        settingsVirtual.mInnerBodyLayer = collisionLayer;
+        settingsVirtual.mInnerBodyShape = new JPH::CapsuleShape(height/2 - radius, radius);
+        // settingsVirtual.mMaxSlopeAngle  = radians(25.0);
         settingsVirtual.mEnhancedInternalEdgeRemoval = true;
         settingsVirtual.mUp = JPH::Vec3{upVector.x, upVector.y, upVector.z};
         virtualCharacter = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
@@ -140,16 +140,13 @@ namespace z0 {
                                    JPH::CharacterContactSettings &ioSettings) {
         auto *node   = reinterpret_cast<CollisionObject *>(bodyInterface.GetUserData(inBodyID2));
         assert(node && "physics body not associated with a node");
-        if (!virtualCharacter->HasCollidedWith(inBodyID2)) {
-            auto event = Collision{
-                .position = vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
-                .normal = vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
-                .object = node
-            };
-            // log("Character::OnContactAdded");
-            this->_emitDeferred(on_collision_added, &event);
-            node->_emitDeferred(on_collision_added, &event);
-        }
+        auto event = Collision{
+            .position = vec3{inContactPosition.GetX(), inContactPosition.GetY(), inContactPosition.GetZ()},
+            .normal = vec3{inContactNormal.GetX(), inContactNormal.GetY(), inContactNormal.GetZ()},
+            .object = node
+        };
+        // log("Character::OnContactAdded", on_collision, node->getName());
+        this->_emitDeferred(on_collision, &event);
     }
 
     bool Character::OnContactValidate(const JPH::CharacterVirtual *  inCharacter,

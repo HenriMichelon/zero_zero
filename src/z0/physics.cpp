@@ -5,10 +5,11 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <cassert>
 #include "z0/libraries.h"
 
 module z0.Physics;
@@ -19,6 +20,7 @@ import z0.Signal;
 import z0.Tools;
 
 import z0.nodes.CollisionObject;
+import z0.nodes.Node;
 
 namespace z0 {
 
@@ -38,14 +40,14 @@ namespace z0 {
                                          const JPH::Body &inBody2,
                                          const JPH::ContactManifold &inManifold,
                                          JPH::ContactSettings &ioSettings) {
-        emit(CollisionObject::on_collision_added, inBody1, inBody2, inManifold);
+        emit(CollisionObject::on_collision_starts, inBody1, inBody2, inManifold);
     }
 
     void ContactListener::OnContactPersisted(const JPH::Body &inBody1,
                         const JPH::Body &inBody2,
                         const JPH::ContactManifold &inManifold,
                         JPH::ContactSettings &ioSettings) {
-        emit(CollisionObject::on_collision_persisted, inBody1, inBody2, inManifold);
+        emit(CollisionObject::on_collision_persists, inBody1, inBody2, inManifold);
     }
 
     void ContactListener::emit(const Signal::signal &signal,
@@ -55,19 +57,24 @@ namespace z0 {
         const auto node1 = reinterpret_cast<CollisionObject*>(body1.GetUserData());
         const auto node2 = reinterpret_cast<CollisionObject*>(body2.GetUserData());
         assert(node1 && node2 && "physics body not associated with a node");
-        const auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);
-        auto event1 = CollisionObject::Collision {
-            .position = vec3{pos1.GetX(), pos1.GetY(), pos1.GetZ()},
-            .normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
-            .object = node2
-        };
+        const auto normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()};
+        if (node1->getType() != Node::CHARACTER) {
+            const auto pos1 = inManifold.GetWorldSpaceContactPointOn2(0);
+            auto event1 = CollisionObject::Collision {
+                .position = vec3{pos1.GetX(), pos1.GetY(), pos1.GetZ()},
+                .normal = normal,
+                .object = node2
+            };
+            // log("ContactListener::emit 1", signal, node1->getName(), node2->getName());
+            node1->_emitDeferred(signal, &event1);
+        }
         const auto pos2 = inManifold.GetWorldSpaceContactPointOn1(0);
         auto event2 = CollisionObject::Collision {
             .position = vec3{pos2.GetX(), pos2.GetY(), pos2.GetZ()},
-            .normal = vec3{inManifold.mWorldSpaceNormal.GetX(), inManifold.mWorldSpaceNormal.GetY(), inManifold.mWorldSpaceNormal.GetZ()},
+            .normal = normal,
             .object = node1
         };
-        node1->_emitDeferred(signal, &event1);
+        // log("ContactListener::emit 2", signal, node1->getName(), node2->getName());
         node2->_emitDeferred(signal, &event2);
     }
 

@@ -34,7 +34,7 @@ namespace z0 {
         if (usecache) {
             auto lock = lock_guard(resourcesMutex);
             if (resources.contains(filepath)) {
-                log("re-using resources", filepath);
+                // log("re-using resources", filepath);
                 return resources[filepath];
             }
         }
@@ -147,7 +147,7 @@ namespace z0 {
     }
 
     shared_ptr<Node> Loader::loadScene(const string &filepath) {
-        const auto tStart = chrono::high_resolution_clock::now();
+        // const auto tStart = chrono::high_resolution_clock::now();
         auto scene = make_shared<Node>(filepath);
         map<string, shared_ptr<Node>> nodeTree;
         map<string, SceneNode>        sceneTree;
@@ -155,9 +155,8 @@ namespace z0 {
             addNode(scene.get(), nodeTree, sceneTree, nodeDesc);
             // log("addNode", nodeDesc.id);
         }
-        const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
-        //Application::get()._getPhysicsSystem().OptimizeBroadPhase(); // https://jrouwe.github.io/JoltPhysics/index.html#creating-bodies
-        log("loadScene loading time ", to_string(last_time));
+        // const auto last_time = chrono::duration<float, milli>(chrono::high_resolution_clock::now() - tStart).count();
+        // log("loadScene loading time ", to_string(last_time));
         return scene;
     }
 

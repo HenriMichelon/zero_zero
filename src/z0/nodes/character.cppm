@@ -12,6 +12,7 @@ module;
 export module z0.nodes.Character;
 
 import z0.Constants;
+import z0.Signal;
 
 import z0.nodes.CollisionObject;
 
@@ -27,6 +28,13 @@ export namespace z0 {
                       public JPH::BodyFilter,
                       public JPH::CharacterContactListener {
     public:
+
+
+        /**
+         * Signal called whenever the character collides with a body and reports the first contact point in a CollisionObject::Collision<br>
+         */
+        static inline const Signal::signal on_collision = "on_character_collision";
+
         /**
          * Creates a Character with a given collision `shape`,
          * belonging to the `layer` layers and detecting collisions
