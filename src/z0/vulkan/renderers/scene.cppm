@@ -74,7 +74,7 @@ namespace z0 {
 
         void postUpdateScene(uint32_t currentFrame);
 
-        void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) override;
+        void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
 
         void removingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
 
@@ -186,11 +186,11 @@ namespace z0 {
 
         struct FrameData {
             // Indices of each model data in the models uniform buffer
-            map<Node::id_t, uint32_t> modelsIndices{};
+            map<Resource::id_t, uint32_t> meshesIndices{};
             // All non-transparent models
-            list<shared_ptr<MeshInstance>> opaquesModels{};
+            map<Resource::id_t, list<shared_ptr<MeshInstance>>> opaquesModels{};
             // All transparent models
-            list<shared_ptr<MeshInstance>> transparentModels{};
+            // list<shared_ptr<MeshInstance>> transparentModels{};
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
 
@@ -258,7 +258,6 @@ namespace z0 {
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
 
-
         void update(uint32_t currentFrame) override;
 
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
@@ -287,9 +286,9 @@ namespace z0 {
 
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
-        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw);
+        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
-        void depthPrepass(VkCommandBuffer commandBuffer, uint32_t currentFrame, const list<shared_ptr<MeshInstance>> &modelsToDraw);
+        void depthPrepass(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);

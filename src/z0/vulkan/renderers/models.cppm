@@ -66,7 +66,7 @@ export namespace z0 {
         ModelsRenderer(Device &device, vec3 clearColor);
 
         // A model is currently been added to the scene, called before updating the descriptor set
-        virtual void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) {
+        virtual void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) {
         }
 
         // A model is currently been removed to the scene, called before updating the descriptor set

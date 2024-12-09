@@ -14,6 +14,6 @@ layout (location = 2) in vec2 uv;
 layout (location = 3) in vec4 tangent;
 
 void main() {
-    mat4 model = models.model[pushConstants.modelIndex];
+    mat4 model = models.model[pushConstants.modelIndex + gl_InstanceIndex];
     gl_Position = global.projection * global.view * model * vec4(position, 1.0);
 }

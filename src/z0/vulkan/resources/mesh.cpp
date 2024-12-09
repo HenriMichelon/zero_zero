@@ -82,20 +82,13 @@ namespace z0 {
         return attributeDescriptions;
     }
 
-    void VulkanMesh::draw(const VkCommandBuffer commandBuffer, const uint32_t firstIndex, const uint32_t count) const {
+    void VulkanMesh::bind(const VkCommandBuffer commandBuffer) const {
         assert(vertexBuffer != nullptr && indexBuffer != nullptr);
         //////// Bind vertices & indices datas to command buffer
         const VkBuffer         buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-        //////// Draw mesh
-        vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
-    }
-
-    void VulkanMesh::bindlessDraw(const VkCommandBuffer commandBuffer, const uint32_t firstIndex, const uint32_t count) const {
-        assert(vertexBuffer != nullptr && indexBuffer != nullptr);
-        vkCmdDrawIndexed(commandBuffer, count, 1, firstIndex, 0, 0);
     }
 
     void VulkanMesh::buildModel() {

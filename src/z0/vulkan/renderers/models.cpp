@@ -29,8 +29,9 @@ import z0.vulkan.Mesh;
  namespace z0 {
 
     void ModelsRenderer::addNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
+        auto& frame = frameData[currentFrame];
         if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
-            if (frameData[currentFrame].currentCamera == nullptr) {
+            if (frame.currentCamera == nullptr) {
                 activateCamera(camera, currentFrame);
                 //log("Using camera", currentCamera->toString());
             }
@@ -39,12 +40,8 @@ import z0.vulkan.Mesh;
                 if (meshInstance->getMesh()->_getMaterials().empty()) {
                     die("Models without materials are not supported");
                 }
-                const auto index = frameData[currentFrame].models.size();
-                frameData[currentFrame].models.push_back(meshInstance);
-                frameData[currentFrame].models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
-                       return *a < *b;
-                   });
-                addingModel(meshInstance, index, currentFrame);
+                frame.models.push_back(meshInstance);
+                addingModel(meshInstance, currentFrame);
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
             }

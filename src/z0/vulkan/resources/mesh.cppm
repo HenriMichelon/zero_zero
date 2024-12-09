@@ -33,11 +33,7 @@ export namespace z0 {
 
         static vector<VkVertexInputAttributeDescription2EXT> getAttributeDescription();
 
-        // Bind vertices & indexes then draw the mesh
-        void draw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
-
-        // Only send the drawing command without binding vertices & indexes
-        void bindlessDraw(VkCommandBuffer commandBuffer, uint32_t firstIndex, uint32_t count) const;
+        void bind(VkCommandBuffer commandBuffer) const;
 
         void buildModel();
 

@@ -67,7 +67,7 @@ namespace z0 {
 
     void ShadowMapRenderer::update(const uint32_t currentFrame) {
         auto& data = frameData[currentFrame];
-        if (!light->isVisible() || !data.currentCamera) { return; }
+        if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
         auto globalUBO = GlobalBuffer{};
         switch (light->getLightType()) {
             case Light::LIGHT_DIRECTIONAL: {
@@ -279,8 +279,8 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        const auto& data = frameData.at(currentFrame);
-        if (!light->isVisible() || !data.currentCamera) { return; }
+        const auto& data = frameData[currentFrame];
+        if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
         auto pushConstants = PushConstants {};
         for (int passIndex = 0; passIndex < passCount; passIndex++) {
@@ -352,12 +352,16 @@ namespace z0 {
                             0,
                             PUSHCONSTANTS_SIZE,
                             &pushConstants);
-                        if (lastMeshId == mesh->getId()) {
-                            mesh->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                        } else {
-                            mesh->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                            lastMeshId = mesh->getId();
+                        if (lastMeshId != mesh->getId()) {
+                            mesh->bind(commandBuffer);
                         }
+                        vkCmdDrawIndexed(commandBuffer,
+                           surface->indexCount,
+                           1,
+                           surface->firstVertexIndex,
+                           0,
+                           0);
+                        lastMeshId = mesh->getId();
                     }
                 }
                 modelIndex += 1;
