@@ -161,7 +161,7 @@ namespace z0 {
     }
 
     void CollisionObject::_onEnterScene() {
-        if (isProcessed() && !bodyId.IsInvalid()) {
+        if (isProcessed() && !bodyId.IsInvalid() && isVisible()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
                 // log("_onEnterScene add", this->getName());
@@ -175,14 +175,13 @@ namespace z0 {
     void CollisionObject::_onExitScene() {
         if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            // app()._setOptimizeBroadPhase();
             // log("_onExitScene remove", this->getName());
         }
         Node::_onExitScene();
     }
 
     void CollisionObject::_onPause() {
-        if (isProcessed()  && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
+        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
             // log("_onPause remove", this->getName());
         }
@@ -190,7 +189,7 @@ namespace z0 {
 
     void CollisionObject::_onResume() {
         if (isProcessed() && !bodyId.IsInvalid()) {
-            if (isVisible()) {
+            if (isVisible() && isInsideTree()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
                     // log("_onResume add", this->getName());
@@ -203,7 +202,7 @@ namespace z0 {
 
     void CollisionObject::setVisible(const bool visible) {
         if (!bodyId.IsInvalid() && visible != this->isVisible()) {
-            if (isVisible()) {
+            if (isVisible() && isInsideTree()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     // log("setVisible add", this->getName());
                     bodyInterface.AddBody(bodyId, activationMode);
