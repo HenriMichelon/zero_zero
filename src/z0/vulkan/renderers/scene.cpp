@@ -215,6 +215,9 @@ namespace z0 {
         //         return *a < *b;
         //     });
         // }
+        ModelsRenderer::frameData[currentFrame].models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
+            return *a < *b;
+        });
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
             if (frame.materialsRefCounter.contains(material->getId())) {
                 frameData[currentFrame].materialsRefCounter[material->getId()]++;
@@ -365,11 +368,11 @@ namespace z0 {
         auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
         uint32_t modelIndex = 0;
         for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
-            const auto meshId = meshInstance->getMesh()->getId();
-            if (!frame.meshesIndices.contains(meshId)) {
-                frame.meshesIndices[meshId] = modelIndex;
-            }
             if (meshInstance->isVisible() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
+                const auto meshId = meshInstance->getMesh()->getId();
+                if (!frame.meshesIndices.contains(meshId)) {
+                    frame.meshesIndices[meshId] = modelIndex;
+                }
                 modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
                 frame.opaquesModels[meshId].push_back(meshInstance);
                 modelIndex += 1;
