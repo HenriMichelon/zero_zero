@@ -14,13 +14,20 @@ import z0.Application;
 namespace z0 {
     namespace ui {
 
-        Image::Image(const shared_ptr<z0::Image> &image): Widget{IMAGE} {
+        Image::Image(const shared_ptr<z0::Image> &image, const bool autoSize):
+            Widget{IMAGE},
+            autoSize{autoSize} {
             setImage(image);
         }
 
         void Image::autoResize() {
             const auto& ratio = Application::get().getVectorRatio();
             setSize(round(image->getWidth() / ratio.x), round(image->getHeight() / ratio.y));
+        }
+
+        void Image::setColor(const vec4 &color) {
+            this->color = color;
+            refresh();
         }
 
         void Image::setAutoSize(const bool autoSize) {

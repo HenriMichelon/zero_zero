@@ -63,6 +63,7 @@ namespace z0 {
                 {
                     auto &pic = dynamic_cast<const Image &>(W);
                     if (pic.getImage()) {
+                        D.setPenColor(pic.getColor());
                         D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height, pic.getImage());
                     }
                 }

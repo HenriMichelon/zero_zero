@@ -187,7 +187,7 @@ namespace z0 {
                                             float          defaultPadding= 0);
 
             /** Removes a child widget */
-            virtual void remove(shared_ptr<Widget> &);
+            virtual void remove(shared_ptr<Widget>);
 
             /** Removes all children widgets recursively */
             virtual void removeAll();

@@ -173,11 +173,11 @@ namespace z0 {
             }
         }
 
-        void Widget::remove(shared_ptr<Widget>& W) {
-            auto it = std::find(children.begin(), children.end(), W);
+        void Widget::remove(shared_ptr<Widget> W) {
+            const auto it = ranges::find(children, W);
             if (it != children.end()) {
                 W->parent = nullptr;
-                for (auto& child : W->_getChildren()) {
+                for (const auto& child : W->_getChildren()) {
                     W->remove(child);
                 }
                 children.remove(W);

@@ -23,16 +23,21 @@ export namespace z0 {
          */
         class Image : public Widget {
         public:
-            explicit Image(const shared_ptr<z0::Image> &image = nullptr);
+            explicit Image(const shared_ptr<z0::Image> &image = nullptr, bool autoSize = true);
 
             void setAutoSize(bool autoSize);
+
+            void setColor(const vec4& color);
+
+            vec4 getColor() const { return color; };
 
             void setImage(const shared_ptr<z0::Image>& image);
 
             shared_ptr<z0::Image> getImage() const { return image; }
 
         private:
-            bool                  autoSize{true};
+            vec4                  color{1.0f};
+            bool                  autoSize;
             shared_ptr<z0::Image> image;
 
             void autoResize();
