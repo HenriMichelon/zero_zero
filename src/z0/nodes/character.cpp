@@ -45,7 +45,7 @@ namespace z0 {
         settingsVirtual.mShape          = new JPH::CapsuleShape(height/2 - radius, radius);
         settingsVirtual.mInnerBodyLayer = collisionLayer;
         settingsVirtual.mInnerBodyShape = new JPH::CapsuleShape(height/2 - radius, radius);
-        // settingsVirtual.mMaxSlopeAngle  = radians(25.0);
+        settingsVirtual.mMaxSlopeAngle  = radians(55.0);
         settingsVirtual.mEnhancedInternalEdgeRemoval = true;
         settingsVirtual.mUp = JPH::Vec3{upVector.x, upVector.y, upVector.z};
         virtualCharacter = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
