@@ -69,10 +69,6 @@ export namespace z0 {
         virtual void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) {
         }
 
-        // A model had been added to the scene, called after updating the descriptor set
-        virtual void addedModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) {
-        }
-
         // A model is currently been removed to the scene, called before updating the descriptor set
         virtual void removingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) {
         }

@@ -14,7 +14,7 @@ layout (location = 3) in vec4 tangent;
 layout (location = 0) out VertexOut vs_out;
 
 void vertexParameters(vec3 pos) {
-    mat4 model = models.model[pushConstants.modelIndex];
+    mat4 model = models.model[pushConstants.modelIndex + gl_InstanceIndex];
     vs_out.POSITION = pos;
     vs_out.NORMAL = normalize(mat3(transpose(inverse(model))) * normal);
     vs_out.UV = uv;

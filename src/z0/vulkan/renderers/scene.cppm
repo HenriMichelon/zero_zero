@@ -76,8 +76,6 @@ namespace z0 {
 
         void addingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t modelIndex, uint32_t currentFrame) override;
 
-        void addedModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
-
         void removingModel(const shared_ptr<MeshInstance>& meshInstance, uint32_t currentFrame) override;
 
         void loadShadersMaterials(const shared_ptr<ShaderMaterial>& material, uint32_t currentFrame);

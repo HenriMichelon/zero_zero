@@ -41,10 +41,12 @@ import z0.vulkan.Mesh;
                 }
                 const auto index = frameData[currentFrame].models.size();
                 frameData[currentFrame].models.push_back(meshInstance);
+                frameData[currentFrame].models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
+                       return *a < *b;
+                   });
                 addingModel(meshInstance, index, currentFrame);
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
-                addedModel(meshInstance, currentFrame);
             }
         } else if (const auto& viewport = dynamic_pointer_cast<Viewport>(node)) {
             frameData[currentFrame].currentViewport = viewport;
