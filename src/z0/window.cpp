@@ -46,6 +46,15 @@ namespace z0 {
         return state;
     }
 
+    bool Window::resettingMousePosition = false;
+
+    void Input::resetMousePosition() {
+        Window::resettingMousePosition = true;
+        auto &wnd = Application::get().getWindow();
+        SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
+                         wnd._getRect().top + wnd.getHeight() / 2);
+    }
+
     // Rendering Window proc
     LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static float lastMouseX = -1.0f;
@@ -202,14 +211,18 @@ namespace z0 {
                 } else if (y < 0){
                     yPos = static_cast<float>(window->getHeight());
                 }
-                if ((lastMouseX != -1) && (lastMouseY != -1)) {
-                    auto dx = xPos - lastMouseX;
-                    auto dy = yPos - lastMouseY;
-                    auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
-                    app._onInput(event);
+                if (!Window::resettingMousePosition) {
+                    if ((lastMouseX != -1) && (lastMouseY != -1)) {
+                        auto dx = xPos - lastMouseX;
+                        auto dy = yPos - lastMouseY;
+                        auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, dx, dy);
+                        app._onInput(event);
+                    } else {
+                        auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
+                        app._onInput(event);
+                    }
                 } else {
-                    auto event = InputEventMouseMotion(_getMouseButtonState(wParam), _getKeyboardModifiers(), xPos, yPos, 0, 0);
-                    app._onInput(event);
+                    Window::resettingMousePosition = false;
                 }
                 lastMouseX = xPos;
                 lastMouseY = yPos;

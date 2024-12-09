@@ -74,6 +74,7 @@ namespace z0 {
 #ifndef DISABLE_LOG
         static HWND _hwndLogList;
         static FILE* _logFile;
+        static bool resettingMousePosition;
         static void _log(string);
         static void _processDeferredLog();
 #endif

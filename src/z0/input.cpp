@@ -574,8 +574,7 @@ namespace z0 {
             ReleaseCapture();
             ClipCursor(nullptr);
             ShowCursor(TRUE);
-            SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
-                         wnd._getRect().top + wnd.getHeight() / 2);
+            resetMousePosition();
             break;
         case MouseMode::HIDDEN:
             ReleaseCapture();
@@ -583,16 +582,15 @@ namespace z0 {
             ShowCursor(FALSE);
             break;
         case MouseMode::VISIBLE_CAPTURED: {
-            auto rect = wnd._getRect();
+            const auto rect = wnd._getRect();
             SetCapture(wnd._getHandle());
             ClipCursor(&rect);
             ShowCursor(TRUE);
-            SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
-                         wnd._getRect().top + wnd.getHeight() / 2);
+            resetMousePosition();
             break;
         }
         case MouseMode::HIDDEN_CAPTURED: {
-            auto rect = wnd._getRect();
+            const auto rect = wnd._getRect();
             SetCapture(wnd._getHandle());
             ClipCursor(&rect);
             ShowCursor(FALSE);
