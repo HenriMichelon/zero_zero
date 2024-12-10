@@ -366,6 +366,7 @@ namespace z0 {
         frame.drawOutlines = false;
         frame.meshesIndices.clear();
         frame.opaquesModels.clear();
+        frame.transparentModels.clear();
         auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
         uint32_t modelIndex = 0;
         for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
