@@ -29,8 +29,14 @@ namespace z0 {
                 const string & name, const ImageFormat format) {
         return make_shared<VulkanImage>(
             device,
-            name, width, height, imageSize, data,
-            format == ImageFormat::R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM);
+            name,
+            width, height,
+            imageSize, data,
+            format == ImageFormat::R8G8B8A8_SRGB ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_SAMPLER_ADDRESS_MODE_REPEAT,
+            VK_FILTER_LINEAR,
+            true);
     }
 
     unordered_map<DXGI_FORMAT, VkFormat> dxgiToVulkanFormat = {
