@@ -193,6 +193,7 @@ namespace z0 {
             // list<shared_ptr<MeshInstance>> transparentModels{};
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
+            bool drawOutlines{false};
 
             // All materials used in the scene, used to update the buffer in GPU memory
             list<shared_ptr<Material>> materials;
@@ -287,6 +288,8 @@ namespace z0 {
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
         void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+
+        void drawOutlines(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         void depthPrepass(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 

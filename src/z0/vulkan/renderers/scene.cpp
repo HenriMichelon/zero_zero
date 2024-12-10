@@ -363,6 +363,7 @@ namespace z0 {
         }
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
 
+        frame.drawOutlines = false;
         frame.meshesIndices.clear();
         frame.opaquesModels.clear();
         auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
@@ -373,6 +374,7 @@ namespace z0 {
                 if (!frame.meshesIndices.contains(meshId)) {
                     frame.meshesIndices[meshId] = modelIndex;
                 }
+                frame.drawOutlines |= meshInstance->isOutlined();
                 modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
                 frame.opaquesModels[meshId].push_back(meshInstance);
                 modelIndex += 1;
@@ -431,16 +433,21 @@ namespace z0 {
     void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
         setInitialState(commandBuffer, currentFrame);
         if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return;}
+        const auto& frame = frameData[currentFrame];
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
-            drawModels(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels);
+            if (frame.drawOutlines) {
+                vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+                drawOutlines(commandBuffer, currentFrame, frame.opaquesModels);
+            }
+            vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
+            drawModels(commandBuffer, currentFrame, frame.opaquesModels);
             // if (!frameData[currentFrame].transparentModels.empty()) {
             //     vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            //     drawModels(commandBuffer, currentFrame, frameData[currentFrame].transparentModels);
+            //     drawModels(commandBuffer, currentFrame, frame.transparentModels);
             // }
         }
         if (frameData[currentFrame].skyboxRenderer != nullptr) {
@@ -770,38 +777,6 @@ namespace z0 {
             const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
             mesh->bind(commandBuffer);
             for (const auto &surface : mesh->getSurfaces()) {
-                // if (meshInstance->isOutlined()) {
-                //     const auto &material = meshInstance->getOutlineMaterial();
-                //     vkCmdBindShadersEXT(commandBuffer,
-                //                         1,
-                //                         frame.materialShaders[material->getVertFileName()]->getStage(),
-                //                         frame.materialShaders[material->getVertFileName()]->getShader());
-                //     vkCmdBindShadersEXT(commandBuffer,
-                //                         1,
-                //                         frame.materialShaders[material->getFragFileName()]->getStage(),
-                //                         frame.materialShaders[material->getFragFileName()]->getShader());
-                //     vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-                //     auto pushConstants = PushConstants {
-                //         .modelIndex = static_cast<int>(modelIndex),
-                //         .materialIndex = frame.materialsIndices[material->getId()]
-                //     };
-                //     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
-                //                         0, PUSHCONSTANTS_SIZE, &pushConstants);
-                //     if (lastMeshId == model->getId()) {
-                //         model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                //     } else {
-                //         model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                //         lastMeshId = model->getId();
-                //     }
-                //     vkCmdSetCullMode(commandBuffer,
-                //                     lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
-                //                             : lastCullMode == CullMode::BACK
-                //                             ? VK_CULL_MODE_BACK_BIT
-                //                             : VK_CULL_MODE_FRONT_BIT);
-                //     vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                //     vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
-                // }
-
                 if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
                     if (!shaderMaterial->getFragFileName().empty()) {
                         Shader *material = frame.materialShaders[shaderMaterial->getFragFileName()].get();
@@ -845,7 +820,65 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::depthPrepass(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+
+    void SceneRenderer::drawOutlines(const VkCommandBuffer commandBuffer,
+                                      const uint32_t currentFrame,
+                                      const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+        auto &frame = frameData[currentFrame];
+        const auto& defaultMaterial = app().getOutlineMaterials().getAll().front();
+        if (!defaultMaterial) { return; }
+        shared_ptr<ShaderMaterial> previousMaterial;
+        for (const auto &modelByMesh : modelsToDraw) {
+            auto modelIndex = frame.meshesIndices[modelByMesh.first];
+            const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
+            mesh->bind(commandBuffer);
+            for (const auto &meshInstance : modelByMesh.second) {
+                if (meshInstance->isOutlined()) {
+                    auto material = meshInstance->getOutlineMaterial();
+                    if (!material) { material = defaultMaterial; }
+                    if (previousMaterial != material) {
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            frame.materialShaders[material->getVertFileName()]->getStage(),
+                                            frame.materialShaders[material->getVertFileName()]->getShader());
+                        vkCmdBindShadersEXT(commandBuffer,
+                                            1,
+                                            frame.materialShaders[material->getFragFileName()]->getStage(),
+                                            frame.materialShaders[material->getFragFileName()]->getShader());
+                        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
+                        previousMaterial = material;
+                    }
+
+                    for (const auto &surface : mesh->getSurfaces()) {
+                        auto pushConstants = PushConstants {
+                            .modelIndex = static_cast<int>(modelIndex),
+                            .materialIndex = frame.materialsIndices[material->getId()]
+                        };
+                        vkCmdPushConstants(commandBuffer,
+                            pipelineLayout,
+                            VK_SHADER_STAGE_ALL_GRAPHICS,
+                            0,
+                            PUSHCONSTANTS_SIZE,
+                            &pushConstants);
+                        vkCmdDrawIndexed(commandBuffer,
+                           surface->indexCount,
+                           1,
+                           surface->firstVertexIndex,
+                           0,
+                           0);
+                    }
+                }
+                modelIndex += 1;
+            }
+        }
+        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+    }
+
+    void SceneRenderer::depthPrepass(const VkCommandBuffer commandBuffer,
+                                     const uint32_t currentFrame,
+                                     const map<Resource::id_t,
+                                     list<shared_ptr<MeshInstance>>> &modelsToDraw) {
         Device::transitionImageLayout(commandBuffer,
                                       ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
@@ -903,37 +936,6 @@ namespace z0 {
                 const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
                 mesh->bind(commandBuffer);
                 for (const auto &surface : mesh->getSurfaces()) {
-                    // if (meshInstance->isOutlined()) {
-                    //     const auto &material = meshInstance->getOutlineMaterial();
-                    //     vkCmdBindShadersEXT(commandBuffer,
-                    //                         1,
-                    //                         frame.materialShaders[material->getVertFileName()]->getStage(),
-                    //                         frame.materialShaders[material->getVertFileName()]->getShader());
-                    //     vkCmdBindShadersEXT(commandBuffer,
-                    //                         1,
-                    //                         frame.materialShaders[material->getFragFileName()]->getStage(),
-                    //                         frame.materialShaders[material->getFragFileName()]->getShader());
-                    //     vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-                    //     auto pushConstants = PushConstants {
-                    //         .modelIndex = static_cast<int>(modelIndex),
-                    //         .materialIndex = frame.materialsIndices[material->getId()]
-                    //     };
-                    //     vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
-                    //                         0, PUSHCONSTANTS_SIZE, &pushConstants);
-                    //     if (lastMeshId == model->getId()) {
-                    //         model->bindlessDraw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    //     } else {
-                    //         model->draw(commandBuffer, surface->firstVertexIndex, surface->indexCount);
-                    //         lastMeshId = model->getId();
-                    //     }
-                    //     vkCmdSetCullMode(commandBuffer,
-                    //                     lastCullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
-                    //                             : lastCullMode == CullMode::BACK
-                    //                             ? VK_CULL_MODE_BACK_BIT
-                    //                             : VK_CULL_MODE_FRONT_BIT);
-                    //     vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                    //     vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
-                    // }
                     const auto cullMode = surface->material->getCullMode();
                     vkCmdSetCullMode(commandBuffer,
                          cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE

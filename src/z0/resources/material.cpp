@@ -114,7 +114,7 @@ namespace z0 {
 
     OutlineMaterials::OutlineMaterials() {
         const auto outlineMaterial = make_shared<ShaderMaterial>("outline.frag", "outline.vert");
-        outlineMaterial->setParameter(0, {0.0f, 0.0f, 0.0f, 1.0f});
+        outlineMaterial->setParameter(0, {0.58f, 0.478f, 0.086f, 1.0f});
         outlineMaterial->setParameter(1, vec4{0.01f});
         add(outlineMaterial);
     }
