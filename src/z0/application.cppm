@@ -270,11 +270,14 @@ namespace z0 {
         // If physics debug is enabled in the application config, it can be disabled at runtime
         bool displayDebug{true};
 
+
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame
             list<shared_ptr<Node>> addedNodes;
+            list<shared_ptr<Node>> addedNodesAsync;
             // Deferred list of nodes removed from the current scene, processed before each frame
             list<shared_ptr<Node>> removedNodes;
+            list<shared_ptr<Node>> removedNodesAsync;
             // Camera to activate next frame
             shared_ptr<Camera> activeCamera;
         };
@@ -326,10 +329,10 @@ namespace z0 {
         unique_ptr<JPH::TempAllocatorImpl> &_getTempAllocator() { return temp_allocator; }
 
         // Add a node to the current scene
-        void _addNode(const shared_ptr<Node> &node);
+        void _addNode(const shared_ptr<Node> &node, bool async);
 
         // Remove a node from the current scene
-        void _removeNode(const shared_ptr<Node> &node);
+        void _removeNode(const shared_ptr<Node> &node, bool async);
 
         void _lockDeferredUpdate();
 

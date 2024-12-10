@@ -260,15 +260,21 @@ import z0.Tween;
          * Adds a child node.<br>
          * Nodes can have any number of children, but a child can have only one parent.<br>
          * The node will be added to the scene at the start of the next frame.
+         * @param child the node to add
+         * @param async if `true` and the node is a tree of node they will be added in batch mode.
+         * Be careful to set the visibility of the nodes to `false`or they will appear slowly in the scene.
          */
-        bool addChild(shared_ptr<Node> child);
+        bool addChild(shared_ptr<Node> child, bool async = false);
 
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.<br>
          * Use the iterator version in a for-each loop.<br>
          * The node will be removed from the scene at the start of the next frame.
+         * @param child the node to remove
+         * @param async if `true` and the node is a tree of node they will be removed in batch mode.
+         * Be careful to set the visibility of the nodes to `false` or they will disappear slowly from the scene.
          */
-        bool removeChild(const shared_ptr<Node>& child);
+        bool removeChild(const shared_ptr<Node>& child, bool async = false);
 
         /**
          * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
@@ -277,8 +283,10 @@ import z0.Tween;
 
         /**
          * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.
+        * @param async if `true` and the nodes will be removed in batch mode.
+         * Be careful to set the visibility of the nodes to `false` or they will disappear slowly from the scene.
          */
-        void removeAllChildren();
+        void removeAllChildren(bool async = false);
 
         /**
          * Returns true if the node have this child

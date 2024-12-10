@@ -66,5 +66,7 @@ export namespace z0 {
         shared_ptr<DebugRenderer> debugRenderer;
         // Debug view config
         JPH::BodyManager::DrawSettings bodyDrawSettings{};
+
+        static constexpr auto MAX_ASYNC_NODE_OP_PER_FRAME{10};
     };
 }

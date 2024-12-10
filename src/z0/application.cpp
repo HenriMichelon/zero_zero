@@ -105,35 +105,43 @@ namespace z0 {
         log("===== END OF LOG =====");
     }
 
-    void Application::_addNode(const shared_ptr<Node> &node) {
+    void Application::_addNode(const shared_ptr<Node> &node, const bool async) {
         assert(node != nullptr);
         // log("_addNode", node->getName(), to_string(node->getId()));
         _lockDeferredUpdate();
         {
             auto lock = lock_guard(frameDataMutex);
             for (auto& frame : frameData) {
-                frame.addedNodes.push_back(node);
+                if (async) {
+                    frame.addedNodesAsync.push_back(node );
+                } else {
+                    frame.addedNodes.push_back(node );
+                }
             }
         }
         node->_onEnterScene();
         for (const auto &child : node->_getChildren()) {
-            _addNode(child);
+            _addNode(child, async);
         }
         node->_setAddedToScene(true);
         _unlockDeferredUpdate();
     }
 
-    void Application::_removeNode(const shared_ptr<Node> &node) {
+    void Application::_removeNode(const shared_ptr<Node> &node, const bool async) {
         assert(node != nullptr && node->_isAddedToScene());
         // log("_removeNode", node->getName(), to_string(node->getId()));
         _lockDeferredUpdate();
         for (auto &child : node->_getChildren()) {
-            _removeNode(child);
+            _removeNode(child, async);
         }
         {
             auto lock = lock_guard(frameDataMutex);
             for (auto& frame : frameData) {
-                frame.removedNodes.push_back(node);
+                if (async) {
+                    frame.removedNodesAsync.push_back(node);
+                } else {
+                    frame.removedNodes.push_back(node);
+                }
             }
         }
         node->_setAddedToScene(false);
@@ -223,7 +231,7 @@ namespace z0 {
         // waitForRenderingSystem();
         {
             auto lock = lock_guard(rootNodeMutex);
-            _removeNode(rootNode);
+            _removeNode(rootNode, false);
             rootNode = node;
         }
         start();
@@ -231,7 +239,7 @@ namespace z0 {
 
     void Application::start() {
         ready(rootNode);
-        _addNode(rootNode);
+        _addNode(rootNode, false);
         stopped = false;
     }
 

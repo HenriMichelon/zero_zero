@@ -119,11 +119,29 @@ namespace z0 {
                 }
                 data.removedNodes.clear();
             }
+            if (!data.removedNodesAsync.empty()) {
+                auto count = 0;
+                for (auto it = data.removedNodesAsync.begin(); it != data.removedNodesAsync.end();) {
+                    sceneRenderer->removeNode(*it, currentFrame);
+                    it = data.removedNodesAsync.erase(it);
+                    count += 1;
+                    if (count > MAX_ASYNC_NODE_OP_PER_FRAME) { break; }
+                }
+            }
             if (!data.addedNodes.empty()) {
                 for (const auto &node : data.addedNodes) {
                     sceneRenderer->addNode(node, currentFrame);
                 }
                 data.addedNodes.clear();
+            }
+            if (!data.addedNodesAsync.empty()) {
+                auto count = 0;
+                for (auto it = data.addedNodesAsync.begin(); it != data.addedNodesAsync.end();) {
+                    sceneRenderer->addNode(*it, currentFrame);
+                    it = data.addedNodesAsync.erase(it);
+                    count += 1;
+                    if (count > MAX_ASYNC_NODE_OP_PER_FRAME) { break; }
+                }
             }
             if (data.activeCamera != nullptr) {
                 sceneRenderer->activateCamera(data.activeCamera, currentFrame);

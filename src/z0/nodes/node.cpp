@@ -265,7 +265,7 @@ namespace z0 {
         _updateTransform(parentMatrix);
     }
 
-    bool Node::addChild(const shared_ptr<Node> child) {
+    bool Node::addChild(const shared_ptr<Node> child, const bool async) {
         if (haveChild(child, false)) { return false; }
         if (child->parent != nullptr) {
             die("remove child from parent first");
@@ -275,14 +275,14 @@ namespace z0 {
         child->_updateTransform(worldTransform);
         child->_onReady();
         child->visible = visible && child->visible;
-        if (addedToScene) { app()._addNode(child); }
+        if (addedToScene) { app()._addNode(child, async); }
         return true;
     }
 
-    bool Node::removeChild(const shared_ptr<Node>& node) {
+    bool Node::removeChild(const shared_ptr<Node>& node, const bool async) {
         if (!haveChild(node, false)) { return false; }
         node->parent = nullptr;
-        if (node->addedToScene) { app()._removeNode(node); }
+        if (node->addedToScene) { app()._removeNode(node, async); }
         children.remove(node);
         return true;
     }
@@ -294,10 +294,10 @@ namespace z0 {
     //     return children.erase(it);
     // }
 
-    void Node::removeAllChildren() {
+    void Node::removeAllChildren(const bool async) {
         for (const auto &node : children) {
             node->parent = nullptr;
-            if (node->addedToScene) { app()._removeNode(node); }
+            if (node->addedToScene) { app()._removeNode(node, async); }
         }
         children.clear();
     }
