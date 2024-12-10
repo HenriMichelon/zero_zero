@@ -41,8 +41,8 @@ Classic Sponza with one OmniLight:
 [Cerberus](https://sketchfab.com/3d-models/cerberusffvii-gun-model-by-andrew-maximov-d08c461f8217491892ad5dd29b436c90) with IBL :
 ![screenshot_cerberus.png](https://henrimichelon.github.io/ZeroZero/screenshot_cerberus.png)
 
-[Collision objects debug](https://henrimichelon.github.io/ZeroZero/screenshot_debug.png) :
-![screenshot_debug.png](images/screenshot_debug.png)
+[Collision objects debug](https://henrimichelon.github.io/ZeroZero/md_004_debug_renderer.html) :
+![screenshot_debug.png](https://henrimichelon.github.io/ZeroZero/screenshot_debug.png)
 
 
 Vulkan extensions and third parties dependencies used
