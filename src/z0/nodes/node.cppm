@@ -386,6 +386,23 @@ import z0.Tween;
         }
 
         /**
+         * Finds all children by group
+         */
+        template <typename T = Node>
+        [[nodiscard]] list<shared_ptr<T>> findAllChildrenByGroup(const string& groupName, const bool recursive = true) const {
+            list<shared_ptr<T>> result;
+            for (const auto &node : children) {
+                if (isInGroup(groupName)) {
+                    result.push_back(dynamic_pointer_cast<T>(node));
+                }
+                if (recursive) {
+                    result.append_range(node->template findAllChildrenByGroup<T>(groupName, true));
+                }
+            }
+            return result;
+        }
+
+        /**
          * Returns the normalized right vector
          */
         [[nodiscard]] inline vec3 getRightVector() const {  return normalize(mat3{worldTransform} * AXIS_RIGHT); }
@@ -482,7 +499,7 @@ import z0.Tween;
         /**
          * Returns true if this node has been added to the given group
          */
-        inline bool isInGroup(const string& group) { return ranges::find(groups, group) != groups.end(); }
+        inline bool isInGroup(const string& group) const { return ranges::find(groups, group) != groups.end(); }
 
         /**
          * Returns the visibility of the node.
