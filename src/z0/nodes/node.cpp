@@ -54,14 +54,12 @@ namespace z0 {
 
     vec3 Node::getRotation() const { return eulerAngles(getRotationQuaternion()); }
 
-    quat Node::getRotationQuaternion() const { return toQuat(mat3(localTransform)); }
-
-    void Node::translate(const vec3 localOffset) {
+    void Node::translate(const vec3& localOffset) {
         localTransform = glm::translate(localTransform, localOffset);
         _updateTransform();
     }
 
-    void Node::setPositionGlobal(const vec3 position) {
+    void Node::setPositionGlobal(const vec3& position) {
         if (parent == nullptr) {
             setPosition(position);
             return;
@@ -70,7 +68,7 @@ namespace z0 {
         _updateTransform();
     }
 
-    void Node::setScale(const vec3 scale) {
+    void Node::setScale(const vec3& scale) {
         vec3 old_scale, translation, skew;
         vec4 perspective;
         quat orientation;
@@ -138,11 +136,11 @@ namespace z0 {
     //     return getChild(path);
     // }
 
-    void Node::setRotation(vec3 rot) {
+    void Node::setRotation(const vec3& rot) {
         setRotation(glm::quat(rot));
     }
 
-    void Node::setRotation(const quat quater) {
+    void Node::setRotation(const quat& quater) {
         vec3 scale, translation, skew;
         vec4 perspective;
         quat orientation;

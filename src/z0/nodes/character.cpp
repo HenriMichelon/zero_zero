@@ -44,8 +44,7 @@ namespace z0 {
         JPH::CharacterVirtualSettings settingsVirtual;
         settingsVirtual.mShape          = new JPH::CapsuleShape(height/2 - radius, radius);
         settingsVirtual.mInnerBodyLayer = collisionLayer;
-        settingsVirtual.mInnerBodyShape = new JPH::CapsuleShape(height/2 - radius, radius);
-        settingsVirtual.mMaxSlopeAngle  = radians(55.0);
+        settingsVirtual.mInnerBodyShape = settingsVirtual.mShape;
         settingsVirtual.mEnhancedInternalEdgeRemoval = true;
         settingsVirtual.mUp = JPH::Vec3{upVector.x, upVector.y, upVector.z};
         virtualCharacter = make_unique<JPH::CharacterVirtual>(&settingsVirtual,
@@ -62,7 +61,7 @@ namespace z0 {
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
-    void Character::setUpVector(const vec3 vector) {
+    void Character::setUpVector(const vec3& vector) {
         upVector = vector;
         virtualCharacter->SetUp(JPH::Vec3{upVector.x, upVector.y, upVector.z});
     }
@@ -83,7 +82,7 @@ namespace z0 {
         return contacts;
     }
 
-    void Character::setVelocity(const vec3 velocity) {
+    void Character::setVelocity(const vec3& velocity) {
         if (velocity == VEC3ZERO) {
             virtualCharacter->SetLinearVelocity(JPH::Vec3::sZero());
         } else {
@@ -91,6 +90,10 @@ namespace z0 {
             const auto vel = getRotationQuaternion() * velocity;
             virtualCharacter->SetLinearVelocity(JPH::Vec3{vel.x, vel.y, vel.z});
         }
+    }
+
+    void Character::setMaxSlopeAngle(const float angle) const {
+        virtualCharacter->SetMaxSlopeAngle(radians(angle));
     }
 
     void Character::setPositionAndRotation() {

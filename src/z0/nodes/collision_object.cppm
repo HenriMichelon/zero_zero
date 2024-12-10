@@ -63,7 +63,7 @@ export namespace z0 {
         /**
          * Sets the linear velocity
          */
-        virtual void setVelocity(vec3 velocity);
+        virtual void setVelocity(const vec3& velocity);
 
         /**
          * Returns the linear velocity
@@ -73,12 +73,12 @@ export namespace z0 {
         /**
          * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
          */
-        void applyForce(vec3 force) const;
+        void applyForce(const vec3& force) const;
 
         /**
          * Add force (unit: N) at `position` for the next time step, will be reset after the next physics update
          */
-        void applyForce(vec3 force, vec3 position) const;
+        void applyForce(const vec3& force, const vec3& position) const;
 
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step

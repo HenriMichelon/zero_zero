@@ -79,7 +79,7 @@ export namespace z0 {
         /**
          * Sets the UP axis for this Character
          */
-        void setUpVector(vec3 vector);
+        void setUpVector(const vec3& vector);
 
         /**
         * Returns the list of the currently colliding bodies
@@ -89,7 +89,12 @@ export namespace z0 {
         /**
          * Moves the virtualCharacter using this velocity
          */
-        void setVelocity(vec3 velocity) override;
+        void setVelocity(const vec3& velocity) override;
+
+        /**
+         * Set the maximum angle of slope that character can still walk on (degrres)
+         */
+        void setMaxSlopeAngle(float angle) const;
 
         inline float getHeight() const { return height; }
 
@@ -136,8 +141,6 @@ export namespace z0 {
         inline bool ShouldCollide(const JPH::BroadPhaseLayer inLayer) const override {
             return true;
         }
-
-        // bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
 
         bool ShouldCollide(const JPH::BodyID &inBodyID) const override;
 

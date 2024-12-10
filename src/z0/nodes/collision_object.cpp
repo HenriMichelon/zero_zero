@@ -65,7 +65,7 @@ namespace z0 {
         }
     }
 
-    void CollisionObject::setVelocity(const vec3 velocity) {
+    void CollisionObject::setVelocity(const vec3& velocity) {
         if (bodyId.IsInvalid()) { return; }
         if (velocity == VEC3ZERO) {
             bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
@@ -82,14 +82,14 @@ namespace z0 {
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
     }
 
-    void CollisionObject::applyForce(const vec3 force) const {
+    void CollisionObject::applyForce(const vec3& force) const {
         if (bodyId.IsInvalid()) { return; }
         bodyInterface.AddForce(
                 bodyId,
                 JPH::Vec3{force.x, force.y, force.z});
     }
 
-    void CollisionObject::applyForce(const vec3 force, const vec3 position) const {
+    void CollisionObject::applyForce(const vec3& force, const vec3& position) const {
         if (bodyId.IsInvalid()) { return; }
         bodyInterface.AddForce(
                 bodyId,

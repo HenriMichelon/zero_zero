@@ -139,12 +139,12 @@ import z0.Tween;
         /**
          * Changes the node's position by the given offset vector in local space.
          */
-        void translate(vec3 localOffset);
+        void translate(const vec3& localOffset);
 
         /**
          * Sets the world space position
          */
-        virtual void setPositionGlobal(vec3 position);
+        virtual void setPositionGlobal(const vec3& position);
 
         /**
          * Returns the world space position
@@ -174,12 +174,12 @@ import z0.Tween;
         /**
          * Sets the local transformation
          */
-        void setRotation(quat quater);
+        void setRotation(const quat& quater);
 
         /**
          * Sets the local transformation
          */
-        void setRotation(vec3 rot);
+        void setRotation(const vec3& rot);
 
         /**
          * Sets the X axis rotation of the local transformation by angle in radians.
@@ -204,7 +204,7 @@ import z0.Tween;
         /**
          * Returns the rotation of the local transformation
          */
-        [[nodiscard]] quat getRotationQuaternion() const;
+        [[nodiscard]] inline quat getRotationQuaternion() const { return toQuat(mat3(localTransform)); }
 
         /**
          * Returns the X axis rotation of the local transformation
@@ -224,7 +224,7 @@ import z0.Tween;
         /**
          * Scales part of the local transformation.
          */
-        virtual void setScale(vec3 scale);
+        virtual void setScale(const vec3& scale);
 
         /**
          * Scales part of the local transformation with the same value on each axis
