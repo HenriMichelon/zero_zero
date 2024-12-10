@@ -376,8 +376,22 @@ namespace z0 {
                 }
                 frame.drawOutlines |= meshInstance->isOutlined();
                 modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
-                frame.opaquesModels[meshId].push_back(meshInstance);
                 modelIndex += 1;
+
+                auto transparent{false};
+                if (enableDepthPrepass && meshInstance->isValid()) {
+                    for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
+                        if (material->getTransparency() != Transparency::DISABLED) {
+                            transparent = true;
+                            break;
+                        }
+                    }
+                }
+                if (transparent) {
+                    frame.transparentModels[meshId].push_back(meshInstance);
+                } else {
+                    frame.opaquesModels[meshId].push_back(meshInstance);
+                }
             }
         }
         ModelsRenderer::frameData[currentFrame].modelUniformBuffer->writeToBuffer(
@@ -445,10 +459,10 @@ namespace z0 {
             }
             vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
             drawModels(commandBuffer, currentFrame, frame.opaquesModels);
-            // if (!frameData[currentFrame].transparentModels.empty()) {
-            //     vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            //     drawModels(commandBuffer, currentFrame, frame.transparentModels);
-            // }
+            if (!frameData[currentFrame].transparentModels.empty()) {
+                vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+                drawModels(commandBuffer, currentFrame, frame.transparentModels);
+            }
         }
         if (frameData[currentFrame].skyboxRenderer != nullptr) {
             frameData[currentFrame].skyboxRenderer->recordCommands(commandBuffer, currentFrame);

@@ -190,7 +190,7 @@ namespace z0 {
             // All non-transparent models
             map<Resource::id_t, list<shared_ptr<MeshInstance>>> opaquesModels{};
             // All transparent models
-            // list<shared_ptr<MeshInstance>> transparentModels{};
+            map<Resource::id_t, list<shared_ptr<MeshInstance>>> transparentModels{};
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
             bool drawOutlines{false};

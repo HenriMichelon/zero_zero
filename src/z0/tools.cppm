@@ -36,7 +36,6 @@ export namespace z0 {
 #else
         throw runtime_error(stringstream.str());
 #endif
-
     }
 
     /**
