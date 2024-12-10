@@ -786,51 +786,61 @@ namespace z0 {
                                    const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
         auto &frame = frameData[currentFrame];
         auto shadersChanged = false;
+        shared_ptr<Material> previousMaterial{};
+        auto previousCullMode{CullMode::DISABLED};
+        vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
         for (const auto &modelByMesh : modelsToDraw) {
             const auto &modelIndex = frame.meshesIndices[modelByMesh.first];
             const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
             mesh->bind(commandBuffer);
             for (const auto &surface : mesh->getSurfaces()) {
-                if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
-                    if (!shaderMaterial->getFragFileName().empty()) {
-                        Shader *material = frame.materialShaders[shaderMaterial->getFragFileName()].get();
-                        vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
-                        shadersChanged = true;
+                if (previousMaterial != surface->material) {
+                    previousMaterial = surface->material;
+
+                    if (const auto shaderMaterial = dynamic_cast<ShaderMaterial *>(surface->material.get())) {
+                        if (!shaderMaterial->getFragFileName().empty()) {
+                            Shader *material = frame.materialShaders[shaderMaterial->getFragFileName()].get();
+                            vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
+                            shadersChanged = true;
+                        }
+                        if (!shaderMaterial->getVertFileName().empty()) {
+                            Shader *material = frame.materialShaders[shaderMaterial->getVertFileName()].get();
+                            vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
+                            shadersChanged = true;
+                        }
+                    } else if (shadersChanged) {
+                        vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
+                        vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
+                        shadersChanged = false;
                     }
-                    if (!shaderMaterial->getVertFileName().empty()) {
-                        Shader *material = frame.materialShaders[shaderMaterial->getVertFileName()].get();
-                        vkCmdBindShadersEXT(commandBuffer, 1, material->getStage(), material->getShader());
-                        shadersChanged = true;
+
+                    const auto cullMode = surface->material->getCullMode();
+                    if (previousCullMode != cullMode) {
+                        previousCullMode = cullMode;
+                        vkCmdSetCullMode(commandBuffer,
+                                         cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                                 : cullMode == CullMode::BACK
+                                                 ? VK_CULL_MODE_BACK_BIT
+                                                 : VK_CULL_MODE_FRONT_BIT);
                     }
+                    auto pushConstants = PushConstants {
+                        .modelIndex = static_cast<int>(modelIndex),
+                        .materialIndex = frame.materialsIndices[surface->material->getId()]
+                    };
+                    vkCmdPushConstants(commandBuffer,
+                        pipelineLayout,
+                        VK_SHADER_STAGE_ALL_GRAPHICS,
+                        0,
+                        PUSHCONSTANTS_SIZE,
+                        &pushConstants);
                 }
-                const auto cullMode = surface->material->getCullMode();
-                vkCmdSetCullMode(commandBuffer,
-                                 cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
-                                         : cullMode == CullMode::BACK
-                                         ? VK_CULL_MODE_BACK_BIT
-                                         : VK_CULL_MODE_FRONT_BIT);
-                auto pushConstants = PushConstants {
-                    .modelIndex = static_cast<int>(modelIndex),
-                    .materialIndex = frame.materialsIndices[surface->material->getId()]
-                };
-                vkCmdPushConstants(commandBuffer,
-                    pipelineLayout,
-                    VK_SHADER_STAGE_ALL_GRAPHICS,
-                    0,
-                    PUSHCONSTANTS_SIZE,
-                    &pushConstants);
                 vkCmdDrawIndexed(commandBuffer,
                     surface->indexCount,
                     modelByMesh.second.size(),
                     surface->firstVertexIndex,
                     0,
                     0);
-                if (shadersChanged) {
-                    vkCmdBindShadersEXT(commandBuffer, 1, vertShader->getStage(), vertShader->getShader());
-                    vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
-                    shadersChanged = false;
-                }
             }
         }
     }
@@ -849,6 +859,7 @@ namespace z0 {
             mesh->bind(commandBuffer);
             for (const auto &meshInstance : modelByMesh.second) {
                 if (meshInstance->isOutlined()) {
+
                     auto material = meshInstance->getOutlineMaterial();
                     if (!material) { material = defaultMaterial; }
                     if (previousMaterial != material) {
@@ -864,17 +875,18 @@ namespace z0 {
                         previousMaterial = material;
                     }
 
+                    auto pushConstants = PushConstants {
+                        .modelIndex = static_cast<int>(modelIndex),
+                        .materialIndex = frame.materialsIndices[material->getId()]
+                    };
+                    vkCmdPushConstants(commandBuffer,
+                        pipelineLayout,
+                        VK_SHADER_STAGE_ALL_GRAPHICS,
+                        0,
+                        PUSHCONSTANTS_SIZE,
+                        &pushConstants);
+
                     for (const auto &surface : mesh->getSurfaces()) {
-                        auto pushConstants = PushConstants {
-                            .modelIndex = static_cast<int>(modelIndex),
-                            .materialIndex = frame.materialsIndices[material->getId()]
-                        };
-                        vkCmdPushConstants(commandBuffer,
-                            pipelineLayout,
-                            VK_SHADER_STAGE_ALL_GRAPHICS,
-                            0,
-                            PUSHCONSTANTS_SIZE,
-                            &pushConstants);
                         vkCmdDrawIndexed(commandBuffer,
                            surface->indexCount,
                            1,
@@ -946,27 +958,33 @@ namespace z0 {
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
             bindDescriptorSets(commandBuffer, currentFrame);
 
+            auto previousCullMode{CullMode::DISABLED};
+            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+
             for (const auto &modelByMesh : modelsToDraw) {
                 const auto &modelIndex = frame.meshesIndices[modelByMesh.first];
                 const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
                 mesh->bind(commandBuffer);
+                auto pushConstants = PushConstants {
+                    .modelIndex = static_cast<int>(modelIndex),
+                    .materialIndex = 0
+                };
+                vkCmdPushConstants(commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_ALL_GRAPHICS,
+                    0,
+                    PUSHCONSTANTS_SIZE,
+                    &pushConstants);
                 for (const auto &surface : mesh->getSurfaces()) {
                     const auto cullMode = surface->material->getCullMode();
-                    vkCmdSetCullMode(commandBuffer,
-                         cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
-                                 : cullMode == CullMode::BACK
-                                 ? VK_CULL_MODE_BACK_BIT
-                                 : VK_CULL_MODE_FRONT_BIT);
-                    auto pushConstants = PushConstants {
-                        .modelIndex = static_cast<int>(modelIndex),
-                        .materialIndex = 0
-                    };
-                    vkCmdPushConstants(commandBuffer,
-                        pipelineLayout,
-                        VK_SHADER_STAGE_ALL_GRAPHICS,
-                        0,
-                        PUSHCONSTANTS_SIZE,
-                        &pushConstants);
+                    if (previousCullMode != cullMode) {
+                        previousCullMode = cullMode;
+                        vkCmdSetCullMode(commandBuffer,
+                             cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                     : cullMode == CullMode::BACK
+                                     ? VK_CULL_MODE_BACK_BIT
+                                     : VK_CULL_MODE_FRONT_BIT);
+                    }
                     vkCmdDrawIndexed(commandBuffer,
                        surface->indexCount,
                        modelByMesh.second.size(),
