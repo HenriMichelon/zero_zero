@@ -196,25 +196,6 @@ namespace z0 {
 
     void SceneRenderer::addingModel(const shared_ptr<MeshInstance>& meshInstance, const uint32_t currentFrame) {
         const auto & frame = frameData[currentFrame];
-        // auto transparent{false};
-        // if (enableDepthPrepass && meshInstance->isValid()) {
-        //     for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
-        //         if (material->getTransparency() != Transparency::DISABLED) {
-        //             transparent = true;
-        //             frame.transparentModels.push_back(meshInstance);
-        //              frame.transparentModels.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
-        //                  return *a < *b;
-        //              });
-        //             break;
-        //         }
-        //     }
-        // }
-        // if (!transparent) {
-        //     frame.opaquesModels.push_back(meshInstance);
-        //     frame.opaquesModels.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
-        //         return *a < *b;
-        //     });
-        // }
         ModelsRenderer::frameData[currentFrame].models.sort([](const shared_ptr<MeshInstance>&a, const shared_ptr<MeshInstance>&b) {
             return *a < *b;
         });
@@ -824,17 +805,17 @@ namespace z0 {
                                                  ? VK_CULL_MODE_BACK_BIT
                                                  : VK_CULL_MODE_FRONT_BIT);
                     }
-                    auto pushConstants = PushConstants {
-                        .modelIndex = static_cast<int>(modelIndex),
-                        .materialIndex = frame.materialsIndices[surface->material->getId()]
-                    };
-                    vkCmdPushConstants(commandBuffer,
-                        pipelineLayout,
-                        VK_SHADER_STAGE_ALL_GRAPHICS,
-                        0,
-                        PUSHCONSTANTS_SIZE,
-                        &pushConstants);
                 }
+                auto pushConstants = PushConstants {
+                    .modelIndex = static_cast<int>(modelIndex),
+                    .materialIndex = frame.materialsIndices[surface->material->getId()]
+                };
+                vkCmdPushConstants(commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_ALL_GRAPHICS,
+                    0,
+                    PUSHCONSTANTS_SIZE,
+                    &pushConstants);
                 vkCmdDrawIndexed(commandBuffer,
                     surface->indexCount,
                     modelByMesh.second.size(),
