@@ -179,7 +179,7 @@ namespace z0 {
     vector<Loader::SceneNode> Loader::loadSceneDescriptionFromJSON(const string &filepath) {
         vector<SceneNode> scene{};
         try {
-            auto jsonData = nlohmann::ordered_json::parse(VirtualFS::openStream(filepath)); // parsing using ordered_json to preserver fields order
+            auto jsonData = nlohmann::ordered_json::parse(VirtualFS::openReadStream(filepath)); // parsing using ordered_json to preserver fields order
             if (jsonData.contains("includes")) {
                 const vector<string> includes = jsonData["includes"];
                 for (const auto &include : includes) {

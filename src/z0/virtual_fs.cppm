@@ -29,7 +29,11 @@ export namespace z0 {
 
         static unique_ptr<fastgltf::GltfDataGetter> openGltf(const string& filepath);
 
-        static ifstream openStream(const string &filepath);
+        static bool fileExists(const string &filepath);
+
+        static ifstream openReadStream(const string &filepath);
+
+        static ofstream openWriteStream(const string &filepath);
 
         static FILE* openFile(const string& filepath);
 

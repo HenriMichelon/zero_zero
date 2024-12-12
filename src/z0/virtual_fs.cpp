@@ -116,10 +116,20 @@ namespace z0 {
         return make_unique<GltfFileStream>(getPath(filepath));
     }
 
-    ifstream VirtualFS::openStream(const string &filepath) {
+    ifstream VirtualFS::openReadStream(const string &filepath) {
         ifstream file(getPath(filepath), std::ios::binary);
         if (!file.is_open()) { die("Error: Could not open file ", filepath); }
         return file;
+    }
+
+    ofstream VirtualFS::openWriteStream(const string &filepath) {
+        ofstream file(getPath(filepath), std::ios::binary);
+        if (!file.is_open()) { die("Error: Could not open file ", filepath); }
+        return file;
+    }
+
+    bool VirtualFS::fileExists(const string &filepath) {
+        return std::filesystem::exists(getPath(filepath));
     }
 
     FILE* VirtualFS::openFile(const string& filepath) {

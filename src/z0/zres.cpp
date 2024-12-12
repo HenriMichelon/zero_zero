@@ -31,7 +31,7 @@ import z0.vulkan.Mesh;
 namespace z0 {
 
     void ZRes::load(const shared_ptr<Node>& rootNode, const string &filename) {
-        auto stream = VirtualFS::openStream(filename);
+        auto stream = VirtualFS::openReadStream(filename);
         return load(rootNode, stream);
     }
 

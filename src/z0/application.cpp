@@ -130,17 +130,19 @@ namespace z0 {
     void Application::_removeNode(const shared_ptr<Node> &node, const bool async) {
         assert(node != nullptr && node->_isAddedToScene());
         // log("_removeNode", node->getName(), to_string(node->getId()));
-        _lockDeferredUpdate();
-        for (auto &child : node->_getChildren()) {
-            _removeNode(child, async);
-        }
-        {
-            auto lock = lock_guard(frameDataMutex);
-            for (auto& frame : frameData) {
-                if (async) {
-                    frame.removedNodesAsync.push_back(node);
-                } else {
-                    frame.removedNodes.push_back(node);
+        if (!stopped) {
+            _lockDeferredUpdate();
+            for (auto &child : node->_getChildren()) {
+                _removeNode(child, async);
+            }
+            {
+                auto lock = lock_guard(frameDataMutex);
+                for (auto& frame : frameData) {
+                    if (async) {
+                        frame.removedNodesAsync.push_back(node);
+                    } else {
+                        frame.removedNodes.push_back(node);
+                    }
                 }
             }
         }
@@ -323,14 +325,17 @@ namespace z0 {
     }
 
     void Application::cleanup(shared_ptr<Node> &node) {
-        // assert(node != nullptr);
+        assert(node != nullptr);
+        _removeNode(node, false);
         for (auto &child : node->_getChildren()) {
             cleanup(child);
         }
         node.reset();
     }
 
-    void Application::quit() const { window->close(); }
+    void Application::quit() const {
+        window->close();
+    }
 
     void Application::_mainLoop() {
         Input::_initInput();

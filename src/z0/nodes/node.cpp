@@ -35,12 +35,17 @@ namespace z0 {
 
     Node::Node(const string &nodeName, const Type type):
         type{type},
-        name{std::move(nodeName)},
+        name{sanitizeName(nodeName)},
         id{currentId++} {
-        ranges::replace(name, '/', '_');
-        ranges::replace(name, ':', '_');
         localTransform = mat4{1.0};
         _updateTransform(mat4{1.0f});
+    }
+
+    string Node::sanitizeName(const string &name) {
+        string newName = name;
+        ranges::replace(newName, '/', '_');
+        ranges::replace(newName, ':', '_');
+        return newName;
     }
 
     vec3 Node::toGlobal(const vec3 local) const {

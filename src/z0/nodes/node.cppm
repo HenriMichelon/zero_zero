@@ -525,6 +525,8 @@ import z0.Tween;
          */
         inline bool isInsideTree() const { return addedToScene; }
 
+        static string sanitizeName(const string &name);
+
     protected:
         mat4 localTransform{};
         mat4 worldTransform{};
