@@ -437,6 +437,7 @@ namespace z0 {
             vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
             drawModels(currentFrame, frame.opaquesModels);
             if (!frameData[currentFrame].transparentModels.empty()) {
+                vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
                 vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
                 drawModels( currentFrame, frame.transparentModels);
             }

@@ -325,12 +325,12 @@ namespace z0 {
             commandBuffers.reserve(renderers.size());
 
             auto render = [&](const shared_ptr<Renderer>& renderer) {
-                renderer->update(currentFrame);
                 const auto &commandBuffer = renderer->getCommandBuffer(currentFrame);
                 {
                     auto lock = lock_guard(commandBuffersMutex);
                     commandBuffers.push_back(commandBuffer);
                 }
+                renderer->update(currentFrame);
                 vkResetCommandBuffer(commandBuffer, 0);
                 constexpr VkCommandBufferBeginInfo beginInfo{
                     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
