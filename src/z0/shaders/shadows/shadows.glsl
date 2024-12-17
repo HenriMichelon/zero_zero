@@ -46,7 +46,6 @@ float shadowFactorCubemap(Light light, vec3 fragPos) {
 
     // get vector between fragment position and light position
     const vec3 fragToLight = fragPos - light.position;
-    //float closestDepth = texture(shadowMapsCubemap[light.mapIndex], fragToLight).r * light.farPlane;
     const float currentDepth = length(fragToLight) - bias;
 
     // PCF

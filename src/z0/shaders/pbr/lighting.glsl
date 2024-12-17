@@ -50,7 +50,7 @@ vec3 Ambient(
     return diffuseIBL + specularIBL;
 }
 
-vec3 Radiance(const Light light,
+vec3 Radiance(
     // base color
     const vec3 albedo,
     // Fragment normal in world space
@@ -65,8 +65,6 @@ vec3 Radiance(const Light light,
     const vec3 F0,
     // Specular reflection vector.
     const float cosLo,
-    // Light attenuation by distance
-    const float attenuation,
     const float alphaSq,
     const float alphaDirectLighting
 ) {
@@ -99,17 +97,18 @@ vec3 Radiance(const Light light,
     const vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
     // Total contribution for this light.
-    return (diffuseBRDF + specularBRDF) * light.color.rgb * light.color.w * cosLi * attenuation;
+    return (diffuseBRDF + specularBRDF) * cosLi;
 }
 
 vec3 calcDirectionalLight(Light light, vec3 albedo, vec3 normal, float metallic, float roughness, vec3 viewDirection, vec3 F0, const float cosLo, const float alphaSq, const float alphaDirectLighting) {
-    return Radiance(light, albedo, normal, viewDirection,  metallic, roughness,  -light.direction, F0, cosLo, 1.0f, alphaSq, alphaDirectLighting);
+    return light.color.rgb * light.color.w * Radiance(albedo, normal, viewDirection,  metallic, roughness,  -light.direction, F0, cosLo, alphaSq, alphaDirectLighting);
 }
 
 vec3 calcPointLight(Light light, vec3 albedo, vec3 normal,float metallic, float roughness, vec3 viewDirection, vec3 fragPos, vec3 F0, const float cosLo, const float alphaSq, const float alphaDirectLighting) {
     const float attenuation = clamp(1.0 - length(light.position - fragPos)/light.range, 0.0, 1.0);
     const vec3 lightDir = normalize(light.position - fragPos);
-    const vec3 diffuse = Radiance(light, albedo, normal, viewDirection, metallic, roughness, lightDir,F0, cosLo, attenuation, alphaSq, alphaDirectLighting);
+    const vec3 diffuse = light.color.rgb * light.color.w * attenuation *
+                        Radiance(albedo, normal, viewDirection, metallic, roughness, lightDir,F0, cosLo, alphaSq, alphaDirectLighting);
     float intensity = 1.0f;
     if (light.type == LIGHT_SPOT) {
         const float theta = dot(lightDir, normalize(-light.direction));

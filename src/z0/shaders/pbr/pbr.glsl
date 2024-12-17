@@ -2,7 +2,6 @@
 // https://github.com/Nadrin/PBR/blob/master/data/shaders/glsl/pbr_fs.glsl
 const float PI = 3.1415926535897932384626433832795;
 const float Epsilon = 0.00001;
-
 // Constant normal incidence Fresnel factor for all dielectrics.
 const vec3 Fdielectric = vec3(0.04);
 

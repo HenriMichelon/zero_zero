@@ -5,6 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 #include "utils.glsl"
+
+float alphaSq;
+
 #include "pbr/lighting.glsl"
 #include "shadows/shadows.glsl"
 #extension GL_EXT_debug_printf: enable
@@ -57,6 +60,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);
         // for ndfGGX()
         const float alphaSq = roughness * roughness * roughness * roughness;
+        // Radiance()
         const float r = (roughness + 1.0);
         const float alphaDirectLighting = (r * r)  * 0.125;
         // Fresnel reflectance at normal incidence (for metals use albedo color).
