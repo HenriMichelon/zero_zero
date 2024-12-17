@@ -75,12 +75,12 @@ namespace z0 {
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass);
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
-        *device,
-        sceneRenderer->getColorAttachments(),
-        sceneRenderer->getDepthAttachments());
+            *device,
+            sceneRenderer->getColorAttachments(),
+            sceneRenderer->getDepthAttachments());
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
-            sceneRenderer->getColorAttachments());
+            tonemappingRenderer->getColorAttachments());
 
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(tonemappingRenderer);
