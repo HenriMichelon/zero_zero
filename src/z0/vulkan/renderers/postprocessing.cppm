@@ -44,7 +44,7 @@ export namespace z0 {
 
         void createDescriptorSetLayout() override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(uint32_t currentFrame) override;
 
         void createImagesResources() override;
 
@@ -52,9 +52,9 @@ export namespace z0 {
 
         void recreateImagesResources() override;
 
-        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void beginRendering(uint32_t currentFrame) override;
 
-        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
+        void endRendering(uint32_t currentFrame, bool isLast) override;
 
     protected:
         vector<shared_ptr<ColorFrameBufferHDR>> colorAttachmentHdr;

@@ -6,6 +6,7 @@
 */
 module;
 #include <volk.h>
+#include "z0/libraries.h"
 
 export module z0.vulkan.Renderer;
 
@@ -18,8 +19,8 @@ export namespace z0 {
     public:
         Renderer(Renderer&) = delete;
         Renderer(Renderer&&) = delete;
-        Renderer() = default;
-        virtual ~Renderer() = default;
+        Renderer();
+        virtual ~Renderer();
 
         // Returns the offscreen image buffer
         [[nodiscard]] virtual VkImage getImage(uint32_t currentFrame) const { return VK_NULL_HANDLE; }
@@ -34,13 +35,13 @@ export namespace z0 {
         virtual void update(uint32_t currentFrame) {};
 
         // Start rendering one frame
-        virtual void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) {};
+        virtual void beginRendering(uint32_t currentFrame) {};
 
         // Render one frame
-        virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
+        virtual void recordCommands(uint32_t currentFrame) = 0;
 
         // End rendering one frame
-        virtual void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) {};
+        virtual void endRendering(uint32_t currentFrame, bool isLast) {};
 
         // Create images, image views & buffers
         virtual void createImagesResources() {};
@@ -50,6 +51,13 @@ export namespace z0 {
 
         // Release and re-create images, image views & buffers, in needed
         virtual void recreateImagesResources() {};
+
+        inline VkCommandPool getCommandPool() const { return commandPool; }
+        inline VkCommandBuffer getCommandBuffer(uint32_t currentFrame) const { return commandBuffers[currentFrame]; }
+
+    private:
+        VkCommandPool commandPool;
+        vector<VkCommandBuffer> commandBuffers;
     };
 
 }

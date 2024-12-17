@@ -282,7 +282,8 @@ namespace z0 {
         writeUniformBuffer(data.globalBuffer, &globalUBO);
     }
 
-    void ShadowMapRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void ShadowMapRenderer::recordCommands(const uint32_t currentFrame) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         const auto& data = frameData[currentFrame];
         if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;

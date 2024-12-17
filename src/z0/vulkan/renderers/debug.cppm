@@ -114,17 +114,17 @@ namespace z0 {
         // To upload vertices to GPU
         VkCommandPool commandPool;
 
-        void update( uint32_t currentFrame) override;
+        void update(uint32_t currentFrame) override;
 
         void cleanup() override;
 
-        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void beginRendering(uint32_t currentFrame) override;
 
-        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
+        void endRendering(uint32_t currentFrame, bool isLast) override;
 
         void loadShaders() override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(uint32_t currentFrame) override;
 
         void createDescriptorSetLayout() override;
 

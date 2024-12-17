@@ -262,7 +262,7 @@ namespace z0 {
 
         void update(uint32_t currentFrame) override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(uint32_t currentFrame) override;
 
         void createDescriptorSetLayout() override;
 
@@ -276,9 +276,9 @@ namespace z0 {
 
         void recreateImagesResources() override;
 
-        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void beginRendering( uint32_t currentFrame) override;
 
-        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
+        void endRendering(uint32_t currentFrame, bool isLast) override;
 
         void addMaterial(const shared_ptr<Material> &material, uint32_t currentFrame);
 
@@ -288,11 +288,11 @@ namespace z0 {
 
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
-        void drawModels(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+        void drawModels(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
-        void drawOutlines(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+        void drawOutlines(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
-        void depthPrepass(VkCommandBuffer commandBuffer, uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+        void depthPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);

@@ -71,8 +71,6 @@ export namespace z0 {
 
         virtual void loadShaders() = 0;
 
-        virtual void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) = 0;
-
         virtual void createDescriptorSetLayout() {};
 
         virtual void createOrUpdateDescriptorSet(bool create) {}

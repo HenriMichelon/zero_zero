@@ -420,7 +420,8 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void SceneRenderer::recordCommands(const uint32_t currentFrame) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         setInitialState(commandBuffer, currentFrame);
         if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return;}
         const auto& frame = frameData[currentFrame];
@@ -431,13 +432,13 @@ namespace z0 {
             bindDescriptorSets(commandBuffer, currentFrame);
             if (frame.drawOutlines) {
                 vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-                drawOutlines(commandBuffer, currentFrame, frame.opaquesModels);
+                drawOutlines( currentFrame, frame.opaquesModels);
             }
             vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
-            drawModels(commandBuffer, currentFrame, frame.opaquesModels);
+            drawModels(currentFrame, frame.opaquesModels);
             if (!frameData[currentFrame].transparentModels.empty()) {
                 vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-                drawModels(commandBuffer, currentFrame, frame.transparentModels);
+                drawModels( currentFrame, frame.transparentModels);
             }
         }
         if (frameData[currentFrame].skyboxRenderer != nullptr) {
@@ -647,8 +648,9 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
-        if (enableDepthPrepass) { depthPrepass(commandBuffer, currentFrame, frameData[currentFrame].opaquesModels); }
+    void SceneRenderer::beginRendering(const uint32_t currentFrame) {
+        if (enableDepthPrepass) { depthPrepass(currentFrame, frameData[currentFrame].opaquesModels); }
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
                                       frameData[currentFrame].colorFrameBufferMultisampled->getImage(),
@@ -703,7 +705,8 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void SceneRenderer::endRendering(const VkCommandBuffer commandBuffer, uint32_t currentFrame, const bool isLast) {
+    void SceneRenderer::endRendering(const uint32_t currentFrame, const bool isLast) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       colorFrameBufferHdr[currentFrame]->getImage(),
@@ -756,9 +759,9 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::drawModels(const VkCommandBuffer commandBuffer,
-                                   const uint32_t currentFrame,
+    void SceneRenderer::drawModels(const uint32_t currentFrame,
                                    const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         auto &frame = frameData[currentFrame];
         auto shadersChanged = false;
         shared_ptr<Material> previousMaterial{};
@@ -821,9 +824,9 @@ namespace z0 {
     }
 
 
-    void SceneRenderer::drawOutlines(const VkCommandBuffer commandBuffer,
-                                      const uint32_t currentFrame,
+    void SceneRenderer::drawOutlines(const uint32_t currentFrame,
                                       const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         auto &frame = frameData[currentFrame];
         const auto& defaultMaterial = app().getOutlineMaterials().getAll().front();
         if (!defaultMaterial) { return; }
@@ -877,10 +880,10 @@ namespace z0 {
         vkCmdBindShadersEXT(commandBuffer, 1, fragShader->getStage(), fragShader->getShader());
     }
 
-    void SceneRenderer::depthPrepass(const VkCommandBuffer commandBuffer,
-                                     const uint32_t currentFrame,
+    void SceneRenderer::depthPrepass(const uint32_t currentFrame,
                                      const map<Resource::id_t,
                                      list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         Device::transitionImageLayout(commandBuffer,
                                       ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,

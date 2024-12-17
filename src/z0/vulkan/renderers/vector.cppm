@@ -193,9 +193,9 @@ namespace z0 {
 
         void addImage(const shared_ptr<Image> &image);
 
-        void beginRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void beginRendering(uint32_t currentFrame) override;
 
-        void endRendering(VkCommandBuffer commandBuffer, uint32_t currentFrame, bool isLast) override;
+        void endRendering( uint32_t currentFrame, bool isLast) override;
 
         void createImagesResources() override;
 
@@ -209,7 +209,7 @@ namespace z0 {
 
         void createDescriptorSetLayout() override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(uint32_t currentFrame) override;
 
         void createOrUpdateDescriptorSet(bool create) override;
     };

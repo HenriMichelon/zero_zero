@@ -217,20 +217,20 @@ namespace z0 {
 
         //////////////////// Create command pools & buffers
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Command_buffers
-        {
-            commandPool = createCommandPool();
-            for (auto& data : framesData) {
-                const VkCommandBufferAllocateInfo allocInfo{
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                    .commandPool = commandPool,
-                    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                    .commandBufferCount = 1
-                };
-                if (vkAllocateCommandBuffers(device, &allocInfo, &data.commandBuffer) != VK_SUCCESS) {
-                    die("failed to allocate command buffers!");
-                }
-            }
-        }
+        // {
+        //     commandPool = createCommandPool();
+        //     const VkCommandBufferAllocateInfo allocInfo{
+        //         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        //         .commandPool = commandPool,
+        //         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        //         .commandBufferCount = 1
+        //     };
+        //     for (auto& data : framesData) {
+        //         if (vkAllocateCommandBuffers(device, &allocInfo, &data.commandBuffer) != VK_SUCCESS) {
+        //             die("failed to allocate command buffers!");
+        //         }
+        //     }
+        // }
 
         //////////////////// Create sync objects
         {
@@ -275,7 +275,7 @@ namespace z0 {
             vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
             vkDestroyFence(device, data.inFlightFence, nullptr);
         }
-        vkDestroyCommandPool(device, commandPool, nullptr);
+        // vkDestroyCommandPool(device, commandPool, nullptr);
         cleanupSwapChain();
         vmaDestroyAllocator(allocator); // If it crashes here check for non deallocated Buffers
         vkDestroyDevice(device, nullptr);
@@ -319,66 +319,82 @@ namespace z0 {
         }
 
         {
-            vkResetCommandBuffer(data.commandBuffer, 0);
-            for (const auto &renderer : renderers) { renderer->update(currentFrame); }
-            constexpr VkCommandBufferBeginInfo beginInfo{
-                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                .flags = 0,
-                .pInheritanceInfo = nullptr
-            };
-            if (vkBeginCommandBuffer(data.commandBuffer, &beginInfo) != VK_SUCCESS) {
-                die("failed to begin recording command buffer!");
-            }
-
-            setInitialState(data.commandBuffer);
             const auto &lastRenderer = renderers.back();
+            mutex commandBuffersMutex;
+            vector<VkCommandBuffer> commandBuffers;
+            commandBuffers.reserve(renderers.size());
+
+            auto render = [&](const shared_ptr<Renderer>& renderer) {
+                renderer->update(currentFrame);
+                const auto &commandBuffer = renderer->getCommandBuffer(currentFrame);
+                {
+                    auto lock = lock_guard(commandBuffersMutex);
+                    commandBuffers.push_back(commandBuffer);
+                }
+                vkResetCommandBuffer(commandBuffer, 0);
+                constexpr VkCommandBufferBeginInfo beginInfo{
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                    .flags = 0,
+                    .pInheritanceInfo = nullptr
+                };
+                if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+                    die("failed to begin recording command buffer!");
+                }
+                setInitialState(commandBuffer);
+                renderer->beginRendering(currentFrame);
+                renderer->recordCommands(currentFrame);
+                renderer->endRendering(currentFrame, renderer == lastRenderer);
+                if (renderer == lastRenderer) {
+                    transitionImageLayout(
+                        commandBuffer,
+                        swapChainImages[data.imageIndex],
+                        VK_IMAGE_LAYOUT_UNDEFINED,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        0,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_IMAGE_ASPECT_COLOR_BIT);
+                    vkCmdBlitImage(commandBuffer,
+                       lastRenderer->getImage(currentFrame),
+                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                       swapChainImages[data.imageIndex],
+                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                       1,
+                       &colorImageBlit,
+                       VK_FILTER_LINEAR);
+                    transitionImageLayout(
+                        commandBuffer,
+                        swapChainImages[data.imageIndex],
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                        0,
+                        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                        VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                        VK_IMAGE_ASPECT_COLOR_BIT);
+
+                }
+                if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                    die("failed to record command buffer!");
+                }
+            };
+
+            list<thread> threads;
             for (const auto &renderer : renderers) {
-                renderer->beginRendering(data.commandBuffer, currentFrame);
-                renderer->recordCommands(data.commandBuffer, currentFrame);
-                renderer->endRendering(data.commandBuffer, currentFrame, renderer == lastRenderer);
+                threads.push_back(thread(render, renderer));
+            }
+            for (auto &t : threads) {
+                t.join();
             }
 
-            transitionImageLayout(
-                    data.commandBuffer,
-                    swapChainImages[data.imageIndex],
-                    VK_IMAGE_LAYOUT_UNDEFINED,
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    0,
-                    VK_ACCESS_TRANSFER_WRITE_BIT,
-                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT);
-            vkCmdBlitImage(data.commandBuffer,
-                           lastRenderer->getImage(currentFrame),
-                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           swapChainImages[data.imageIndex],
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           1,
-                           &colorImageBlit,
-                           VK_FILTER_LINEAR);
-            transitionImageLayout(
-                    data.commandBuffer,
-                    swapChainImages[data.imageIndex],
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                    0,
-                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT);
-
-            if (vkEndCommandBuffer(data.commandBuffer) != VK_SUCCESS) {
-                die("failed to record command buffer!");
-            }
-        }
-        {
-            const VkSubmitInfo             submitInfo{
+            const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                 .waitSemaphoreCount = 1,
                 .pWaitSemaphores = &data.imageAvailableSemaphore,
                 .pWaitDstStageMask = waitStages,
-                .commandBufferCount = 1,
-                .pCommandBuffers = &data.commandBuffer,
+                .commandBufferCount = static_cast<uint32_t>(commandBuffers.size()),
+                .pCommandBuffers = commandBuffers.data(),
                 .signalSemaphoreCount = 1,
                 .pSignalSemaphores =  &data.renderFinishedSemaphore
             };
@@ -742,7 +758,9 @@ namespace z0 {
         vkCmdSetDepthBiasEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
         vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
-
+        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
+        constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
+        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         // Use RGBA color write mask
         constexpr VkColorComponentFlags color_component_flags[] = {
                 VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT |

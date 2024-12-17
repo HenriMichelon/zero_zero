@@ -41,7 +41,7 @@ export namespace z0 {
 
         void createOrUpdateDescriptorSet(bool create) override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame);
 
         [[nodiscard]] inline shared_ptr<Cubemap> getCubemap() const { return reinterpret_pointer_cast<Cubemap>(cubemap); }
 

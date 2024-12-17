@@ -129,7 +129,7 @@ export namespace z0 {
 
         void update(uint32_t currentFrame) override;
 
-        void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame) override;
+        void recordCommands(uint32_t currentFrame) override;
 
         void loadShaders() override;
 

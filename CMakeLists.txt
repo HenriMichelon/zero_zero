@@ -233,6 +233,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/renderers/models.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/postprocessing.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cpp
+		${Z0_ENGINE_DIR}/vulkan/renderers/renderer.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/scene.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/shadowmap.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/simple_postprocessing.cpp

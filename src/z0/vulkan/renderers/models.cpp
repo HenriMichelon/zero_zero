@@ -130,9 +130,7 @@ import z0.vulkan.Mesh;
         }
 
         vkCmdSetRasterizationSamplesEXT(commandBuffer, device.getSamples());
-        constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
-        vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
-        vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_TRUE);
+
 
         const auto vertexBinding   = VulkanMesh::getBindingDescription();
         const auto vertexAttribute = VulkanMesh::getAttributeDescription();

@@ -44,7 +44,8 @@ namespace z0 {
         vertShader = createShader("quad.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
 
-    void PostprocessingRenderer::recordCommands(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void PostprocessingRenderer::recordCommands(const uint32_t currentFrame) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         bindShaders(commandBuffer);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
@@ -94,7 +95,8 @@ namespace z0 {
         }
     }
 
-    void PostprocessingRenderer::beginRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame) {
+    void PostprocessingRenderer::beginRendering(const uint32_t currentFrame) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         device.transitionImageLayout(commandBuffer,
                                      colorAttachmentHdr[currentFrame]->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
@@ -121,7 +123,8 @@ namespace z0 {
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
-    void PostprocessingRenderer::endRendering(const VkCommandBuffer commandBuffer, const uint32_t currentFrame, const bool isLast) {
+    void PostprocessingRenderer::endRendering(const uint32_t currentFrame, const bool isLast) {
+        const auto& commandBuffer = getCommandBuffer(currentFrame);
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer,
                                      colorAttachmentHdr[currentFrame]->getImage(),

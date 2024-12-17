@@ -152,7 +152,6 @@ export namespace z0 {
         VkDevice                    device;
         VkPhysicalDevice            physicalDevice;
         VkQueue                     graphicsQueue;
-        // VkQueue                     submitGraphicsQueue;
         VkQueue                     presentQueue;
         VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceProperties2 deviceProperties{
@@ -178,7 +177,7 @@ export namespace z0 {
 
         // Drawing a frame
         struct FrameData {
-            VkCommandBuffer   commandBuffer;
+            // VkCommandBuffer   commandBuffer;
             VkSemaphore       imageAvailableSemaphore;
             VkSemaphore       renderFinishedSemaphore;
             VkFence           inFlightFence;
@@ -186,7 +185,7 @@ export namespace z0 {
         };
         vector<FrameData> framesData;
         const uint32_t    framesInFlight;
-        VkCommandPool     commandPool;
+        // VkCommandPool     commandPool;
         VkImageBlit       colorImageBlit{};
         static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
