@@ -53,6 +53,7 @@ export namespace z0 {
             shared_ptr<Camera> currentCamera{nullptr};
             // All the models of the scene
             list<shared_ptr<MeshInstance>> models{};
+            bool modelsDirty{false};
             // Data for all the models of the scene, one buffer for all the models
             // https://docs.vulkan.org/samples/latest/samples/performance/descriptor_management/README.html
             unique_ptr<Buffer> modelUniformBuffer;

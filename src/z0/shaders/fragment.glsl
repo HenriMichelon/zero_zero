@@ -105,17 +105,21 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                     break;
                 }
                 case LIGHT_SPOT: {
-                    if (light.mapIndex != -1) {
-                        factor = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
+                    if (distance(fs_in.GLOBAL_POSITION.xyz, light.position) <= light.range) {
+                        if (light.mapIndex != -1) {
+                            factor = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
+                        }
+                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
                     }
-                    diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
                     break;
                 }
                 case LIGHT_OMNI: {
-                    if (light.mapIndex != -1) {
-                        factor = shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
+                    if (distance(fs_in.GLOBAL_POSITION.xyz, light.position) <= light.range) {
+                        if (light.mapIndex != -1) {
+                            factor = shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
+                        }
+                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
                     }
-                    diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
                     break;
                 }
             }

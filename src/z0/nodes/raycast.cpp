@@ -8,7 +8,6 @@ module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Collision/CastResult.h>
-#include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include "z0/libraries.h"
 
@@ -62,10 +61,6 @@ namespace z0 {
             app()._getObjectLayerPairFilter(),
             collisionLayer);
     }
-
-    // bool RayCast::ShouldCollide(const JPH::ObjectLayer inLayer) const {
-    //     return (JPH::ObjectLayerPairFilterMask::sGetGroup(inLayer) & JPH::ObjectLayerPairFilterMask::sGetMask(collisionMask)) != 0;
-    // }
 
     bool RayCast::ShouldCollideLocked(const JPH::Body &inBody) const {
         const auto *node = reinterpret_cast<CollisionObject *>(inBody.GetUserData());

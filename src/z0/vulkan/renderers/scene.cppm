@@ -194,6 +194,7 @@ namespace z0 {
             // Currently allocated model uniform buffer count
             uint32_t modelBufferCount{0};
             bool drawOutlines{false};
+            unique_ptr<ModelBuffer[]> modelUBOArray;
 
             // All materials used in the scene, used to update the buffer in GPU memory
             list<shared_ptr<Material>> materials;

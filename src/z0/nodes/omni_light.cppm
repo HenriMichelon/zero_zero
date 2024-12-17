@@ -45,7 +45,7 @@ export namespace z0 {
         /**
          * Sets the light range
          */
-        inline void setRange(const float range) { this->range = range; }
+        void setRange(const float range);
 
         /**
          * Returns the light near clipping distance for the shadows (default 0.1m)
@@ -57,7 +57,7 @@ export namespace z0 {
     protected:
         shared_ptr<Node> duplicateInstance() override;
 
-    protected:
+    private:
         // Maximum distance of lighting
         float range{10.0f};
         // clipping distance for shadows

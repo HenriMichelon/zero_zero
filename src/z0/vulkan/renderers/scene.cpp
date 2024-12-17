@@ -188,7 +188,7 @@ namespace z0 {
             loadShadersMaterials(material, currentFrame);
         }
         for (const auto &pair : shadowMapRenderers) {
-            if (!pair.second->isInitialized()) {
+            if (ModelsRenderer::frameData[currentFrame].modelsDirty) {
                 pair.second->loadScene(ModelsRenderer::frameData[currentFrame].models);
             }
         }
@@ -230,15 +230,6 @@ namespace z0 {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
            removeMaterial(material, currentFrame);
         }
-
-        // const auto it = ranges::find(frameData[currentFrame].opaquesModels, meshInstance);
-        // if (it != frameData[currentFrame].opaquesModels.end()) {
-            // frameData[currentFrame].opaquesModels.erase(it);
-        // }
-        // const auto itTransparent = ranges::find(frameData[currentFrame].transparentModels, meshInstance);
-        // if (itTransparent != frameData[currentFrame].transparentModels.end()) {
-            // frameData[currentFrame].transparentModels.erase(itTransparent);
-        // }
     }
 
     void SceneRenderer::loadShadersMaterials(const shared_ptr<ShaderMaterial>&material, const uint32_t currentFrame) {
@@ -348,7 +339,9 @@ namespace z0 {
         frame.meshesIndices.clear();
         frame.opaquesModels.clear();
         frame.transparentModels.clear();
-        auto modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
+        if (ModelsRenderer::frameData[currentFrame].modelsDirty) {
+            frame.modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
+        }
         uint32_t modelIndex = 0;
         for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
             if (meshInstance->isVisible() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
@@ -357,7 +350,7 @@ namespace z0 {
                     frame.meshesIndices[meshId] = modelIndex;
                 }
                 frame.drawOutlines |= meshInstance->isOutlined();
-                modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
+                frame.modelUBOArray[modelIndex].matrix = meshInstance->getTransformGlobal();
                 modelIndex += 1;
 
                 auto transparent{false};
@@ -377,8 +370,9 @@ namespace z0 {
             }
         }
         ModelsRenderer::frameData[currentFrame].modelUniformBuffer->writeToBuffer(
-                   modelUBOArray.get(),
+                   frame.modelUBOArray.get(),
                    MODEL_BUFFER_SIZE * modelIndex);
+        ModelsRenderer::frameData[currentFrame].modelsDirty = false;
 
         // Update in GPU memory only the materials modified since the last frame
         uint32_t materialIndex = 0;

@@ -24,6 +24,10 @@ namespace z0 {
         Light{color, nodeName, type}, range{range} {
     }
 
+    void OmniLight::setRange(const float range) {
+        this->range = range;
+    }
+
     void OmniLight::setProperty(const string &property, const string &value) {
         Light::setProperty(property, value);
         if (property == "range") {

@@ -86,8 +86,6 @@ export namespace z0 {
     public:
         void _physicsUpdate(float delta) override;
 
-        // bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
-
         bool ShouldCollideLocked(const JPH::Body &inBody) const override;
 
     };

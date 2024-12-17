@@ -39,25 +39,24 @@ const vec3 sampleOffsetDirections[20] = vec3[] (
 float shadowFactorCubemap(Light light, vec3 fragPos) {
     // https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 
-    const float farPlane =light.farPlane;
+    const float bias         = 0.15;
+    const int   samples      = 20;
+    const float viewDistance = length(global.cameraPosition - fragPos);
+    const float diskRadius   = (1.0 + (viewDistance / light.farPlane)) / 25.0;
+
     // get vector between fragment position and light position
     const vec3 fragToLight = fragPos - light.position;
-    // use the light to fragment vector to sample from the depth map
-    float closestDepth = texture(shadowMapsCubemap[light.mapIndex], fragToLight).r;
-    // it is currently in linear range between [0,1]. Re-transform back to original value
-    closestDepth *= farPlane; // far plane
-    const float currentDepth = length(fragToLight);
+    //float closestDepth = texture(shadowMapsCubemap[light.mapIndex], fragToLight).r * light.farPlane;
+    const float currentDepth = length(fragToLight) - bias;
 
-    //PCF
-    float shadow       = 0.0;
-    const float bias   = 0.15;
-    const int samples  = 20;
-    const float viewDistance = length(global.cameraPosition - fragPos);
-    const float diskRadius   = (1.0 + (viewDistance / farPlane)) / 25.0;
+    // PCF
+    float shadow = 0.0;
     for(int i = 0; i < samples; ++i) {
-        float closestDepth = texture(shadowMapsCubemap[light.mapIndex], fragToLight + sampleOffsetDirections[i] * diskRadius).r;
-        closestDepth *= farPlane;   // undo mapping [0;1]
-        shadow += (currentDepth - bias) > closestDepth ? 0.0 : 1.0;
+        // use the light to fragment vector to sample from the depth map
+        // it is currently in linear range between [0,1]. Re-transform back to original value
+        shadow += currentDepth >
+                texture(shadowMapsCubemap[light.mapIndex], fragToLight + sampleOffsetDirections[i] * diskRadius).r * light.farPlane
+                ? 0.0 : 1.0;
     }
-    return shadow /= float(samples);
+    return shadow /= samples;
 }

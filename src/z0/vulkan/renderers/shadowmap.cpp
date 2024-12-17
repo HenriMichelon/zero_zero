@@ -192,68 +192,72 @@ namespace z0 {
                     data.shadowMap->getRatio(),
                     omniLight->getNearClipDistance(),
                     omniLight->getRange());
-                data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
-                data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
-                data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
-                data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
-                data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
-                data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
-                globalUBO.lightPosition = omniLight->getPositionGlobal();
+                globalUBO.lightPosition = lightPos;
                 globalUBO.farPlane =  omniLight->getRange();
-                data.frustum[0] = Frustum{
-                    lightPos,
-                    AXIS_RIGHT,
-                    AXIS_BACK,
-                    AXIS_UP,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
-                data.frustum[1] = Frustum{
-                    lightPos,
-                    AXIS_LEFT,
-                    AXIS_FRONT,
-                    AXIS_UP,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
-                data.frustum[2] = Frustum{
-                    lightPos,
-                    AXIS_UP,
-                    AXIS_RIGHT,
-                    AXIS_FRONT,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
-                data.frustum[3] = Frustum{
-                    lightPos,
-                    AXIS_DOWN,
-                    AXIS_RIGHT,
-                    AXIS_FRONT,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
-                data.frustum[4] = Frustum{
-                    lightPos,
-                    AXIS_BACK,
-                    AXIS_LEFT,
-                    AXIS_UP,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
-                data.frustum[5] = Frustum{
-                    lightPos,
-                    AXIS_FRONT,
-                    AXIS_RIGHT,
-                    AXIS_UP,
-                    90.0f,
-                    omniLight->getNearClipDistance(),
-                    omniLight->getRange()
-                };
+                if (lightPos != data.previousPosition || lightProj != data.previousProjection) {
+                    data.previousPosition = lightPos;
+                    data.previousProjection = lightProj;
+                    data.lightSpace[0] = lightProj * lookAt(lightPos, lightPos + AXIS_RIGHT, vec3(0.0,-1.0, 0.0));
+                    data.lightSpace[1] = lightProj * lookAt(lightPos, lightPos + AXIS_LEFT, vec3(0.0,-1.0, 0.0));
+                    data.lightSpace[2] = lightProj * lookAt(lightPos, lightPos + AXIS_UP, vec3(0.0, 0.0, 1.0));
+                    data.lightSpace[3] = lightProj * lookAt(lightPos, lightPos + AXIS_DOWN, vec3(0.0, 0.0,-1.0));
+                    data.lightSpace[4] = lightProj * lookAt(lightPos, lightPos + AXIS_BACK, vec3(0.0,-1.0, 0.0));
+                    data.lightSpace[5] = lightProj * lookAt(lightPos, lightPos + AXIS_FRONT, vec3(0.0,-1.0, 0.0));
+                    data.frustum[0] = Frustum{
+                        lightPos,
+                        AXIS_RIGHT,
+                        AXIS_BACK,
+                        AXIS_UP,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                    data.frustum[1] = Frustum{
+                        lightPos,
+                        AXIS_LEFT,
+                        AXIS_FRONT,
+                        AXIS_UP,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                    data.frustum[2] = Frustum{
+                        lightPos,
+                        AXIS_UP,
+                        AXIS_RIGHT,
+                        AXIS_FRONT,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                    data.frustum[3] = Frustum{
+                        lightPos,
+                        AXIS_DOWN,
+                        AXIS_RIGHT,
+                        AXIS_FRONT,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                    data.frustum[4] = Frustum{
+                        lightPos,
+                        AXIS_BACK,
+                        AXIS_LEFT,
+                        AXIS_UP,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                    data.frustum[5] = Frustum{
+                        lightPos,
+                        AXIS_FRONT,
+                        AXIS_RIGHT,
+                        AXIS_UP,
+                        90.0f,
+                        omniLight->getNearClipDistance(),
+                        omniLight->getRange()
+                    };
+                }
                 break;
             }
             case Light::LIGHT_SPOT: {
@@ -342,8 +346,8 @@ namespace z0 {
             for (const auto &meshInstance : data.models) {
                 if (meshInstance->isVisible() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
                     const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
+                    pushConstants.model = meshInstance->getTransformGlobal();
                     for (const auto &surface : mesh->getSurfaces()) {
-                        pushConstants.model = meshInstance->getTransformGlobal();
                         pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
                         vkCmdPushConstants(
                             commandBuffer,

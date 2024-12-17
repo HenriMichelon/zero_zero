@@ -71,8 +71,6 @@ export namespace z0 {
 
         [[nodiscard]] inline float getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getRange(); }
 
-        [[nodiscard]] inline bool isInitialized() const { return setLayout != nullptr; }
-
         void cleanup() override;
 
         ~ShadowMapRenderer() override;
@@ -117,6 +115,8 @@ export namespace z0 {
             // Last computed light spaces for each cascade / cubemap face
             mat4 lightSpace[6];
             Frustum frustum[6];
+            vec3 previousPosition{0.0f};
+            mat4 previousProjection{1.0f};
             // For cascaded shadow map, the last computed cascade split depth for each cascade
             float splitDepth[ShadowMapFrameBuffer::CASCADED_SHADOWMAP_MAX_LAYERS];
             // Global UBO in GPU memory

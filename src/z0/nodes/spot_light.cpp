@@ -44,7 +44,7 @@ namespace z0 {
         } else if (property == "cutoff") {
             setCutOff(stof(value));
         } else if (property == "outer_cutoff") {
-            setCastShadows(value == "true");
+            setOuterCutOff(stof(value));
         }
     }
 

@@ -44,6 +44,7 @@ import z0.vulkan.Mesh;
                 addingModel(meshInstance, currentFrame);
                 descriptorSetNeedUpdate = true;
                 createOrUpdateResources();
+                frame.modelsDirty = true;
             }
         } else if (const auto& viewport = dynamic_pointer_cast<Viewport>(node)) {
             frameData[currentFrame].currentViewport = viewport;
@@ -52,21 +53,23 @@ import z0.vulkan.Mesh;
     }
 
     void ModelsRenderer::removeNode(const shared_ptr<Node> &node, const uint32_t currentFrame) {
+        auto& frame = frameData[currentFrame];
         if (const auto& camera = dynamic_pointer_cast<Camera>(node)) {
-            if (camera == frameData[currentFrame].currentCamera) {
-                frameData[currentFrame].currentCamera->_setActive(false);
-                frameData[currentFrame].currentCamera = nullptr;
+            if (camera == frame.currentCamera) {
+                frame.currentCamera->_setActive(false);
+                frame.currentCamera = nullptr;
             }
         } else if (const auto& meshInstance = dynamic_pointer_cast<MeshInstance>(node)) {
-            const auto it = ranges::find(frameData[currentFrame].models, meshInstance);
-            if (it != frameData[currentFrame].models.end()) {
-                frameData[currentFrame].models.erase(it);
+            const auto it = ranges::find(frame.models, meshInstance);
+            if (it != frame.models.end()) {
+                frame.models.erase(it);
                 removingModel(meshInstance, currentFrame);
+                frame.modelsDirty = true;
             }
             descriptorSetNeedUpdate = true;
         } else if (const auto& viewport = dynamic_pointer_cast<Viewport>(node)) {
-            if (frameData[currentFrame].currentViewport == viewport) {
-                frameData[currentFrame].currentViewport = nullptr;
+            if (frame.currentViewport == viewport) {
+                frame.currentViewport = nullptr;
             }
         }
     }
