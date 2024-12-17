@@ -66,7 +66,9 @@ vec3 Radiance(const Light light,
     // Specular reflection vector.
     const float cosLo,
     // Light attenuation by distance
-    const float attenuation
+    const float attenuation,
+    const float alphaSq,
+    const float alphaDirectLighting
 ) {
     // https://learnopengl.com/PBR/Theory
     // Half-vector between Li and Lo.
@@ -79,9 +81,9 @@ vec3 Radiance(const Light light,
     // Calculate Fresnel term for direct lighting.
     const vec3 F  = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
     // Calculate normal distribution for specular BRDF.
-    const float D = ndfGGX(cosLh, roughness);
+    const float D = ndfGGX(cosLh, alphaSq);
     // Calculate geometric attenuation for specular BRDF.
-    const float G = gaSchlickGGX(cosLi, cosLo, alphaDirectLighting(roughness));
+    const float G = gaSchlickGGX(cosLi, cosLo, alphaDirectLighting);
 
     // Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
     // Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
@@ -100,21 +102,24 @@ vec3 Radiance(const Light light,
     return (diffuseBRDF + specularBRDF) * light.color.rgb * light.color.w * cosLi * attenuation;
 }
 
-vec3 calcDirectionalLight(Light light, vec3 albedo, vec3 normal, float metallic, float roughness, vec3 viewDirection, vec3 F0, const float cosLo) {
-    return Radiance(light, albedo, normal, viewDirection,  metallic, roughness,  -light.direction, F0, cosLo, 1.0f);
+vec3 calcDirectionalLight(Light light, vec3 albedo, vec3 normal, float metallic, float roughness, vec3 viewDirection, vec3 F0, const float cosLo, const float alphaSq, const float alphaDirectLighting) {
+    return Radiance(light, albedo, normal, viewDirection,  metallic, roughness,  -light.direction, F0, cosLo, 1.0f, alphaSq, alphaDirectLighting);
 }
 
-vec3 calcPointLight(Light light, vec3 albedo, vec3 normal,float metallic, float roughness, vec3 viewDirection, vec3 fragPos, vec3 F0, const float cosLo) {
+vec3 calcPointLight(Light light, vec3 albedo, vec3 normal,float metallic, float roughness, vec3 viewDirection, vec3 fragPos, vec3 F0, const float cosLo, const float alphaSq, const float alphaDirectLighting) {
     const float attenuation = clamp(1.0 - length(light.position - fragPos)/light.range, 0.0, 1.0);
     const vec3 lightDir = normalize(light.position - fragPos);
-    const vec3 diffuse = Radiance(light, albedo, normal, viewDirection, metallic, roughness, lightDir,F0, cosLo, attenuation);
+    const vec3 diffuse = Radiance(light, albedo, normal, viewDirection, metallic, roughness, lightDir,F0, cosLo, attenuation, alphaSq, alphaDirectLighting);
     float intensity = 1.0f;
     if (light.type == LIGHT_SPOT) {
         const float theta = dot(lightDir, normalize(-light.direction));
         const float epsilon = light.cutOff - light.outerCutOff;
-        intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+        const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
         if (theta <= light.outerCutOff) return vec3(0.0f);
+        return min(intensity * diffuse, vec3(1.0f));
+    } else {
+        return min(diffuse, vec3(1.0f));
+
     }
-    return min(intensity * diffuse, vec3(1.0f));
 
 }

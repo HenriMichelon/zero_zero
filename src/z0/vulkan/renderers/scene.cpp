@@ -994,12 +994,12 @@ namespace z0 {
     void SceneRenderer::enableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
             if (light->getCastShadows() && !shadowMapRenderers.contains(light) && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
-                const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
-                for(auto i = 0; i < device.getFramesInFlight(); i++) {
-                    shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
-                }
-                shadowMapRenderers[light] = shadowMapRenderer;
-                device.registerRenderer(shadowMapRenderer);
+                // const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
+                // for(auto i = 0; i < device.getFramesInFlight(); i++) {
+                //     shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
+                // }
+                // shadowMapRenderers[light] = shadowMapRenderer;
+                // device.registerRenderer(shadowMapRenderer);
                 // log("enableLightShadowCasting", light->getName());
             }
         }

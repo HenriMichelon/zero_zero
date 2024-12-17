@@ -55,6 +55,10 @@ vec4 fragmentColor(vec4 color, bool useColor) {
         float roughness = tex.roughnessTexture.index == -1 ?
             material.roughnessFactor :
             material.roughnessFactor * (texture(texSampler[tex.roughnessTexture.index], uvTransform(tex.roughnessTexture, fs_in.UV)).g);
+        // for ndfGGX()
+        const float alphaSq = roughness * roughness * roughness * roughness;
+        const float r = (roughness + 1.0);
+        const float alphaDirectLighting = (r * r)  * 0.125;
         // Fresnel reflectance at normal incidence (for metals use albedo color).
         const vec3 F0 = mix(Fdielectric, color.rgb, metallic);
         // Specular reflection vector.
@@ -101,7 +105,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                         //                        break;
                         //                    }
                     }
-                    diffuse += factor * calcDirectionalLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, F0, cosLo);
+                    diffuse += factor * calcDirectionalLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, F0, cosLo, alphaSq, alphaDirectLighting);
                     break;
                 }
                 case LIGHT_SPOT: {
@@ -109,7 +113,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                         if (light.mapIndex != -1) {
                             factor = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
                         }
-                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
+                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo, alphaSq, alphaDirectLighting);
                     }
                     break;
                 }
@@ -118,7 +122,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                         if (light.mapIndex != -1) {
                             factor = shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
                         }
-                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo);
+                        diffuse += factor * calcPointLight(light, color.rgb, normal, metallic, roughness, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz, F0, cosLo, alphaSq, alphaDirectLighting);
                     }
                     break;
                 }
