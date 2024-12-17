@@ -556,6 +556,12 @@ namespace z0 {
         return (length > 1.0f) ? vector / length : vector;
     }
 
+    vec2 Input::getMousePosition() {
+        POINT point;
+        GetCursorPos(&point);
+        return { point.x, point.y };
+    }
+
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
         auto &wnd = app().getWindow();

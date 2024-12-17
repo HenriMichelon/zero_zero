@@ -300,7 +300,6 @@ namespace z0 {
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
         vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
-        vkResetFences(device, 1, &data.inFlightFence);
         {
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,
@@ -409,6 +408,7 @@ namespace z0 {
                 .pResults           = nullptr // Optional
             };
             {
+                vkResetFences(device, 1, &data.inFlightFence);
                 const auto lock = lock_guard(submitQueue->getSubmitMutex());
                 if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
                     die("failed to submit draw command buffer!");
@@ -727,8 +727,9 @@ namespace z0 {
             const vector<VkPresentModeKHR> &availablePresentModes) {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Presentation-mode
         for (const auto &availablePresentMode : availablePresentModes) {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
                 return availablePresentMode;
+            }
         }
         return VK_PRESENT_MODE_FIFO_KHR;
     }
