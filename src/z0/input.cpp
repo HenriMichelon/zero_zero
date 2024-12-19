@@ -562,6 +562,10 @@ namespace z0 {
         return { point.x, point.y };
     }
 
+    void Input::setMousePosition(const vec2& position) {
+        SetCursorPos(static_cast<int>(position.x), static_cast<int>(position.y));
+    }
+
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
         auto &wnd = app().getWindow();

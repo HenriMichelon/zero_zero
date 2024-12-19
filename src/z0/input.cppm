@@ -75,6 +75,11 @@ namespace z0 {
         static vec2 getMousePosition();
 
         /**
+         * Returns the mouse position
+         */
+        static void setMousePosition(const vec2& position);
+
+        /**
          * Returns the number of connected joypads, including gamepads
          */
         [[nodiscard]] static uint32_t getConnectedJoypads();
