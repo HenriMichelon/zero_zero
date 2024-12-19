@@ -299,7 +299,10 @@ namespace z0 {
         auto& data = framesData[currentFrame];
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
-        vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
+        if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
+            log("timeout waiting for inFlightFence");
+        }
+        vkResetFences(device, 1, &data.inFlightFence);
         {
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,
@@ -408,7 +411,6 @@ namespace z0 {
                 .pResults           = nullptr // Optional
             };
             {
-                vkResetFences(device, 1, &data.inFlightFence);
                 const auto lock = lock_guard(submitQueue->getSubmitMutex());
                 if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
                     die("failed to submit draw command buffer!");
