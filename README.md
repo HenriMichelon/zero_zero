@@ -44,6 +44,9 @@ Classic Sponza with one OmniLight:
 [Collision objects debug](https://henrimichelon.github.io/ZeroZero/md_004_debug_renderer.html) :
 ![screenshot_debug.png](https://henrimichelon.github.io/ZeroZero/screenshot_debug.png)
 
+Example level with tunnel, doors and rooms :
+[![Example level](https://img.youtube.com/vi/qW5M_U54oBU/0.jpg)](https://www.youtube.com/watch?v=qW5M_U54oBU)
+
 
 Vulkan extensions and third parties dependencies used
 ---------------------------------------------------------------------------
