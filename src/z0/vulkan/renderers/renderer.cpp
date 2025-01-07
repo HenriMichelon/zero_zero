@@ -16,7 +16,7 @@ import z0.vulkan.Device;
 
 namespace z0 {
 
-    Renderer::Renderer() {
+    Renderer::Renderer(const bool canBeThreaded): threaded{canBeThreaded} {
         const auto& dev = Device::get();
         commandPool = dev.createCommandPool();
         commandBuffers.resize(dev.getFramesInFlight());

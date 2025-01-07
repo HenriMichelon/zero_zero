@@ -64,7 +64,6 @@ namespace z0 {
             die("Failed to create window surface!");
         }
 #endif
-
         // Requested device extensions
         const vector deviceExtensions = {
             // Mandatory to create a swap chain
@@ -110,7 +109,6 @@ namespace z0 {
         }
 
         //////////////////// Create Vulkan device
-
         // Find a graphical command queue and a presentation command queue
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
         vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -130,7 +128,6 @@ namespace z0 {
                 queueCreateInfos.push_back(queueCreateInfo);
             }
         }
-
         // Initialize device extensions and create a logical device
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Specifying-used-device-features
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Creating-the-logical-device
@@ -211,6 +208,7 @@ namespace z0 {
             .vulkanApiVersion = deviceProperties.properties.apiVersion,
         };
         vmaCreateAllocator(&allocatorInfo, &allocator);
+        volkLoadDevice(device);
 
         //////////////////// Create swap chain
         createSwapChain();
@@ -382,13 +380,21 @@ namespace z0 {
                 }
             };
 
-            list<thread> threads;
+            {
+                list<jthread> threads;
+                for (const auto &renderer : renderers) {
+                    if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
+                }
+                // for (auto &t : threads) {
+                    // t.join();
+                // }
+            }
             for (const auto &renderer : renderers) {
-                threads.push_back(thread(render, renderer));
+                if (!renderer->canBeThreaded()) { render(renderer); }
             }
-            for (auto &t : threads) {
-                t.join();
-            }
+            // for (const auto &renderer : renderers) {
+                // render(renderer);
+            // }
 
             const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,

@@ -30,6 +30,7 @@ import z0.vulkan.Image;
 namespace z0 {
 
     VectorRenderer::VectorRenderer(Device &device) :
+        Renderer{false},
         Renderpass{device, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{true} {
         frameData.resize(device.getFramesInFlight());
@@ -38,6 +39,7 @@ namespace z0 {
 
     VectorRenderer::VectorRenderer(Device &device,
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr) :
+        Renderer{false},
         Renderpass{device, WINDOW_CLEAR_COLOR},
         internalColorFrameBuffer{false} {
         frameData.resize(device.getFramesInFlight());

@@ -40,6 +40,7 @@ namespace z0 {
                                  const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
                                  const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment,
                                  const bool useDepthTest) :
+        Renderer{true},
         Renderpass{device, WINDOW_CLEAR_COLOR},
         useDepthTest{useDepthTest} {
         frameData.resize(device.getFramesInFlight());

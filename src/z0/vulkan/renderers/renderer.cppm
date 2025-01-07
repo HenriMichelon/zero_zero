@@ -19,7 +19,7 @@ export namespace z0 {
     public:
         Renderer(Renderer&) = delete;
         Renderer(Renderer&&) = delete;
-        Renderer();
+        Renderer(bool canBeThreaded);
         virtual ~Renderer();
 
         // Returns the offscreen image buffer
@@ -55,7 +55,10 @@ export namespace z0 {
         inline VkCommandPool getCommandPool() const { return commandPool; }
         inline VkCommandBuffer getCommandBuffer(uint32_t currentFrame) const { return commandBuffers[currentFrame]; }
 
+        inline bool canBeThreaded() const { return threaded; }
+
     private:
+        bool threaded;
         VkCommandPool commandPool;
         vector<VkCommandBuffer> commandBuffers;
     };

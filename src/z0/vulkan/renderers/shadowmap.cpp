@@ -37,6 +37,7 @@ import z0.vulkan.Mesh;
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const shared_ptr<Light>&light) :
+        Renderer{true},
         Renderpass{device, WINDOW_CLEAR_COLOR},
         light{light} {
         frameData.resize(device.getFramesInFlight());
