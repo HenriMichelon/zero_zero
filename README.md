@@ -44,7 +44,7 @@ Classic Sponza with one OmniLight:
 [Collision objects debug](https://henrimichelon.github.io/ZeroZero/md_004_debug_renderer.html) :
 ![screenshot_debug.png](https://henrimichelon.github.io/ZeroZero/screenshot_debug.png)
 
-Example level with tunnel, doors and rooms :
+Example level with tunnel, doors and rooms (with [Space Colony Modular Kit Bash](https://www.fab.com/listings/13206d95-b723-4ff3-a1ce-577d8259480b)):
 [![Example level](https://img.youtube.com/vi/qW5M_U54oBU/0.jpg)](https://www.youtube.com/watch?v=qW5M_U54oBU)
 
 
