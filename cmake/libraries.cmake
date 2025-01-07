@@ -14,7 +14,7 @@ message(NOTICE "Fetching volk from https://github.com/zeux/volk ...")
 FetchContent_Declare(
         fetch_volk
         GIT_REPOSITORY https://github.com/zeux/volk
-        GIT_TAG        1.3.295
+        GIT_TAG        1.4.304
 )
 FetchContent_MakeAvailable(fetch_volk)
 if (WIN32)
