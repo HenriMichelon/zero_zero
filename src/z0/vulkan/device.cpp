@@ -325,7 +325,8 @@ namespace z0 {
             commandBuffers.reserve(renderers.size());
 
             auto render = [&](const shared_ptr<Renderer>& renderer) {
-                const auto &commandBuffer = renderer->getCommandBuffer(currentFrame);
+                const auto commandBuffer =
+                    renderer->getCommandBuffers(currentFrame).front();
                 {
                     auto lock = lock_guard(commandBuffersMutex);
                     commandBuffers.push_back(commandBuffer);

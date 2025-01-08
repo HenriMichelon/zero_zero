@@ -284,9 +284,9 @@ namespace z0 {
     }
 
     void ShadowMapRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
         const auto& data = frameData[currentFrame];
         if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
+        const auto& commandBuffer = commandBuffers[currentFrame];
         const auto passCount = isCubemap() ? 6 : data.cascadesCount;
         auto pushConstants = PushConstants {};
         for (int passIndex = 0; passIndex < passCount; passIndex++) {

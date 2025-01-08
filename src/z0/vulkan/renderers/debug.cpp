@@ -173,7 +173,7 @@ namespace z0 {
             return;
         }
         beginRendering(currentFrame);
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         vkCmdSetVertexInputEXT(commandBuffer,
@@ -202,7 +202,7 @@ namespace z0 {
     }
 
     void DebugRenderer::beginRendering(const uint32_t currentFrame) {
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -244,7 +244,7 @@ namespace z0 {
     }
 
     void DebugRenderer::endRendering(const uint32_t currentFrame, const bool isLast) {
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),

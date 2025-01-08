@@ -46,15 +46,15 @@ export namespace z0 {
         // Release and re-create images, image views & buffers, in needed
         virtual void recreateImagesResources() {}
 
-        inline VkCommandPool getCommandPool() const { return commandPool; }
-        inline VkCommandBuffer getCommandBuffer(const uint32_t currentFrame) const { return commandBuffers[currentFrame]; }
+        virtual vector<VkCommandBuffer> getCommandBuffers(uint32_t currentFrame) const;
 
         inline bool canBeThreaded() const { return threaded; }
 
+    protected:
+        vector<VkCommandPool> commandPools;
+        vector<VkCommandBuffer> commandBuffers;
     private:
         bool threaded;
-        VkCommandPool commandPool;
-        vector<VkCommandBuffer> commandBuffers;
     };
 
 }

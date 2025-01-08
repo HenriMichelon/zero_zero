@@ -18,11 +18,11 @@ namespace z0 {
 
     Renderer::Renderer(const bool canBeThreaded): threaded{canBeThreaded} {
         const auto& dev = Device::get();
-        commandPool = dev.createCommandPool();
+        commandPools.push_back(dev.createCommandPool());
         commandBuffers.resize(dev.getFramesInFlight());
         const VkCommandBufferAllocateInfo allocInfo{
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPool,
+            .commandPool = commandPools.front(),
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = 1
         };
@@ -33,8 +33,12 @@ namespace z0 {
         }
     }
 
+    vector<VkCommandBuffer> Renderer::getCommandBuffers(const uint32_t currentFrame) const {
+        return vector{commandBuffers[currentFrame]};
+    }
+
      Renderer::~Renderer() {
-        vkDestroyCommandPool(Device::get().getDevice(), commandPool, nullptr);
+        vkDestroyCommandPool(Device::get().getDevice(), commandPools.front(), nullptr);
     }
 
 

@@ -171,7 +171,7 @@ namespace z0 {
     void VectorRenderer::drawFrame(const uint32_t currentFrame, bool isLast) {
         if (vertices.empty()) { return; }
         beginRendering(currentFrame);
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
 
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
@@ -232,7 +232,7 @@ namespace z0 {
     }
 
     void VectorRenderer::beginRendering(const uint32_t currentFrame) {
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
@@ -265,7 +265,7 @@ namespace z0 {
     }
 
     void VectorRenderer::endRendering(const uint32_t currentFrame, const bool isLast) {
-        const auto& commandBuffer = getCommandBuffer(currentFrame);
+        const auto& commandBuffer = commandBuffers[currentFrame];
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
                                       frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
