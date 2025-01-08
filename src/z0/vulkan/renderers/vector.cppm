@@ -193,9 +193,9 @@ namespace z0 {
 
         void addImage(const shared_ptr<Image> &image);
 
-        void beginRendering(uint32_t currentFrame) override;
+        void beginRendering(uint32_t currentFrame);
 
-        void endRendering( uint32_t currentFrame, bool isLast) override;
+        void endRendering( uint32_t currentFrame, bool isLast);
 
         void createImagesResources() override;
 
@@ -209,7 +209,7 @@ namespace z0 {
 
         void createDescriptorSetLayout() override;
 
-        void recordCommands(uint32_t currentFrame) override;
+        void drawFrame(uint32_t currentFrame, bool isLast);
 
         void createOrUpdateDescriptorSet(bool create) override;
     };

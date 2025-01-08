@@ -283,7 +283,7 @@ namespace z0 {
         writeUniformBuffer(data.globalBuffer, &globalUBO);
     }
 
-    void ShadowMapRenderer::recordCommands(const uint32_t currentFrame) {
+    void ShadowMapRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
         const auto& commandBuffer = getCommandBuffer(currentFrame);
         const auto& data = frameData[currentFrame];
         if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }

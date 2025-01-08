@@ -32,28 +32,22 @@ export namespace z0 {
         virtual void cleanup() = 0;
 
         // Update frame data
-        virtual void update(uint32_t currentFrame) {};
-
-        // Start rendering one frame
-        virtual void beginRendering(uint32_t currentFrame) {};
+        virtual void update(uint32_t currentFrame) {}
 
         // Render one frame
-        virtual void recordCommands(uint32_t currentFrame) = 0;
-
-        // End rendering one frame
-        virtual void endRendering(uint32_t currentFrame, bool isLast) {};
+        virtual void drawFrame(uint32_t currentFrame, bool isLast) = 0;
 
         // Create images, image views & buffers
-        virtual void createImagesResources() {};
+        virtual void createImagesResources() {}
 
         // Release images, image views & buffers
-        virtual void cleanupImagesResources() {};
+        virtual void cleanupImagesResources() {}
 
         // Release and re-create images, image views & buffers, in needed
-        virtual void recreateImagesResources() {};
+        virtual void recreateImagesResources() {}
 
         inline VkCommandPool getCommandPool() const { return commandPool; }
-        inline VkCommandBuffer getCommandBuffer(uint32_t currentFrame) const { return commandBuffers[currentFrame]; }
+        inline VkCommandBuffer getCommandBuffer(const uint32_t currentFrame) const { return commandBuffers[currentFrame]; }
 
         inline bool canBeThreaded() const { return threaded; }
 

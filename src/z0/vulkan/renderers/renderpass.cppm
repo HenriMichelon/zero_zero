@@ -71,7 +71,7 @@ export namespace z0 {
 
         virtual void loadShaders() = 0;
 
-        virtual void createDescriptorSetLayout() {};
+        virtual void createDescriptorSetLayout() {}
 
         virtual void createOrUpdateDescriptorSet(bool create) {}
 

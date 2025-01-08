@@ -168,8 +168,9 @@ namespace z0 {
         createOrUpdateResources();
     }
 
-    void VectorRenderer::recordCommands(const uint32_t currentFrame) {
+    void VectorRenderer::drawFrame(const uint32_t currentFrame, bool isLast) {
         if (vertices.empty()) { return; }
+        beginRendering(currentFrame);
         const auto& commandBuffer = getCommandBuffer(currentFrame);
 
         bindShaders(commandBuffer);
@@ -227,6 +228,7 @@ namespace z0 {
             vertexIndex += command.count;
             commandIndex += 1;
         }
+        endRendering(currentFrame, isLast);
     }
 
     void VectorRenderer::beginRendering(const uint32_t currentFrame) {

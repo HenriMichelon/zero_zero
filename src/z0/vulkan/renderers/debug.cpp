@@ -168,8 +168,11 @@ namespace z0 {
         writeUniformBuffer(frame.globalBuffer, &globalUbo);
     }
 
-    void DebugRenderer::recordCommands(const uint32_t currentFrame) {
-        if ((!frameData.at(currentFrame).currentCamera) || !app().getDisplayDebug() || (vertexCount == 0)) { return; }
+    void DebugRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
+        if ((!frameData.at(currentFrame).currentCamera) || !app().getDisplayDebug() || (vertexCount == 0)) {
+            return;
+        }
+        beginRendering(currentFrame);
         const auto& commandBuffer = getCommandBuffer(currentFrame);
         bindShaders(commandBuffer);
         setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
@@ -195,6 +198,7 @@ namespace z0 {
             vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
             vkCmdDraw(commandBuffer, triangleVertices.size(), 1, linesVertices.size(), 0);
         }
+        endRendering(currentFrame, isLast);
     }
 
     void DebugRenderer::beginRendering(const uint32_t currentFrame) {

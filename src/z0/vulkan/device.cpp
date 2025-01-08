@@ -341,9 +341,7 @@ namespace z0 {
                     die("failed to begin recording command buffer!");
                 }
                 setInitialState(commandBuffer);
-                renderer->beginRendering(currentFrame);
-                renderer->recordCommands(currentFrame);
-                renderer->endRendering(currentFrame, renderer == lastRenderer);
+                renderer->drawFrame(currentFrame, renderer == lastRenderer);
                 if (renderer == lastRenderer) {
                     transitionImageLayout(
                         commandBuffer,

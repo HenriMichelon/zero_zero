@@ -262,7 +262,7 @@ namespace z0 {
 
         void update(uint32_t currentFrame) override;
 
-        void recordCommands(uint32_t currentFrame) override;
+        void drawFrame(uint32_t currentFrame, bool isLast) override;
 
         void createDescriptorSetLayout() override;
 
@@ -276,9 +276,9 @@ namespace z0 {
 
         void recreateImagesResources() override;
 
-        void beginRendering( uint32_t currentFrame) override;
+        void beginRendering( uint32_t currentFrame);
 
-        void endRendering(uint32_t currentFrame, bool isLast) override;
+        void endRendering(uint32_t currentFrame, bool isLast);
 
         void addMaterial(const shared_ptr<Material> &material, uint32_t currentFrame);
 

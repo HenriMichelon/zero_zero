@@ -420,10 +420,13 @@ namespace z0 {
         }
     }
 
-    void SceneRenderer::recordCommands(const uint32_t currentFrame) {
+    void SceneRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
+        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) {
+            return;
+        }
+        beginRendering(currentFrame);
         const auto& commandBuffer = getCommandBuffer(currentFrame);
         setInitialState(commandBuffer, currentFrame);
-        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return;}
         const auto& frame = frameData[currentFrame];
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
@@ -445,6 +448,7 @@ namespace z0 {
         if (frameData[currentFrame].skyboxRenderer != nullptr) {
             frameData[currentFrame].skyboxRenderer->recordCommands(commandBuffer, currentFrame);
         }
+        endRendering(currentFrame, isLast);
     }
 
     void SceneRenderer::createDescriptorSetLayout() {

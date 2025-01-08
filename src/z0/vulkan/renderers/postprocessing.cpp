@@ -45,7 +45,8 @@ namespace z0 {
         vertShader = createShader("quad.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
 
-    void PostprocessingRenderer::recordCommands(const uint32_t currentFrame) {
+    void PostprocessingRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
+        beginRendering(currentFrame);
         const auto& commandBuffer = getCommandBuffer(currentFrame);
         bindShaders(commandBuffer);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
@@ -55,6 +56,7 @@ namespace z0 {
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
         bindDescriptorSets(commandBuffer, currentFrame);
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        endRendering(currentFrame, isLast);
     }
 
     void PostprocessingRenderer::createDescriptorSetLayout() {

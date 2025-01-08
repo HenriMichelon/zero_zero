@@ -118,13 +118,13 @@ namespace z0 {
 
         void cleanup() override;
 
-        void beginRendering(uint32_t currentFrame) override;
+        void beginRendering(uint32_t currentFrame);
 
-        void endRendering(uint32_t currentFrame, bool isLast) override;
+        void endRendering(uint32_t currentFrame, bool isLast);
 
         void loadShaders() override;
 
-        void recordCommands(uint32_t currentFrame) override;
+        void drawFrame(uint32_t currentFrame, bool isLast) override;
 
         void createDescriptorSetLayout() override;
 
