@@ -325,25 +325,27 @@ namespace z0 {
             commandBuffers.reserve(renderers.size());
 
             auto render = [&](const shared_ptr<Renderer>& renderer) {
-                const auto commandBuffer =
-                    renderer->getCommandBuffers(currentFrame).front();
+                renderer->update(currentFrame);
+                const auto buffers = renderer->getCommandBuffers(currentFrame);
                 {
                     auto lock = lock_guard(commandBuffersMutex);
-                    commandBuffers.push_back(commandBuffer);
+                    commandBuffers.insert(commandBuffers.end(), buffers.begin(), buffers.end());
                 }
-                renderer->update(currentFrame);
-                vkResetCommandBuffer(commandBuffer, 0);
-                constexpr VkCommandBufferBeginInfo beginInfo{
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                    .flags = 0,
-                    .pInheritanceInfo = nullptr
-                };
-                if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-                    die("failed to begin recording command buffer!");
+                for (const auto& commandBuffer : buffers) {
+                    vkResetCommandBuffer(commandBuffer, 0);
+                    constexpr VkCommandBufferBeginInfo beginInfo{
+                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                        .flags = 0,
+                        .pInheritanceInfo = nullptr
+                    };
+                    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+                        die("failed to begin recording command buffer!");
+                    }
+                    setInitialState(commandBuffer);
                 }
-                setInitialState(commandBuffer);
                 renderer->drawFrame(currentFrame, renderer == lastRenderer);
                 if (renderer == lastRenderer) {
+                    const VkCommandBuffer commandBuffer = buffers.front();
                     transitionImageLayout(
                         commandBuffer,
                         swapChainImages[data.imageIndex],
@@ -374,8 +376,10 @@ namespace z0 {
                         VK_IMAGE_ASPECT_COLOR_BIT);
 
                 }
-                if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-                    die("failed to record command buffer!");
+                for (const auto& commandBuffer : buffers) {
+                    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                        die("failed to record command buffer!");
+                    }
                 }
             };
 
@@ -384,16 +388,10 @@ namespace z0 {
                 for (const auto &renderer : renderers) {
                     if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
                 }
-                // for (auto &t : threads) {
-                    // t.join();
-                // }
             }
             for (const auto &renderer : renderers) {
                 if (!renderer->canBeThreaded()) { render(renderer); }
             }
-            // for (const auto &renderer : renderers) {
-                // render(renderer);
-            // }
 
             const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
