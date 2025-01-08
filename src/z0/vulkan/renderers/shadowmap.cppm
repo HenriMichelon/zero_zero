@@ -139,6 +139,8 @@ export namespace z0 {
 
         void createOrUpdateDescriptorSet(bool create) override;
 
+        vector<VkCommandBuffer> getCommandBuffers(uint32_t currentFrame) const override;
+
     public:
         ShadowMapRenderer(const ShadowMapRenderer &) = delete;
 

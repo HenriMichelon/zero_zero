@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Henri Michelon
+ * Copyright (c) 2024-2025 Henri Michelon
  * 
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
@@ -22,7 +22,7 @@ namespace z0 {
         commandBuffers.resize(dev.getFramesInFlight());
         const VkCommandBufferAllocateInfo allocInfo{
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPools.front(),
+            .commandPool = commandPools.back(),
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = 1
         };
@@ -38,7 +38,9 @@ namespace z0 {
     }
 
      Renderer::~Renderer() {
-        vkDestroyCommandPool(Device::get().getDevice(), commandPools.front(), nullptr);
+        for (const auto& commandPool : commandPools) {
+            vkDestroyCommandPool(Device::get().getDevice(), commandPool, nullptr);
+        }
     }
 
 

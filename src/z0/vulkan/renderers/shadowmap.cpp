@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Henri Michelon
+ * Copyright (c) 2024-2025 Henri Michelon
  * 
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
@@ -37,14 +37,33 @@ import z0.vulkan.Mesh;
 namespace z0 {
 
     ShadowMapRenderer::ShadowMapRenderer(Device &device, const shared_ptr<Light>&light) :
-        Renderer{true},
         Renderpass{device, WINDOW_CLEAR_COLOR},
+        Renderer{true},
         light{light} {
         frameData.resize(device.getFramesInFlight());
         for (auto& frame : frameData) {
             frame.shadowMap = make_shared<ShadowMapFrameBuffer>(device, isCascaded(), isCubemap());
-            if (isCascaded()) { frame.cascadesCount = reinterpret_pointer_cast<DirectionalLight>(light)->getShadowMapCascadesCount(); }
-        };
+            if (isCascaded()) {
+                frame.cascadesCount = reinterpret_pointer_cast<DirectionalLight>(light)->getShadowMapCascadesCount();
+            }
+        }
+        if (isCubemap()) {
+            const auto buffersCount = commandBuffers.size() * 6;
+            commandPools.resize(buffersCount);
+            commandBuffers.resize(buffersCount);
+            for (auto i = device.getFramesInFlight(); i < commandBuffers.size(); i++) {
+                commandPools.push_back(device.createCommandPool());
+                const VkCommandBufferAllocateInfo allocInfo{
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                    .commandPool = commandPools.back(),
+                    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                    .commandBufferCount = 1
+                };
+                if (vkAllocateCommandBuffers(device.getDevice(), &allocInfo, &commandBuffers[i]) != VK_SUCCESS) {
+                    die("failed to allocate renderer command buffers!");
+                }
+            }
+        }
     }
 
     void ShadowMapRenderer::loadScene(const list<shared_ptr<MeshInstance>> &meshes) {
@@ -283,22 +302,30 @@ namespace z0 {
         writeUniformBuffer(data.globalBuffer, &globalUBO);
     }
 
+    vector<VkCommandBuffer> ShadowMapRenderer::getCommandBuffers(const uint32_t currentFrame) const {
+        if (isCubemap()) {
+            auto buffers = vector<VkCommandBuffer>{};
+            for (int i = 0; i < 6; i++) {
+                buffers.push_back( commandBuffers[currentFrame + i * device.getFramesInFlight()]);
+            }
+            return buffers;
+        }
+        return Renderer::getCommandBuffers(currentFrame);
+    }
+
     void ShadowMapRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
         const auto& data = frameData[currentFrame];
         if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
-        const auto& commandBuffer = commandBuffers[currentFrame];
-        const auto passCount = isCubemap() ? 6 : data.cascadesCount;
-        auto pushConstants = PushConstants {};
-        for (int passIndex = 0; passIndex < passCount; passIndex++) {
-            device.transitionImageLayout(commandBuffer,
-                                                data.shadowMap->getImage(),
-                                                VK_IMAGE_LAYOUT_UNDEFINED,
-                                                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                                0,
-                                                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                                                VK_IMAGE_ASPECT_DEPTH_BIT);
+
+        auto render = [this, &data, currentFrame](const int passIndex) {
+            VkCommandBuffer commandBuffer;
+            if (isCubemap()) {
+                commandBuffer = commandBuffers[currentFrame + passIndex * device.getFramesInFlight()];
+            } else
+            {
+                commandBuffer = commandBuffers[currentFrame];
+            }
+            auto pushConstants = PushConstants {};
             const VkRenderingAttachmentInfo depthAttachmentInfo{
                 .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                 .imageView   = isCascaded() || isCubemap() ? data.shadowMap->getCascadedImageView(passIndex) : data.shadowMap->getImageView(),
@@ -311,8 +338,8 @@ namespace z0 {
             const VkRenderingInfo renderingInfo{.sType      = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                                 .pNext      = nullptr,
                                                 .renderArea = {
-                                                    {0, 0},
-                                                    {data.shadowMap->getWidth(), data.shadowMap->getHeight()}
+                {0, 0},
+                {data.shadowMap->getWidth(), data.shadowMap->getHeight()}
                                                 },
                                                 .layerCount = 1,
                                                 .colorAttachmentCount = 0,
@@ -374,6 +401,37 @@ namespace z0 {
             }
 
             vkCmdEndRendering(commandBuffer);
+
+        };
+
+        {
+            const VkCommandBuffer commandBuffer = Renderer::getCommandBuffers(currentFrame).front();
+            device.transitionImageLayout(commandBuffer,
+                                                data.shadowMap->getImage(),
+                                                VK_IMAGE_LAYOUT_UNDEFINED,
+                                                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                                0,
+                                                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                                VK_IMAGE_ASPECT_DEPTH_BIT);
+        }
+
+        const auto passCount = isCubemap() ? 6 : data.cascadesCount;
+        // if (isCubemap()) {
+        //     list<jthread> threads;
+        //     for (int passIndex = 0; passIndex < passCount; passIndex++) {
+        //         threads.push_back(jthread(render, passIndex));
+        //     }
+        // } else
+            {
+            for (int passIndex = 0; passIndex < passCount; passIndex++) {
+                render(passIndex);
+            }
+        }
+
+        {
+            const VkCommandBuffer commandBuffer = Renderer::getCommandBuffers(currentFrame).front();
             device.transitionImageLayout(commandBuffer,
                                          data.shadowMap->getImage(),
                                          VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
@@ -385,8 +443,8 @@ namespace z0 {
                                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                          // Before depth reads in the shader
                                          VK_IMAGE_ASPECT_DEPTH_BIT);
-
         }
+
     }
 
     void ShadowMapRenderer::loadShaders() {
