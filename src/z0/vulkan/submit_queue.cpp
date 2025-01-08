@@ -101,14 +101,14 @@ namespace z0 {
             .pCommandBuffers = &command.commandBuffer,
         };
         const auto&device = Device::get().getDevice();
-        const auto lock = lock_guard(getSubmitMutex());
-        vkResetFences(device, 1, &submitFence);
         {
+            vkResetFences(device, 1, &submitFence);
+            const auto lock = lock_guard(getSubmitMutex());
             if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
-            vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
         }
+        vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
         {
             const auto lock = lock_guard(oneTimeMutex);
             oneTimeCommands.push_back(command);
