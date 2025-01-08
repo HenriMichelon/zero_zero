@@ -331,13 +331,13 @@ namespace z0 {
                     auto lock = lock_guard(commandBuffersMutex);
                     commandBuffers.insert(commandBuffers.end(), buffers.begin(), buffers.end());
                 }
+                constexpr VkCommandBufferBeginInfo beginInfo{
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                    .flags = 0,
+                    .pInheritanceInfo = nullptr
+                };
                 for (const auto& commandBuffer : buffers) {
                     vkResetCommandBuffer(commandBuffer, 0);
-                    constexpr VkCommandBufferBeginInfo beginInfo{
-                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                        .flags = 0,
-                        .pInheritanceInfo = nullptr
-                    };
                     if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
                         die("failed to begin recording command buffer!");
                     }
@@ -374,7 +374,6 @@ namespace z0 {
                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                         VK_IMAGE_ASPECT_COLOR_BIT);
-
                 }
                 for (const auto& commandBuffer : buffers) {
                     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
