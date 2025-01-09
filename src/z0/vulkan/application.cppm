@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Henri Michelon
+ * Copyright (c) 2024-2025 Henri Michelon
  * 
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
@@ -67,6 +67,6 @@ export namespace z0 {
         // Debug view config
         JPH::BodyManager::DrawSettings bodyDrawSettings{};
 
-        static constexpr auto MAX_ASYNC_NODE_OP_PER_FRAME{10};
+        static constexpr auto MAX_ASYNC_NODE_OP_PER_FRAME{20};
     };
 }

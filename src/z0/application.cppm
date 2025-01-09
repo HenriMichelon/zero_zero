@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2024 Henri Michelon
+ * Copyright (c) 2024-2025 Henri Michelon
  * 
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
 module;
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/ObjectLayerPairFilterTable.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <cassert>
@@ -269,7 +268,6 @@ namespace z0 {
         float elapsedSeconds{0.0f};
         // If physics debug is enabled in the application config, it can be disabled at runtime
         bool displayDebug{true};
-
 
         struct FrameData {
             // Deferred list of nodes added to the current scene, processed before each frame
