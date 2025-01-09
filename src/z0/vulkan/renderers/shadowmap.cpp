@@ -318,6 +318,14 @@ namespace z0 {
         if (!light->isVisible() || !data.currentCamera || data.models.empty()) { return; }
 
         auto render = [this, &data, currentFrame](const int passIndex) {
+            vector<shared_ptr<MeshInstance>> meshes;
+            for (const auto &meshInstance : data.models) {
+                if (meshInstance->isVisible() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
+                    meshes.push_back(meshInstance);
+                }
+            }
+            if (meshes.empty()) { return; }
+
             VkCommandBuffer commandBuffer;
             if (isCubemap()) {
                 commandBuffer = commandBuffers[currentFrame + passIndex * device.getFramesInFlight()];
@@ -372,30 +380,28 @@ namespace z0 {
             pushConstants.lightSpaceIndex = passIndex;
             auto modelIndex = 0;
             auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
-            for (const auto &meshInstance : data.models) {
-                if (meshInstance->isVisible() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
-                    const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
-                    pushConstants.model = meshInstance->getTransformGlobal();
-                    for (const auto &surface : mesh->getSurfaces()) {
-                        pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
-                        vkCmdPushConstants(
-                            commandBuffer,
-                            pipelineLayout,
-                            VK_SHADER_STAGE_ALL_GRAPHICS,
-                            0,
-                            PUSHCONSTANTS_SIZE,
-                            &pushConstants);
-                        if (lastMeshId != mesh->getId()) {
-                            mesh->bind(commandBuffer);
-                        }
-                        vkCmdDrawIndexed(commandBuffer,
-                           surface->indexCount,
-                           1,
-                           surface->firstVertexIndex,
-                           0,
-                           0);
-                        lastMeshId = mesh->getId();
+            for (const auto &meshInstance : meshes) {
+                const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
+                pushConstants.model = meshInstance->getTransformGlobal();
+                for (const auto &surface : mesh->getSurfaces()) {
+                    pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
+                    vkCmdPushConstants(
+                        commandBuffer,
+                        pipelineLayout,
+                        VK_SHADER_STAGE_ALL_GRAPHICS,
+                        0,
+                        PUSHCONSTANTS_SIZE,
+                        &pushConstants);
+                    if (lastMeshId != mesh->getId()) {
+                        mesh->bind(commandBuffer);
                     }
+                    vkCmdDrawIndexed(commandBuffer,
+                       surface->indexCount,
+                       1,
+                       surface->firstVertexIndex,
+                       0,
+                       0);
+                    lastMeshId = mesh->getId();
                 }
                 modelIndex += 1;
             }
