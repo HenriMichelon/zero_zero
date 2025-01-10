@@ -245,6 +245,8 @@ namespace z0 {
             }
         } else if (property == "visible") {
             setVisible(value == "true");
+        } else if (property == "name") {
+            setName(value);
         }
     }
 
