@@ -559,17 +559,19 @@ namespace z0 {
     vec2 Input::getMousePosition() {
         POINT point;
         GetCursorPos(&point);
+        ScreenToClient(app().getWindow()._getHandle(), &point);
         return { point.x, point.y };
     }
 
     void Input::setMousePosition(const vec2& position) {
-        SetCursorPos(static_cast<int>(position.x), static_cast<int>(position.y));
+        POINT point{static_cast<int>(position.x), static_cast<int>(position.y)};
+        ClientToScreen(app().getWindow()._getHandle(), &point);
+        SetCursorPos(point.x, point.y);
     }
 
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
-        auto &wnd = app().getWindow();
-        PostMessage(wnd._getHandle(), WM_SETCURSOR, 0, 0);
+        PostMessage(app().getWindow()._getHandle(), WM_SETCURSOR, 0, 0);
     }
 
     void Input::setMouseMode(const MouseMode mode) {
@@ -604,6 +606,7 @@ namespace z0 {
             SetCapture(wnd._getHandle());
             ClipCursor(&rect);
             ShowCursor(FALSE);
+            resetMousePosition();
             break;
         }
         default:
