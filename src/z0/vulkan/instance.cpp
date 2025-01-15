@@ -61,7 +61,7 @@ namespace z0 {
 
     Instance::Instance() {
         // https://github.com/zeux/volk
-        if (volkInitialize() != VK_SUCCESS) die("Failed to initialize Volk");
+        if (volkInitialize() != VK_SUCCESS) { die("Failed to initialize Volk"); }
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
 #ifndef NDEBUG
@@ -125,9 +125,9 @@ namespace z0 {
 
 #endif
 
-        // Use Vulkan 1.3.x
+        // Use Vulkan 1.4.x
         constexpr VkApplicationInfo applicationInfo{.sType      = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                                                    .apiVersion = VK_API_VERSION_1_3};
+                                                    .apiVersion = VK_API_VERSION_1_4};
         // Initialize Vulkan instances, extensions & layers
         const VkInstanceCreateInfo createInfo = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
                                                  nullptr,
@@ -137,8 +137,9 @@ namespace z0 {
                                                  requestedLayers.data(),
                                                  static_cast<uint32_t>(instanceExtensions.size()),
                                                  instanceExtensions.data()};
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             die("Failed to create Vulkan instance");
+        }
         volkLoadInstance(instance);
 
 #ifndef NDEBUG
