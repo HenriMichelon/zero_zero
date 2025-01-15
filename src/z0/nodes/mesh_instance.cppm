@@ -5,7 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include "../../../../../zero_zero_thecard/cmake-build-debug-msvc/_deps/fetch_glfw-src/src/internal.h"
 #include "z0/libraries.h"
 
 export module z0.nodes.MeshInstance;
