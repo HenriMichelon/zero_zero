@@ -24,9 +24,13 @@ namespace z0 {
 
     shared_ptr<Image> Image::create(
                 const Device& device,
-                uint32_t width, uint32_t height,
-                uint64_t imageSize, const void *data,
-                const string & name, const ImageFormat format) {
+                uint32_t width,
+                uint32_t height,
+                uint64_t imageSize,
+                const void *data,
+                const string & name,
+                const ImageFormat format,
+                const bool isArray) {
         return make_shared<VulkanImage>(
             device,
             name,
@@ -36,7 +40,8 @@ namespace z0 {
             VK_IMAGE_TILING_OPTIMAL,
             VK_SAMPLER_ADDRESS_MODE_REPEAT,
             VK_FILTER_LINEAR,
-            true);
+            true,
+            isArray);
     }
 
     unordered_map<DXGI_FORMAT, VkFormat> dxgiToVulkanFormat = {
@@ -118,6 +123,12 @@ namespace z0 {
     shared_ptr<Image> Image::createBlankImage(const Device& device) {
         const auto& blankJPEG = createBlankJPG();
         return create(device, 1, 1, blankJPEG.size(), blankJPEG.data(), "Blank");
+    }
+
+    shared_ptr<Image> Image::createBlankImageArray(const Device& device) {
+        const auto& blankJPEG = createBlankJPG();
+        return create(device, 1, 1, blankJPEG.size(), blankJPEG.data(), "Blank",
+            ImageFormat::R8G8B8A8_SRGB, true);
     }
 
     shared_ptr<Image> Image::load(const string &filepath, const ImageFormat imageFormat) {

@@ -34,11 +34,12 @@ namespace z0 {
                  const VkImageTiling        tiling,
                  const VkSamplerAddressMode samplerAddressMode,
                  const VkFilter             samplerFilter,
-                 const bool                 noMipmaps):
+                 const bool                 noMipmaps,
+                 const bool                 isArray):
         VulkanImage(device, name, width, height, imageSize, data, format,
             samplerFilter, samplerFilter,
             samplerAddressMode, samplerAddressMode,
-            tiling, noMipmaps) {
+            tiling, noMipmaps, isArray) {
     }
 
     VulkanImage::VulkanImage(const Device &device,
@@ -53,7 +54,8 @@ namespace z0 {
                const VkSamplerAddressMode samplerAddressModeU,
                const VkSamplerAddressMode samplerAddressModeV,
                const VkImageTiling        tiling,
-               const bool                 noMipmaps) :
+               const bool                 noMipmaps,
+               const bool                 isArray) :
         Image(width, height, name),
         device{device} {
 
@@ -124,7 +126,8 @@ namespace z0 {
                                        mipLevels);
         }
         device.endOneTimeCommandBuffer(command);
-        textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels,
+            isArray ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D);
         if (!noMipmaps) {
             //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
             generateMipmaps(format);

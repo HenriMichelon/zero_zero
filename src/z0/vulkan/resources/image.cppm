@@ -36,7 +36,8 @@ export namespace z0 {
                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
                VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
                VkFilter             samplerFilter      = VK_FILTER_LINEAR,
-               bool                 noMipmaps          = false);
+               bool                 noMipmaps          = false,
+               bool                 isArray            = false);
 
         VulkanImage(const Device &  device,
                const string &       name,
@@ -50,7 +51,8 @@ export namespace z0 {
                VkSamplerAddressMode samplerAddressModeU,
                VkSamplerAddressMode samplerAddressModeV,
                VkImageTiling        tiling             = VK_IMAGE_TILING_OPTIMAL,
-               bool                 noMipmaps          = false);
+               bool                 noMipmaps          = false,
+               bool                 isArray            = false);
 
         VulkanImage(const Device &  device,
                uint32_t             width,

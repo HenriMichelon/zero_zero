@@ -503,8 +503,9 @@ namespace z0 {
         // Create an in-memory default blank images
         if (blankImage == nullptr) {
             blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device));
+            blankImageArray = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImageArray(device));
+            blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap());
         }
-        if (blankCubemap == nullptr) { blankCubemap = reinterpret_pointer_cast<VulkanCubemap>(Cubemap::createBlankCubemap()); }
 
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             frameData[i].globalBuffer = createUniformBuffer(GLOBAL_BUFFER_SIZE);
@@ -551,7 +552,7 @@ namespace z0 {
             }
 
             for (auto j = 0; j < frame.shadowMapsInfo.size(); j++) {
-                frame.shadowMapsInfo[j] = blankImage->getImageInfo();
+                frame.shadowMapsInfo[j] = blankImageArray->getImageInfo();
                 frame.shadowMapsCubemapInfo[j] = blankCubemap->getImageInfo();
             }
             imageIndex = 0;

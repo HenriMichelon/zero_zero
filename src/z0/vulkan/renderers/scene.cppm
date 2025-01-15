@@ -251,8 +251,10 @@ namespace z0 {
         bool enableDepthPrepass;
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
-        // Default blank image (for textures and shadow mapping)
+        // Default blank image (for textures)
         shared_ptr<VulkanImage> blankImage{nullptr};
+        // Default blank image (for shadow mapping)
+        shared_ptr<VulkanImage> blankImageArray{nullptr};
         // Default blank cubemap (for omni shadow mapping)
         shared_ptr<VulkanCubemap> blankCubemap{nullptr};
 
