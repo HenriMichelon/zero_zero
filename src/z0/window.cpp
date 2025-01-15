@@ -251,7 +251,7 @@ namespace z0 {
             const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
             if (data->enumIndex == data->monitorIndex) {
                 data->monitorRect = *lprcMonitor;
-                return TRUE;
+                return FALSE;
             }
             data->enumIndex++;
             return TRUE;
@@ -308,8 +308,8 @@ namespace z0 {
             };
             EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
             // Adjust the monitor selection
-            if (app().getConfig().windowMonitor < monitorData.enumIndex) {
-                monitorData.monitorIndex = app().getConfig().windowMonitor;
+            if (applicationConfig.windowMonitor < monitorData.enumIndex) {
+                monitorData.monitorIndex = applicationConfig.windowMonitor;
             } else {
                 monitorData.monitorIndex = 0;
             }
