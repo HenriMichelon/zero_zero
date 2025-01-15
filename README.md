@@ -1,6 +1,6 @@
 # ZeroZero
 
-ZeroZero is a 3D game engine based on [Vulkan 1.3](https://www.vulkan.org/) and [Jolt 5.x](https://github.com/jrouwe/JoltPhysics) made in Modern C++ for learning purpose.
+ZeroZero is a 3D game engine based on [Vulkan 1.4](https://www.vulkan.org/) and [Jolt 5.x](https://github.com/jrouwe/JoltPhysics) made in Modern C++ for learning purpose.
 
 [User documentation](https://henrimichelon.github.io/ZeroZero/)
 
