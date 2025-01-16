@@ -66,6 +66,10 @@ namespace z0 {
          */
         [[nodiscard]] inline const AABB &getAABB() const { return worldAABB; }
 
+        inline bool isCastShadows() const { return castShadows; }
+
+        void setProperty(const string &property, const string &value) override;
+
         friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
             return a.mesh < b.mesh;
         }
@@ -76,6 +80,7 @@ namespace z0 {
     private:
         AABB                       worldAABB;
         bool                       outlined{false};
+        bool                       castShadows{true};
         shared_ptr<Mesh>           mesh;
         shared_ptr<ShaderMaterial> outlineMaterial;
         

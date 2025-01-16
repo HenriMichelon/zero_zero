@@ -41,7 +41,14 @@ namespace z0 {
     void MeshInstance::_updateTransform() {
         Node::_updateTransform() ;
         worldAABB = mesh->getAABB().toGlobal(worldTransform) ;
-    };
+    }
+
+    void MeshInstance::setProperty(const string &property, const string &value) {
+        Node::setProperty(property, value) ;
+        if (property == "cast_shadows") {
+            castShadows = value == "true";
+        }
+    }
 
 
 }

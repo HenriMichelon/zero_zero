@@ -321,17 +321,17 @@ namespace z0 {
         auto render = [this, &data, currentFrame](const int passIndex) {
             vector<shared_ptr<MeshInstance>> meshes;
             for (const auto &meshInstance : data.models) {
-                if (meshInstance->isVisible() && (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
+                if (meshInstance->isVisible() &&
+                    meshInstance->isCastShadows() &&
+                    (isCascaded() || data.frustum[passIndex].isOnFrustum(meshInstance))) {
                     meshes.push_back(meshInstance);
                 }
             }
-            if (meshes.empty()) { return; }
 
             VkCommandBuffer commandBuffer;
             if (isCubemap()) {
                 commandBuffer = commandBuffers[currentFrame + passIndex * device.getFramesInFlight()];
-            } else
-            {
+            } else {
                 commandBuffer = commandBuffers[currentFrame];
             }
             auto pushConstants = PushConstants {};
@@ -356,59 +356,58 @@ namespace z0 {
                                                 .pDepthAttachment     = &depthAttachmentInfo,
                                                 .pStencilAttachment   = nullptr};
             vkCmdBeginRendering(commandBuffer, &renderingInfo);
+            if (!meshes.empty()) {
+                bindShaders(commandBuffer);
+                setViewport(commandBuffer, data.shadowMap->getWidth(), data.shadowMap->getHeight());
+                vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
+                constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
+                vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
+                vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
+                const auto vertexBinding   = VulkanMesh::getBindingDescription();
+                const auto vertexAttribute = VulkanMesh::getAttributeDescription();
+                vkCmdSetVertexInputEXT(commandBuffer,
+                                       vertexBinding.size(),
+                                       vertexBinding.data(),
+                                       vertexAttribute.size(),
+                                       vertexAttribute.data());
+                vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
+                vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
+                vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
+                vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
+                vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
-            bindShaders(commandBuffer);
-            setViewport(commandBuffer, data.shadowMap->getWidth(), data.shadowMap->getHeight());
-            vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
-            constexpr VkBool32 color_blend_enables[] = {VK_FALSE};
-            vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
-            vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
-            const auto vertexBinding   = VulkanMesh::getBindingDescription();
-            const auto vertexAttribute = VulkanMesh::getAttributeDescription();
-            vkCmdSetVertexInputEXT(commandBuffer,
-                                   vertexBinding.size(),
-                                   vertexBinding.data(),
-                                   vertexAttribute.size(),
-                                   vertexAttribute.data());
-            vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
-            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
-            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+                bindDescriptorSets(commandBuffer, currentFrame);
 
-            bindDescriptorSets(commandBuffer, currentFrame);
-
-            pushConstants.lightSpaceIndex = passIndex;
-            auto modelIndex = 0;
-            auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
-            for (const auto &meshInstance : meshes) {
-                const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
-                pushConstants.model = meshInstance->getTransformGlobal();
-                for (const auto &surface : mesh->getSurfaces()) {
-                    pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
-                    vkCmdPushConstants(
-                        commandBuffer,
-                        pipelineLayout,
-                        VK_SHADER_STAGE_ALL_GRAPHICS,
-                        0,
-                        PUSHCONSTANTS_SIZE,
-                        &pushConstants);
-                    if (lastMeshId != mesh->getId()) {
-                        mesh->bind(commandBuffer);
+                pushConstants.lightSpaceIndex = passIndex;
+                auto modelIndex = 0;
+                auto lastMeshId = Resource::id_t{numeric_limits<uint32_t>::max()}; // Used to reduce vkCmdBindVertexBuffers & vkCmdBindIndexBuffer calls
+                for (const auto &meshInstance : meshes) {
+                    const auto& mesh = reinterpret_pointer_cast<VulkanMesh>(meshInstance->getMesh());
+                    pushConstants.model = meshInstance->getTransformGlobal();
+                    for (const auto &surface : mesh->getSurfaces()) {
+                        pushConstants.transparency = static_cast<uint32_t>(surface->material->getTransparency());
+                        vkCmdPushConstants(
+                            commandBuffer,
+                            pipelineLayout,
+                            VK_SHADER_STAGE_ALL_GRAPHICS,
+                            0,
+                            PUSHCONSTANTS_SIZE,
+                            &pushConstants);
+                        if (lastMeshId != mesh->getId()) {
+                            mesh->bind(commandBuffer);
+                        }
+                        vkCmdDrawIndexed(commandBuffer,
+                           surface->indexCount,
+                           1,
+                           surface->firstVertexIndex,
+                           0,
+                           0);
+                        lastMeshId = mesh->getId();
                     }
-                    vkCmdDrawIndexed(commandBuffer,
-                       surface->indexCount,
-                       1,
-                       surface->firstVertexIndex,
-                       0,
-                       0);
-                    lastMeshId = mesh->getId();
+                    modelIndex += 1;
                 }
-                modelIndex += 1;
             }
-
             vkCmdEndRendering(commandBuffer);
-
         };
 
         {

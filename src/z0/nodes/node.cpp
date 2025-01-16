@@ -247,6 +247,10 @@ namespace z0 {
             setVisible(value == "true");
         } else if (property == "name") {
             setName(value);
+        } else  if (property == "cast_shadows") {
+            for (auto& child : _getChildren()) {
+                child->setProperty(property, value);
+            }
         }
     }
 
