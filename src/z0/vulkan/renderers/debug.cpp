@@ -5,7 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <volk.h>
+#include "z0/vulkan.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/Color.h>
 #include <Jolt/Renderer/DebugRenderer.h>
@@ -16,8 +16,6 @@ module;
     #undef JPH_DEBUG_RENDERER
 #endif // !JPH_DEBUG_RENDERER
 #include <Jolt/Physics/Collision/RayCast.h>
-
-
 #include "z0/libraries.h"
 
 module z0.vulkan.DebugRenderer;
@@ -191,11 +189,11 @@ namespace z0 {
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
         bindDescriptorSets(commandBuffer, currentFrame);
         if (!linesVertices.empty()) {
-            vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+            vkCmdSetPrimitiveTopology(commandBuffer, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
             vkCmdDraw(commandBuffer, linesVertices.size(), 1, 0, 0);
         }
         if (!triangleVertices.empty()) {
-            vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+            vkCmdSetPrimitiveTopology(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
             vkCmdDraw(commandBuffer, triangleVertices.size(), 1, linesVertices.size(), 0);
         }
         endRendering(currentFrame, isLast);

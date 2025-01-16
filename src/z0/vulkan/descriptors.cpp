@@ -11,10 +11,8 @@
  * https://vulkan-tutorial.com/Uniform_buffers/Descriptor_layout_and_buffer
 */
 module;
-#include <cstdlib>
 #include "z0/libraries.h"
-#include <cassert>
-#include <volk.h>
+#include "z0/vulkan.h"
 
 module z0.vulkan.Descriptors;
 

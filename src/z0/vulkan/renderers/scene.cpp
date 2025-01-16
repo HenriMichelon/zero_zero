@@ -8,7 +8,7 @@ module;
 #include <cassert>
 #include <glm/detail/type_mat3x4.hpp>
 #include <json.hpp>
-#include <volk.h>
+#include "z0/vulkan.h"
 #include "z0/libraries.h"
 
 module z0.vulkan.SceneRenderer;

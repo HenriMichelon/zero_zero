@@ -9,7 +9,7 @@
 #include <fastgltf/glm_element_traits.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <volk.h>
+#include "z0/vulkan.h"
 #include <z0/z0.h>
 #include "z0/libraries.h"
 namespace fs = std::filesystem;

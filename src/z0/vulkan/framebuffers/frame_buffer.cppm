@@ -5,7 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <volk.h>
+#include "z0/vulkan.h"
 
 export module z0.vulkan.FrameBuffer;
 

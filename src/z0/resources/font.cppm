@@ -6,8 +6,8 @@
 */
 module;
 #include <stb_truetype.h>
-#include <volk.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 export module z0.resources.Font;
 

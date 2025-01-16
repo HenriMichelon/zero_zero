@@ -12,7 +12,7 @@ module;
  * https://vulkan-tutorial.com/Loading_models
 */
 #include <cassert>
-#include <volk.h>
+#include "z0/vulkan.h"
 #include "z0/libraries.h"
 
 module z0.vulkan.Mesh;

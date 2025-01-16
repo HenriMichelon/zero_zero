@@ -5,9 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
-#include <volk.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 module z0.resources.Cubemap;
 

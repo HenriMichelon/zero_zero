@@ -55,7 +55,6 @@ Vulkan extensions and third parties dependencies used
 ---------------------------------------------------------------------------
 - [Dynamic rendering](https://docs.vulkan.org/samples/latest/samples/extensions/dynamic_rendering/README.html) (VK_KHR_dynamic_rendering)
 - [Shader object](https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html) (VK_EXT_shader_object)
-- [volk](https://github.com/zeux/volk) to load Vulkan functions
 - [VulkanMemoryAllocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator) for Vulkan buffers allocations
 - [glm](https://github.com/g-truc/glm) for mathematics
 - [stb](https://github.com/nothings/stb) for image loading and glyph rendering

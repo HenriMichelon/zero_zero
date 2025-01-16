@@ -5,7 +5,7 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <volk.h>
+#include "z0/vulkan.h"
 #include <Jolt/Jolt.h>
 #ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRenderer.h>

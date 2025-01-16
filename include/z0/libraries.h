@@ -11,6 +11,9 @@
 #else
 import glm;
 #endif
+#include <cassert>
+#include <cstddef>
+#include <cstdlib>
 import std;
 
 using namespace std;

@@ -5,8 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <cstdlib>
 #include "z0/libraries.h"
-#include <volk.h>
+#include "z0/vulkan.h"
 
 module z0.vulkan.VectorRenderer;
 
@@ -52,7 +53,7 @@ namespace z0 {
     void VectorRenderer::drawLine(const vec2 start, const vec2 end) {
         const auto scaled_start = (start + translate) / VECTOR_SCALE;
         const auto scaled_end   = (end + translate) / VECTOR_SCALE;
-        const auto color = vec4{vec3{penColor}, std::max(0.0f, penColor.a - transparency)};
+        const auto color = vec4{vec3{penColor}, glm::max(0.0f, penColor.a - transparency)};
         vertices.emplace_back(scaled_start);
         vertices.emplace_back(scaled_end);
         commands.emplace_back(PRIMITIVE_LINE, 2, color);
@@ -188,7 +189,7 @@ namespace z0 {
                                attributeDescriptions.size(),
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer,VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+        vkCmdSetPrimitiveTopology(commandBuffer,VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
 
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
@@ -200,10 +201,10 @@ namespace z0 {
         auto lastPrimitive = PRIMITIVE_LINE;
         for (const auto &command : frameData.at(currentFrame).commands) {
             if (lastPrimitive != command.primitive) {
-                vkCmdSetPrimitiveTopologyEXT(commandBuffer,
-                                             command.primitive == PRIMITIVE_LINE
-                                             ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
-                                             : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                vkCmdSetPrimitiveTopology(commandBuffer,
+                                          command.primitive == PRIMITIVE_LINE
+                                          ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+                                          : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
                 lastPrimitive = command.primitive;
             }
             const auto pushConstants = PushConstants {

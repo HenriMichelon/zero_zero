@@ -9,19 +9,6 @@ message(NOTICE "Searching for Vulkan SDK")
 find_package(Vulkan REQUIRED)
 target_include_directories(${Z0_TARGET} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
-###### Using Volk to load Vulkan functions
-message(NOTICE "Fetching volk from https://github.com/zeux/volk ...")
-FetchContent_Declare(
-        fetch_volk
-        GIT_REPOSITORY https://github.com/zeux/volk
-        GIT_TAG        1.4.304
-)
-FetchContent_MakeAvailable(fetch_volk)
-if (WIN32)
-    set(VOLK_STATIC_DEFINES VK_USE_PLATFORM_WIN32_KHR)
-endif()
-target_link_libraries(${Z0_TARGET} volk)
-
 ###### Using GLM for maths
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 add_compile_definitions(GLM_GTC_constants)

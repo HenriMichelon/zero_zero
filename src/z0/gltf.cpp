@@ -8,9 +8,9 @@ module;
 #include <glm/gtx/quaternion.hpp>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
-#include <volk.h>
 #include <stb_image.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 module z0.GlTF;
 

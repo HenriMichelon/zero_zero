@@ -6,7 +6,7 @@
 */
 module;
 #include <fastgltf/core.hpp>
-#include <volk.h>
+#include "z0/vulkan.h"
 #include "z0/libraries.h"
 
 export module image;

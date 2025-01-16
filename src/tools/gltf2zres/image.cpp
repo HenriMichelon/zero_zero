@@ -6,7 +6,7 @@
 */
 module;
 #include <fastgltf/core.hpp>
-#include <volk.h>
+#include "z0/vulkan.h"
 // #include <ddspp.h>
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION

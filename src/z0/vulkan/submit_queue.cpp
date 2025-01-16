@@ -5,8 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <volk.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 module z0.vulkan.SubmitQueue;
 

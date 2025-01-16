@@ -179,6 +179,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/instance.cpp
 		${Z0_ENGINE_DIR}/vulkan/shader.cpp
 		${Z0_ENGINE_DIR}/vulkan/submit_queue.cpp
+		${Z0_ENGINE_DIR}/vulkan/vulkan.cpp
 		${Z0_ENGINE_DIR}/vulkan/zres.cpp
 
 		${Z0_ENGINE_DIR}/nodes/animation_player.cpp
@@ -279,6 +280,7 @@ file(GLOB_RECURSE Z0_GLSL_SOURCE_FILES
 add_shaders(${Z0_TARGET}_shaders ${Z0_SHADERS_BUILD_DIR} ${Z0_SHADERS_DIR} ${Z0_GLSL_SOURCE_FILES})
 add_dependencies(${Z0_TARGET} ${Z0_TARGET}_shaders)
 target_include_directories(${Z0_TARGET} PUBLIC ${INCLUDE_DIR})
+#target_link_libraries(${Z0_TARGET} ${Vulkan_LIBRARIES})
 if(WIN32)
 	target_link_libraries(${Z0_TARGET} Xinput dinput8 dxguid dxgi)
 endif()

@@ -5,9 +5,8 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <volk.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 export module z0.vulkan.Instance;
 

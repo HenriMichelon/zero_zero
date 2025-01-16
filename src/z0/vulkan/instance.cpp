@@ -6,13 +6,12 @@
 */
 module;
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+    #define VK_USE_PLATFORM_WIN32_KHR
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
 #endif
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <volk.h>
-#include <cassert>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 module z0.vulkan.Instance;
 
@@ -60,9 +59,7 @@ namespace z0 {
 #endif
 
     Instance::Instance() {
-        // https://github.com/zeux/volk
-        if (volkInitialize() != VK_SUCCESS) { die("Failed to initialize Volk"); }
-
+        vulkanInitialize();
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Instance
 #ifndef NDEBUG
         const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
@@ -84,7 +81,7 @@ namespace z0 {
                     break;
                 }
             }
-            if (!layerFound) die("A requested Vulkan layer is not supported");
+            if (!layerFound) { die("A requested Vulkan layer is not supported"); }
         }
 
         vector<const char *> instanceExtensions{};
@@ -100,29 +97,6 @@ namespace z0 {
 #ifndef NDEBUG
         // To use a debug callback for validation message
         instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
-        // https://docs.vulkan.org/samples/latest/samples/extensions/shader_debugprintf/README.html
-        // Use run/debug config with environment variables (cf. shader_debug_env.cmd)
-        /*instanceExtensions.push_back(VK_EXT_LAYER_SETTINGS_EXTENSION_NAME);
-        const char *setting_debug_action[] = {"VK_DBG_LAYER_ACTION_LOG_MSG"};
-        const char *setting_validate_gpu_based[] = {"GPU_BASED_DEBUG_PRINTF"};
-        constexpr VkBool32 setting_enable_printf_to_stdout{VK_TRUE};
-
-        const auto layerSettings = array{
-                VkLayerSettingEXT{validationLayerName, "debug_action",
-                    VK_LAYER_SETTING_TYPE_STRING_EXT, 1, setting_debug_action},
-                VkLayerSettingEXT{validationLayerName, "validate_gpu_based",
-                    VK_LAYER_SETTING_TYPE_STRING_EXT, 1, setting_validate_gpu_based},
-                VkLayerSettingEXT{validationLayerName, "printf_to_stdout",
-                    VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &setting_enable_printf_to_stdout},
-        };
-        const auto layerSettingsCreateInfo = VkLayerSettingsCreateInfoEXT {
-            .sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
-            .pNext = nullptr,
-            .settingCount = layerSettings.size(),
-            .pSettings = layerSettings.data()
-        };*/
-
 #endif
 
         // Use Vulkan 1.4.x
@@ -140,7 +114,7 @@ namespace z0 {
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             die("Failed to create Vulkan instance");
         }
-        volkLoadInstance(instance);
+        vulkanInitializeInstance(instance);
 
 #ifndef NDEBUG
         // Initialize validating layer for logging
@@ -171,6 +145,7 @@ namespace z0 {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif
         vkDestroyInstance(instance, nullptr);
+        vulkanFinalize();
     }
 
 } // namespace z0

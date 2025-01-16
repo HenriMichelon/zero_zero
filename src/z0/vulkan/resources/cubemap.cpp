@@ -6,7 +6,7 @@
 */
 module;
 #include <cassert>
-#include <volk.h>
+#include "z0/vulkan.h"
 #include "z0/libraries.h"
 
 module z0.vulkan.Cubemap;

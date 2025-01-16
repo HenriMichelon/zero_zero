@@ -7,8 +7,7 @@
 #ifdef _WIN32
     #define VK_USE_PLATFORM_WIN32_KHR
 #endif
-#define VOLK_IMPLEMENTATION
-#include <volk.h>
+#include "z0/vulkan.h"
 #define VMA_IMPLEMENTATION
 #define VMA_VULKAN_VERSION 1003000
 #define VMA_STATIC_VULKAN_FUNCTIONS 0

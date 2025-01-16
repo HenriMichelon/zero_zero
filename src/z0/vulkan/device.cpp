@@ -5,17 +5,17 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
 #ifdef _WIN32
-#define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <dxgi1_4.h>
+    #define VK_USE_PLATFORM_WIN32_KHR
+    #define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    #include <dxgi1_4.h>
 #endif
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <volk.h>
-#include <vk_mem_alloc.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
+#include <vulkan/vulkan_win32.h>
+#include <vk_mem_alloc.h>
 
 module z0.vulkan.Device;
 
@@ -28,16 +28,18 @@ import z0.vulkan.Renderer;
 
 namespace z0 {
 
+    PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
+
     Device *Device::_instance = nullptr;
 
     Device::Device(VkInstance                  instance,
                    const vector<const char *> &requestedLayers,
                    const ApplicationConfig &   applicationConfig,
                    const Window &              theWindow):
+        window{theWindow},
         framesInFlight{applicationConfig.framesInFlight},
         samples{static_cast<VkSampleCountFlagBits>(applicationConfig.msaa)},
-        vkInstance{instance},
-        window{theWindow} {
+        vkInstance{instance} {
         assert(_instance == nullptr);
         _instance = this;
         framesData.resize(framesInFlight);
@@ -60,6 +62,7 @@ namespace z0 {
                 .hinstance = GetModuleHandle(nullptr),
                 .hwnd = theWindow._getHandle(),
         };
+        vkCreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(vkInstance, "vkCreateWin32SurfaceKHR");
         if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS) {
             die("Failed to create window surface!");
         }
@@ -161,6 +164,7 @@ namespace z0 {
             if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
                 die("Failed to create logical device!");
             }
+            vulkanInitializeDevice(device);
         }
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
@@ -192,11 +196,11 @@ namespace z0 {
             .vkCreateImage = vkCreateImage,
             .vkDestroyImage = vkDestroyImage,
             .vkCmdCopyBuffer = vkCmdCopyBuffer,
-            .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR,
-            .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2KHR,
-            .vkBindBufferMemory2KHR = vkBindBufferMemory2KHR,
-            .vkBindImageMemory2KHR = vkBindImageMemory2KHR,
-            .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR,
+            .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2,
+            .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2,
+            .vkBindBufferMemory2KHR = vkBindBufferMemory2,
+            .vkBindImageMemory2KHR = vkBindImageMemory2,
+            .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2,
             .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
             .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
         };
@@ -208,27 +212,9 @@ namespace z0 {
             .vulkanApiVersion = deviceProperties.properties.apiVersion,
         };
         vmaCreateAllocator(&allocatorInfo, &allocator);
-        volkLoadDevice(device);
 
         //////////////////// Create swap chain
         createSwapChain();
-
-        //////////////////// Create command pools & buffers
-        // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Command_buffers
-        // {
-        //     commandPool = createCommandPool();
-        //     const VkCommandBufferAllocateInfo allocInfo{
-        //         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        //         .commandPool = commandPool,
-        //         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        //         .commandBufferCount = 1
-        //     };
-        //     for (auto& data : framesData) {
-        //         if (vkAllocateCommandBuffers(device, &allocInfo, &data.commandBuffer) != VK_SUCCESS) {
-        //             die("failed to allocate command buffers!");
-        //         }
-        //     }
-        // }
 
         //////////////////// Create sync objects
         {
@@ -256,9 +242,6 @@ namespace z0 {
     }
 
     void Device::wait() const {
-        // for(auto& data : framesData) {
-        //     vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX);
-        // }
         vkQueueWaitIdle(graphicsQueue);
         vkDeviceWaitIdle(device);
     }
@@ -273,7 +256,6 @@ namespace z0 {
             vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
             vkDestroyFence(device, data.inFlightFence, nullptr);
         }
-        // vkDestroyCommandPool(device, commandPool, nullptr);
         cleanupSwapChain();
         vmaDestroyAllocator(allocator); // If it crashes here check for non deallocated Buffers
         vkDestroyDevice(device, nullptr);
@@ -751,8 +733,8 @@ namespace z0 {
         };
         vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
 
-        vkCmdSetPrimitiveTopologyEXT(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-        vkCmdSetPrimitiveRestartEnableEXT(commandBuffer, VK_FALSE);
+        vkCmdSetPrimitiveTopology(commandBuffer, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        vkCmdSetPrimitiveRestartEnable(commandBuffer, VK_FALSE);
         constexpr VkSampleMask sample_mask = 0xffffffff;
         vkCmdSetSampleMaskEXT(commandBuffer, samples, &sample_mask);
         vkCmdSetPolygonModeEXT(commandBuffer, VK_POLYGON_MODE_FILL);

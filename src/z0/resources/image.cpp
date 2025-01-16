@@ -8,8 +8,8 @@ module;
 //#include <ktx.h>
 #include <ddspp.h>
 #include <dxgiformat.h>
-#include <volk.h>
 #include "z0/libraries.h"
+#include "z0/vulkan.h"
 
 module z0.resources.Image;
 

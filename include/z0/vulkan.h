@@ -1,0 +1,154 @@
+#pragma once
+
+#define VK_NO_PROTOTYPES
+#include <vulkan/vulkan.h>
+
+/*
+ * Instance functions
+ */
+extern PFN_vkCreateDevice vkCreateDevice;
+extern PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
+extern PFN_vkCreateInstance vkCreateInstance;
+extern PFN_vkDestroyInstance vkDestroyInstance;
+extern PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties;
+extern PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
+extern PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+extern PFN_vkGetPhysicalDeviceFeatures vkGetPhysicalDeviceFeatures;
+extern PFN_vkGetPhysicalDeviceFormatProperties vkGetPhysicalDeviceFormatProperties;
+extern PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
+extern PFN_vkGetPhysicalDeviceMemoryProperties2 vkGetPhysicalDeviceMemoryProperties2;
+extern PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
+extern PFN_vkGetPhysicalDeviceProperties2 vkGetPhysicalDeviceProperties2;
+extern PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
+
+/*
+ * VK_KHR_surface instance extension
+ */
+extern PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;
+extern PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+extern PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
+extern PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR;
+extern PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
+
+/*
+ * Device functions
+ */
+extern PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
+extern PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
+extern PFN_vkAllocateMemory vkAllocateMemory;
+extern PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
+extern PFN_vkBindBufferMemory vkBindBufferMemory;
+extern PFN_vkBindBufferMemory2 vkBindBufferMemory2;
+extern PFN_vkBindImageMemory vkBindImageMemory;
+extern PFN_vkBindImageMemory2 vkBindImageMemory2;
+extern PFN_vkCmdBeginRendering vkCmdBeginRendering;
+extern PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
+extern PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
+extern PFN_vkCmdBindPipeline vkCmdBindPipeline;
+extern PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
+extern PFN_vkCmdBlitImage vkCmdBlitImage;
+extern PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
+extern PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
+extern PFN_vkCmdCopyImage vkCmdCopyImage;
+extern PFN_vkCmdDispatch vkCmdDispatch;
+extern PFN_vkCmdDraw vkCmdDraw;
+extern PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
+extern PFN_vkCmdEndRendering vkCmdEndRendering;
+extern PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;
+extern PFN_vkCmdSetDepthBias vkCmdSetDepthBias;
+extern PFN_vkCmdSetRasterizerDiscardEnable vkCmdSetRasterizerDiscardEnable;
+extern PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount;
+extern PFN_vkCmdSetViewportWithCount vkCmdSetViewportWithCount;
+extern PFN_vkCreateComputePipelines vkCreateComputePipelines;
+extern PFN_vkCreateBuffer vkCreateBuffer;
+extern PFN_vkCreateCommandPool vkCreateCommandPool;
+extern PFN_vkCreateDescriptorPool vkCreateDescriptorPool;
+extern PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
+extern PFN_vkCreateFence vkCreateFence;
+extern PFN_vkCreateImage vkCreateImage;
+extern PFN_vkCreateImageView vkCreateImageView;
+extern PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
+extern PFN_vkCreateSampler vkCreateSampler;
+extern PFN_vkCreateSemaphore vkCreateSemaphore;
+extern PFN_vkCreateShaderModule vkCreateShaderModule;
+extern PFN_vkDestroyBuffer vkDestroyBuffer;
+extern PFN_vkDestroyCommandPool vkDestroyCommandPool;
+extern PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool;
+extern PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout;
+extern PFN_vkDestroyDevice vkDestroyDevice;
+extern PFN_vkDestroyFence vkDestroyFence;
+extern PFN_vkDestroyImage vkDestroyImage;
+extern PFN_vkDestroyImageView vkDestroyImageView;
+extern PFN_vkDestroyPipeline vkDestroyPipeline;
+extern PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
+extern PFN_vkDestroySampler vkDestroySampler;
+extern PFN_vkDestroySemaphore vkDestroySemaphore;
+extern PFN_vkDestroyShaderModule vkDestroyShaderModule;
+extern PFN_vkDeviceWaitIdle vkDeviceWaitIdle;
+extern PFN_vkEndCommandBuffer vkEndCommandBuffer;
+extern PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
+extern PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
+extern PFN_vkFreeMemory vkFreeMemory;
+extern PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
+extern PFN_vkGetBufferMemoryRequirements2 vkGetBufferMemoryRequirements2;
+extern PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
+extern PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
+extern PFN_vkGetDeviceQueue vkGetDeviceQueue;
+extern PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
+extern PFN_vkGetImageMemoryRequirements2 vkGetImageMemoryRequirements2;
+extern PFN_vkCmdPushConstants vkCmdPushConstants;
+extern PFN_vkQueueSubmit vkQueueSubmit;
+extern PFN_vkQueueWaitIdle vkQueueWaitIdle;
+extern PFN_vkResetCommandBuffer vkResetCommandBuffer;
+extern PFN_vkResetDescriptorPool vkResetDescriptorPool;
+extern PFN_vkResetFences vkResetFences;
+extern PFN_vkCmdSetColorWriteMaskEXT vkCmdSetColorWriteMaskEXT;
+extern PFN_vkCmdSetCullMode vkCmdSetCullMode;
+extern PFN_vkCmdSetDepthBiasEnable vkCmdSetDepthBiasEnable;
+extern PFN_vkCmdSetDepthCompareOp vkCmdSetDepthCompareOp;
+extern PFN_vkCmdSetFrontFace vkCmdSetFrontFace;
+extern PFN_vkCmdSetLineWidth vkCmdSetLineWidth;
+extern PFN_vkCmdSetDepthTestEnable vkCmdSetDepthTestEnable;
+extern PFN_vkCmdSetDepthWriteEnable vkCmdSetDepthWriteEnable;
+extern PFN_vkCmdSetLogicOpEnableEXT vkCmdSetLogicOpEnableEXT;
+extern PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
+extern PFN_vkCmdSetPrimitiveRestartEnable vkCmdSetPrimitiveRestartEnable;
+extern PFN_vkCmdSetStencilTestEnable vkCmdSetStencilTestEnable;
+extern PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
+extern PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;
+extern PFN_vkMapMemory vkMapMemory;
+extern PFN_vkUnmapMemory vkUnmapMemory;
+extern PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
+extern PFN_vkWaitForFences vkWaitForFences;
+
+/*
+ * VK_KHR_swapchain device extension
+ */
+extern PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
+extern PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
+extern PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
+extern PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
+extern PFN_vkQueuePresentKHR vkQueuePresentKHR;
+
+/*
+ * VK_EXT_shader_object device extension
+ */
+extern PFN_vkCmdBindShadersEXT vkCmdBindShadersEXT;
+extern PFN_vkCreateShadersEXT vkCreateShadersEXT;
+extern PFN_vkDestroyShaderEXT vkDestroyShaderEXT;
+
+/*
+ * VK_EXT_extended_dynamic_state3 device extension
+ */
+extern PFN_vkCmdSetAlphaToCoverageEnableEXT vkCmdSetAlphaToCoverageEnableEXT;
+extern PFN_vkCmdSetColorBlendEnableEXT vkCmdSetColorBlendEnableEXT;
+extern PFN_vkCmdSetColorBlendEquationEXT vkCmdSetColorBlendEquationEXT;
+extern PFN_vkCmdSetPolygonModeEXT vkCmdSetPolygonModeEXT;
+extern PFN_vkCmdSetRasterizationSamplesEXT vkCmdSetRasterizationSamplesEXT;
+extern PFN_vkCmdSetSampleMaskEXT vkCmdSetSampleMaskEXT;
+extern PFN_vkCmdSetVertexInputEXT vkCmdSetVertexInputEXT;
+
+void vulkanInitialize();
+void vulkanInitializeInstance(VkInstance instance);
+void vulkanInitializeDevice(VkDevice device);
+void vulkanFinalize();
