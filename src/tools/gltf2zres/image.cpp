@@ -6,13 +6,12 @@
 */
 module;
 #include <fastgltf/core.hpp>
-#include "z0/vulkan.h"
 // #include <ddspp.h>
 #include <stb_image.h>
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize2.h"
+#include <stb_image_resize2.h>
 #include "z0/libraries.h"
-
+#include "z0/vulkan.h"
 
 module image;
 
