@@ -257,9 +257,11 @@ namespace z0 {
         shared_ptr<VulkanImage> blankImageArray{nullptr};
         // Default blank cubemap (for omni shadow mapping)
         shared_ptr<VulkanCubemap> blankCubemap{nullptr};
-
+        // Vertex shader for the depth pre-pass
         unique_ptr<Shader> depthPrepassVertShader;
+        // destination frame buffer
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
+        // resolved destination frame buffer
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
         //mutex descriptorSetMutex;
 

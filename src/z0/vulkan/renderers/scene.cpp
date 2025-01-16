@@ -256,16 +256,18 @@ namespace z0 {
 
     void SceneRenderer::update(uint32_t currentFrame) {
         auto& frame = frameData[currentFrame];
-        if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) { return; }
+        auto& currentCamera = ModelsRenderer::frameData[currentFrame].currentCamera;
+        if (currentCamera == nullptr) { return; }
         if (frame.skyboxRenderer != nullptr) {
-            frame.skyboxRenderer->update(ModelsRenderer::frameData[currentFrame].currentCamera, frame.currentEnvironment, currentFrame);
+            frame.skyboxRenderer->update(currentCamera, frame.currentEnvironment, currentFrame);
         }
-        if (ModelsRenderer::frameData[currentFrame].models.empty()) { return; }
+        auto& models = ModelsRenderer::frameData[currentFrame].models;
+        if (models.empty()) { return; }
 
         GlobalBuffer globalUbo{
-            .projection      = ModelsRenderer::frameData[currentFrame].currentCamera->getProjection(),
-            .view            = ModelsRenderer::frameData[currentFrame].currentCamera->getView(),
-            .cameraPosition  = ModelsRenderer::frameData[currentFrame].currentCamera->getPositionGlobal(),
+            .projection      = currentCamera->getProjection(),
+            .view            = currentCamera->getView(),
+            .cameraPosition  = currentCamera->getPositionGlobal(),
             .lightsCount     = 0,
             .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
@@ -340,10 +342,10 @@ namespace z0 {
         frame.opaquesModels.clear();
         frame.transparentModels.clear();
         if (ModelsRenderer::frameData[currentFrame].modelsDirty) {
-            frame.modelUBOArray = make_unique<ModelBuffer[]>(ModelsRenderer::frameData[currentFrame].models.size());
+            frame.modelUBOArray = make_unique<ModelBuffer[]>(models.size());
         }
         uint32_t modelIndex = 0;
-        for (const auto &meshInstance : ModelsRenderer::frameData[currentFrame].models) {
+        for (const auto &meshInstance : models) {
             if (meshInstance->isVisible() && frame.cameraFrustum.isOnFrustum(meshInstance)) {
                 const auto meshId = meshInstance->getMesh()->getId();
                 if (!frame.meshesIndices.contains(meshId)) {

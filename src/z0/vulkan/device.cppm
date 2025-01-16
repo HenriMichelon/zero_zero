@@ -162,8 +162,11 @@ export namespace z0 {
         };
         VkSampleCountFlagBits        samples;
 
+        // Threaded queue to submit one time commands
         unique_ptr<SubmitQueue>      submitQueue;
+        // List of current renderers
         list<shared_ptr<Renderer>>   renderers;
+        // List of renderers to remove at the start of the next frame
         list<shared_ptr<Renderer>>   renderersToRemove;
         mutex                        renderersToRemoveMutex;
 
@@ -175,7 +178,7 @@ export namespace z0 {
         IDXGIAdapter3 *              dxgiAdapter{nullptr};
 #endif
 
-        // Drawing a frame
+        // per-frame data
         struct FrameData {
             VkSemaphore       imageAvailableSemaphore;
             VkSemaphore       renderFinishedSemaphore;
@@ -184,8 +187,11 @@ export namespace z0 {
             unique_ptr<thread>renderThread;
         };
         vector<FrameData> framesData;
+        // number of frames in flight
         const uint32_t    framesInFlight;
+        // swap chain image blit parameters
         VkImageBlit       colorImageBlit{};
+        // wait stages for vkQueueSubmit
         static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         // Swap chain management

@@ -291,6 +291,7 @@ namespace z0 {
         }
         vkResetFences(device, 1, &data.inFlightFence);
         {
+            // get the next available swap chain image
             auto lock = lock_guard(swapChainMutex);
             const auto result = vkAcquireNextImageKHR(device,
                                                  swapChain,
@@ -314,6 +315,8 @@ namespace z0 {
     void Device::renderFrame(uint32_t currentFrame) {
         auto& data = framesData[currentFrame];
         const auto &lastRenderer = renderers.back();
+
+        // List of command buffers to submit
         mutex commandBuffersMutex;
         vector<VkCommandBuffer> commandBuffers;
         commandBuffers.reserve(renderers.size());
@@ -339,6 +342,7 @@ namespace z0 {
             }
             renderer->drawFrame(currentFrame, renderer == lastRenderer);
             if (renderer == lastRenderer) {
+                // Blit last renderer frame buffer into the swap chain image
                 const VkCommandBuffer commandBuffer = buffers.front();
                 transitionImageLayout(
                     commandBuffer,
@@ -375,6 +379,7 @@ namespace z0 {
                 }
             }
         };
+
         {
             list<jthread> threads;
             for (const auto &renderer : renderers) {
