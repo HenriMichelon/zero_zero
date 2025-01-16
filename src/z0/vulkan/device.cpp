@@ -419,8 +419,8 @@ namespace z0 {
                     }
                 }
             };
-            data.renderThread = make_unique<thread>(draw);
-            //draw();
+            //data.renderThread = make_unique<thread>(draw);
+            draw();
         }
     }
 
@@ -715,8 +715,7 @@ namespace z0 {
         return requiredExtensions.empty();
     }
 
-    VkSurfaceFormatKHR Device::chooseSwapSurfaceFormat(
-            const vector<VkSurfaceFormatKHR> &availableFormats) {
+    VkSurfaceFormatKHR Device::chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats) {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Choosing-the-right-settings-for-the-swap-chain
         for (const auto &availableFormat : availableFormats) {
             // Using sRGB no-linear color space
@@ -727,8 +726,7 @@ namespace z0 {
         return availableFormats[0];
     }
 
-    VkPresentModeKHR Device::chooseSwapPresentMode(
-            const vector<VkPresentModeKHR> &availablePresentModes) {
+    VkPresentModeKHR Device::chooseSwapPresentMode(const vector<VkPresentModeKHR> &availablePresentModes) {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Presentation-mode
         for (const auto &availablePresentMode : availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -784,13 +782,15 @@ namespace z0 {
 
         uint32_t score = 0;
         // Discrete GPUs have a significant performance advantage
-        if (_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        if (_deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             score += 1000;
+        }
         // Maximum possible size of textures affects graphics quality
         score += _deviceProperties.limits.maxImageDimension2D;
         // Application can't function without geometry shaders
-        if (!deviceFeatures.geometryShader)
+        if (!deviceFeatures.geometryShader) {
             return 0;
+        }
 
         bool extensionsSupported = checkDeviceExtensionSupport(vkPhysicalDevice, deviceExtensions);
         bool swapChainAdequate   = false;
@@ -799,8 +799,9 @@ namespace z0 {
             swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
         }
         QueueFamilyIndices indices = findQueueFamilies(vkPhysicalDevice);
-        if ((!extensionsSupported) || (!indices.isComplete()) || (!swapChainAdequate))
+        if ((!extensionsSupported) || (!indices.isComplete()) || (!swapChainAdequate)) {
             return 0;
+        }
         return score;
     }
 

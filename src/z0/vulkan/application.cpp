@@ -75,13 +75,13 @@ namespace z0 {
             applicationConfig.useDepthPrepass);
         // tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
         //     *device,
-        //     sceneRenderer->getColorAttachments(),
+        //     c->getColorAttachments(),
         //     sceneRenderer->getDepthAttachments());
-        // vectorRenderer = make_shared<VectorRenderer>(
-        //     *device,
-        //     tonemappingRenderer->getColorAttachments());
+        vectorRenderer = make_shared<VectorRenderer>(
+            *device,
+            sceneRenderer->getColorAttachments());
 
-        // device->registerRenderer(vectorRenderer);
+        device->registerRenderer(vectorRenderer);
         // device->registerRenderer(tonemappingRenderer);
         if (applicationConfig.debug) {
             debugRenderer = make_shared<DebugRenderer>(
