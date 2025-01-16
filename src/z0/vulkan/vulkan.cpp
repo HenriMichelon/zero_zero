@@ -1,8 +1,15 @@
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+/*
+* Copyright (c) 2024-2025 Henri Michelon
+ *
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+*/
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    HMODULE vulkanModule;
+#endif
 #include "z0/vulkan.h"
-
-HMODULE vulkanModule;
 
 PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
 PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
@@ -131,8 +138,8 @@ PFN_vkCmdSetVertexInputEXT vkCmdSetVertexInputEXT;
 void vulkanInitialize() {
 #ifdef _WIN32
     vulkanModule = LoadLibraryA("vulkan-1.dll");
-#endif
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)(void(*)(void))GetProcAddress(vulkanModule, "vkGetInstanceProcAddr");
+#endif
     vkCreateInstance = (PFN_vkCreateInstance)vkGetInstanceProcAddr(nullptr, "vkCreateInstance");
     vkEnumerateInstanceLayerProperties = (PFN_vkEnumerateInstanceLayerProperties)vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceLayerProperties");
 }
@@ -264,7 +271,6 @@ void vulkanInitializeDevice(VkDevice device) {
 	vkCmdSetSampleMaskEXT = (PFN_vkCmdSetSampleMaskEXT)vkGetDeviceProcAddr(device, "vkCmdSetSampleMaskEXT");
 	vkCmdSetVertexInputEXT = (PFN_vkCmdSetVertexInputEXT)vkGetDeviceProcAddr(device, "vkCmdSetVertexInputEXT");
 }
-
 
 void vulkanFinalize() {
     FreeLibrary(vulkanModule);

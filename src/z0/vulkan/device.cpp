@@ -7,14 +7,16 @@
 module;
 #ifdef _WIN32
     #define VK_USE_PLATFORM_WIN32_KHR
-    #define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
     #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
     #include <windows.h>
     #include <dxgi1_4.h>
 #endif
 #include "z0/libraries.h"
 #include "z0/vulkan.h"
-#include <vulkan/vulkan_win32.h>
+#ifdef _WIN32
+    #include <vulkan/vulkan_win32.h>
+#endif
 #include <vk_mem_alloc.h>
 
 module z0.vulkan.Device;
@@ -28,7 +30,9 @@ import z0.vulkan.Renderer;
 
 namespace z0 {
 
+#ifdef _WIN32
     PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
+#endif
 
     Device *Device::_instance = nullptr;
 
