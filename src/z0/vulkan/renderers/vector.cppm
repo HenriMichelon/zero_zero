@@ -188,6 +188,8 @@ namespace z0 {
         // To upload images & vertices to the GPU
         VkCommandPool commandPool;
 
+        //mutex descriptorSetMutex;
+
         void init();
 
         void addImage(const shared_ptr<Image> &image);

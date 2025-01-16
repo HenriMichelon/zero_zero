@@ -443,7 +443,11 @@ namespace z0 {
             vkCmdSetDepthTestEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
-            bindDescriptorSets(commandBuffer, currentFrame);
+            {
+                //auto lock = lock_guard(descriptorSetMutex);
+                bindDescriptorSets(commandBuffer, currentFrame);
+            }
+
             if (frame.drawOutlines) {
                 vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
                 drawOutlines( currentFrame, frame.opaquesModels);
@@ -524,6 +528,7 @@ namespace z0 {
     }
 
     void SceneRenderer::createOrUpdateDescriptorSet(const bool create) {
+        //auto lock = lock_guard(descriptorSetMutex);
         for (auto frameIndex = 0; frameIndex < device.getFramesInFlight(); frameIndex++) {
             auto& frame = frameData[frameIndex];
             if (!ModelsRenderer::frameData[frameIndex].models.empty() && (frame.modelBufferCount != ModelsRenderer::frameData[frameIndex].models.size())) {
@@ -951,7 +956,10 @@ namespace z0 {
             vkCmdSetDepthWriteEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
             vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
-            bindDescriptorSets(commandBuffer, currentFrame);
+            {
+                //auto lock = lock_guard(descriptorSetMutex);
+                bindDescriptorSets(commandBuffer, currentFrame);
+            }
 
             auto previousCullMode{CullMode::DISABLED};
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);

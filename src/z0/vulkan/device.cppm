@@ -202,6 +202,8 @@ export namespace z0 {
 
         void recreateSwapChain();
 
+        void renderFrame(uint32_t currentFrame);
+
         // Check if all the requested Vulkan extensions are supported by a device
         [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice            vkPhysicalDevice,
                                                               const vector<const char *> &deviceExtensions);

@@ -194,7 +194,10 @@ namespace z0 {
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, vertexOffsets);
-        bindDescriptorSets(commandBuffer, currentFrame);
+        {
+            //auto lock = lock_guard(descriptorSetMutex);
+            bindDescriptorSets(commandBuffer, currentFrame);
+        }
 
         auto vertexIndex{0};
         auto commandIndex{0};
@@ -344,6 +347,7 @@ namespace z0 {
     }
 
     void VectorRenderer::createOrUpdateDescriptorSet(const bool create) {
+        //auto lock = lock_guard(descriptorSetMutex);
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             uint32_t imageIndex = 0;
             for (const auto &image : textures) {

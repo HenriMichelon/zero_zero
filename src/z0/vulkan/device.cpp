@@ -281,9 +281,9 @@ namespace z0 {
             renderersToRemove.clear();
         }
         auto& data = framesData[currentFrame];
-        if (data.renderThread) {
-            data.renderThread->join();
-        }
+        // if (data.renderThread) {
+            // data.renderThread->join();
+        // }
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
         if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
@@ -291,136 +291,134 @@ namespace z0 {
         }
         vkResetFences(device, 1, &data.inFlightFence);
         {
+            auto lock = lock_guard(swapChainMutex);
+            const auto result = vkAcquireNextImageKHR(device,
+                                                 swapChain,
+                                                 UINT64_MAX,
+                                                 data.imageAvailableSemaphore,
+                                                 VK_NULL_HANDLE,
+                                                 &data.imageIndex);
+            if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+                recreateSwapChain();
+                for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
+                return;
+            }
+            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+                die("failed to acquire swap chain image :", to_string(result));
+            }
+        }
+        // data.renderThread = make_unique<thread>(&Device::renderFrame, this, currentFrame);
+        renderFrame(currentFrame);
+    }
+
+    void Device::renderFrame(uint32_t currentFrame) {
+        auto& data = framesData[currentFrame];
+        const auto &lastRenderer = renderers.back();
+        mutex commandBuffersMutex;
+        vector<VkCommandBuffer> commandBuffers;
+        commandBuffers.reserve(renderers.size());
+
+        auto render = [this, &data, &commandBuffers, &commandBuffersMutex, currentFrame, lastRenderer](const shared_ptr<Renderer>& renderer) {
+            renderer->update(currentFrame);
+            const auto buffers = renderer->getCommandBuffers(currentFrame);
             {
-                auto lock = lock_guard(swapChainMutex);
-                const auto result = vkAcquireNextImageKHR(device,
-                                                     swapChain,
-                                                     UINT64_MAX,
-                                                     data.imageAvailableSemaphore,
-                                                     VK_NULL_HANDLE,
-                                                     &data.imageIndex);
-                if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-                    recreateSwapChain();
-                    for (const auto &renderer : renderers) { renderer->recreateImagesResources(); }
-                    return;
+                auto lock = lock_guard(commandBuffersMutex);
+                commandBuffers.insert(commandBuffers.end(), buffers.begin(), buffers.end());
+            }
+            constexpr VkCommandBufferBeginInfo beginInfo{
+                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                .flags = 0,
+                .pInheritanceInfo = nullptr
+            };
+            for (const auto& commandBuffer : buffers) {
+                vkResetCommandBuffer(commandBuffer, 0);
+                if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+                    die("failed to begin recording command buffer!");
                 }
-                if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-                    die("failed to acquire swap chain image :", to_string(result));
+                setInitialState(commandBuffer);
+            }
+            renderer->drawFrame(currentFrame, renderer == lastRenderer);
+            if (renderer == lastRenderer) {
+                const VkCommandBuffer commandBuffer = buffers.front();
+                transitionImageLayout(
+                    commandBuffer,
+                    swapChainImages[data.imageIndex],
+                    VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    0,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    VK_IMAGE_ASPECT_COLOR_BIT);
+                vkCmdBlitImage(commandBuffer,
+                   lastRenderer->getImage(currentFrame),
+                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                   swapChainImages[data.imageIndex],
+                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                   1,
+                   &colorImageBlit,
+                   VK_FILTER_LINEAR);
+                transitionImageLayout(
+                    commandBuffer,
+                    swapChainImages[data.imageIndex],
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    0,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                    VK_IMAGE_ASPECT_COLOR_BIT);
+            }
+            for (const auto& commandBuffer : buffers) {
+                if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                    die("failed to record command buffer!");
                 }
             }
+        };
+        {
+            list<jthread> threads;
+            for (const auto &renderer : renderers) {
+                if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
+            }
+        }
+        for (const auto &renderer : renderers) {
+            if (!renderer->canBeThreaded()) { render(renderer); }
+        }
+        // for (const auto &renderer : renderers) {
+            // render(renderer);
+        // }
 
-            auto draw = [this, &data, currentFrame]{
-                const auto &lastRenderer = renderers.back();
-                mutex commandBuffersMutex;
-                vector<VkCommandBuffer> commandBuffers;
-                commandBuffers.reserve(renderers.size());
-
-                auto render = [this, &data, &commandBuffers, &commandBuffersMutex, currentFrame, lastRenderer](const shared_ptr<Renderer>& renderer) {
-                    renderer->update(currentFrame);
-                    const auto buffers = renderer->getCommandBuffers(currentFrame);
-                    {
-                        auto lock = lock_guard(commandBuffersMutex);
-                        commandBuffers.insert(commandBuffers.end(), buffers.begin(), buffers.end());
-                    }
-                    constexpr VkCommandBufferBeginInfo beginInfo{
-                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                        .flags = 0,
-                        .pInheritanceInfo = nullptr
-                    };
-                    for (const auto& commandBuffer : buffers) {
-                        vkResetCommandBuffer(commandBuffer, 0);
-                        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-                            die("failed to begin recording command buffer!");
-                        }
-                        setInitialState(commandBuffer);
-                    }
-                    renderer->drawFrame(currentFrame, renderer == lastRenderer);
-                    if (renderer == lastRenderer) {
-                        const VkCommandBuffer commandBuffer = buffers.front();
-                        transitionImageLayout(
-                            commandBuffer,
-                            swapChainImages[data.imageIndex],
-                            VK_IMAGE_LAYOUT_UNDEFINED,
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            0,
-                            VK_ACCESS_TRANSFER_WRITE_BIT,
-                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                            VK_IMAGE_ASPECT_COLOR_BIT);
-                        vkCmdBlitImage(commandBuffer,
-                           lastRenderer->getImage(currentFrame),
-                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           swapChainImages[data.imageIndex],
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           1,
-                           &colorImageBlit,
-                           VK_FILTER_LINEAR);
-                        transitionImageLayout(
-                            commandBuffer,
-                            swapChainImages[data.imageIndex],
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                            0,
-                            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                            VK_IMAGE_ASPECT_COLOR_BIT);
-                    }
-                    for (const auto& commandBuffer : buffers) {
-                        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-                            die("failed to record command buffer!");
-                        }
-                    }
-                };
-
-                {
-                    list<jthread> threads;
-                    for (const auto &renderer : renderers) {
-                        if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
-                    }
-                }
-                for (const auto &renderer : renderers) {
-                    if (!renderer->canBeThreaded()) { render(renderer); }
-                }
-                // for (const auto &renderer : renderers) {
-                    // render(renderer);
-                // }
-
-                {
-                    const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
-                    const VkSubmitInfo submitInfo{
-                        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                        .waitSemaphoreCount = 1,
-                        .pWaitSemaphores = &data.imageAvailableSemaphore,
-                        .pWaitDstStageMask = waitStages,
-                        .commandBufferCount = static_cast<uint32_t>(commandBuffers.size()),
-                        .pCommandBuffers = commandBuffers.data(),
-                        .signalSemaphoreCount = 1,
-                        .pSignalSemaphores =  &data.renderFinishedSemaphore
-                    };
-                    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
-                        die("failed to submit draw command buffer!");
-                    }
-                    {
-                        auto lock_swapchain = lock_guard(swapChainMutex);
-                        const VkSwapchainKHR   swapChains[] = {swapChain};
-                        const VkPresentInfoKHR presentInfo{
-                            .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-                            .waitSemaphoreCount = 1,
-                            .pWaitSemaphores    = &data.renderFinishedSemaphore,
-                            .swapchainCount     = 1,
-                            .pSwapchains        = swapChains,
-                            .pImageIndices      = &data.imageIndex,
-                            .pResults           = nullptr // Optional
-                        };
-                        if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
-                            die("failed to present swap chain image!");
-                        }
-                    }
-                }
+        {
+            const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
+            const VkSubmitInfo submitInfo{
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                .waitSemaphoreCount = 1,
+                .pWaitSemaphores = &data.imageAvailableSemaphore,
+                .pWaitDstStageMask = waitStages,
+                .commandBufferCount = static_cast<uint32_t>(commandBuffers.size()),
+                .pCommandBuffers = commandBuffers.data(),
+                .signalSemaphoreCount = 1,
+                .pSignalSemaphores =  &data.renderFinishedSemaphore
             };
-            //data.renderThread = make_unique<thread>(draw);
-            draw();
+            if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
+                die("failed to submit draw command buffer!");
+            }
+            {
+                auto lock_swapchain = lock_guard(swapChainMutex);
+                const VkSwapchainKHR   swapChains[] = {swapChain};
+                const VkPresentInfoKHR presentInfo{
+                    .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+                    .waitSemaphoreCount = 1,
+                    .pWaitSemaphores    = &data.renderFinishedSemaphore,
+                    .swapchainCount     = 1,
+                    .pSwapchains        = swapChains,
+                    .pImageIndices      = &data.imageIndex,
+                    .pResults           = nullptr // Optional
+                };
+                if (vkQueuePresentKHR(presentQueue, &presentInfo) != VK_SUCCESS) {
+                    die("failed to present swap chain image!");
+                }
+            }
         }
     }
 

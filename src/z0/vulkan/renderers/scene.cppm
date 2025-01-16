@@ -261,6 +261,7 @@ namespace z0 {
         unique_ptr<Shader> depthPrepassVertShader;
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
+        //mutex descriptorSetMutex;
 
         void update(uint32_t currentFrame) override;
 
