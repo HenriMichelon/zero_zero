@@ -181,6 +181,7 @@ export namespace z0 {
             VkSemaphore       renderFinishedSemaphore;
             VkFence           inFlightFence;
             uint32_t          imageIndex;
+            unique_ptr<thread>renderThread;
         };
         vector<FrameData> framesData;
         const uint32_t    framesInFlight;
@@ -188,11 +189,12 @@ export namespace z0 {
         static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         // Swap chain management
-        VkSwapchainKHR             swapChain;
-        vector<VkImage>            swapChainImages;
-        VkFormat                   swapChainImageFormat;
-        VkExtent2D                 swapChainExtent;
-        vector<VkImageView>        swapChainImageViews;
+        VkSwapchainKHR         swapChain;
+        mutex                  swapChainMutex;
+        vector<VkImage>        swapChainImages;
+        VkFormat               swapChainImageFormat;
+        VkExtent2D             swapChainExtent;
+        vector<VkImageView>    swapChainImageViews;
 
         void createSwapChain();
 

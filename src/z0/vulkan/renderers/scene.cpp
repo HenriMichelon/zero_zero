@@ -421,11 +421,22 @@ namespace z0 {
     }
 
     void SceneRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
+        const auto& commandBuffer = commandBuffers[currentFrame];
         if (ModelsRenderer::frameData[currentFrame].currentCamera == nullptr) {
+            if (isLast) {
+                Device::transitionImageLayout(commandBuffer,
+                         colorFrameBufferHdr[currentFrame]->getImage(),
+                         VK_IMAGE_LAYOUT_UNDEFINED,
+                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                         0,
+                         VK_ACCESS_TRANSFER_READ_BIT,
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         VK_IMAGE_ASPECT_COLOR_BIT);
+            }
             return;
         }
         beginRendering(currentFrame);
-        const auto& commandBuffer = commandBuffers[currentFrame];
         setInitialState(commandBuffer, currentFrame);
         const auto& frame = frameData[currentFrame];
         if (!ModelsRenderer::frameData[currentFrame].models.empty()) {

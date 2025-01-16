@@ -78,11 +78,13 @@ namespace z0 {
             }
             if (!needRedraw) { return; }
             needRedraw = false;
-            vectorRenderer->beginDraw();
-            for (const auto& window: windows) {
-                window->draw();
+            if (vectorRenderer) {
+                vectorRenderer->beginDraw();
+                for (const auto& window: windows) {
+                    window->draw();
+                }
+                vectorRenderer->endDraw();
             }
-            vectorRenderer->endDraw();
         }
 
         void Manager::add(const shared_ptr<Window> &window) {

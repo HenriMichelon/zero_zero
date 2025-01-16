@@ -18,15 +18,18 @@ namespace z0 {
 
     Renderer::Renderer(const bool canBeThreaded): threaded{canBeThreaded} {
         const auto& dev = Device::get();
-        commandPools.push_back(dev.createCommandPool());
+        commandPools.resize(dev.getFramesInFlight());
         commandBuffers.resize(dev.getFramesInFlight());
-        const VkCommandBufferAllocateInfo allocInfo{
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            .commandPool = commandPools.back(),
-            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            .commandBufferCount = 1
-        };
         for (auto i = 0; i < dev.getFramesInFlight(); i++) {
+            commandPools[i] = dev.createCommandPool();
+        }
+        for (auto i = 0; i < dev.getFramesInFlight(); i++) {
+            const VkCommandBufferAllocateInfo allocInfo{
+                .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                .commandPool = commandPools[i],
+                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                .commandBufferCount = 1
+            };
             if (vkAllocateCommandBuffers(dev.getDevice(), &allocInfo, &commandBuffers[i]) != VK_SUCCESS) {
                 die("failed to allocate renderer command buffers!");
             }

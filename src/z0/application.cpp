@@ -6,8 +6,8 @@
 */
 module;
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
 #endif
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/Factory.h>
@@ -15,8 +15,6 @@ module;
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/RegisterTypes.h>
-#include <cassert>
-
 #include "z0/libraries.h"
 
 module z0.Application;

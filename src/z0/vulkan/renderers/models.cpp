@@ -95,7 +95,7 @@ import z0.vulkan.Mesh;
     }
 
     ModelsRenderer::ModelsRenderer(Device &device, const vec3 clearColor):
-        Renderer{true},
+        Renderer{false},
         Renderpass(device, clearColor) {
         frameData.resize(device.getFramesInFlight());
     }

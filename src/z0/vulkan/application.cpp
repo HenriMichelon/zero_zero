@@ -5,7 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cassert>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyManager.h>
 #include "z0/libraries.h"
@@ -74,16 +73,16 @@ namespace z0 {
             *device,
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass);
-        tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
-            *device,
-            sceneRenderer->getColorAttachments(),
-            sceneRenderer->getDepthAttachments());
-        vectorRenderer = make_shared<VectorRenderer>(
-            *device,
-            tonemappingRenderer->getColorAttachments());
+        // tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
+        //     *device,
+        //     sceneRenderer->getColorAttachments(),
+        //     sceneRenderer->getDepthAttachments());
+        // vectorRenderer = make_shared<VectorRenderer>(
+        //     *device,
+        //     tonemappingRenderer->getColorAttachments());
 
-        device->registerRenderer(vectorRenderer);
-        device->registerRenderer(tonemappingRenderer);
+        // device->registerRenderer(vectorRenderer);
+        // device->registerRenderer(tonemappingRenderer);
         if (applicationConfig.debug) {
             debugRenderer = make_shared<DebugRenderer>(
                 *device,
