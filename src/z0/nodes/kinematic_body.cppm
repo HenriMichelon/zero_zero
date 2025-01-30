@@ -17,7 +17,7 @@ import z0.resources.Shape;
 export namespace z0 {
 
     /**
-     * Physics body moved by velocities only
+     * Physics body moved by velocities only, does not respond to forces.
      */
     class KinematicBody : public PhysicsBody {
     public:
