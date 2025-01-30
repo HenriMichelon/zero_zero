@@ -65,38 +65,6 @@ namespace z0 {
         }
     }
 
-    void CollisionObject::setVelocity(const vec3& velocity) {
-        if (bodyId.IsInvalid()) { return; }
-        if (velocity == VEC3ZERO) {
-            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
-        } else {
-            // current orientation * velocity
-            const auto vel = getRotationQuaternion() * velocity;
-            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{vel.x, vel.y, vel.z});
-        }
-    }
-
-    vec3 CollisionObject::getVelocity() const {
-        if (bodyId.IsInvalid()) { return VEC3ZERO; }
-        const auto velocity = bodyInterface.GetLinearVelocity(bodyId);
-        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
-    }
-
-    void CollisionObject::applyForce(const vec3& force) const {
-        if (bodyId.IsInvalid()) { return; }
-        bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z});
-    }
-
-    void CollisionObject::applyForce(const vec3& force, const vec3& position) const {
-        if (bodyId.IsInvalid()) { return; }
-        bodyInterface.AddForce(
-                bodyId,
-                JPH::Vec3{force.x, force.y, force.z},
-                JPH::Vec3{position.x, position.y, position.z});
-    }
-
     bool CollisionObject::wereInContact(const CollisionObject *obj) const {
         if (bodyId.IsInvalid()) { return false; }
         return app()._getPhysicsSystem().WereBodiesInContact(bodyId, obj->bodyId);

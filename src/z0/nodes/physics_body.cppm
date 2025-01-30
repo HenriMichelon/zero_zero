@@ -49,6 +49,41 @@ export namespace z0 {
          */
         void setShape(const shared_ptr<Shape> &shape);
 
+
+        /**
+         * Sets the linear velocity
+         */
+        virtual void setVelocity(const vec3& velocity);
+
+        virtual void setGravityFactor(float factor);
+
+        /**
+        * Sets the coefficient of restitution
+        * (the ratio of the relative velocity of separation after collision to the relative velocity of approach before collision)
+       */
+        void setBounce(float value) const;
+
+        /**
+         * Sets the body's mass.
+         */
+        void setMass(float value) const;
+
+        /**
+         * Returns the linear velocity
+         */
+        [[nodiscard]] virtual vec3 getVelocity() const;
+
+        /**
+         * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
+         */
+        void applyForce(const vec3& force) const;
+
+        /**
+         * Add force (unit: N) at `position` for the next time step, will be reset after the next physics update
+         */
+        void applyForce(const vec3& force, const vec3& position) const;
+
+
         void setProperty(const string &property, const string &value) override;
 
         void recreateBody();

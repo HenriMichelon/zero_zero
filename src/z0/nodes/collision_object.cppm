@@ -61,26 +61,6 @@ export namespace z0 {
         virtual void setCollisionLayer(uint32_t layer);
 
         /**
-         * Sets the linear velocity
-         */
-        virtual void setVelocity(const vec3& velocity);
-
-        /**
-         * Returns the linear velocity
-         */
-        [[nodiscard]] virtual vec3 getVelocity() const;
-
-        /**
-         * Add force (unit: N) at center of mass for the next time step, will be reset after the next physics update
-         */
-        void applyForce(const vec3& force) const;
-
-        /**
-         * Add force (unit: N) at `position` for the next time step, will be reset after the next physics update
-         */
-        void applyForce(const vec3& force, const vec3& position) const;
-
-        /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step
          */
         [[nodiscard]] bool wereInContact(const CollisionObject *obj) const;

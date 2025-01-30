@@ -29,6 +29,14 @@ namespace z0 {
                     KINEMATIC_BODY) {
     }
 
+    KinematicBody::KinematicBody(const string &name):
+       PhysicsBody(0,
+                   JPH::EActivation::Activate,
+                   JPH::EMotionType::Kinematic,
+                   name,
+                   KINEMATIC_BODY) {
+    }
+
     shared_ptr<Node> KinematicBody::duplicateInstance() {
         return make_shared<KinematicBody>(*this);
     }

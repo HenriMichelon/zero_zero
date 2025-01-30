@@ -7,13 +7,14 @@
 module;
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/EActivation.h>
 #include <glm/gtx/quaternion.hpp>
 #include "z0/libraries.h"
 
 module z0.nodes.PhysicsBody;
 
+import z0.Application;
 import z0.Constants;
 import z0.Tools;
 
@@ -72,6 +73,62 @@ namespace z0 {
         setShape(dynamic_pointer_cast<Shape>(shape->duplicate()));
     }
 
+
+    void PhysicsBody::setVelocity(const vec3& velocity) {
+        if (bodyId.IsInvalid()) { return; }
+        if (velocity == VEC3ZERO) {
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3::sZero());
+        } else {
+            // current orientation * velocity
+            const auto vel = getRotationQuaternion() * velocity;
+            bodyInterface.SetLinearVelocity(bodyId, JPH::Vec3{vel.x, vel.y, vel.z});
+        }
+    }
+
+    void PhysicsBody::setGravityFactor(float factor) {
+        if (bodyId.IsInvalid()) { return; }
+        bodyInterface.SetGravityFactor(bodyId, factor);
+    }
+
+    vec3 PhysicsBody::getVelocity() const {
+        if (bodyId.IsInvalid()) { return VEC3ZERO; }
+        const auto velocity = bodyInterface.GetLinearVelocity(bodyId);
+        return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    void PhysicsBody::applyForce(const vec3& force) const {
+        if (bodyId.IsInvalid()) { return; }
+        bodyInterface.AddForce(
+                bodyId,
+                JPH::Vec3{force.x, force.y, force.z});
+    }
+
+    void PhysicsBody::applyForce(const vec3& force, const vec3& position) const {
+        if (bodyId.IsInvalid()) { return; }
+        bodyInterface.AddForce(
+                bodyId,
+                JPH::Vec3{force.x, force.y, force.z},
+                JPH::Vec3{position.x, position.y, position.z});
+    }
+
+    void PhysicsBody::setMass(const float value) const {
+        assert(!_getBodyId().IsInvalid());
+        const JPH::BodyLockWrite lock(app()._getPhysicsSystem().GetBodyLockInterface(), _getBodyId());
+        if (lock.Succeeded()) {
+            JPH::MotionProperties *mp = lock.GetBody().GetMotionProperties();
+            if (value != 0.0f) {
+                mp->SetInverseMass(1.0f/value);
+            } else {
+                mp->SetInverseMass(0.0f);
+            }
+        }
+    }
+
+    void PhysicsBody::setBounce(const float value) const {
+        assert(!_getBodyId().IsInvalid());
+        bodyInterface.SetRestitution(_getBodyId(), value);
+    }
+
     void PhysicsBody::setProperty(const string &property, const string &value) {
         CollisionObject::setProperty(property, value);
         if (property == "shape") {
@@ -103,6 +160,10 @@ namespace z0 {
                     die("PhysicsBody : missing or invalid shape for ", getName());
                 }
             }
+        } else if (property == "mass") {
+            setMass(stof(value));
+        } else if (property == "bounce") {
+            setBounce(stof(value));
         }
     }
 

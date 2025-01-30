@@ -72,6 +72,11 @@ export namespace z0 {
         [[nodiscard]] vec3 getGroundVelocity() const;
 
         /**
+         * Returns the velocity in the world space of the ground.
+         */
+        [[nodiscard]] Node* getGround() const;
+
+        /**
          * Returns the UP axis for this Character
          */
         [[nodiscard]] inline const vec3 &getUpVector() const { return upVector; }
@@ -89,7 +94,7 @@ export namespace z0 {
         /**
          * Moves the virtualCharacter using this velocity
          */
-        void setVelocity(const vec3& velocity) override;
+        void setVelocity(const vec3& velocity);
 
         /**
          * Set the maximum angle of slope that character can still walk on (degrres)
@@ -104,7 +109,7 @@ export namespace z0 {
 
         void setCollisionLayer(uint32_t layer) override;
 
-        vec3 getVelocity() const override;
+        vec3 getVelocity() const;
 
     protected:
         void setPositionAndRotation() override;

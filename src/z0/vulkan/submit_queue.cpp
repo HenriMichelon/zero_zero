@@ -17,14 +17,15 @@ import z0.vulkan.Device;
 namespace z0 {
 
     SubmitQueue::SubmitQueue(const VkQueue& graphicQueue) :
-        mainThreadId(this_thread::get_id()),
+        mainThreadId{this_thread::get_id()},
         graphicQueue{graphicQueue},
         queueThread{&SubmitQueue::run, this} {
         constexpr VkFenceCreateInfo fenceInfo{
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .flags = 0
+            .flags = VK_FENCE_CREATE_SIGNALED_BIT
         };
-        vkCreateFence(Device::get().getDevice(), &fenceInfo, nullptr, &submitFence);
+        const auto& device = Device::get().getDevice();
+        vkCreateFence(device, &fenceInfo, nullptr, &submitFence);
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
@@ -101,22 +102,24 @@ namespace z0 {
             .pCommandBuffers = &command.commandBuffer,
         };
         const auto&device = Device::get().getDevice();
+        // log("queue start submit");
         {
+            const auto lock_queue = lock_guard(getSubmitMutex());
+            // vkQueueWaitIdle(graphicQueue);
             vkResetFences(device, 1, &submitFence);
-            const auto lock = lock_guard(getSubmitMutex());
             if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
-        }
-        vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
-        {
-            const auto lock = lock_guard(oneTimeMutex);
+            // wait the commands to be completed before destroying command buffer
+            vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
+            const auto lock_commands = lock_guard(oneTimeMutex);
             oneTimeCommands.push_back(command);
             {
                 auto lockBuffer = lock_guard(oneTimeBuffersMutex);
                 oneTimeBuffers.erase(command.commandBuffer);
             }
         }
+        // log("queue end submit");
     }
 
     void SubmitQueue::stop() {

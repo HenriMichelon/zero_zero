@@ -19,6 +19,7 @@ import z0.Constants;
 import z0.Tools;
 
 import z0.nodes.CollisionObject;
+import z0.nodes.Node;
 
 import z0.resources.Shape;
 
@@ -59,6 +60,10 @@ namespace z0 {
     vec3 Character::getGroundVelocity() const {
         const auto velocity = virtualCharacter->GetGroundVelocity();
         return vec3{velocity.GetX(), velocity.GetY(), velocity.GetZ()};
+    }
+
+    Node* Character::getGround() const {
+        return reinterpret_cast<Node*>(virtualCharacter->GetGroundUserData());
     }
 
     void Character::setUpVector(const vec3& vector) {

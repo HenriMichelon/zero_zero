@@ -43,27 +43,9 @@ namespace z0 {
                     RIGID_BODY) {
     }
 
-    void RigidBody::setMass(const float value) const {
-        assert(!_getBodyId().IsInvalid());
-        const JPH::BodyLockWrite lock(app()._getPhysicsSystem().GetBodyLockInterface(), _getBodyId());
-        if (lock.Succeeded()) {
-            JPH::MotionProperties *mp = lock.GetBody().GetMotionProperties();
-            mp->SetInverseMass(1.0f/std::max<float>(0.01f, value));
-        }
-    }
-
-    void RigidBody::setBounce(const float value) const {
-        assert(!_getBodyId().IsInvalid());
-        bodyInterface.SetRestitution(_getBodyId(), value);
-    }
-
     void RigidBody::setProperty(const string &property, const string &value) {
         PhysicsBody::setProperty(property, value);
-        if (property == "bounce") {
-            setBounce(stof(value));
-        } else if (property == "mass") {
-            setMass(stof(value));
-        }
+
     }
 
     shared_ptr<Node> RigidBody::duplicateInstance() {

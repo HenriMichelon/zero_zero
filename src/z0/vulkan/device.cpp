@@ -136,8 +136,6 @@ namespace z0 {
             }
         }
         // Initialize device extensions and create a logical device
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Specifying-used-device-features
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Creating-the-logical-device
         {
             // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
             VkPhysicalDeviceShaderObjectFeaturesEXT deviceShaderObjectFeatures{
@@ -223,11 +221,11 @@ namespace z0 {
         //////////////////// Create sync objects
         {
             constexpr VkSemaphoreCreateInfo semaphoreInfo{
-                    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+                .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
             };
             constexpr VkFenceCreateInfo fenceInfo{
-                    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                    .flags = VK_FENCE_CREATE_SIGNALED_BIT
+                .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                .flags = VK_FENCE_CREATE_SIGNALED_BIT
             };
             for (auto& data : framesData) {
                 if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &data.imageAvailableSemaphore) != VK_SUCCESS
@@ -395,6 +393,7 @@ namespace z0 {
 
         {
             const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
+            vkQueueWaitIdle(graphicsQueue);
             const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                 .waitSemaphoreCount = 1,
@@ -408,6 +407,7 @@ namespace z0 {
             if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
+
             {
                 auto lock_swapchain = lock_guard(swapChainMutex);
                 const VkSwapchainKHR   swapChains[] = {swapChain};

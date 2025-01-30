@@ -30,6 +30,11 @@ export namespace z0 {
                                uint32_t                 layer = 0,
                                const string &           name  = TypeNames[KINEMATIC_BODY]);
 
+        /**
+         * Creates a KinematicBody without a collision shape,
+         */
+        explicit KinematicBody(const string &name = TypeNames[KINEMATIC_BODY]);
+
         ~KinematicBody() override = default;
 
     protected:
