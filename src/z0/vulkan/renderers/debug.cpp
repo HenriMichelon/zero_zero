@@ -38,13 +38,13 @@ namespace z0 {
                                  const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr,
                                  const vector<shared_ptr<DepthFrameBuffer>>    &depthAttachment,
                                  const bool useDepthTest) :
-        Renderer{true},
         Renderpass{device, WINDOW_CLEAR_COLOR},
+        Renderer{false},
         useDepthTest{useDepthTest} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {
-            frameData.at(i).colorFrameBufferHdr = inputColorAttachmentHdr.at(i);
-            frameData.at(i).depthFrameBuffer = depthAttachment.at(i);
+            frameData[i].colorFrameBufferHdr = inputColorAttachmentHdr[i];
+            frameData[i].depthFrameBuffer = depthAttachment[i];
         }
         attributeDescriptions.push_back({
                VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT,
@@ -79,8 +79,8 @@ namespace z0 {
     }
 
     void DebugRenderer::activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame) {
-        frameData.at(currentFrame).currentCamera = camera;
-        auto cameraPosition = frameData.at(currentFrame).currentCamera->getPositionGlobal();
+        frameData[currentFrame].currentCamera = camera;
+        const auto& cameraPosition = frameData[currentFrame].currentCamera->getPositionGlobal();
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 
@@ -122,7 +122,7 @@ namespace z0 {
     }
 
     void DebugRenderer::update(const uint32_t currentFrame) {
-        const auto& frame = frameData.at(currentFrame);
+        const auto& frame = frameData[currentFrame];
         if (!frame.currentCamera || !app().getDisplayDebug()) { return; }
         // Destroy the previous buffer when we are sure they aren't used by another frame
         oldBuffers.clear();
@@ -167,7 +167,7 @@ namespace z0 {
     }
 
     void DebugRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
-        if ((!frameData.at(currentFrame).currentCamera) || !app().getDisplayDebug() || (vertexCount == 0)) {
+        if ((!frameData[currentFrame].currentCamera) || !app().getDisplayDebug() || (vertexCount == 0)) {
             return;
         }
         beginRendering(currentFrame);
@@ -202,7 +202,7 @@ namespace z0 {
     void DebugRenderer::beginRendering(const uint32_t currentFrame) {
         const auto& commandBuffer = commandBuffers[currentFrame];
         Device::transitionImageLayout(commandBuffer,
-                                      frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
+                                      frameData[currentFrame].colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                       0,
@@ -212,7 +212,7 @@ namespace z0 {
                                       VK_IMAGE_ASPECT_COLOR_BIT);
         const VkRenderingAttachmentInfo colorAttachmentInfo{
             .sType          = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-            .imageView      = frameData.at(currentFrame).colorFrameBufferHdr->getImageView(),
+            .imageView      = frameData[currentFrame].colorFrameBufferHdr->getImageView(),
             .imageLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             .resolveMode    = VK_RESOLVE_MODE_NONE,
             .loadOp         = VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -221,7 +221,7 @@ namespace z0 {
         };
         const VkRenderingAttachmentInfo depthAttachmentInfo{
             .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-            .imageView          = frameData.at(currentFrame).depthFrameBuffer->getImageView(),
+            .imageView          = frameData[currentFrame].depthFrameBuffer->getImageView(),
             .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             .resolveMode        = VK_RESOLVE_MODE_NONE,
             .loadOp             = VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -245,7 +245,7 @@ namespace z0 {
         const auto& commandBuffer = commandBuffers[currentFrame];
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,
-                                      frameData.at(currentFrame).colorFrameBufferHdr->getImage(),
+                                      frameData[currentFrame].colorFrameBufferHdr->getImage(),
                                       VK_IMAGE_LAYOUT_UNDEFINED,
                                       isLast
                                       ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
@@ -282,7 +282,7 @@ namespace z0 {
                                     VK_SHADER_STAGE_VERTEX_BIT)
                         .build();
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            frameData.at(i).globalBuffer = createUniformBuffer(GLOBAL_BUFFER_SIZE);
+            frameData[i].globalBuffer = createUniformBuffer(GLOBAL_BUFFER_SIZE);
         }
     }
 
