@@ -25,7 +25,6 @@ export namespace z0 {
     class CollisionObject : public Node {
     public:
 
-
         /**
          * Signal called whenever a new contact point is detected and reports the first contact point in a CollisionObject::Collision<br>
          * For characters, called whenever the character collides with a body.

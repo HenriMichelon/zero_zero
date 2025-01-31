@@ -30,37 +30,21 @@ export namespace z0 {
          */
         void setGravityScale(float value);
 
-    protected:
-        PhysicsBody(const shared_ptr<Shape> &shape,
-                    uint32_t                 layer,
-                    JPH::EActivation         activationMode,
-                    JPH::EMotionType         motionType,
-                    const string &           name= TypeNames[PHYSICS_BODY],
-                    Type                     type = PHYSICS_BODY);
-
-        PhysicsBody(uint32_t         layer,
-                    JPH::EActivation activationMode,
-                    JPH::EMotionType motionType,
-                    const string &   name = TypeNames[PHYSICS_BODY],
-                    Type             type = PHYSICS_BODY);
-
-        /**
-         * Sets a new collision shape, recreates the body in the physic system
-         */
-        void setShape(const shared_ptr<Shape> &shape);
-
-
         /**
          * Sets the linear velocity
          */
         virtual void setVelocity(const vec3& velocity);
 
+        /**
+         *
+         * Sets the gravity multiplier (set to 0.0f to disable gravity).
+         */
         virtual void setGravityFactor(float factor);
 
         /**
         * Sets the coefficient of restitution
         * (the ratio of the relative velocity of separation after collision to the relative velocity of approach before collision)
-       */
+        */
         void setBounce(float value) const;
 
         /**
@@ -83,10 +67,28 @@ export namespace z0 {
          */
         void applyForce(const vec3& force, const vec3& position) const;
 
-
         void setProperty(const string &property, const string &value) override;
 
         void recreateBody();
+
+    protected:
+        PhysicsBody(const shared_ptr<Shape> &shape,
+                    uint32_t                 layer,
+                    JPH::EActivation         activationMode,
+                    JPH::EMotionType         motionType,
+                    const string &           name= TypeNames[PHYSICS_BODY],
+                    Type                     type = PHYSICS_BODY);
+
+        PhysicsBody(uint32_t         layer,
+                    JPH::EActivation activationMode,
+                    JPH::EMotionType motionType,
+                    const string &   name = TypeNames[PHYSICS_BODY],
+                    Type             type = PHYSICS_BODY);
+
+        /**
+         * Sets a new collision shape, recreates the body in the physic system
+         */
+        void setShape(const shared_ptr<Shape> &shape);
 
     private:
         JPH::EMotionType motionType;

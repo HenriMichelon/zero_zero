@@ -119,7 +119,7 @@ import z0.Tween;
         /**
          * Returns the world space transformation matrix
          */
-        [[nodiscard]] inline mat4 getTransformGlobal() const { return worldTransform; }
+        [[nodiscard]] inline const mat4& getTransformGlobal() const { return worldTransform; }
 
         /**
          * Transforms a local vector from this node's local space to world space.

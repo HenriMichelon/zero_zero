@@ -72,7 +72,7 @@ export namespace z0 {
         [[nodiscard]] vec3 getGroundVelocity() const;
 
         /**
-         * Returns the velocity in the world space of the ground.
+         * Returns the ground node, if any
          */
         [[nodiscard]] Node* getGround() const;
 

@@ -93,7 +93,7 @@ namespace z0 {
     void CollisionObject::setBodyId(const JPH::BodyID id) {
         bodyId = id;
         bodyInterface.SetUserData(bodyId, reinterpret_cast<uint64>(this));
-        // log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()), getName());
+        //log(toString(), " body id ", to_string(id.GetIndexAndSequenceNumber()), getName());
     }
 
     CollisionObject *CollisionObject::_getByBodyId(const JPH::BodyID id) {
@@ -132,7 +132,7 @@ namespace z0 {
         if (isProcessed() && !bodyId.IsInvalid() && isVisible()) {
             if (!bodyInterface.IsAdded(bodyId)) {
                 bodyInterface.AddBody(bodyId, activationMode);
-                // log("_onEnterScene add", this->getName());
+                // log("CollisionObject::_onEnterScene add", this->getName());
             }
             bodyInterface.SetObjectLayer(bodyId, collisionLayer);
             setPositionAndRotation();
@@ -141,17 +141,17 @@ namespace z0 {
     }
 
     void CollisionObject::_onExitScene() {
-        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
+        if (!bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            // log("_onExitScene remove", this->getName());
+            // log("CollisionObject::_onExitScene remove", this->getName());
         }
         Node::_onExitScene();
     }
 
     void CollisionObject::_onPause() {
-        if (isProcessed() && !bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
+        if (!bodyId.IsInvalid() && bodyInterface.IsAdded(bodyId)) {
             bodyInterface.RemoveBody(bodyId);
-            // log("_onPause remove", this->getName());
+            // log("CollisionObject::_onPause remove", this->getName());
         }
     }
 
@@ -160,7 +160,7 @@ namespace z0 {
             if (isVisible() && isInsideTree()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.AddBody(bodyId, activationMode);
-                    // log("_onResume add", this->getName());
+                    // log("CollisionObject::_onResume add", this->getName());
                 }
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer);
                 setPositionAndRotation();
@@ -172,7 +172,7 @@ namespace z0 {
         if (!bodyId.IsInvalid() && visible != this->isVisible()) {
             if (isVisible() && isInsideTree()) {
                 if (!bodyInterface.IsAdded(bodyId)) {
-                    // log("setVisible add", this->getName());
+                    // log("CollisionObject::setVisible add", this->getName());
                     bodyInterface.AddBody(bodyId, activationMode);
                 }
                 bodyInterface.SetObjectLayer(bodyId, collisionLayer);
@@ -180,7 +180,7 @@ namespace z0 {
             } else {
                 if (bodyInterface.IsAdded(bodyId)) {
                     bodyInterface.RemoveBody(bodyId);
-                    // log("setVisible remove", this->getName());
+                    // log("CollisionObject::setVisible remove", this->getName());
                 }
             }
         }
