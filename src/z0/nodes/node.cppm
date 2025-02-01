@@ -261,7 +261,7 @@ import z0.Tween;
          * Nodes can have any number of children, but a child can have only one parent.<br>
          * The node will be added to the scene at the start of the next frame.
          * @param child the node to add
-         * @param async if `true` and the node is a tree of node they will be added in batch mode.
+         * @param async if `true` and the node have children all the nodes will be added in batch mode.
          * Be careful to set the visibility of the nodes to `false`or they will appear slowly in the scene.
          */
         bool addChild(shared_ptr<Node> child, bool async = false);
@@ -271,19 +271,15 @@ import z0.Tween;
          * Use the iterator version in a for-each loop.<br>
          * The node will be removed from the scene at the start of the next frame.
          * @param child the node to remove
-         * @param async if `true` and the node is a tree of node they will be removed in batch mode.
+         * @param async if `true` and the node have children all the nodes will be removed in batch mode.
          * Be careful to set the visibility of the nodes to `false` or they will disappear slowly from the scene.
          */
         bool removeChild(const shared_ptr<Node>& child, bool async = false);
 
         /**
-         * Removes a child node. The node, along with its children **can** be deleted depending on their reference counter.
-         */
-        // list<shared_ptr<Node>>::const_iterator removeChild(const list<shared_ptr<Node>>::const_iterator &it);
-
-        /**
          * Removes all children nodes. The nodes, along with their children **can** be deleted depending on their reference counters.
-        * @param async if `true` and the nodes will be removed in batch mode.
+         * The nodes will be removed from the scene at the start of the next frame.
+         * @param async if `true` and the nodes will be removed in batch mode.
          * Be careful to set the visibility of the nodes to `false` or they will disappear slowly from the scene.
          */
         void removeAllChildren(bool async = false);

@@ -26,11 +26,6 @@ import z0.resources.Shape;
 
 namespace z0 {
 
-    void PhysicsBody::setGravityScale(const float value) {
-        assert(!_getBodyId().IsInvalid());
-        bodyInterface.SetGravityFactor(_getBodyId(), value);
-    }
-
     PhysicsBody::PhysicsBody(const shared_ptr<Shape> &shape,
                              const uint32_t           layer,
                              const JPH::EActivation   activationMode,
@@ -85,7 +80,7 @@ namespace z0 {
         }
     }
 
-    void PhysicsBody::setGravityFactor(float factor) {
+    void PhysicsBody::setGravityFactor(const float factor) {
         if (bodyId.IsInvalid()) { return; }
         bodyInterface.SetGravityFactor(bodyId, factor);
     }

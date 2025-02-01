@@ -26,11 +26,6 @@ export namespace z0 {
         ~PhysicsBody() override = default;
 
         /**
-         * Sets an artificial gravity factor
-         */
-        void setGravityScale(float value);
-
-        /**
          * Sets the linear velocity
          */
         virtual void setVelocity(const vec3& velocity);
