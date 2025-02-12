@@ -29,7 +29,7 @@ namespace z0 {
         const auto now = chrono::steady_clock::now();
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
-        if (animation && getParent()) {
+        if (animation && target) {
             // cout << parent->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
@@ -44,14 +44,14 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        getParent()->setPosition(value.value);
+                        target->setPosition(value.value);
                         break;
                     case AnimationType::ROTATION:
-                        getParent()->setRotation(value.value);
+                        target->setRotation(value.value);
                         break;
                     case AnimationType::SCALE:
                         // cout << parent->getName() << " : " << to_string(value.value) << endl;
-                        getParent()->setScale(value.value);
+                        target->setScale(value.value);
                         break;
                     default:
                         die("Unknown animation type");
@@ -63,6 +63,9 @@ namespace z0 {
 
     void AnimationPlayer::_onEnterScene() {
         Node::_onEnterScene();
+        if (!target && getParent()) {
+            target = getParent();
+        }
         if (autoStart) {
             play();
         }
@@ -72,7 +75,6 @@ namespace z0 {
         if (libraries.contains(name)) {
             currentLibrary = name;
             setCurrentAnimation(libraries[currentLibrary]->getDefault());
-
         }
     }
 

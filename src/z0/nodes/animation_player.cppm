@@ -106,6 +106,9 @@ export namespace z0 {
 
         void _onEnterScene() override;
 
+        inline void setTarget(Node &target) { this->target = &target; }
+        inline void setTarget(Node *target) { this->target = target; }
+
     protected:
         shared_ptr<Node> duplicateInstance() override;
 
@@ -115,7 +118,7 @@ export namespace z0 {
         bool starting{false};
         bool reverse{false};
         chrono::time_point<chrono::steady_clock> startTime;
-        // shared_ptr<Node> node;
+        Node* target{nullptr};
         string currentLibrary;
         string currentAnimation;
         vector<float> currentTracksState;
