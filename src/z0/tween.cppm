@@ -22,6 +22,8 @@ export namespace z0 {
      */
     class Tween: public Object {
     public:
+        using Callback = function<void()>;
+
         /**
          * Update the tween.
          * If the Tween have been created manually you need to call update() in your Node::onPhysicsProcess() function.
@@ -34,9 +36,11 @@ export namespace z0 {
 
     protected:
         bool running{false};
+        Callback callback;
         TransitionType interpolationType;
 
-        explicit Tween(TransitionType type): interpolationType{type} {};
+        explicit Tween(const TransitionType type, const Callback& callback):
+            callback{callback}, interpolationType{type} {}
 
     public:
         void _kill() { running = false; }
@@ -61,14 +65,16 @@ export namespace z0 {
          * @param final Final value
          * @param duration Animation duration in seconds
          * @param ttype Transition type
+         * @param callback Callback called at the end of the animation
          */
         PropertyTween(Object* obj,
                       const Setter set,
                       T initial, 
                       T final, 
                       const float duration,
-                      const TransitionType ttype = TransitionType::LINEAR):
-            Tween{ttype},
+                      const TransitionType ttype = TransitionType::LINEAR,
+                      const Callback& callback = nullptr):
+            Tween{ttype, callback},
             durationTime{duration},
             targetValue{final},
             startValue{initial},
@@ -83,14 +89,16 @@ export namespace z0 {
          * @param final Final value
          * @param duration Animation duration in seconds
          * @param ttype Transition type
+         * @param callback Callback called at the end of the animation
          */
-        PropertyTween(const shared_ptr<Object>& obj, 
+        PropertyTween(const shared_ptr<Object>& obj,
                       const Setter set,
-                      T initial, 
-                      T final, 
+                      T initial,
+                      T final,
                       const float duration,
-                      const TransitionType ttype = TransitionType::LINEAR):
-            Tween{ttype},
+                      const TransitionType ttype = TransitionType::LINEAR,
+                      const Callback& callback = nullptr):
+            Tween{ttype, callback},
             durationTime{duration},
             targetValue{final},
             startValue{initial},
@@ -108,6 +116,9 @@ export namespace z0 {
             float t = std::min(elapsedTime / durationTime, 1.0f); // Normalized time
             (targetObject->*setter)(lerp(startValue, targetValue, t));
             running = (t < 1.0);
+            if (!running && callback) {
+                callback();
+            }
             return !running;
         }
 

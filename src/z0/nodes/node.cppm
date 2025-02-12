@@ -442,9 +442,14 @@ import z0.Tween;
          * and `final` value in a span of time equal to `duration`, in seconds.
          */
         template <typename T>
-        [[nodiscard]] shared_ptr<Tween> createPropertyTween(PropertyTween<T>::Setter set, T initial, T final,
-                                                            float                    duration) {
-            auto tween = make_shared<PropertyTween<T>>(this, set, initial, final, duration);
+        [[nodiscard]] shared_ptr<Tween> createPropertyTween(
+                PropertyTween<T>::Setter set,
+                T initial,
+                T final,
+                float duration,
+                const TransitionType ttype = TransitionType::LINEAR,
+                const Tween::Callback& callback = nullptr) {
+            auto tween = make_shared<PropertyTween<T>>(this, set, initial, final, duration, ttype, callback);
             tweens.push_back(tween);
             return tween;
         }
