@@ -82,7 +82,7 @@ export namespace z0 {
         return vec2{
             std::lerp(a.x, b.x, t),
             std::lerp(a.y, b.y, t),
-    };
+        };
     }
 
     /**
@@ -93,7 +93,7 @@ export namespace z0 {
             std::lerp(a.x, b.x, t),
             std::lerp(a.y, b.y, t),
             std::lerp(a.z, b.z, t),
-    };
+        };
     }
 
     /**
@@ -105,8 +105,13 @@ export namespace z0 {
             std::lerp(a.y, b.y, t),
             std::lerp(a.z, b.z, t),
             std::lerp(a.w, b.w, t),
-    };
+        };
     }
+
+    inline float lerp(const float a, const float b, const float t) {
+        return std::lerp(a, b, t);
+    }
+
 
 }
 
