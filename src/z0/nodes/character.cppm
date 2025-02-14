@@ -62,8 +62,8 @@ export namespace z0 {
         /**
          * Returns `true` if `object` is the ground
          */
-        [[nodiscard]] inline bool isGround(const CollisionObject *object) const {
-            return object->_getBodyId() == virtualCharacter->GetGroundBodyID();
+        [[nodiscard]] inline bool isGround(const CollisionObject &object) const {
+            return object._getBodyId() == virtualCharacter->GetGroundBodyID();
         }
 
         /**

@@ -41,7 +41,7 @@ export namespace z0 {
          * Collision data for the CollisionObject::on_collision_starts and CollisionObject::on_collision_persists signal
          */
         struct Collision {
-            /** World space position of the first contact point, on the colliding `object` */
+            /** World space position of the first contact point on the colliding `object` or, if the collision is detected by Character::getCollisions(), on the character */
             vec3 position;
             /** Normal for this collision, direction along which to move the `object` out of collision along the shortest path.  */
             vec3 normal;
