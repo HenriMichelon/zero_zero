@@ -52,6 +52,10 @@ namespace z0 {
         return vec3{worldTransform * vec4{local, 1.0f}};
     }
 
+    vec3 Node::toLocal(const vec3 global) const {
+        return vec3{inverse(worldTransform) * localTransform * vec4{global, 1.0f}};
+    }
+
     void Node::setPosition(const vec3 position) {
         localTransform[3] = vec4{position, 1.0f};
         _updateTransform();

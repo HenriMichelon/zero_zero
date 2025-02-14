@@ -126,6 +126,8 @@ import z0.Tween;
          */
         [[nodiscard]] vec3 toGlobal(vec3 local) const;
 
+        [[nodiscard]] vec3 toLocal(vec3 global) const;
+
         /**
         * Sets the local space position (relative to parent)
         */
@@ -442,7 +444,7 @@ import z0.Tween;
          * and `final` value in a span of time equal to `duration`, in seconds.
          */
         template <typename T>
-        [[nodiscard]] shared_ptr<Tween> createPropertyTween(
+        shared_ptr<Tween> createPropertyTween(
                 PropertyTween<T>::Setter set,
                 T initial,
                 T final,
