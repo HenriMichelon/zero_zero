@@ -111,6 +111,9 @@ namespace z0 {
         [[nodiscard]] static bool isGamepadButtonPressed(uint32_t index, GamepadButton gamepadButton);
         //static float getGamepadAxisValue(uint32_t index, GamepadAxis gamepadAxis);
 
+        static bool isGamepadButtonJustReleased(GamepadButton button);
+        static bool isGamepadButtonJustPressed(GamepadButton button);
+
     private:
         [[nodiscard]] static float applyDeadzone(float value, float deadzonePercent);
         static void generateGamepadButtonEvent(GamepadButton, bool);
@@ -123,6 +126,8 @@ namespace z0 {
         static unordered_map<MouseButton, bool> _mouseButtonJustPressedStates;
         static unordered_map<MouseButton, bool> _mouseButtonJustReleasedStates;
         static unordered_map<GamepadButton, bool> _gamepadButtonPressedStates;
+        static unordered_map<GamepadButton, bool> _gamepadButtonJustPressedStates;
+        static unordered_map<GamepadButton, bool> _gamepadButtonJustReleasedStates;
 
         static OsKey keyToOsKey(Key key);
         static Key osKeyToKey(OsKey key);

@@ -40,6 +40,18 @@ namespace z0 {
         return result;
     }
 
+    bool Input::isGamepadButtonJustPressed(const GamepadButton button) {
+        const auto result = _gamepadButtonJustPressedStates[button];
+        _gamepadButtonJustPressedStates[button] = false;
+        return result;
+    }
+
+    bool Input::isGamepadButtonJustReleased(const GamepadButton button) {
+        const auto result = _gamepadButtonJustReleasedStates[button];
+        _gamepadButtonJustReleasedStates[button] = false;
+        return result;
+    }
+
     bool Input::isMouseButtonPressed(const MouseButton mouseButton) {
         return _mouseButtonPressedStates[mouseButton];
     }
@@ -63,6 +75,8 @@ namespace z0 {
     unordered_map<MouseButton, bool>   Input::_mouseButtonJustPressedStates;
     unordered_map<MouseButton, bool>   Input::_mouseButtonJustReleasedStates;
     unordered_map<GamepadButton, bool> Input::_gamepadButtonPressedStates;
+    unordered_map<GamepadButton, bool> Input::_gamepadButtonJustPressedStates;
+    unordered_map<GamepadButton, bool> Input::_gamepadButtonJustReleasedStates;
 
     static map<Key, OsKey> _keyMap{
             {KEY_SPACE, OS_KEY_SPACE},
@@ -438,10 +452,14 @@ namespace z0 {
 
     void Input::generateGamepadButtonEvent(const GamepadButton button, const bool pressed) {
         if (pressed && (!_gamepadButtonPressedStates[button])) {
+            _gamepadButtonJustPressedStates[button] = true;
+            _gamepadButtonJustReleasedStates[button] = false;
             auto event = InputEventGamepadButton(button, pressed);
             app()._onInput(event);
         }
         if ((!pressed) && (_gamepadButtonPressedStates[button])) {
+            _gamepadButtonJustPressedStates[button] = false;
+            _gamepadButtonJustReleasedStates[button] = true;
             auto event = InputEventGamepadButton(button, pressed);
             app()._onInput(event);
         }
