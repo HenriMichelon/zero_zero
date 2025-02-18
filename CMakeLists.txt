@@ -293,7 +293,6 @@ endif()
 ###########################################################################
 set(GLTF2ZRES gltf2zres)
 set(GLTF2ZRES_SRC_DIR ${SRC_DIR}/tools/gltf2zres)
-set(GLTF2ZRES_INCLUDE_DIR ${GLTF2ZRES_SRC_DIR})
 add_executable(${GLTF2ZRES}
 		${GLTF2ZRES_SRC_DIR}/gltf2zres.cpp
 		${GLTF2ZRES_SRC_DIR}/image.cpp
@@ -309,14 +308,26 @@ target_sources(${GLTF2ZRES}
 		${GLTF2ZRES_SRC_DIR}/converter.cppm
 )
 compile_options(${GLTF2ZRES})
-target_include_directories(${GLTF2ZRES} PUBLIC ${GLTF2ZRES_INCLUDE_DIR} ${Z0_INCLUDE_DIR})
+target_include_directories(${GLTF2ZRES} PUBLIC ${GLTF2ZRES_SRC_DIR} ${Z0_INCLUDE_DIR})
 target_link_libraries(${GLTF2ZRES} ${Z0_TARGET})
+
+###########################################################################
+# genatlas tool
+###########################################################################
+set(GENATLAS genatlas)
+set(GENATLAS_SRC_DIR ${SRC_DIR}/tools/genatlas)
+add_executable(${GENATLAS}
+		${GENATLAS_SRC_DIR}/genatlas.cpp
+)
+compile_options(${GENATLAS})
+target_include_directories(${GENATLAS} PUBLIC ${GENATLAS_SRC_DIR} ${Z0_INCLUDE_DIR})
+target_link_libraries(${GENATLAS} ${Z0_TARGET})
 
 ###########################################################################
 # global target
 ###########################################################################
 add_custom_target(ZeroZeroEngine ALL)
-add_dependencies(ZeroZeroEngine ${Z0_TARGET} ${GLTF2ZRES})
+add_dependencies(ZeroZeroEngine ${Z0_TARGET} ${GLTF2ZRES} ${GENATLAS})
 
 include(FetchContent)
 include(cmake/std.cmake)
