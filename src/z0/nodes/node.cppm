@@ -126,6 +126,9 @@ import z0.Tween;
          */
         [[nodiscard]] vec3 toGlobal(vec3 local) const;
 
+        /**
+         * Transforms a world space vector to this node's local space.
+         */
         [[nodiscard]] vec3 toLocal(vec3 global) const;
 
         /**
