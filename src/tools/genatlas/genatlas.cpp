@@ -88,11 +88,11 @@ AtlasDescription loadAtlasDescription(const string& filepath) {
         iss >> directory;
         if (directory.empty()) { continue; }
 
-        texture.color = loadTexture(iss, texture, directory, 4);
-        texture.normal = loadTexture(iss, texture, directory, 3);
-        texture.ao = loadTexture(iss, texture, directory, 1);
-        texture.rough = loadTexture(iss, texture, directory, 1);
-        texture.metal = loadTexture(iss, texture, directory, 1);
+        texture.color = loadTexture(iss, texture, directory, STBI_rgb_alpha);
+        texture.normal = loadTexture(iss, texture, directory, STBI_rgb);
+        texture.ao = loadTexture(iss, texture, directory, STBI_grey);
+        texture.rough = loadTexture(iss, texture, directory, STBI_grey);
+        texture.metal = loadTexture(iss, texture, directory, STBI_grey);
 
         description.textures.push_back(texture);
     }
@@ -102,9 +102,9 @@ AtlasDescription loadAtlasDescription(const string& filepath) {
 }
 
 void generateAtlas(const AtlasDescription& atlas, const string& outputPrefix) {
-    auto colorAtlas = vector<unsigned char>(atlas.width * atlas.height * 4);
-    auto normalAtlas = vector<unsigned char>(atlas.width * atlas.height * 3);
-    auto aoRoughnessMetalnessAtlas = vector<unsigned char>(atlas.width * atlas.height * 3);
+    auto colorAtlas = vector<unsigned char>(atlas.width * atlas.height * STBI_rgb_alpha);
+    auto normalAtlas = vector<unsigned char>(atlas.width * atlas.height * STBI_rgb);
+    auto aoRoughnessMetalnessAtlas = vector<unsigned char>(atlas.width * atlas.height * STBI_rgb);
 
     int width = atlas.width;
     int maxHeight = 0;
@@ -124,10 +124,10 @@ void generateAtlas(const AtlasDescription& atlas, const string& outputPrefix) {
         for (int ty = 0; ty < texture.height; ++ty) {
             const int atlasIndex = ((y + ty) * atlas.width + x);
             const int textureIndex = (ty * texture.width);
-            memcpy(&colorAtlas[atlasIndex * 4], &texture.color[textureIndex  * 4], texture.width * 4);
-            memcpy(&normalAtlas[atlasIndex * 3], &texture.normal[textureIndex  * 3], texture.width * 3);
+            memcpy(&colorAtlas[atlasIndex * STBI_rgb_alpha], &texture.color[textureIndex  * STBI_rgb_alpha], texture.width * STBI_rgb_alpha);
+            memcpy(&normalAtlas[atlasIndex * STBI_rgb], &texture.normal[textureIndex  * STBI_rgb], texture.width * STBI_rgb);
             for (int tx = 0; tx < texture.width; ++tx) {
-                const auto atlasIndexLocal = ((atlasIndex + tx) * 3);
+                const auto atlasIndexLocal = ((atlasIndex + tx) * STBI_rgb);
                 const auto textureIndexLocal = textureIndex + tx;
                 if (texture.ao) {
                     aoRoughnessMetalnessAtlas[atlasIndexLocal] = texture.ao[textureIndexLocal];
@@ -147,11 +147,11 @@ void generateAtlas(const AtlasDescription& atlas, const string& outputPrefix) {
     }
 
     if (verbose) { cout << "Writing color atlas..." << endl; }
-    stbi_write_png((outputPrefix + "_color.png").c_str(), atlas.width, atlas.height, 4, colorAtlas.data(), atlas.width * 4);
+    stbi_write_png((outputPrefix + "_color.png").c_str(), atlas.width, atlas.height, STBI_rgb_alpha, colorAtlas.data(), atlas.width * STBI_rgb_alpha);
     if (verbose) { cout << "Writing normal atlas..." << endl; }
-    stbi_write_png((outputPrefix + "_normal.png").c_str(), atlas.width, atlas.height, 3, normalAtlas.data(), atlas.width * 3);
+    stbi_write_png((outputPrefix + "_normal.png").c_str(), atlas.width, atlas.height, STBI_rgb, normalAtlas.data(), atlas.width * STBI_rgb);
     if (verbose) { cout << "Writting AO/Roughness/Metalness atlas..." << endl; }
-    stbi_write_png((outputPrefix + "_ao_roughness_metalness.png").c_str(), atlas.width, atlas.height, 3, aoRoughnessMetalnessAtlas.data(), atlas.width * 3);
+    stbi_write_png((outputPrefix + "_ao_roughness_metalness.png").c_str(), atlas.width, atlas.height, STBI_rgb, aoRoughnessMetalnessAtlas.data(), atlas.width * STBI_rgb);
 
     for (const auto& texture : atlas.textures) {
         if (texture.color) { stbi_image_free(texture.color); }
