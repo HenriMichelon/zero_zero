@@ -38,7 +38,7 @@ namespace z0 {
     }
 
     void SpotLight::setProperty(const string &property, const string &value) {
-        Node::setProperty(property, value);
+        OmniLight::setProperty(property, value);
         if (property == "fov") {
             fov = stof(value);
         } else if (property == "cutoff") {
