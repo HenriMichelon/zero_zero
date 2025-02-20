@@ -47,9 +47,10 @@ namespace z0 {
         // Create all images from this staging buffer
         vector<shared_ptr<VulkanImage>> vulkanImages;
         for (auto textureIndex = 0; textureIndex < header.texturesCount; ++textureIndex) {
-            const auto& texture = textureHeaders.at(textureIndex);
+            const auto& texture = textureHeaders[textureIndex];
             if (texture.imageIndex != -1) {
                 const auto& image = imageHeaders[texture.imageIndex];
+                //log("Loaded image ", image.name, to_string(image.width), "x", to_string(image.height), to_string(image.format));
                 // print(image);
                 textures.push_back(make_shared<ImageTexture>(
                     make_shared<VulkanImage>(

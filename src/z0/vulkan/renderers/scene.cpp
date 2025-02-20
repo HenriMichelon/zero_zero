@@ -764,6 +764,7 @@ namespace z0 {
         }
         frameData[currentFrame].imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
         frameData[currentFrame].images.push_back(vkImage);
+        //log("Added image ", vkImage->getName(), to_string(vkImage->getWidth()), "x", to_string(vkImage->getHeight()));
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {

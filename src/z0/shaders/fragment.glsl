@@ -136,11 +136,11 @@ vec4 fragmentColor(vec4 color, bool useColor) {
             ambient = Ambient(ambient, normal, fs_in.VIEW_DIRECTION, metallic, roughness, F0, cosLo);
         }
     }
+    vec3 emmissiveColor = material.emissiveFactor;
     if (tex.emissiveTexture.index != -1) {
-        diffuse += material.emissiveFactor *
-        toLinear(texture(texSampler[tex.emissiveTexture.index], uvTransform(tex.emissiveTexture, fs_in.UV))).rgb *
-        material.emissiveStrength;// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
+        emmissiveColor *= toLinear(texture(texSampler[tex.emissiveTexture.index], uvTransform(tex.emissiveTexture, fs_in.UV))).rgb;
     }
+    diffuse += emmissiveColor * material.emissiveStrength;// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_emissive_strength/README.md
     ambient *= global.ambient.w * global.ambient.rgb ;
 
     return vec4(ambient + diffuse, transparency);
