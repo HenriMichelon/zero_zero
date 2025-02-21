@@ -5,7 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <cstdlib>
 #include "z0/libraries.h"
 #include "z0/vulkan.h"
 
@@ -170,8 +169,11 @@ namespace z0 {
     }
 
     void VectorRenderer::drawFrame(const uint32_t currentFrame, bool isLast) {
-        if (vertices.empty()) { return; }
         beginRendering(currentFrame);
+        if (vertices.empty()) {
+            endRendering(currentFrame, isLast);
+            return;
+        }
         const auto& commandBuffer = commandBuffers[currentFrame];
 
         bindShaders(commandBuffer);

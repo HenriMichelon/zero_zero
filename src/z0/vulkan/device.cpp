@@ -279,9 +279,6 @@ namespace z0 {
             renderersToRemove.clear();
         }
         auto& data = framesData[currentFrame];
-        // if (data.renderThread) {
-            // data.renderThread->join();
-        // }
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
         if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
@@ -306,7 +303,6 @@ namespace z0 {
                 die("failed to acquire swap chain image :", to_string(result));
             }
         }
-        // data.renderThread = make_unique<thread>(&Device::renderFrame, this, currentFrame);
         renderFrame(currentFrame);
     }
 
@@ -378,7 +374,7 @@ namespace z0 {
             }
         };
 
-        {
+        /*{
             list<jthread> threads;
             for (const auto &renderer : renderers) {
                 if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
@@ -386,10 +382,10 @@ namespace z0 {
         }
         for (const auto &renderer : renderers) {
             if (!renderer->canBeThreaded()) { render(renderer); }
+        }*/
+        for (const auto &renderer : renderers) {
+            render(renderer);
         }
-        // for (const auto &renderer : renderers) {
-            // render(renderer);
-        // }
 
         {
             const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());

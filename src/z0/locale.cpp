@@ -54,9 +54,6 @@ namespace z0 {
         }
         const auto newLocale = nlohmann::json::parse(VirtualFS::openReadStream(LOCALE_DIRECTORY + "/" + file + "_" + currentLocale + ".json"));
         translations[currentLocale].merge(newLocale.get<map<string, string>>());
-        for (const auto& m : translations[currentLocale]) {
-            cout << m.first << " : " << m.second << endl;
-        }
         loadedFileNames.push_back(file);
     }
 
