@@ -58,6 +58,7 @@ export import z0.ui.Button;
 export import z0.ui.Event;
 export import z0.ui.Frame;
 export import z0.ui.Image;
+export import z0.ui.Line;
 export import z0.ui.Manager;
 export import z0.ui.Panel;
 export import z0.ui.Rect;

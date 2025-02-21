@@ -76,8 +76,8 @@ export namespace z0 {
             inline shared_ptr<Widget> add(shared_ptr<Widget> child,
                                             Widget::AlignmentType alignment,
                                             const string & resource = "",
-                                            float          defaultPadding= 0) const {
-                return getWidget().add(child, alignment, resource, defaultPadding);
+                                            bool overlap = false) const {
+                return getWidget().add(child, alignment, resource, overlap);
             }
 
             /** Removes a child widget */

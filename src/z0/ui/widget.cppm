@@ -179,12 +179,14 @@ namespace z0 {
                     \param child	: child widget to add
                     \param alignment: placement
                     \param resource	: resource string
-                    \param defaultPadding	: default padding
+                    \param innerPadding	: additional padding applied only to this widget
+                    \param overlap : overlap widget on top of other widgets
+
             */
-            virtual shared_ptr<Widget> add(shared_ptr<Widget> child,
+            virtual shared_ptr<Widget> add(shared_ptr<Widget>   child,
                                             AlignmentType       alignment,
-                                            const string & resource = "",
-                                            float          defaultPadding= 0);
+                                            const string &      resource = "",
+                                            bool                overlap = false);
 
             /** Removes a child widget */
             virtual void remove(shared_ptr<Widget>);
@@ -219,6 +221,8 @@ namespace z0 {
             [[nodiscard]] bool isFreezed() const;
 
             [[nodiscard]] bool isRedrawOnMouseEvent() const;
+
+            [[nodiscard]] inline bool isOverlapping() const { return overlap; }
 
             [[nodiscard]] Rect getChildrenRect() const;
 
@@ -307,6 +311,7 @@ namespace z0 {
             float                     hborder{0};
             float                     vborder{0};
             float                     padding{0};
+            bool                      overlap{false};
             bool                      focused{false};
             bool                      allowFocus{false};
             bool                      allowChildren{true};
@@ -328,7 +333,7 @@ namespace z0 {
             virtual void _init(Widget &,
                                AlignmentType,
                                const string &,
-                               float);
+                               bool);
 
         private:
             bool             pushed{false};
