@@ -374,7 +374,7 @@ namespace z0 {
             }
         };
 
-        /*{
+        {
             list<jthread> threads;
             for (const auto &renderer : renderers) {
                 if (renderer->canBeThreaded()) { threads.push_back(jthread(render, renderer)); }
@@ -382,10 +382,10 @@ namespace z0 {
         }
         for (const auto &renderer : renderers) {
             if (!renderer->canBeThreaded()) { render(renderer); }
-        }*/
-        for (const auto &renderer : renderers) {
-            render(renderer);
         }
+        // for (const auto &renderer : renderers) {
+        //     render(renderer);
+        // }
 
         {
             const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
