@@ -12,6 +12,7 @@ export import z0.Constants;
 export import z0.DebugConfig;
 export import z0.Input;
 export import z0.InputEvent;
+export import z0.Locale;
 export import z0.Loader;
 export import z0.Object;
 export import z0.Signal;
