@@ -19,14 +19,14 @@ export namespace z0 {
     class Object {
     public:
         /**
-         * Connects a signal by name to a member function
+         * Connects a signal by name to a function
          * @param name signal name.
          * @param handler the member function to call when emit() is called
         */
         void connect(const Signal::signal &name, const Signal::Handler& handler);
 
         /**
-         * Connects a signal by name to a member function
+         * Connects a signal by name to a function
          * @param name signal name.
          * @param handler the member function to call when emit() is called
         */

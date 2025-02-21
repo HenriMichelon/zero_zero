@@ -24,7 +24,7 @@ namespace z0 {
         using Handler = function<void(void*)>;
 
         /**
-         * Connects a member function to the signal
+         * Connects a function to the signal
         */
         inline void connect(const Handler &handler) {
             handlers.push_back(handler);

@@ -32,7 +32,7 @@ export namespace z0 {
         static void load(const string& file = "default");
 
         /**
-         * Sets the current locale
+         * Sets the current locale. Can load missing files when switching from another locale.
          * @param lang langage code
          */
         static void setLocale(const string& lang);
@@ -43,7 +43,7 @@ export namespace z0 {
         static inline const string& getLocale() { return currentLocale; }
 
         /**
-         * Returns the OS specific user local
+         * Returns the OS specific user locale
          */
         static string getDefaultLocale();
 
