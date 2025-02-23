@@ -30,8 +30,8 @@ import z0.vulkan.Image;
 namespace z0 {
 
     VectorRenderer::VectorRenderer(Device &device) :
-        Renderer{false},
         Renderpass{device, WINDOW_CLEAR_COLOR},
+        Renderer{false},
         internalColorFrameBuffer{true} {
         frameData.resize(device.getFramesInFlight());
         init();
@@ -39,8 +39,8 @@ namespace z0 {
 
     VectorRenderer::VectorRenderer(Device &device,
                                    const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr) :
-        Renderer{false},
         Renderpass{device, WINDOW_CLEAR_COLOR},
+        Renderer{false},
         internalColorFrameBuffer{false} {
         frameData.resize(device.getFramesInFlight());
         for (auto i = 0; i < frameData.size(); i++) {
@@ -135,7 +135,8 @@ namespace z0 {
         oldBuffers.clear();
         if (!vertices.empty()) {
             // Resize the buffers only if needed by recreating them
-            if ((vertexBuffer == VK_NULL_HANDLE) || (vertexCount != vertices.size())) {
+            // Buffer are only resized on grow
+            if ((vertexBuffer == VK_NULL_HANDLE) || (vertices.size() > vertexCount)) {
                 // Put the current buffers in the recycle bin since they are currently used by the VkCommandBuffer
                 // and can't be destroyed now
                 oldBuffers.push_back(stagingBuffer);

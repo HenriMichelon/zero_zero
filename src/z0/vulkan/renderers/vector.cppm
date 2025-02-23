@@ -7,7 +7,6 @@
 module;
 #include <mutex>
 #include "z0/vulkan.h"
-// #include <stb_image_write.h>
 #include "z0/libraries.h"
 
 export module z0.vulkan.VectorRenderer;
@@ -90,7 +89,9 @@ namespace z0 {
         // Send the data of the drawing commands to the GPU
         void endDraw();
 
-        [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return frameData[currentFrame].colorFrameBufferHdr->getImage(); }
+        [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override {
+            return frameData[currentFrame].colorFrameBufferHdr->getImage();
+        }
 
     private:
         // Drawing commands primitives
@@ -210,7 +211,7 @@ namespace z0 {
 
         void createDescriptorSetLayout() override;
 
-        void drawFrame(uint32_t currentFrame, bool isLast);
+        void drawFrame(uint32_t currentFrame, bool isLast) override;
 
         void createOrUpdateDescriptorSet(bool create) override;
     };
