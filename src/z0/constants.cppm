@@ -151,6 +151,18 @@ export namespace z0 {
         LOGGING_MODE_STDOUT = 0x100
     };
 
+    enum class LogLevel : int32_t {
+        DEBUG       = 0,
+        INFO        = 1,
+        GAME1       = 2,
+        GAME2       = 3,
+        GAME3       = 4,
+        WARNING     = 5,
+        ERROR       = 6,
+        CRITICAL    = 7,
+        INTERNAL    = 8,
+    };
+
     /**
      * MSAA samples
      */

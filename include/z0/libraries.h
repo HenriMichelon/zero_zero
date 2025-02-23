@@ -18,3 +18,10 @@ import std;
 
 using namespace std;
 using namespace glm;
+
+#define log_debug(x) z0::log(DEBUG, x)
+#define log_info(x) z0::log(INFO, x)
+#define log_notice(x) z0::log(NOTICE, x)
+#define log_warning(x) z0::log(WARNING, x)
+#define log_error(x) z0::log(ERROR, x)
+#define log_critical(x) z0::log(CRITICAL, x)

@@ -14,9 +14,11 @@ module;
 export module z0.Tools;
 
 import z0.Constants;
+import z0.Log;
 import z0.Window;
 
 export namespace z0 {
+
     /**
      * Violently stop the application, used if something goes wrong
      */
@@ -25,34 +27,13 @@ export namespace z0 {
         for (const auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
-#ifdef _WIN32
-        MessageBox(nullptr,
-                   stringstream.str().c_str(),
-                   ENGINE_NAME,
-                   MB_OK | MB_ICONINFORMATION);
-#endif
+        Log::critical << stringstream.str() << endl;
 #if defined(_DEBUG) && defined(_WIN32)
         __debugbreak();
 #else
         throw runtime_error(stringstream.str());
 #endif
     }
-
-    /**
-     * Log a message using the internal logging system.
-     */
-#ifdef DISABLE_LOG
-    void log(convertible_to<string_view> auto&& ...s) {}
-#else
-    void _log(const string&);
-    void log(convertible_to<string_view> auto&& ...s) {
-        stringstream stringstream;
-        for (const auto v : initializer_list<string_view>{ s... }) {
-            stringstream << v << " ";
-        }
-        _log(stringstream.str());
-    }
-#endif
 
     /**
     * Returns a random value in the range [0, max]

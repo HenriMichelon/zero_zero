@@ -10,7 +10,6 @@ module;
 #include <windows.h>
 #endif
 #include <cassert>
-#include <time.h>
 #include <stb_image_write.h>
 #include "z0/libraries.h"
 
@@ -21,25 +20,6 @@ import z0.Constants;
 import z0.Window;
 
 namespace z0 {
-
-    void _log(const string&msg) {
-        const auto logMode = app().getConfig().loggingMode;
-        if (logMode == LOGGING_MODE_NONE) { return; }
-        using namespace chrono;
-        const auto in_time_t = system_clock::to_time_t(system_clock::now());
-        tm tm;
-        localtime_s(&tm, &in_time_t);
-        string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
-        item.append(" ");
-        item.append(msg);
-        if (logMode & LOGGING_MODE_STDOUT) {
-            cout << item << endl;
-        }
-        if (logMode & LOGGING_MODE_FILE) {
-            fwrite(item.c_str(), item.size(), 1, app()._logFile);
-            fwrite("\n", 1, 1, app()._logFile);
-        }
-    }
 
     int numMipmapLevels(int width, int height) {
         int           mipLevels = 0;
@@ -54,7 +34,7 @@ namespace z0 {
 
     uint32_t randomi(const uint32_t max) {
         static std::random_device rd;
-        static std::uniform_int_distribution<> distr(0, static_cast<int>(max));
+        static std::uniform_int_distribution distr(0, static_cast<int>(max));
         std::mt19937 gen(rd());
         return static_cast<uint32_t>(distr(gen));
     }

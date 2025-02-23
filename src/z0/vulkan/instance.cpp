@@ -9,6 +9,7 @@ module;
     #define VK_USE_PLATFORM_WIN32_KHR
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
+    #undef ERROR
 #endif
 #include "z0/libraries.h"
 #include "z0/vulkan.h"
@@ -16,6 +17,7 @@ module;
 module z0.vulkan.Instance;
 
 import z0.ApplicationConfig;
+import z0.Log;
 import z0.Tools;
 import z0.Window;
 
@@ -29,7 +31,7 @@ namespace z0 {
                                                         VkDebugUtilsMessageTypeFlagsEXT,
                                                         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                         void *) {
-        log("validation layer: ", pCallbackData->pMessage);
+        Log::debug << "validation layer: " << pCallbackData->pMessage << endl;
         return VK_FALSE;
     }
 

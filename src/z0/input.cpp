@@ -345,8 +345,7 @@ namespace z0 {
                         auto parts = split(mapping[i], ':');
                         if ((parts.size() > 1) && (parts[1].size() > 1)) {
                             try {
-                                auto index = stoi(string{parts[1].substr(1)});
-                                log(parts[0], "/", parts[1]);
+                                const auto index = stoi(string{parts[1].substr(1)});
                                 if (parts[0] == "leftx")
                                     state.indexAxisLeftX = index;
                                 if (parts[0] == "lefty")

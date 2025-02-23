@@ -49,7 +49,7 @@ export namespace z0 {
         //! Where to log message using log()
         int              loggingMode                = LOGGING_MODE_NONE;
         //! Monitor index for the logging Window
-        int32_t          loggingMonitor             = 0;
+        LogLevel         logLevelMin                = LogLevel::INFO;
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa                       = MSAA::X4;
         //! Depth frame buffer format

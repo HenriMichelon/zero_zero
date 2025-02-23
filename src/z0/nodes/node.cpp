@@ -11,8 +11,9 @@ module;
 
 module z0.nodes.Node;
 
-import z0.Constants;
 import z0.Application;
+import z0.Constants;
+import z0.Log;
 import z0.Tools;
 import z0.Tween;
 
@@ -199,9 +200,10 @@ namespace z0 {
             sstream << " ";
         }
         sstream << " " << toString() << " (" << TypeNames[type] << ") #" << getId();
-        log(sstream.str());
-        for (auto &child : children)
+        Log::info << sstream.str() << endl;
+        for (auto &child : children) {
             child->printTree(tab + 1);
+        }
     }
 
     shared_ptr<Node> Node::duplicate() {

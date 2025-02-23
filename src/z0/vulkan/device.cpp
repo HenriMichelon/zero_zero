@@ -23,8 +23,9 @@ module z0.vulkan.Device;
 
 import z0.Application;
 import z0.ApplicationConfig;
-import z0.Window;
+import z0.Log;
 import z0.Tools;
+import z0.Window;
 
 import z0.vulkan.Renderer;
 
@@ -282,7 +283,7 @@ namespace z0 {
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
         if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
-            log("timeout waiting for inFlightFence");
+            Log::error << "timeout waiting for inFlightFence" << endl;
         }
         vkResetFences(device, 1, &data.inFlightFence);
         {
@@ -936,7 +937,7 @@ namespace z0 {
             ++adapterIndex;
         }
         dxgiFactory->Release();
-        log(adapterDescription + " VRAM", to_string(dedicatedVideoMemory / 1024 / 1024) + "Mb");
+        Log::info << adapterDescription << " " << (dedicatedVideoMemory / 1024 / 1024) << "Mb" << endl;
     }
 
     uint64_t Device::getVideoMemoryUsage() const {

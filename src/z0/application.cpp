@@ -24,6 +24,7 @@ import z0.Constants;
 import z0.Input;
 import z0.InputEvent;
 import z0.Loader;
+import z0.Log;
 import z0.Tools;
 import z0.TypeRegistry;
 import z0.Window;
@@ -65,7 +66,7 @@ namespace z0 {
             }
         }
         if (appConfig.loggingMode != LOGGING_MODE_NONE) {
-            log("===== START OF LOG =====");
+            Log::_internal << "START OF LOG" << endl;
         }
 #endif
 
@@ -112,7 +113,7 @@ namespace z0 {
     }
 
     Application::~Application() {
-        log("===== END OF LOG =====");
+        Log::_internal << "END OF LOG" << endl;
         if (applicationConfig.loggingMode & LOGGING_MODE_FILE) {
             fclose(_logFile);
         }

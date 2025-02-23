@@ -70,7 +70,7 @@ namespace z0 {
             for (const auto& widget : box->_getChildren()) {
                 if (const auto itemWidget = dynamic_cast<TreeView::Item*>(item.get())) {
                     if (itemWidget->item == item) {
-                        log("found");
+                        // log("found");
                     }
                 }
             }

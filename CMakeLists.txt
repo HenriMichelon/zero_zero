@@ -49,8 +49,9 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/gltf.cppm
 		${Z0_ENGINE_DIR}/input.cppm
 		${Z0_ENGINE_DIR}/input_event.cppm
-		${Z0_ENGINE_DIR}/locale.cppm
 		${Z0_ENGINE_DIR}/loader.cppm
+		${Z0_ENGINE_DIR}/locale.cppm
+		${Z0_ENGINE_DIR}/log.cppm
 		${Z0_ENGINE_DIR}/object.cppm
 		${Z0_ENGINE_DIR}/physics.cppm
 		${Z0_ENGINE_DIR}/signal.cppm
@@ -164,8 +165,9 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/gltf.cpp
 		${Z0_ENGINE_DIR}/input.cpp
 		${Z0_ENGINE_DIR}/libraries.cpp
-		${Z0_ENGINE_DIR}/locale.cpp
 		${Z0_ENGINE_DIR}/loader.cpp
+		${Z0_ENGINE_DIR}/locale.cpp
+		${Z0_ENGINE_DIR}/log.cpp
 		${Z0_ENGINE_DIR}/object.cpp
 		${Z0_ENGINE_DIR}/physics.cpp
 		${Z0_ENGINE_DIR}/signal.cpp
