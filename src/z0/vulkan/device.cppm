@@ -61,9 +61,7 @@ export namespace z0 {
 
         [[nodiscard]] bool isFormatSupported(VkFormat format) const;
 
-        [[nodiscard]] inline float getAspectRatio() const {
-            return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
-        }
+        [[nodiscard]] inline float getAspectRatio() const { return swapChainRatio; }
 
         [[nodiscard]] inline uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
 
@@ -134,10 +132,10 @@ export namespace z0 {
 
         inline Buffer& createOneTimeBuffer(
            const SubmitQueue::OneTimeCommand& oneTimeCommand,
-           VkDeviceSize       instanceSize,
-           uint32_t           instanceCount,
-           VkBufferUsageFlags usageFlags,
-           VkDeviceSize       minOffsetAlignment = 1) const {
+           const VkDeviceSize       instanceSize,
+           const uint32_t           instanceCount,
+           const VkBufferUsageFlags usageFlags,
+           const VkDeviceSize       minOffsetAlignment = 1) const {
             return submitQueue->createOneTimeBuffer(oneTimeCommand, instanceSize, instanceCount, usageFlags, minOffsetAlignment);
         }
 
@@ -200,6 +198,7 @@ export namespace z0 {
         vector<VkImage>        swapChainImages;
         VkFormat               swapChainImageFormat;
         VkExtent2D             swapChainExtent;
+        float                  swapChainRatio;
         vector<VkImageView>    swapChainImageViews;
 
         void createSwapChain();

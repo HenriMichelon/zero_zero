@@ -653,6 +653,7 @@ namespace z0 {
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
         swapChainImageFormat = surfaceFormat.format;
         swapChainExtent      = extent;
+        swapChainRatio       = static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
 
         swapChainImageViews.resize(swapChainImages.size());
         for (uint32_t i = 0; i < swapChainImages.size(); i++) {
