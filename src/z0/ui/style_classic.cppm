@@ -58,7 +58,7 @@ export namespace z0 {
 
             void updateOptions() override;
 
-            vec4 extractColor(const string &OPT, const float R, const float G, const float B);
+            vec4 extractColor(const string &OPT, const float R, const float G, const float B) const;
 
             void drawPanel(const Panel &, StyleClassicResource &, VectorRenderer &) const;
 
