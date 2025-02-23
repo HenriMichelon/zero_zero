@@ -58,12 +58,6 @@ namespace z0 {
         HWND hwnd;
         RECT rect;
         HBRUSH background;
-#ifndef DISABLE_LOG
-        static HWND _hwndLog;
-        static DWORD _mainThreadId;
-        static list<string> _deferredLogMessages;
-        void createLogWindow(HMODULE);
-#endif
 #endif
 
     public:
@@ -71,14 +65,7 @@ namespace z0 {
         Window& operator=(const Window&) = delete;
 
 #ifdef _WIN32
-#ifndef DISABLE_LOG
-        static HWND _hwndLogList;
-        static FILE* _logFile;
         static bool resettingMousePosition;
-        static void _log(string);
-        static void _processDeferredLog();
-#endif
-
         void _setSize(int width, int height);
         [[nodiscard]] HWND _getHandle() const { return hwnd; };
         [[nodiscard]] RECT _getRect() const { return rect; }

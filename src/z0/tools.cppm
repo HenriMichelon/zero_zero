@@ -39,20 +39,18 @@ export namespace z0 {
     }
 
     /**
-     * Log a message into the logging system. 
-     * Log messages can be deferred when displayed inside a separate Window if emitted from a thread different from the main thread.
+     * Log a message using the internal logging system.
      */
 #ifdef DISABLE_LOG
     void log(convertible_to<string_view> auto&& ...s) {}
 #else
+    void _log(const string&);
     void log(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
         for (const auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
-#ifdef _WIN32
-        Window::_log(stringstream.str());
-#endif
+        _log(stringstream.str());
     }
 #endif
 

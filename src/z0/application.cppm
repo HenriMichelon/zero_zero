@@ -313,6 +313,9 @@ namespace z0 {
         // The Main Loop, process Windows message and draw a frame
         void _mainLoop();
 #endif
+#ifndef DISABLE_LOG
+        FILE* _logFile;
+#endif
         // Pause/resume the main loop
         void _stop(const bool stop) { stopped = stop; };
 

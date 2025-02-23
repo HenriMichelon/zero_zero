@@ -57,6 +57,18 @@ namespace z0 {
         displayDebug{appConfig.debugConfig.displayAtStartup} {
         assert(_instance == nullptr);
         _instance = this;
+#ifndef DISABLE_LOG
+        if (appConfig.loggingMode & LOGGING_MODE_FILE) {
+            _logFile = fopen("log.txt", "w");
+            if(_logFile == nullptr) {
+                die("Error opening log file");
+            }
+        }
+        if (appConfig.loggingMode != LOGGING_MODE_NONE) {
+            log("===== START OF LOG =====");
+        }
+#endif
+
         frameData.resize(applicationConfig.framesInFlight);
         // The rendering Window
         if (node != nullptr) {
@@ -101,6 +113,9 @@ namespace z0 {
 
     Application::~Application() {
         log("===== END OF LOG =====");
+        if (applicationConfig.loggingMode & LOGGING_MODE_FILE) {
+            fclose(_logFile);
+        }
     }
 
     void Application::_addNode(const shared_ptr<Node> &node, const bool async) {
@@ -339,9 +354,6 @@ namespace z0 {
         Input::_initInput();
         start();
         auto messageLoop = [] {
-#ifndef DISABLE_LOG
-            Window::_processDeferredLog();
-#endif
             Input::_updateInputStates();
 #ifdef _WIN32
             MSG _messages;

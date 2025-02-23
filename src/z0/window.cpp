@@ -11,7 +11,6 @@ module;
 #include <windowsx.h>
 #include <hidsdi.h>
 #endif
-#include <time.h>
 #include "z0/libraries.h"
 
 module z0.Window;
@@ -63,7 +62,7 @@ namespace z0 {
         switch (message) {
             case WM_CREATE:
                 // Save the Window pointer passed to CreateWindowEx
-                SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
+                SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams));
                 return 0;
             case WM_SIZE: {
                 if (!IsIconic(hwnd)) {
@@ -270,21 +269,6 @@ namespace z0 {
                 applicationConfig.clearColor.g*255.0f,
                 applicationConfig.clearColor.b*255.0f))} {
             auto hInstance = GetModuleHandle(nullptr);
-    #ifndef DISABLE_LOG
-            _mainThreadId = GetCurrentThreadId();
-            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
-                createLogWindow(hInstance);
-            }
-            if (app().getConfig().loggingMode & LOGGING_MODE_FILE) {
-                _logFile = fopen("log.txt", "w");
-                if(_logFile == nullptr) {
-                    die("Error opening log file");
-                }
-            }
-            if (app().getConfig().loggingMode != LOGGING_MODE_NONE) {
-                log("===== START OF LOG =====");
-            }
-    #endif
 
             const WNDCLASSEX wincl {
                 .cbSize = sizeof(WNDCLASSEX),
@@ -409,194 +393,9 @@ namespace z0 {
 
         Window::~Window() {
             DeleteObject(background);
-    #ifndef DISABLE_LOG
-            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
-                CloseWindow(_hwndLog);
-            }
-            if (app().getConfig().loggingMode & LOGGING_MODE_FILE) {
-                fclose(_logFile);
-            }
-    #endif
         }
 
     #endif
-
-    #ifndef DISABLE_LOG
-    #ifdef _WIN32
-
-
-
-        void CopyTextToClipboard(const string& text) {
-            if (OpenClipboard(nullptr)) {
-                EmptyClipboard();
-
-                const size_t size = (text.size() + 1) * sizeof(wchar_t);
-                const auto hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-                if (hMem) {
-                    memcpy(GlobalLock(hMem), text.c_str(), size);
-                    GlobalUnlock(hMem);
-                    SetClipboardData(CF_TEXT, hMem);
-                }
-                CloseClipboard();
-                if (hMem) {
-                    GlobalFree(hMem);
-                }
-            }
-        }
-
-        LRESULT CALLBACK WindowProcedureLog(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-            static HFONT hFont;
-            switch (message) {
-                case WM_CREATE: {
-                    Window::_hwndLogList = CreateWindow(
-                        "LISTBOX",
-                        nullptr,
-                        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL |LBS_STANDARD,
-                        0, 0, 0, 0,
-                        hwnd,
-                        nullptr,
-                        GetModuleHandle(nullptr),
-                        nullptr
-                    );
-                    hFont =  CreateFont(
-                        14,                        // Height of font
-                        0,                         // Width of font
-                        0,                         // Angle of escapement
-                        0,                         // Orientation angle
-                        FW_NORMAL,                 // Font weight
-                        FALSE,                     // Italic attribute option
-                        FALSE,                     // Underline attribute option
-                        FALSE,                     // Strikeout attribute option
-                        DEFAULT_CHARSET,           // Character set identifier
-                        OUT_DEFAULT_PRECIS,        // Output precision
-                        CLIP_DEFAULT_PRECIS,       // Clipping precision
-                        DEFAULT_QUALITY,           // Output quality
-                        DEFAULT_PITCH | FF_SWISS,  // Pitch and family
-                        TEXT("Consolas"));            // Typeface name
-                    SendMessage(Window::_hwndLogList, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
-                    return 0;
-                }
-                case WM_COMMAND: {
-                    auto subcommande = HIWORD(wParam);
-                    if (subcommande == LBN_SELCHANGE) {
-                        const int index = SendMessage(Window::_hwndLogList, LB_GETCURSEL, 0, 0);
-                        if (index != LB_ERR) {
-                            const auto length = SendMessage(Window::_hwndLogList, LB_GETTEXTLEN, index, 0);
-                            auto buffer = new TCHAR[length+1];
-                            SendMessage(Window::_hwndLogList, LB_GETTEXT, index, reinterpret_cast<LPARAM>(buffer));
-                            buffer[length] = 0;
-                            CopyTextToClipboard(buffer);
-                            delete[] buffer;
-                        }
-                    }
-                    break;
-                }
-                case WM_SIZE: {
-                    if (Window::_hwndLogList) {
-                        const int width = LOWORD(lParam);
-                        const int height = HIWORD(lParam);
-                        MoveWindow(Window::_hwndLogList, 0, 0, width, height, TRUE);
-                    }
-                    return 0;
-                }
-                case WM_DESTROY: {
-                    DeleteObject(hFont);
-                }
-                default: break;
-            }
-            return DefWindowProc(hwnd, message, wParam, lParam);
-        }
-
-        HWND Window::_hwndLog{nullptr};
-        HWND Window::_hwndLogList{nullptr};
-        constexpr char szClassNameLog[ ] = "WindowsAppLog";
-        list<string> Window::_deferredLogMessages;
-        DWORD Window::_mainThreadId;
-        FILE* Window::_logFile;
-
-        void Window::createLogWindow(const HMODULE hInstance) {
-            auto monitorEnumData = MonitorEnumData {
-                .monitorIndex = app().getConfig().loggingMonitor
-            };
-            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorEnumData));
-
-            const WNDCLASSEX wincl {
-                .cbSize = sizeof(WNDCLASSEX),
-                .style = CS_DBLCLKS,
-                .lpfnWndProc = WindowProcedureLog,
-                .cbClsExtra = 0,
-                .cbWndExtra = 0,
-                .hInstance = hInstance,
-                .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
-                .hCursor = LoadCursor(nullptr, IDC_ARROW),
-                .hbrBackground = background,
-                .lpszMenuName = nullptr,
-                .lpszClassName = szClassNameLog,
-                .hIconSm = LoadIcon(nullptr, IDI_APPLICATION),
-            };
-            if (!RegisterClassEx(&wincl)) die("Cannot register Log Window class");
-
-            _hwndLog = CreateWindowEx(
-                    WS_EX_OVERLAPPEDWINDOW,
-                    szClassNameLog,
-                    "Log",
-                    WS_OVERLAPPEDWINDOW,
-                    monitorEnumData.monitorRect.left,
-                    monitorEnumData.monitorRect.top,
-                    800,
-                    600,
-                    HWND_DESKTOP,
-                    nullptr,
-                    hInstance,
-                    this
-            );
-            if (_hwndLog == nullptr) { die("Cannot create Log Window", std::to_string(GetLastError())); };
-            ShowWindow(_hwndLog, SW_SHOW);
-            UpdateWindow(_hwndLog);
-        }
-
-        void Window::_log(string msg) {
-            const auto logMode = app().getConfig().loggingMode;
-            if (logMode == LOGGING_MODE_NONE) { return; }
-            using namespace chrono;
-            const auto in_time_t = system_clock::to_time_t(system_clock::now());
-            tm tm;
-            localtime_s(&tm, &in_time_t);
-            string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
-            item.append(" ");
-            item.append(msg);
-            if (static_cast<int>(logMode) & static_cast<int>(LOGGING_MODE_WINDOW)) {
-                // Store the log message in the deferred log queue if we log from another thread
-                // because the log Window proc run on the main thread
-                if ((_hwndLogList != nullptr) && (GetCurrentThreadId() == _mainThreadId)) {
-                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(item.c_str()));
-                    const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
-                    SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
-                } else {
-                    _deferredLogMessages.push_back(item);
-                }
-            }
-            if (logMode & LOGGING_MODE_STDOUT) {
-                cout << item << endl;
-            }
-            if (logMode & LOGGING_MODE_FILE) {
-                fwrite(item.c_str(), item.size(), 1, _logFile);
-                fwrite("\n", 1, 1, _logFile);
-            }
-        }
-
-        void Window::_processDeferredLog() {
-            if (app().getConfig().loggingMode & LOGGING_MODE_WINDOW) {
-                for(const auto& msg: _deferredLogMessages) {
-                    SendMessage(_hwndLogList, LB_INSERTSTRING, -1, reinterpret_cast<LPARAM>(msg.c_str()));
-                    const int itemCount = SendMessage(_hwndLogList, LB_GETCOUNT, 0, 0);
-                    SendMessage(_hwndLogList, LB_SETTOPINDEX, itemCount-1, 0);
-                }
-                _deferredLogMessages.clear();
-            }
-        }
-    #endif
-#endif
 
 
 }
