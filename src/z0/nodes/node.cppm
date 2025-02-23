@@ -533,6 +533,11 @@ import z0.Tween;
 
         static string sanitizeName(const string &name);
 
+        /**
+         * Recursively sets the cast_shadows property
+         */
+        virtual void setCastShadows(bool castShadows);
+
     protected:
         mat4 localTransform{};
         mat4 worldTransform{};

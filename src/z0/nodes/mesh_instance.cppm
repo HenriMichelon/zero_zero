@@ -68,7 +68,7 @@ namespace z0 {
 
         inline bool isCastShadows() const { return castShadows; }
 
-        void setProperty(const string &property, const string &value) override;
+        void setCastShadows(bool castShadows) override;
 
         friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
             return a.mesh < b.mesh;

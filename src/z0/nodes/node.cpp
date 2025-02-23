@@ -252,9 +252,7 @@ namespace z0 {
         } else if (property == "name") {
             setName(value);
         } else  if (property == "cast_shadows") {
-            for (auto& child : _getChildren()) {
-                child->setProperty(property, value);
-            }
+            setCastShadows(value == "true");
         }
     }
 
@@ -344,6 +342,14 @@ namespace z0 {
         this->visible = visible;
         for (const auto &child : children) {
             child->setVisible(visible);
+        }
+        app()._unlockDeferredUpdate();
+    }
+
+    void Node::setCastShadows(const bool castShadows) {
+        app()._lockDeferredUpdate();
+        for (const auto &child : children) {
+            child->setCastShadows(castShadows);
         }
         app()._unlockDeferredUpdate();
     }
