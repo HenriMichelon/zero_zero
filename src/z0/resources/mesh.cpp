@@ -18,6 +18,7 @@ using namespace meshopt;
 
 module z0.resources.Mesh;
 
+import z0.Application;
 import z0.Log;
 
 import z0.resources.Material;
@@ -120,28 +121,34 @@ namespace z0 {
 
         }
         meshopt_optimizeVertexFetch(
-                vertices.data(), indices.data(), indices.size(), vertices.data(), vertices.size(), sizeof(Vertex));
+                vertices.data(),
+                indices.data(),
+                indices.size(),
+                vertices.data(),
+                vertices.size(),
+                sizeof(Vertex));
 
-        // constexpr float  threshold          = 0.5f;
-        // constexpr float  target_error = 1e-2f;
-        // float            lod_error = 0.f;
-        // for (const auto&surface : surfaces) {
-        //     const size_t     target_index_count = static_cast<size_t>(indices.size() * threshold);
-        //     vector<uint32_t> lod(indices.size());
-        //     lod.resize(meshopt_simplify(
-        //         &lod[0],
-        //         indices.data(),
-        //         indices.size(),
-        //         &vertices[0].position.x,
-        //         vertices.size(),
-        //         sizeof(Vertex),
-        //         target_index_count,
-        //         target_error,
-        //         /* options= */ 0,
-        //         &lod_error));
-        //     Log::debug << "Mesh::optimize "  << indices.size() <<  " -> " << lod.size() << endl;
-        //     // indices = lod;
-        // }
+        const auto threshold = app().getConfig().meshSimplifyThreshold;
+        if (surfaces.size() == 1 && threshold < 1.0f) {
+            constexpr float  target_error = 1e-2f;
+            float            lod_error    = 0.f;
+            const size_t     target_index_count = threshold == 0.0f ? 0 : static_cast<size_t>(indices.size() * threshold);
+            vector<uint32_t> lod(indices.size());
+            lod.resize(meshopt_simplify(
+                &lod[0],
+                indices.data(),
+                indices.size(),
+                &vertices[0].position.x,
+                vertices.size(),
+                sizeof(Vertex),
+                target_index_count,
+                target_error,
+                /* options= */ 0,
+                &lod_error));
+            Log::debug << "Mesh::optimize simplify "  << getName() << " : " << indices.size() <<  " -> " << lod.size() << endl;
+            indices = lod;
+            surfaces[0]->indexCount = indices.size();
+        }
     }
 
     void Mesh::buildAABB() {

@@ -72,5 +72,7 @@ export namespace z0 {
         bool             debug                      = false;
         //! Configuration for the debug rendering
         DebugConfig      debugConfig                = {};
+        //! Threshold for meshes simplification with meshoptimizer (only works with one surface meshes), 1.0f -> no simplification
+        float            meshSimplifyThreshold      = 1.0f;
     };
 }
