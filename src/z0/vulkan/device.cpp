@@ -729,8 +729,9 @@ namespace z0 {
 
     VkPresentModeKHR Device::chooseSwapPresentMode(const vector<VkPresentModeKHR> &availablePresentModes) {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Swap_chain#page_Presentation-mode
+        const auto mode = static_cast<VkPresentModeKHR>(app().getConfig().vSyncMode);
         for (const auto &availablePresentMode : availablePresentModes) {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            if (availablePresentMode == mode) {
                 return availablePresentMode;
             }
         }

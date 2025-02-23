@@ -151,6 +151,9 @@ export namespace z0 {
         LOGGING_MODE_STDOUT = 0x100
     };
 
+    /**
+     * Log levels
+     */
     enum class LogLevel : int32_t {
         DEBUG       = 0,
         INFO        = 1,
@@ -161,6 +164,28 @@ export namespace z0 {
         ERROR       = 6,
         CRITICAL    = 7,
         INTERNAL    = 8,
+    };
+
+    /**
+     * Presentation mode
+     */
+    enum class VSyncMode : uint32_t {
+        /**
+         * VK_PRESENT_MODE_IMMEDIATE_KHR
+         */
+        IMMEDIATE   = 0,
+        /**
+         * VK_PRESENT_MODE_MAILBOX_KHR
+         */
+        MAILBOX     = 1,
+        /**
+         * VK_PRESENT_MODE_FIFO_KHR
+         */
+        FIFO        = 2,
+        /**
+         * VK_PRESENT_MODE_FIFO_RELAXED_KHR
+         */
+        RELAXED     = 3,
     };
 
     /**

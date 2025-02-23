@@ -52,6 +52,8 @@ export namespace z0 {
         LogLevel         logLevelMin                = LogLevel::INFO;
         //! MSAA samples. Note that MSAA is mandatory
         MSAA             msaa                       = MSAA::X4;
+        //! Presentation mode
+        VSyncMode        vSyncMode                  = VSyncMode::MAILBOX;
         //! Depth frame buffer format
         DepthFormat      depthFormat                = DepthFormat::B24;
         //! Use a depth pre-pass in the main renderer
