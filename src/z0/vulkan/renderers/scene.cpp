@@ -15,6 +15,7 @@ module z0.vulkan.SceneRenderer;
 
 import z0.Application;
 import z0.Constants;
+import z0.Log;
 import z0.Tools;
 import z0.FrustumCulling;
 
@@ -371,6 +372,10 @@ namespace z0 {
                 }
             }
         }
+        // Log::debug <<"Scene::update " << accumulate(models.begin(), models.end(), 0,
+        //     [](int acc, const shared_ptr<MeshInstance>& meshInstance) {
+        //             return acc + static_cast<int>(meshInstance->getMesh()->getVertices().size());
+        //     }) << " vertices" << endl;
         ModelsRenderer::frameData[currentFrame].modelUniformBuffer->writeToBuffer(
                    frame.modelUBOArray.get(),
                    MODEL_BUFFER_SIZE * modelIndex);
