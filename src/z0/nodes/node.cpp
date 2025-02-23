@@ -290,6 +290,7 @@ namespace z0 {
         child->_updateTransform(worldTransform);
         child->_onReady();
         child->visible = visible && child->visible;
+        child->castShadows = castShadows;
         if (addedToScene) { app()._addNode(child, async); }
         return true;
     }
@@ -350,6 +351,7 @@ namespace z0 {
 
     void Node::setCastShadows(const bool castShadows) {
         app()._lockDeferredUpdate();
+        this->castShadows = castShadows;
         for (const auto &child : children) {
             child->setCastShadows(castShadows);
         }

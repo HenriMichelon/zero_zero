@@ -43,10 +43,4 @@ namespace z0 {
         worldAABB = mesh->getAABB().toGlobal(worldTransform) ;
     }
 
-    void MeshInstance::setCastShadows(const bool castShadows) {
-        this->castShadows = castShadows;
-        Node::setCastShadows(castShadows);
-    }
-
-
 }

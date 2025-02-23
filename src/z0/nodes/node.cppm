@@ -536,7 +536,9 @@ import z0.Tween;
         /**
          * Recursively sets the cast_shadows property
          */
-        virtual void setCastShadows(bool castShadows);
+        void setCastShadows(bool castShadows);
+
+        inline bool isCastShadows() const { return castShadows; }
 
     protected:
         mat4 localTransform{};
@@ -557,6 +559,7 @@ import z0.Tween;
         bool                    addedToScene{false};
         list<shared_ptr<Tween>> tweens;
         list<string>            groups;
+        bool                    castShadows{true};
 
     public:
         virtual void _onReady();
