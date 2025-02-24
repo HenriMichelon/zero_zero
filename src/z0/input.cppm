@@ -13,12 +13,26 @@ module;
 export module z0.Input;
 
 import z0.Constants;
+import z0.InputEvent;
 
-namespace z0 {
+export namespace z0 {
+
+    struct InputActionEntry {
+        enum Type { KEYBOARD, MOUSE, GAMEPAD };
+        Type    type;
+        uint8_t value;
+        bool    pressed{true};
+    };
+
+    struct InputAction {
+        string                   name;
+        vector<InputActionEntry> entries;
+    };
+
     /**
      * %A singleton for handling inputs
      */
-    export class Input {
+    class Input {
     public:
         /**
          * Returns true if you are pressing the key
@@ -114,7 +128,12 @@ namespace z0 {
         static bool isGamepadButtonJustReleased(GamepadButton button);
         static bool isGamepadButtonJustPressed(GamepadButton button);
 
+        static void addAction(const InputAction& action);
+        static bool isAction(const string& actionName, const InputEvent &inputEvent);
+
     private:
+        static inline map<string, InputAction> inputActions;
+
         [[nodiscard]] static float applyDeadzone(float value, float deadzonePercent);
         static void generateGamepadButtonEvent(GamepadButton, bool);
 
