@@ -633,24 +633,44 @@ export namespace z0 {
     enum class GamepadButton : uint8_t {
         //! A or X
         A = 0,
+        //! A or X
+        CROSS = A,
         //! B or ○
         B = 1,
+        //! B or ○
+        CIRCLE = B,
         //! X or □
         X = 2,
+        //! X or □
+        SQUARE = X,
         //! Y or △
         Y = 3,
+        //! Y or △
+        TRIANGLE = Y,
         //! Left shoulder/bumper
         LB = 4,
+        //! Left shoulder/bumper
+        L1 = LB,
         //! Right shoulder/bumper
         RB = 5,
-        //! Back
+        //! Right shoulder/bumper
+        R1 = RB,
+        //! Back/Share
         BACK = 6,
-        //! Start
+        //! Back/Share
+        SHARE = BACK,
+        //! Start/Menu
         START = 7,
+        //! Start/Menu
+        MENU = START,
         //! Left trigger
         LT = 8,
+        //! Left trigger
+        L2 = LT,
         //! Right trigger
         RT = 9,
+        //! Right trigger
+        R2 = RT,
         //! Directional hat ↑
         DPAD_UP = 10,
         //! Directional hat →
@@ -660,14 +680,6 @@ export namespace z0 {
         //! Directional hat ←
         DPAD_LEFT = 13,
         LAST      = DPAD_LEFT,
-        //! A or X
-        CROSS = A,
-        //! B or ○
-        CIRCLE = B,
-        //! X or □
-        SQUARE = X,
-        //! Y or △
-        TRIANGLE = Y,
     };
 
     /**
