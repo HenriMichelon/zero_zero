@@ -392,7 +392,7 @@ namespace z0 {
 
         {
             const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
-            vkQueueWaitIdle(graphicsQueue);
+            // vkQueueWaitIdle(graphicsQueue);
             const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
                 .waitSemaphoreCount = 1,

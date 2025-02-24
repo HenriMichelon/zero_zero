@@ -14,10 +14,12 @@ module;
 module z0.nodes.CollisionArea;
 
 import z0.Constants;
+import z0.Log;
 import z0.Tools;
 
 import z0.nodes.Node;
 
+import z0.resources.MeshShape;
 import z0.resources.Shape;
 
 namespace z0 {
@@ -46,6 +48,8 @@ namespace z0 {
         };
         settings.mIsSensor                     = true;
         settings.mUseManifoldReduction         = true;
+        settings.mOverrideMassProperties       = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+        settings.mMassPropertiesOverride       = JPH::MassProperties{.mMass = 1.0f,.mInertia = JPH::Mat44::sIdentity()};
         // settings.mCollideKinematicVsNonDynamic = true;
         settings.mGravityFactor                = 0.0f;
         const auto body = bodyInterface.CreateBody(settings);
@@ -72,6 +76,10 @@ namespace z0 {
                 } else if (parts.at(0) == "CylinderShape") {
                     if (parts.size() < 3) { die("Missing parameter for CylinderShape for", getName()); }
                     setShape(make_shared<CylinderShape>(stof(parts[1].data()), stof(parts[2].data()), getName()));
+                } else if (parts.at(0) == "MeshShape") {
+                    setShape(make_shared<MeshShape>(*this));
+                } else if (parts.at(0) == "AABBShape") {
+                    setShape(make_shared<AABBShape>(*this));
                 } else {
                     die("CollisionArea : missing or invalid shape for ", getName());
                 }

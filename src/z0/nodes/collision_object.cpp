@@ -16,6 +16,7 @@ module z0.nodes.CollisionObject;
 import z0.Application;
 import z0.Constants;
 import z0.Signal;
+import z0.Log;
 import z0.Tools;
 
 import z0.nodes.Node;

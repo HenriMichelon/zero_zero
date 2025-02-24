@@ -432,7 +432,9 @@ int main(const int argc, char** argv) {
         const auto &animation = gltf.animations[animationIndex];
         auto& animationHeader = animationHeaders[animationIndex];
         animationHeader.tracksCount = animation.channels.size();
-        copyName(animation.name.data(), animationHeader.name, animationIndex);
+        static const regex pattern(R"(\.\d+$)");
+        const string name{regex_replace(animation.name.data(), pattern, "")};
+        copyName(name, animationHeader.name, animationIndex);
         tracksInfos[animationIndex].resize(animationHeader.tracksCount);
         tracksKeyTimes[animationIndex].resize(animationHeader.tracksCount);
         tracksKeyValues[animationIndex].resize(animationHeader.tracksCount);

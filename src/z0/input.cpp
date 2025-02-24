@@ -33,15 +33,15 @@ namespace z0 {
         if (inputActions.contains(actionName)) {
             const auto& action = inputActions[actionName];
             for (const auto& entry : action.entries) {
-                if (inputEvent.getType() == InputEventType::KEY) {
+                if (entry.type == InputActionEntry::KEYBOARD && inputEvent.getType() == InputEventType::KEY) {
                     const auto &event = dynamic_cast<const InputEventKey &>(inputEvent);
                     result = (event.getKey() == entry.value) && (event.isPressed() == entry.pressed) ;
-                } else if (inputEvent.getType() == InputEventType::MOUSE_BUTTON) {
+                } else if (entry.type == InputActionEntry::MOUSE && inputEvent.getType() == InputEventType::MOUSE_BUTTON) {
                     const auto &event = dynamic_cast<const InputEventMouseButton &>(inputEvent);
-                    result = (event.getMouseButton() == static_cast<MouseButton>(entry.value)) && (event.isPressed() == entry.pressed);
-                } else if (inputEvent.getType() == InputEventType::GAMEPAD_BUTTON) {
+                    result = (static_cast<uint8_t>(event.getMouseButton()) & entry.value) && (event.isPressed() == entry.pressed);
+                } else if (entry.type == InputActionEntry::GAMEPAD && inputEvent.getType() == InputEventType::GAMEPAD_BUTTON) {
                     const auto &event = dynamic_cast<const InputEventGamepadButton &>(inputEvent);
-                    result = (event.getGamepadButton() == static_cast<GamepadButton>(entry.value)) && (event.isPressed() == entry.pressed);
+                    result = (static_cast<uint8_t>(event.getGamepadButton()) & entry.value) && (event.isPressed() == entry.pressed);
                 }
                 if (result) { break; }
             }
