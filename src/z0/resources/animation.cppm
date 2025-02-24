@@ -22,7 +22,9 @@ export namespace z0 {
      */
     class Animation : public Resource {
     public:
-
+        /**
+         * An animation track
+         */
         struct Track {
             AnimationType           type;
             AnimationInterpolation  interpolation{AnimationInterpolation::LINEAR};

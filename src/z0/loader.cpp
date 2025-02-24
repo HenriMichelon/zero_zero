@@ -14,6 +14,7 @@ module z0.Loader;
 import z0.Application;
 import z0.Constants;
 import z0.GlTF;
+import z0.Log;
 import z0.Tools;
 import z0.TypeRegistry;
 import z0.VirtualFS;
@@ -56,6 +57,7 @@ namespace z0 {
         if (nodeTree.contains(nodeDesc.id)) {
             die(log_name, "Node with id", nodeDesc.id, "already exists in the scene tree");
         }
+        // DEBUG("Loader::addNode ", nodeDesc.id);
         sceneTree[nodeDesc.id] = nodeDesc;
         shared_ptr<Node> node;
         if (nodeDesc.isResource) {
@@ -95,7 +97,8 @@ namespace z0 {
                     die(log_name, "Child node", nodeDesc.child->id, "not found");
                 }
                 if (nodeDesc.child->needDuplicate) {
-                    child = child->duplicate();
+                    // _LOG("nodeDesc.child->needDuplicate ", child->getName());
+                    child = child->duplicate(true);
                 }
                 child->setPosition(VEC3ZERO);
                 child->setRotation(QUATERNION_IDENTITY);
@@ -111,14 +114,17 @@ namespace z0 {
                 if (nodeTree.contains(child.id)) {
                     auto &childNode = nodeTree[child.id];
                     if (child.needDuplicate) {
+                        // _LOG("Loader child.needDuplicate ", childNode->getName());
                         parentNode->addChild(childNode->duplicate());
                     } else {
+                        // _LOG("Loader !child.needDuplicate ", childNode->getName());
                         if (childNode->getParent() != nullptr) {
                             childNode->getParent()->removeChild(childNode);
                         }
                         parentNode->addChild(childNode);
                     }
                 } else {
+                    // _LOG("Loader child addNode ", child.id);
                     addNode(parentNode.get(), nodeTree, sceneTree, child);
                 }
             }

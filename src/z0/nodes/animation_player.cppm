@@ -70,7 +70,7 @@ export namespace z0 {
         /**
          * Returns the current animation, if any
          */
-        shared_ptr<Animation> getAnimation();
+        [[nodiscard]] shared_ptr<Animation> getAnimation();
 
         /**
          * Returns the current animation library, if any
@@ -95,19 +95,26 @@ export namespace z0 {
         /**
          * Returns `true` if the animation is currently playing
          */
-        inline bool isPlaying() const { return playing; }
+        [[nodiscard]] inline bool isPlaying() const { return playing; }
 
         /**
          * Sets the auto start property.
          */
         inline void setAutoStart(const bool autoStart) { this->autoStart = autoStart; }
 
+        /**
+         * Sets the node target on which to apply animations
+         */
+        inline void setTarget(Node &target) { setTarget(&target); }
+
+        /**
+         * Sets the node target on which to apply animations
+         */
+        void setTarget(Node *target);
+
         void _update(float alpha) override;
 
         void _onEnterScene() override;
-
-        inline void setTarget(Node &target) { this->target = &target; }
-        inline void setTarget(Node *target) { this->target = target; }
 
     protected:
         shared_ptr<Node> duplicateInstance() override;
@@ -117,6 +124,9 @@ export namespace z0 {
         bool playing{false};
         bool starting{false};
         bool reverse{false};
+        vec3 initialPosition{0.0f};
+        vec3 initialRotation{0.0f};
+        vec3 initialScale{1.0f};
         chrono::time_point<chrono::steady_clock> startTime;
         Node* target{nullptr};
         string currentLibrary;

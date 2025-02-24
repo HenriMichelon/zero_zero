@@ -11,6 +11,7 @@ module;
 module z0.nodes.AnimationPlayer;
 
 import z0.Constants;
+import z0.Log;
 import z0.Tools;
 
 namespace z0 {
@@ -30,7 +31,6 @@ namespace z0 {
         const auto duration = (chrono::duration_cast<chrono::milliseconds>(now - startTime).count()) / 1000.0;
         const auto animation = getAnimation();
         if (animation && target) {
-            // cout << parent->getId() << " / " << animation->getId() << " : " << animation->getName() << endl;
             for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
                 const auto& value = animation->getInterpolatedValue(
                     trackIndex,
@@ -44,14 +44,13 @@ namespace z0 {
                 } else {
                     switch (value.type) {
                     case AnimationType::TRANSLATION:
-                        target->setPosition(value.value);
+                        target->setPosition(value.value + initialPosition);
                         break;
                     case AnimationType::ROTATION:
-                        target->setRotation(value.value);
+                        target->setRotation(value.value + initialRotation);
                         break;
                     case AnimationType::SCALE:
-                        // cout << parent->getName() << " : " << to_string(value.value) << endl;
-                        target->setScale(value.value);
+                        target->setScale(value.value + initialScale);
                         break;
                     default:
                         die("Unknown animation type");
@@ -64,12 +63,20 @@ namespace z0 {
     void AnimationPlayer::_onEnterScene() {
         Node::_onEnterScene();
         if (!target && getParent()) {
-            target = getParent();
+            setTarget(getParent());
         }
         if (autoStart) {
             play();
         }
     }
+
+    void AnimationPlayer::setTarget(Node *target) {
+        this->target = target;
+        initialPosition = target->getPosition();
+        initialRotation = target->getRotation();
+        initialScale = target->getScale();
+    }
+
 
     void AnimationPlayer::setCurrentLibrary(const string &name) {
         if (libraries.contains(name)) {

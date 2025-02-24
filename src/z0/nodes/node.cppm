@@ -355,8 +355,9 @@ import z0.Tween;
 
         /**
          * Duplicates a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
+         * \param recursiveFilter only duplicate AnimationPlayer children (used by Loader::load)
          */
-        [[nodiscard]] shared_ptr<Node> duplicate();
+        [[nodiscard]] shared_ptr<Node> duplicate(bool recursiveFilter = false);
 
         /**
          * Finds the first child by is type.

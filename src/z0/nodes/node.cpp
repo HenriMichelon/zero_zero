@@ -206,11 +206,13 @@ namespace z0 {
         }
     }
 
-    shared_ptr<Node> Node::duplicate() {
+    shared_ptr<Node> Node::duplicate(const bool recursiveFilter) {
         shared_ptr<Node> dup = duplicateInstance();
         dup->children.clear();
         for (const auto &child : children) {
-            dup->addChild(child->duplicate());
+            if (!recursiveFilter || child->getType() == ANIMATION_PLAYER) {
+                dup->addChild(child->duplicate());
+            }
         }
         dup->id     = currentId++;
         dup->name   = name;
