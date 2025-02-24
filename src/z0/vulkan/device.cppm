@@ -126,7 +126,9 @@ export namespace z0 {
 
         [[nodiscard]] VkCommandPool createCommandPool() const;
 
-        [[nodiscard]] SubmitQueue::OneTimeCommand beginOneTimeCommandBuffer() const;
+        [[nodiscard]] inline SubmitQueue::OneTimeCommand beginOneTimeCommandBuffer(const source_location& location = source_location::current()) const  {
+            return submitQueue->beginOneTimeCommand(location);
+        }
 
         void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer, bool immediate = false) const;
 

@@ -21,6 +21,7 @@ export namespace z0 {
     public:
 
         struct OneTimeCommand {
+            const string    location;
             VkCommandPool   commandPool;
             VkCommandBuffer commandBuffer;
         };
@@ -31,7 +32,7 @@ export namespace z0 {
 
         inline mutex& getSubmitMutex() { return submitMutex; }
 
-        OneTimeCommand beginOneTimeCommand();
+        OneTimeCommand beginOneTimeCommand(const source_location& location = source_location::current());
 
         void endOneTimeCommand(const OneTimeCommand& oneTimeCommand, bool immediate = false);
 

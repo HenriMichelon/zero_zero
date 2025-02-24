@@ -51,8 +51,7 @@ namespace z0::ui {
         assert(windowManager && "ui::Window must be added to a Window manager before setting the main widget");
         if (layout == nullptr) { setStyle(nullptr); }
         if (widget == nullptr) {
-            widget = make_shared<Panel>();
-            widget->setDrawBackground(false);
+            widget = make_shared<Widget>();
         } else {
             widget = std::move(child);
         }
@@ -64,7 +63,7 @@ namespace z0::ui {
         static_cast<Style*>(widget->style)->addResource(*widget, resources);
         widget->eventCreate();
         widget->setPos(0, 0);
-        widget->setSize(getWidth(), getHeight());
+        widget->_setSize(getWidth(), getHeight());
         focusedWidget = widget->setFocus();
         unFreeze(widget);
     }
@@ -265,7 +264,7 @@ namespace z0::ui {
     }
 
     void Window::eventResize() {
-        if (widget) { widget->setSize(rect.width, rect.height); }
+        if (widget) { widget->_setSize(rect.width, rect.height); }
         onResize();
         emit(Event::OnResize);
         refresh();

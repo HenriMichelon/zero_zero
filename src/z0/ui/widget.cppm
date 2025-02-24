@@ -290,6 +290,8 @@ namespace z0::ui {
         void *style{nullptr};
         bool  mouseMoveOnFocus{false};
 
+        virtual void _setSize(float width, float height);
+
     protected:
         Rect                     rect;
         Rect                     defaultRect;

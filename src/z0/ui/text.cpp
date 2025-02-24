@@ -25,7 +25,7 @@ namespace z0 {
             if (parent) { parent->refresh(); }
             float w, h;
             getSize(w, h);
-            setSize(w, h);
+            _setSize(w, h);
             if (!parent) { refresh(); }
         }
 
@@ -41,14 +41,14 @@ namespace z0 {
             height = roundf(height / ratio.y);
         }
 
-        void Text::setSize(const float width, const float height) {
+        void Text::_setSize(const float width, const float height) {
             if (width == 0 && height == 0 && rect.width == 0 && rect.height == 0) {
                 float w, h;
                 getSize(w, h);
-                setSize(w, h);
+                _setSize(w, h);
             }
             else {
-                Widget::setSize(width, height);
+                Widget::_setSize(width, height);
             }
         }
 
@@ -56,7 +56,7 @@ namespace z0 {
             if (rect.width == 0 && rect.height == 0) {
                 float w, h;
                 getSize(w, h);
-                setSize(w, h);
+                _setSize(w, h);
             }
             return Widget::_getDefaultRect();
         }

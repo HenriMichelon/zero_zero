@@ -404,7 +404,8 @@ namespace z0 {
                 .pSignalSemaphores =  &data.renderFinishedSemaphore
             };
             if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
-                die("failed to submit draw command buffer!");
+                ERROR("failed to submit draw command buffer!");
+                return;
             }
 
             {
@@ -596,9 +597,9 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    SubmitQueue::OneTimeCommand Device::beginOneTimeCommandBuffer() const {
-        return submitQueue->beginOneTimeCommand();
-    }
+    // SubmitQueue::OneTimeCommand Device::beginOneTimeCommandBuffer() const {
+    //     return submitQueue->beginOneTimeCommand();
+    // }
 
     void Device::endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& command, const bool immediate) const {
         submitQueue->endOneTimeCommand(command, immediate);

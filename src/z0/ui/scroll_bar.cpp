@@ -143,11 +143,11 @@ namespace z0 {
                 liftSize = size - nbvalues;
             }
             if (type == VERTICAL) {
-                liftCage->setSize(rect.width, liftSize);
+                liftCage->_setSize(rect.width, liftSize);
                 liftSize = liftCage->getHeight();
             }
             else {
-                liftCage->setSize(liftSize, rect.height);
+                liftCage->_setSize(liftSize, rect.height);
                 liftSize = liftCage->getWidth();
             }
             const auto liftPos = ((value - min) * (size - liftSize)) / nbvalues;

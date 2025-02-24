@@ -29,9 +29,11 @@ export namespace z0 {
 
             void setColor(const vec4& color);
 
-            vec4 getColor() const { return color; };
+            vec4 getColor() const { return color; }
 
             void setImage(const shared_ptr<z0::Image>& image);
+
+            void _setSize(float width, float height) override;
 
             shared_ptr<z0::Image> getImage() const { return image; }
 

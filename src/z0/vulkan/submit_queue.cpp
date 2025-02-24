@@ -39,7 +39,7 @@ namespace z0 {
         return oneTimeBuffers[oneTimeCommand.commandBuffer].back();
     }
 
-    SubmitQueue::OneTimeCommand SubmitQueue::beginOneTimeCommand() {
+    SubmitQueue::OneTimeCommand SubmitQueue::beginOneTimeCommand(const source_location& location) {
         auto lock = lock_guard(oneTimeMutex);
         if (oneTimeCommands.empty()) {
             const auto& device = Device::get();
@@ -57,7 +57,9 @@ namespace z0 {
                 .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
             };
             vkBeginCommandBuffer(commandBuffer, &beginInfo);
-            return {commandPool, commandBuffer};
+            stringstream ss;
+            ss << location.function_name() << " line " << location.line();
+            return {ss.str(), commandPool, commandBuffer};
         }
         const auto command = oneTimeCommands.front();
         oneTimeCommands.pop_front();

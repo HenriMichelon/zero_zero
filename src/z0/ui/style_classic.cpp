@@ -110,7 +110,7 @@ namespace z0::ui {
     void StyleClassic::addResource(Widget &W, const string &RES) {
         auto res = make_shared<StyleClassicResource>(RES);
         W.setResource(res);
-        W.setSize(res->width, res->height);
+        W._setSize(res->width, res->height);
         switch (W.getType()) {
         case Widget::SCROLLBAR:
             static_cast<ScrollBar &>(W).setResources(",,LOWERED", ",,RAISED");

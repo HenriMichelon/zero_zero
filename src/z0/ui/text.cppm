@@ -30,7 +30,7 @@ export namespace z0 {
 
             [[nodiscard]] vec4 getTextColor() const { return textColor; }
 
-            /*  void setSize(float, float) override;
+            /*  void _setSize(float, float) override;
              void setRect(const Rect&);
              void setRect(float, float, float, float); */
 
@@ -39,7 +39,7 @@ export namespace z0 {
             */
             void getSize(float& width, float& height);
 
-            void setSize(const float width, const float height) override;
+            void _setSize(float width, float height) override;
 
         protected:
             [[nodiscard]] Rect _getDefaultRect() override;

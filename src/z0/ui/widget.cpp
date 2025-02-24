@@ -12,8 +12,10 @@ module z0.ui.Widget;
 
 import z0.Application;
 import z0.Constants;
-import z0.resources.Font;
+import z0.Log;
 import z0.Tools;
+
+import z0.resources.Font;
 
 import z0.ui.Event;
 import z0.ui.Rect;
@@ -60,10 +62,10 @@ namespace z0::ui {
         }
     }
 
-    void Widget::enable(const bool S) {
-        if (enabled == S)
+    void Widget::enable(const bool isEnabled) {
+        if (enabled == isEnabled)
             return;
-        enabled = S;
+        enabled = isEnabled;
         if (enabled) {
             eventEnable();
         } else {
@@ -78,6 +80,17 @@ namespace z0::ui {
     }
 
     void Widget::setSize(const float width, const float height) {
+        if (parent) {
+            parent->refresh();
+        }
+        defaultRect.width  = width;
+        defaultRect.height = height;
+        rect.width  = width;
+        rect.height = height;
+        eventResize();
+    }
+
+    void Widget::_setSize(const float width, const float height) {
         if (parent) {
             parent->refresh();
         }
@@ -327,10 +340,10 @@ namespace z0::ui {
             auto &child     = *it;
             Rect  childRect = child->_getDefaultRect();
             if (childRect.width > (clientRect.width)) {
-                childRect.width = (clientRect.width);
+                childRect.width = clientRect.width;
             }
             if (childRect.height > (clientRect.height)) {
-                childRect.height = (clientRect.height);
+                childRect.height = clientRect.height;
             }
             switch (child->alignment) {
             case FILL:
@@ -700,7 +713,7 @@ namespace z0::ui {
 
     void Widget::setRect(const float L, const float T, const float W, const float H) {
         setPos(L, T);
-        setSize(W, H);
+        _setSize(W, H);
     }
 
     void Widget::setRect(const Rect &R) { setRect(R.x, R.y, R.width, R.height); }

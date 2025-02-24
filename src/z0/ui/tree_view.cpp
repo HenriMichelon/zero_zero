@@ -39,7 +39,7 @@ namespace z0 {
             newWidget->handle = make_shared<Text>(" ");
             newWidget->add(newWidget->handle, Widget::LEFT, treeTabsSize);
             newWidget->add(item, Widget::LEFT);
-            newWidget->setSize(1000.0f, item->getHeight());
+            newWidget->_setSize(1000.0f, item->getHeight());
             newWidget->setDrawBackground(false);
             return newWidget;
         }
@@ -60,7 +60,7 @@ namespace z0 {
             }
             parent->handle->setText("-");
             newWidget->add(item, Widget::LEFT);
-            newWidget->setSize(1000.0f, item->getHeight());
+            newWidget->_setSize(1000.0f, item->getHeight());
             newWidget->setDrawBackground(false);
             //expand(parent->item);
             return newWidget;
