@@ -31,7 +31,7 @@ namespace z0 {
                                                         VkDebugUtilsMessageTypeFlagsEXT,
                                                         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                         void *) {
-        Log::debug << "validation layer: " << pCallbackData->pMessage << endl;
+        DEBUG("validation layer: ", pCallbackData->pMessage);
         return VK_FALSE;
     }
 

@@ -14,6 +14,7 @@ import z0.Application;
 import z0.Tools;
 
 namespace z0 {
+
 #ifndef DISABLE_LOG
 
     streamsize LogStreamBuf::xsputn(const char* s, const streamsize n) {
@@ -45,7 +46,7 @@ namespace z0 {
             string item = wstring_to_string(format(L"{:02}:{:02}:{:02}", tm.tm_hour, tm.tm_min, tm.tm_sec));
             item.append(" ");
             switch (level) {
-                case LogLevel::INTERNAL:  item.append("====="); break;
+                case LogLevel::TRACE:     item.append("TRACE"); break;
                 case LogLevel::DEBUG:     item.append("DEBUG"); break;
                 case LogLevel::INFO:      item.append("INFO "); break;
                 case LogLevel::GAME1:     item.append("GAME1"); break;
@@ -54,6 +55,7 @@ namespace z0 {
                 case LogLevel::WARNING:   item.append("WARN "); break;
                 case LogLevel::ERROR:     item.append("ERROR"); break;
                 case LogLevel::CRITICAL:  item.append("CRIT "); break;
+                case LogLevel::INTERNAL:  item.append("====="); break;
             }
             item.append(" ");
             if (config.loggingMode & LOGGING_MODE_STDOUT) {
@@ -63,13 +65,15 @@ namespace z0 {
                 fwrite(item.c_str(), item.size(), 1, app()._logFile);
             }
         }
+        newLine = message == "\n";
         if (config.loggingMode & LOGGING_MODE_STDOUT) {
             cout << message;
+            if (newLine) { cout.flush(); }
         }
         if (config.loggingMode & LOGGING_MODE_FILE) {
             fwrite(message.c_str(), message.size(), 1, app()._logFile);
+            if (newLine) { fflush(app()._logFile); }
         }
-        newLine = message == "\n";
     }
 
 #endif

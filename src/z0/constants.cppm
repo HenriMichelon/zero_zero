@@ -155,6 +155,7 @@ export namespace z0 {
      * Log levels
      */
     enum class LogLevel : int32_t {
+        TRACE       = -1,
         DEBUG       = 0,
         INFO        = 1,
         GAME1       = 2,
@@ -163,7 +164,7 @@ export namespace z0 {
         WARNING     = 5,
         ERROR       = 6,
         CRITICAL    = 7,
-        INTERNAL    = 8,
+        INTERNAL    = 100,
     };
 
     /**

@@ -66,7 +66,7 @@ namespace z0 {
             }
         }
         if (appConfig.loggingMode != LOGGING_MODE_NONE) {
-            Log::_internal << "START OF LOG" << endl;
+            _LOG("START OF LOG");
         }
 #endif
 
@@ -84,6 +84,8 @@ namespace z0 {
     }
 
     void Application::init() {
+        TRACE();
+
         // Compute the scale ratios for the vector renderer
         vectorRatio = vec2{window->getWidth() / VECTOR_SCALE.x, window->getHeight() / VECTOR_SCALE.y};
 
@@ -113,15 +115,17 @@ namespace z0 {
     }
 
     Application::~Application() {
-        Log::_internal << "END OF LOG" << endl;
+#ifndef DISABLE_LOG
+        _LOG("END OF LOG");
         if (applicationConfig.loggingMode & LOGGING_MODE_FILE) {
             fclose(_logFile);
         }
+#endif
     }
 
     void Application::_addNode(const shared_ptr<Node> &node, const bool async) {
+        TRACE();
         assert(node != nullptr);
-        // log("_addNode", node->getName(), to_string(node->getId()));
         _lockDeferredUpdate();
         {
             auto lock = lock_guard(frameDataMutex);
@@ -142,8 +146,8 @@ namespace z0 {
     }
 
     void Application::_removeNode(const shared_ptr<Node> &node, const bool async) {
+        TRACE();
         assert(node != nullptr && node->_isAddedToScene());
-        // log("_removeNode", node->getName(), to_string(node->getId()));
         if (!stopped) {
             _lockDeferredUpdate();
             for (auto &child : node->_getChildren()) {
@@ -166,6 +170,7 @@ namespace z0 {
     }
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
+        TRACE();
         assert(camera != nullptr);
         for (auto& frame : frameData) {
             frame.activeCamera = camera;
@@ -182,6 +187,7 @@ namespace z0 {
 
     void Application::drawFrame() {
         if (stopped) { return; }
+        // TRACE();
         // Add/removes nodes from the scene
         if (doDeferredUpdates) {
             processDeferredUpdates(currentFrame);
@@ -237,12 +243,14 @@ namespace z0 {
     }
 
     void Application::_onInput(InputEvent &inputEvent) {
+        // TRACE();
         if (stopped) return;
         if (windowManager->onInput(inputEvent)) return;
         input(rootNode, inputEvent);
     }
 
     void Application::setRootNode(const shared_ptr<Node> &node) {
+        TRACE();
         assert(node != nullptr && node->getParent() == nullptr && !node->_isAddedToScene());
         // waitForRenderingSystem();
         {
@@ -254,22 +262,26 @@ namespace z0 {
     }
 
     void Application::start() {
+        TRACE();
         ready(rootNode);
         _addNode(rootNode, false);
         stopped = false;
     }
 
     void Application::add(const shared_ptr<ui::Window> &window) const {
+        TRACE();
         assert(window != nullptr);
         _instance->windowManager->add(window);
     }
 
     void Application::remove(const shared_ptr<ui::Window> &window) const {
+        TRACE();
         assert(window != nullptr);
         _instance->windowManager->remove(window);
     }
 
     void Application::ready(const shared_ptr<Node> &node) {
+        TRACE();
         assert(node != nullptr);
         for (auto &child : node->_getChildren()) {
             ready(child);
@@ -280,6 +292,7 @@ namespace z0 {
     }
 
     bool Application::input(const shared_ptr<Node> &node, InputEvent &inputEvent) {
+        // TRACE();
         assert(node != nullptr);
         if (!node->_isAddedToScene()) {
             return false;
@@ -299,6 +312,7 @@ namespace z0 {
     // }
 
     void Application::process(const shared_ptr<Node> &node, const float alpha) {
+        // TRACE();
         assert(node != nullptr);
         if (node->isProcessed()) {
             node->_update(alpha);
@@ -310,6 +324,7 @@ namespace z0 {
     }
 
     void Application::physicsProcess(const shared_ptr<Node> &node, const float delta) {
+        // TRACE();
         assert(node != nullptr);
         if (node->isProcessed()) {
             node->_physicsUpdate(delta);
@@ -321,6 +336,7 @@ namespace z0 {
     }
 
     void Application::pause(const shared_ptr<Node> &node) {
+        TRACE();
         assert(node != nullptr);
         if (paused && (!node->isProcessed())) {
             node->_onPause();
@@ -339,6 +355,7 @@ namespace z0 {
     }
 
     void Application::cleanup(shared_ptr<Node> &node) {
+        TRACE();
         assert(node != nullptr);
         _removeNode(node, false);
         for (auto &child : node->_getChildren()) {
@@ -348,6 +365,7 @@ namespace z0 {
     }
 
     void Application::quit() const {
+        TRACE();
         window->close();
     }
 

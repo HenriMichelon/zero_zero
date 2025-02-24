@@ -200,7 +200,7 @@ namespace z0 {
             sstream << " ";
         }
         sstream << " " << toString() << " (" << TypeNames[type] << ") #" << getId();
-        Log::info << sstream.str() << endl;
+        INFO(sstream.str());
         for (auto &child : children) {
             child->printTree(tab + 1);
         }

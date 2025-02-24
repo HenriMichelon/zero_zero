@@ -372,10 +372,6 @@ namespace z0 {
                 }
             }
         }
-        // Log::debug <<"Scene::update " << accumulate(models.begin(), models.end(), 0,
-        //     [](int acc, const shared_ptr<MeshInstance>& meshInstance) {
-        //             return acc + static_cast<int>(meshInstance->getMesh()->getVertices().size());
-        //     }) << " vertices" << endl;
         ModelsRenderer::frameData[currentFrame].modelUniformBuffer->writeToBuffer(
                    frame.modelUBOArray.get(),
                    MODEL_BUFFER_SIZE * modelIndex);

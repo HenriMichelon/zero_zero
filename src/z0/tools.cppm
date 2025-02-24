@@ -27,7 +27,7 @@ export namespace z0 {
         for (const auto v : initializer_list<string_view>{ s... }) {
             stringstream << v << " ";
         }
-        Log::critical << stringstream.str() << endl;
+        CRITICAL(stringstream.str());
 #if defined(_DEBUG) && defined(_WIN32)
         __debugbreak();
 #else

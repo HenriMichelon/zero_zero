@@ -11,6 +11,7 @@ module;
     #define NOMINMAX // for numeric_limits<uint32_t>::max() with MSVC
     #include <windows.h>
     #include <dxgi1_4.h>
+    #undef ERROR
 #endif
 #include "z0/libraries.h"
 #include "z0/vulkan.h"
@@ -283,7 +284,8 @@ namespace z0 {
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
         if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
-            Log::error << "timeout waiting for inFlightFence" << endl;
+            ERROR("timeout waiting for inFlightFence");
+            return;
         }
         vkResetFences(device, 1, &data.inFlightFence);
         {
@@ -938,7 +940,7 @@ namespace z0 {
             ++adapterIndex;
         }
         dxgiFactory->Release();
-        Log::info << adapterDescription << " " << (dedicatedVideoMemory / 1024 / 1024) << "Mb" << endl;
+        INFO(adapterDescription, " ", (dedicatedVideoMemory / 1024 / 1024), "Mb");
     }
 
     uint64_t Device::getVideoMemoryUsage() const {

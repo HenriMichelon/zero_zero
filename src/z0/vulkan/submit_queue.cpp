@@ -105,7 +105,7 @@ namespace z0 {
         // log("queue start submit");
         {
             const auto lock_queue = lock_guard(getSubmitMutex());
-            // vkQueueWaitIdle(graphicQueue);
+            vkQueueWaitIdle(graphicQueue);
             vkResetFences(device, 1, &submitFence);
             if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");

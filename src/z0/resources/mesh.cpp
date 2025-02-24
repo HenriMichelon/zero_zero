@@ -99,7 +99,7 @@ namespace z0 {
             sizeof(Vertex),
             remap.data());
 
-        //Log::debug << "Mesh::optimize " << getName() << ", vertices : " << vertices.size() << " -> " << remappedVertices.size() << endl;
+        DEBUG("Mesh::optimize ", getName(), ", vertices : ", vertices.size(), " -> ", remappedVertices.size());
         vertices = std::move(remappedVertices);
 
         // https://github.com/zeux/meshoptimizer/issues/624
@@ -145,7 +145,7 @@ namespace z0 {
                 target_error,
                 /* options= */ 0,
                 &lod_error));
-            Log::debug << "Mesh::optimize simplify "  << getName() << " : " << indices.size() <<  " -> " << lod.size() << endl;
+            DEBUG("Mesh::optimize simplify ", getName(), " : ", indices.size(), " -> ", lod.size());
             indices = lod;
             surfaces[0]->indexCount = indices.size();
         }
