@@ -21,6 +21,7 @@ import z0.VirtualFS;
 import z0.ZRes;
 
 import z0.nodes.AnimationPlayer;
+import z0.nodes.MeshInstance;
 import z0.nodes.Node;
 
 namespace z0 {
@@ -94,7 +95,21 @@ namespace z0 {
             if (nodeDesc.child != nullptr) {
                 auto child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr) {
-                    die(log_name, "Child node", nodeDesc.child->id, "not found");
+                    if (nodeDesc.child->id.contains(".mesh")) {
+                        static const regex pattern(R"(\.mesh)");
+                        const string name{regex_replace(nodeDesc.child->id, pattern, "")};
+                        // child not found in current resources, try cached resources
+                        for (const auto& cachedResources : resources) {
+                            const auto& tree = cachedResources.second;
+                            child = tree->findFirstChild<MeshInstance>(name);
+                            if (child) {
+                                break;
+                            }
+                        }
+                    }
+                    if (child == nullptr) {
+                        die(log_name, "Child node", nodeDesc.child->id, "not found");
+                    }
                 }
                 if (nodeDesc.child->needDuplicate) {
                     // _LOG("nodeDesc.child->needDuplicate ", child->getName());
@@ -147,7 +162,6 @@ namespace z0 {
         map<string, SceneNode>        sceneTree;
         for (const auto &nodeDesc : loadSceneDescriptionFromJSON(filepath)) {
             addNode(rootNode.get(), nodeTree, sceneTree, nodeDesc);
-            // log("addNode", nodeDesc.id);
         }
         // https://jrouwe.github.io/JoltPhysics/class_physics_system.html#ab3cd9f2562f0f051c032b3bc298d9604
         app()._getPhysicsSystem().OptimizeBroadPhase();

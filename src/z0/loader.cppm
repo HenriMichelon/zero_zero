@@ -23,7 +23,7 @@ export namespace z0 {
          * @param usecache put loaded resources in the global resources cache
          */
         template<typename T = Node>
-        [[nodiscard]] static shared_ptr<T> load(const string& filepath, bool usecache = false) {
+        static shared_ptr<T> load(const string& filepath, bool usecache = false) {
             if (usecache) {
                 auto lock = lock_guard(resourcesMutex);
                 if (resources.contains(filepath)) {
