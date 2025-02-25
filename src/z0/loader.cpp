@@ -96,16 +96,10 @@ namespace z0 {
                 auto child = nodeTree[nodeDesc.child->id];
                 if (child == nullptr) {
                     if (nodeDesc.child->id.contains(".mesh")) {
+                        // child not found in current resources, try cached resources
                         static const regex pattern(R"(\.mesh)");
                         const string name{regex_replace(nodeDesc.child->id, pattern, "")};
-                        // child not found in current resources, try cached resources
-                        for (const auto& cachedResources : resources) {
-                            const auto& tree = cachedResources.second;
-                            child = tree->findFirstChild<MeshInstance>(name);
-                            if (child) {
-                                break;
-                            }
-                        }
+                        child = findFirst(name);
                     }
                     if (child == nullptr) {
                         die(log_name, "Child node", nodeDesc.child->id, "not found");

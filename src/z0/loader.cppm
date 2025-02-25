@@ -36,6 +36,18 @@ export namespace z0 {
             return rootNode;
         }
 
+        template<typename T = Node>
+        static shared_ptr<T> findFirst(const string& nodename) {
+            for (const auto& cachedResources : resources) {
+                const auto& tree = cachedResources.second;
+                auto node = tree->findFirstChild<T>(nodename);
+                if (node) {
+                    return dynamic_pointer_cast<T>(node);
+                }
+            }
+            return nullptr;
+        }
+
         static void _cleanup();
 
         // Node description inside a JSON file
