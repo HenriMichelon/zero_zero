@@ -46,8 +46,9 @@ namespace z0 {
                 broadPhaseLayerFilter,
                 *objectLayerFilter,
                 *this)) {
-            collider = reinterpret_cast<CollisionObject *>(
+            const auto obj = reinterpret_cast<CollisionObject *>(
                     app()._getBodyInterface().GetUserData(result.mBodyID));
+            collider = obj->sharedPtr();
             const auto posInRay = ray.GetPointOnRay(result.mFraction);
             hitPoint = vec3{posInRay.GetX(), posInRay.GetY(), posInRay.GetZ()};
         } else {

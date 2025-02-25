@@ -26,7 +26,7 @@ export namespace z0 {
          */
         template<typename T> [[nodiscard]] static shared_ptr<T> makeShared(const string&clazz) {
             if (!typeMap->contains(clazz)) { die("Type", clazz, "not registered in TypeRegistry"); }
-            return shared_ptr<T>(reinterpret_cast<T*>(typeMap->at(clazz)()));
+            return shared_ptr<T>(reinterpret_pointer_cast<T>(typeMap->at(clazz)()));
         }
 
         /**
@@ -34,12 +34,12 @@ export namespace z0 {
          * If you want to register outside a bloc of code use the `Z0_REGISTER_TYPE(class)` macro after your class declaration
          */
         template<typename T> static void registerType(const string&clazz) {
-            if (typeMap == nullptr) { typeMap = make_unique<map<string, function<Object*()>>>(); }
-            typeMap->emplace(clazz, []{ return new T(); });
+            if (typeMap == nullptr) { typeMap = make_unique<map<string, function<shared_ptr<Object>()>>>(); }
+            typeMap->emplace(clazz, []{ return make_shared<T>(); });
         }
 
     // private:
-        static unique_ptr<map<string, function<Object*()>>> typeMap;
+        static unique_ptr<map<string, function<shared_ptr<Object>()>>> typeMap;
     };
 
     template<typename T>
@@ -49,6 +49,6 @@ export namespace z0 {
         }
     };
 
-    unique_ptr<map<string, function<Object*()>>> TypeRegistry::typeMap{nullptr};
+    unique_ptr<map<string, function<shared_ptr<Object>()>>> TypeRegistry::typeMap{nullptr};
 
 }

@@ -22,7 +22,7 @@ export namespace z0 {
     /**
      * Base class for 3D physics objects.
      */
-    class CollisionObject : public Node {
+    class CollisionObject : public Node, public enable_shared_from_this<CollisionObject> {
     public:
 
         /**
@@ -58,6 +58,8 @@ export namespace z0 {
          * Sets the collision layer
          */
         virtual void setCollisionLayer(uint32_t layer);
+
+        inline shared_ptr<CollisionObject> sharedPtr() { return shared_from_this(); }
 
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step

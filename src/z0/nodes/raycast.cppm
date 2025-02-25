@@ -44,7 +44,7 @@ export namespace z0 {
         /**
          * Returns the first object that the ray intersects, or `nullptr` if no object is intersecting the ray
          */
-        [[nodiscard]] inline CollisionObject *getCollider() const { return collider; }
+        [[nodiscard]] inline shared_ptr<CollisionObject> getCollider() const { return collider; }
 
         /**
          * Returns the collision point at which the ray intersects the closest object, in the global coordinate system
@@ -75,11 +75,11 @@ export namespace z0 {
         void setCollisionLayer(uint32_t layer);
 
     private:
-        vec3                       target{};
-        vec3                       hitPoint{};
-        uint32_t                   collisionLayer{};
-        bool                       excludeParent{true};
-        CollisionObject *          collider{nullptr};
+        vec3                        target{};
+        vec3                        hitPoint{};
+        uint32_t                    collisionLayer{};
+        bool                        excludeParent{true};
+        shared_ptr<CollisionObject> collider{nullptr};
         JPH::BroadPhaseLayerFilter broadPhaseLayerFilter{};
         unique_ptr<JPH::ObjectLayerFilter> objectLayerFilter;
 
