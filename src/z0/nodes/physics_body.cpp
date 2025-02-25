@@ -19,10 +19,13 @@ import z0.Constants;
 import z0.Tools;
 
 import z0.nodes.CollisionObject;
+import z0.nodes.MeshInstance;
 
 import z0.resources.ConvexHullShape;
 import z0.resources.MeshShape;
 import z0.resources.Shape;
+import z0.resources.StaticCompoundShape;
+import z0.resources.SubShape;
 
 namespace z0 {
 
@@ -151,6 +154,16 @@ namespace z0 {
                     setShape(make_shared<MeshShape>(*this));
                 } else if (parts.at(0) == "AABBShape") {
                     setShape(make_shared<AABBShape>(*this));
+                } else if (parts.at(0) == "StaticCompoundShape") {
+                    vector<SubShape> subShapes;
+                    for (const auto &meshInstance : findAllChildren<MeshInstance>()) {
+                        subShapes.push_back({
+                            make_shared<MeshShape>(meshInstance),
+                            meshInstance->getPositionGlobal(),
+                            meshInstance->getRotationGlobal()
+                        });
+                    }
+                    setShape(make_shared<StaticCompoundShape>(subShapes));
                 } else {
                     die("PhysicsBody : missing or invalid shape for ", getName());
                 }
