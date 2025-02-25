@@ -68,6 +68,8 @@ export namespace z0 {
 
         void setVisible(bool visible = true) override;
 
+        CollisionObject(const CollisionObject&);
+
     protected:
         bool                updating{false};
         JPH::ObjectLayer    collisionLayer;

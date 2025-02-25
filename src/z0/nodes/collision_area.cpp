@@ -59,7 +59,7 @@ namespace z0 {
         setBodyId(body->GetID());
     }
 
-    shared_ptr<Node> CollisionArea::duplicateInstance() {
+    shared_ptr<Node> CollisionArea::duplicateInstance() const {
         return make_shared<CollisionArea>(*this);
     }
 

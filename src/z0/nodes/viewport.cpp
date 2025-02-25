@@ -19,7 +19,7 @@ namespace z0 {
         Node{name, VIEWPORT} {
     }
 
-    shared_ptr<Node> Viewport::duplicateInstance() {
+    shared_ptr<Node> Viewport::duplicateInstance() const {
         return make_shared<Viewport>(*this);
     }
 

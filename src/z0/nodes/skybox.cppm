@@ -62,7 +62,7 @@ export namespace z0 {
         void setProperty(const string &property, const string &value) override ;
 
     protected:
-        shared_ptr<Node> duplicateInstance() override;
+        shared_ptr<Node> duplicateInstance() const override;
 
     private:
         shared_ptr<Cubemap> cubemap;

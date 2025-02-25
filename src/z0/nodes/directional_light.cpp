@@ -31,7 +31,7 @@ namespace z0 {
         }
     }
 
-    shared_ptr<Node> DirectionalLight::duplicateInstance() {
+    shared_ptr<Node> DirectionalLight::duplicateInstance() const {
         return make_shared<DirectionalLight>(*this);
     }
 

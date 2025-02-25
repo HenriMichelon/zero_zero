@@ -29,7 +29,7 @@ namespace z0 {
     //     log("mesh instance copy");
     // }
 
-    shared_ptr<Node> MeshInstance::duplicateInstance() {
+    shared_ptr<Node> MeshInstance::duplicateInstance() const {
         return make_shared<MeshInstance>(*this);
     }
 

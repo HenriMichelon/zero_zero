@@ -377,7 +377,7 @@ import z0.Tween;
          * Duplicates a node. Warning : not implemented on all nodes types, check documentation for the node type before using it.
          * \param recursiveFilter only duplicate AnimationPlayer children (used by Loader::load)
          */
-        [[nodiscard]] shared_ptr<Node> duplicate(bool recursiveFilter = false);
+        [[nodiscard]] shared_ptr<Node> duplicate(bool recursiveFilter = false) const;
 
         /**
          * Finds the first child by is type.
@@ -565,7 +565,7 @@ import z0.Tween;
         mat4 localTransform{};
         mat4 worldTransform{};
 
-        virtual shared_ptr<Node> duplicateInstance();
+        virtual shared_ptr<Node> duplicateInstance() const;
 
     private:
         static id_t             currentId;

@@ -47,7 +47,7 @@ namespace z0 {
                     STATIC_BODY) {
     }
 
-    shared_ptr<Node> StaticBody::duplicateInstance() {
+    shared_ptr<Node> StaticBody::duplicateInstance() const {
         auto dup = make_shared<StaticBody>(*this);
         dup->recreateBody();
         return dup;

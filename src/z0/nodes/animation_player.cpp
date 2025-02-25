@@ -128,7 +128,7 @@ namespace z0 {
         return libraries[currentLibrary]->get(currentAnimation);
     }
 
-    shared_ptr<Node> AnimationPlayer::duplicateInstance() {
+    shared_ptr<Node> AnimationPlayer::duplicateInstance() const {
         return make_shared<AnimationPlayer>(*this);
     }
 

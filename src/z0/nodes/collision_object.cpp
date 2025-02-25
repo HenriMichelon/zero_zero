@@ -45,6 +45,15 @@ namespace z0 {
         bodyInterface{app()._getBodyInterface()} {
     }
 
+    CollisionObject::CollisionObject(const CollisionObject& other):
+        Node{other.getName(), other.getType()},
+        collisionLayer{other.collisionLayer},
+        shape{other.shape},
+        activationMode{JPH::EActivation::Activate},
+        bodyInterface{app()._getBodyInterface()} {
+    }
+
+
     void CollisionObject::releaseBodyId() {
         if (!bodyId.IsInvalid()) {
             if (bodyInterface.IsAdded(bodyId)) {

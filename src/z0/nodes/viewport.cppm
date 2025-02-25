@@ -50,7 +50,7 @@ export namespace z0 {
         inline void setViewportPosition(const vec2 position) { this->position = position; }
 
     protected:
-        shared_ptr<Node> duplicateInstance() override;
+        shared_ptr<Node> duplicateInstance() const override;
 
     private:
         vec2 position{};

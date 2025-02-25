@@ -37,7 +37,7 @@ namespace z0 {
         }
     }
 
-    shared_ptr<Node> OmniLight::duplicateInstance() {
+    shared_ptr<Node> OmniLight::duplicateInstance() const {
         return make_shared<OmniLight>(*this);
     }
 

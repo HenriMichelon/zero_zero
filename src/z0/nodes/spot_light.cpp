@@ -33,7 +33,7 @@ namespace z0 {
         outerCutOff = cos(fov);
     }
 
-    shared_ptr<Node> SpotLight::duplicateInstance() {
+    shared_ptr<Node> SpotLight::duplicateInstance() const {
         return make_shared<SpotLight>(*this);
     }
 

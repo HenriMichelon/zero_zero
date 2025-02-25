@@ -71,7 +71,7 @@ namespace z0 {
         }
 
     protected:
-        shared_ptr<Node> duplicateInstance() override;
+        shared_ptr<Node> duplicateInstance() const override;
 
     private:
         AABB                       worldAABB;

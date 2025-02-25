@@ -48,7 +48,7 @@ namespace z0 {
 
     }
 
-    shared_ptr<Node> RigidBody::duplicateInstance() {
+    shared_ptr<Node> RigidBody::duplicateInstance() const {
         return make_shared<RigidBody>(*this);
     }
 

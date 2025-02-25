@@ -117,7 +117,7 @@ export namespace z0 {
         void _onEnterScene() override;
 
     protected:
-        shared_ptr<Node> duplicateInstance() override;
+        shared_ptr<Node> duplicateInstance() const override;
 
     private:
         bool autoStart{false};

@@ -236,7 +236,7 @@ namespace z0 {
         }
     }
 
-    shared_ptr<Node> Node::duplicate(const bool recursiveFilter) {
+    shared_ptr<Node> Node::duplicate(const bool recursiveFilter) const {
         shared_ptr<Node> dup = duplicateInstance();
         dup->children.clear();
         for (const auto &child : children) {
@@ -372,7 +372,7 @@ namespace z0 {
                 (mode == ProcessMode::ALWAYS);
     }
 
-    shared_ptr<Node> Node::duplicateInstance() {
+    shared_ptr<Node> Node::duplicateInstance() const {
         return make_shared<Node>(*this);
     }
 

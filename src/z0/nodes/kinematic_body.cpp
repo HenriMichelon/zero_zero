@@ -37,7 +37,7 @@ namespace z0 {
                    KINEMATIC_BODY) {
     }
 
-    shared_ptr<Node> KinematicBody::duplicateInstance() {
+    shared_ptr<Node> KinematicBody::duplicateInstance() const {
         return make_shared<KinematicBody>(*this);
     }
 

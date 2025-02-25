@@ -27,7 +27,7 @@ namespace z0 {
         }
     }
 
-    shared_ptr<Node> Environment::duplicateInstance() {
+    shared_ptr<Node> Environment::duplicateInstance() const {
         return make_shared<Environment>(*this);
     }
 
