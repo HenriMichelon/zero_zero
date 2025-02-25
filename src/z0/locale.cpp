@@ -52,9 +52,13 @@ namespace z0 {
         if (currentLocale.empty()) {
             currentLocale = getDefaultLocale();
         }
-        const auto newLocale = nlohmann::json::parse(VirtualFS::openReadStream(LOCALE_DIRECTORY + "/" + file + "_" + currentLocale + ".json"));
-        translations[currentLocale].merge(newLocale.get<map<string, string>>());
-        loadedFileNames.push_back(file);
+        try {
+            const auto newLocale = nlohmann::json::parse(VirtualFS::openReadStream(LOCALE_DIRECTORY + "/" + file + "_" + currentLocale + ".json"));
+            translations[currentLocale].merge(newLocale.get<map<string, string>>());
+            loadedFileNames.push_back(file);
+        } catch (nlohmann::detail::parse_error) {
+            die("Syntax error in JSON translation file " + file);
+        }
     }
 
 
