@@ -182,6 +182,11 @@ import z0.Tween;
         void setRotation(const quat& quater);
 
         /**
+         * Sets the world transformation
+         */
+        void setRotationGlobal(const quat& quater);
+
+        /**
          * Sets the local transformation
          */
         void setRotation(const vec3& rot);
@@ -207,9 +212,19 @@ import z0.Tween;
         [[nodiscard]] vec3 getRotation() const;
 
         /**
+         * Returns the rotation of the world transformation, in euler angles in radians
+         */
+        [[nodiscard]] vec3 getRotationGlobal() const;
+
+        /**
          * Returns the rotation of the local transformation
          */
         [[nodiscard]] inline quat getRotationQuaternion() const { return toQuat(mat3(localTransform)); }
+
+        /**
+         * Returns the rotation of the world transformation
+         */
+        [[nodiscard]] inline quat getRotationQuaternionGlobal() const { return toQuat(mat3(worldTransform)); }
 
         /**
          * Returns the X axis rotation of the local transformation
@@ -240,6 +255,11 @@ import z0.Tween;
          * Returns the scale part of the local transformation.
          */
         [[nodiscard]] vec3 getScale() const;
+
+        /**
+         * Returns the scale part of the global transformation.
+         */
+        vec3 getScaleGlobal() const;
 
         /**
          * Returns the node's processing behavior. To check if the node can process in its current mode, use isProcessed().

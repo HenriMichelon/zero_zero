@@ -119,13 +119,9 @@ namespace z0 {
         JPH::Quat rotation;
         bodyInterface.GetPositionAndRotation(bodyId, position, rotation);
         const auto pos = vec3{position.GetX(), position.GetY(), position.GetZ()};
-        if (pos != getPositionGlobal()) {
-            setPositionGlobal(pos);
-        }
+        setPositionGlobal(pos);
         const auto rot = quat{rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ()};
-        if (rot != getRotationQuaternion()) {
-            setRotation(rot);
-        }
+        setRotationGlobal(rot);
         updating = false;
     }
 

@@ -58,11 +58,15 @@ namespace z0 {
     }
 
     void Node::setPosition(const vec3 position) {
-        localTransform[3] = vec4{position, 1.0f};
-        _updateTransform();
+        if (position != getPosition()) {
+            localTransform[3] = vec4{position, 1.0f};
+            _updateTransform();
+        }
     }
 
     vec3 Node::getRotation() const { return eulerAngles(getRotationQuaternion()); }
+
+    vec3 Node::getRotationGlobal() const { return eulerAngles(getRotationQuaternionGlobal()); }
 
     void Node::translate(const vec3& localOffset) {
         localTransform = glm::translate(localTransform, localOffset);
@@ -70,12 +74,14 @@ namespace z0 {
     }
 
     void Node::setPositionGlobal(const vec3& position) {
-        if (parent == nullptr) {
-            setPosition(position);
-            return;
+        if (position != getPositionGlobal()) {
+            if (parent == nullptr) {
+                setPosition(position);
+                return;
+            }
+            localTransform[3] = inverse(parent->worldTransform) * vec4{position, 1.0};
+            _updateTransform();
         }
-        localTransform[3] = inverse(parent->worldTransform) * vec4{position, 1.0};
-        _updateTransform();
     }
 
     void Node::setScale(const vec3& scale) {
@@ -83,10 +89,12 @@ namespace z0 {
         vec4 perspective;
         quat orientation;
         decompose(localTransform, old_scale, orientation, translation, skew, perspective);
-        localTransform = glm::translate(translation) *
-                               mat4_cast(orientation) *
-                               glm::scale(scale);
-        _updateTransform();
+        if (scale != old_scale) {
+            localTransform = glm::translate(translation) *
+                                   mat4_cast(orientation) *
+                                   glm::scale(scale);
+            _updateTransform();
+        }
     }
 
     void Node::setScale(const float scale) {
@@ -147,25 +155,47 @@ namespace z0 {
     // }
 
     void Node::setRotation(const vec3& rot) {
-        setRotation(glm::quat(rot));
+        if (rot != getRotation()) {
+            setRotation(glm::quat(rot));
+        }
     }
 
     void Node::setRotation(const quat& quater) {
-        vec3 scale, translation, skew;
-        vec4 perspective;
-        quat orientation;
-        decompose(localTransform, scale, orientation, translation, skew, perspective);
-        const mat4 rotationMatrix = toMat4(quater);
-        localTransform = glm::translate(mat4{1.0f}, translation)
-                * rotationMatrix
-                * glm::scale(mat4{1.0f}, scale);
-        _updateTransform();
+        if (quater != getRotationQuaternion()) {
+            vec3 scale, translation, skew;
+            vec4 perspective;
+            quat orientation;
+            decompose(localTransform, scale, orientation, translation, skew, perspective);
+            localTransform = glm::translate(mat4{1.0f}, translation)
+                    * toMat4(quater)
+                    * glm::scale(mat4{1.0f}, scale);
+            _updateTransform();
+        }
     }
 
-    // void Node::rotate(quat quater) {
-    //     localTransform =  localTransform * toMat4(quater);
-    //     _updateTransform();
-    // }
+    vec3 Node::getScaleGlobal() const {
+        // Extract scale as the length of the basis vectors (first 3 columns of the 3x3 rotation-scale part)
+        vec3 scale;
+        scale.x = glm::length(vec3(worldTransform[0]));
+        scale.y = glm::length(vec3(worldTransform[1]));
+        scale.z = glm::length(vec3(worldTransform[2]));
+        return scale;
+    }
+
+    void Node::setRotationGlobal(const quat& quater) {
+        const auto worldRotation = getRotationQuaternionGlobal();
+        if (quater != worldRotation) {
+            if (parent == nullptr) {
+                setRotation(quater);
+                return;
+            }
+            const auto newGlobalTransform = glm::translate(mat4{1.0f}, getPositionGlobal()) *
+                                           glm::mat4_cast(quater) *
+                                           glm::scale(mat4{1.0f}, getScaleGlobal());
+            localTransform = glm::inverse(parent->worldTransform) * newGlobalTransform;
+            _updateTransform();
+        }
+    }
 
     void Node::rotateX(const float angle) {
         localTransform = glm::rotate(localTransform, angle, AXIS_X);
@@ -272,6 +302,10 @@ namespace z0 {
 
     void Node::_updateTransform(const mat4 &parentMatrix) {
         worldTransform = parentMatrix * localTransform;
+        const auto rot = getRotation();
+        if (getName().contains("cabinet1") && rot != VEC3ZERO) {
+            _LOG("_updateTransform ", TypeNames[getType()], " ", getName(), " ", to_string(rot));
+        }
         for (const auto &child : children) {
             child->_updateTransform(worldTransform);
         }
