@@ -42,11 +42,11 @@ export namespace z0 {
         void loadScene(const list<shared_ptr<MeshInstance>> &meshes);
 
         [[nodiscard]] inline auto getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
-            return frameData.at(currentFrame).lightSpace[index];
+            return frameData[currentFrame].lightSpace[index];
         }
 
         inline void activateCamera(const shared_ptr<Camera>& camera, const uint32_t currentFrame) {
-            frameData.at(currentFrame).currentCamera = camera;
+            frameData[currentFrame].currentCamera = camera;
         }
 
         [[nodiscard]] inline const auto& getLight() const { return light; }
@@ -58,15 +58,15 @@ export namespace z0 {
         [[nodiscard]] inline auto getLightPosition() const { return light->getPositionGlobal(); }
 
         [[nodiscard]] inline auto getCascadesCount(const uint32_t currentFrame) const {
-            return frameData.at(currentFrame).cascadesCount;
+            return frameData[currentFrame].cascadesCount;
         }
 
         [[nodiscard]] inline auto getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
-            return frameData.at(currentFrame).splitDepth[index];
+            return frameData[currentFrame].splitDepth[index];
         }
 
         [[nodiscard]] inline const auto& getShadowMap(const uint32_t currentFrame) const {
-            return frameData.at(currentFrame).shadowMap;
+            return frameData[currentFrame].shadowMap;
         }
 
         [[nodiscard]] inline auto getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getRange(); }
@@ -105,7 +105,7 @@ export namespace z0 {
 
         struct FrameData {
             // Scene current camera
-            shared_ptr<Camera> currentCamera{nullptr};
+            shared_ptr<Camera> currentCamera{};
             // All the models of the scene
             list<shared_ptr<MeshInstance>> models{};
             // The destination frame buffer
@@ -129,7 +129,7 @@ export namespace z0 {
 
         void update(uint32_t currentFrame) override;
 
-        void drawFrame(uint32_t currentFrame, bool isLast);
+        void drawFrame(uint32_t currentFrame, bool isLast) override;
 
         void loadShaders() override;
 

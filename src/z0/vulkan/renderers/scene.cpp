@@ -231,6 +231,9 @@ namespace z0 {
         for (const auto &material : meshInstance->getMesh()->_getMaterials()) {
            removeMaterial(material, currentFrame);
         }
+        auto& frame = frameData[currentFrame];
+        frame.opaquesModels.erase(meshInstance->getMesh()->getId());
+        frame.transparentModels.erase(meshInstance->getMesh()->getId());
     }
 
     void SceneRenderer::loadShadersMaterials(const shared_ptr<ShaderMaterial>&material, const uint32_t currentFrame) {
@@ -1025,15 +1028,15 @@ namespace z0 {
 
     void SceneRenderer::enableLightShadowCasting(const shared_ptr<Light>&light) {
         if (enableShadowMapRenders) {
-            if (light->getCastShadows() && !shadowMapRenderers.contains(light) && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
-                const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
-                for(auto i = 0; i < device.getFramesInFlight(); i++) {
-                    shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
-                }
-                shadowMapRenderers[light] = shadowMapRenderer;
-                device.registerRenderer(shadowMapRenderer);
-                // log("enableLightShadowCasting", light->getName());
-            }
+            // if (light->getCastShadows() && !shadowMapRenderers.contains(light) && (shadowMapRenderers.size() < MAX_SHADOW_MAPS)) {
+            //     const auto shadowMapRenderer = make_shared<ShadowMapRenderer>(device, light);
+            //     for(auto i = 0; i < device.getFramesInFlight(); i++) {
+            //         shadowMapRenderer->activateCamera(ModelsRenderer::frameData.at(0).currentCamera, i);
+            //     }
+            //     shadowMapRenderers[light] = shadowMapRenderer;
+            //     device.registerRenderer(shadowMapRenderer);
+            //     DEBUG("enableLightShadowCasting", light->getName());
+            // }
         }
     }
 
@@ -1042,7 +1045,7 @@ namespace z0 {
             if (shadowMapRenderers.contains(light)) {
                 device.unRegisterRenderer(shadowMapRenderers[light], false);
                 shadowMapRenderers.erase(light);
-                // log("disableLightShadowCasting", light->getName());
+                DEBUG("disableLightShadowCasting", light->getName());
             }
         }
     }

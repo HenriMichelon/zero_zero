@@ -50,7 +50,7 @@ export namespace z0 {
     protected:
         struct FrameData {
             // Currently active camera, first camera added to the scene or the last activated
-            shared_ptr<Camera> currentCamera{nullptr};
+            shared_ptr<Camera> currentCamera{};
             // All the models of the scene
             list<shared_ptr<MeshInstance>> models{};
             bool modelsDirty{false};

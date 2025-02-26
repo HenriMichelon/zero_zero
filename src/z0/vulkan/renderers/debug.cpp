@@ -78,9 +78,9 @@ namespace z0 {
         Renderpass::cleanup();
     }
 
-    void DebugRenderer::activateCamera(const shared_ptr<Camera> &camera, uint32_t currentFrame) {
+    void DebugRenderer::activateCamera(const shared_ptr<Camera> &camera, const uint32_t currentFrame) {
         frameData[currentFrame].currentCamera = camera;
-        const auto& cameraPosition = frameData[currentFrame].currentCamera->getPositionGlobal();
+        const auto& cameraPosition = camera->getPositionGlobal();
         SetCameraPos(JPH::Vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z));
     }
 

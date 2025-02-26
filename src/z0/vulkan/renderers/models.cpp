@@ -78,7 +78,7 @@ import z0.vulkan.Mesh;
         if (frameData[currentFrame].currentCamera != nullptr)
             frameData[currentFrame].currentCamera->_setActive(false);
         if (camera == nullptr) {
-            frameData[currentFrame].currentCamera = nullptr;
+            frameData[currentFrame].currentCamera.reset();
         } else {
             frameData[currentFrame].currentCamera = camera;
             frameData[currentFrame].currentCamera->_setActive(true);
