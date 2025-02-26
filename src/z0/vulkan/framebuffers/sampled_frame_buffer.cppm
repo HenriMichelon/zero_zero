@@ -19,7 +19,7 @@ export namespace z0 {
      */
     class SampledFrameBuffer: public FrameBuffer {
     public:
-        [[nodiscard]] inline VkDescriptorImageInfo imageInfo() const {
+        [[nodiscard]] inline auto imageInfo() const {
             return VkDescriptorImageInfo {
                 .sampler = sampler,
                 .imageView = imageView,

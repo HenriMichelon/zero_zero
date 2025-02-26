@@ -41,7 +41,7 @@ export namespace z0 {
 
         void loadScene(const list<shared_ptr<MeshInstance>> &meshes);
 
-        [[nodiscard]] inline mat4 getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
+        [[nodiscard]] inline auto getLightSpace(const uint32_t index, const uint32_t currentFrame) const {
             return frameData.at(currentFrame).lightSpace[index];
         }
 
@@ -49,27 +49,27 @@ export namespace z0 {
             frameData.at(currentFrame).currentCamera = camera;
         }
 
-        [[nodiscard]] inline const shared_ptr<Light>&getLight() const { return light; }
+        [[nodiscard]] inline const auto& getLight() const { return light; }
 
-        [[nodiscard]] inline bool isCascaded() const { return light->getLightType() == Light::LIGHT_DIRECTIONAL; }
+        [[nodiscard]] inline auto isCascaded() const { return light->getLightType() == Light::LIGHT_DIRECTIONAL; }
 
-        [[nodiscard]] inline bool isCubemap() const { return light->getLightType() == Light::LIGHT_OMNI; }
+        [[nodiscard]] inline auto isCubemap() const { return light->getLightType() == Light::LIGHT_OMNI; }
 
-        [[nodiscard]] inline vec3 getLightPosition() const { return light->getPositionGlobal(); }
+        [[nodiscard]] inline auto getLightPosition() const { return light->getPositionGlobal(); }
 
-        [[nodiscard]] inline uint32_t getCascadesCount(const uint32_t currentFrame) const {
+        [[nodiscard]] inline auto getCascadesCount(const uint32_t currentFrame) const {
             return frameData.at(currentFrame).cascadesCount;
         }
 
-        [[nodiscard]] inline float getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
+        [[nodiscard]] inline auto getCascadeSplitDepth(const uint32_t index, const uint32_t currentFrame) const {
             return frameData.at(currentFrame).splitDepth[index];
         }
 
-        [[nodiscard]] inline const shared_ptr<ShadowMapFrameBuffer> &getShadowMap(const uint32_t currentFrame) const {
+        [[nodiscard]] inline const auto& getShadowMap(const uint32_t currentFrame) const {
             return frameData.at(currentFrame).shadowMap;
         }
 
-        [[nodiscard]] inline float getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getRange(); }
+        [[nodiscard]] inline auto getFarPlane() const { return reinterpret_pointer_cast<OmniLight>(light)->getRange(); }
 
         void cleanup() override;
 

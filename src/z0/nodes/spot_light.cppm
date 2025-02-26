@@ -44,12 +44,12 @@ export namespace z0 {
         /**
          * Sets the inner cutoff angle that specifies the spotlight's radius, in degrees
          */
-        inline void setCutOff(const float cutOffDegrees) { cutOff = cos(radians(cutOffDegrees)); }
+        inline auto setCutOff(const float cutOffDegrees) { cutOff = cos(radians(cutOffDegrees)); }
 
         /**
          * Returns the inner cutoff value that specifies the spotlight's radius (not the angle!)
          */
-        [[nodiscard]] inline float getCutOff() const { return cutOff; }
+        [[nodiscard]] inline auto getCutOff() const { return cutOff; }
 
         /**
          * Sets the outer cutoff angle that specifies the spotlight's radius. Everything outside this angle is not lit by the spotlight.
@@ -59,12 +59,12 @@ export namespace z0 {
         /**
          * Returns the outer cutoff value that specifies the spotlight's radius (not the angle!).
          */
-        [[nodiscard]] inline float getOuterCutOff() const { return outerCutOff; }
+        [[nodiscard]] inline auto getOuterCutOff() const { return outerCutOff; }
 
         /**
          * Returns the field of view of the spotlight, in radians
          */
-        [[nodiscard]] inline float getFov() const { return fov; }
+        [[nodiscard]] inline auto getFov() const { return fov; }
 
         void setProperty(const string &property, const string &value) override;
 

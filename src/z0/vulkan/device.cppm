@@ -43,33 +43,33 @@ export namespace z0 {
 
         void cleanup();
 
-        [[nodiscard]] inline VmaAllocator getAllocator() const { return allocator; }
+        [[nodiscard]] inline auto getAllocator() const { return allocator; }
 
-        [[nodiscard]] inline VkDevice getDevice() const { return device; }
+        [[nodiscard]] inline auto getDevice() const { return device; }
 
-        [[nodiscard]] inline VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        [[nodiscard]] inline auto getPhysicalDevice() const { return physicalDevice; }
 
-        [[nodiscard]] inline VkPhysicalDeviceFeatures getDeviceFeatures() const { return deviceFeatures; }
+        [[nodiscard]] inline auto getDeviceFeatures() const { return deviceFeatures; }
 
-        [[nodiscard]] inline VkPhysicalDeviceProperties getDeviceProperties() const { return deviceProperties.properties; }
+        [[nodiscard]] inline auto getDeviceProperties() const { return deviceProperties.properties; }
 
-        [[nodiscard]] inline VkSampleCountFlagBits getSamples() const { return samples; }
+        [[nodiscard]] inline auto getSamples() const { return samples; }
 
-        [[nodiscard]] inline const VkExtent2D &getSwapChainExtent() const { return swapChainExtent; }
+        [[nodiscard]] inline const auto &getSwapChainExtent() const { return swapChainExtent; }
 
-        [[nodiscard]] inline VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
+        [[nodiscard]] inline auto getSwapChainImageFormat() const { return swapChainImageFormat; }
 
         [[nodiscard]] bool isFormatSupported(VkFormat format) const;
 
-        [[nodiscard]] inline float getAspectRatio() const { return swapChainRatio; }
+        [[nodiscard]] inline auto getAspectRatio() const { return swapChainRatio; }
 
-        [[nodiscard]] inline uint64_t getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
+        [[nodiscard]] inline auto getDedicatedVideoMemory() const { return dedicatedVideoMemory; }
 
-        [[nodiscard]] inline const string &getAdapterDescription() const { return adapterDescription; }
+        [[nodiscard]] inline const auto &getAdapterDescription() const { return adapterDescription; }
 
         [[nodiscard]] uint64_t getVideoMemoryUsage() const;
 
-        [[nodiscard]] inline uint32_t getFramesInFlight() const { return framesInFlight; }
+        [[nodiscard]] inline auto getFramesInFlight() const { return framesInFlight; }
 
         void drawFrame(uint32_t currentFrame);
 
@@ -126,13 +126,13 @@ export namespace z0 {
 
         [[nodiscard]] VkCommandPool createCommandPool() const;
 
-        [[nodiscard]] inline SubmitQueue::OneTimeCommand beginOneTimeCommandBuffer(const source_location& location = source_location::current()) const  {
+        [[nodiscard]] inline auto beginOneTimeCommandBuffer(const source_location& location = source_location::current()) const  {
             return submitQueue->beginOneTimeCommand(location);
         }
 
         void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer, bool immediate = false) const;
 
-        inline Buffer& createOneTimeBuffer(
+        inline auto& createOneTimeBuffer(
            const SubmitQueue::OneTimeCommand& oneTimeCommand,
            const VkDeviceSize       instanceSize,
            const uint32_t           instanceCount,

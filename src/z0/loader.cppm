@@ -73,7 +73,7 @@ export namespace z0 {
         static inline map<string, shared_ptr<Node>> resources;
         static mutex resourcesMutex;
 
-        [[nodiscard]] static void load(const shared_ptr<Node>&rootNode, const string& filepath, bool usecache);
+        static void load(const shared_ptr<Node>&rootNode, const string& filepath, bool usecache);
 
         static void loadScene(const shared_ptr<Node>&rootNode, const string &filepath);
 

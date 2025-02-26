@@ -24,7 +24,7 @@ export namespace z0 {
         /**
          * Returns the cull mode.
          */
-        [[nodiscard]] inline CullMode getCullMode() const { return cullMode; }
+        [[nodiscard]] inline auto getCullMode() const { return cullMode; }
 
         /**
          * Sets the CullMode.
@@ -35,7 +35,7 @@ export namespace z0 {
         /**
          * Returns the transparency mode
          */
-        [[nodiscard]] inline Transparency getTransparency() const { return transparency; }
+        [[nodiscard]] inline auto getTransparency() const { return transparency; }
 
         /**
          * Sets the transparency mode
@@ -45,7 +45,7 @@ export namespace z0 {
         /**
          * Returns the alpha scissor threshold value
          */
-        [[nodiscard]] inline float getAlphaScissor() const { return alphaScissor; }
+        [[nodiscard]] inline auto getAlphaScissor() const { return alphaScissor; }
 
         /**
          * Sets the alpha scissor threshold value
@@ -67,9 +67,9 @@ export namespace z0 {
         uint32_t     dirty;
 
     public:
-        inline bool _isDirty() const { return dirty > 0; }
+        inline auto _isDirty() const { return dirty > 0; }
         void _setDirty();
-        inline void _clearDirty() { this->dirty--; }
+        inline auto _clearDirty() { this->dirty--; }
     };
 
     /**
@@ -93,7 +93,7 @@ export namespace z0 {
         /**
          * Returns the material's base color.
          */
-        [[nodiscard]] inline const vec4 &getAlbedoColor() const { return albedoColor; }
+        [[nodiscard]] inline const auto& getAlbedoColor() const { return albedoColor; }
 
         /**
          * Sets the material's base color.
@@ -103,7 +103,7 @@ export namespace z0 {
         /**
          * Returns the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
          */
-        [[nodiscard]] inline const TextureInfo &getAlbedoTexture() const { return albedoTexture; }
+        [[nodiscard]] inline const auto& getAlbedoTexture() const { return albedoTexture; }
 
         /**
          * Sets the albedo texture (texture to multiply by albedo color. Used for basic texturing of objects).
@@ -113,18 +113,18 @@ export namespace z0 {
         /**
          * Return the normal texture
          */
-        [[nodiscard]] inline const TextureInfo &getNormalTexture() const { return normalTexture; }
+        [[nodiscard]] inline const auto &getNormalTexture() const { return normalTexture; }
 
         /**
          * Sets the normal texture
          */
         void setNormalTexture(const TextureInfo &texture);
 
-        [[nodiscard]] inline float getMetallicFactor() const { return metallicFactor; }
+        [[nodiscard]] inline auto getMetallicFactor() const { return metallicFactor; }
 
         void setMetallicFactor(float metallic);
 
-        [[nodiscard]] inline const TextureInfo& getMetallicTexture() const { return metallicTexture; }
+        [[nodiscard]] inline const auto& getMetallicTexture() const { return metallicTexture; }
 
         void setMetallicTexture(const TextureInfo &texture);
 
@@ -132,11 +132,11 @@ export namespace z0 {
 
         void setRoughnessFactor(float roughness);
 
-        [[nodiscard]] inline const TextureInfo& getRoughnessTexture() const { return roughnessTexture; }
+        [[nodiscard]] inline const auto& getRoughnessTexture() const { return roughnessTexture; }
 
         void setRoughnessTexture(const TextureInfo &texture);
 
-        [[nodiscard]] inline const TextureInfo& getEmissiveTexture() const { return emissiveTexture; }
+        [[nodiscard]] inline const auto& getEmissiveTexture() const { return emissiveTexture; }
 
         [[nodiscard]] inline vec3 getEmissiveFactor() const { return emissiveFactor; }
 
@@ -144,11 +144,11 @@ export namespace z0 {
 
         void setEmissiveTexture(const TextureInfo& texture);
 
-        [[nodiscard]] inline float getEmissiveStrength() const { return emissiveStrength; }
+        [[nodiscard]] inline auto getEmissiveStrength() const { return emissiveStrength; }
 
         void setEmissiveStrength(float emissive);
 
-        [[nodiscard]] inline float getNormalScale() const { return normalScale; }
+        [[nodiscard]] inline auto getNormalScale() const { return normalScale; }
 
         void setNormalScale(float scale);
 
@@ -193,22 +193,22 @@ export namespace z0 {
         /**
          * Returns the fragment shader file path, relative to the application directory
          */
-        [[nodiscard]] inline const string &getFragFileName() const { return fragFileName; }
+        [[nodiscard]] inline const auto& getFragFileName() const { return fragFileName; }
 
         /**
          * Returns the vertex shader file path, relative to the application directory
          */
-        [[nodiscard]] inline const string &getVertFileName() const { return vertFileName; }
+        [[nodiscard]] inline const auto& getVertFileName() const { return vertFileName; }
 
         /**
          * Sets a parameter value
          */
-        void setParameter(const int index, const vec4 value);
+        void setParameter(int index, vec4 value);
 
         /**
          * Returns a parameter value
          */
-        [[nodiscard]] inline vec4 getParameter(const int index) const { return parameters[index]; }
+        [[nodiscard]] inline auto getParameter(const int index) const { return parameters[index]; }
 
     private:
         const string fragFileName;
@@ -233,7 +233,7 @@ export namespace z0 {
          */
         void add(const shared_ptr<ShaderMaterial> &material);
 
-        inline const vector<shared_ptr<ShaderMaterial>> &getAll() const {
+        inline const auto &getAll() const {
             return materials;
         }
 

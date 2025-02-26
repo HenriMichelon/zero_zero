@@ -61,7 +61,7 @@ export namespace z0 {
         /**
          * Returns the attached Image
          */
-        [[nodiscard]] inline const shared_ptr<Image> &getImage() const { return image; }
+        [[nodiscard]] inline const auto& getImage() const { return image; }
 
         [[nodiscard]] inline uint32_t getWidth() const override { return image->getWidth(); }
 

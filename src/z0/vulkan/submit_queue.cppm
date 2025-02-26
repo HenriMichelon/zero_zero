@@ -5,9 +5,6 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <dinput.h>
-
-
 #include "z0/libraries.h"
 #include "z0/vulkan.h"
 
@@ -30,7 +27,7 @@ export namespace z0 {
 
         void stop();
 
-        inline mutex& getSubmitMutex() { return submitMutex; }
+        inline auto& getSubmitMutex() { return submitMutex; }
 
         OneTimeCommand beginOneTimeCommand(const source_location& location = source_location::current());
 

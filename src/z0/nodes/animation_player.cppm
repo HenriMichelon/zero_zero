@@ -45,12 +45,12 @@ export namespace z0 {
         /**
          * Returns the current library name
          */
-        [[nodiscard]] inline const string& getCurrentLibrary() const { return currentLibrary; }
+        [[nodiscard]] inline const auto& getCurrentLibrary() const { return currentLibrary; }
 
         /**
          * Returns the current animation name
          */
-        [[nodiscard]] inline const string& getCurrentAnimation() const { return currentAnimation; }
+        [[nodiscard]] inline const auto& getCurrentAnimation() const { return currentAnimation; }
 
         /**
          * Sets the current library name
@@ -65,7 +65,7 @@ export namespace z0 {
         /**
          * Adds a library accessible by the name.
          */
-        inline void add(const string& name, const shared_ptr<AnimationLibrary>& library) { libraries[name] = library; }
+        inline auto add(const string& name, const shared_ptr<AnimationLibrary>& library) { libraries[name] = library; }
 
         /**
          * Returns the current animation, if any
@@ -75,7 +75,7 @@ export namespace z0 {
         /**
          * Returns the current animation library, if any
          */
-        [[nodiscard]] inline shared_ptr<AnimationLibrary> getLibrary() { return libraries[currentLibrary]; }
+        [[nodiscard]] inline auto getLibrary() { return libraries[currentLibrary]; }
 
         /**
          * Starts an animation by its name
@@ -95,17 +95,17 @@ export namespace z0 {
         /**
          * Returns `true` if the animation is currently playing
          */
-        [[nodiscard]] inline bool isPlaying() const { return playing; }
+        [[nodiscard]] inline auto isPlaying() const { return playing; }
 
         /**
          * Sets the auto start property.
          */
-        inline void setAutoStart(const bool autoStart) { this->autoStart = autoStart; }
+        inline auto setAutoStart(const bool autoStart) { this->autoStart = autoStart; }
 
         /**
          * Sets the node target on which to apply animations
          */
-        inline void setTarget(Node &target) { setTarget(&target); }
+        inline auto setTarget(Node &target) { setTarget(&target); }
 
         /**
          * Sets the node target on which to apply animations

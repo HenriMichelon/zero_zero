@@ -27,12 +27,12 @@ export namespace z0 {
         /**
          * Returns the unique id of the resource
          */
-        [[nodiscard]] inline id_t getId() const { return id; }
+        [[nodiscard]] inline auto getId() const { return id; }
 
         /**
          * Return the name (only informative, no real use)
          */
-        [[nodiscard]] inline const string &getName() const { return name; }
+        [[nodiscard]] inline const auto& getName() const { return name; }
 
         inline bool operator==(const Resource &other) const { return id == other.id; }
 

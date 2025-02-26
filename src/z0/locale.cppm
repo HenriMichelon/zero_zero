@@ -40,7 +40,7 @@ export namespace z0 {
         /**
          * Returns the current locale
          */
-        static inline const string& getLocale() { return currentLocale; }
+        static inline const auto& getLocale() { return currentLocale; }
 
         /**
          * Returns the OS specific user locale

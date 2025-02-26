@@ -42,23 +42,18 @@ export namespace z0 {
         /**
          * Converts the objet to a readable text
          */
-        [[nodiscard]] virtual string toString() const { return "??"; };
+        [[nodiscard]] virtual string toString() const { return "??"; }
 
         friend ostream &operator<<(ostream &os, const Object &obj) {
             os << obj.toString();
             return os;
         }
 
-        Object(Object const&) = delete;
-        Object(Object const&&) = delete;
-        Object(Object &) = delete;
-        Object(Object &&) = delete;
         Object() = default;
         virtual ~Object() = default;
 
     private:
         map<string, Signal> signals;
-
     };
 
 }

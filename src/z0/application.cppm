@@ -159,7 +159,7 @@ namespace z0 {
         * where nodes are added/removed from the drawing lists (for all the frames in flight).
         */
         template<typename Lambda>
-        void callDeferred(Lambda lambda) {
+        auto callDeferred(Lambda lambda) {
             auto lock = lock_guard(deferredCallsMutex);
             deferredCalls.push_back(lambda);
         }
@@ -170,7 +170,7 @@ namespace z0 {
          * to wait for all the threads completion before releasing resources.
          */
         template <typename Lambda>
-        void callAsync(Lambda lambda) {
+        auto callAsync(Lambda lambda) {
             threadedCalls.push_back(jthread(lambda));
         }
 
@@ -189,7 +189,7 @@ namespace z0 {
          *
          * Return `true` if the debug renderer display anything.
          */
-        inline bool getDisplayDebug() const { return displayDebug; }
+        inline auto getDisplayDebug() const { return displayDebug; }
 
     private:
         // State of the current scene

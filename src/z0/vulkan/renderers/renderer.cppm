@@ -48,7 +48,7 @@ export namespace z0 {
 
         virtual vector<VkCommandBuffer> getCommandBuffers(uint32_t currentFrame) const;
 
-        inline bool canBeThreaded() const { return threaded; }
+        inline auto canBeThreaded() const { return threaded; }
 
     protected:
         vector<VkCommandPool> commandPools;

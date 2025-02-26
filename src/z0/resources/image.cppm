@@ -28,17 +28,17 @@ export namespace z0 {
         /**
          * Returns the width in pixels
          */
-        [[nodiscard]] inline uint32_t getWidth() const { return width; }
+        [[nodiscard]] inline auto getWidth() const { return width; }
 
         /**
          * Returns the height in pixels
          */
-        [[nodiscard]] inline uint32_t getHeight() const { return height; }
+        [[nodiscard]] inline auto getHeight() const { return height; }
 
         /**
          * Returns the size in pixels
          */
-        [[nodiscard]] inline vec2 getSize() const { return vec2{getWidth(), getHeight()}; }
+        [[nodiscard]] inline auto getSize() const { return vec2{getWidth(), getHeight()}; }
 
         /**
          * Load a bitmap from file.<br>

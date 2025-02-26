@@ -32,7 +32,7 @@ export namespace z0 {
             Plane() = default;
             inline Plane(const vec3& p1, const vec3& norm) : normal(normalize(norm)), distance(dot(normal, p1)){}
 
-            inline float getSignedDistanceToPlane(const vec3& point) const { return dot(normal, point) - distance; }
+            inline auto getSignedDistanceToPlane(const vec3& point) const { return dot(normal, point) - distance; }
         };
 
         //! Far plane
@@ -48,7 +48,7 @@ export namespace z0 {
         //! Bottom plane
         Plane bottomFace;
 
-        inline const Plane& getPlane(const int i) const {
+        inline const auto& getPlane(const int i) const {
             switch (i) {
             case 0:
                 return farFace;

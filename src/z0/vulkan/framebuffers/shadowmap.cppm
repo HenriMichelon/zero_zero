@@ -26,15 +26,15 @@ export namespace z0{
 
         explicit ShadowMapFrameBuffer(const Device &dev, bool isCascaded, bool isCubemap);
 
-        [[nodiscard]] inline const VkSampler &getSampler() const { return sampler; }
+        [[nodiscard]] inline const auto& getSampler() const { return sampler; }
 
-        [[nodiscard]] inline const VkImageView &getCascadedImageView(const uint32_t layer) const { return cascadedImageViews[layer]; };
+        [[nodiscard]] inline const auto& getCascadedImageView(const uint32_t layer) const { return cascadedImageViews[layer]; };
 
-        [[nodiscard]] inline uint32_t getWidth() const { return width; }
+        [[nodiscard]] inline auto getWidth() const { return width; }
 
-        [[nodiscard]] inline uint32_t getHeight() const { return height; }
+        [[nodiscard]] inline auto getHeight() const { return height; }
 
-        [[nodiscard]] inline float getRatio() const { return static_cast<float>(width) / static_cast<float>(height); }
+        [[nodiscard]] inline auto getRatio() const { return static_cast<float>(width) / static_cast<float>(height); }
 
         void createImagesResources() override;
 
@@ -50,8 +50,8 @@ export namespace z0{
         int32_t bufferIndex{-1};
 
     public:
-        [[nodiscard]] inline int32_t _getBufferIndex() const { return bufferIndex; }
-        inline void _setBufferIndex(const int32_t bufferIndex) { this->bufferIndex = bufferIndex; }
+        [[nodiscard]] inline auto _getBufferIndex() const { return bufferIndex; }
+        inline auto _setBufferIndex(const int32_t bufferIndex) { this->bufferIndex = bufferIndex; }
     };
 
 } // namespace z0

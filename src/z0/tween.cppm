@@ -32,7 +32,7 @@ export namespace z0 {
          */
         [[nodiscard]] virtual bool update(float deltaTime) = 0;
 
-        [[nodiscard]] bool isRunning() const { return running; }
+        [[nodiscard]] auto isRunning() const { return running; }
 
     protected:
         bool running{false};

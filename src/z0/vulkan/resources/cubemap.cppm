@@ -37,16 +37,16 @@ export namespace z0 {
 
         ~VulkanCubemap() override;
 
-        inline VkDescriptorImageInfo getImageInfo() const {
+        inline auto getImageInfo() const {
             return VkDescriptorImageInfo{
                 .sampler = textureSampler,
                 .imageView = textureImageView,
                 .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
             };
         }
-        [[nodiscard]] VkFormat getFormat() const { return textureFormat; }
-        [[nodiscard]] inline VkImage getImage() const { return textureImage; }
-        [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
+        [[nodiscard]] inline auto getFormat() const { return textureFormat; }
+        [[nodiscard]] inline auto getImage() const { return textureImage; }
+        [[nodiscard]] inline auto getImageView() const { return textureImageView; }
 
     protected:
         const Device & device;

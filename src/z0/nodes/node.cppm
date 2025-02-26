@@ -597,21 +597,21 @@ import z0.Tween;
 
         virtual void _update(float alpha) {}
 
-        inline void _setParent(Node *p) { parent = p; }
+        inline auto _setParent(Node *p) { parent = p; }
 
-        inline void _setAddedToScene(const bool added) { addedToScene = added; }
+        inline auto _setAddedToScene(const bool added) { addedToScene = added; }
 
-        inline bool _isAddedToScene() const { return addedToScene; }
+        inline auto _isAddedToScene() const { return addedToScene; }
 
-        inline mat4 &_getTransformLocal() { return localTransform; }
+        inline auto& _getTransformLocal() { return localTransform; }
 
-        inline void _setTransform(const mat4 &transform) { localTransform = transform; }
+        inline auto _setTransform(const mat4 &transform) { localTransform = transform; }
 
         virtual void _updateTransform(const mat4 &parentMatrix);
 
         virtual void _updateTransform();
 
-        inline list<shared_ptr<Node>> &_getChildren() { return children; }
+        inline auto& _getChildren() { return children; }
 
     };
 

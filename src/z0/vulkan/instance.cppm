@@ -27,7 +27,7 @@ export namespace z0 {
         Instance(Instance&) = delete;
         ~Instance();
 
-        [[nodiscard]] inline  VkInstance getInstance() const { return instance; }
+        [[nodiscard]] inline auto getInstance() const { return instance; }
 
         [[nodiscard]] unique_ptr<Device> createDevice(
             const ApplicationConfig &applicationConfig,

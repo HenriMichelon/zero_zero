@@ -34,37 +34,37 @@ namespace z0 {
         /**
          * Returns the associated Mesh
          */
-        [[nodiscard]] inline const shared_ptr<Mesh> &getMesh() const { return mesh; }
+        [[nodiscard]] inline const auto& getMesh() const { return mesh; }
 
         /**
          * Returns `true` if the Mesh is valid
          */
-        [[nodiscard]] inline bool isValid() const { return mesh != nullptr; }
+        [[nodiscard]] inline auto isValid() const { return mesh != nullptr; }
 
         /**
          * Set to `true` to have the Mesh outlined starting to the next frame
          */
-        inline void setOutlined(const bool o) { outlined = o; }
+        inline auto setOutlined(const bool o) { outlined = o; }
 
         /**st
          * Returns `true` if the Mesh will be outlined during the next frame
          */
-        [[nodiscard]] inline bool isOutlined() const { return outlined; }
+        [[nodiscard]] inline auto isOutlined() const { return outlined; }
 
         /**
          * Sets the outline material. The material **must** belong to the OutlineMaterials collection.
          */
-        inline void setOutlineMaterial(const shared_ptr<ShaderMaterial> &material) { outlineMaterial = material; }
+        inline auto setOutlineMaterial(const shared_ptr<ShaderMaterial> &material) { outlineMaterial = material; }
 
         /**
          * Returns the current outlining material
          */
-        [[nodiscard]] inline shared_ptr<ShaderMaterial> &getOutlineMaterial() { return outlineMaterial; }
+        [[nodiscard]] inline auto& getOutlineMaterial() { return outlineMaterial; }
 
         /**
          * Returns the world space axis aligned bounding box
          */
-        [[nodiscard]] inline const AABB &getAABB() const { return worldAABB; }
+        [[nodiscard]] inline const auto& getAABB() const { return worldAABB; }
 
         friend inline bool operator<(const MeshInstance& a, const MeshInstance& b) {
             return a.mesh < b.mesh;

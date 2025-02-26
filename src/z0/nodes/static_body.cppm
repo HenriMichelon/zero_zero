@@ -45,7 +45,6 @@ export namespace z0 {
 
     protected:
         shared_ptr<Node> duplicateInstance() const override;
-
     };
 
 }

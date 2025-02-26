@@ -22,7 +22,7 @@ export namespace z0 {
          * Loads a glTF scene
          * @param filepath path of the (binary) glTF file, relative to the application path
          */
-        [[nodiscard]] static void load(const shared_ptr<Node>&rootNode, const string& filepath);
+        static void load(const shared_ptr<Node>&rootNode, const string& filepath);
     };
 
 }

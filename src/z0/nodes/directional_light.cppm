@@ -38,7 +38,7 @@ export namespace z0 {
         /**
          * Returns the number of cascades for the shadow map
          */
-        [[nodiscard]] inline uint32_t getShadowMapCascadesCount() const { return shadowMapCascadesCount; }
+        [[nodiscard]] inline auto getShadowMapCascadesCount() const { return shadowMapCascadesCount; }
 
         void setProperty(const string &property, const string &value) override;
 

@@ -54,15 +54,15 @@ namespace z0 {
     public:
         SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass);
 
-        [[nodiscard]] inline const vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() const { return colorFrameBufferHdr; }
+        [[nodiscard]] inline const auto& getColorAttachments() const { return colorFrameBufferHdr; }
 
-        [[nodiscard]] inline const vector<shared_ptr<DepthFrameBuffer>> &getDepthAttachments() const { return resolvedDepthFrameBuffer; }
+        [[nodiscard]] inline const auto& getDepthAttachments() const { return resolvedDepthFrameBuffer; }
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImage(); }
 
         [[nodiscard]] inline VkImageView getImageView(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImageView(); }
 
-        inline void setShadowCasting(const bool enable) { enableShadowMapRenders = enable; }
+        inline auto setShadowCasting(const bool enable) { enableShadowMapRenders = enable; }
 
         void cleanup() override;
 
@@ -299,7 +299,7 @@ namespace z0 {
 
         void depthPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
-        [[nodiscard]] shared_ptr<ShadowMapRenderer> findShadowMapRenderer(const shared_ptr<Light>& light) const {
+        [[nodiscard]] auto findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);
         }
 

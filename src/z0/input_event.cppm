@@ -51,17 +51,17 @@ export namespace z0 {
         /**
          * The repeat count for the current event. The value is the number of times the keystroke is auto-repeated as a result of the user holding down the key
          */
-        [[nodiscard]] int getRepeatCount() const { return repeat; }
+        [[nodiscard]] auto getRepeatCount() const { return repeat; }
 
         /**
          * Returns true if the key is pressed
          */
-        [[nodiscard]] inline bool isPressed() const { return pressed; }
+        [[nodiscard]] inline auto isPressed() const { return pressed; }
 
         /**
          * Returns the state of the z0::KeyModifier keys
          */
-        [[nodiscard]] inline int getModifiers() const { return modifiers; }
+        [[nodiscard]] inline auto getModifiers() const { return modifiers; }
 
     private:
         Key keycode;
@@ -83,12 +83,12 @@ export namespace z0 {
         /**
          * Return the gamepad button
          */
-        [[nodiscard]] inline GamepadButton getGamepadButton() const { return button; }
+        [[nodiscard]] inline auto getGamepadButton() const { return button; }
 
          /**
          * Returns true if the gamepad button is pressed
          */
-        [[nodiscard]] inline bool isPressed() const { return pressed; }
+        [[nodiscard]] inline auto isPressed() const { return pressed; }
 
     private:
         GamepadButton button;
@@ -103,27 +103,27 @@ export namespace z0 {
         /**
          * Returns the current mouse position
          */
-        [[nodiscard]] inline vec2 getPosition() const { return vec2{x, y}; }
+        [[nodiscard]] inline auto getPosition() const { return vec2{x, y}; }
 
         /**
          * Returns the current mouse x position
          */
-        [[nodiscard]] inline float getX() const { return x; }
+        [[nodiscard]] inline auto getX() const { return x; }
 
         /**
          * Returns the current mouse y position
          */
-        [[nodiscard]] inline float getY() const { return y; }
+        [[nodiscard]] inline auto getY() const { return y; }
 
         /**
          * Returns the mouse button states (which button is down)
          */
-        [[nodiscard]] inline uint32_t getButtonsState() { return buttonsState; }
+        [[nodiscard]] inline auto getButtonsState() { return buttonsState; }
 
         /**
          * Returns the state of the z0::KeyModifier keys
         */
-        [[nodiscard]] inline int getModifiers() const { return modifiers; }
+        [[nodiscard]] inline auto getModifiers() const { return modifiers; }
 
     protected:
         InputEventMouse(const InputEventType type, const uint32_t _buttonsState, const int _modifiers, const float posX, const float posY):

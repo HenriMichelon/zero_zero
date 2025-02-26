@@ -80,7 +80,7 @@ export namespace z0 {
 
         ~VulkanImage() override;
 
-        inline VkDescriptorImageInfo getImageInfo() const {
+        inline auto getImageInfo() const {
             // https://vulkan-tutorial.com/Texture_mapping/Combined_image_sampler#page_Updating-the-descriptors
             return VkDescriptorImageInfo{
                 .sampler = textureSampler,
@@ -89,9 +89,9 @@ export namespace z0 {
             };
         }
 
-        [[nodiscard]] inline VkImage getImage() const { return textureImage; }
+        [[nodiscard]] inline auto getImage() const { return textureImage; }
 
-        [[nodiscard]] inline VkImageView getImageView() const { return textureImageView; }
+        [[nodiscard]] inline auto getImageView() const { return textureImageView; }
 
         static VkFormat formatSRGB(VkFormat format, const string& name);
 

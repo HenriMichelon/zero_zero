@@ -46,9 +46,9 @@ export namespace z0 {
 
         DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 
-        [[nodiscard]] inline VkDescriptorSetLayout *getDescriptorSetLayout() { return &descriptorSetLayout; }
+        [[nodiscard]] inline auto getDescriptorSetLayout() { return &descriptorSetLayout; }
 
-        [[nodiscard]] inline bool isValid() const { return descriptorSetLayout != VK_NULL_HANDLE; }
+        [[nodiscard]] inline auto isValid() const { return descriptorSetLayout != VK_NULL_HANDLE; }
 
     private:
         const Device &                                        device;
@@ -100,7 +100,7 @@ export namespace z0 {
 
         void resetPool() const;
 
-        VkDescriptorPool inline getPool() const { return descriptorPool; }
+        inline auto getPool() const { return descriptorPool; }
 
     private:
         const Device &   device;

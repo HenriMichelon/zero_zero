@@ -27,12 +27,12 @@ namespace z0 {
         /**
          * Returns the width of the client area of the Window, in pixels
          */
-        [[nodiscard]] uint32_t getWidth() const { return width; }
+        [[nodiscard]] auto getWidth() const { return width; }
 
         /**
          * Returns the height of the client area of the Window, in pixels
          */
-        [[nodiscard]] uint32_t getHeight() const { return height; }
+        [[nodiscard]] auto getHeight() const { return height; }
 
         /**
          * Closes the Window, effectively quitting the application, at the end of the current frame
@@ -42,7 +42,7 @@ namespace z0 {
         /**
         * Returns true if we need to stop the Application main loop and quit the application
         */
-        [[nodiscard]] bool shouldClose() const { return closing; }
+        [[nodiscard]] auto shouldClose() const { return closing; }
 
         [[nodiscard]] string toString() const override;
 
@@ -67,8 +67,8 @@ namespace z0 {
 #ifdef _WIN32
         static bool resettingMousePosition;
         void _setSize(int width, int height);
-        [[nodiscard]] HWND _getHandle() const { return hwnd; };
-        [[nodiscard]] RECT _getRect() const { return rect; }
+        [[nodiscard]] auto _getHandle() const { return hwnd; }
+        [[nodiscard]] auto _getRect() const { return rect; }
 #endif
         explicit Window(const ApplicationConfig& applicationConfig);
         ~Window() override;

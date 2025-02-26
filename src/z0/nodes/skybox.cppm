@@ -57,7 +57,7 @@ export namespace z0 {
         /**
          * Return the associated Cubemap
          */
-        [[nodiscard]] inline shared_ptr<Cubemap> &getCubemap() { return cubemap; }
+        [[nodiscard]] inline auto& getCubemap() { return cubemap; }
 
         void setProperty(const string &property, const string &value) override ;
 

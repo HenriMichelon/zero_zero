@@ -40,17 +40,17 @@ export namespace z0 {
         /**
          * Returns the light range (default 10m)
          */
-        [[nodiscard]] inline float getRange() const { return range; }
+        [[nodiscard]] inline auto getRange() const { return range; }
 
         /**
          * Sets the light range
          */
-        void setRange(const float range);
+        void setRange(float range);
 
         /**
          * Returns the light near clipping distance for the shadows (default 0.1m)
          */
-        [[nodiscard]] inline float getNearClipDistance() const { return near; }
+        [[nodiscard]] inline auto getNearClipDistance() const { return near; }
 
         void setProperty(const string &property, const string &value) override;
 

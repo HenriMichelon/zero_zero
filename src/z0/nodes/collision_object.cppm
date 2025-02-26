@@ -52,14 +52,14 @@ export namespace z0 {
         /**
          * The physics layers this CollisionObject is in.
          */
-        [[nodiscard]] inline uint32_t getCollisionLayer() const { return collisionLayer; }
+        [[nodiscard]] inline auto getCollisionLayer() const { return collisionLayer; }
 
         /**
          * Sets the collision layer
          */
         virtual void setCollisionLayer(uint32_t layer);
 
-        inline shared_ptr<CollisionObject> sharedPtr() { return shared_from_this(); }
+        inline auto sharedPtr() { return shared_from_this(); }
 
         /**
          * Returns `true` if `obj` were in contact with the object during the last simulation step
@@ -116,7 +116,7 @@ export namespace z0 {
 
         void _onResume() override;
 
-        [[nodiscard]] inline JPH::BodyID _getBodyId() const { return bodyId; }
+        [[nodiscard]] inline auto _getBodyId() const { return bodyId; }
 
         ~CollisionObject() override;
     };

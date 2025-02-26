@@ -69,17 +69,17 @@ export namespace z0 {
         /**
          * Returns the looping mode
          */
-        [[nodiscard]] inline AnimationLoopMode getLoopMode() const { return loopMode; }
+        [[nodiscard]] inline auto getLoopMode() const { return loopMode; }
 
         /**
          * Returns the number of tracks
          */
-        [[nodiscard]] inline size_t getTracksCount() const { return tracks.size(); }
+        [[nodiscard]] inline auto getTracksCount() const { return tracks.size(); }
 
         /**
          * Returns a given track
          */
-        [[nodiscard]] inline Track& getTrack(const uint32_t index) { return tracks.at(index); }
+        [[nodiscard]] inline auto& getTrack(const uint32_t index) { return tracks.at(index); }
 
         /**
          * Returns the interpolated value at the given time (in seconds, from start of the animation) for a track.

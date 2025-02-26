@@ -56,12 +56,12 @@ export namespace z0 {
         /**
          * Returns the font path. Useful to create another Font resource with a different size
          */
-        [[nodiscard]] inline const string &getFontName() const { return path; }
+        [[nodiscard]] inline const auto& getFontName() const { return path; }
 
         /**
          * Returns the font height in pixels (NOT scaled size, but the size given to the Font constructor)
          */
-        [[nodiscard]] inline uint32_t getFontSize() const { return size; }
+        [[nodiscard]] inline auto getFontSize() const { return size; }
 
     private:
         // Already rendered characters

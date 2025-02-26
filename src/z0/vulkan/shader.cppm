@@ -32,13 +32,13 @@ export namespace z0 {
 
         virtual ~Shader();
 
-        [[nodiscard]] inline VkShaderCreateInfoEXT getShaderCreateInfo() const { return shaderCreateInfo; }
+        [[nodiscard]] inline auto getShaderCreateInfo() const { return shaderCreateInfo; }
 
-        [[nodiscard]] inline VkShaderStageFlagBits *getStage() { return &stage; }
+        [[nodiscard]] inline auto getStage() { return &stage; }
 
-        [[nodiscard]] inline VkShaderEXT *getShader() { return &shader; }
+        [[nodiscard]] inline auto getShader() { return &shader; }
 
-        inline void setShader(const VkShaderEXT _shader) { shader = _shader; }
+        inline auto setShader(const VkShaderEXT _shader) { shader = _shader; }
 
     private:
         const Device &        device;
@@ -51,9 +51,9 @@ export namespace z0 {
         VkShaderCreateInfoEXT shaderCreateInfo;
 
     public:
-        inline void _incrementReferenceCounter() { refCount += 1; }
+        inline auto _incrementReferenceCounter() { refCount += 1; }
 
-        [[nodiscard]] inline bool _decrementReferenceCounter() {
+        [[nodiscard]] inline auto _decrementReferenceCounter() {
             refCount -= 1;
             return refCount == 0;
         }

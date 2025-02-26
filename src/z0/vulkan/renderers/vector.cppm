@@ -75,13 +75,13 @@ namespace z0 {
                       float         clip_w, float                 clip_h);
 
         // Change the color of the fragments for the next drawing commands
-        inline void setPenColor(const vec4 color) { penColor = color; }
+        inline auto setPenColor(const vec4 color) { penColor = color; }
 
         // Change the [x,y] translation for the next drawing commands
-        inline void setTranslate(const vec2 t) { translate = t; }
+        inline auto setTranslate(const vec2 t) { translate = t; }
 
         // Change the global transparency for the next drawing commands. Value is subtracted from the vertex alpha
-        inline void setTransparency(const float a) { transparency = a; }
+        inline auto setTransparency(const float a) { transparency = a; }
 
         // Restart a new drawing session, clearing all the previous data (vertices and drawing commands)
         void beginDraw();

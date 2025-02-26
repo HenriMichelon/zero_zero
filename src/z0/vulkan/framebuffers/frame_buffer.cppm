@@ -21,9 +21,9 @@ export namespace z0 {
         FrameBuffer(FrameBuffer&) = delete;
         FrameBuffer(FrameBuffer&&) = delete;
 
-        [[nodiscard]] inline const VkImage &getImage() const { return image; }
+        [[nodiscard]] inline const auto& getImage() const { return image; }
 
-        [[nodiscard]] inline const VkImageView &getImageView() const { return imageView; }
+        [[nodiscard]] inline const auto& getImageView() const { return imageView; }
 
         virtual void createImagesResources() = 0;
 

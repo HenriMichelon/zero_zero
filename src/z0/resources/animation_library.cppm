@@ -38,17 +38,17 @@ export namespace z0 {
         /**
          * Returns the \ref Animation with the key name.
          */
-        [[nodiscard]] inline shared_ptr<Animation> get(const string& keyName) const { return animations.at(keyName); }
+        [[nodiscard]] inline auto get(const string& keyName) const { return animations.at(keyName); }
 
         /**
          * Returns `true` if the library stores an \ref Animation with name as the key.
          */
-        [[nodiscard]] inline bool has(const string& keyName) const { return animations.contains(keyName); }
+        [[nodiscard]] inline auto has(const string& keyName) const { return animations.contains(keyName); }
 
         /**
          * Returns the name of the default animation
          */
-        [[nodiscard]] inline const string& getDefault() const { return defaultAnimation; }
+        [[nodiscard]] inline const auto& getDefault() const { return defaultAnimation; }
 
     private:
         string defaultAnimation;

@@ -43,7 +43,7 @@ export namespace z0 {
 
         void recordCommands(VkCommandBuffer commandBuffer, uint32_t currentFrame);
 
-        [[nodiscard]] inline shared_ptr<Cubemap> getCubemap() const { return reinterpret_pointer_cast<Cubemap>(cubemap); }
+        [[nodiscard]] inline auto getCubemap() const { return reinterpret_pointer_cast<Cubemap>(cubemap); }
 
     private:
         struct GobalUniformBuffer {

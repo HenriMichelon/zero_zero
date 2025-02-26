@@ -30,7 +30,7 @@ export namespace z0 {
 
         void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
 
-        [[nodiscard]] inline vector<shared_ptr<ColorFrameBufferHDR>> &getColorAttachments() { return colorAttachmentHdr; }
+        [[nodiscard]] inline auto& getColorAttachments() { return colorAttachmentHdr; }
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorAttachmentHdr[currentFrame]->getImage(); }
 

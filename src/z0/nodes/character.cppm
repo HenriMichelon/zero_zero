@@ -55,14 +55,14 @@ export namespace z0 {
         /**
          * Returns `true` if the Character is on a ground
          */
-        [[nodiscard]] inline bool isOnGround() const {
+        [[nodiscard]] inline auto isOnGround() const {
             return virtualCharacter->GetGroundState() == JPH::CharacterBase::EGroundState::OnGround;
         }
 
         /**
          * Returns `true` if `object` is the ground
          */
-        [[nodiscard]] inline bool isGround(const CollisionObject &object) const {
+        [[nodiscard]] inline auto isGround(const CollisionObject &object) const {
             return object._getBodyId() == virtualCharacter->GetGroundBodyID();
         }
 
@@ -79,7 +79,7 @@ export namespace z0 {
         /**
          * Returns the UP axis for this Character
          */
-        [[nodiscard]] inline const vec3 &getUpVector() const { return upVector; }
+        [[nodiscard]] inline const auto& getUpVector() const { return upVector; }
 
         /**
          * Sets the UP axis for this Character

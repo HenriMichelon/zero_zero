@@ -67,16 +67,16 @@ export namespace z0 {
         /**
          * Returns the width in pixels of each image
          */
-        [[nodiscard]] inline uint32_t getWidth() const { return width; }
+        [[nodiscard]] inline auto getWidth() const { return width; }
 
         /**
          * Returns the height in pixels of each image
          */
-        [[nodiscard]] inline uint32_t getHeight() const { return height; }
+        [[nodiscard]] inline auto getHeight() const { return height; }
 
         [[nodiscard]] static shared_ptr<Cubemap> createBlankCubemap();
 
-        [[nodiscard]] Type getCubemapType() const { return type; }
+        [[nodiscard]] auto getCubemapType() const { return type; }
 
     protected:
         Type    type;
@@ -112,9 +112,9 @@ export namespace z0 {
           */
         [[nodiscard]] static shared_ptr<EnvironmentCubemap> loadFromHDRi(const string &filename, ImageFormat imageFormat = ImageFormat::R8G8B8A8_SRGB);
 
-        [[nodiscard]] inline shared_ptr<Cubemap> getSpecularCubemap() const { return specularCubemap; }
-        [[nodiscard]] inline shared_ptr<Cubemap> getIrradianceCubemap() const { return irradianceCubemap; }
-        [[nodiscard]] inline shared_ptr<Image> getBRDFLut() const { return brdfLut; }
+        [[nodiscard]] inline auto getSpecularCubemap() const { return specularCubemap; }
+        [[nodiscard]] inline auto getIrradianceCubemap() const { return irradianceCubemap; }
+        [[nodiscard]] inline auto getBRDFLut() const { return brdfLut; }
 
     private:
         // Specular map

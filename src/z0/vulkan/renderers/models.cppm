@@ -45,7 +45,7 @@ export namespace z0 {
         void cleanup() override;
 
         // Get the current scene camera
-        [[nodiscard]] inline shared_ptr<Camera> getCamera(const uint32_t currentFrame) const { return frameData[currentFrame].currentCamera; }
+        [[nodiscard]] inline auto getCamera(const uint32_t currentFrame) const { return frameData[currentFrame].currentCamera; }
 
     protected:
         struct FrameData {

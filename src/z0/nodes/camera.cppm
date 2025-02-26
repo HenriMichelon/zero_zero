@@ -31,7 +31,7 @@ export namespace z0 {
          * Returns `true` if the camera is the currently active camera for the current scene.
          * Use Application::activateCamera() to activate a camera
          */
-        [[nodiscard]] inline bool isActive() const { return active; }
+        [[nodiscard]] inline auto isActive() const { return active; }
 
         /**
          * Sets the camera projection to orthogonal mode.
@@ -51,12 +51,12 @@ export namespace z0 {
         /**
          * Returns the projection matrix
          */
-        [[nodiscard]] const mat4 &getProjection() const { return projectionMatrix; }
+        [[nodiscard]] const auto& getProjection() const { return projectionMatrix; }
 
         /**
          * Returns the view matrix
          */
-        [[nodiscard]] inline const mat4 &getView() const { return viewMatrix; }
+        [[nodiscard]] inline const auto& getView() const { return viewMatrix; }
 
         /**
          * Returns the 2D coordinates in the rendering Window that maps to the given 3D point in world space.
@@ -66,7 +66,7 @@ export namespace z0 {
         /**
          * Returns the camera near clipping distance
          */
-        [[nodiscard]] inline float getNearDistance() const { return nearDistance; }
+        [[nodiscard]] inline auto getNearDistance() const { return nearDistance; }
 
         /**
          * Sets the near clipping distance
@@ -76,7 +76,7 @@ export namespace z0 {
         /**
          * Returns the camera far clipping distance
          */
-        [[nodiscard]] inline float getFarDistance() const { return farDistance; }
+        [[nodiscard]] inline auto getFarDistance() const { return farDistance; }
 
         /**
          * Sets the far clipping distance
@@ -86,7 +86,7 @@ export namespace z0 {
         /**
          * Returns the camera FOV in degrees
          */
-        [[nodiscard]] inline float getFov() const { return fov; }
+        [[nodiscard]] inline auto getFov() const { return fov; }
 
         /**
          * Sets the camera FOV in degrees
@@ -115,7 +115,7 @@ export namespace z0 {
         void updateViewMatrix();
 
     public:
-        inline void _setActive(const bool isActive) { active = isActive; }
+        inline auto _setActive(const bool isActive) { active = isActive; }
 
         void _updateTransform(const mat4 &parentMatrix) override;
 

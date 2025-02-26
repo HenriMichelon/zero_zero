@@ -39,38 +39,38 @@ export namespace z0 {
         /**
          * Returns whether any object is intersecting with the ray's vector (considering the vector length).
          */
-        [[nodiscard]] inline bool isColliding() const { return collider != nullptr; }
+        [[nodiscard]] inline auto isColliding() const { return collider != nullptr; }
 
         /**
          * Returns the first object that the ray intersects, or `nullptr` if no object is intersecting the ray
          */
-        [[nodiscard]] inline shared_ptr<CollisionObject> getCollider() const { return collider; }
+        [[nodiscard]] inline auto getCollider() const { return collider; }
 
         /**
          * Returns the collision point at which the ray intersects the closest object, in the global coordinate system
          */
-        [[nodiscard]] inline vec3 getCollisionPoint() const { return hitPoint; }
+        [[nodiscard]] inline auto getCollisionPoint() const { return hitPoint; }
 
         /**
          * If `true`, collisions will be ignored for this RayCast's immediate parent.
          */
-        inline void setExcludeParent(const bool exclude) { excludeParent = exclude; }
+        inline auto setExcludeParent(const bool exclude) { excludeParent = exclude; }
 
         /**
          * Updates the collision information for the ray immediately, 
          * without waiting for the next physics update
          */
-        inline void forceRaycastUpdate() { _physicsUpdate(0.0f); }
+        inline auto forceRaycastUpdate() { _physicsUpdate(0.0f); }
 
         /**
          * Sets the ray's destination point, relative to the RayCast's position.
          */
-        inline void setTarget(const vec3 &target) { this->target = target; }
+        inline auto setTarget(const vec3 &target) { this->target = target; }
 
         /**
          * Returns the ray target
          */
-        inline const vec3& getTarget() const { return this->target; }
+        inline const auto& getTarget() const { return this->target; }
 
         void setCollisionLayer(uint32_t layer);
 

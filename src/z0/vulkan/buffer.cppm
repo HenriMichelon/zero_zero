@@ -28,9 +28,9 @@ export namespace z0 {
 
         virtual ~Buffer();
 
-        [[nodiscard]] inline VkBuffer getBuffer() const { return buffer; }
+        [[nodiscard]] inline auto getBuffer() const { return buffer; }
 
-        [[nodiscard]] inline VkDeviceSize getAlignmentSize() const { return alignmentSize; }
+        [[nodiscard]] inline auto getAlignmentSize() const { return alignmentSize; }
 
         [[nodiscard]] VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size   = VK_WHOLE_SIZE,
                                                             VkDeviceSize offset = 0) const;

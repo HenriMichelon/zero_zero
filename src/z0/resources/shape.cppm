@@ -29,7 +29,7 @@ export namespace z0 {
         explicit Shape(const string &resName);
 
     public:
-        [[nodiscard]] inline JPH::ShapeSettings *_getShapeSettings() const { return shapeSettings; }
+        [[nodiscard]] inline auto _getShapeSettings() const { return shapeSettings; }
     };
 
     /**

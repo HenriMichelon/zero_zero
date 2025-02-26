@@ -32,12 +32,12 @@ export namespace z0 {
         /**
          * Returns the ambient RGB color and intensity
          */
-        [[nodiscard]] inline const vec4 &getAmbientColorAndIntensity() const { return ambientColorIntensity; }
+        [[nodiscard]] inline const auto& getAmbientColorAndIntensity() const { return ambientColorIntensity; }
 
         /**
          * Sets the ambient RGB color and intensity
         */
-        inline void setAmbientColorAndIntensity(const vec4 ambientColorIntensity) {
+        inline auto setAmbientColorAndIntensity(const vec4 ambientColorIntensity) {
             this->ambientColorIntensity = ambientColorIntensity;
         }
 

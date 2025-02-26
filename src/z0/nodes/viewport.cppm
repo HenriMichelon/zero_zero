@@ -32,22 +32,22 @@ export namespace z0 {
         /**
          * Sets the viewport size in pixels
          */
-        [[nodiscard]] inline const vec2 &getViewportSize() const { return size; }
+        [[nodiscard]] inline const auto& getViewportSize() const { return size; }
 
         /**
          * Sets the top left viewport position in pixels
          */
-        [[nodiscard]] inline const vec2 &getViewportPosition() const { return position; }
+        [[nodiscard]] inline const auto& getViewportPosition() const { return position; }
 
         /**
          * Sets the top left viewport position in pixels
          */
-        inline void setViewportSize(const vec2 size) { this->size = size; }
+        inline auto setViewportSize(const vec2 size) { this->size = size; }
 
         /**
          * Sets the viewport size in pixels
          */
-        inline void setViewportPosition(const vec2 position) { this->position = position; }
+        inline auto setViewportPosition(const vec2 position) { this->position = position; }
 
     protected:
         shared_ptr<Node> duplicateInstance() const override;

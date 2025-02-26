@@ -34,7 +34,7 @@ export namespace z0 {
         /**
          * Returns the RGB color and the intensity factor
          */
-        [[nodiscard]] inline const vec4 &getColorAndIntensity() const { return colorAndIntensity; }
+        [[nodiscard]] inline const auto& getColorAndIntensity() const { return colorAndIntensity; }
 
         /**
          * Sets the RGB color and the intensity factor
@@ -45,7 +45,7 @@ export namespace z0 {
          * If `true`, the light will cast real-time shadows.<br>
          * This has a significant performance cost. Only enable shadow rendering when it makes a noticeable difference in the scene's appearance.
          */
-        [[nodiscard]] inline bool getCastShadows() const { return castShadows; }
+        [[nodiscard]] inline auto getCastShadows() const { return castShadows; }
 
         /**
          * Sets to `true` to makes the light cast real-time shadow.<br>
@@ -59,7 +59,7 @@ export namespace z0 {
         /**
          * Returns the light type
          */
-        [[nodiscard]] inline int32_t getLightType() const { return lightType; }
+        [[nodiscard]] inline auto getLightType() const { return lightType; }
 
         void setProperty(const string &property, const string &value) override;
 
