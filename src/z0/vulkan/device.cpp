@@ -283,8 +283,8 @@ namespace z0 {
         auto& data = framesData[currentFrame];
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
-        if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
-            ERROR("timeout waiting for inFlightFence");
+        if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, 1000000 * 25) == VK_TIMEOUT) {
+            WARNING("timeout waiting for inFlightFence");
             return;
         }
         vkResetFences(device, 1, &data.inFlightFence);
