@@ -46,7 +46,7 @@ namespace z0 {
         }
     }
 
-    void Loader::_cleanup() {
+    void Loader::clearCache() {
         resources.clear();
     }
 

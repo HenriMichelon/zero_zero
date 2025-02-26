@@ -48,7 +48,7 @@ export namespace z0 {
             return nullptr;
         }
 
-        static void _cleanup();
+        static void clearCache();
 
         // Node description inside a JSON file
         struct SceneNode {
