@@ -142,12 +142,13 @@ namespace z0 {
                     if (count > MAX_ASYNC_NODE_OP_PER_FRAME) { break; }
                 }
             }
-            if (data.activeCamera != nullptr) {
+            if (data.cameraChanged) {
                 sceneRenderer->activateCamera(data.activeCamera, currentFrame);
                 if (applicationConfig.debug) {
                     debugRenderer->activateCamera(data.activeCamera, currentFrame);
                 }
-                data.activeCamera = nullptr;
+                data.activeCamera.reset();
+                data.cameraChanged = false;
             }
             if (sceneRenderer->getCamera(currentFrame) == nullptr) {
                 const auto &camera = rootNode->findFirstChild<Camera>(true);

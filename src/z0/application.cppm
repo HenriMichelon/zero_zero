@@ -19,6 +19,7 @@ import z0.ApplicationConfig;
 import z0.InputEvent;
 import z0.Physics;
 import z0.Signal;
+import z0.Log;
 import z0.Tools;
 import z0.Window;
 
@@ -253,6 +254,9 @@ namespace z0 {
 
 
     protected:
+#ifndef DISABLE_LOG
+        shared_ptr<Log> log;
+#endif
         // The global startup configuration parameters
         const ApplicationConfig &applicationConfig;
         // The global display Window
@@ -277,6 +281,7 @@ namespace z0 {
             list<shared_ptr<Node>> removedNodes;
             list<shared_ptr<Node>> removedNodesAsync;
             // Camera to activate next frame
+            bool cameraChanged{false};
             shared_ptr<Camera> activeCamera;
         };
         vector<FrameData> frameData;
@@ -313,9 +318,7 @@ namespace z0 {
         // The Main Loop, process Windows message and draw a frame
         void _mainLoop();
 #endif
-#ifndef DISABLE_LOG
-        FILE* _logFile;
-#endif
+
         // Pause/resume the main loop
         void _stop(const bool stop) { stopped = stop; };
 

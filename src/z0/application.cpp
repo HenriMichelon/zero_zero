@@ -59,15 +59,8 @@ namespace z0 {
         assert(_instance == nullptr);
         _instance = this;
 #ifndef DISABLE_LOG
-        if (appConfig.loggingMode & LOGGING_MODE_FILE) {
-            _logFile = fopen("log.txt", "w");
-            if(_logFile == nullptr) {
-                die("Error opening log file");
-            }
-        }
-        if (appConfig.loggingMode != LOGGING_MODE_NONE) {
-            _LOG("START OF LOG");
-        }
+        log = make_shared<Log>();
+        Log::open(log);
 #endif
 
         frameData.resize(applicationConfig.framesInFlight);
@@ -115,11 +108,9 @@ namespace z0 {
     }
 
     Application::~Application() {
+        TRACE();
 #ifndef DISABLE_LOG
-        _LOG("END OF LOG");
-        if (applicationConfig.loggingMode & LOGGING_MODE_FILE) {
-            fclose(_logFile);
-        }
+        Log::close();
 #endif
     }
 
@@ -171,10 +162,12 @@ namespace z0 {
 
     void Application::activateCamera(const shared_ptr<Camera> &camera) {
         TRACE();
-        assert(camera != nullptr);
+        _lockDeferredUpdate();
         for (auto& frame : frameData) {
             frame.activeCamera = camera;
+            frame.cameraChanged = true;
         }
+        _unlockDeferredUpdate();
     }
 
     void Application::_lockDeferredUpdate() {
@@ -370,6 +363,7 @@ namespace z0 {
     }
 
     void Application::_mainLoop() {
+        TRACE();
         Input::_initInput();
         start();
         auto messageLoop = [] {
@@ -393,7 +387,7 @@ namespace z0 {
             t.join();
         }
         Input::_closeInput();
-        Loader::_cleanup();
+        Loader::clearCache();
         cleanup(rootNode);
         windowManager.reset();
         rootNode.reset();
@@ -402,6 +396,7 @@ namespace z0 {
         DestroyWindow(window->_getHandle());
         PostQuitMessage(0);
 #endif
+        TRACE();
     }
 
     vec3 Application::getGravity() const {

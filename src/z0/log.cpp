@@ -15,6 +15,27 @@ import z0.Tools;
 
 namespace z0 {
 
+    void Log::open(const shared_ptr<Log>&log) {
+        const auto& appConfig = app().getConfig();
+        loggingStreams = log;
+        if (appConfig.loggingMode & LOGGING_MODE_FILE) {
+            loggingStreams->_logFile = fopen("log.txt", "w");
+            if(loggingStreams->_logFile == nullptr) {
+                die("Error opening log file");
+            }
+        }
+        _LOG("START OF LOG");
+    }
+
+    void Log::close() {
+        _LOG("END OF LOG");
+        const auto& appConfig = app().getConfig();
+        if (appConfig.loggingMode & LOGGING_MODE_FILE) {
+            fclose(loggingStreams->_logFile);
+        }
+        loggingStreams.reset();
+    }
+
 #ifndef DISABLE_LOG
 
     streamsize LogStreamBuf::xsputn(const char* s, const streamsize n) {
@@ -62,7 +83,7 @@ namespace z0 {
                 cout << item;
             }
             if (config.loggingMode & LOGGING_MODE_FILE) {
-                fwrite(item.c_str(), item.size(), 1, app()._logFile);
+                fwrite(item.c_str(), item.size(), 1, Log::loggingStreams->_logFile);
             }
         }
         newLine = message == "\n";
@@ -71,8 +92,8 @@ namespace z0 {
             if (newLine) { cout.flush(); }
         }
         if (config.loggingMode & LOGGING_MODE_FILE) {
-            fwrite(message.c_str(), message.size(), 1, app()._logFile);
-            if (newLine) { fflush(app()._logFile); }
+            fwrite(message.c_str(), message.size(), 1, Log::loggingStreams->_logFile);
+            if (newLine) { fflush(Log::loggingStreams->_logFile); }
         }
     }
 
