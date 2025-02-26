@@ -30,9 +30,10 @@ namespace z0 {
 
     void Loader::load(const shared_ptr<Node>&rootNode, const string& filepath, const bool usecache) {
         if (filepath.ends_with(".json")) {
-            return loadScene(rootNode, filepath);
+            loadScene(rootNode, filepath);
+            return;
         }
-        if (filepath.ends_with(".zres")) {
+        else if (filepath.ends_with(".zres")) {
             ZRes::load(rootNode, filepath);
         }
         else if (filepath.ends_with(".gltf") || filepath.ends_with(".glb")) {

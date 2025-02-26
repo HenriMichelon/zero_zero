@@ -13,6 +13,7 @@ module;
 module z0.vulkan.Image;
 
 import z0.Constants;
+import z0.Log;
 import z0.Tools;
 import z0.ZRes;
 
@@ -264,6 +265,7 @@ namespace z0 {
     }
 
     VulkanImage::~VulkanImage() {
+        DEBUG("~VulkanImage ", getName());
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);
         if (textureImage != VK_NULL_HANDLE) { vkDestroyImage(device.getDevice(), textureImage, nullptr); }

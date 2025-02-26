@@ -380,6 +380,23 @@ import z0.Tween;
         [[nodiscard]] shared_ptr<Node> duplicate(bool recursiveFilter = false) const;
 
         /**
+         * Create a new node based of the node
+         */
+        template <typename T = Node>
+        shared_ptr<T> makeFrom() {
+            auto result = make_shared<T>();
+            result->localTransform = localTransform;
+            result->worldTransform = worldTransform;
+            result->processMode    = processMode;
+            result->type           = type;
+            result->name           = name;
+            for (const auto &child : children) {
+                result->addChild(child->duplicate());
+            }
+            return result;
+        }
+
+        /**
          * Finds the first child by is type.
          */
         template <typename T>
