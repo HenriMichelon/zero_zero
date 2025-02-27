@@ -25,43 +25,43 @@ namespace z0::ui {
         return true;
     }
 
-    void StyleClassic::draw(const Widget &W, Resource &RES, VectorRenderer &D, const bool BEFORE) const {
-        auto &res = static_cast<StyleClassicResource &>(RES);
-        if (!W.isVisible()) {
+    void StyleClassic::draw(const Widget &widget, Resource &resources, VectorRenderer &renderer, const bool before) const {
+        auto &res = static_cast<StyleClassicResource &>(resources);
+        if (!widget.isVisible()) {
             return;
         }
-        if (BEFORE) {
-            switch (W.getType()) {
+        if (before) {
+            switch (widget.getType()) {
                 // case Widget::TEXTEDIT:
                 // case Widget::UPDOWN:
                 // case Widget::PROGRESSBAR:
             case Widget::PANEL:
-                drawPanel((Panel &)W, res, D);
+                drawPanel((Panel &)widget, res, renderer);
                 break;
             case Widget::BOX:
                 // case Widget::SCROLLBOX:
-                drawBox(W, res, D);
+                drawBox(widget, res, renderer);
                 break;
             case Widget::LINE:
-                drawLine((Line &)W, res, D);
+                drawLine((Line &)widget, res, renderer);
                 break;
             case Widget::BUTTON:
-                drawButton((Button &)W, res, D);
+                drawButton((Button &)widget, res, renderer);
                 break;
             case Widget::TOGGLEBUTTON:
-                drawToggleButton((ToggleButton &)(CheckWidget &)W, res, D);
+                drawToggleButton((ToggleButton &)(CheckWidget &)widget, res, renderer);
                 break;
             case Widget::TEXT:
-                drawText((Text &)W, res, D);
+                drawText((Text &)widget, res, renderer);
                 break;
             case Widget::FRAME:
-                drawFrame((Frame &)W, res, D);
+                drawFrame((Frame &)widget, res, renderer);
                 break;
             case Widget::IMAGE: {
-                auto &pic = dynamic_cast<const Image &>(W);
+                auto &pic = dynamic_cast<const Image &>(widget);
                 if (pic.getImage()) {
-                    D.setPenColor(pic.getColor());
-                    D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height, pic.getImage());
+                    renderer.setPenColor(pic.getColor());
+                    renderer.drawFilledRect(widget.getRect(), widget.getRect().width, widget.getRect().height, pic.getImage());
                 }
             }
                 /*case Widget::GRIDCELL:
@@ -91,7 +91,7 @@ namespace z0::ui {
                 break;
             }
         } else {
-            switch (W.getType()) {
+            switch (widget.getType()) {
                 /*case Widget::TEXTEDIT:
                     DrawTextEdit((GTextEdit&)W, D, res, R);
                     break;
@@ -107,16 +107,16 @@ namespace z0::ui {
         }
     }
 
-    void StyleClassic::addResource(Widget &W, const string &RES) {
-        auto res = make_shared<StyleClassicResource>(RES);
-        W.setResource(res);
-        W._setSize(res->width, res->height);
-        switch (W.getType()) {
+    void StyleClassic::addResource(Widget &widget, const string &resources) {
+        const auto& res = make_shared<StyleClassicResource>(resources);
+        widget.setResource(res);
+        widget._setSize(res->width, res->height);
+        switch (widget.getType()) {
         case Widget::SCROLLBAR:
-            static_cast<ScrollBar &>(W).setResources(",,LOWERED", ",,RAISED");
+            static_cast<ScrollBar &>(widget).setResources(",,LOWERED", ",,RAISED");
             break;
         case Widget::TREEVIEW:
-            static_cast<TreeView &>(W).setResources(",,LOWERED", "18,18,RAISED", "");
+            static_cast<TreeView &>(widget).setResources(",,LOWERED", "18,18,RAISED", "");
             break;
             // XXX
             /*case Widget::UPDOWN:
@@ -151,19 +151,19 @@ namespace z0::ui {
         }
     }
 
-    void StyleClassic::resize(Widget &W, Rect &R, Resource &) {
-        switch (W.getType()) {
+    void StyleClassic::resize(Widget &widget, Rect &rect, Resource &) {
+        switch (widget.getType()) {
         case Widget::BOX:
         case Widget::BUTTON:
             // case Widget::TABBUTTON:
-            W.setVBorder(2);
-            W.setHBorder(2);
+            widget.setVBorder(2);
+            widget.setHBorder(2);
             break;
         case Widget::FRAME: {
-            W.setHBorder(4);
+            widget.setHBorder(4);
             float w, h;
-            W.getFont().getSize(static_cast<Frame &>(W).getText(), w, h);
-            W.setVBorder(h - 2);
+            widget.getFont().getSize(static_cast<Frame &>(widget).getText(), w, h);
+            widget.setVBorder(h - 2);
         } break;
             /*case Widget::LINE:
             {
@@ -185,9 +185,9 @@ namespace z0::ui {
         focus        = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
         shadowDark   = extractColor("color_shadow_dark", 0.3f, 0.3f, 0.3f);
         shadowBright = extractColor("color_shadow_light", 0.94f, 0.94f, 0.94f);
-        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f);
-        fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f);
-        background   = extractColor("color_background", 0.75f, 0.75f, 0.90f);
+        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.5f);
+        fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f, 0.5f);
+        background   = extractColor("color_background", 0.75f, 0.75f, 0.90f, 0.25f);
         /*XXXX
         if (texture != nullptr) { delete texture; }
         if (Option("texture").Len() > 0) {
@@ -197,7 +197,7 @@ namespace z0::ui {
         }*/
     }
 
-    vec4 StyleClassic::extractColor(const string &OPT, const float R, const float G, const float B) const {
+    vec4 StyleClassic::extractColor(const string &OPT, const float R, const float G, const float B, const float A) const {
         const string opt = getOption(OPT);
         if (!opt.empty()) {
             const auto &rgb = split(opt, ',');
@@ -208,159 +208,127 @@ namespace z0::ui {
                 return vec4{stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), stof(string{rgb[3]})};
             }
         }
-        return vec4({R, G, B, 1.0f});
+        return vec4{R, G, B, A};
     }
 
-    void StyleClassic::drawPanel(const Panel &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        if (W.isDrawBackground()) {
+    void StyleClassic::drawPanel(const Panel &widget, StyleClassicResource &, VectorRenderer &renderer) const {
+        if (widget.isDrawBackground()) {
             auto c = background;
-            c.a    = W.getTransparency();
-            D.setPenColor(c);
-            D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
+            c.a    = widget.getTransparency();
+            renderer.setPenColor(c);
+            renderer.drawFilledRect(widget.getRect(), widget.getRect().width, widget.getRect().height);
             // texture->Draw(D, W.Rect());
         }
     }
 
-    void StyleClassic::drawBox(const Widget &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        if ((W.getWidth() < 4) || (W.getHeight() < 4)) {
+    void StyleClassic::drawBox(const Widget &widget, const StyleClassicResource &resources, VectorRenderer &renderer) const {
+        if ((widget.getWidth() < 4) || (widget.getHeight() < 4)) {
             return;
         }
-        float       l  = W.getRect().x;
-        float       b  = W.getRect().y;
-        const float w  = W.getRect().width;
-        const float h  = W.getRect().height;
+        float       l  = widget.getRect().x;
+        float       b  = widget.getRect().y;
+        const float w  = widget.getRect().width;
+        const float h  = widget.getRect().height;
         auto        fd = fgDown;
         auto        fu = fgUp;
-        fd.a           = W.getTransparency();
-        fu.a           = W.getTransparency();
-        if (W.isDrawBackground()) {
-            if (W.isPushed()) {
-                D.setPenColor(fd);
+        fd.a  -= 1.0f-widget.getTransparency();
+        fu.a  -= 1.0f-widget.getTransparency();
+        if (widget.isDrawBackground()) {
+            if (widget.isPushed()) {
+                renderer.setPenColor(fd);
             } else {
-                D.setPenColor(fu);
+                renderer.setPenColor(fu);
             }
-            // D.drawFilledRect(W.getRect(), W.getRect().width, W.getRect().height);
+            renderer.drawFilledRect(widget.getRect(), widget.getRect().width, widget.getRect().height);
         }
-        if (RES.style != StyleClassicResource::FLAT) {
-            auto sb = shadowBright;
-            sb.a    = W.getTransparency();
-            auto sd = shadowDark;
-            sd.a    = W.getTransparency();
-            switch (RES.style) {
-            case StyleClassicResource::LOWERED:
-                D.setPenColor(sb);
-                break;
-            case StyleClassicResource::RAISED:
-                D.setPenColor(sd);
-                break;
-            default:
-                break;
-            }
-            D.drawLine({l, b}, {l + w, b});
-            D.drawLine({l, b}, {l, b + h});
-            switch (RES.style) {
-            case StyleClassicResource::RAISED:
-                D.setPenColor(sb);
-                break;
-            case StyleClassicResource::LOWERED:
-                D.setPenColor(sd);
-                break;
-            default:
-                break;
-            }
-            D.drawLine({l + w, b}, {l + w, b + h});
-            D.drawLine({l + w, b + h}, {l, b + h});
-        }
-    }
-
-    void StyleClassic::drawLine(Line &widget, StyleClassicResource &resource, VectorRenderer &renderer) const {
-        vec4 c1, c2;
-        if (resource.customColor) {
-            c1 = c2 = resource.color;
-        } else {
+        if (resources.style != StyleClassicResource::FLAT) {
             auto sb = shadowBright;
             sb.a    = widget.getTransparency();
             auto sd = shadowDark;
             sd.a    = widget.getTransparency();
-            switch (resource.style) {
-            case StyleClassicResource::RAISED:
-                c1 = sd;
-                c2 = sb;
-                break;
+            switch (resources.style) {
             case StyleClassicResource::LOWERED:
-                c1 = sb;
-                c2 = sd;
+                renderer.setPenColor(sb);
+                break;
+            case StyleClassicResource::RAISED:
+                renderer.setPenColor(sd);
                 break;
             default:
-                c1 = sd;
-                c2 = sd;
                 break;
             }
+            renderer.drawLine({l, b}, {l + w, b});
+            renderer.drawLine({l, b}, {l, b + h});
+            switch (resources.style) {
+            case StyleClassicResource::RAISED:
+                renderer.setPenColor(sb);
+                break;
+            case StyleClassicResource::LOWERED:
+                renderer.setPenColor(sd);
+                break;
+            default:
+                break;
+            }
+            renderer.drawLine({l + w, b}, {l + w, b + h});
+            renderer.drawLine({l + w, b + h}, {l, b + h});
         }
-        auto rect = widget.getRect();
-        renderer.setPenColor(c1);
+    }
+
+    void StyleClassic::drawLine(const Line &widget, const StyleClassicResource &resource, VectorRenderer &renderer) const {
+        vec4 color;
+        if (resource.customColor) {
+            color = resource.color;
+        } else {
+            color = resource.style == StyleClassicResource::RAISED ? shadowDark : shadowBright;
+        }
+        color.a -= 1.0f - widget.getTransparency();
+        auto& rect = widget.getRect();
+        renderer.setPenColor(color);
         if (widget.getStyle() == Line::HORIZ) {
             renderer.drawLine({rect.x, rect.y}, {rect.x + rect.width, rect.y});
         } else if (widget.getStyle() == Line::VERT) {
             renderer.drawLine({rect.x, rect.y}, {rect.x, rect.y + rect.height});
         }
-        if (c1 != c2) {
-            renderer.setPenColor(c2);
-            if (widget.getStyle() == Line::HORIZ) {
-                renderer.drawLine({rect.x, rect.y + 1}, {rect.x + rect.width, rect.y + 1});
-            } else if (widget.getStyle() == Line::VERT) {
-                renderer.drawLine({rect.x + 1, rect.y}, {rect.x + 1, rect.y + rect.height});
-            }
-        }
     }
 
-    void StyleClassic::drawButton(Button &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        if (W.isPushed()) {
-            RES.style = StyleClassicResource::LOWERED;
+    void StyleClassic::drawButton(const Button &widget, StyleClassicResource &resource, VectorRenderer &renderer) const {
+        resource.style = widget.isPushed() ? StyleClassicResource::LOWERED : StyleClassicResource::RAISED;
+        drawBox(widget, resource, renderer);
+    }
+
+    void StyleClassic::drawToggleButton(ToggleButton &widget, StyleClassicResource &resources, VectorRenderer &renderer) const {
+        if (widget.getState() == CheckWidget::CHECK) {
+            resources.style = StyleClassicResource::LOWERED;
+            widget.setPushed(true);
         } else {
-            if (W.isPointed()) {
-                RES.style = StyleClassicResource::RAISED;
-            } else {
-                RES.style = StyleClassicResource::FLAT;
-            }
+            resources.style = StyleClassicResource::RAISED;
+            widget.setPushed(false);
         }
-        drawBox(W, RES, D);
+        drawBox(widget, resources, renderer);
     }
 
-    void StyleClassic::drawToggleButton(ToggleButton &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        if (W.getState() == CheckWidget::CHECK) {
-            RES.style = StyleClassicResource::LOWERED;
-            W.setPushed(true);
-        } else {
-            RES.style = StyleClassicResource::RAISED;
-            W.setPushed(false);
-        }
-        drawBox(W, RES, D);
+    void StyleClassic::drawText(Text &widget, StyleClassicResource &resources, VectorRenderer &renderer) const {
+        renderer.setPenColor(vec4{widget.getTextColor().r, widget.getTextColor().g, widget.getTextColor().b, widget.getTransparency()});
+        auto rect = widget.getRect();
+        widget.getSize(rect.width, rect.height);
+        renderer.drawText(widget.getText(), widget.getFont(), rect, widget.getRect().width, widget.getRect().height);
     }
 
-    void StyleClassic::drawText(Text &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        D.setPenColor(vec4{W.getTextColor().r, W.getTextColor().g, W.getTextColor().b, W.getTransparency()});
-        auto rect = W.getRect();
-        W.getSize(rect.width, rect.height);
-        D.drawText(W.getText(), W.getFont(), rect, W.getRect().width, W.getRect().height);
-    }
-
-    void StyleClassic::drawFrame(Frame &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        if ((W.getWidth() < 4) || (W.getHeight() < 4)) {
+    void StyleClassic::drawFrame(Frame &widget, StyleClassicResource &resources, VectorRenderer &renderer) const {
+        if ((widget.getWidth() < 4) || (widget.getHeight() < 4)) {
             return;
         }
         constexpr int32_t LEFTOFFSET = 8;
-        float             l          = W.getRect().x;
-        float             b          = W.getRect().y;
-        float             w          = W.getRect().width;
-        float             h          = W.getRect().height;
+        float             l          = widget.getRect().x;
+        float             b          = widget.getRect().y;
+        float             w          = widget.getRect().width;
+        float             h          = widget.getRect().height;
         vec4              c1;
         vec4              c2;
         auto              sb = shadowBright;
-        sb.a                 = W.getTransparency();
+        sb.a                 = widget.getTransparency();
         auto sd              = shadowDark;
-        sd.a                 = W.getTransparency();
-        switch (RES.style) {
+        sd.a                 = widget.getTransparency();
+        switch (resources.style) {
         case StyleClassicResource::LOWERED:
             c1 = sb;
             c2 = sd;
@@ -375,24 +343,24 @@ namespace z0::ui {
             break;
         }
         float fh, fw;
-        W.getFont().getSize(W.getText(), fw, fh);
+        widget.getFont().getSize(widget.getText(), fw, fh);
         const auto &ratio = app().getVectorRatio();
         fw                = roundf(fw / ratio.x);
         fh                = roundf(fh / ratio.y);
-        D.setPenColor(c2);
-        if ((!W.getText().empty()) && (W.getWidth() >= (fw + LEFTOFFSET)) && (W.getHeight() >= fh)) {
-            D.drawLine({l, b + h}, {l + LEFTOFFSET, b + h});
-            D.drawLine({l + fw + LEFTOFFSET + 1, b + h}, {l + w, b + h});
-            D.setPenColor(vec4{W.getTextColor().r, W.getTextColor().g, W.getTextColor().b, W.getTransparency()});
-            D.drawText(W.getText(), W.getFont(), l + LEFTOFFSET, (b + h) - (fh / 2), fw, fh, fw, fh);
-            D.setPenColor(c2);
+        renderer.setPenColor(c2);
+        if ((!widget.getText().empty()) && (widget.getWidth() >= (fw + LEFTOFFSET)) && (widget.getHeight() >= fh)) {
+            renderer.drawLine({l, b + h}, {l + LEFTOFFSET, b + h});
+            renderer.drawLine({l + fw + LEFTOFFSET + 1, b + h}, {l + w, b + h});
+            renderer.setPenColor(vec4{widget.getTextColor().r, widget.getTextColor().g, widget.getTextColor().b, widget.getTransparency()});
+            renderer.drawText(widget.getText(), widget.getFont(), l + LEFTOFFSET, (b + h) - (fh / 2), fw, fh, fw, fh);
+            renderer.setPenColor(c2);
         } else {
-            D.drawLine({l + w, b + h}, {l, b + h});
+            renderer.drawLine({l + w, b + h}, {l, b + h});
         }
-        D.drawLine({l + w, b}, {l + w, b + h});
-        D.setPenColor(c1);
-        D.drawLine({l, b}, {l + w, b});
-        D.drawLine({l, b}, {l, b + h});
+        renderer.drawLine({l + w, b}, {l + w, b + h});
+        renderer.setPenColor(c1);
+        renderer.drawLine({l, b}, {l + w, b});
+        renderer.drawLine({l, b}, {l, b + h});
     }
 
 

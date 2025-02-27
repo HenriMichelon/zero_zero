@@ -41,11 +41,11 @@ export namespace z0 {
 
             bool init() override;
 
-            void draw(const Widget &W, Resource &RES, VectorRenderer &D, bool BEFORE) const override;
+            void draw(const Widget &widget, Resource &resources, VectorRenderer &renderer, bool before) const override;
 
-            void addResource(Widget &W, const string &RES) override;
+            void addResource(Widget &widget, const string &resources) override;
 
-            void resize(Widget &W, Rect &R, Resource &) override;
+            void resize(Widget &widget, Rect &rect, Resource &resources) override;
 
         private:
             vec4 background{};
@@ -58,15 +58,15 @@ export namespace z0 {
 
             void updateOptions() override;
 
-            vec4 extractColor(const string &OPT, const float R, const float G, const float B) const;
+            [[nodiscard]] vec4 extractColor(const string &OPT, float R, float G, float B, float A = 1.0f) const;
 
             void drawPanel(const Panel &, StyleClassicResource &, VectorRenderer &) const;
 
-            void drawBox(const Widget &, StyleClassicResource &, VectorRenderer &) const;
+            void drawBox(const Widget &, const StyleClassicResource &, VectorRenderer &) const;
 
-            void drawLine(Line &, StyleClassicResource &, VectorRenderer &) const;
+            void drawLine(const Line &, const StyleClassicResource &, VectorRenderer &) const;
 
-            void drawButton(Button &, StyleClassicResource &, VectorRenderer &) const;
+            void drawButton(const Button &, StyleClassicResource &, VectorRenderer &) const;
 
             void drawToggleButton(ToggleButton &, StyleClassicResource &, VectorRenderer &) const;
 

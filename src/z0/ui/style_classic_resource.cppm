@@ -13,28 +13,25 @@ import z0.Tools;
 
 import z0.ui.Resource;
 
-export namespace z0 {
+export namespace z0::ui {
 
-    namespace ui {
-
-        class StyleClassicResource : public Resource {
-        public:
-            enum Style {
-                FLAT,
-                RAISED,
-                LOWERED
-            };
-
-            Style   style{FLAT};
-            float   width{0};
-            float   height{0};
-            bool    customColor{false};
-            vec4    color{0.0f};
-
-            explicit StyleClassicResource(const string& RES);
-
-        private:
-            void splitResString(const string& RES);
+    class StyleClassicResource : public Resource {
+    public:
+        enum Style {
+            FLAT,
+            RAISED,
+            LOWERED
         };
-    }
+
+        Style   style{RAISED};
+        float   width{0};
+        float   height{0};
+        bool    customColor{false};
+        vec4    color{0.0f};
+
+        explicit StyleClassicResource(const string& RES);
+
+    private:
+        void splitResString(const string& RES);
+    };
 }
