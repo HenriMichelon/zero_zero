@@ -185,7 +185,7 @@ namespace z0::ui {
         focus        = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
         shadowDark   = extractColor("color_shadow_dark", 0.3f, 0.3f, 0.3f);
         shadowBright = extractColor("color_shadow_light", 0.94f, 0.94f, 0.94f);
-        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.5f);
+        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.25f);
         fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f, 0.5f);
         background   = extractColor("color_background", 0.75f, 0.75f, 0.90f, 0.25f);
         /*XXXX
