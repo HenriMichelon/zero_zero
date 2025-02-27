@@ -25,10 +25,11 @@ export namespace z0 {
                 LOWERED
             };
 
-            Style style{FLAT};
-            float width{0};
-            float height{0};
-            bool flat{false};
+            Style   style{FLAT};
+            float   width{0};
+            float   height{0};
+            bool    customColor{false};
+            vec4    color{0.0f};
 
             explicit StyleClassicResource(const string& RES);
 

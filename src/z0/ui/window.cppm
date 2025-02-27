@@ -75,7 +75,7 @@ export namespace z0::ui {
               \param resource	: resource string
               \param overlap    : overlap widget on top of other widgets
        */
-        inline Widget& add(const shared_ptr<Widget> &child,
+        inline auto add(const shared_ptr<Widget> &child,
                            const Widget::AlignmentType alignment,
                            const string & resource = "",
                            const bool overlap = false) const {

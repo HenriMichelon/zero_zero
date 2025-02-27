@@ -174,7 +174,7 @@ namespace z0::ui {
                 \param overlap : overlap widget on top of other widgets
 
         */
-        virtual Widget &add(shared_ptr<Widget> child,
+        virtual shared_ptr<Widget> add(shared_ptr<Widget> child,
                             AlignmentType alignment,
                             const string &resource = "",
                             bool overlap = false);

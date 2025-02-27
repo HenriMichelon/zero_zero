@@ -198,15 +198,14 @@ namespace z0::ui {
     }
 
     vec4 StyleClassic::extractColor(const string &OPT, const float R, const float G, const float B) const {
-        string opt = getOption(OPT);
+        const string opt = getOption(OPT);
         if (!opt.empty()) {
             const auto &rgb = split(opt, ',');
             if (rgb.size() == 3) {
                 return vec4({stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), 1.0f});
             }
             if (rgb.size() == 4) {
-                return vec4(
-                        vec4{stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), stof(string{rgb[3]})});
+                return vec4{stof(string{rgb[0]}), stof(string{rgb[1]}), stof(string{rgb[2]}), stof(string{rgb[3]})};
             }
         }
         return vec4({R, G, B, 1.0f});
@@ -274,58 +273,61 @@ namespace z0::ui {
         }
     }
 
-    void StyleClassic::drawLine(Line &W, StyleClassicResource &RES, VectorRenderer &D) const {
+    void StyleClassic::drawLine(Line &widget, StyleClassicResource &resource, VectorRenderer &renderer) const {
         vec4 c1, c2;
-        auto sb = shadowBright;
-        sb.a    = W.getTransparency();
-        auto sd = shadowDark;
-        sd.a    = W.getTransparency();
-        switch (RES.style) {
-        case StyleClassicResource::RAISED:
-            c1 = sd;
-            c2 = sb;
-            break;
-        case StyleClassicResource::LOWERED:
-            c1 = sb;
-            c2 = sd;
-            break;
-        default:
-            c1 = sd;
-            c2 = sd;
-            break;
+        if (resource.customColor) {
+            c1 = c2 = resource.color;
+        } else {
+            auto sb = shadowBright;
+            sb.a    = widget.getTransparency();
+            auto sd = shadowDark;
+            sd.a    = widget.getTransparency();
+            switch (resource.style) {
+            case StyleClassicResource::RAISED:
+                c1 = sd;
+                c2 = sb;
+                break;
+            case StyleClassicResource::LOWERED:
+                c1 = sb;
+                c2 = sd;
+                break;
+            default:
+                c1 = sd;
+                c2 = sd;
+                break;
+            }
         }
-        auto rect = W.getRect();
-        D.setPenColor(c1);
-        if (W.getStyle() == Line::HORIZ)
-            D.drawLine({rect.x, rect.y}, {rect.x + rect.width, rect.y});
-        else if (W.getStyle() == Line::VERT)
-            D.drawLine({rect.x, rect.y}, {rect.x, rect.y + rect.height});
-        D.setPenColor(c2);
-        if (W.getStyle() == Line::HORIZ)
-            D.drawLine({rect.x, rect.y + 1}, {rect.x + rect.width, rect.y + 1});
-        else if (W.getStyle() == Line::VERT)
-            D.drawLine({rect.x + 1, rect.y}, {rect.x + 1, rect.y + rect.height});
+        auto rect = widget.getRect();
+        renderer.setPenColor(c1);
+        if (widget.getStyle() == Line::HORIZ) {
+            renderer.drawLine({rect.x, rect.y}, {rect.x + rect.width, rect.y});
+        } else if (widget.getStyle() == Line::VERT) {
+            renderer.drawLine({rect.x, rect.y}, {rect.x, rect.y + rect.height});
+        }
+        if (c1 != c2) {
+            renderer.setPenColor(c2);
+            if (widget.getStyle() == Line::HORIZ) {
+                renderer.drawLine({rect.x, rect.y + 1}, {rect.x + rect.width, rect.y + 1});
+            } else if (widget.getStyle() == Line::VERT) {
+                renderer.drawLine({rect.x + 1, rect.y}, {rect.x + 1, rect.y + rect.height});
+            }
+        }
     }
 
     void StyleClassic::drawButton(Button &W, StyleClassicResource &RES, VectorRenderer &D) const {
         if (W.isPushed()) {
             RES.style = StyleClassicResource::LOWERED;
         } else {
-            if (RES.flat) {
-                if (W.isPointed()) {
-                    RES.style = StyleClassicResource::RAISED;
-                } else {
-                    RES.style = StyleClassicResource::FLAT;
-                }
-            } else {
+            if (W.isPointed()) {
                 RES.style = StyleClassicResource::RAISED;
+            } else {
+                RES.style = StyleClassicResource::FLAT;
             }
         }
         drawBox(W, RES, D);
     }
 
     void StyleClassic::drawToggleButton(ToggleButton &W, StyleClassicResource &RES, VectorRenderer &D) const {
-        W.setDrawBackground(!RES.flat);
         if (W.getState() == CheckWidget::CHECK) {
             RES.style = StyleClassicResource::LOWERED;
             W.setPushed(true);

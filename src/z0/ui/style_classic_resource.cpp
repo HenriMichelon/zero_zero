@@ -17,8 +17,8 @@ namespace z0 {
             splitResString(RES);
         }
 
-        void StyleClassicResource::splitResString(const string& RES) {
-            auto res = split(RES, ',');
+        void StyleClassicResource::splitResString(const string& resourceString) {
+            const auto res = split(resourceString, ',');
             if ((!res.empty()) && (!res[0].empty())) {
                 width = stof(string{res[0]});
             }
@@ -30,8 +30,9 @@ namespace z0 {
                 if (res[2] == "LOWERED") { style = LOWERED; }
                 if (res[2] == "FLAT") { style = FLAT; }
             }
-            if ((res.size() > 3) && (!res[3].empty())) {
-                flat = (res[3] == "FLAT");
+            if (res.size() > 3) {
+                color = vec4{stof(string{res[3]}), stof(string{res[4]}), stof(string{res[5]}), stof(string{res[6]})};
+                customColor = true;
             }
         }
 
