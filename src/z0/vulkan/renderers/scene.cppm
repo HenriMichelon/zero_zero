@@ -198,6 +198,8 @@ namespace z0 {
 
             // All materials used in the scene, used to update the buffer in GPU memory
             list<shared_ptr<Material>> materials;
+            // Rebuild the entier material buffer ?
+            bool materialsDirty{false};
             // Material reference counter
             map<Resource::id_t, uint32_t> materialsRefCounter;
             // Indices of each material & texture in the buffers

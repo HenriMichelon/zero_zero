@@ -131,18 +131,21 @@ namespace z0 {
     }
 
     void SceneRenderer::addMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
+        auto& frame = frameData[currentFrame];
         // Force material data to be written to GPU memory
         material->_setDirty();
-        frameData[currentFrame].materialsIndices[material->getId()] = static_cast<int32_t>(frameData[currentFrame].materials.size());
-        frameData[currentFrame].materials.push_back(material);
-        frameData[currentFrame].materialsRefCounter[material->getId()]++;
+        frame.materialsIndices[material->getId()] = static_cast<int32_t>(frame.materials.size());
+        frame.materials.push_back(material);
+        frame.materialsRefCounter[material->getId()]++;
+        DEBUG("SceneRenderer::addMaterial ", material->getName());
     }
 
     void SceneRenderer::removeMaterial(const shared_ptr<Material> &material, const uint32_t currentFrame) {
-        if (frameData[currentFrame].materialsRefCounter.contains(material->getId())) {
+        auto& frame = frameData[currentFrame];
+        if (frame.materialsRefCounter.contains(material->getId())) {
             // Check if we need to remove the material from the scene
-            if (--frameData[currentFrame].materialsRefCounter[material->getId()] == 0) {
-                frameData[currentFrame].materialsRefCounter.erase(material->getId());
+            if (--frame.materialsRefCounter[material->getId()] == 0) {
+                frame.materialsRefCounter.erase(material->getId());
                 // Try to remove the associated textures or shaders
                 if (const auto *standardMaterial = dynamic_cast<StandardMaterial *>(material.get())) {
                     if (standardMaterial->getAlbedoTexture().texture != nullptr)
@@ -156,21 +159,22 @@ namespace z0 {
                     if (standardMaterial->getEmissiveTexture().texture != nullptr)
                         removeImage(standardMaterial->getEmissiveTexture().texture->getImage(), currentFrame);
                 } else if (const auto *shaderMaterial = dynamic_cast<ShaderMaterial *>(material.get())) {
-                    const auto &shader = frameData[currentFrame].materialShaders[shaderMaterial->getFragFileName()];
+                    const auto &shader = frame.materialShaders[shaderMaterial->getFragFileName()];
                     if (shader->_decrementReferenceCounter()) {
-                        frameData[currentFrame].materialShaders.erase(shaderMaterial->getFragFileName());
+                        frame.materialShaders.erase(shaderMaterial->getFragFileName());
                     }
                 }
                 // Remove the material from the scene
-                frameData[currentFrame].materials.remove(material);
+                frame.materials.remove(material);
                 // Rebuild the material index
-                frameData[currentFrame].materialsIndices.clear();
+                frame.materialsIndices.clear();
                 uint32_t materialIndex = 0;
-                for (const auto &mat : frameData[currentFrame].materials) {
-                    frameData[currentFrame].materialsIndices[mat->getId()] = static_cast<int32_t>(materialIndex);
+                for (const auto &mat : frame.materials) {
+                    frame.materialsIndices[mat->getId()] = static_cast<int32_t>(materialIndex);
                     materialIndex += 1;
                 }
-
+                frame.materialsDirty = true;
+                DEBUG("SceneRenderer::removeMaterial ", material->getName());
             }
         }
     }
@@ -225,6 +229,7 @@ namespace z0 {
                 loadShadersMaterials(shaderMaterial, currentFrame);
             }
         }
+        DEBUG("SceneRenderer::addingModel ", meshInstance->getName());
     }
 
     void SceneRenderer::removingModel(const shared_ptr<MeshInstance>&meshInstance, const uint32_t currentFrame) {
@@ -234,6 +239,7 @@ namespace z0 {
         auto& frame = frameData[currentFrame];
         frame.opaquesModels.erase(meshInstance->getMesh()->getId());
         frame.transparentModels.erase(meshInstance->getMesh()->getId());
+        DEBUG("SceneRenderer::removingModel ", meshInstance->getName());
     }
 
     void SceneRenderer::loadShadersMaterials(const shared_ptr<ShaderMaterial>&material, const uint32_t currentFrame) {
@@ -383,7 +389,7 @@ namespace z0 {
         // Update in GPU memory only the materials modified since the last frame
         uint32_t materialIndex = 0;
         for (const auto& material : frame.materials) {
-            if (material->_isDirty()) {
+            if (frame.materialsDirty || material->_isDirty()) {
                 auto materialUBO = MaterialBuffer{
                     .transparency = static_cast<int>(material->getTransparency()),
                     .alphaScissor = material->getAlphaScissor()
@@ -424,6 +430,7 @@ namespace z0 {
             }
             materialIndex++;
         }
+        frame.materialsDirty = false;
     }
 
     void SceneRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
@@ -768,7 +775,7 @@ namespace z0 {
         }
         frameData[currentFrame].imagesIndices[vkImage->getId()] = static_cast<int32_t>(frameData[currentFrame].images.size());
         frameData[currentFrame].images.push_back(vkImage);
-        //log("Added image ", vkImage->getName(), to_string(vkImage->getWidth()), "x", to_string(vkImage->getHeight()));
+        DEBUG("SceneRenderer::addImage ", vkImage->getName(), to_string(vkImage->getWidth()), "x", to_string(vkImage->getHeight()));
     }
 
     void SceneRenderer::removeImage(const shared_ptr<Image> &image, const uint32_t currentFrame) {
@@ -785,6 +792,7 @@ namespace z0 {
                     imageIndex += 1;
                 }
             }
+            DEBUG("SceneRenderer::removeImage ", vkImage->getName(), to_string(vkImage->getWidth()), "x", to_string(vkImage->getHeight()));
         }
     }
 
