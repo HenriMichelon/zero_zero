@@ -82,6 +82,8 @@ export namespace z0 {
          */
         void play(const string &name = "");
 
+        void seek(float duration);
+
         /**
          * Starts an animation by its name, playing it backwards
          */
@@ -134,6 +136,8 @@ export namespace z0 {
         vector<float> currentTracksState;
         vector<float> lastTracksState;
         map<string, shared_ptr<AnimationLibrary>> libraries;
+
+        void apply(const Animation::TrackKeyValue&);
     };
 
 }

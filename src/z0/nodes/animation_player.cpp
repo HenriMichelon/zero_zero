@@ -16,6 +16,34 @@ import z0.Tools;
 
 namespace z0 {
 
+    void AnimationPlayer::seek(const float duration) {
+        const auto animation = getAnimation();
+        for (auto trackIndex = 0; trackIndex < animation->getTracksCount(); trackIndex++) {
+            const auto& value = animation->getInterpolatedValue(
+                       trackIndex,
+                       duration,
+                       false);
+            currentTracksState[trackIndex] = value.frameTime;
+            apply(value);
+        }
+    }
+
+    void AnimationPlayer::apply(const Animation::TrackKeyValue& value) {
+        switch (value.type) {
+        case AnimationType::TRANSLATION:
+            target->setPosition(value.value + initialPosition);
+            break;
+        case AnimationType::ROTATION:
+            target->setRotation(value.value + initialRotation);
+            break;
+        case AnimationType::SCALE:
+            target->setScale(value.value + initialScale);
+            break;
+        default:
+            die("Unknown animation type");
+        }
+    }
+
     void AnimationPlayer::_update(const float alpha) {
         Node::_update(alpha);
         if (starting) {
@@ -42,19 +70,7 @@ namespace z0 {
                     auto params = Playback{.animationName = currentAnimation};
                     emit(on_playback_finish, &params);
                 } else {
-                    switch (value.type) {
-                    case AnimationType::TRANSLATION:
-                        target->setPosition(value.value + initialPosition);
-                        break;
-                    case AnimationType::ROTATION:
-                        target->setRotation(value.value + initialRotation);
-                        break;
-                    case AnimationType::SCALE:
-                        target->setScale(value.value + initialScale);
-                        break;
-                    default:
-                        die("Unknown animation type");
-                    }
+                   apply(value);
                 }
             }
         }

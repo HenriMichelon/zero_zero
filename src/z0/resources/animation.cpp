@@ -24,11 +24,18 @@ namespace z0 {
         const auto& track = tracks[trackIndex];
         auto value = TrackKeyValue{
             .ended = (!track.enabled ||
-                    (loopMode == AnimationLoopMode::NONE && currentTimeFromStart > track.duration) ||
+                    (loopMode == AnimationLoopMode::NONE && currentTimeFromStart >= track.duration) ||
                     track.keyTime.size() < 2),
             .type = track.type,
         };
-        if (value.ended)  { return value; }
+        if (value.ended) {
+            if (reverse) {
+                value.value = track.keyValue[0];
+            } else {
+                value.value = track.keyValue[track.keyValue.size() - 1];
+            }
+            return value;
+        }
 
         const auto currentTime = fmod(currentTimeFromStart, static_cast<double>(track.duration));
         value.frameTime = static_cast<float>(currentTime);
