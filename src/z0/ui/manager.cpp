@@ -87,7 +87,7 @@ namespace z0 {
             }
         }
 
-        void Manager::add(const shared_ptr<Window> &window) {
+        shared_ptr<ui::Window> Manager::add(const shared_ptr<Window> &window) {
             assert(window->windowManager == nullptr);
             {
                 auto lock = lock_guard(windowsMutex);
@@ -97,6 +97,7 @@ namespace z0 {
             window->eventCreate();
             if (window->isVisible()) { window->eventShow(); }
             needRedraw = true;
+            return window;
         }
 
         void Manager::remove(const shared_ptr<Window>&window) {

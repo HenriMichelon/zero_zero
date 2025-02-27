@@ -261,10 +261,10 @@ namespace z0 {
         stopped = false;
     }
 
-    void Application::add(const shared_ptr<ui::Window> &window) const {
+    shared_ptr<ui::Window> Application::add(const shared_ptr<ui::Window> &window) {
         TRACE();
         assert(window != nullptr);
-        _instance->windowManager->add(window);
+        return _instance->windowManager->add(window);
     }
 
     void Application::remove(const shared_ptr<ui::Window> &window) const {

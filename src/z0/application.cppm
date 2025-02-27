@@ -53,7 +53,7 @@ namespace z0 {
          * Adds a GUI Window to the Window manager for display
          * @param window    The window to display, must not be already added to the window manager
          */
-        void add(const shared_ptr<ui::Window> &window) const;
+        static shared_ptr<ui::Window> add(const shared_ptr<ui::Window> &window);
 
         /**
          * Removes the Window from the Window manager

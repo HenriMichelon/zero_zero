@@ -30,7 +30,7 @@ export namespace z0 {
             /**
              * Adds a UI Window to the list of managed windows
              */
-            void add(const shared_ptr<Window>&);
+            shared_ptr<ui::Window> add(const shared_ptr<Window>&);
 
             /**
              * Removes a UI Window to the list of managed windows. The Window will be removed at the start of the next frame.
