@@ -112,6 +112,7 @@ namespace z0 {
     }
 
     bool Node::haveChild(const shared_ptr<Node> &child, const bool recursive) const {
+        if (!child) { return false;}
         if (recursive) {
             if (haveChild(child, false)) {
                 return true;

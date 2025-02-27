@@ -10,6 +10,7 @@ module;
 
 module z0.vulkan.SubmitQueue;
 
+import z0.Log;
 import z0.Tools;
 
 import z0.vulkan.Device;
@@ -106,6 +107,11 @@ namespace z0 {
         const auto&device = Device::get().getDevice();
         // log("queue start submit");
         {
+            if (vkWaitForFences(device, 1, &submitFence, VK_TRUE, 0) == VK_TIMEOUT) {
+                WARNING("SubmitQueue : skip submition ", command.location);
+                return;
+            }
+
             const auto lock_queue = lock_guard(getSubmitMutex());
             vkResetFences(device, 1, &submitFence);
             if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
@@ -113,7 +119,6 @@ namespace z0 {
             }
             // wait the commands to be completed before destroying command buffer
             vkQueueWaitIdle(graphicQueue);
-            vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX);
             const auto lock_commands = lock_guard(oneTimeMutex);
             oneTimeCommands.push_back(command);
             {

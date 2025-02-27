@@ -20,6 +20,16 @@ import z0.Window;
 export namespace z0 {
 
     /**
+     * Blender numeric suffix pattern for names
+     */
+    const regex numericSuffixPattern{R"(\.\d+$)"};
+
+    /**
+     * Removes the Blender numeric suffix from a string
+    */
+    inline auto removeNumericSuffix(const string& str) { return regex_replace(str, numericSuffixPattern, ""); }
+
+    /**
      * Violently stop the application, used if something goes wrong
      */
     void die(convertible_to<string_view> auto&& ...s) {
