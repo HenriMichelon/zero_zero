@@ -256,8 +256,8 @@ namespace z0::ui {
             default:
                 break;
             }
-            renderer.drawLine({l, b}, {l + w, b});
-            renderer.drawLine({l, b}, {l, b + h});
+            renderer.drawLine({l, b}, {l + w-1, b});
+            renderer.drawLine({l, b}, {l, b + h-1});
             switch (resources.style) {
             case StyleClassicResource::RAISED:
                 renderer.setPenColor(sb);
@@ -268,8 +268,8 @@ namespace z0::ui {
             default:
                 break;
             }
-            renderer.drawLine({l + w, b}, {l + w, b + h});
-            renderer.drawLine({l + w, b + h}, {l, b + h});
+            renderer.drawLine({l + w-1, b}, {l + w-1, b + h-1});
+            renderer.drawLine({l + w-1, b + h-1}, {l, b + h-1});
         }
     }
 
