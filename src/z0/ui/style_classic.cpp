@@ -13,16 +13,20 @@ import z0.ui.Image;
 
 namespace z0::ui {
 
-    bool StyleClassic::init() {
-        setOption("color_focus", "");
-        setOption("color_shadow_dark", "");
-        setOption("color_shadow_light", "");
-        setOption("color_foreground_up", "");
-        setOption("color_foreground_down", "");
-        setOption("color_background", "0.75,0.75,0.9");
-        setOption("color_textcolor", "0.0,0.0,0.0");
-        // setOption("texture", "vectorbg.png");
-        return true;
+    void StyleClassic::updateOptions() {
+        focus        = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
+        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.25f);
+        fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f, 0.5f);
+        background   = extractColor("color_background", 0.75f, 0.75f, 0.90f, 0.5f);
+        shadowDark   = vec4{clamp(vec3{background} / 1.5f, {0.0f}, {1.0f}), background.a};
+        shadowBright = vec4{clamp(vec3{background} * 1.5f, {0.0f}, {1.0f}), background.a};
+        /*XXXX
+        if (texture != nullptr) { delete texture; }
+        if (Option("texture").Len() > 0) {
+            DatatypePixmap dtype;
+            texture = new GTexture(dtype.Load(Option("texture")),
+                                   background);
+        }*/
     }
 
     void StyleClassic::draw(const Widget &widget, Resource &resources, VectorRenderer &renderer, const bool before) const {
@@ -179,22 +183,6 @@ namespace z0::ui {
         default:
             break;
         }
-    }
-
-    void StyleClassic::updateOptions() {
-        focus        = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
-        shadowDark   = extractColor("color_shadow_dark", 0.3f, 0.3f, 0.3f);
-        shadowBright = extractColor("color_shadow_light", 0.94f, 0.94f, 0.94f);
-        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.25f);
-        fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f, 0.5f);
-        background   = extractColor("color_background", 0.75f, 0.75f, 0.90f, 0.25f);
-        /*XXXX
-        if (texture != nullptr) { delete texture; }
-        if (Option("texture").Len() > 0) {
-            DatatypePixmap dtype;
-            texture = new GTexture(dtype.Load(Option("texture")),
-                                   background);
-        }*/
     }
 
     vec4 StyleClassic::extractColor(const string &OPT, const float R, const float G, const float B, const float A) const {

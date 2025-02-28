@@ -29,62 +29,60 @@ import z0.ui.Widget;
 
 import z0.vulkan.VectorRenderer;
 
-export namespace z0 {
+export namespace z0::ui {
 
-    namespace ui {
+    class Glayout;
 
-        class Glayout;
+    /**
+     * Classic vector style UI with 3D look
+     */
+    class StyleClassic : public Style {
+    public:
+        ~StyleClassic() override = default;
 
-        class StyleClassic : public Style {
-        public:
-            ~StyleClassic() override = default;
+        void draw(const Widget &widget, Resource &resources, VectorRenderer &renderer, bool before) const override;
 
-            bool init() override;
+        void addResource(Widget &widget, const string &resources) override;
 
-            void draw(const Widget &widget, Resource &resources, VectorRenderer &renderer, bool before) const override;
+        void resize(Widget &widget, Rect &rect, Resource &resources) override;
 
-            void addResource(Widget &widget, const string &resources) override;
+    private:
+        vec4 background{};
+        vec4 focus{};
+        vec4 shadowDark{};
+        vec4 shadowBright{};
+        vec4 fgUp{};
+        vec4 fgDown{};
+        // GTexture	*texture;
 
-            void resize(Widget &widget, Rect &rect, Resource &resources) override;
+        void updateOptions() override;
 
-        private:
-            vec4 background{};
-            vec4 focus{};
-            vec4 shadowDark{};
-            vec4 shadowBright{};
-            vec4 fgUp{};
-            vec4 fgDown{};
-            //GTexture	*texture;
+        [[nodiscard]] vec4 extractColor(const string &OPT, float R, float G, float B, float A = 1.0f) const;
 
-            void updateOptions() override;
+        void drawPanel(const Panel &, StyleClassicResource &, VectorRenderer &) const;
 
-            [[nodiscard]] vec4 extractColor(const string &OPT, float R, float G, float B, float A = 1.0f) const;
+        void drawBox(const Widget &, const StyleClassicResource &, VectorRenderer &) const;
 
-            void drawPanel(const Panel &, StyleClassicResource &, VectorRenderer &) const;
+        void drawLine(const Line &, const StyleClassicResource &, VectorRenderer &) const;
 
-            void drawBox(const Widget &, const StyleClassicResource &, VectorRenderer &) const;
+        void drawButton(const Button &, StyleClassicResource &, VectorRenderer &) const;
 
-            void drawLine(const Line &, const StyleClassicResource &, VectorRenderer &) const;
+        void drawToggleButton(ToggleButton &, StyleClassicResource &, VectorRenderer &) const;
 
-            void drawButton(const Button &, StyleClassicResource &, VectorRenderer &) const;
+        void drawText(Text &, StyleClassicResource &, VectorRenderer &) const;
 
-            void drawToggleButton(ToggleButton &, StyleClassicResource &, VectorRenderer &) const;
+        void drawFrame(Frame &, StyleClassicResource &, VectorRenderer &) const;
 
-            void drawText(Text &, StyleClassicResource &, VectorRenderer &) const;
+        /*void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
+        void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
+        void drawProgressBar(GProgressBar&, GLayoutVectorResource&, VectorRenderer&);
+        void drawSelection(GSelection&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTrackBar(GTrackBar&, GLayoutVectorResource&, VectorRenderer&);
+        void drawRoundButton(GRoundButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTabButton(GTabButton&, GLayoutVectorResource&, VectorRenderer&);
+        void drawTabs(GTabs&, GLayoutVectorResource&, VectorRenderer&);
+        void drawGridCell(GGridCell&, GLayoutVectorResource&, VectorRenderer&);*/
+    };
 
-            void drawFrame(Frame &, StyleClassicResource &, VectorRenderer &) const;
-
-            /*void drawArrow(GArrow&, GLayoutVectorResource&, VectorRenderer&);
-            void drawCheckmark(GCheckmark&, GLayoutVectorResource&, VectorRenderer&);
-            void drawTextEdit(GTextEdit&, GLayoutVectorResource&, VectorRenderer&);
-            void drawProgressBar(GProgressBar&, GLayoutVectorResource&, VectorRenderer&);
-            void drawSelection(GSelection&, GLayoutVectorResource&, VectorRenderer&);
-            void drawTrackBar(GTrackBar&, GLayoutVectorResource&, VectorRenderer&);
-            void drawRoundButton(GRoundButton&, GLayoutVectorResource&, VectorRenderer&);
-            void drawTabButton(GTabButton&, GLayoutVectorResource&, VectorRenderer&);
-            void drawTabs(GTabs&, GLayoutVectorResource&, VectorRenderer&);
-            void drawGridCell(GGridCell&, GLayoutVectorResource&, VectorRenderer&);*/
-        };
-
-    }
-}
+} // namespace z0::ui

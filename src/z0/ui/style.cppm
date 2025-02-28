@@ -23,7 +23,7 @@ namespace z0 {
 
     namespace ui {
         /**
-         * Widget drawing base class
+         * UI Widget drawing style base class
          */
         export class Style : public Object {
         public:
@@ -32,67 +32,64 @@ namespace z0 {
 
             ~Style() override = default;
 
-            /* Create a new layout.
-                  string	: layout name
-                   nullptr on error (unknown layout)
+            /**
+             * Creates a new UI drawing style renderer.
+             *     @param name	: style name
             */
-            [[nodiscard]] static shared_ptr<Style> create(const string & = "vector");
+            [[nodiscard]] static shared_ptr<Style> create(const string & name= "vector");
 
-            /* Create a resource from a resource description string.
-                  string : string that describe the resources of a widget
-                   NEVER return nullptr
+            /**
+             * Create a resource from a resources description string.
+             * @param widget : widget to ass resources string to
+             * @param resources : string that describe the resources of a widget
             */
-            virtual void addResource(Widget &, const string &) = 0;
+            virtual void addResource(Widget &widget, const string &resources) = 0;
 
-            /* Set a layout specific option
-                    string	: option name
-                    string	: value
+            /**
+             * Sets a style-specific option
             */
-            virtual void setOption(const string &, const string &);
+            virtual void setOption(const string &name, const string &value);
 
-            /* Read a layout specific option
-                    string	: option name
-                 option value
+            /**
+             * Returns a style-specific option value
             */
-            [[nodiscard]] string getOption(const string &) const;
+            [[nodiscard]] string getOption(const string &name) const;
 
-            /* Draw a widget.
-                  Widget	: widget to draw
-                  Resource : resources used for drawing this widget
-                  bool : TRUE = before drawing children, FALSE = after
+            /* Draws a widget.
+             * @param widget : widget to draw
+             * @param resources : resources used for drawing this widget
+             * @param when : `true` = before drawing children, `false` = after
             */
-            virtual void draw(const Widget &, Resource &, VectorRenderer &, bool) const = 0;
+            virtual void draw(const Widget &widget, Resource &resources, VectorRenderer &rendere, bool when) const = 0;
 
-            /* Resize a widget.
-                  Widget	: widget to draw
-                  Resource : resources used for resizing this widget
+            /**
+             * Adjusts a widget size to style specific constraints
             */
-            virtual void resize(Widget &, Rect &, Resource &) = 0;
+            virtual void resize(Widget &widget, Rect &rect, Resource &resources) = 0;
 
-            /* Return the default font for the layout.
-                  Font	: font to use for the layout
+            /**
+             * Returns the default font for the style.
              */
             [[nodiscard]] shared_ptr<Font> getFont() const { return font; }
 
         protected:
             shared_ptr<Font> font;
 
-            virtual bool init() = 0;
+            virtual void init() {}
 
             virtual void updateOptions() = 0;
 
         private:
-            class GLayoutOption {
+            class StyleOption {
             public:
                 string name;
                 string value;
-
-                explicit GLayoutOption(const string &N):
+                explicit StyleOption(const string &N):
                     name(std::move(N)) {
                 }
             };
 
-            list<shared_ptr<GLayoutOption>> options;
+            list<shared_ptr<StyleOption>> options;
         };
     }
 }

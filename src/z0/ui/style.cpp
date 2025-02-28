@@ -9,29 +9,29 @@ module;
 
 module z0.ui.Style;
 
+import z0.Tools;
+
 import z0.ui.StyleClassic;
 
 namespace z0::ui {
     Style::Style() { font = nullptr; }
 
-    shared_ptr<Style> Style::create(const string &NAME) {
-        shared_ptr<Style> tmp;
-        if (NAME == "vector") {
-            tmp = make_shared<StyleClassic>();
+    shared_ptr<Style> Style::create(const string &name) {
+        shared_ptr<Style> style;
+        if (name == "vector") {
+            style = make_shared<StyleClassic>();
         }
         /*else if (NAME == "pixmap") {
             tmp = (GLayout*) new GLayoutPixmap;
         }*/
-        if (tmp != nullptr) {
-            if (!tmp->init()) {
-                tmp = nullptr;
-            }
-        }
-        return tmp;
+        if (!style) { die("No style named ", name); }
+        style->init();
+        style->updateOptions();
+        return style;
     }
 
     void Style::setOption(const string &NAME, const string &VAL) {
-        shared_ptr<GLayoutOption> option;
+        shared_ptr<StyleOption> option;
         for (const auto &opt : options) {
             if (opt->name == NAME) {
                 option = opt;
@@ -39,7 +39,7 @@ namespace z0::ui {
             }
         }
         if (option == nullptr) {
-            option = make_shared<GLayoutOption>(NAME);
+            option = make_shared<StyleOption>(NAME);
             options.push_back(option);
         }
         option->value = VAL;
@@ -47,7 +47,7 @@ namespace z0::ui {
     }
 
     string Style::getOption(const string &NAME) const {
-        shared_ptr<GLayoutOption> option;
+        shared_ptr<StyleOption> option;
         for (const auto &opt : options) {
             if (opt->name == NAME) {
                 option = opt;
