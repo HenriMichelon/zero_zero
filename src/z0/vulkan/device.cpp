@@ -176,8 +176,6 @@ namespace z0 {
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
-        submitQueue = make_unique<SubmitQueue>(graphicsQueue);
-
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
         const VmaVulkanFunctions vulkanFunctions{
@@ -229,6 +227,7 @@ namespace z0 {
                 .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                 .flags = VK_FENCE_CREATE_SIGNALED_BIT
             };
+            vector<VkFence> inFlightFences;
             for (auto& data : framesData) {
                 if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &data.imageAvailableSemaphore) != VK_SUCCESS
                     ||
@@ -237,7 +236,10 @@ namespace z0 {
                     vkCreateFence(device, &fenceInfo, nullptr, &data.inFlightFence) != VK_SUCCESS) {
                     die("failed to create semaphores!");
                 }
+                inFlightFences.push_back(data.inFlightFence);
             }
+
+            submitQueue = make_unique<SubmitQueue>(graphicsQueue, inFlightFences);
         }
     }
 
@@ -283,11 +285,14 @@ namespace z0 {
         auto& data = framesData[currentFrame];
         // https://vulkan-tutorial.com/en/Drawing_a_triangle/Drawing/Rendering_and_presentation
         // wait until the GPU has finished rendering the frame.
-        if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, 1000000 * 25) == VK_TIMEOUT) {
-            WARNING("timeout waiting for inFlightFence");
-            return;
+        {
+            const auto lock = lock_guard(submitQueue->getSubmitMutex());
+            if (vkWaitForFences(device, 1, &data.inFlightFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
+                die("timeout waiting for inFlightFence");
+                // return;
+            }
+            vkResetFences(device, 1, &data.inFlightFence);
         }
-        vkResetFences(device, 1, &data.inFlightFence);
         {
             // get the next available swap chain image
             auto lock = lock_guard(swapChainMutex);
@@ -391,7 +396,7 @@ namespace z0 {
         // }
 
         {
-            const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
+            // const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
             // vkQueueWaitIdle(graphicsQueue);
             const VkSubmitInfo submitInfo{
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -409,7 +414,7 @@ namespace z0 {
             }
 
             {
-                auto lock_swapchain = lock_guard(swapChainMutex);
+                // auto lock_swapchain = lock_guard(swapChainMutex);
                 const VkSwapchainKHR   swapChains[] = {swapChain};
                 const VkPresentInfoKHR presentInfo{
                     .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,

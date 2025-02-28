@@ -20,13 +20,15 @@ import z0.vulkan.Image;
 
 namespace z0 {
 
-    shared_ptr<Image> Font::renderToImage(VkCommandPool commandPool, const string &text) {
+    shared_ptr<Image> Font::renderToImage(const string &text) {
+        if constexpr (isImageCacheEnabled()) {
+            if (imageCache.contains(text)) {
+                return imageCache[text];
+            }
+        }
         float width, height;
         auto  bitmap = renderToBitmap(text, width, height);
-        /*  auto name = str;
-         name.append(".png");
-         stbi_write_png(name.c_str(), width, height, STBI_rgb_alpha, bitmap.data(), width * STBI_rgb_alpha); */
-        return make_shared<VulkanImage>(Device::get(),
+        auto image = make_shared<VulkanImage>(Device::get(),
                                   text,
                                   static_cast<uint32_t>(width),
                                   static_cast<uint32_t>(height),
@@ -37,6 +39,10 @@ namespace z0 {
                                   VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
                                   VK_FILTER_LINEAR,
                                   true);
+        if constexpr (isImageCacheEnabled()) {
+            imageCache[text] = image;
+        }
+        return image;
     }
 
 }

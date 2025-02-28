@@ -120,7 +120,7 @@ namespace z0 {
                                   const float   w,
                                   const float   h, const float clip_w,
                                   const float   clip_h) {
-        drawFilledRect(x, y, w, h, clip_w, clip_h, font.renderToImage(commandPool, text));
+        drawFilledRect(x, y, w, h, clip_w, clip_h, font.renderToImage(text));
     }
 
     void VectorRenderer::beginDraw() {

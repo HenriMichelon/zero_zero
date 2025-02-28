@@ -23,7 +23,7 @@ export namespace z0 {
             VkCommandBuffer commandBuffer;
         };
 
-        explicit SubmitQueue(const VkQueue& graphicQueue);
+        explicit SubmitQueue(const VkQueue& graphicQueue, vector<VkFence> inFlightFence);
 
         void stop();
 
@@ -51,6 +51,7 @@ export namespace z0 {
         // To synchronize between main thread & submit thread
         mutex                   submitMutex;
         VkFence                 submitFence;
+        vector<VkFence>         inFlightFences;
 
         // The submission thread & locks
         thread                  queueThread;

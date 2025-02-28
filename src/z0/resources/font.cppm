@@ -51,7 +51,7 @@ export namespace z0 {
         */
         [[nodiscard]] vector<uint32_t> renderToBitmap(const string &text, float &wwidth, float &hheight);
 
-        [[nodiscard]] shared_ptr<Image> renderToImage(VkCommandPool commandPool, const string &text);
+        [[nodiscard]] shared_ptr<Image> renderToImage(const string &text);
 
         /**
          * Returns the font path. Useful to create another Font resource with a different size
@@ -64,7 +64,7 @@ export namespace z0 {
         [[nodiscard]] inline auto getFontSize() const { return size; }
 
     private:
-        // Already rendered characters
+        // Already rendered characters stored in cache
         struct CachedCharacter {
             int32_t                      advance;
             int32_t                      xBearing;
@@ -74,9 +74,15 @@ export namespace z0 {
             unique_ptr<vector<uint32_t>> bitmap;
         };
 
-        map<char, CachedCharacter> cache;
+        map<char, CachedCharacter> characterCache;
         const string               path;
         const uint32_t             size;
+
+        static constexpr bool ENABLE_IMAGE_CACHE = true;
+        static consteval bool isImageCacheEnabled() {
+            return ENABLE_IMAGE_CACHE;
+        }
+        map<string, shared_ptr<Image>> imageCache;
 
         [[nodiscard]] CachedCharacter &getFromCache(char c);
 

@@ -44,12 +44,12 @@ namespace z0 {
             max_height           = std::max(max_height, cchar.height);
             max_descender        = std::max(max_descender, descender);
         }
-        uint32_t height = max_height + max_descender;
+        const uint32_t height = max_height + max_descender;
 
         auto    bitmap = vector<uint32_t>(width * height, 0);
         int32_t x      = 0;
         for (const auto wc : text) {
-            auto &     cchar  = getFromCache(wc);
+            const auto &cchar  = getFromCache(wc);
             const auto offset = height - cchar.yBearing - max_descender;
             for (int line = 0; line < cchar.height; line++) {
                 const auto dest = bitmap.data() + (x + cchar.xBearing) + ((line + offset) * width);
@@ -67,10 +67,10 @@ namespace z0 {
     }
 
     Font::CachedCharacter &Font::getFromCache(const char c) {
-        if (cache.contains(c)) {
-            return cache[c];
+        if (characterCache.contains(c)) {
+            return characterCache[c];
         } else {
-            auto &cchar = cache[c];
+            auto &cchar = characterCache[c];
             render(cchar, c);
             return cchar;
         }
@@ -105,7 +105,7 @@ namespace z0 {
         scale = stbtt_ScaleForPixelHeight(&font, static_cast<float>(scaleFontSize(size)));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         height = static_cast<int>(ceilf((ascent - descent) * scale));
-        //log(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
+        //DEBUG(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
         ascent  = static_cast<int>(ascent * scale);
         descent = static_cast<int>(descent * scale);
     }
