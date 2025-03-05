@@ -180,11 +180,13 @@ export namespace z0 {
 
         // per-frame data
         struct FrameData {
-            VkSemaphore       imageAvailableSemaphore;
-            VkSemaphore       renderFinishedSemaphore;
-            VkFence           inFlightFence;
-            uint32_t          imageIndex;
-            unique_ptr<thread>renderThread;
+            VkSemaphore             imageAvailableSemaphore;
+            VkSemaphoreSubmitInfo   imageAvailableSemaphoreSubmitInfo;
+            VkSemaphore             renderFinishedSemaphore;
+            VkSemaphoreSubmitInfo   renderFinishedSemaphoreSubmitInfo;
+            VkFence                 inFlightFence;
+            uint32_t                imageIndex;
+            unique_ptr<thread>      renderThread;
         };
         vector<FrameData> framesData;
         // number of frames in flight

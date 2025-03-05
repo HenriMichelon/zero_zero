@@ -237,6 +237,20 @@ namespace z0 {
                     die("failed to create semaphores!");
                 }
                 inFlightFences.push_back(data.inFlightFence);
+                data.imageAvailableSemaphoreSubmitInfo = {
+                    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+                    .semaphore = data.imageAvailableSemaphore,
+                    .value = 1,
+                    .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
+                    .deviceIndex = 0
+                };
+                data.renderFinishedSemaphoreSubmitInfo = {
+                    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+                    .semaphore = data.renderFinishedSemaphore,
+                    .value = 1,
+                    .stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
+                    .deviceIndex = 0
+                };
             }
 
             submitQueue = make_unique<SubmitQueue>(graphicsQueue, inFlightFences);
@@ -320,15 +334,20 @@ namespace z0 {
 
         // List of command buffers to submit
         mutex commandBuffersMutex;
-        vector<VkCommandBuffer> commandBuffers;
-        commandBuffers.reserve(renderers.size());
+        vector<VkCommandBufferSubmitInfo> commandBufferSubmitInfo;
 
-        auto render = [this, &data, &commandBuffers, &commandBuffersMutex, currentFrame, lastRenderer](const shared_ptr<Renderer>& renderer) {
+        auto render = [this, &data, &commandBufferSubmitInfo, &commandBuffersMutex, currentFrame, lastRenderer](const shared_ptr<Renderer>& renderer) {
             renderer->update(currentFrame);
             const auto buffers = renderer->getCommandBuffers(currentFrame);
             {
                 auto lock = lock_guard(commandBuffersMutex);
-                commandBuffers.insert(commandBuffers.end(), buffers.begin(), buffers.end());
+                for (const auto& commandBuffer : buffers) {
+                    commandBufferSubmitInfo.push_back({
+                       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+                       .commandBuffer = commandBuffer,
+                       .deviceMask = 0
+                   });
+                }
             }
             constexpr VkCommandBufferBeginInfo beginInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -396,37 +415,15 @@ namespace z0 {
         // }
 
         {
-            const VkSemaphoreSubmitInfo semaphoreSubmitInfo {
-                .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-                .semaphore = data.imageAvailableSemaphore,
-                .value = 1,
-                .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
-                .deviceIndex = 0
-            };
-            vector<VkCommandBufferSubmitInfo> commandBufferSubmitInfo;
-            for (const auto& commandBuffer : commandBuffers) {
-                commandBufferSubmitInfo.push_back({
-                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
-                    .commandBuffer = commandBuffer,
-                    .deviceMask = 0
-                });
-            }
-            const VkSemaphoreSubmitInfo renderSemaphoreSubmitInfo {
-                .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-                .semaphore = data.renderFinishedSemaphore,
-                .value = 1,
-                .stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
-                .deviceIndex = 0
-            };
             const VkSubmitInfo2 submitInfo {
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
                 .pNext = nullptr,
                 .waitSemaphoreInfoCount = 1,
-                .pWaitSemaphoreInfos = &semaphoreSubmitInfo,
-                .commandBufferInfoCount = static_cast<uint32_t>(commandBuffers.size()),
+                .pWaitSemaphoreInfos = &data.imageAvailableSemaphoreSubmitInfo,
+                .commandBufferInfoCount = static_cast<uint32_t>(commandBufferSubmitInfo.size()),
                 .pCommandBufferInfos = commandBufferSubmitInfo.data(),
                 .signalSemaphoreInfoCount = 1,
-                .pSignalSemaphoreInfos = &renderSemaphoreSubmitInfo
+                .pSignalSemaphoreInfos = &data.renderFinishedSemaphoreSubmitInfo
             };
 
             if (vkQueueSubmit2(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
