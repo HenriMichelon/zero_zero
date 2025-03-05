@@ -396,23 +396,45 @@ namespace z0 {
         // }
 
         {
-            // const auto lock_queue = lock_guard(submitQueue->getSubmitMutex());
-            // vkQueueWaitIdle(graphicsQueue);
-            const VkSubmitInfo submitInfo{
-                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                .waitSemaphoreCount = 1,
-                .pWaitSemaphores = &data.imageAvailableSemaphore,
-                .pWaitDstStageMask = waitStages,
-                .commandBufferCount = static_cast<uint32_t>(commandBuffers.size()),
-                .pCommandBuffers = commandBuffers.data(),
-                .signalSemaphoreCount = 1,
-                .pSignalSemaphores =  &data.renderFinishedSemaphore
+            const VkSemaphoreSubmitInfo semaphoreSubmitInfo {
+                .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+                .semaphore = data.imageAvailableSemaphore,
+                .value = 1,
+                .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
+                .deviceIndex = 0
             };
-            if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
+            vector<VkCommandBufferSubmitInfo> commandBufferSubmitInfo;
+            for (const auto& commandBuffer : commandBuffers) {
+                commandBufferSubmitInfo.push_back({
+                    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+                    .commandBuffer = commandBuffer,
+                    .deviceMask = 0
+                });
+            }
+            const VkSemaphoreSubmitInfo renderSemaphoreSubmitInfo {
+                .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+                .semaphore = data.renderFinishedSemaphore,
+                .value = 1,
+                .stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
+                .deviceIndex = 0
+            };
+            const VkSubmitInfo2 submitInfo {
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+                .pNext = nullptr,
+                .waitSemaphoreInfoCount = 1,
+                .pWaitSemaphoreInfos = &semaphoreSubmitInfo,
+                .commandBufferInfoCount = static_cast<uint32_t>(commandBuffers.size()),
+                .pCommandBufferInfos = commandBufferSubmitInfo.data(),
+                .signalSemaphoreInfoCount = 1,
+                .pSignalSemaphoreInfos = &renderSemaphoreSubmitInfo
+            };
+
+            if (vkQueueSubmit2(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
                 ERROR("failed to submit draw command buffer!");
                 return;
             }
-
+        }
+        {
             {
                 // auto lock_swapchain = lock_guard(swapChainMutex);
                 const VkSwapchainKHR   swapChains[] = {swapChain};

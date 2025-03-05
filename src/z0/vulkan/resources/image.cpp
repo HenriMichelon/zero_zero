@@ -59,7 +59,7 @@ namespace z0 {
                const bool                 isArray) :
         Image(width, height, name),
         device{device} {
-        _LOG("VulkanImage uploading ", name);
+        DEBUG("VulkanImage uploading ", name);
         const auto command = device.beginOneTimeCommandBuffer();
         const auto& textureStagingBuffer = device.createOneTimeBuffer(
                 command,

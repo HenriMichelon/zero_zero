@@ -104,6 +104,7 @@ extern PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
 extern PFN_vkGetImageMemoryRequirements2 vkGetImageMemoryRequirements2;
 extern PFN_vkCmdPushConstants vkCmdPushConstants;
 extern PFN_vkQueueSubmit vkQueueSubmit;
+extern PFN_vkQueueSubmit2 vkQueueSubmit2;
 extern PFN_vkQueueWaitIdle vkQueueWaitIdle;
 extern PFN_vkResetCommandBuffer vkResetCommandBuffer;
 extern PFN_vkResetDescriptorPool vkResetDescriptorPool;

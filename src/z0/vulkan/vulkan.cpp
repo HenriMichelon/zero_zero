@@ -90,6 +90,7 @@ PFN_vkGetPhysicalDeviceProperties2 vkGetPhysicalDeviceProperties2;
 PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
 PFN_vkCmdPushConstants vkCmdPushConstants;
 PFN_vkQueueSubmit vkQueueSubmit;
+PFN_vkQueueSubmit2 vkQueueSubmit2;
 PFN_vkQueueWaitIdle vkQueueWaitIdle;
 PFN_vkResetCommandBuffer vkResetCommandBuffer;
 PFN_vkResetDescriptorPool vkResetDescriptorPool;
@@ -223,6 +224,7 @@ void vulkanInitializeDevice(VkDevice device) {
 	vkInvalidateMappedMemoryRanges = (PFN_vkInvalidateMappedMemoryRanges)vkGetDeviceProcAddr(device, "vkInvalidateMappedMemoryRanges");
 	vkMapMemory = (PFN_vkMapMemory)vkGetDeviceProcAddr(device, "vkMapMemory");
 	vkQueueSubmit = (PFN_vkQueueSubmit)vkGetDeviceProcAddr(device, "vkQueueSubmit");
+	vkQueueSubmit2 = (PFN_vkQueueSubmit2)vkGetDeviceProcAddr(device, "vkQueueSubmit2");
 	vkQueueWaitIdle = (PFN_vkQueueWaitIdle)vkGetDeviceProcAddr(device, "vkQueueWaitIdle");
 	vkResetCommandBuffer = (PFN_vkResetCommandBuffer)vkGetDeviceProcAddr(device, "vkResetCommandBuffer");
 	vkResetDescriptorPool = (PFN_vkResetDescriptorPool)vkGetDeviceProcAddr(device, "vkResetDescriptorPool");

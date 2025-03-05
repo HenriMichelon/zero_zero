@@ -191,8 +191,6 @@ export namespace z0 {
         const uint32_t    framesInFlight;
         // swap chain image blit parameters
         VkImageBlit       colorImageBlit{};
-        // wait stages for vkQueueSubmit
-        static constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         // Swap chain management
         VkSwapchainKHR         swapChain;
