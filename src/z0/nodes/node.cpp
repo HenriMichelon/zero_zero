@@ -198,6 +198,18 @@ namespace z0 {
         }
     }
 
+    void Node::rotateTowards(const glm::quat& targetRotation, const float maxAngle) {
+        const auto currentRotation = quat_cast(localTransform);
+        const auto newRotation = glm::slerp(currentRotation, targetRotation, glm::clamp(maxAngle, 0.0f, 1.0f));
+        localTransform = toMat4(newRotation);
+        _updateTransform();
+    }
+
+    void Node::rotate(const quat quaternion) {
+        localTransform = localTransform * toMat4(quaternion);
+        _updateTransform();
+    }
+
     void Node::rotateX(const float angle) {
         localTransform = glm::rotate(localTransform, angle, AXIS_X);
         _updateTransform();

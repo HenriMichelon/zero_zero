@@ -156,6 +156,9 @@ import z0.Tween;
          */
         [[nodiscard]] inline vec3 getPositionGlobal() const { return worldTransform[3]; }
 
+        void rotate(quat quaternion);
+        void rotateTowards(const quat& targetRotation, float maxAngle);
+
         /**
          * Rotates the local transformation around the X axis by angle in radians.
          */

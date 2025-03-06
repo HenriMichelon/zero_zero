@@ -41,6 +41,7 @@ namespace z0 {
         //DEBUG("queue on time command submit ", command.location);
         {
             const auto lock = lock_guard(getSubmitMutex());
+            // wait for the main thread to finish rendering all frames
             if (vkWaitForFences(device, inFlightFences.size(), inFlightFences.data(), VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
                 die("SubmitQueue : vkWaitForFences timeout ", command.location);
             }
@@ -48,7 +49,7 @@ namespace z0 {
             if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
                 die("failed to submit draw command buffer!");
             }
-            // wait the commands to be completed before destroying command buffer
+            // wait the commands to be completed before destroying the command buffer
             if (vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
                 die("SubmitQueue : vkWaitForFences timeout ", command.location);
             }

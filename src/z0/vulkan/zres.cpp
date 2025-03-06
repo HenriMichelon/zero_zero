@@ -41,7 +41,7 @@ namespace z0 {
             const auto bytesRead = stream.gcount();
             textureStagingBuffer.writeToBuffer(transferBuffer.data(), bytesRead, transferOffset);
             transferOffset += bytesRead;
-        };
+        }
         //printf("%llu bytes read\n", transferOffset);
 
         // Create all images from this staging buffer
