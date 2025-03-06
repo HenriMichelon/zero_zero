@@ -156,7 +156,14 @@ import z0.Tween;
          */
         [[nodiscard]] inline vec3 getPositionGlobal() const { return worldTransform[3]; }
 
+        /**
+         * Rotates the local transformation
+         */
         void rotate(quat quaternion);
+
+        /**
+         * Interpolate the local transformation
+         */
         void rotateTowards(const quat& targetRotation, float maxAngle);
 
         /**
