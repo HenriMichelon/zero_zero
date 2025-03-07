@@ -415,6 +415,7 @@ namespace z0 {
         // }
 
         {
+            const auto lock = lock_guard(submitQueue->getSubmitMutex());
             const VkSubmitInfo2 submitInfo {
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
                 .pNext = nullptr,
@@ -426,8 +427,9 @@ namespace z0 {
                 .pSignalSemaphoreInfos = &data.renderFinishedSemaphoreSubmitInfo
             };
 
-            if (vkQueueSubmit2(graphicsQueue, 1, &submitInfo, data.inFlightFence) != VK_SUCCESS) {
-                ERROR("failed to submit draw command buffer!");
+            const auto result = vkQueueSubmit2(graphicsQueue, 1, &submitInfo, data.inFlightFence);
+            if (result != VK_SUCCESS) {
+                ERROR("failed to submit draw command buffer : ", result);
                 return;
             }
         }

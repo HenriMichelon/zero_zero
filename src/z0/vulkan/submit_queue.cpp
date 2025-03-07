@@ -38,16 +38,17 @@ namespace z0 {
             .pCommandBuffers = &command.commandBuffer,
         };
         const auto&device = Device::get().getDevice();
-        //DEBUG("queue on time command submit ", command.location);
+        // _LOG("queue on time command submit ");
         {
-            const auto lock = lock_guard(getSubmitMutex());
             // wait for the main thread to finish rendering all frames
             if (vkWaitForFences(device, inFlightFences.size(), inFlightFences.data(), VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
                 die("SubmitQueue : vkWaitForFences timeout ", command.location);
             }
+            const auto lock = lock_guard(getSubmitMutex());
             vkResetFences(device, 1, &submitFence);
-            if (vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence) != VK_SUCCESS) {
-                die("failed to submit draw command buffer!");
+            const auto result = vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence);
+            if (result != VK_SUCCESS) {
+                die("failed to submit draw command buffer");
             }
             // wait the commands to be completed before destroying the command buffer
             if (vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
@@ -60,6 +61,7 @@ namespace z0 {
                 oneTimeBuffers.erase(command.commandBuffer);
             }
         }
+        // _LOG("end queue on time command submit ");
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
