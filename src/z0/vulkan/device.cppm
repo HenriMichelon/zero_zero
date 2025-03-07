@@ -172,7 +172,7 @@ export namespace z0 {
         VkQueue                     graphicsQueue;
         uint32_t                    graphicsQueueFamilyIndex;
         VkQueue                     transferQueue;
-        uint32_t                    transfertQueueFamilyIndex;
+        uint32_t                    transferQueueFamilyIndex;
         VkQueue                     computeQueue;
         uint32_t                    computeQueueFamilyIndex;
 

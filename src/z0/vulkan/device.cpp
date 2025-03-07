@@ -157,11 +157,11 @@ namespace z0 {
             queueCreateInfos.push_back(queueCreateInfo);
         }
         // Use a dedicated transfer queue for DMA transfers
-        transfertQueueFamilyIndex = findTransferQueueFamily();
+        transferQueueFamilyIndex = findTransferQueueFamily();
         {
             const VkDeviceQueueCreateInfo queueCreateInfo{
                 .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-                .queueFamilyIndex = transfertQueueFamilyIndex,
+                .queueFamilyIndex = transferQueueFamilyIndex,
                 .queueCount = 1,
                 .pQueuePriorities = queuePriority.data(),
             };
@@ -215,8 +215,8 @@ namespace z0 {
         vkGetDeviceQueue(device, presentQueueFamilyIndex, 0, &presentQueue);
         vkGetDeviceQueue(device, computeQueueFamilyIndex, 0, &computeQueue);
 
-        // Dedicated transfert queue used in a separate thread
-        vkGetDeviceQueue(device, transfertQueueFamilyIndex, 0, &transferQueue);
+        // Dedicated transfer queue used in a separate thread
+        vkGetDeviceQueue(device, transferQueueFamilyIndex, 0, &transferQueue);
         submitQueue = make_unique<SubmitQueue>(transferQueue);
 
         //////////////////// Create VMA allocator
@@ -1042,7 +1042,7 @@ namespace z0 {
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // TODO optional
-            .queueFamilyIndex = isForCompute ? computeQueueFamilyIndex : (isForTransfert ? transfertQueueFamilyIndex : graphicsQueueFamilyIndex)
+            .queueFamilyIndex = isForCompute ? computeQueueFamilyIndex : (isForTransfert ? transferQueueFamilyIndex : graphicsQueueFamilyIndex)
         };
         VkCommandPool cmdPool;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool) != VK_SUCCESS) {
