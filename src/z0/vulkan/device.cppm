@@ -71,6 +71,8 @@ export namespace z0 {
 
         [[nodiscard]] inline auto getFramesInFlight() const { return framesInFlight; }
 
+        [[nodiscard]] inline auto getGraphicsQueue() const { return graphicsQueue; }
+
         void drawFrame(uint32_t currentFrame);
 
         void wait() const;
@@ -124,7 +126,7 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandPool createCommandPool() const;
+        [[nodiscard]] VkCommandPool createCommandPool(bool isForTransfert = false) const;
 
         [[nodiscard]] inline auto beginOneTimeCommandBuffer(const source_location& location = source_location::current()) const  {
             return submitQueue->beginOneTimeCommand(location);
@@ -151,8 +153,6 @@ export namespace z0 {
         VkSurfaceKHR                surface;
         VkDevice                    device;
         VkPhysicalDevice            physicalDevice;
-        VkQueue                     graphicsQueue;
-        VkQueue                     presentQueue;
         VkPhysicalDeviceFeatures    deviceFeatures {};
         VkPhysicalDeviceProperties2 deviceProperties{
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
@@ -161,6 +161,14 @@ export namespace z0 {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
         };
         VkSampleCountFlagBits        samples;
+
+        // Command queues & families
+        VkQueue                     presentQueue;
+        uint32_t                    presentQueueFamilyIndex;
+        VkQueue                     graphicsQueue;
+        uint32_t                    graphicsQueueFamilyIndex;
+        VkQueue                     transferQueue;
+        uint32_t                    transfertQueueFamilyIndex;
 
         // Threaded queue to submit one time commands
         unique_ptr<SubmitQueue>      submitQueue;
@@ -227,9 +235,10 @@ export namespace z0 {
         struct QueueFamilyIndices {
             optional<uint32_t> graphicsFamily;
             optional<uint32_t> presentFamily;
+            optional<uint32_t> transfertFamily;
 
             bool isComplete() const {
-                return graphicsFamily.has_value() && presentFamily.has_value();
+                return graphicsFamily.has_value() && presentFamily.has_value() & transfertFamily.has_value();
             }
         };
 
@@ -252,6 +261,9 @@ export namespace z0 {
 
         // Get the supported queues families for a particular GPU
         [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
+
+        // Find a dedicated tranfer queue
+        [[nodiscard]] uint32_t findTransferQueueFamily() const;
 
         uint32_t getFirstGraphicQueueCount(VkPhysicalDevice physicalDevice) const;
 

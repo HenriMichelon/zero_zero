@@ -122,7 +122,7 @@ namespace z0 {
                                        VK_ACCESS_TRANSFER_WRITE_BIT,
                                        0,
                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                       VK_PIPELINE_STAGE_TRANSFER_BIT ,
                                        VK_IMAGE_ASPECT_COLOR_BIT,
                                        mipLevels);
         }
@@ -253,7 +253,7 @@ namespace z0 {
                                    VK_ACCESS_TRANSFER_WRITE_BIT,
                                    0,
                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                   VK_PIPELINE_STAGE_TRANSFER_BIT ,
                                    VK_IMAGE_ASPECT_COLOR_BIT,
                                    mipLevels);
         textureImageView = device.createImageView(textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
@@ -266,6 +266,9 @@ namespace z0 {
 
     VulkanImage::~VulkanImage() {
         DEBUG("~VulkanImage ", getName());
+        if (getName() == "Quit") {
+            DEBUG("HERE", getName());
+        }
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);
         if (textureImage != VK_NULL_HANDLE) { vkDestroyImage(device.getDevice(), textureImage, nullptr); }
@@ -369,10 +372,10 @@ namespace z0 {
             barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.newLayout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             vkCmdPipelineBarrier(commandBuffer.commandBuffer,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT ,
                                  0,
                                  0,
                                  nullptr,
@@ -390,11 +393,11 @@ namespace z0 {
         barrier.subresourceRange.baseMipLevel = mipLevels - 1;
         barrier.oldLayout                     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         barrier.newLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask                 = VK_ACCESS_SHADER_READ_BIT;
+        barrier.srcAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
+        barrier.dstAccessMask                 = VK_ACCESS_TRANSFER_READ_BIT;
         vkCmdPipelineBarrier(commandBuffer.commandBuffer,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT ,
                              0,
                              0,
                              nullptr,

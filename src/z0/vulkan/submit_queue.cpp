@@ -17,14 +17,13 @@ import z0.vulkan.Device;
 
 namespace z0 {
 
-    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue, vector<VkFence> inFlightFences) :
+    SubmitQueue::SubmitQueue(const VkQueue& graphicQueue) :
         mainThreadId{this_thread::get_id()},
-        graphicQueue{graphicQueue},
-        inFlightFences{inFlightFences},
+        transferQueue{graphicQueue},
         queueThread{&SubmitQueue::run, this} {
         constexpr VkFenceCreateInfo fenceInfo{
             .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-            .flags = VK_FENCE_CREATE_SIGNALED_BIT
+            .flags = 0
         };
         const auto& device = Device::get().getDevice();
         vkCreateFence(device, &fenceInfo, nullptr, &submitFence);
@@ -38,15 +37,10 @@ namespace z0 {
             .pCommandBuffers = &command.commandBuffer,
         };
         const auto&device = Device::get().getDevice();
-        // _LOG("queue on time command submit ");
+        DEBUG("queue on time command submit");
         {
-            // wait for the main thread to finish rendering all frames
-            if (vkWaitForFences(device, inFlightFences.size(), inFlightFences.data(), VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
-                die("SubmitQueue : vkWaitForFences timeout ", command.location);
-            }
             const auto lock = lock_guard(getSubmitMutex());
-            vkResetFences(device, 1, &submitFence);
-            const auto result = vkQueueSubmit(graphicQueue, 1, &vkSubmitInfo, submitFence);
+            const auto result = vkQueueSubmit(transferQueue, 1, &vkSubmitInfo, submitFence);
             if (result != VK_SUCCESS) {
                 die("failed to submit draw command buffer");
             }
@@ -54,6 +48,7 @@ namespace z0 {
             if (vkWaitForFences(device, 1, &submitFence, VK_TRUE, UINT64_MAX) == VK_TIMEOUT) {
                 die("SubmitQueue : vkWaitForFences timeout ", command.location);
             }
+            vkResetFences(device, 1, &submitFence);
             const auto lock_commands = lock_guard(oneTimeMutex);
             oneTimeCommands.push_back(command);
             {
@@ -61,7 +56,6 @@ namespace z0 {
                 oneTimeBuffers.erase(command.commandBuffer);
             }
         }
-        // _LOG("end queue on time command submit ");
     }
 
     Buffer& SubmitQueue::createOneTimeBuffer(
@@ -70,6 +64,7 @@ namespace z0 {
             uint32_t           instanceCount,
             VkBufferUsageFlags usageFlags,
             VkDeviceSize       minOffsetAlignment) {
+        // DEBUG("SubmitQueue::createOneTimeBuffer ", oneTimeCommand.location);
         auto lock = lock_guard(oneTimeBuffersMutex);
         oneTimeBuffers[oneTimeCommand.commandBuffer].emplace_back(instanceSize, instanceCount, usageFlags, minOffsetAlignment);
         return oneTimeBuffers[oneTimeCommand.commandBuffer].back();
@@ -79,18 +74,18 @@ namespace z0 {
         auto lock = lock_guard(oneTimeMutex);
         if (oneTimeCommands.empty()) {
             const auto& device = Device::get();
-            const auto commandPool = device.createCommandPool();
+            const auto commandPool = device.createCommandPool(true);
             const VkCommandBufferAllocateInfo allocInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 .commandPool = commandPool,
                 .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                .commandBufferCount = 1
+                .commandBufferCount = 1,
             };
             VkCommandBuffer commandBuffer;
             vkAllocateCommandBuffers(device.getDevice(), &allocInfo, &commandBuffer);
             constexpr VkCommandBufferBeginInfo beginInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+                .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
             };
             vkBeginCommandBuffer(commandBuffer, &beginInfo);
             stringstream ss;

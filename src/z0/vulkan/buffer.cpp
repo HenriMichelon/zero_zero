@@ -16,6 +16,7 @@ module;
 
 module z0.vulkan.Buffer;
 
+import z0.Log;
 import z0.Tools;
 
 import z0.vulkan.Device;
@@ -53,12 +54,11 @@ namespace z0 {
                             nullptr) != VK_SUCCESS) {
             die("failed to create buffer!");
         }
-        // buffers.push_back(buffer);
+        DEBUG("Created Buffer ", instanceSize , "*", instanceCount, " : ", to_hexstring(buffer));
     }
 
     Buffer::~Buffer() {
-        // log(to_string(buffers.size()) + " buffers remaining.");
-        // buffers.remove(buffer);
+        DEBUG("Destroy Buffer : ", to_hexstring(buffer));
         if (mapped) {
             vmaUnmapMemory(allocator, allocation);
             mapped = nullptr;

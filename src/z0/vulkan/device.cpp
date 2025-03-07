@@ -118,31 +118,63 @@ namespace z0 {
         }
 
         //////////////////// Create Vulkan device
-        // Find a graphical command queue and a presentation command queue
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Physical_devices_and_queue_families#page_Queue-families
+
+        /// Select command queues
         vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         constexpr auto queuePriority = array{1.0f};
-        // constexpr auto queuePriority = array{1.0f,1.0f};
-        // const auto graphicsQueueCount = getFirstGraphicQueueCount(physicalDevice);
-        auto indices = findQueueFamilies(physicalDevice);
+        const auto indices = findQueueFamilies(physicalDevice);
+        // Use a graphical command queue
+        graphicsQueueFamilyIndex = indices.graphicsFamily.value();
         {
-            const auto uniqueQueueFamilies = set{indices.graphicsFamily.value(), indices.presentFamily.value()};
-            for (auto queueFamily : uniqueQueueFamilies) {
-                const VkDeviceQueueCreateInfo queueCreateInfo{
-                    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-                    .queueFamilyIndex = queueFamily,
-                    .queueCount = 1,
-                    .pQueuePriorities = queuePriority.data(),
-                };
-                queueCreateInfos.push_back(queueCreateInfo);
-            }
+            const VkDeviceQueueCreateInfo queueCreateInfo{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = graphicsQueueFamilyIndex,
+                .queueCount = 1,
+                .pQueuePriorities = queuePriority.data(),
+            };
+            queueCreateInfos.push_back(queueCreateInfo);
         }
+        // Use a presentation command queue if different from the graphical queue
+        presentQueueFamilyIndex = indices.presentFamily.value();
+        if (presentQueueFamilyIndex != graphicsQueueFamilyIndex) {
+            const VkDeviceQueueCreateInfo queueCreateInfo{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = presentQueueFamilyIndex,
+                .queueCount = 1,
+                .pQueuePriorities = queuePriority.data(),
+            };
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+        // Use a dedicated tranfer queue for DMA transferts
+        transfertQueueFamilyIndex = findTransferQueueFamily();
+        {
+            const VkDeviceQueueCreateInfo queueCreateInfo{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = transfertQueueFamilyIndex,
+                .queueCount = 1,
+                .pQueuePriorities = queuePriority.data(),
+            };
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+
         // Initialize device extensions and create a logical device
         {
+            VkPhysicalDeviceSynchronization2FeaturesKHR sync2Features{
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+                .synchronization2 = VK_TRUE
+            };
+            VkPhysicalDeviceFeatures2 deviceFeatures2 {
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+                .pNext = &sync2Features,
+                .features = {
+                    .samplerAnisotropy = VK_TRUE
+                }
+            };
+
             // https://docs.vulkan.org/samples/latest/samples/extensions/shader_object/README.html
             VkPhysicalDeviceShaderObjectFeaturesEXT deviceShaderObjectFeatures{
                 .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT,
-                .pNext = VK_NULL_HANDLE,
+                .pNext = &deviceFeatures2,
                 .shaderObject = VK_TRUE,
             };
             // https://lesleylai.info/en/vk-khr-dynamic-rendering/
@@ -150,9 +182,6 @@ namespace z0 {
                 .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
                 .pNext = &deviceShaderObjectFeatures,
                 .dynamicRendering = VK_TRUE,
-            };
-            constexpr VkPhysicalDeviceFeatures deviceFeatures{
-                .samplerAnisotropy = VK_TRUE
             };
             const VkDeviceCreateInfo createInfo{
                 .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -163,7 +192,7 @@ namespace z0 {
                 .ppEnabledLayerNames = requestedLayers.data(),
                 .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
                 .ppEnabledExtensionNames = deviceExtensions.data(),
-                .pEnabledFeatures = &deviceFeatures,
+                .pEnabledFeatures = VK_NULL_HANDLE,
             };
             if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
                 die("Failed to create logical device!");
@@ -172,9 +201,13 @@ namespace z0 {
         }
 
         // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
-        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+        vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
         // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
-        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+        vkGetDeviceQueue(device, presentQueueFamilyIndex, 0, &presentQueue);
+
+        // Dedicated transfert queue used in a separate thread
+        vkGetDeviceQueue(device, transfertQueueFamilyIndex, 0, &transferQueue);
+        submitQueue = make_unique<SubmitQueue>(transferQueue);
 
         //////////////////// Create VMA allocator
         // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
@@ -252,8 +285,6 @@ namespace z0 {
                     .deviceIndex = 0
                 };
             }
-
-            submitQueue = make_unique<SubmitQueue>(graphicsQueue, inFlightFences);
         }
     }
 
@@ -345,14 +376,11 @@ namespace z0 {
                     commandBufferSubmitInfo.push_back({
                        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
                        .commandBuffer = commandBuffer,
-                       .deviceMask = 0
                    });
                 }
             }
             constexpr VkCommandBufferBeginInfo beginInfo{
                 .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                .flags = 0,
-                .pInheritanceInfo = nullptr
             };
             for (const auto& commandBuffer : buffers) {
                 vkResetCommandBuffer(commandBuffer, 0);
@@ -415,10 +443,8 @@ namespace z0 {
         // }
 
         {
-            const auto lock = lock_guard(submitQueue->getSubmitMutex());
             const VkSubmitInfo2 submitInfo {
                 .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-                .pNext = nullptr,
                 .waitSemaphoreInfoCount = 1,
                 .pWaitSemaphoreInfos = &data.imageAvailableSemaphoreSubmitInfo,
                 .commandBufferInfoCount = static_cast<uint32_t>(commandBufferSubmitInfo.size()),
@@ -884,6 +910,9 @@ namespace z0 {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.graphicsFamily = i;
             }
+            if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+                indices.transfertFamily = i;
+            }
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, surface, &presentSupport);
             if (presentSupport) {
@@ -895,6 +924,24 @@ namespace z0 {
             i++;
         }
         return indices;
+    }
+
+    uint32_t Device::findTransferQueueFamily() const {
+        uint32_t           queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+        vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+        uint32_t i = 0;
+        for (const auto &queueFamily : queueFamilies) {
+            if ((queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) &&
+                (!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) &&
+                (!(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))) {
+                return i;
+            }
+            i++;
+        }
+        die("Could not find dedicated transfer queue family");
+        return i;
     }
 
     VkSampleCountFlagBits Device::getMaxUsableMSAASampleCount() const {
@@ -934,12 +981,11 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-    VkCommandPool Device::createCommandPool() const {
-        const auto queueFamilyIndices = findQueueFamilies(physicalDevice);
+    VkCommandPool Device::createCommandPool(const bool isForTransfert) const {
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // TODO optional
-            .queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
+            .queueFamilyIndex = isForTransfert ? transfertQueueFamilyIndex : graphicsQueueFamilyIndex
         };
         VkCommandPool cmdPool;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool) != VK_SUCCESS) {

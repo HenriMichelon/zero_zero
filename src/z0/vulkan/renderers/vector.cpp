@@ -161,6 +161,7 @@ namespace z0 {
             stagingBuffer->copyTo(commandBuffer.commandBuffer, *(vertexBuffer), vertexBufferSize);
             device.endOneTimeCommandBuffer(commandBuffer);
         }
+        vkQueueWaitIdle(device.getGraphicsQueue());
         ranges::for_each(frameData, [&](FrameData& frame) {
             frame.commands = commands;
         });

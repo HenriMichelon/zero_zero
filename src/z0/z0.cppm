@@ -55,6 +55,7 @@ export import z0.resources.StaticCompoundShape;
 export import z0.resources.SubShape;
 export import z0.resources.Texture;
 
+export import z0.ui.Box;
 export import z0.ui.Button;
 export import z0.ui.Event;
 export import z0.ui.Frame;
