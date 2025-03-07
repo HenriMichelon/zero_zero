@@ -126,13 +126,17 @@ export namespace z0 {
                                                               VkImageTiling           tiling,
                                                               VkFormatFeatureFlags    features) const;
 
-        [[nodiscard]] VkCommandPool createCommandPool(bool isForTransfert = false) const;
+        [[nodiscard]] VkCommandPool createCommandPool(bool isForTransfert = false, bool isForCompute = false) const;
 
         [[nodiscard]] inline auto beginOneTimeCommandBuffer(const source_location& location = source_location::current()) const  {
             return submitQueue->beginOneTimeCommand(location);
         }
 
         void endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& commandBuffer, bool immediate = false) const;
+
+        [[nodiscard]] VkCommandBuffer beginComputeCommandBuffer(VkCommandPool cmdPool) const;
+
+        void endComputeCommandBuffer(VkCommandPool cmdPool, VkCommandBuffer commandBuffer) const;
 
         inline auto& createOneTimeBuffer(
            const SubmitQueue::OneTimeCommand& oneTimeCommand,
@@ -169,6 +173,8 @@ export namespace z0 {
         uint32_t                    graphicsQueueFamilyIndex;
         VkQueue                     transferQueue;
         uint32_t                    transfertQueueFamilyIndex;
+        VkQueue                     computeQueue;
+        uint32_t                    computeQueueFamilyIndex;
 
         // Threaded queue to submit one time commands
         unique_ptr<SubmitQueue>      submitQueue;
@@ -235,10 +241,14 @@ export namespace z0 {
         struct QueueFamilyIndices {
             optional<uint32_t> graphicsFamily;
             optional<uint32_t> presentFamily;
-            optional<uint32_t> transfertFamily;
+            optional<uint32_t> transferFamily;
+            optional<uint32_t> computeFamily;
 
             bool isComplete() const {
-                return graphicsFamily.has_value() && presentFamily.has_value() & transfertFamily.has_value();
+                return graphicsFamily.has_value() &&
+                        presentFamily.has_value() &&
+                        transferFamily.has_value() &&
+                        computeFamily.has_value();
             }
         };
 
@@ -262,8 +272,11 @@ export namespace z0 {
         // Get the supported queues families for a particular GPU
         [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice vkPhysicalDevice) const;
 
-        // Find a dedicated tranfer queue
+        // Find a dedicated transfer queue
         [[nodiscard]] uint32_t findTransferQueueFamily() const;
+
+        // Find a dedicated compute & transfer queue
+        [[nodiscard]] uint32_t findComputeQueueFamily() const;
 
         uint32_t getFirstGraphicQueueCount(VkPhysicalDevice physicalDevice) const;
 

@@ -145,7 +145,18 @@ namespace z0 {
             };
             queueCreateInfos.push_back(queueCreateInfo);
         }
-        // Use a dedicated tranfer queue for DMA transferts
+        // Use a compute command queue if different from the graphical queue
+        computeQueueFamilyIndex = findComputeQueueFamily();
+        if (computeQueueFamilyIndex != graphicsQueueFamilyIndex) {
+            const VkDeviceQueueCreateInfo queueCreateInfo{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = computeQueueFamilyIndex,
+                .queueCount = 1,
+                .pQueuePriorities = queuePriority.data(),
+            };
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
+        // Use a dedicated transfer queue for DMA transfers
         transfertQueueFamilyIndex = findTransferQueueFamily();
         {
             const VkDeviceQueueCreateInfo queueCreateInfo{
@@ -200,10 +211,9 @@ namespace z0 {
             vulkanInitializeDevice(device);
         }
 
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Logical_device_and_queues#page_Retrieving-queue-handles
         vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
-        // https://vulkan-tutorial.com/Drawing_a_triangle/Presentation/Window_surface#page_Creating-the-presentation-queue
         vkGetDeviceQueue(device, presentQueueFamilyIndex, 0, &presentQueue);
+        vkGetDeviceQueue(device, computeQueueFamilyIndex, 0, &computeQueue);
 
         // Dedicated transfert queue used in a separate thread
         vkGetDeviceQueue(device, transfertQueueFamilyIndex, 0, &transferQueue);
@@ -649,12 +659,38 @@ namespace z0 {
         return candidates.at(0);
     }
 
-    // SubmitQueue::OneTimeCommand Device::beginOneTimeCommandBuffer() const {
-    //     return submitQueue->beginOneTimeCommand();
-    // }
-
     void Device::endOneTimeCommandBuffer(const SubmitQueue::OneTimeCommand& command, const bool immediate) const {
         submitQueue->endOneTimeCommand(command, immediate);
+    }
+
+    VkCommandBuffer Device::beginComputeCommandBuffer(VkCommandPool cmdPool) const {
+        const VkCommandBufferAllocateInfo allocInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .commandPool = cmdPool,
+            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            .commandBufferCount = 1
+        };
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+        constexpr VkCommandBufferBeginInfo beginInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+        };
+        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        return commandBuffer;
+    }
+
+    void Device::endComputeCommandBuffer(VkCommandPool cmdPool, VkCommandBuffer commandBuffer) const {
+        vkEndCommandBuffer(commandBuffer);
+        const VkSubmitInfo submitInfo{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffer
+        };
+        vkQueueSubmit(computeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(computeQueue);
+        vkFreeCommandBuffers(device, cmdPool, 1, &commandBuffer);
     }
 
     void Device::createSwapChain() {
@@ -911,7 +947,10 @@ namespace z0 {
                 indices.graphicsFamily = i;
             }
             if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) {
-                indices.transfertFamily = i;
+                indices.transferFamily = i;
+            }
+            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                indices.computeFamily = i;
             }
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, surface, &presentSupport);
@@ -937,10 +976,28 @@ namespace z0 {
                 (!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) &&
                 (!(queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))) {
                 return i;
-            }
+                }
             i++;
         }
         die("Could not find dedicated transfer queue family");
+        return i;
+    }
+
+    uint32_t Device::findComputeQueueFamily() const {
+        uint32_t           queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+        vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+        uint32_t i = 0;
+        for (const auto &queueFamily : queueFamilies) {
+            if ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) &&
+                (!(queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)) &&
+                (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT)) {
+                return i;
+                }
+            i++;
+        }
+        die("Could not find dedicated compute queue family");
         return i;
     }
 
@@ -981,11 +1038,11 @@ namespace z0 {
     }
 
     // https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Command_buffers#page_Command-pools
-    VkCommandPool Device::createCommandPool(const bool isForTransfert) const {
+    VkCommandPool Device::createCommandPool(const bool isForTransfert, const bool isForCompute) const {
         const VkCommandPoolCreateInfo poolInfo           = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // TODO optional
-            .queueFamilyIndex = isForTransfert ? transfertQueueFamilyIndex : graphicsQueueFamilyIndex
+            .queueFamilyIndex = isForCompute ? computeQueueFamilyIndex : (isForTransfert ? transfertQueueFamilyIndex : graphicsQueueFamilyIndex)
         };
         VkCommandPool cmdPool;
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool) != VK_SUCCESS) {

@@ -70,6 +70,7 @@ PFN_vkEndCommandBuffer vkEndCommandBuffer;
 PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
 PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties;
 PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
+PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
 PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
 PFN_vkFreeMemory vkFreeMemory;
 PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
@@ -216,6 +217,7 @@ void vulkanInitializeDevice(VkDevice device) {
 	vkDeviceWaitIdle = (PFN_vkDeviceWaitIdle)vkGetDeviceProcAddr(device, "vkDeviceWaitIdle");
 	vkEndCommandBuffer = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(device, "vkEndCommandBuffer");
 	vkFlushMappedMemoryRanges = (PFN_vkFlushMappedMemoryRanges)vkGetDeviceProcAddr(device, "vkFlushMappedMemoryRanges");
+	vkFreeCommandBuffers = (PFN_vkFreeCommandBuffers)vkGetDeviceProcAddr(device, "vkFreeCommandBuffers");
 	vkFreeDescriptorSets = (PFN_vkFreeDescriptorSets)vkGetDeviceProcAddr(device, "vkFreeDescriptorSets");
 	vkFreeMemory = (PFN_vkFreeMemory)vkGetDeviceProcAddr(device, "vkFreeMemory");
 	vkGetBufferMemoryRequirements = (PFN_vkGetBufferMemoryRequirements)vkGetDeviceProcAddr(device, "vkGetBufferMemoryRequirements");

@@ -74,6 +74,7 @@ namespace z0 {
                               const shared_ptr<VulkanCubemap>&  irradianceCubemap,
                               const shared_ptr<VulkanImage>&    brdfLut) const {
 
+        const auto commandPool = device.createCommandPool(false, true);
         {
             const auto shaderModule1 = createShaderModule( VirtualFS::loadShader("equirect2cube.comp"));
             const auto pipeline1 = createPipeline(shaderModule1);
@@ -89,8 +90,7 @@ namespace z0 {
                 .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo1)
                 .update(descriptorSet1);
 
-            const auto command = device.beginOneTimeCommandBuffer();
-            const auto commandBuffer = command.commandBuffer;
+            const auto commandBuffer = device.beginComputeCommandBuffer(commandPool);
             pipelineBarrier(commandBuffer,
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 {
@@ -110,13 +110,12 @@ namespace z0 {
                                VK_ACCESS_SHADER_WRITE_BIT, 0,
                                VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endComputeCommandBuffer(commandPool, commandBuffer);
             vkDestroyPipeline(device.getDevice(), pipeline1, nullptr);
         }
 
         {
-            const auto command = device.beginOneTimeCommandBuffer();
-            const auto commandBuffer = command.commandBuffer;
+            const auto commandBuffer = device.beginComputeCommandBuffer(commandPool);
             const auto shaderModule2 = createShaderModule(VirtualFS::loadShader("specular_map.comp"));
             const auto pipeline2 = createPipeline(shaderModule2, &specializationInfo);
             // Copy base mipmap level into destination environment map.
@@ -205,7 +204,7 @@ namespace z0 {
                         VK_ACCESS_SHADER_WRITE_BIT, 0,
                         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endComputeCommandBuffer(commandPool, commandBuffer);
             for (const VkImageView mipTailView : envTextureMipTailViews) {
                 vkDestroyImageView(device.getDevice(), mipTailView, nullptr);
             }
@@ -227,8 +226,7 @@ namespace z0 {
                 .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo3)
                 .update(descriptorSet3);
 
-            const auto command = device.beginOneTimeCommandBuffer();
-            const auto commandBuffer = command.commandBuffer;
+            const auto commandBuffer = device.beginComputeCommandBuffer(commandPool);
 
             // Compute diffuse irradiance cubemap
             pipelineBarrier(commandBuffer,
@@ -255,7 +253,7 @@ namespace z0 {
                        VK_ACCESS_SHADER_WRITE_BIT, 0,
                        VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endComputeCommandBuffer(commandPool, commandBuffer);
             vkDestroyPipeline(device.getDevice(), pipeline3, nullptr);
         }
 
@@ -273,8 +271,7 @@ namespace z0 {
                 .writeImage(BINDING_OUTPUT_TEXTURE, &outputInfo4)
                 .update(descriptorSet4);
 
-            const auto command = device.beginOneTimeCommandBuffer();
-            const auto commandBuffer = command.commandBuffer;
+            const auto commandBuffer = device.beginComputeCommandBuffer(commandPool);
 
             // Compute Cook-Torrance BRDF 2D LUT for split-sum approximation.
             pipelineBarrier(commandBuffer,
@@ -300,9 +297,10 @@ namespace z0 {
                        VK_ACCESS_SHADER_WRITE_BIT, 0,
                        VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             });
-            device.endOneTimeCommandBuffer(command, true);
+            device.endComputeCommandBuffer(commandPool, commandBuffer);
             vkDestroyPipeline(device.getDevice(), pipeline4, nullptr);
         }
+        vkDestroyCommandPool(device.getDevice(), commandPool, VK_NULL_HANDLE);
 
     }
 } // namespace z0
