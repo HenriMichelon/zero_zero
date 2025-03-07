@@ -11,13 +11,14 @@ module z0.ui.Text;
 
 import z0.Application;
 
+import z0.ui.Window;
+
 namespace z0 {
     namespace ui {
 
         Text::Text(string C): Widget(TEXT), text(std::move(C)) {
             allowChildren = false;
             drawBackground = false;
-            textColor = vec4{0.0f, 0.0f, 0.0f, 1.0f};
         }
 
         void Text::setText(const string& C) {
@@ -62,6 +63,9 @@ namespace z0 {
         }
 
         void Text::eventCreate()  {
+            if (textColor == vec4{0.0f}) {
+                textColor = static_cast<Window*>(window)->getDefaultTextColor();
+            }
             getSize(rect.width, rect.height);
             Widget::eventCreate();
         }

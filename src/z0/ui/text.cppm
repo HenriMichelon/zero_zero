@@ -46,7 +46,7 @@ export namespace z0 {
 
         private:
             string text;
-            vec4   textColor;
+            vec4   textColor{0.0f};
 
             /* void computeSize();*/
             void eventCreate() override;

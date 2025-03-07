@@ -75,10 +75,11 @@ export namespace z0::ui {
               \param resource	: resource string
               \param overlap    : overlap widget on top of other widgets
        */
-        inline auto add(const shared_ptr<Widget> &child,
-                           const Widget::AlignmentType alignment,
-                           const string & resource = "",
-                           const bool overlap = false) const {
+        template<typename T>
+        auto add(const shared_ptr<T> &child,
+                        const Widget::AlignmentType alignment,
+                        const string & resource = "",
+                        const bool overlap = false) const {
             return getWidget().add(child, alignment, resource, overlap);
         }
 
@@ -217,6 +218,10 @@ export namespace z0::ui {
          */
         [[nodiscard]] Font& getDefaultFont() const;
 
+        inline auto& getDefaultTextColor() const { return defaultTextColor; }
+
+        inline auto setDefaultTextColor(const vec4 color) { return defaultTextColor = color; }
+
         void refresh() const;
 
         void eventCreate();
@@ -262,6 +267,7 @@ export namespace z0::ui {
         shared_ptr<Widget>  widget{nullptr};
         Widget *            focusedWidget{nullptr};
         float               transparency{1.0};
+        vec4                defaultTextColor{0.0f, 0.0f, 0.0f, 1.0f};
         uint32_t            resizeableBorders{RESIZEABLE_NONE};
 
         void unFreeze(const shared_ptr<Widget> &);

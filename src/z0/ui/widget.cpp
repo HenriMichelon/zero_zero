@@ -215,15 +215,6 @@ namespace z0::ui {
         refresh();
     }
 
-    shared_ptr<Widget> Widget::add(const shared_ptr<Widget> child, const AlignmentType alignement,
-                                   const string &resource, bool overlap) {
-        assert(window && "Widget must be added to a Window before adding child");
-        if (!allowChildren) { return child; }
-        children.push_back(child);
-        _init(*child, alignement, resource, overlap);
-        return child;
-    }
-
     void Widget::eventCreate() {
         auto event = Event{.source = this};
         emit(Event::OnCreate, &event);

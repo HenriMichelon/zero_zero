@@ -174,10 +174,17 @@ namespace z0::ui {
                 \param overlap : overlap widget on top of other widgets
 
         */
-        virtual shared_ptr<Widget> add(shared_ptr<Widget> child,
-                            AlignmentType alignment,
+        template<typename T>
+        shared_ptr<T> add(shared_ptr<T> child,
+                            const AlignmentType alignment,
                             const string &resource = "",
-                            bool overlap = false);
+                            const bool overlap = false) {
+            assert(window && "Widget must be added to a Window before adding child");
+            if (!allowChildren) { return child; }
+            children.push_back(child);
+            _init(*child, alignment, resource, overlap);
+            return child;
+        }
 
         /** Removes a child widget */
         virtual void remove(const shared_ptr<Widget> &child);
