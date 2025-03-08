@@ -5,13 +5,13 @@
  * https://opensource.org/licenses/MIT
 */
 module;
-#include <stb_image.h>
 #include <stb_truetype.h>
 #include "z0/libraries.h"
 
 module z0.resources.Font;
 
 import z0.Application;
+import z0.Log;
 import z0.Tools;
 import z0.VirtualFS;
 
@@ -77,13 +77,13 @@ namespace z0 {
     }
 
     uint32_t Font::scaleFontSize(const uint32_t baseFontSize) const {
-        constexpr int baseWidth               = 1920;
-        constexpr int baseHeight              = 1080;
-        const auto    newHeight               = app().getWindow().getHeight();
-        const auto    newWidth                = app().getWindow().getWidth();
-        const auto    horizontalScalingFactor = static_cast<float>(newWidth) / baseWidth;
-        const auto    verticalScalingFactor   = static_cast<float>(newHeight) / baseHeight;
-        const auto    averageScalingFactor    = (horizontalScalingFactor + verticalScalingFactor) / 2.0f;
+        constexpr int baseWidth  = 1920;
+        constexpr int baseHeight = 1080;
+        const auto    newHeight = app().getWindow().getHeight();
+        const auto    newWidth  = app().getWindow().getWidth();
+        const auto    horizontalScalingFactor= static_cast<float>(newWidth) / baseWidth;
+        const auto    verticalScalingFactor  = static_cast<float>(newHeight) / baseHeight;
+        const auto    averageScalingFactor   = (horizontalScalingFactor + verticalScalingFactor) / 2.0f;
         return static_cast<uint32_t>(ceil(static_cast<uint32_t>(baseFontSize * averageScalingFactor)));
     }
 
@@ -97,7 +97,7 @@ namespace z0 {
         path{name},
         size{size} {
         ifstream fontFile = VirtualFS::openReadStream(path);
-        fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator<char>(fontFile)),
+        fontBuffer = make_unique<vector<unsigned char>>((istreambuf_iterator(fontFile)),
                                                         istreambuf_iterator<char>());
         if (!stbtt_InitFont(&font, fontBuffer->data(), stbtt_GetFontOffsetForIndex(fontBuffer->data(), 0))) {
             die("Failed to initialize font", path);
@@ -105,22 +105,10 @@ namespace z0 {
         scale = stbtt_ScaleForPixelHeight(&font, static_cast<float>(scaleFontSize(size)));
         stbtt_GetFontVMetrics(&font, &ascent, &descent, &lineGap);
         height = static_cast<int>(ceilf((ascent - descent) * scale));
-        //DEBUG(to_string(size), "->", to_string(scaleFontSize(size)), "=", to_string(height));
+        DEBUG("Font size : ", size, "->", scaleFontSize(size), "=", height);
         ascent  = static_cast<int>(ascent * scale);
         descent = static_cast<int>(descent * scale);
     }
-
-    /*  void savePPM(const char* filename, const unsigned char* bitmap, int width, int height) {
-         std::ofstream ofs(filename, std::ios::binary);
-         ofs << "P6\n" << width << " " << height << "\n255\n";
-         for (int y = 0; y < height; ++y) {
-             for (int x = 0; x < width; ++x) {
-                 unsigned char pixel = bitmap[y * width + x];
-                 ofs << pixel << pixel << pixel; // Writing RGB components (all the same for grayscale)
-             }
-         }
-         ofs.close();
-     } */
 
     void Font::render(CachedCharacter &cachedCharacter, const char c) const {
         int advanceWidth, leftSideBearing;
@@ -128,7 +116,7 @@ namespace z0 {
         cachedCharacter.advance  = static_cast<int32_t>(advanceWidth * scale);
         cachedCharacter.xBearing = static_cast<int32_t>(leftSideBearing * scale);
 
-        int        width, height;
+        int width, height;
         const auto srcBitmap     = stbtt_GetCodepointBitmap(&font, 0, scale, c, &width, &height, 0, 0);
         cachedCharacter.width    = width;
         cachedCharacter.height   = this->height;
@@ -142,7 +130,7 @@ namespace z0 {
         const auto dstBitmap = cachedCharacter.bitmap->data();
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                uint8_t gray = srcBitmap[y * width + x];
+                const uint8_t gray = srcBitmap[y * width + x];
                 if (gray != 0) {
                     dstBitmap[(y + yOffset) * cachedCharacter.width + x] = (gray << 24) | (gray << 16) | (gray << 8)
                             |
@@ -150,10 +138,6 @@ namespace z0 {
                 };
             }
         }
-        /* string name = "f_";
-        name += c;
-        name += ".ppm";
-        savePPM( name.c_str(), srcBitmap, width, height); */
         stbtt_FreeBitmap(srcBitmap, nullptr);
     }
 
