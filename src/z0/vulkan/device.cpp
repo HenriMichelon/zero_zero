@@ -83,6 +83,7 @@ namespace z0 {
             VK_EXT_SHADER_OBJECT_EXTENSION_NAME,
             // for Vulkan Memory Allocator
             VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+            VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME,
 #ifndef NDEBUG
             // To debugPrintEXT() from shaders :-)
             // See shader_debug_env.cmd for setup with environment variables
@@ -170,15 +171,22 @@ namespace z0 {
 
         // Initialize device extensions and create a logical device
         {
+            VkPhysicalDeviceLineRasterizationFeaturesEXT lineRasterizationFeatures{
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT,
+                .rectangularLines = VK_TRUE,
+                // .smoothLines = VK_TRUE,
+            };
             VkPhysicalDeviceSynchronization2FeaturesKHR sync2Features{
                 .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+                .pNext = &lineRasterizationFeatures,
                 .synchronization2 = VK_TRUE
             };
             VkPhysicalDeviceFeatures2 deviceFeatures2 {
                 .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
                 .pNext = &sync2Features,
                 .features = {
-                    .samplerAnisotropy = VK_TRUE
+                    // .fillModeNonSolid = VK_TRUE,
+                    .samplerAnisotropy = VK_TRUE,
                 }
             };
 

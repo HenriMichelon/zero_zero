@@ -61,7 +61,7 @@ export namespace z0 {
         /**
          * Returns the 2D coordinates in the rendering Window that maps to the given 3D point in world space.
          */
-        [[nodiscard]] vec2 unproject(vec3 worldCoords);
+        // [[nodiscard]] vec2 unproject(vec3 worldCoords);
 
         /**
          * Returns the camera near clipping distance

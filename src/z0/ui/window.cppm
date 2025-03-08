@@ -261,8 +261,8 @@ export namespace z0::ui {
         Rect                rect;
         float               minWidth{2.0f};
         float               minHeight{2.0f};
-        float               maxWidth{VECTOR_SCALE.x};
-        float               maxHeight{VECTOR_SCALE.y};
+        float               maxWidth;
+        float               maxHeight;
         shared_ptr<Style>   layout{nullptr};
         shared_ptr<Widget>  widget{nullptr};
         Widget *            focusedWidget{nullptr};

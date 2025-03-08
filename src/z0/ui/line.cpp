@@ -8,21 +8,16 @@ module;
 
 module z0.ui.Line;
 
-namespace z0 {
+namespace z0::ui {
 
-    namespace ui {
+    Line::Line(const LineStyle K) : Widget{LINE}, style{K} { allowChildren = false; }
 
-        Line::Line(const LineStyle K): Widget{LINE}, style{K} {
-            allowChildren = false;
+    void Line::setStyle(const LineStyle K) {
+        if (style != K) {
+            style = K;
+            resizeChildren();
+            refresh();
         }
-
-        void Line::setStyle(const LineStyle K) {
-            if (style != K) {
-                style = K;
-                resizeChildren();
-                refresh();
-            }
-        }
-
     }
-}
+
+} // namespace z0::ui

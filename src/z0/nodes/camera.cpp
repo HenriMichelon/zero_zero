@@ -66,14 +66,14 @@ namespace z0 {
         projectionMatrix[3][2] = -(far * near) / (far - near);
     }
 
-    vec2 Camera::unproject(const vec3 worldCoords) {
-        const vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
-        const vec3 ndcCoords  = vec3(clipCoords) / clipCoords.w;
-        return {
-                (VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
-                VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)
-        };
-    }
+    // vec2 Camera::unproject(const vec3 worldCoords) {
+    //     const vec4 clipCoords = getProjection() * getView() * vec4(worldCoords, 1.0f);
+    //     const vec3 ndcCoords  = vec3(clipCoords) / clipCoords.w;
+    //     return {
+    //             (VECTOR_SCALE.x * (ndcCoords.x + 1.0f) / 2.0f),
+    //             VECTOR_SCALE.y - (VECTOR_SCALE.y * (ndcCoords.y + 1.0f) / 2.0f)
+    //     };
+    // }
 
     void Camera::updateViewMatrix() {
         const auto  rotationQuaternion = toQuat(mat3(worldTransform));

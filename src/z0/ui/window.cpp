@@ -25,7 +25,11 @@ import z0.vulkan.VectorRenderer;
 
 namespace z0::ui {
 
-    Window::Window(const Rect& rect): rect{rect} {}
+    Window::Window(const Rect& rect):
+        rect{rect},
+        maxWidth{Application::get().getVectorExtent().x},
+        maxHeight{Application::get().getVectorExtent().y} {
+    }
 
     void Window::draw() const {
         if (!isVisible()) { return; }
@@ -93,6 +97,10 @@ namespace z0::ui {
     }
 
     void Window::eventCreate() {
+        if (rect == ui::FULLSCREEN) {
+            rect.width = maxWidth;
+            rect.height = maxHeight;
+        }
         setWidget();
         onCreate();
         emit(Event::OnCreate);
@@ -222,13 +230,13 @@ namespace z0::ui {
         eventResize();
     }
 
-    void Window::setHeight(const float h) {
-        rect.height = std::min(std::max(h, minHeight), maxHeight);
+    void Window::setHeight(const float height) {
+        rect.height = std::min(std::max(height, minHeight), maxHeight);
         eventResize();
     }
 
-    void Window::setWidth(const float w) {
-        rect.width = std::min(std::max(w, minWidth), maxWidth);
+    void Window::setWidth(const float width) {
+        rect.width = std::min(std::max(width, minWidth), maxWidth);
         eventResize();
     }
 

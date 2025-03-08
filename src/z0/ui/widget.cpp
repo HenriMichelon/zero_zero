@@ -74,15 +74,12 @@ namespace z0::ui {
     }
 
     void Widget::setPos(const float x, const float y) {
-        if ((x == rect.x) && (y == rect.y))
-            return;
+        if ((x == rect.x) && (y == rect.y)) { return; }
         eventMove(x, y);
     }
 
     void Widget::setSize(const float width, const float height) {
-        if (parent) {
-            parent->refresh();
-        }
+        if (parent) { parent->refresh(); }
         defaultRect.width  = width;
         defaultRect.height = height;
         rect.width  = width;
@@ -288,11 +285,8 @@ namespace z0::ui {
     }
 
     void Widget::eventResize() {
-        if (freeze)
-            return;
-        if (parent) {
-            parent->resizeChildren();
-        }
+        if (freeze) { return; }
+        if (parent) { parent->resizeChildren(); }
         resizeChildren();
         freeze = true;
         refresh();
@@ -307,12 +301,10 @@ namespace z0::ui {
         Rect r = getRect();
         static_cast<Style *>(style)->resize(*this, r, *resource);
 
-        const auto xpadding = padding / app().getAspectRatio();
-
         Rect clientRect = rect;
-        clientRect.x += hborder + xpadding;
-        if (clientRect.width > (2 * hborder + 2 * xpadding)) {
-            clientRect.width -= 2 * hborder + 2 * xpadding;
+        clientRect.x += hborder + padding;
+        if (clientRect.width > (2 * hborder + 2 * padding)) {
+            clientRect.width -= 2 * hborder + 2 * padding;
         } else {
             clientRect.width = 0;
         }
@@ -381,16 +373,16 @@ namespace z0::ui {
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y;
                 if (!child->overlap) {
-                    clientRect.x += (childRect.width);
+                    clientRect.x += childRect.width + 1;
                     childRect.height = clientRect.height;
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case TOP:
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
                 if (!child->overlap) {
-                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding) - 1));
                     childRect.width   = clientRect.width;
                 }
                 break;
@@ -399,7 +391,7 @@ namespace z0::ui {
                 childRect.y = clientRect.y;
                 if (!child->overlap) {
                     childRect.height = clientRect.height;
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case BOTTOMCENTER:
@@ -414,22 +406,22 @@ namespace z0::ui {
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
                 childRect.x = clientRect.x + (clientRect.width - childRect.width) / 2;
                 if (!child->overlap) {
-                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, clientRect.height - (childRect.height + 2 * padding) - 1);
                 }
                 break;
             case LEFTCENTER:
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                 if (!child->overlap) {
-                    clientRect.x += (childRect.width) + padding;
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.x += (childRect.width) + padding + 1;
+                    clientRect.width = std::max(0.0f, clientRect.width - (childRect.width + 2 * padding) - 1);
                 }
                 break;
             case RIGHTCENTER:
                 childRect.x = clientRect.x + (clientRect.width - childRect.width);
                 childRect.y = clientRect.y + (clientRect.height - childRect.height) / 2;
                 if (!child->overlap) {
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.width = std::max(0.0f, clientRect.width - (childRect.width + 2 * padding) - 1);
                 }
                 break;
             case BOTTOMLEFT:
@@ -444,14 +436,14 @@ namespace z0::ui {
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
                 if (!child->overlap) {
-                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding) - 1));
                 }
                 break;
             case TOPRIGHT:
                 childRect.x = clientRect.x + (clientRect.width - childRect.width);
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
                 if (!child->overlap) {
-                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding)));
+                    clientRect.height = std::max(0.0f, (clientRect.height - (childRect.height + 2 * padding) - 1));
                 }
                 break;
             case BOTTOMRIGHT:
@@ -466,30 +458,30 @@ namespace z0::ui {
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y;
                 if (!child->overlap) {
-                    clientRect.x += (childRect.width) + padding;
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.x += childRect.width + padding + 1;
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case LEFTTOP:
                 childRect.x = clientRect.x;
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
-                clientRect.x += (childRect.width) + padding;
                 if (!child->overlap) {
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.x += childRect.width + padding + 1;
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case RIGHTTOP:
                 childRect.x = clientRect.x + (clientRect.width - childRect.width);
                 childRect.y = clientRect.y + (clientRect.height - childRect.height);
                 if (!child->overlap) {
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case RIGHTBOTTOM:
                 childRect.y = clientRect.y;
                 childRect.x = clientRect.x + (clientRect.width - childRect.width);
                 if (!child->overlap) {
-                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * xpadding)));
+                    clientRect.width = std::max(0.0f, (clientRect.width - (childRect.width + 2 * padding) - 1));
                 }
                 break;
             case CORNERBOTTOMLEFT:

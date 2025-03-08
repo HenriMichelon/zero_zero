@@ -93,14 +93,6 @@ export namespace z0 {
     constexpr mat3 TRANSFORM_BASIS{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
     /**
-    * 2D vector drawing default coordinates system scale.
-    * Coordinates of the vector screen are [ 0.0, 0.0 ], [ 1000.0, 1000 ]
-    */
-    constexpr vec2 VECTOR_SCALE{1000.0f};
-
-    constexpr vec2 VECTOR_SIZE{1001.0f};
-
-    /**
      * Nodes state when the scene is paused or running
      */
     enum class ProcessMode : uint8_t {

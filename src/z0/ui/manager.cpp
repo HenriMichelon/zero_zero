@@ -130,13 +130,13 @@ namespace z0 {
 #endif
                 auto &mouseEvent = dynamic_cast<InputEventMouse&>(inputEvent);
                 const auto& wnd = app().getWindow();
-                const auto scaleX = VECTOR_SCALE.x / static_cast<float>(wnd.getWidth());
-                const auto scaleY = VECTOR_SCALE.y / static_cast<float>(wnd.getHeight());
+                const auto scaleX = app().getVectorExtent().x / static_cast<float>(wnd.getWidth());
+                const auto scaleY = app().getVectorExtent().y / static_cast<float>(wnd.getHeight());
                 const auto x = mouseEvent.getX() * scaleX;
                 const auto y = mouseEvent.getY() * scaleY;
 
                 if (inputEvent.getType() == InputEventType::MOUSE_MOTION) {
-                    auto resizeDeltaY = scaleY * resizeDelta;
+                    const auto resizeDeltaY = scaleY * resizeDelta;
                     if (resizedWindow != nullptr) {
                         if (resizingWindow) {
                             Rect rect = resizedWindow->getRect();

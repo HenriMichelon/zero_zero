@@ -89,7 +89,6 @@ namespace z0 {
         vector<const char *> instanceExtensions{};
         // Abstract native platform surface or window objects for use with Vulkan.
         instanceExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        // instanceExtensions.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
 #ifdef _WIN32
         // Provides a mechanism to create a VkSurfaceKHR object (defined by the VK_KHR_surface extension)
         // that refers to a Win32 HWND

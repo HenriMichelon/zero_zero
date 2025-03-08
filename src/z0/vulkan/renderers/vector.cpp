@@ -10,6 +10,7 @@ module;
 
 module z0.vulkan.VectorRenderer;
 
+import z0.Application;
 import z0.Constants;
 import z0.Tools;
 
@@ -50,8 +51,8 @@ namespace z0 {
     }
 
     void VectorRenderer::drawLine(const vec2 start, const vec2 end) {
-        const auto scaled_start = (start + translate) / VECTOR_SCALE;
-        const auto scaled_end   = (end + translate) / VECTOR_SCALE;
+        const auto scaled_start = (start + translate) / Application::get().getVectorExtent();
+        const auto scaled_end   = (end + translate) / Application::get().getVectorExtent();
         const auto color = vec4{vec3{penColor}, glm::max(0.0f, penColor.a - transparency)};
         vertices.emplace_back(scaled_start);
         vertices.emplace_back(scaled_end);
@@ -82,8 +83,8 @@ namespace z0 {
                                         const float              w, const float      h,
                                         const float              clip_w, const float clip_h,
                                         const shared_ptr<Image> &texture) {
-        const auto pos  = (vec2{x, y} + translate) / VECTOR_SCALE;
-        const vec2 size = vec2{w - 1.0f, h - 1.0f} / VECTOR_SCALE;
+        const auto pos  = (vec2{x, y} + translate) / Application::get().getVectorExtent();
+        const vec2 size = vec2{w, h} / Application::get().getVectorExtent();
         /*
          * v1 ---- v3
          * |  \     |
@@ -185,8 +186,17 @@ namespace z0 {
         constexpr VkBool32 color_blend_enables[] = {VK_TRUE};
         vkCmdSetColorBlendEnableEXT(commandBuffer, 0, 1, color_blend_enables);
         vkCmdSetAlphaToCoverageEnableEXT(commandBuffer, VK_FALSE);
+        constexpr VkColorBlendEquationEXT colorBlendEquation{
+            .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+            .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+            .colorBlendOp = VK_BLEND_OP_ADD,
+            .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+            .dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+            .alphaBlendOp = VK_BLEND_OP_ADD,
+        };
+        vkCmdSetColorBlendEquationEXT(commandBuffer, 0, 1, &colorBlendEquation);
 
-        vkCmdSetLineWidth(commandBuffer, 1); // Some GPU don't support other values, but we need to set them for VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+        vkCmdSetLineWidth(commandBuffer, 1);
         vkCmdSetVertexInputEXT(commandBuffer,
                                1,
                                &bindingDescription,
@@ -194,6 +204,7 @@ namespace z0 {
                                attributeDescriptions.data());
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_FRONT_BIT);
         vkCmdSetPrimitiveTopology(commandBuffer,VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+        vkCmdSetLineRasterizationModeEXT(commandBuffer, VK_LINE_RASTERIZATION_MODE_RECTANGULAR);
 
         const VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         constexpr VkDeviceSize vertexOffsets[] = {0};

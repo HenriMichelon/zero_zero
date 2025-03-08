@@ -15,11 +15,12 @@ namespace z0::ui {
 
     void StyleClassic::updateOptions() {
         focus        = extractColor("color_focus", 0.1f, 0.1f, 0.1f);
-        fgUp         = extractColor("color_foreground_up", 0.68f, 0.68f, 0.81f, 0.25f);
+        fgUp         = extractColor("color_foreground_up", 0.45,0.63,0.76, .5f);
         fgDown       = extractColor("color_foreground_down", 0.76f, 0.85f, 0.76f, 0.5f);
-        background   = extractColor("color_background", 0.75f, 0.75f, 0.90f, 0.5f);
-        shadowDark   = vec4{clamp(vec3{background} / 1.5f, {0.0f}, {1.0f}), background.a};
-        shadowBright = vec4{clamp(vec3{background} * 1.5f, {0.0f}, {1.0f}), background.a};
+        shadowDark   = vec4{vec3{0.0}, 1.0}; //extractColor("color_shadow_dark", 0.3,0.3,0.3, fgUp.a);
+        shadowBright   = extractColor("color_shadow_bright", 0.9,0.9,0.9, fgUp.a);
+        // shadowDark   = vec4{clamp(vec3{background} / 2.0f, {0.0f}, {1.0f}), background.a};
+        // shadowBright = vec4{clamp(vec3{background} * 2.0f, {0.0f}, {1.0f}), background.a};
         /*XXXX
         if (texture != nullptr) { delete texture; }
         if (Option("texture").Len() > 0) {
@@ -44,7 +45,7 @@ namespace z0::ui {
                 break;
             case Widget::BOX:
                 // case Widget::SCROLLBOX:
-                drawBox(widget, res, renderer);
+                drawBox(widget, res, renderer, false);
                 break;
             case Widget::LINE:
                 drawLine((Line &)widget, res, renderer);
@@ -201,7 +202,7 @@ namespace z0::ui {
 
     void StyleClassic::drawPanel(const Panel &widget, StyleClassicResource &, VectorRenderer &renderer) const {
         if (widget.isDrawBackground()) {
-            auto c = background;
+            auto c = fgUp;
             c.a    = widget.getTransparency();
             renderer.setPenColor(c);
             renderer.drawFilledRect(widget.getRect(), widget.getRect().width, widget.getRect().height);
@@ -209,25 +210,26 @@ namespace z0::ui {
         }
     }
 
-    void StyleClassic::drawBox(const Widget &widget, const StyleClassicResource &resources, VectorRenderer &renderer) const {
+    void StyleClassic::drawBox(const Widget &widget, const StyleClassicResource &resources, VectorRenderer &renderer,
+                               const bool pushable) const {
         if ((widget.getWidth() < 4) || (widget.getHeight() < 4)) {
             return;
         }
-        float       l  = widget.getRect().x;
-        float       b  = widget.getRect().y;
-        const float w  = widget.getRect().width;
-        const float h  = widget.getRect().height;
-        auto        fd = fgDown;
-        auto        fu = fgUp;
-        fd.a  -= 1.0f-widget.getTransparency();
-        fu.a  -= 1.0f-widget.getTransparency();
+        const auto x= widget.getRect().x;
+        const auto y= widget.getRect().y;
+        const auto w= widget.getRect().width - 1;
+        const auto h= widget.getRect().height - 1;
         if (widget.isDrawBackground()) {
-            if (widget.isPushed()) {
+            if (pushable && widget.isPushed()) {
+                auto fd= fgDown;
+                fd.a  -= 1.0f-widget.getTransparency();
                 renderer.setPenColor(fd);
             } else {
+                auto fu= fgUp;
+                fu.a  -= 1.0f-widget.getTransparency();
                 renderer.setPenColor(fu);
             }
-            renderer.drawFilledRect(widget.getRect(), widget.getRect().width, widget.getRect().height);
+            renderer.drawFilledRect(widget.getRect(), w, h);
         }
         if (resources.style != StyleClassicResource::FLAT) {
             auto sb = shadowBright;
@@ -244,8 +246,8 @@ namespace z0::ui {
             default:
                 break;
             }
-            renderer.drawLine({l, b}, {l + w-1, b});
-            renderer.drawLine({l, b}, {l, b + h-1});
+            renderer.drawLine({x, y}, {x + w, y}); // bottom
+            renderer.drawLine({x, y}, {x, y + h}); // left
             switch (resources.style) {
             case StyleClassicResource::RAISED:
                 renderer.setPenColor(sb);
@@ -256,8 +258,8 @@ namespace z0::ui {
             default:
                 break;
             }
-            renderer.drawLine({l + w-1, b}, {l + w-1, b + h-1});
-            renderer.drawLine({l + w-1, b + h-1}, {l, b + h-1});
+            renderer.drawLine({x + w, y}, {x + w, y + h}); // right
+            renderer.drawLine({x, y + h}, {x + w, y + h}); // top
         }
     }
 
@@ -280,7 +282,7 @@ namespace z0::ui {
 
     void StyleClassic::drawButton(const Button &widget, StyleClassicResource &resource, VectorRenderer &renderer) const {
         resource.style = widget.isPushed() ? StyleClassicResource::LOWERED : StyleClassicResource::RAISED;
-        drawBox(widget, resource, renderer);
+        drawBox(widget, resource, renderer, true);
     }
 
     void StyleClassic::drawToggleButton(ToggleButton &widget, StyleClassicResource &resources, VectorRenderer &renderer) const {
@@ -291,7 +293,7 @@ namespace z0::ui {
             resources.style = StyleClassicResource::RAISED;
             widget.setPushed(false);
         }
-        drawBox(widget, resources, renderer);
+        drawBox(widget, resources, renderer, true);
     }
 
     void StyleClassic::drawText(Text &widget, StyleClassicResource &resources, VectorRenderer &renderer) const {
@@ -332,9 +334,9 @@ namespace z0::ui {
         }
         float fh, fw;
         widget.getFont().getSize(widget.getText(), fw, fh);
-        const auto &ratio = app().getVectorRatio();
-        fw                = roundf(fw / ratio.x);
-        fh                = roundf(fh / ratio.y);
+        // const auto &ratio = app().getVectorRatio();
+        // fw                = roundf(fw / ratio.x);
+        // fh                = roundf(fh / ratio.y);
         renderer.setPenColor(c2);
         if ((!widget.getText().empty()) && (widget.getWidth() >= (fw + LEFTOFFSET)) && (widget.getHeight() >= fh)) {
             renderer.drawLine({l, b + h}, {l + LEFTOFFSET, b + h});

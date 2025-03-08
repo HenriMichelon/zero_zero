@@ -80,7 +80,9 @@ namespace z0 {
         TRACE();
 
         // Compute the scale ratios for the vector renderer
-        vectorRatio = vec2{window->getWidth() / VECTOR_SCALE.x, window->getHeight() / VECTOR_SCALE.y};
+        vectorExtent = vec2{(window->getWidth() * 1000.0f) / window->getHeight(), 1000.0f};
+        vectorRatio = vectorExtent.x / vectorExtent.y;
+        // vectorRatio = vec2{window->getWidth() / vectorExtent.x, window->getHeight() / vectorExtent.y};
 
         // Initialize the Jolt Physics system
         JPH::RegisterDefaultAllocator();

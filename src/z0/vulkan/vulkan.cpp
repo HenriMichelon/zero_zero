@@ -132,6 +132,7 @@ PFN_vkDestroyShaderEXT vkDestroyShaderEXT;
 PFN_vkCmdSetAlphaToCoverageEnableEXT vkCmdSetAlphaToCoverageEnableEXT;
 PFN_vkCmdSetColorBlendEnableEXT vkCmdSetColorBlendEnableEXT;
 PFN_vkCmdSetColorBlendEquationEXT vkCmdSetColorBlendEquationEXT;
+PFN_vkCmdSetLineRasterizationModeEXT vkCmdSetLineRasterizationModeEXT;
 PFN_vkCmdSetPolygonModeEXT vkCmdSetPolygonModeEXT;
 PFN_vkCmdSetRasterizationSamplesEXT vkCmdSetRasterizationSamplesEXT;
 PFN_vkCmdSetSampleMaskEXT vkCmdSetSampleMaskEXT;
@@ -269,6 +270,7 @@ void vulkanInitializeDevice(VkDevice device) {
 	vkCmdSetColorBlendEnableEXT = (PFN_vkCmdSetColorBlendEnableEXT)vkGetDeviceProcAddr(device, "vkCmdSetColorBlendEnableEXT");
 	vkCmdSetColorBlendEquationEXT = (PFN_vkCmdSetColorBlendEquationEXT)vkGetDeviceProcAddr(device, "vkCmdSetColorBlendEquationEXT");
 	vkCmdSetColorWriteMaskEXT = (PFN_vkCmdSetColorWriteMaskEXT)vkGetDeviceProcAddr(device, "vkCmdSetColorWriteMaskEXT");
+	vkCmdSetLineRasterizationModeEXT = (PFN_vkCmdSetLineRasterizationModeEXT)vkGetDeviceProcAddr(device, "vkCmdSetLineRasterizationModeEXT");
 	vkCmdSetLogicOpEnableEXT = (PFN_vkCmdSetLogicOpEnableEXT)vkGetDeviceProcAddr(device, "vkCmdSetLogicOpEnableEXT");
 	vkCmdSetPolygonModeEXT = (PFN_vkCmdSetPolygonModeEXT)vkGetDeviceProcAddr(device, "vkCmdSetPolygonModeEXT");
 	vkCmdSetRasterizationSamplesEXT = (PFN_vkCmdSetRasterizationSamplesEXT)vkGetDeviceProcAddr(device, "vkCmdSetRasterizationSamplesEXT");

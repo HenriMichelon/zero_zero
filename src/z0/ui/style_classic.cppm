@@ -47,7 +47,6 @@ export namespace z0::ui {
         void resize(Widget &widget, Rect &rect, Resource &resources) override;
 
     private:
-        vec4 background{};
         vec4 focus{};
         vec4 shadowDark{};
         vec4 shadowBright{};
@@ -61,7 +60,7 @@ export namespace z0::ui {
 
         void drawPanel(const Panel &, StyleClassicResource &, VectorRenderer &) const;
 
-        void drawBox(const Widget &, const StyleClassicResource &, VectorRenderer &) const;
+        void drawBox(const Widget &, const StyleClassicResource &, VectorRenderer &, bool pushable) const;
 
         void drawLine(const Line &, const StyleClassicResource &, VectorRenderer &) const;
 

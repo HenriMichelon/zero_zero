@@ -22,7 +22,7 @@ namespace z0::ui {
         if (autoSize) { return; }
         if (width == 0 && height == 0 && rect.width == 0 && rect.height == 0) {
             const auto &ratio = app().getVectorRatio();
-            Widget::_setSize(round(width / ratio.x), round(height / ratio.y));
+            Widget::_setSize(round(width / ratio), round(height / 1.0f));
         }
         else {
             Widget::_setSize(width, height);
@@ -31,7 +31,7 @@ namespace z0::ui {
 
     void Image::autoResize() {
         const auto &ratio = app().getVectorRatio();
-        Widget::_setSize(round(image->getWidth() / ratio.x), round(image->getHeight() / ratio.y));
+        Widget::_setSize(round(image->getWidth() / ratio), round(image->getHeight() / 1.0f));
     }
 
     void Image::setColor(const vec4 &color) {

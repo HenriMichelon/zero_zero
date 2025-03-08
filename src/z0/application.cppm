@@ -147,7 +147,9 @@ namespace z0 {
         /**
          * Return the vector renderer size ratio
          */
-        const vec2 &getVectorRatio() const { return vectorRatio; }
+        inline float getVectorRatio() const { return vectorRatio; }
+
+        inline const vec2& getVectorExtent() const { return vectorExtent; }
 
         /**
          * Returns the rendering Window aspect ratio
@@ -201,8 +203,9 @@ namespace z0 {
         uint32_t fps{0};
         // The current frame in flight
         uint32_t currentFrame{0};
-        // vector renderer size ratios
-        vec2 vectorRatio;
+        // vector renderer extends
+        vec2 vectorExtent;
+        float vectorRatio;
 
         /*
          * Main loop members

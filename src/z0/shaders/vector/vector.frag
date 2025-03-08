@@ -22,7 +22,7 @@ void main()  {
     if (command.textureIndex == -1) {
         COLOR = command.color;
     } else {
-        if ((UV.x > command.clipX) || (UV.y < command.clipY)) { 
+        if ((UV.x > command.clipX) || (UV.y < command.clipY)) {
             discard;
         }
         COLOR = command.color * texture(texSampler[command.textureIndex], UV);
