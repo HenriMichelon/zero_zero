@@ -350,7 +350,8 @@ namespace z0 {
     void VectorRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
                          .setMaxSets(device.getFramesInFlight())
-                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
+                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                             device.getFramesInFlight() * MAX_IMAGES)
                          .build();
 
         setLayout = DescriptorSetLayout::Builder(device)

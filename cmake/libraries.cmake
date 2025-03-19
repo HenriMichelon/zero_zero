@@ -63,7 +63,7 @@ message(NOTICE "Fetching meshoptimizer from https://github.com/zeux/meshoptimize
 FetchContent_Declare(
         fetch_meshopt
         GIT_REPOSITORY https://github.com/zeux/meshoptimizer
-        GIT_TAG        v0.22
+        GIT_TAG        v0.23
 )
 FetchContent_MakeAvailable(fetch_meshopt)
 target_link_libraries(${Z0_TARGET} meshoptimizer)

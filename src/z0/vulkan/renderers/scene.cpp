@@ -486,7 +486,8 @@ namespace z0 {
                         // global, models, materials+textures, shadow maps & lights UBOs
                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 6 * device.getFramesInFlight())
                         // textures, shadow maps, shadow cubemap & PBR*3
-                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6 * device.getFramesInFlight())
+                        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 3))
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
