@@ -646,8 +646,14 @@ namespace z0 {
                 frame.skyboxRenderer->loadShaders();
             } 
         });
-        vertShader = createShader("default.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
-        fragShader = createShader("default.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        vertShader = createShader(
+            app().getConfig().sceneVertexShader + ".vert",
+            VK_SHADER_STAGE_VERTEX_BIT,
+            VK_SHADER_STAGE_FRAGMENT_BIT);
+        fragShader = createShader(
+            app().getConfig().sceneFragmentShader + ".frag",
+            VK_SHADER_STAGE_FRAGMENT_BIT,
+            0);
         depthPrepassVertShader = createShader("depth_prepass.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
     }
 

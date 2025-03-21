@@ -76,5 +76,9 @@ export namespace z0 {
         DebugConfig      debugConfig                = {};
         //! Threshold for meshes simplification with meshoptimizer (only works with one surface meshes), 1.0f -> no simplification
         float            meshSimplifyThreshold      = 1.0f;
+        //! Name for the default vertex shader for the scene renderer
+        string           sceneVertexShader          = "default";
+        //! Name for the default fragment shader for the scene renderer
+        string           sceneFragmentShader         = "default";
     };
 }
