@@ -204,7 +204,7 @@ export namespace z0 {
     /**
      * Depth frame buffers precision
      */
-    enum class DepthFormat : uint8_t {
+    enum class DepthBufferFormat : uint8_t {
         //! Selection the best depth format available
         AUTO   = 0,
         //! 16-bit unsigned normalized
@@ -213,6 +213,18 @@ export namespace z0 {
         B24  = 2,
         //! 32-bit signed float with or without stencil component
         B32  = 3,
+    };
+
+    /**
+     * Normal frame buffers precision
+     */
+    enum class NormalBufferFormat : uint8_t {
+        //! 8-bit signed normalized
+        B8  = 0,
+        //! 16-bit signed float
+        B16  = 1,
+        //! 32-bit signed float
+        B32  = 2,
     };
 
     /**

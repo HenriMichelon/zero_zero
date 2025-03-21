@@ -114,6 +114,7 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cppm
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/depth.cppm
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/frame_buffer.cppm
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/normal.cppm
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/sampled_frame_buffer.cppm
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/shadowmap.cppm
 
@@ -228,6 +229,7 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/color_hdr.cpp
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/depth.cpp
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/frame_buffer.cpp
+		${Z0_ENGINE_DIR}/vulkan/framebuffers/normal.cpp
 		${Z0_ENGINE_DIR}/vulkan/framebuffers/shadowmap.cpp
 
 		${Z0_ENGINE_DIR}/vulkan/pipelines/compute.cpp

@@ -26,11 +26,19 @@ export namespace z0 {
 
         void cleanupImagesResources() override;
 
+        [[nodiscard]] inline VkDescriptorImageInfo imageInfo() const override {
+            return VkDescriptorImageInfo {
+                .sampler = sampler,
+                .imageView = imageView,
+                .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+            };
+        }
+
     private:
         bool multisampled;
 
         const vector<VkFormat> DEPTH_BUFFER_FORMATS[4] = {
-            // DepthFormat::AUTO
+            // DepthBufferFormat::AUTO
             {
                 VK_FORMAT_X8_D24_UNORM_PACK32,
                 VK_FORMAT_D32_SFLOAT,
@@ -39,17 +47,17 @@ export namespace z0 {
                 VK_FORMAT_D16_UNORM_S8_UINT,
                 VK_FORMAT_D24_UNORM_S8_UINT,
             },
-            // DepthFormat::16BIT
+            // DepthBufferFormat::B16
             {
                 VK_FORMAT_D16_UNORM,
                 VK_FORMAT_D16_UNORM_S8_UINT,
             },
-            // DepthFormat::24BIT
+            // DepthBufferFormat::B24
             {
                 VK_FORMAT_X8_D24_UNORM_PACK32,
                 VK_FORMAT_D24_UNORM_S8_UINT,
             },
-            // DepthFormat::32BIT
+            // DepthBufferFormat::B32
             {
                 VK_FORMAT_D32_SFLOAT,
                 VK_FORMAT_D32_SFLOAT_S8_UINT,

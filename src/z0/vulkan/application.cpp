@@ -75,7 +75,8 @@ namespace z0 {
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
             applicationConfig.clearColor,
-            applicationConfig.useDepthPrepass);
+            applicationConfig.useDepthPrepass,
+            applicationConfig.useNormalPrepass);
         // create the HDR tone mapping renderer
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
              *device,

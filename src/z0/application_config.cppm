@@ -55,9 +55,13 @@ export namespace z0 {
         //! Presentation mode
         VSyncMode        vSyncMode                  = VSyncMode::MAILBOX;
         //! Depth frame buffer format
-        DepthFormat      depthFormat                = DepthFormat::B24;
+        DepthBufferFormat depthBufferFormat         = DepthBufferFormat::B24;
         //! Use a depth pre-pass in the main renderer
         bool             useDepthPrepass            = true;
+        //! Normal frame buffer format
+        NormalBufferFormat normalBufferFormat       = NormalBufferFormat::B16;
+        //! Use a normal pre-pass in the main renderer
+        bool             useNormalPrepass           = false;
         //! Gamma correction value for the tone mapping renderer
         float            gamma                      = 1.0f;
         //! Exposure correction value for the tone mapping renderer

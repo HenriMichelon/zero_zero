@@ -36,6 +36,7 @@ import z0.vulkan.DepthFrameBuffer;
 import z0.vulkan.Device;
 import z0.vulkan.Descriptors;
 import z0.vulkan.ModelsRenderer;
+import z0.vulkan.NormalFrameBuffer;
 import z0.vulkan.Shader;
 import z0.vulkan.ShadowMapFrameBuffer;
 import z0.vulkan.ShadowMapRenderer;
@@ -52,7 +53,7 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass);
+        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass, bool enableNormalPrepass);
 
         [[nodiscard]] inline const auto& getColorAttachments() const { return colorFrameBufferHdr; }
 
@@ -111,6 +112,7 @@ namespace z0 {
             BINDING_PBR_IRRADIANCE_MAP = 9,
             BINDING_PBR_BRDF_LUT       = 10,
             BINDING_DEPTH_BUFFER       = 11,
+            BINDING_NORMAL_BUFFER      = 12,
         };
 
         struct MaterialBuffer {
@@ -217,6 +219,8 @@ namespace z0 {
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsCubemapInfo;
             // Image info for depth buffer
             VkDescriptorImageInfo depthBufferInfo;
+            // Image info for normal buffer
+            VkDescriptorImageInfo normalBufferInfo;
 
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;
@@ -255,6 +259,8 @@ namespace z0 {
         bool enableShadowMapRenders{true};
         // Enable the depth pre-pass
         bool enableDepthPrepass;
+        // Enable the normal pre-pass
+        bool enableNormalPrepass;
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures)
@@ -265,11 +271,18 @@ namespace z0 {
         shared_ptr<VulkanCubemap> blankCubemap{nullptr};
         // Vertex shader for the depth pre-pass
         unique_ptr<Shader> depthPrepassVertShader;
+        // Vertex shader for the normal pre-pass
+        unique_ptr<Shader> normalPrepassVertShader;
+        // Fragment shader for the normal pre-pass
+        unique_ptr<Shader> normalPrepassFragShader;
         // destination frame buffer
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
-        // resolved destination frame buffer
-        vector<shared_ptr<DepthFrameBuffer>>    resolvedDepthFrameBuffer;
-        //mutex descriptorSetMutex;
+        // resolved depth buffer destination frame buffer
+        vector<shared_ptr<DepthFrameBuffer>> resolvedDepthFrameBuffer;
+        // Normal multi sampled off-screen buffer
+        vector<shared_ptr<NormalFrameBuffer>> normalFrameBuffer;
+        // resolved normal buffer destination frame buffer
+        vector<shared_ptr<NormalFrameBuffer>> resolvedNormalFrameBuffer;
 
         void update(uint32_t currentFrame) override;
 
@@ -304,6 +317,8 @@ namespace z0 {
         void drawOutlines(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         void depthPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+
+        void normalPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         [[nodiscard]] auto findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);

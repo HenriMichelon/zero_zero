@@ -52,12 +52,15 @@ import z0.vulkan.Mesh;
 
 namespace z0 {
 
-    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass) :
+    SceneRenderer::SceneRenderer(Device &device,const vec3 clearColor, const bool enableDepthPrepass, const bool enableNormalPrepass) :
         ModelsRenderer{device, clearColor},
-        enableDepthPrepass{enableDepthPrepass} {
+        enableDepthPrepass{enableDepthPrepass},
+        enableNormalPrepass{enableNormalPrepass} {
         frameData.resize(device.getFramesInFlight());
         colorFrameBufferHdr.resize(device.getFramesInFlight());
         resolvedDepthFrameBuffer.resize(device.getFramesInFlight());
+        normalFrameBuffer.resize(device.getFramesInFlight());
+        resolvedNormalFrameBuffer.resize(device.getFramesInFlight());
         createImagesResources();
         ranges::for_each(frameData, [&device](FrameData& frame) {
             frame.colorFrameBufferMultisampled = make_unique<ColorFrameBuffer>(device, true);
@@ -314,7 +317,7 @@ namespace z0 {
                         assert(false);
                 }
                 if (shadowMapRenderers.contains(light)) {
-                    const auto& shadowMapRenderer = shadowMapRenderers.at(light);
+                    const auto& shadowMapRenderer = shadowMapRenderers[light];
                     lightsArray[lightIndex].mapIndex = shadowMapRenderer->getShadowMap(currentFrame)->_getBufferIndex();
                     switch (light->getLightType()) {
                         case Light::LIGHT_DIRECTIONAL: {
@@ -488,7 +491,7 @@ namespace z0 {
                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 6 * device.getFramesInFlight())
                         // textures, shadow maps, shadow cubemap & PBR*3
                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 4))
+                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 5))
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -529,6 +532,9 @@ namespace z0 {
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(BINDING_DEPTH_BUFFER,
+                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_NORMAL_BUFFER,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .build();
@@ -629,9 +635,14 @@ namespace z0 {
             }
 
             if (enableDepthPrepass) {
-                frame.depthBufferInfo = ModelsRenderer::frameData[frameIndex].depthFrameBuffer->imageInfo();
+                frame.depthBufferInfo = resolvedDepthFrameBuffer[frameIndex]->imageInfo();
             } else {
                 frame.depthBufferInfo = blankCubemap->getImageInfo();
+            }
+            if (enableNormalPrepass) {
+                frame.normalBufferInfo = resolvedNormalFrameBuffer[frameIndex]->imageInfo();
+            } else {
+                frame.normalBufferInfo = blankCubemap->getImageInfo();
             }
 
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
@@ -646,7 +657,8 @@ namespace z0 {
                 .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
                 .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
                 .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo)
-                .writeImage(BINDING_DEPTH_BUFFER, &frame.depthBufferInfo);
+                .writeImage(BINDING_DEPTH_BUFFER, &frame.depthBufferInfo)
+                .writeImage(BINDING_NORMAL_BUFFER, &frame.normalBufferInfo);
             if (!writer.build(descriptorSet.at(frameIndex), create))
                 die("Cannot allocate descriptor set for scene renderer");
         }
@@ -666,17 +678,30 @@ namespace z0 {
             app().getConfig().sceneFragmentShader + ".frag",
             VK_SHADER_STAGE_FRAGMENT_BIT,
             0);
-        depthPrepassVertShader = createShader("depth_prepass.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
+        if (enableDepthPrepass) {
+            depthPrepassVertShader = createShader("depth_prepass.vert", VK_SHADER_STAGE_VERTEX_BIT, 0);
+        }
+        if (enableNormalPrepass) {
+            normalPrepassVertShader = createShader("normal_prepass.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
+            normalPrepassFragShader = createShader("normal_prepass.frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+        }
     }
 
     void SceneRenderer::createImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            colorFrameBufferHdr.at(i) = make_shared<ColorFrameBufferHDR>(device);
+            colorFrameBufferHdr[i] = make_shared<ColorFrameBufferHDR>(device);
             if (ModelsRenderer::frameData[i].depthFrameBuffer == nullptr) {
                 ModelsRenderer::frameData[i].depthFrameBuffer = make_shared<DepthFrameBuffer>(device, true);
-                resolvedDepthFrameBuffer.at(i) = make_shared<DepthFrameBuffer>(device, false);
+                resolvedDepthFrameBuffer[i] = make_shared<DepthFrameBuffer>(device, false);
+                if (enableNormalPrepass) {
+                    normalFrameBuffer[i] = make_shared<NormalFrameBuffer>(device, true);
+                    resolvedNormalFrameBuffer[i] = make_shared<NormalFrameBuffer>(device, false);
+                }
             } else {
                 ModelsRenderer::frameData[i].depthFrameBuffer->createImagesResources();
+                resolvedDepthFrameBuffer[i]->createImagesResources();
+                normalFrameBuffer[i]->createImagesResources();
+                resolvedNormalFrameBuffer[i]->createImagesResources();
             }
         }
     }
@@ -684,9 +709,13 @@ namespace z0 {
     void SceneRenderer::cleanupImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
-                resolvedDepthFrameBuffer.at(i)->cleanupImagesResources();
+                resolvedDepthFrameBuffer[i]->cleanupImagesResources();
             }
-            colorFrameBufferHdr.at(i)->cleanupImagesResources();
+            if (enableNormalPrepass) {
+                normalFrameBuffer[i]->cleanupImagesResources();
+                resolvedNormalFrameBuffer[i]->cleanupImagesResources();
+            }
+            colorFrameBufferHdr[i]->cleanupImagesResources();
             frameData[i].colorFrameBufferMultisampled->cleanupImagesResources();
         }
     }
@@ -694,16 +723,21 @@ namespace z0 {
     void SceneRenderer::recreateImagesResources() {
         cleanupImagesResources();
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            colorFrameBufferHdr.at(i)->createImagesResources();
+            colorFrameBufferHdr[i]->createImagesResources();
              frameData[i].colorFrameBufferMultisampled->createImagesResources();
             if (ModelsRenderer::frameData[i].depthFrameBuffer != nullptr) {
-                 resolvedDepthFrameBuffer.at(i)->createImagesResources();
+                 resolvedDepthFrameBuffer[i]->createImagesResources();
+            }
+            if (enableNormalPrepass) {
+                normalFrameBuffer[i]->cleanupImagesResources();
+                resolvedNormalFrameBuffer[i]->cleanupImagesResources();
             }
         }
     }
 
     void SceneRenderer::beginRendering(const uint32_t currentFrame) {
         if (enableDepthPrepass) { depthPrepass(currentFrame, frameData[currentFrame].opaquesModels); }
+        if (enableNormalPrepass) { normalPrepass(currentFrame, frameData[currentFrame].opaquesModels); }
         const auto& commandBuffer = commandBuffers[currentFrame];
         // https://lesleylai.info/en/vk-khr-dynamic-rendering/
         Device::transitionImageLayout(commandBuffer,
@@ -1036,7 +1070,7 @@ namespace z0 {
         Device::transitionImageLayout(commandBuffer,
                                        resolvedDepthFrameBuffer[currentFrame]->getImage(),
                                       VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
                                       VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
                                       VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
                                       VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
@@ -1075,6 +1109,136 @@ namespace z0 {
                 DEBUG("disableLightShadowCasting", light->getName());
             }
         }
+    }
+
+
+    void SceneRenderer::normalPrepass(const uint32_t currentFrame,
+                                     const map<Resource::id_t,
+                                     list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+        const auto& commandBuffer = commandBuffers[currentFrame];
+        Device::transitionImageLayout(commandBuffer,
+                                      normalFrameBuffer[currentFrame]->getImage(),
+                                     VK_IMAGE_LAYOUT_UNDEFINED,
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     0,
+                                     VK_ACCESS_TRANSFER_WRITE_BIT,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_IMAGE_ASPECT_COLOR_BIT);
+        Device::transitionImageLayout(commandBuffer,
+                              resolvedNormalFrameBuffer[currentFrame]->getImage(),
+                             VK_IMAGE_LAYOUT_UNDEFINED,
+                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                             0,
+                             VK_ACCESS_TRANSFER_WRITE_BIT,
+                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_IMAGE_ASPECT_COLOR_BIT);
+        const VkRenderingAttachmentInfo colorAttachmentInfo{
+            .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+            .imageView          = normalFrameBuffer[currentFrame]->getImageView(),
+            .imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
+            .resolveImageView   = resolvedNormalFrameBuffer[currentFrame]->getImageView(),
+            .resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
+            .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+            .clearValue         = depthClearValue,
+        };
+    //     const VkRenderingAttachmentInfo depthAttachmentInfo{
+    //         .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+    //         .imageView          = ModelsRenderer::frameData[currentFrame].depthFrameBuffer->getImageView(),
+    //         .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    //         .resolveMode        = VK_RESOLVE_MODE_AVERAGE_BIT,
+    //         .resolveImageView   = resolvedDepthFrameBuffer[currentFrame]->getImageView(),
+    //         .resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+    //         .loadOp             = enableDepthPrepass ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_CLEAR,
+    //         .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    //         .clearValue         = depthClearValue,
+    // };
+        const VkRenderingInfo renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                            .pNext                = nullptr,
+                                            .renderArea           = {{0, 0}, device.getSwapChainExtent()},
+                                            .layerCount           = 1,
+                                            .colorAttachmentCount = 1,
+                                            .pColorAttachments    = &colorAttachmentInfo,
+                                            .pDepthAttachment     = nullptr,
+                                            .pStencilAttachment   = nullptr};
+        vkCmdBeginRendering(commandBuffer, &renderingInfo);
+
+        if ((ModelsRenderer::frameData[currentFrame].currentCamera != nullptr) &&
+            (!ModelsRenderer::frameData[currentFrame].models.empty())) {
+            auto &frame = frameData[currentFrame];
+            setInitialState(commandBuffer, currentFrame, false);
+            vkCmdBindShadersEXT(commandBuffer, 1, normalPrepassVertShader->getStage(), normalPrepassVertShader->getShader());
+            vkCmdBindShadersEXT(commandBuffer, 1, normalPrepassFragShader->getStage(), normalPrepassFragShader->getShader());
+            // constexpr VkShaderStageFlagBits stageFlagBits{VK_SHADER_STAGE_FRAGMENT_BIT};
+            // vkCmdBindShadersEXT(commandBuffer, 1, &stageFlagBits, VK_NULL_HANDLE);
+            vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
+            vkCmdSetDepthWriteEnable(commandBuffer, VK_FALSE);
+            vkCmdSetDepthBiasEnable(commandBuffer, VK_TRUE);
+            vkCmdSetDepthBias(commandBuffer, depthBiasConstant, 0.0f, depthBiasSlope);
+            {
+                //auto lock = lock_guard(descriptorSetMutex);
+                bindDescriptorSets(commandBuffer, currentFrame);
+            }
+
+            auto previousCullMode{CullMode::DISABLED};
+            vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
+
+            for (const auto &modelByMesh : modelsToDraw) {
+                const auto &modelIndex = frame.meshesIndices[modelByMesh.first];
+                const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
+                mesh->bind(commandBuffer);
+                auto pushConstants = PushConstants {
+                    .modelIndex = static_cast<int>(modelIndex),
+                    .materialIndex = 0
+                };
+                vkCmdPushConstants(commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_ALL_GRAPHICS,
+                    0,
+                    PUSHCONSTANTS_SIZE,
+                    &pushConstants);
+                for (const auto &surface : mesh->getSurfaces()) {
+                    const auto cullMode = surface->material->getCullMode();
+                    if (previousCullMode != cullMode) {
+                        previousCullMode = cullMode;
+                        vkCmdSetCullMode(commandBuffer,
+                             cullMode == CullMode::DISABLED ? VK_CULL_MODE_NONE
+                                     : cullMode == CullMode::BACK
+                                     ? VK_CULL_MODE_BACK_BIT
+                                     : VK_CULL_MODE_FRONT_BIT);
+                    }
+                    vkCmdDrawIndexed(commandBuffer,
+                       surface->indexCount,
+                       modelByMesh.second.size(),
+                       surface->firstVertexIndex,
+                       0,
+                       0);
+                }
+            }
+        }
+
+        vkCmdEndRendering(commandBuffer);
+        Device::transitionImageLayout(commandBuffer,
+                                       resolvedNormalFrameBuffer[currentFrame]->getImage(),
+                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                      VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                      VK_IMAGE_ASPECT_COLOR_BIT);
+        Device::transitionImageLayout(commandBuffer,
+                                   normalFrameBuffer[currentFrame]->getImage(),
+                                  VK_IMAGE_LAYOUT_UNDEFINED,
+                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                  VK_ACCESS_NONE,
+                                  VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
 } // namespace z0
