@@ -39,6 +39,10 @@ export namespace z0 {
          * Creates a Character with a given collision `shape`,
          * belonging to the `layer` layers and detecting collisions
          * with bodies having a layer in the `mask` value.
+         * @param height Height of the collision shape capsule shape
+         * @param radius Radius of the collision shape capsule
+         * @param layer Collision layer
+         * @param name Name of the node
          */
         explicit Character(float    height,
                            float    radius,
@@ -101,14 +105,29 @@ export namespace z0 {
          */
         void setMaxSlopeAngle(float angle) const;
 
+        /**
+         * Returns the height of the capsule collision shape
+         */
         inline float getHeight() const { return height; }
 
+        /**
+         * Returns the radius of the capsule collision shape
+         */
         inline float getRadius() const { return radius; }
 
+        /**
+         * Sets the current visibility of the character.
+         */
         void setVisible(bool visible = true) override;
 
+        /**
+         * Sets the current collision layer
+         */
         void setCollisionLayer(uint32_t layer) override;
 
+        /**
+         * Returns the linear velocity of the character
+         */
         vec3 getVelocity() const;
 
     protected:

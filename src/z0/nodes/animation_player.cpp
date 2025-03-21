@@ -112,7 +112,6 @@ namespace z0 {
         }
     }
 
-
     void AnimationPlayer::play(const string &name) {
         if (playing) { return; }
         if (name.empty()) {

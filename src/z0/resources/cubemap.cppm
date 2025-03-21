@@ -74,8 +74,14 @@ export namespace z0 {
          */
         [[nodiscard]] inline auto getHeight() const { return height; }
 
+        /**
+         * Creates a blank cubemap from a 1x1 JPG
+         */
         [[nodiscard]] static shared_ptr<Cubemap> createBlankCubemap();
 
+        /**
+         * Returns the cubemap type
+         */
         [[nodiscard]] auto getCubemapType() const { return type; }
 
     protected:

@@ -82,6 +82,10 @@ export namespace z0 {
          */
         void play(const string &name = "");
 
+        /**
+         *
+         * Seeks the animation to the seconds point in time (in seconds).
+         */
         void seek(float duration);
 
         /**

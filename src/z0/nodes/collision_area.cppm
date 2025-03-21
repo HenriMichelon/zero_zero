@@ -24,6 +24,9 @@ export namespace z0 {
         /**
          * Creates a CollisionArea using the given geometric `shape`
          * to detect collision with bodies having a layer in the `mask` value.
+         * @param shape The collision shape
+         * @param layer The collision layer
+         * @param name The node name
          */
         CollisionArea(const shared_ptr<Shape> &shape,
                       uint32_t                 layer,
@@ -34,6 +37,9 @@ export namespace z0 {
          */
         explicit CollisionArea(const string &name = TypeNames[COLLISION_AREA]);
 
+        /**
+         * Sets the collision shape of the area
+         */
         void setShape(const shared_ptr<Shape> &shape);
 
         ~CollisionArea() override = default;

@@ -39,6 +39,9 @@ namespace z0 {
     }
 
     void CollisionArea::setShape(const shared_ptr<Shape> &shape) {
+        if (this->shape) {
+            releaseBodyId();
+        }
         this->shape = shape;
         const auto position = getPositionGlobal();
         const auto quat = normalize(toQuat(mat3(worldTransform)));

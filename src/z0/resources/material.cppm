@@ -120,36 +120,86 @@ export namespace z0 {
          */
         void setNormalTexture(const TextureInfo &texture);
 
+        /**
+         * Returns the metallic factor
+         */
         [[nodiscard]] inline auto getMetallicFactor() const { return metallicFactor; }
 
+        /**
+         * Sets the metallic factor
+         */
         void setMetallicFactor(float metallic);
 
+        /**
+         * Return the metallic image texture. Only the BLUE channel is used by the default shader.
+         */
         [[nodiscard]] inline const auto& getMetallicTexture() const { return metallicTexture; }
 
+        /**
+         * Sets the metallic image texture. Only the BLUE channel is used by the default shader.
+         */
         void setMetallicTexture(const TextureInfo &texture);
 
+        /**
+         * Returns the roughness factor
+         */
         [[nodiscard]] inline float getRoughnessFactor() const { return roughnessFactor; }
 
+        /**
+         * Sets the roughness factor
+         */
         void setRoughnessFactor(float roughness);
 
+        /**
+         * Returns the roughness image texture. Only the RED channel is used by the default shader.
+         */
         [[nodiscard]] inline const auto& getRoughnessTexture() const { return roughnessTexture; }
 
+        /**
+         * Sets the roughness image texture. Only the RED channel is used by the default shader.
+         */
         void setRoughnessTexture(const TextureInfo &texture);
 
+        /**
+         * Returns the emmisive colors image texture
+         */
         [[nodiscard]] inline const auto& getEmissiveTexture() const { return emissiveTexture; }
 
+        /**
+         * Return the emmisive colors factor
+         */
         [[nodiscard]] inline vec3 getEmissiveFactor() const { return emissiveFactor; }
 
+        /**
+         * Sets the emmisive colors factore
+         */
         void setEmissiveFactor(const vec3& emissive);
 
+        /**
+         * Sets the emmisive colors image texture. Used as a linear RGB texture by the default shader.
+         */
         void setEmissiveTexture(const TextureInfo& texture);
 
+        /**
+         * Returns the emmisibe colors strength
+         */
         [[nodiscard]] inline auto getEmissiveStrength() const { return emissiveStrength; }
 
+        /**
+         * Sets the emmisibe colors strength
+         */
         void setEmissiveStrength(float emissive);
 
+        /**
+         * Returns the scale applied to the normal image texture.
+         * See https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
+         */
         [[nodiscard]] inline auto getNormalScale() const { return normalScale; }
 
+        /**
+         * Sets the scale applied to the normal image texture.
+         * See https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_normaltextureinfo_scale
+         */
         void setNormalScale(float scale);
 
     private:

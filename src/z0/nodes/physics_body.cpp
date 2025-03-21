@@ -71,7 +71,6 @@ namespace z0 {
         setShape(dynamic_pointer_cast<Shape>(shape->duplicate()));
     }
 
-
     void PhysicsBody::setVelocity(const vec3& velocity) {
         if (bodyId.IsInvalid()) { return; }
         if (velocity == VEC3ZERO) {

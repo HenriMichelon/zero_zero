@@ -59,6 +59,9 @@ export namespace z0 {
          */
         virtual void setCollisionLayer(uint32_t layer);
 
+        /**
+         * Returns a shared pointer of the object
+         */
         inline auto sharedPtr() { return shared_from_this(); }
 
         /**
