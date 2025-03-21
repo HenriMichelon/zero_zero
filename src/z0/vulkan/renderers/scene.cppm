@@ -320,6 +320,8 @@ namespace z0 {
 
         void normalPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
+        void drawModelsWithoutMaterial(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+
         [[nodiscard]] auto findShadowMapRenderer(const shared_ptr<Light>& light) const {
             return shadowMapRenderers.at(light);
         }

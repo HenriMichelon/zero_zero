@@ -39,6 +39,9 @@ float detectEdges(vec2 uv) {
 }
 
 void main() {
+    COLOR = vec4(texture(normalBuffer, fs_in.UV).rgb, 1.0);
+    return;
+
     Material material = materials.material[pushConstants.materialIndex];
     Texture textures = textures.texture[pushConstants.materialIndex];
 
@@ -94,11 +97,11 @@ void main() {
     }
 
     vec3 ambient = color.rgb * global.ambient.w * global.ambient.rgb ;
+    COLOR = vec4(ambient + (diffuse + specular) * color.rgb, transparency);
 //    vec3 finalColor = ambient + (diffuse + specular) * color.rgb;
-    vec3 finalColor = vec3(1.0);
-
-    float edge = detectEdges(fs_in.UV);
-    vec3 outlineColor = vec3(0.0);
-    COLOR = vec4(mix(finalColor, outlineColor, edge), transparency);
+//    vec3 finalColor = vec3(1.0);
+//    float edge = detectEdges(fs_in.UV);
+//    vec3 outlineColor = vec3(0.0);
+//    COLOR = vec4(mix(finalColor, outlineColor, edge), transparency);
 //    COLOR = vec4(fs_in.UV.x, fs_in.UV.y, 1.0, 1.0);
 }
