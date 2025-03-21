@@ -34,13 +34,13 @@ namespace z0 {
     VulkanApplication::VulkanApplication(const ApplicationConfig &appConfig, const shared_ptr<Node> &node) :
         Application{appConfig, node} {
         assert(window != nullptr);
+        // creates the Application singleton
         instance = make_unique<Instance>();
+        // creates the Vulkan device
         device = instance->createDevice(applicationConfig, *window);
-        // KTXVulkanImage::initialize(
-        //     device->getPhysicalDevice(), device->getDevice(),
-        //     device->getGraphicQueue(), device->getCommandPool());
-        const auto& conf = appConfig.debugConfig;
+        // initialize Jolt debug parameters from the application config
         if (appConfig.debug) {
+            const auto& conf = appConfig.debugConfig;
             bodyDrawSettings = JPH::BodyManager::DrawSettings{
                 .mDrawGetSupportFunction = conf.drawGetSupportingFace,
                 .mDrawShape = conf.drawShape,
@@ -54,33 +54,39 @@ namespace z0 {
                 .mDrawSleepStats = conf.drawSleepStats,
             };
         }
+        // Call the implementation independant initialization code
         init();
     }
 
     VulkanApplication::~VulkanApplication() {
+        // destroy the variou renderers
         sceneRenderer.reset();
         if (vectorRenderer) { vectorRenderer.reset(); }
         if (tonemappingRenderer) { tonemappingRenderer.reset(); }
         if (debugRenderer) { debugRenderer.reset(); }
-        // KTXVulkanImage::cleanup();
+        // shutdown the Vulkan device & instance
         device->cleanup();
         device.reset();
         instance.reset();
     }
 
     void VulkanApplication::initRenderingSystem() {
+        // create the main renderer
         sceneRenderer = make_shared<SceneRenderer>(
             *device,
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass);
+        // create the HDR tone mapping renderer
         tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
              *device,
              sceneRenderer->getColorAttachments(),
              sceneRenderer->getDepthAttachments());
+        // create the vector renderer used by the UI components
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
             tonemappingRenderer->getColorAttachments());
 
+        // Register the renderers in order, the first registered will be the last executed
         device->registerRenderer(vectorRenderer);
         device->registerRenderer(tonemappingRenderer);
         if (applicationConfig.debug) {
@@ -93,31 +99,39 @@ namespace z0 {
         }
         device->registerRenderer(sceneRenderer);
 
+        // Create the UI windows manager
         windowManager = make_unique<ui::Manager>(vectorRenderer,
                                               applicationConfig.defaultFontName,
                                               applicationConfig.defaultFontSize);
     }
 
     void VulkanApplication::stopRenderingSystem() {
+        // Stop submitting to the command queues
         device->stop();
     }
 
     void VulkanApplication::waitForRenderingSystem() {
+        // Wait for all Vulkan queues to finish the current work
         device->wait();
     }
 
     void VulkanApplication::processDeferredUpdates(const uint32_t currentFrame) {
+        // Update renderer resources
         sceneRenderer->preUpdateScene(currentFrame);
+        // Register UI drawing commands
         windowManager->drawFrame();
         {
             auto lock = lock_guard(frameDataMutex);
             auto &data = frameData[currentFrame];
+            // Remove from the renderer the nodes previously removed from the scene tree
+            // Immediate removes
             if (!data.removedNodes.empty()) {
                 for (const auto &node : data.removedNodes) {
                     sceneRenderer->removeNode(node, currentFrame);
                 }
                 data.removedNodes.clear();
             }
+            // Batched removes
             if (!data.removedNodesAsync.empty()) {
                 auto count = 0;
                 for (auto it = data.removedNodesAsync.begin(); it != data.removedNodesAsync.end();) {
@@ -127,12 +141,15 @@ namespace z0 {
                     if (count > MAX_ASYNC_NODE_OP_PER_FRAME) { break; }
                 }
             }
+            // Add to the renderer the nodes previously added to the scene tree
+            // Immediate additions
             if (!data.addedNodes.empty()) {
                 for (const auto &node : data.addedNodes) {
                     sceneRenderer->addNode(node, currentFrame);
                 }
                 data.addedNodes.clear();
             }
+            // Batched additions
             if (!data.addedNodesAsync.empty()) {
                 auto count = 0;
                 for (auto it = data.addedNodesAsync.begin(); it != data.addedNodesAsync.end();) {
@@ -142,6 +159,7 @@ namespace z0 {
                     if (count > MAX_ASYNC_NODE_OP_PER_FRAME) { break; }
                 }
             }
+            // Change current camera if needed
             if (data.cameraChanged) {
                 sceneRenderer->activateCamera(data.activeCamera, currentFrame);
                 if (applicationConfig.debug) {
@@ -150,6 +168,7 @@ namespace z0 {
                 data.activeCamera.reset();
                 data.cameraChanged = false;
             }
+            // Search for a camera in the scene tree if not current camera
             if (sceneRenderer->getCamera(currentFrame) == nullptr) {
                 const auto &camera = rootNode->findFirstChild<Camera>(true);
                 if (camera && camera->isProcessed()) {
@@ -160,7 +179,9 @@ namespace z0 {
                 }
             }
         }
+        // Update renderer resources
         sceneRenderer->postUpdateScene(currentFrame);
+        // Register commands for the in-game debug layer
         if (applicationConfig.debug && displayDebug &&
                 (elapsedSeconds >= std::min(0.500f, std::max(0.0f, applicationConfig.debugConfig.updateDelay / 1000.0f)))) {
             debugRenderer->startDrawing();
@@ -183,6 +204,7 @@ namespace z0 {
     }
 
     void VulkanApplication::setShadowCasting(const bool enable) const {
+        // Globally enable or disable the shadows
         sceneRenderer->setShadowCasting(enable);
     }
 
