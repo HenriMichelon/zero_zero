@@ -17,7 +17,7 @@ layout (location = 0) out VertexOut vs_out;
 
 void main() {
     mat4 model = models.model[pushConstants.modelIndex + gl_InstanceIndex];
-    vs_out.POSITION = position;
+//    vs_out.POSITION = position;
     vs_out.UV = uv;
     vs_out.NORMAL = normalize(mat3(transpose(inverse(model))) * normal);
     vs_out.GLOBAL_POSITION = model * vec4(position, 1.0);

@@ -281,6 +281,7 @@ namespace z0 {
             .lightsCount     = 0,
             .ambient         = frame.currentEnvironment != nullptr ? frame.currentEnvironment->getAmbientColorAndIntensity() : vec4{1.0f},
             .ambientIBL      = static_cast<uint32_t>((frame.skyboxRenderer != nullptr) && (frame.skyboxRenderer->getCubemap()->getCubemapType() == Cubemap::TYPE_ENVIRONMENT) ? 1: 0),
+            .screenSize      = vec2{device.getSwapChainExtent().width, device.getSwapChainExtent().height},
         };
 
         if (frame.lights.size() > 0) {
@@ -487,7 +488,7 @@ namespace z0 {
                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 6 * device.getFramesInFlight())
                         // textures, shadow maps, shadow cubemap & PBR*3
                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 3))
+                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 4))
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -525,6 +526,9 @@ namespace z0 {
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(BINDING_PBR_BRDF_LUT,
+                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_DEPTH_BUFFER,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
                             .build();
@@ -623,6 +627,13 @@ namespace z0 {
                 irradianceInfo = blankCubemap->getImageInfo();
                 brdfInfo = blankImage->getImageInfo();
             }
+
+            if (enableDepthPrepass) {
+                frame.depthBufferInfo = ModelsRenderer::frameData[frameIndex].depthFrameBuffer->imageInfo();
+            } else {
+                frame.depthBufferInfo = blankCubemap->getImageInfo();
+            }
+
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
                 .writeBuffer(BINDING_MODELS_BUFFER, &modelBufferInfo)
@@ -634,7 +645,8 @@ namespace z0 {
                 .writeImage(BINDING_SHADOW_CUBEMAPS, frame.shadowMapsCubemapInfo.data())
                 .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
                 .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
-                .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo);
+                .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo)
+                .writeImage(BINDING_DEPTH_BUFFER, &frame.depthBufferInfo);
             if (!writer.build(descriptorSet.at(frameIndex), create))
                 die("Cannot allocate descriptor set for scene renderer");
         }

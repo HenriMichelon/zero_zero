@@ -11,11 +11,16 @@
 layout (location = 0) in VertexOut fs_in;
 layout (location = 0) out vec4 COLOR;
 
-float stepmix(float edge0, float edge1, float E, float x)
-{
+float stepmix(float edge0, float edge1, float E, float x)  {
     float T = clamp(0.5 * (x - edge0 + E) / E, 0.0, 1.0);
     return mix(edge0, edge1, T);
 }
+
+float detectEdges(vec3 normal, vec3 viewDir) {
+    float edgeFactor = dot(normal, viewDir);
+    return smoothstep(0.2, 0.5, edgeFactor);
+}
+
 
 void main() {
     Material material = materials.material[pushConstants.materialIndex];
@@ -30,9 +35,8 @@ void main() {
     }
     const float transparency = (material.transparency == TRANSPARENCY_ALPHA || material.transparency == TRANSPARENCY_SCISSOR_ALPHA) ? color.a : 1.0f;
 
-    vec3 normal = fs_in.NORMAL;
-    vec3 frag_pos = fs_in.POSITION;
-    vec3 view_dir =  normalize(-global.cameraPosition);
+    vec3 N = fs_in.NORMAL;
+    vec3 V =  fs_in.VIEW_DIRECTION; //normalize(-global.cameraPosition);
 
     vec3 diffuse = vec3(0.0f);
     vec3 specular =  vec3(0.0f);
@@ -41,10 +45,10 @@ void main() {
 
         // https://prideout.net/blog/old/blog/index.html@p=22.html
         vec3 L = normalize(-light.direction);
-        vec3 H = normalize(L + view_dir);
+        vec3 H = normalize(L + V);
 
-        float df = max(0.0, dot(normal, L));
-        float sf = max(0.0, dot(normal, H));
+        float df = max(0.0, dot(N, L));
+        float sf = max(0.0, dot(N, H));
         sf = pow(sf, 32.0); // TODO add specular parameter to material
 
         const float A = 0.1;
@@ -74,7 +78,15 @@ void main() {
     }
 
     vec3 ambient = color.rgb * global.ambient.w * global.ambient.rgb ;
-    COLOR = vec4(ambient + (diffuse + specular) * color.rgb, transparency);
+//    vec3 finalColor = ambient + (diffuse + specular) * color.rgb;
+    vec3 finalColor = vec3(1.0);
+
+
+    vec3 viewDir = normalize(global.cameraPosition - fs_in.POSITION);
+    float edge = 1.0 - smoothstep(0.0, 0.01, abs(dot(N, fs_in.VIEW_DIRECTION)));
+    vec3 outlineColor = vec3(0.0);
+    COLOR = vec4(mix(finalColor, outlineColor, edge), transparency);
+
 //    COLOR = vec4(fs_in.UV.x, fs_in.UV.y, 1.0, 1.0);
 }
 

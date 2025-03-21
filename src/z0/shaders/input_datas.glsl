@@ -18,6 +18,7 @@
 #define BINDING_PBR_ENV_MAP        8
 #define BINDING_PBR_IRRADIANCE_MAP 9
 #define BINDING_PBR_BRDF_LUT       10
+#define BINDING_DEPTH_BUFFER       11
 
 struct VertexOut {
     vec2    UV;
@@ -83,12 +84,13 @@ struct Texture  {
 };
 
 layout(set = 0, binding = BINDING_GLOBAL_BUFFER) uniform GlobalUniformBuffer  {
-    mat4 projection;
-    mat4 view;
-    vec3 cameraPosition;
-    uint lightsCount;
-    vec4 ambient;
-    bool ambientIBL;
+    mat4  projection;
+    mat4  view;
+    vec3  cameraPosition;
+    uint  lightsCount;
+    vec4  ambient;
+    bool  ambientIBL;
+    ivec2 screenSize;
 } global;
 
 layout(set = SCENE_SET, binding = BINDING_MODELS_BUFFER) uniform ModelUniformBuffer  {
@@ -115,6 +117,8 @@ layout(set = SCENE_SET, binding = BINDING_SHADOW_CUBEMAPS) uniform samplerCube s
 layout(set = SCENE_SET, binding = BINDING_PBR_ENV_MAP) uniform samplerCube specularTexture;
 layout(set = SCENE_SET, binding = BINDING_PBR_IRRADIANCE_MAP) uniform samplerCube irradianceTexture;
 layout(set = SCENE_SET, binding = BINDING_PBR_BRDF_LUT) uniform sampler2D specularBRDF_LUT;
+
+layout(set = SCENE_SET, binding = BINDING_DEPTH_BUFFER) uniform sampler2D depthBuffer;
 
 layout(push_constant) uniform PushConstants {
     int modelIndex;

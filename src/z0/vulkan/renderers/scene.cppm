@@ -90,6 +90,7 @@ namespace z0 {
             alignas(4) uint32_t lightsCount;
             alignas(16) vec4    ambient; // RGB + Intensity;
             alignas(4) uint32_t ambientIBL; // Only if HDRi skybox
+            alignas(8) ivec2   screenSize{0};
         };
         static constexpr auto GLOBAL_BUFFER_SIZE = sizeof(GlobalBuffer);
 
@@ -109,6 +110,7 @@ namespace z0 {
             BINDING_PBR_ENV_MAP        = 8,
             BINDING_PBR_IRRADIANCE_MAP = 9,
             BINDING_PBR_BRDF_LUT       = 10,
+            BINDING_DEPTH_BUFFER       = 11,
         };
 
         struct MaterialBuffer {
@@ -213,6 +215,8 @@ namespace z0 {
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsInfo;
             // Images infos for descriptor sets, pre-filled with blank cubemaps
             array<VkDescriptorImageInfo, MAX_SHADOW_MAPS> shadowMapsCubemapInfo;
+            // Image info for depth buffer
+            VkDescriptorImageInfo depthBufferInfo;
 
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;

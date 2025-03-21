@@ -11,18 +11,20 @@ module;
 export module z0.vulkan.DepthFrameBuffer;
 
 import z0.vulkan.Device;
-import z0.vulkan.FrameBuffer;
+import z0.vulkan.SampledFrameBuffer;
 
 export namespace z0 {
 
     /*
      * Depth rendering attachment or resolved offscreen depth buffer
      */
-    class DepthFrameBuffer : public FrameBuffer {
+    class DepthFrameBuffer : public SampledFrameBuffer {
     public:
         explicit DepthFrameBuffer(const Device &dev, bool isMultisampled);
 
         void createImagesResources() override;
+
+        void cleanupImagesResources() override;
 
     private:
         bool multisampled;
