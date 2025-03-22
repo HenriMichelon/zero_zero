@@ -5,16 +5,12 @@
  * https://opensource.org/licenses/MIT
 */
 #version 450
+#include "postprocessing_input.glsl"
 
-layout (location = 0) out vec4 COLOR;
-layout (location = 0) in vec2 UV;
-
-layout(set = 0, binding = 0) uniform GobalUniformBufferObject {
+layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
     float gamma;
     float exposure;
 } global;
-layout(set = 0, binding = 1) uniform sampler2D hdrBuffer;
-layout(set = 0, binding = 2) uniform sampler2D depthBuffer;
 
 void main() {
     const vec3 hdrColor = texture(hdrBuffer, UV).rgb;
