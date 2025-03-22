@@ -5,13 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 #version 450
+#include "postprocessing_input.glsl"
 
-layout (location = 0) out vec4 COLOR;
-layout (location = 0) in vec2 UV;
-layout(set = 0, binding = 0) uniform sampler2D hdrBuffer;
-
-void main()
-{
+void main() {
     vec3 hdrColor = texture(hdrBuffer, UV).rgb;
     // Convert to grayscale
     float gray = dot(hdrColor.rgb, vec3(0.299, 0.587, 0.114));
