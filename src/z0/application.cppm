@@ -152,9 +152,14 @@ namespace z0 {
         inline const vec2& getVectorExtent() const { return vectorExtent; }
 
         /**
-         * Returns the rendering Window aspect ratio
+         * Returns the rendering window aspect ratio
          */
         [[nodiscard]] virtual float getAspectRatio() const = 0;
+
+        /**
+         * Returns the rendering window extent
+        */
+        [[nodiscard]] virtual vec2 getExtent() const = 0;
 
         /**
         * Add a lambda expression in the deferred calls queue.<br>
@@ -194,7 +199,8 @@ namespace z0 {
          */
         inline auto getDisplayDebug() const { return displayDebug; }
 
-        virtual void addPostprocessing(const string& fragShaderName) = 0;
+        virtual void addPostprocessing(const string& fragShaderName, void* data = nullptr, uint32_t dataSize = 0) = 0;
+
         virtual void removePostprocessing(const string& fragShaderName) = 0;
 
     private:

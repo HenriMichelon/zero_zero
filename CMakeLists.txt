@@ -129,7 +129,6 @@ set(PROJECT_FILES
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderpass.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/scene.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/shadowmap.cppm
-		${Z0_ENGINE_DIR}/vulkan/renderers/tonemapping.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cppm
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cppm
 
@@ -242,7 +241,6 @@ add_library(${Z0_TARGET} STATIC
 		${Z0_ENGINE_DIR}/vulkan/renderers/renderer.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/scene.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/shadowmap.cpp
-		${Z0_ENGINE_DIR}/vulkan/renderers/tonemapping.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/skybox.cpp
 		${Z0_ENGINE_DIR}/vulkan/renderers/vector.cpp
 

@@ -47,6 +47,8 @@ namespace z0 {
         VectorRenderer(Device &device,
                        const vector<shared_ptr<ColorFrameBufferHDR>> &inputColorAttachmentHdr);
 
+        void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
+
         // Draw a 1-fragment width line
         void drawLine(vec2 start, vec2 end);
 
@@ -90,7 +92,7 @@ namespace z0 {
         void endDraw();
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override {
-            return frameData[currentFrame].colorFrameBufferHdr->getImage();
+            return colorFrameBufferHdr[currentFrame]->getImage();
         }
 
     private:
@@ -173,12 +175,13 @@ namespace z0 {
         struct FrameData {
             // Read only copy of the commands we have to draw
             list<Command> commands;
-            // The color attachment for rendering
-            shared_ptr<ColorFrameBufferHDR> colorFrameBufferHdr;
             // Images infos for descriptor sets, pre-filled with blank images
             array<VkDescriptorImageInfo, MAX_IMAGES> imagesInfo;
         };
         vector<FrameData> frameData;
+
+        // The color attachment for rendering
+        vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
 
         // For vkCmdSetVertexInputEXT
         vector<VkVertexInputAttributeDescription2EXT> attributeDescriptions{};

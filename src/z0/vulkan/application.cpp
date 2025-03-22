@@ -26,7 +26,6 @@ import z0.vulkan.Device;
 import z0.vulkan.Instance;
 import z0.vulkan.SceneRenderer;
 import z0.vulkan.VectorRenderer;
-import z0.vulkan.TonemappingPostprocessingRenderer;
 import z0.vulkan.Image;
 
 namespace z0 {
@@ -64,7 +63,6 @@ namespace z0 {
         postprocessingRenderersOrder.clear();
         sceneRenderer.reset();
         if (vectorRenderer) { vectorRenderer.reset(); }
-        if (tonemappingRenderer) { tonemappingRenderer.reset(); }
         if (debugRenderer) { debugRenderer.reset(); }
         // shutdown the Vulkan device & instance
         device->cleanup();
@@ -79,19 +77,13 @@ namespace z0 {
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass,
             applicationConfig.useNormalPrepass);
-        // create the HDR tone mapping renderer
-        tonemappingRenderer = make_shared<TonemappingPostprocessingRenderer>(
-             *device,
-             sceneRenderer->getColorAttachments(),
-             sceneRenderer->getDepthAttachments());
         // create the vector renderer used by the UI components
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
-            tonemappingRenderer->getColorAttachments());
+            sceneRenderer->getColorAttachments());
 
         // Register the renderers in order, the first registered will be the last executed
         device->registerRenderer(vectorRenderer);
-        device->registerRenderer(tonemappingRenderer);
         if (applicationConfig.debug) {
             debugRenderer = make_shared<DebugRenderer>(
                 *device,
@@ -118,20 +110,21 @@ namespace z0 {
         device->wait();
     }
 
-    void VulkanApplication::addPostprocessing(const string& fragShaderName) {
+    void VulkanApplication::addPostprocessing(const string& fragShaderName, void* data, uint32_t dataSize) {
         waitForRenderingSystem();
         device->unRegisterRenderer(sceneRenderer, true);
         if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
         const auto& renderer =  make_shared<PostprocessingRenderer>(
              *device,
              fragShaderName,
+             data, dataSize,
              postprocessingRenderers.empty() ?
                 sceneRenderer->getColorAttachments() :
                 postprocessingRenderersOrder.back()->getColorAttachments(),
              sceneRenderer->getDepthAttachments(),
              sceneRenderer->getNormalAttachments());
         device->registerRenderer(renderer);
-        tonemappingRenderer->setInputColorAttachments(renderer->getColorAttachments());
+        vectorRenderer->setInputColorAttachments(renderer->getColorAttachments());
         if (applicationConfig.debug) { device->registerRenderer(debugRenderer); }
         device->registerRenderer(sceneRenderer);
         postprocessingRenderers[fragShaderName] = renderer;
@@ -147,7 +140,7 @@ namespace z0 {
             if (applicationConfig.debug) { device->registerRenderer(debugRenderer); }
             device->registerRenderer(sceneRenderer);
             postprocessingRenderers.erase(fragShaderName);
-            tonemappingRenderer->setInputColorAttachments(
+            vectorRenderer->setInputColorAttachments(
                 postprocessingRenderers.empty() ?
                     sceneRenderer->getColorAttachments() :
                     postprocessingRenderersOrder.back()->getColorAttachments()
@@ -250,6 +243,8 @@ namespace z0 {
     }
 
     float VulkanApplication::getAspectRatio() const { return device->getAspectRatio(); }
+
+    vec2 VulkanApplication::getExtent() const { return vec2{device->getSwapChainExtent().width, device->getSwapChainExtent().height}; }
 
     uint64_t VulkanApplication::getDedicatedVideoMemory() const { return device->getDedicatedVideoMemory(); }
 

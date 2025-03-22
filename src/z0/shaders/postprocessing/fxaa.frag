@@ -8,15 +8,19 @@
 
 #include "postprocessing_input.glsl"
 
-// FXAA parameters
-const float FXAA_SPAN_MAX = 4.0;
-const float FXAA_REDUCE_MUL = 1.0 / 8.0;
-const float FXAA_REDUCE_MIN = 1.0 / 128.0;
+layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
+    /* This parameter defines the maximum span size for searching neighboring pixels when detecting edges.
+        A higher value allows smoothing of wider edges but can also introduce excessive blurring. */
+    float spanMax; // 8.0;
+    /* This parameter is a multiplier used to reduce the sensitivity of edge detection.
+        A lower value makes the algorithm more sensitive to small details, while a higher value makes it less sensitive.*/
+    float reduceMul; // 1.0 / 8.0;
+    /*  This parameter sets the minimum reduction threshold for edge detection.
+        This helps to avoid visual artifacts by ensuring that subtle edges are not completely ignored*/
+    float reduceMin; // 1.0 / 128.0;
+} global;
 
-vec2 texelSize = vec2(1.0 / 1280.0, 1.0 / 720.0); // 1.0 / texture resolution
-
-
-vec3 fxaa(sampler2D tex, vec2 uv) {
+vec3 fxaa(sampler2D tex, const vec2 uv, const vec2 texelSize) {
 //    vec2 rcpFrame = 1.0 / vec2(textureSize(tex, 0));
     vec3 rgbNW = texture(tex, uv + vec2(-1.0, -1.0) * texelSize).rgb;
     vec3 rgbNE = texture(tex, uv + vec2(1.0, -1.0) * texelSize).rgb;
@@ -38,10 +42,10 @@ vec3 fxaa(sampler2D tex, vec2 uv) {
     dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
     dir.y = ((lumaNW + lumaSW) - (lumaNE + lumaSE));
 
-    float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
+    float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * global.reduceMul), global.reduceMin);
     float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
 
-    dir = min(vec2(FXAA_SPAN_MAX, FXAA_SPAN_MAX), max(vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX), dir * rcpDirMin)) * texelSize;
+    dir = min(vec2(global.spanMax, global.spanMax), max(vec2(-global.spanMax, -global.spanMax), dir * rcpDirMin)) * texelSize;
 
     vec3 rgbA = 0.5 * (texture(tex, uv + dir * (1.0 / 3.0 - 0.5)).rgb + texture(tex, uv + dir * (2.0 / 3.0 - 0.5)).rgb);
     vec3 rgbB = rgbA * 0.5 + 0.25 * (texture(tex, uv + dir * -0.5).rgb + texture(tex, uv + dir * 0.5).rgb);
@@ -55,5 +59,5 @@ vec3 fxaa(sampler2D tex, vec2 uv) {
 }
 
 void main() {
-    COLOR = vec4(fxaa(inputImage, UV), 1.0);
+    COLOR = vec4(fxaa(inputImage, UV, pushConstants.texelSize), 1.0);
 }

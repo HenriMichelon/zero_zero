@@ -10,3 +10,7 @@ layout(binding = BINDING_NORMAL_COLOR) uniform sampler2D normalColor;
 
 layout (location = 0) in vec2 UV;
 layout (location = 0) out vec4 COLOR;
+
+layout(push_constant) uniform PushConstants {
+    vec2 texelSize;
+} pushConstants;

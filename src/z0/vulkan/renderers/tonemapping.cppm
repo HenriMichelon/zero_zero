@@ -29,12 +29,10 @@ export namespace z0 {
 
         void update(uint32_t currentFrame) override;
 
-        void createDescriptorSetLayout() override;
-
     private:
         struct GlobalUniformBuffer {
-            alignas(4) float gamma{2.2f};
-            alignas(4) float exposure{1.0f};
-        };
+            float gamma{2.2f};
+            float exposure{1.0f};
+        } globalUbo;
     };
 }

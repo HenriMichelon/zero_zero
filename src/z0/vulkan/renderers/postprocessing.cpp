@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2024-2025 Henri Michelon
  *
  * This software is released under the MIT License.
@@ -26,19 +26,23 @@ namespace z0 {
     PostprocessingRenderer::PostprocessingRenderer(
         Device &                                       device,
         const string&                                  fragShaderName,
+        void*                                          globalBufferData,
+        const uint32_t                                 globalBufferSize,
         const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachment,
         const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachment,
         const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachment) :
         Renderpass{device, WINDOW_CLEAR_COLOR},
         Renderer{false},
         fragShaderName{fragShaderName},
+        globalBufferData{globalBufferData},
+        globalBufferSize{globalBufferSize == 0 ? 1 : globalBufferSize},
         inputColorAttachment{inputColorAttachment},
         depthAttachment{depthAttachment},
         normalColorAttachment{normalColorAttachment} {
         outputColorAttachment.resize(device.getFramesInFlight());
         globalBuffer.resize(device.getFramesInFlight());
         createImagesResources();
-        createOrUpdateResources();
+        createOrUpdateResources(true, &pushConstantRange, 1);
     }
 
     void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
@@ -57,16 +61,32 @@ namespace z0 {
         fragShader = createShader(fragShaderName + ".frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
+    void PostprocessingRenderer::update(const uint32_t currentFrame) {
+        if (globalBufferData != nullptr) {
+            writeUniformBuffer(globalBuffer[currentFrame], globalBufferData);
+        }
+    }
+
     void PostprocessingRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
         beginRendering(currentFrame);
         const auto& commandBuffer = commandBuffers[currentFrame];
         bindShaders(commandBuffer);
+        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         vkCmdSetRasterizationSamplesEXT(commandBuffer, VK_SAMPLE_COUNT_1_BIT);
         vkCmdSetDepthTestEnable(commandBuffer, VK_FALSE);
-        setViewport(commandBuffer, device.getSwapChainExtent().width, device.getSwapChainExtent().height);
         vkCmdSetVertexInputEXT(commandBuffer, 0, nullptr, 0, nullptr);
         vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
         bindDescriptorSets(commandBuffer, currentFrame);
+        const auto pushConstants = PushConstants {
+            .texelSize = 1.0f / vec2{device.getSwapChainExtent().width, device.getSwapChainExtent().height},
+        };
+        vkCmdPushConstants(
+               commandBuffer,
+               pipelineLayout,
+               VK_SHADER_STAGE_FRAGMENT_BIT,
+               0,
+               PUSH_CONSTANTS_SIZE,
+               &pushConstants);
         vkCmdDraw(commandBuffer, 3, 1, 0, 0);
         endRendering(currentFrame, isLast);
     }

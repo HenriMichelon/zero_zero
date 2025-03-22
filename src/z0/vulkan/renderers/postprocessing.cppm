@@ -31,6 +31,8 @@ export namespace z0 {
     public:
         PostprocessingRenderer(Device&                                        device,
                                const string&                                  fragShaderName,
+                               void*                                          globalBufferData,
+                               uint32_t                                       globalBufferSize,
                                const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachment,
                                const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachement,
                                const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachement);
@@ -46,6 +48,8 @@ export namespace z0 {
         void cleanup() override;
 
         void loadShaders() override;
+
+        void update(uint32_t currentFrame) override;
 
         void createOrUpdateDescriptorSet(bool create) override;
 
@@ -74,10 +78,21 @@ export namespace z0 {
         const string                                  fragShaderName;
         uint32_t                                      globalBufferSize{1};
         vector<unique_ptr<Buffer>>                    globalBuffer;
+        void*                                         globalBufferData{nullptr};
         vector<shared_ptr<ColorFrameBufferHDR>>       outputColorAttachment;
         vector<shared_ptr<ColorFrameBufferHDR>>       inputColorAttachment;
         const vector<shared_ptr<DepthFrameBuffer>>    depthAttachment;
         const vector<shared_ptr<NormalFrameBuffer>>   normalColorAttachment;
+
+        struct PushConstants {
+            alignas(8) vec2 texelSize;
+        };
+        static constexpr uint32_t PUSH_CONSTANTS_SIZE{sizeof(PushConstants)};
+        static constexpr VkPushConstantRange pushConstantRange {
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = PUSH_CONSTANTS_SIZE
+        };
 
         // Default blank image (for optional frame buffers)
         shared_ptr<VulkanImage> blankImage{nullptr};

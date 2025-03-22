@@ -46,8 +46,11 @@ vec4 gaussianBlur(sampler2D image, vec2 texCoord, vec2 texSize, int kernelSize, 
     return color;
 }
 
+layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
+    int kernelSize;
+    float strength;
+} global;
+
 void main() {
-    int kernelSize = 7;
-    float blurStrength = 10.0;
-    COLOR = gaussianBlur(inputImage, UV,  textureSize(inputImage, 0), kernelSize, blurStrength);
+    COLOR = gaussianBlur(inputImage, UV,  textureSize(inputImage, 0), global.kernelSize, global.strength);
 }

@@ -21,7 +21,6 @@ import z0.vulkan.Device;
 import z0.vulkan.Instance;
 import z0.vulkan.PostprocessingRenderer;
 import z0.vulkan.SceneRenderer;
-import z0.vulkan.TonemappingPostprocessingRenderer;
 import z0.vulkan.VectorRenderer;
 
 export namespace z0 {
@@ -33,6 +32,8 @@ export namespace z0 {
         ~VulkanApplication() override;
 
         float getAspectRatio() const override;
+
+        vec2 getExtent() const override;
 
         uint64_t getDedicatedVideoMemory() const override;
 
@@ -52,7 +53,7 @@ export namespace z0 {
 
         void setShadowCasting(bool enable) const override;
 
-        void addPostprocessing(const string& fragShaderName) override;
+        void addPostprocessing(const string& fragShaderName, void* data = nullptr, uint32_t dataSize = 0) override;
 
         void removePostprocessing(const string& fragShaderName) override;
 
@@ -65,8 +66,6 @@ export namespace z0 {
         shared_ptr<SceneRenderer> sceneRenderer;
         // The 2D vector renderer used for the UI
         shared_ptr<VectorRenderer> vectorRenderer;
-        // HDR & Gamma correction renderer
-        shared_ptr<TonemappingPostprocessingRenderer> tonemappingRenderer;
         // Debug view
         shared_ptr<DebugRenderer> debugRenderer;
         // Debug view config

@@ -26,21 +26,14 @@ namespace z0 {
             const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr,
             const vector<shared_ptr<DepthFrameBuffer>>& depthAttachement):
         PostprocessingRenderer{
-            device, "reinhard",
+            device, "reinhard", &globalUbo, sizeof(GlobalUniformBuffer),
             inputColorAttachmentHdr, depthAttachement, {}} {}
 
     void TonemappingPostprocessingRenderer::update(const uint32_t currentFrame) {
         const auto& config = app().getConfig();
-        const GlobalUniformBuffer globalUbo {
-            .gamma = config.gamma,
-            .exposure = config.exposure,
-        };
-        writeUniformBuffer(globalBuffer[currentFrame], &globalUbo);
-    }
-
-    void TonemappingPostprocessingRenderer::createDescriptorSetLayout() {
-        globalBufferSize = sizeof(GlobalUniformBuffer);
-        PostprocessingRenderer::createDescriptorSetLayout();
+        globalUbo.gamma = config.gamma;
+        globalUbo.exposure = config.exposure;
+        PostprocessingRenderer::update(currentFrame);
     }
 
 }
