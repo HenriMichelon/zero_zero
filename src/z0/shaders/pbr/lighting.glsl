@@ -120,5 +120,4 @@ vec3 calcPointLight(Light light, vec3 albedo, vec3 normal,float metallic, float 
         return min(diffuse, vec3(1.0f));
 
     }
-
 }

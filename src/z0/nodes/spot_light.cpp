@@ -39,9 +39,7 @@ namespace z0 {
 
     void SpotLight::setProperty(const string &property, const string &value) {
         OmniLight::setProperty(property, value);
-        if (property == "fov") {
-            fov = stof(value);
-        } else if (property == "cutoff") {
+        if (property == "cutoff") {
             setCutOff(stof(value));
         } else if (property == "outer_cutoff") {
             setOuterCutOff(stof(value));
