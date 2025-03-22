@@ -146,20 +146,25 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
-        const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                                                            .imageView   = outputColorAttachment[currentFrame]->getImageView(),
-                                                            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                                            .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                                                            .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
-                                                            .clearValue  = clearColor};
-        const VkRenderingInfo           renderingInfo{.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                                                      .pNext                = nullptr,
-                                                      .renderArea           = {{0, 0}, device.getSwapChainExtent()},
-                                                      .layerCount           = 1,
-                                                      .colorAttachmentCount = 1,
-                                                      .pColorAttachments    = &colorAttachmentInfo,
-                                                      .pDepthAttachment     = nullptr,
-                                                      .pStencilAttachment   = nullptr};
+        const VkRenderingAttachmentInfo colorAttachmentInfo{
+            .sType       = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
+            .imageView = outputColorAttachment[currentFrame]->getImageView(),
+            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
+            .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
+            .clearValue  = clearColor
+        };
+
+        const VkRenderingInfo renderingInfo{
+            .sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+            .pNext                = nullptr,
+            .renderArea           = {{0, 0}, device.getSwapChainExtent()},
+            .layerCount           = 1,
+            .colorAttachmentCount = 1,
+            .pColorAttachments    = &colorAttachmentInfo,
+            .pDepthAttachment     = nullptr,
+            .pStencilAttachment   = nullptr
+        };
         vkCmdBeginRendering(commandBuffer, &renderingInfo);
     }
 
