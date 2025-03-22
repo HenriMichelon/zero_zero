@@ -6,6 +6,7 @@
 
 layout(binding = BINDING_INPUT_COLOR) uniform sampler2D inputImage;
 layout(binding = BINDING_DEPTH_BUFFER) uniform sampler2D depthBuffer;
+layout(binding = BINDING_NORMAL_COLOR) uniform sampler2D normalColor;
 
 layout (location = 0) in vec2 UV;
 layout (location = 0) out vec4 COLOR;
