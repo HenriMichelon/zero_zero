@@ -120,7 +120,7 @@ namespace z0 {
                                 pipelineLayout,
                                 0,
                                 1,
-                                &descriptorSet.at(currentFrame),
+                                &descriptorSet[currentFrame],
                                 count,
                                 offsets);
     }

@@ -116,6 +116,34 @@ namespace z0 {
         device->wait();
     }
 
+    void VulkanApplication::addPostprocessing(const string& fragShaderName) {
+        waitForRenderingSystem();
+        device->unRegisterRenderer(sceneRenderer, true);
+        if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
+        const auto& renderer =  make_shared<PostprocessingRenderer>(
+             *device,
+             fragShaderName,
+             sceneRenderer->getColorAttachments(),
+             sceneRenderer->getDepthAttachments(),
+             sceneRenderer->getNormalAttachments());
+        device->registerRenderer(renderer);
+        if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
+        device->unRegisterRenderer(sceneRenderer, true);
+        postprocessingRenderers[fragShaderName] = renderer;
+    }
+
+    void VulkanApplication::removePostprocessing(const string& fragShaderName) {
+        if (postprocessingRenderers.contains(fragShaderName)) {
+            waitForRenderingSystem();
+            device->unRegisterRenderer(sceneRenderer, true);
+            if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
+            device->unRegisterRenderer(postprocessingRenderers[fragShaderName], true);
+            if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
+            device->unRegisterRenderer(sceneRenderer, true);
+            postprocessingRenderers.erase(fragShaderName);
+        }
+    }
+
     void VulkanApplication::processDeferredUpdates(const uint32_t currentFrame) {
         // Update renderer resources
         sceneRenderer->preUpdateScene(currentFrame);

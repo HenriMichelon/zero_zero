@@ -27,15 +27,7 @@ namespace z0 {
             const vector<shared_ptr<DepthFrameBuffer>>& depthAttachement):
         PostprocessingRenderer{
             device, "reinhard",
-            inputColorAttachmentHdr, depthAttachement, {}} {
-        globalBuffer.resize(device.getFramesInFlight());
-        createOrUpdateResources();
-    }
-
-    void TonemappingPostprocessingRenderer::cleanup() {
-        globalBuffer.clear();
-        PostprocessingRenderer::cleanup();
-    }
+            inputColorAttachmentHdr, depthAttachement, {}} {}
 
     void TonemappingPostprocessingRenderer::update(const uint32_t currentFrame) {
         const auto& config = app().getConfig();
@@ -47,12 +39,8 @@ namespace z0 {
     }
 
     void TonemappingPostprocessingRenderer::createDescriptorSetLayout() {
-        PostprocessingRenderer::createDescriptorSetLayout();
         globalBufferSize = sizeof(GlobalUniformBuffer);
-        for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            globalBuffer[i] = createUniformBuffer(sizeof(GlobalUniformBuffer));
-        }
+        PostprocessingRenderer::createDescriptorSetLayout();
     }
-
 
 }

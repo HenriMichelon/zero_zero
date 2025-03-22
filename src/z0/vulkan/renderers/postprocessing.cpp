@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2024-2025 Henri Michelon
- * 
+ *
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
@@ -36,7 +36,9 @@ namespace z0 {
         depthAttachment{depthAttachment},
         normalColorAttachment{normalColorAttachment} {
         outputColorAttachment.resize(device.getFramesInFlight());
+        globalBuffer.resize(device.getFramesInFlight());
         createImagesResources();
+        createOrUpdateResources();
     }
 
     // void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
@@ -45,6 +47,7 @@ namespace z0 {
     // }
 
     void PostprocessingRenderer::cleanup() {
+        globalBuffer.clear();
         cleanupImagesResources();
         Renderpass::cleanup();
     }
@@ -86,6 +89,9 @@ namespace z0 {
                             .build();
         if (blankImage == nullptr) {
             blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device));
+        }
+        for (auto i = 0; i < device.getFramesInFlight(); i++) {
+            globalBuffer[i] = createUniformBuffer(globalBufferSize);
         }
     }
 

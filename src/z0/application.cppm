@@ -194,6 +194,9 @@ namespace z0 {
          */
         inline auto getDisplayDebug() const { return displayDebug; }
 
+        virtual void addPostprocessing(const string& fragShaderName) = 0;
+        virtual void removePostprocessing(const string& fragShaderName) = 0;
+
     private:
         // State of the current scene
         bool paused{false};

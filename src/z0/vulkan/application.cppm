@@ -19,6 +19,7 @@ import z0.nodes.Node;
 import z0.vulkan.DebugRenderer;
 import z0.vulkan.Device;
 import z0.vulkan.Instance;
+import z0.vulkan.PostprocessingRenderer;
 import z0.vulkan.SceneRenderer;
 import z0.vulkan.TonemappingPostprocessingRenderer;
 import z0.vulkan.VectorRenderer;
@@ -51,6 +52,10 @@ export namespace z0 {
 
         void setShadowCasting(bool enable) const override;
 
+        void addPostprocessing(const string& fragShaderName) override;
+
+        void removePostprocessing(const string& fragShaderName) override;
+
     private:
         // The Vulkan device helper object
         unique_ptr<Device> device;
@@ -66,6 +71,8 @@ export namespace z0 {
         shared_ptr<DebugRenderer> debugRenderer;
         // Debug view config
         JPH::BodyManager::DrawSettings bodyDrawSettings{};
+        // Currents post-processing effects
+        map<string, shared_ptr<PostprocessingRenderer>> postprocessingRenderers;
 
         static constexpr auto MAX_ASYNC_NODE_OP_PER_FRAME{20};
     };

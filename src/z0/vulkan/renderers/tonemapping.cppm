@@ -27,8 +27,6 @@ export namespace z0 {
             const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr,
             const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachement);
 
-        void cleanup() override;
-
         void update(uint32_t currentFrame) override;
 
         void createDescriptorSetLayout() override;

@@ -72,7 +72,7 @@ export namespace z0 {
         };
 
         const string                                  fragShaderName;
-        uint32_t                                      globalBufferSize{0};
+        uint32_t                                      globalBufferSize{1};
         vector<unique_ptr<Buffer>>                    globalBuffer;
         vector<shared_ptr<ColorFrameBufferHDR>>       outputColorAttachment;
         const vector<shared_ptr<ColorFrameBufferHDR>> inputColorAttachment;
