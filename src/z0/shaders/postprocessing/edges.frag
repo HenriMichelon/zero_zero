@@ -42,11 +42,13 @@ float edgeDetection(const vec2 uv, const vec2 texelSize) {
 
 layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
     float threshold;
+    float lineWidth;
     vec3  color;
 } global;
 
 void main() {
-    if (edgeDetection(UV, pushConstants.texelSize) > global.threshold) {
+    float edge = edgeDetection(UV, pushConstants.texelSize * global.lineWidth);
+    if (edge > global.threshold) {
         COLOR = vec4(global.color, 1.0);
     } else {
         COLOR = texture(inputImage, UV);
