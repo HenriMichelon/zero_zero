@@ -22,11 +22,10 @@ export namespace z0 {
      */
     class TonemappingPostprocessingRenderer : public PostprocessingRenderer {
     public:
-        TonemappingPostprocessingRenderer(Device& device,
-                                     const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr,
-                                     const vector<shared_ptr<DepthFrameBuffer>>& depthBuffer);
-
-        void loadShaders() override;
+        TonemappingPostprocessingRenderer(
+            Device& device,
+            const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachmentHdr,
+            const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachement);
 
         void cleanup() override;
 
@@ -34,15 +33,10 @@ export namespace z0 {
 
         void createDescriptorSetLayout() override;
 
-        void createOrUpdateDescriptorSet(bool create) override;
-
     private:
         struct GlobalUniformBuffer {
             alignas(4) float gamma{2.2f};
             alignas(4) float exposure{1.0f};
         };
-
-        vector<unique_ptr<Buffer>>           globalBuffer;
-        vector<shared_ptr<DepthFrameBuffer>> resolvedDepthBuffer;
     };
 }

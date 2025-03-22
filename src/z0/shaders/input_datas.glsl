@@ -19,7 +19,7 @@
 #define BINDING_PBR_IRRADIANCE_MAP 9
 #define BINDING_PBR_BRDF_LUT       10
 #define BINDING_DEPTH_BUFFER       11
-#define BINDING_NORMAL_BUFFER      12
+//#define BINDING_NORMAL_BUFFER      12
 
 struct VertexOut {
     vec2    UV;
@@ -120,7 +120,7 @@ layout(set = SCENE_SET, binding = BINDING_PBR_IRRADIANCE_MAP) uniform samplerCub
 layout(set = SCENE_SET, binding = BINDING_PBR_BRDF_LUT) uniform sampler2D specularBRDF_LUT;
 
 layout(set = SCENE_SET, binding = BINDING_DEPTH_BUFFER) uniform sampler2D depthBuffer;
-layout(set = SCENE_SET, binding = BINDING_NORMAL_BUFFER) uniform sampler2D normalBuffer;
+//layout(set = SCENE_SET, binding = BINDING_NORMAL_BUFFER) uniform sampler2D normalBuffer;
 
 layout(push_constant) uniform PushConstants {
     int modelIndex;

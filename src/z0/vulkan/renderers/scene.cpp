@@ -491,7 +491,7 @@ namespace z0 {
                         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 6 * device.getFramesInFlight())
                         // textures, shadow maps, shadow cubemap & PBR*3
                         .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 5))
+                            device.getFramesInFlight() * (MAX_IMAGES + MAX_SHADOW_MAPS * 2 + 4))
                         .build();
 
         setLayout = DescriptorSetLayout::Builder(device)
@@ -534,9 +534,9 @@ namespace z0 {
                             .addBinding(BINDING_DEPTH_BUFFER,
                                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                         VK_SHADER_STAGE_FRAGMENT_BIT)
-                            .addBinding(BINDING_NORMAL_BUFFER,
-                                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                        VK_SHADER_STAGE_FRAGMENT_BIT)
+                            // .addBinding(BINDING_NORMAL_BUFFER,
+                                        // VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                        // VK_SHADER_STAGE_FRAGMENT_BIT)
                             .build();
 
         // Create an in-memory default blank images
@@ -634,16 +634,12 @@ namespace z0 {
                 brdfInfo = blankImage->getImageInfo();
             }
 
-            if (enableDepthPrepass) {
-                frame.depthBufferInfo = resolvedDepthFrameBuffer[frameIndex]->imageInfo();
-            } else {
-                frame.depthBufferInfo = blankCubemap->getImageInfo();
-            }
-            if (enableNormalPrepass) {
-                frame.normalBufferInfo = resolvedNormalFrameBuffer[frameIndex]->imageInfo();
-            } else {
-                frame.normalBufferInfo = blankCubemap->getImageInfo();
-            }
+            frame.depthBufferInfo = enableDepthPrepass ?
+               blankImage->getImageInfo() :
+               resolvedDepthFrameBuffer[frameIndex]->imageInfo();
+            // frame.normalBufferInfo = enableNormalPrepass ?
+                // blankImage->getImageInfo() :
+                // resolvedNormalFrameBuffer[frameIndex]->imageInfo();
 
             auto writer = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
@@ -657,8 +653,8 @@ namespace z0 {
                 .writeImage(BINDING_PBR_ENV_MAP, &specularInfo)
                 .writeImage(BINDING_PBR_IRRADIANCE_MAP, &irradianceInfo)
                 .writeImage(BINDING_PBR_BRDF_LUT, &brdfInfo)
-                .writeImage(BINDING_DEPTH_BUFFER, &frame.depthBufferInfo)
-                .writeImage(BINDING_NORMAL_BUFFER, &frame.normalBufferInfo);
+                .writeImage(BINDING_DEPTH_BUFFER, &frame.depthBufferInfo);
+                // .writeImage(BINDING_NORMAL_BUFFER, &frame.normalBufferInfo);
             if (!writer.build(descriptorSet.at(frameIndex), create))
                 die("Cannot allocate descriptor set for scene renderer");
         }

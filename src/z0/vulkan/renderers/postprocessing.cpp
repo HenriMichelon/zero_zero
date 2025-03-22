@@ -13,6 +13,8 @@ module z0.vulkan.PostprocessingRenderer;
 import z0.Constants;
 import z0.Tools;
 
+import z0.resources.Image;
+
 import z0.vulkan.ColorFrameBufferHDR;
 import z0.vulkan.Descriptors;
 import z0.vulkan.Device;
@@ -21,20 +23,26 @@ import z0.vulkan.Renderpass;
 
 namespace z0 {
 
-    PostprocessingRenderer::PostprocessingRenderer(Device &device,
-                                                   const vector<shared_ptr<ColorFrameBufferHDR>> & inputColorAttachment) :
-        Renderer{false},
+    PostprocessingRenderer::PostprocessingRenderer(
+        Device &                                       device,
+        const string&                                  fragShaderName,
+        const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachment,
+        const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachment,
+        const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachment) :
         Renderpass{device, WINDOW_CLEAR_COLOR},
-        inputColorAttachmentHdr{inputColorAttachment} {
-        colorAttachmentHdr.resize(device.getFramesInFlight());
-        inputColorAttachmentHdr.resize(device.getFramesInFlight());
+        Renderer{false},
+        fragShaderName{fragShaderName},
+        inputColorAttachment{inputColorAttachment},
+        depthAttachment{depthAttachment},
+        normalColorAttachment{normalColorAttachment} {
+        outputColorAttachment.resize(device.getFramesInFlight());
         createImagesResources();
     }
 
-    void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
-        inputColorAttachmentHdr = input;
-        createOrUpdateDescriptorSet(false);
-    }
+    // void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
+        // inputColorAttachment = input;
+        // createOrUpdateDescriptorSet(false);
+    // }
 
     void PostprocessingRenderer::cleanup() {
         cleanupImagesResources();
@@ -43,6 +51,7 @@ namespace z0 {
 
     void PostprocessingRenderer::loadShaders() {
         vertShader = createShader("quad.vert", VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT);
+        fragShader = createShader(fragShaderName + ".frag", VK_SHADER_STAGE_FRAGMENT_BIT, 0);
     }
 
     void PostprocessingRenderer::drawFrame(const uint32_t currentFrame, const bool isLast) {
@@ -62,46 +71,68 @@ namespace z0 {
     void PostprocessingRenderer::createDescriptorSetLayout() {
         descriptorPool = DescriptorPool::Builder(device)
                                  .setMaxSets(device.getFramesInFlight())
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, device.getFramesInFlight())
+                                 .addPoolSize(
+                                     VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                     device.getFramesInFlight())
+                                 .addPoolSize(
+                                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                     device.getFramesInFlight() * (BINDING_NORMAL_COLOR + 1))
                                  .build();
         setLayout = DescriptorSetLayout::Builder(device)
-                            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .addBinding(BINDING_GLOBAL_BUFFER, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                            .addBinding(BINDING_INPUT_COLOR, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .addBinding(BINDING_DEPTH_BUFFER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .addBinding(BINDING_NORMAL_COLOR, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
+        if (blankImage == nullptr) {
+            blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device));
+        }
     }
 
     void PostprocessingRenderer::createOrUpdateDescriptorSet(const bool create) {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            auto imageInfo = inputColorAttachmentHdr[i]->imageInfo();
+            auto globalBufferInfo = globalBuffer[i]->descriptorInfo(globalBufferSize);
+            auto imageInfo = inputColorAttachment[i]->imageInfo();
+            auto depthInfo = depthAttachment.empty() ?
+                blankImage->getImageInfo() :
+                depthAttachment[i]->imageInfo();
+            auto normalInfo = normalColorAttachment.empty() ?
+                blankImage->getImageInfo() :
+                normalColorAttachment[i]->imageInfo();
             auto writer    = DescriptorWriter(*setLayout, *descriptorPool)
-                .writeImage(0, &imageInfo);
-            if (!writer.build(descriptorSet[i], create))
+                .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
+                .writeImage(BINDING_INPUT_COLOR, &imageInfo)
+                .writeImage(BINDING_DEPTH_BUFFER, &depthInfo)
+                .writeImage(BINDING_NORMAL_COLOR, &normalInfo);
+            if (!writer.build(descriptorSet[i], create)) {
                 die("Cannot allocate descriptor set for PostprocessingRenderer");
+            }
         }
     }
 
     void PostprocessingRenderer::createImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            colorAttachmentHdr[i] = make_shared<ColorFrameBufferHDR>(device);
+            outputColorAttachment[i] = make_shared<ColorFrameBufferHDR>(device);
         }
     }
 
     void PostprocessingRenderer::cleanupImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            colorAttachmentHdr[i]->cleanupImagesResources();
+            outputColorAttachment[i]->cleanupImagesResources();
         }
     }
 
     void PostprocessingRenderer::recreateImagesResources() {
         for (auto i = 0; i < device.getFramesInFlight(); i++) {
-            colorAttachmentHdr[i]->cleanupImagesResources();
-            colorAttachmentHdr[i]->createImagesResources();
+            outputColorAttachment[i]->cleanupImagesResources();
+            outputColorAttachment[i]->createImagesResources();
         }
     }
 
     void PostprocessingRenderer::beginRendering(const uint32_t currentFrame) {
         const auto& commandBuffer = commandBuffers[currentFrame];
         device.transitionImageLayout(commandBuffer,
-                                     colorAttachmentHdr[currentFrame]->getImage(),
+                                     outputColorAttachment[currentFrame]->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                      0,
@@ -110,7 +141,7 @@ namespace z0 {
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_IMAGE_ASPECT_COLOR_BIT);
         const VkRenderingAttachmentInfo colorAttachmentInfo{.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-                                                            .imageView   = colorAttachmentHdr[currentFrame]->getImageView(),
+                                                            .imageView   = outputColorAttachment[currentFrame]->getImageView(),
                                                             .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                             .loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                             .storeOp     = VK_ATTACHMENT_STORE_OP_STORE,
@@ -130,7 +161,7 @@ namespace z0 {
         const auto& commandBuffer = commandBuffers[currentFrame];
         vkCmdEndRendering(commandBuffer);
         device.transitionImageLayout(commandBuffer,
-                                     colorAttachmentHdr[currentFrame]->getImage(),
+                                     outputColorAttachment[currentFrame]->getImage(),
                                      VK_IMAGE_LAYOUT_UNDEFINED,
                                      isLast ? VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
                                             : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,

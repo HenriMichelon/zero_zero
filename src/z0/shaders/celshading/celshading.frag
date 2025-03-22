@@ -15,33 +15,30 @@ float stepmix(float edge0, float edge1, float E, float x)  {
     float T = clamp(0.5 * (x - edge0 + E) / E, 0.0, 1.0);
     return mix(edge0, edge1, T);
 }
-
-float detectEdges(vec2 uv) {
-    float offset = 1.0 / global.screenSize.x;
-
-    vec3 n[9];
-    n[0] = texture(normalBuffer, uv + vec2(-offset, -offset)).rgb;
-    n[1] = texture(normalBuffer, uv + vec2(0.0, -offset)).rgb;
-    n[2] = texture(normalBuffer, uv + vec2(offset, -offset)).rgb;
-    n[3] = texture(normalBuffer, uv + vec2(-offset, 0.0)).rgb;
-    n[4] = texture(normalBuffer, uv).rgb; // Centre
-    n[5] = texture(normalBuffer, uv + vec2(offset, 0.0)).rgb;
-    n[6] = texture(normalBuffer, uv + vec2(-offset, offset)).rgb;
-    n[7] = texture(normalBuffer, uv + vec2(0.0, offset)).rgb;
-    n[8] = texture(normalBuffer, uv + vec2(offset, offset)).rgb;
-
-    // Gradient Sobel
-    vec3 sobelX = n[2] + 2.0 * n[5] + n[8] - (n[0] + 2.0 * n[3] + n[6]);
-    vec3 sobelY = n[0] + 2.0 * n[1] + n[2] - (n[6] + 2.0 * n[7] + n[8]);
-
-    float edge = length(sobelX) + length(sobelY);
-    return edge > 0.2 ? 1.0 : 0.0;
-}
+//
+//float detectEdges(vec2 uv) {
+//    float offset = 1.0 / global.screenSize.x;
+//
+//    vec3 n[9];
+//    n[0] = texture(normalBuffer, uv + vec2(-offset, -offset)).rgb;
+//    n[1] = texture(normalBuffer, uv + vec2(0.0, -offset)).rgb;
+//    n[2] = texture(normalBuffer, uv + vec2(offset, -offset)).rgb;
+//    n[3] = texture(normalBuffer, uv + vec2(-offset, 0.0)).rgb;
+//    n[4] = texture(normalBuffer, uv).rgb; // Centre
+//    n[5] = texture(normalBuffer, uv + vec2(offset, 0.0)).rgb;
+//    n[6] = texture(normalBuffer, uv + vec2(-offset, offset)).rgb;
+//    n[7] = texture(normalBuffer, uv + vec2(0.0, offset)).rgb;
+//    n[8] = texture(normalBuffer, uv + vec2(offset, offset)).rgb;
+//
+//    // Gradient Sobel
+//    vec3 sobelX = n[2] + 2.0 * n[5] + n[8] - (n[0] + 2.0 * n[3] + n[6]);
+//    vec3 sobelY = n[0] + 2.0 * n[1] + n[2] - (n[6] + 2.0 * n[7] + n[8]);
+//
+//    float edge = length(sobelX) + length(sobelY);
+//    return edge > 0.2 ? 1.0 : 0.0;
+//}
 
 void main() {
-    COLOR = vec4(texture(normalBuffer, fs_in.UV).rgb, 1.0);
-    return;
-
     Material material = materials.material[pushConstants.materialIndex];
     Texture textures = textures.texture[pushConstants.materialIndex];
 

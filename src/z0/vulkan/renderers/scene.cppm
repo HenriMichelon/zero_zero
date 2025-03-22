@@ -59,6 +59,8 @@ namespace z0 {
 
         [[nodiscard]] inline const auto& getDepthAttachments() const { return resolvedDepthFrameBuffer; }
 
+        [[nodiscard]] inline const auto& getNormalAttachments() const { return resolvedNormalFrameBuffer; }
+
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImage(); }
 
         [[nodiscard]] inline VkImageView getImageView(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImageView(); }
@@ -112,7 +114,7 @@ namespace z0 {
             BINDING_PBR_IRRADIANCE_MAP = 9,
             BINDING_PBR_BRDF_LUT       = 10,
             BINDING_DEPTH_BUFFER       = 11,
-            BINDING_NORMAL_BUFFER      = 12,
+            // BINDING_NORMAL_BUFFER      = 12,
         };
 
         struct MaterialBuffer {
@@ -220,7 +222,7 @@ namespace z0 {
             // Image info for depth buffer
             VkDescriptorImageInfo depthBufferInfo;
             // Image info for normal buffer
-            VkDescriptorImageInfo normalBufferInfo;
+            // VkDescriptorImageInfo normalBufferInfo;
 
             // All material shaders
             map<string, unique_ptr<Shader>> materialShaders;
@@ -263,7 +265,7 @@ namespace z0 {
         bool enableNormalPrepass;
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
-        // Default blank image (for textures)
+        // Default blank image (for textures & optional frame buffers)
         shared_ptr<VulkanImage> blankImage{nullptr};
         // Default blank image (for shadow mapping)
         shared_ptr<VulkanImage> blankImageArray{nullptr};
