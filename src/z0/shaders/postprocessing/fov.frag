@@ -9,5 +9,6 @@
 #include "blur.glsl"
 
 void main() {
-    COLOR = gaussianBlur(inputImage, UV,  global.kernelSize, global.strength);
+    COLOR = gaussianBlur(inputImage, UV,  global.kernelSize,  exp(global.strength * texture(depthBuffer, UV).r) - 0.5);
 }
+

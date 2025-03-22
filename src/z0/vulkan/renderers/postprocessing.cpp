@@ -122,9 +122,9 @@ namespace z0 {
             auto depthInfo = depthAttachment.empty() ?
                 blankImage->getImageInfo() :
                 depthAttachment[i]->imageInfo();
-            auto normalInfo = normalColorAttachment.empty() ?
-                blankImage->getImageInfo() :
-                normalColorAttachment[i]->imageInfo();
+            auto normalInfo = normalColorAttachment[i] ?
+                normalColorAttachment[i]->imageInfo() :
+                blankImage->getImageInfo();
             auto writer    = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
                 .writeImage(BINDING_INPUT_COLOR, &imageInfo)
