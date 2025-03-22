@@ -266,9 +266,6 @@ namespace z0 {
 
     VulkanImage::~VulkanImage() {
         DEBUG("~VulkanImage ", getName());
-        if (getName() == "Quit") {
-            DEBUG("HERE", getName());
-        }
         vkDestroySampler(device.getDevice(), textureSampler, nullptr);
         vkDestroyImageView(device.getDevice(), textureImageView, nullptr);
         if (textureImage != VK_NULL_HANDLE) { vkDestroyImage(device.getDevice(), textureImage, nullptr); }

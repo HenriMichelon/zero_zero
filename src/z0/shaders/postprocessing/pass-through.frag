@@ -9,6 +9,5 @@
 #include "postprocessing_input.glsl"
 
 void main() {
-    vec3 hdrColor = texture(hdrBuffer, UV).rgb;
-    COLOR = vec4(hdrColor, 1.0);
+    COLOR = vec4(texture(inputImage, UV).rgb, 1.0);
 }

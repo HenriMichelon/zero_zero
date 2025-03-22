@@ -13,14 +13,14 @@ layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
 } global;
 
 void main() {
-    const vec3 hdrColor = texture(hdrBuffer, UV).rgb;
+    const vec3 color = texture(inputImage, UV).rgb;
     const float depth = texture(depthBuffer, UV).r;
     vec3 mapped;
     if (depth == 1.0) {
-        mapped = hdrColor;
+        mapped = color;
     } else {
         // exposure tone mapping
-        mapped = vec3(1.0) - exp(-hdrColor * global.exposure);
+        mapped = vec3(1.0) - exp(-color * global.exposure);
     }
     // gamma correction
     COLOR = vec4(pow(mapped, vec3(1.0 / global.gamma)), 1.0);

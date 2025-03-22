@@ -35,7 +35,7 @@ export namespace z0 {
                                const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachement,
                                const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachement);
 
-        // void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
+        void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
 
         [[nodiscard]] inline auto& getColorAttachments() { return outputColorAttachment; }
 
@@ -75,7 +75,7 @@ export namespace z0 {
         uint32_t                                      globalBufferSize{1};
         vector<unique_ptr<Buffer>>                    globalBuffer;
         vector<shared_ptr<ColorFrameBufferHDR>>       outputColorAttachment;
-        const vector<shared_ptr<ColorFrameBufferHDR>> inputColorAttachment;
+        vector<shared_ptr<ColorFrameBufferHDR>>       inputColorAttachment;
         const vector<shared_ptr<DepthFrameBuffer>>    depthAttachment;
         const vector<shared_ptr<NormalFrameBuffer>>   normalColorAttachment;
 

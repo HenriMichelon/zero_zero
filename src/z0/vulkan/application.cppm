@@ -73,6 +73,7 @@ export namespace z0 {
         JPH::BodyManager::DrawSettings bodyDrawSettings{};
         // Currents post-processing effects
         map<string, shared_ptr<PostprocessingRenderer>> postprocessingRenderers;
+        vector<shared_ptr<PostprocessingRenderer>> postprocessingRenderersOrder;
 
         static constexpr auto MAX_ASYNC_NODE_OP_PER_FRAME{20};
     };

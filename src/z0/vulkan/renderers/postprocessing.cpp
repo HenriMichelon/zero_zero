@@ -41,10 +41,10 @@ namespace z0 {
         createOrUpdateResources();
     }
 
-    // void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
-        // inputColorAttachment = input;
-        // createOrUpdateDescriptorSet(false);
-    // }
+    void PostprocessingRenderer::setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input) {
+        inputColorAttachment = input;
+        createOrUpdateDescriptorSet(false);
+    }
 
     void PostprocessingRenderer::cleanup() {
         globalBuffer.clear();
