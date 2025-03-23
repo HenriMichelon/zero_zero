@@ -454,11 +454,15 @@ namespace z0 {
             }
         }
         for (const auto &renderer : renderers) {
-            if (!renderer->canBeThreaded()) { render(renderer); }
+            if (!renderer->canBeThreaded()) {
+                if (renderer == lastRenderer) {
+                    for (const auto &postprocess : postprocessingRenderers) {
+                        render(postprocess);
+                    }
+                }
+                render(renderer);
+            }
         }
-        // for (const auto &renderer : renderers) {
-        //     render(renderer);
-        // }
 
         {
             const VkSubmitInfo2 submitInfo {
@@ -508,6 +512,14 @@ namespace z0 {
             auto lock = lock_guard(renderersToRemoveMutex);
             renderersToRemove.push_back(renderer);
         }
+    }
+
+    void Device::registerPostprocessing(const shared_ptr<Renderer> &renderer) {
+        postprocessingRenderers.push_back(renderer);
+    }
+
+    void Device::unRegisterPostprocessing(const shared_ptr<Renderer> &renderer) {
+        postprocessingRenderers.remove(renderer);
     }
 
     VkImageView Device::createImageView(const VkImage            image,

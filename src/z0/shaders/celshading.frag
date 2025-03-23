@@ -76,10 +76,9 @@ void main() {
     vec3 specularColor = vec3(0.0f);
     for (uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
-
         vec3 L;
         vec3 diffuse;
-        float factor = 1.0f;
+        float shadow = 1.0f;
         if (light.type == LIGHT_DIRECTIONAL) {
             if (light.mapIndex != -1) {
                 // We have a cascaded shadow map,
@@ -91,15 +90,15 @@ void main() {
                     }
                 }
                 // Get the shadow factor for the cascade
-                factor = shadowFactor(light, cascadeIndex, fs_in.GLOBAL_POSITION);
+                shadow = shadowFactor(light, cascadeIndex, fs_in.GLOBAL_POSITION);
                 // If no shadow try the next cascades (for objets behind the light position in the cascade)
-                if ((factor >= 0.1f) && (cascadeIndex < light.cascadesCount)) {
+                if ((shadow >= 0.1f) && (cascadeIndex < light.cascadesCount)) {
                     float nextFactor = shadowFactor(light, cascadeIndex +1, fs_in.GLOBAL_POSITION);
-                    if (nextFactor < 0.1f) factor = nextFactor;
+                    if (nextFactor < 0.1f) shadow = nextFactor;
                 }
-                if ((factor >= 0.1f) && ((cascadeIndex+1) < light.cascadesCount)) {
+                if ((shadow >= 0.1f) && ((cascadeIndex+1) < light.cascadesCount)) {
                     float nextFactor = shadowFactor(light, cascadeIndex +2, fs_in.GLOBAL_POSITION);
-                    if (nextFactor < 0.1f) factor = nextFactor;
+                    if (nextFactor < 0.1f) shadow = nextFactor;
                 }
             }
             L = normalize(-light.direction);
@@ -109,7 +108,7 @@ void main() {
                 continue;
             }
             if (light.mapIndex != -1) {
-                factor = light.type == LIGHT_SPOT ? shadowFactor(light, 0, fs_in.GLOBAL_POSITION) : shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
+                shadow = light.type == LIGHT_SPOT ? shadowFactor(light, 0, fs_in.GLOBAL_POSITION) : shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
             }
             L = normalize(light.position);
             diffuse = calcPointLight(light, N, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz);
@@ -123,7 +122,7 @@ void main() {
 
         const float A = 0.1;
         const float B = 0.3;
-        const float C = 0.6;
+        const float C = 0.7;
         const float D = 1.0;
         float E = fwidth(df);
 
@@ -143,8 +142,8 @@ void main() {
             sf = step(0.5, sf);
         }
 
-        diffuseColor += df * diffuse * factor;
-        specularColor += sf * diffuse * specular * factor;
+        diffuseColor += df * diffuse * shadow;
+        specularColor += sf * specular * shadow;
     }
     vec3 emmissiveColor = material.emissiveFactor;
     if (textures.emissiveTexture.index != -1) {

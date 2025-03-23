@@ -83,6 +83,10 @@ export namespace z0 {
 
         void unRegisterRenderer(const shared_ptr<Renderer> &renderer, bool immediate);
 
+        void registerPostprocessing(const shared_ptr<Renderer> &renderer);
+
+        void unRegisterPostprocessing(const shared_ptr<Renderer> &renderer);
+
         [[nodiscard]] VkImageView createImageView(VkImage            image,
                                                   VkFormat           format,
                                                   VkImageAspectFlags aspectFlags,
@@ -183,6 +187,8 @@ export namespace z0 {
         // List of renderers to remove at the start of the next frame
         list<shared_ptr<Renderer>>   renderersToRemove;
         mutex                        renderersToRemoveMutex;
+        // List of current post-processing renderers
+        list<shared_ptr<Renderer>>   postprocessingRenderers;
 
         // Total video memory given by the OS (not Vulkan)
         uint64_t                     dedicatedVideoMemory;

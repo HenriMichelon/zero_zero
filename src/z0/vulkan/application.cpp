@@ -111,10 +111,7 @@ namespace z0 {
     }
 
     void VulkanApplication::addPostprocessing(const string& fragShaderName, void* data, uint32_t dataSize) {
-        waitForRenderingSystem();
-        device->unRegisterRenderer(sceneRenderer, true);
-        if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
-        const auto& renderer =  make_shared<PostprocessingRenderer>(
+        const auto& renderer = make_shared<PostprocessingRenderer>(
              *device,
              fragShaderName,
              data, dataSize,
@@ -123,29 +120,27 @@ namespace z0 {
                 postprocessingRenderersOrder.back()->getColorAttachments(),
              sceneRenderer->getDepthAttachments(),
              sceneRenderer->getNormalAttachments());
-        device->registerRenderer(renderer);
-        vectorRenderer->setInputColorAttachments(renderer->getColorAttachments());
-        if (applicationConfig.debug) { device->registerRenderer(debugRenderer); }
-        device->registerRenderer(sceneRenderer);
         postprocessingRenderers[fragShaderName] = renderer;
         postprocessingRenderersOrder.push_back(renderer);
+
+        auto lock = lock_guard(frameDataMutex); // lock rendering
+        waitForRenderingSystem();
+        device->registerPostprocessing(renderer);
+        vectorRenderer->setInputColorAttachments(renderer->getColorAttachments());
     }
 
     void VulkanApplication::removePostprocessing(const string& fragShaderName) {
         if (postprocessingRenderers.contains(fragShaderName)) {
+            auto lock = lock_guard(frameDataMutex); // lock rendering
             waitForRenderingSystem();
-            device->unRegisterRenderer(sceneRenderer, true);
-            if (applicationConfig.debug) { device->unRegisterRenderer(debugRenderer, true); }
-            device->unRegisterRenderer(postprocessingRenderers[fragShaderName], true);
-            if (applicationConfig.debug) { device->registerRenderer(debugRenderer); }
-            device->registerRenderer(sceneRenderer);
+            device->unRegisterPostprocessing(postprocessingRenderers[fragShaderName]);
             postprocessingRenderers.erase(fragShaderName);
+            postprocessingRenderersOrder.pop_back();
             vectorRenderer->setInputColorAttachments(
                 postprocessingRenderers.empty() ?
                     sceneRenderer->getColorAttachments() :
                     postprocessingRenderersOrder.back()->getColorAttachments()
                 );
-            postprocessingRenderersOrder.pop_back();
         }
     }
 
