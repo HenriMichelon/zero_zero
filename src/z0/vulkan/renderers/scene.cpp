@@ -1140,8 +1140,9 @@ namespace z0 {
                                   VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
-    void  SceneRenderer::drawModelsWithoutMaterial(uint32_t currentFrame,
-           const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
+    void  SceneRenderer::drawModelsWithoutMaterial(
+        const uint32_t currentFrame,
+        const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw) {
         const auto& commandBuffer = commandBuffers[currentFrame];
         if ((ModelsRenderer::frameData[currentFrame].currentCamera != nullptr) &&
             (!ModelsRenderer::frameData[currentFrame].models.empty())) {
@@ -1158,6 +1159,9 @@ namespace z0 {
             vkCmdSetCullMode(commandBuffer, VK_CULL_MODE_NONE);
 
             for (const auto &modelByMesh : modelsToDraw) {
+                if (modelByMesh.second.front()->_dontDrawEdges()) {
+                    continue;
+                }
                 const auto &modelIndex = frame.meshesIndices[modelByMesh.first];
                 const auto &mesh = reinterpret_pointer_cast<VulkanMesh>(modelByMesh.second.front()->getMesh());
                 mesh->bind(commandBuffer);

@@ -609,6 +609,7 @@ import z0.Tween;
         list<shared_ptr<Tween>> tweens;
         list<string>            groups;
         bool                    castShadows{true};
+        bool                    dontDrawEdges{false};
 
     public:
         virtual void _onReady();
@@ -621,6 +622,8 @@ import z0.Tween;
 
         inline virtual void _onExitScene() { onExitScene(); }
 
+        void _setNoEdges(bool noEdges);
+
         virtual void _physicsUpdate(float delta);
 
         virtual void _update(float alpha) {}
@@ -630,6 +633,8 @@ import z0.Tween;
         inline auto _setAddedToScene(const bool added) { addedToScene = added; }
 
         inline auto _isAddedToScene() const { return addedToScene; }
+
+        inline auto _dontDrawEdges() const { return dontDrawEdges; }
 
         inline auto& _getTransformLocal() { return localTransform; }
 

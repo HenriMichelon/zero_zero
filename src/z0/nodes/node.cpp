@@ -300,6 +300,8 @@ namespace z0 {
             setName(value);
         } else  if (property == "cast_shadows") {
             setCastShadows(value == "true");
+        } else if (property == "no_edges") {
+            _setNoEdges(value == "true");
         }
     }
 
@@ -340,6 +342,7 @@ namespace z0 {
         child->_onReady();
         child->visible = visible && child->visible;
         child->castShadows = castShadows;
+        child->dontDrawEdges = dontDrawEdges;
         if (addedToScene) { app()._addNode(child, async); }
         return true;
     }
@@ -403,6 +406,15 @@ namespace z0 {
         this->castShadows = castShadows;
         for (const auto &child : children) {
             child->setCastShadows(castShadows);
+        }
+        app()._unlockDeferredUpdate();
+    }
+
+    void Node::_setNoEdges(const bool noEdges) {
+        app()._lockDeferredUpdate();
+        this->dontDrawEdges = noEdges;
+        for (const auto &child : children) {
+            child->_setNoEdges(noEdges);
         }
         app()._unlockDeferredUpdate();
     }

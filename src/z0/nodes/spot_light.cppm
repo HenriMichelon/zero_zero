@@ -44,7 +44,7 @@ export namespace z0 {
         /**
          * Sets the inner cutoff angle that specifies the spotlight's radius, in degrees
          */
-        inline auto setCutOff(const float cutOffDegrees) { cutOff = cos(radians(cutOffDegrees)); }
+        void setCutOff(float cutOffDegrees);
 
         /**
          * Returns the inner cutoff value that specifies the spotlight's radius (not the angle!)

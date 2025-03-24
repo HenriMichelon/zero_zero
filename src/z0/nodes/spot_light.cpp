@@ -28,6 +28,10 @@ namespace z0 {
         outerCutOff{cos(fov)} {
     }
 
+    void SpotLight::setCutOff(const float cutOffDegrees) {
+        cutOff = cos(radians(cutOffDegrees));
+    }
+
     void SpotLight::setOuterCutOff(const float outerCutOffDegrees) {
         fov         = radians(outerCutOffDegrees);
         outerCutOff = cos(fov);

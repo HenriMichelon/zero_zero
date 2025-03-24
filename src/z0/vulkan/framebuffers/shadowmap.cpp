@@ -41,10 +41,10 @@ namespace z0 {
         const auto format = device.findImageSupportedFormat(
                 {
                     VK_FORMAT_D32_SFLOAT,
+                    VK_FORMAT_D16_UNORM,
                     VK_FORMAT_D32_SFLOAT_S8_UINT,
                     VK_FORMAT_D24_UNORM_S8_UINT,
                     VK_FORMAT_D16_UNORM_S8_UINT,
-                    VK_FORMAT_D16_UNORM
                 },
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
@@ -52,10 +52,9 @@ namespace z0 {
                     height,
                     format,
                     VK_SAMPLE_COUNT_1_BIT,
-                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                            VK_IMAGE_USAGE_SAMPLED_BIT,
+                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                     VK_IMAGE_ASPECT_DEPTH_BIT,
-                    isCascaded ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : isCubemap ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D,
+                    isCubemap ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D_ARRAY,
                     isCascaded ? CASCADED_SHADOWMAP_MAX_LAYERS : isCubemap ? 6 : 1,
                     isCubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0);
         if (isCascaded || isCubemap) {
@@ -69,19 +68,20 @@ namespace z0 {
         // Create sampler for the depth attachment.
         // Used to sample in the main fragment shader for the shadow factor calculations
         // const VkFilter shadowmapFilter =
-                // device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-        const VkSamplerCreateInfo samplerCreateInfo{.sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                                                    .magFilter     = VK_FILTER_NEAREST,
-                                                    .minFilter     = VK_FILTER_NEAREST,
-                                                    .mipmapMode    = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-                                                    .addressModeU  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                                                    .addressModeV  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                                                    .addressModeW  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                                                    .mipLodBias    = 0.0f,
-                                                    .maxAnisotropy = 1.0f,
-                                                    .minLod        = 0.0f,
-                                                    .maxLod        = 1.0f,
-                                                    .borderColor   = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
+        // device.formatIsFilterable(format, VK_IMAGE_TILING_OPTIMAL) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+        constexpr VkSamplerCreateInfo samplerCreateInfo{
+            .sType         = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+            .magFilter     = VK_FILTER_LINEAR,
+            .minFilter     = VK_FILTER_LINEAR,
+            .mipmapMode    = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+            .addressModeU  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeV  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeW  = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .mipLodBias    = 0.0f,
+            .maxAnisotropy = 1.0f,
+            .minLod        = 0.0f,
+            .maxLod        = 1.0f,
+            .borderColor   = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE};
         if (vkCreateSampler(device.getDevice(), &samplerCreateInfo, nullptr, &sampler) != VK_SUCCESS) {
             die("failed to create shadowmap sampler!");
         }

@@ -13,7 +13,6 @@ layout(binding = BINDING_GLOBAL_BUFFER) uniform GobalUniformBufferObject {
     float far;
 } global;
 
-
 float LinearizeDepth(float depth) {
     float z = depth * 2.0 - 1.0; // back to NDC
     return (2.0 * global.near * global.far) / (global.far + global.near - z * (global.far - global.near));
