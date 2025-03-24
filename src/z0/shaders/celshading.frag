@@ -142,6 +142,7 @@ void main() {
             sf = step(0.5, sf);
         }
 
+        shadow = shadow < 1.0 ? 0.2 : shadow;
         diffuseColor += df * diffuse * shadow;
         specularColor += sf * specular * shadow;
     }

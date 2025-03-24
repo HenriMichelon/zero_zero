@@ -47,13 +47,6 @@ namespace z0 {
 
     bool Window::resettingMousePosition = false;
 
-    void Input::resetMousePosition() {
-        Window::resettingMousePosition = true;
-        auto &wnd = app().getWindow();
-        SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
-                         wnd._getRect().top + wnd.getHeight() / 2);
-    }
-
     // Rendering Window proc
     LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         static float lastMouseX = -1.0f;

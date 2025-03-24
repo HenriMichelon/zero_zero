@@ -259,12 +259,12 @@ export namespace z0 {
         /*
          * Load a scene from a ZRes file
          */
-        [[nodiscard]] static void load(const shared_ptr<Node>& rootNode, const string &filename);
+        static void load(const shared_ptr<Node>& rootNode, const string &filename);
 
         /*
          * Load a scene from a ZRes data stream
          */
-        [[nodiscard]] static void load(const shared_ptr<Node>& rootNode, ifstream &stream);
+        static void load(const shared_ptr<Node>& rootNode, ifstream &stream);
 
         ZRes() = default;
 

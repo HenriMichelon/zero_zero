@@ -21,6 +21,7 @@ import z0.Constants;
 import z0.InputEvent;
 import z0.Tools;
 import z0.Application;
+import z0.Window;
 
 namespace z0 {
 
@@ -614,6 +615,13 @@ namespace z0 {
     void Input::setMouseCursor(const MouseCursor cursor) {
         SetCursor(_mouseCursors[cursor]);
         PostMessage(app().getWindow()._getHandle(), WM_SETCURSOR, 0, 0);
+    }
+
+    void Input::resetMousePosition() {
+        Window::resettingMousePosition = true;
+        auto &wnd = app().getWindow();
+        SetCursorPos(wnd._getRect().left + wnd.getWidth() / 2,
+                         wnd._getRect().top + wnd.getHeight() / 2);
     }
 
     void Input::setMouseMode(const MouseMode mode) {

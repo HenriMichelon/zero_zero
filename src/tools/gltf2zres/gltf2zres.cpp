@@ -4,6 +4,7 @@
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
 */
+#include "z0/vulkan.h"
 #include <cxxopts.hpp>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
@@ -11,7 +12,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <z0/z0.h>
 #include "z0/libraries.h"
-#include "z0/vulkan.h"
 namespace fs = std::filesystem;
 
 import miplevel;

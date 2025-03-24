@@ -6,6 +6,7 @@
 */
 module;
 #include "z0/libraries.h"
+#include "glm/gtx/quaternion.hpp"
 
 export module z0.nodes.Node;
 

@@ -19,6 +19,10 @@ import z0.VirtualFS;
 
 namespace z0 {
 
+    string Locale::currentLocale{};
+    vector<string> Locale::loadedFileNames;
+    map<string, map<string, string>> Locale::translations{};
+
     string Locale::Translate::operator()(const string& str) const {
         return translations[currentLocale].contains(str) ? string(translations[currentLocale][str]) : str;
     }

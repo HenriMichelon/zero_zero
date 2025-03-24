@@ -9,6 +9,7 @@ module;
 #include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/ObjectLayerPairFilterTable.h>
 #include <cassert>
 #include "z0/libraries.h"
 

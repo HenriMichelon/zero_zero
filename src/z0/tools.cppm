@@ -30,7 +30,7 @@ export namespace z0 {
     inline auto removeNumericSuffix(const string& str) { return regex_replace(str, numericSuffixPattern, ""); }
 
     /**
-     * Violently stop the application, used if something goes wrong
+     * Violently stop the application
      */
     void die(convertible_to<string_view> auto&& ...s) {
         stringstream stringstream;
@@ -38,10 +38,14 @@ export namespace z0 {
             stringstream << v << " ";
         }
         CRITICAL(stringstream.str());
-#if defined(_DEBUG) && defined(_WIN32)
-        __debugbreak();
-#else
-        throw runtime_error(stringstream.str());
+#if defined(_DEBUG)
+     #if defined(__has_builtin)
+             __builtin_debugtrap();
+     #elif defined(_MSC_VER)
+             __debugbreak();
+     #else
+             throw runtime_error(stringstream.str());
+     #endif
 #endif
     }
 
@@ -60,7 +64,7 @@ export namespace z0 {
      */
     vector<string_view> split( string_view str,  char delimiter);
 
-    int numMipmapLevels(const int width, const int height);
+    int numMipmapLevels(int width, int height);
 
     vector<byte> createBlankJPG();
 

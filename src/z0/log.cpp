@@ -5,8 +5,9 @@
  * https://opensource.org/licenses/MIT
 */
 module;
+#include <ctime>
+#include <cstdio>
 #include "z0/libraries.h"
-#include <time.h>
 
 module z0.Log;
 
