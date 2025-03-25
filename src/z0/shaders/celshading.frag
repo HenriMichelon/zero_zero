@@ -93,12 +93,10 @@ void main() {
         glossiness = 1.0;
     }
 
-    vec3 diffuseColor = vec3(0.0f);
-    vec3 specularColor = vec3(0.0f);
+    vec3 diffuseSpecular = vec3(0.0f);
     for (uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
         vec3 L;
-        vec3 diffuse;
         float shadow = 1.0f;
         if (light.type == LIGHT_DIRECTIONAL) {
             if (light.mapIndex != -1) {
@@ -123,7 +121,6 @@ void main() {
                 }
             }
             L = normalize(-light.direction);
-            diffuse = light.color.rgb * light.color.w;
         } else {
             if (distance(fs_in.GLOBAL_POSITION.xyz, light.position) > light.range) {
                 continue;
@@ -132,7 +129,6 @@ void main() {
                 shadow = light.type == LIGHT_SPOT ? shadowFactor(light, 0, fs_in.GLOBAL_POSITION) : shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
             }
             L = normalize(light.position);
-            diffuse = calcPointLight(light, N, fs_in.VIEW_DIRECTION, fs_in.GLOBAL_POSITION.xyz);
         }
 
         // https://prideout.net/blog/old/blog/index.html@p=22.html
@@ -163,10 +159,19 @@ void main() {
             sf = step(0.5, sf);
         }
 
-//        shadow = shadow < 1.0 ? 0.2 : shadow;
-//        shadow = 1.0;
-        diffuseColor += df * diffuse * shadow;
-        specularColor += sf * specular * shadow;
+        vec3 unitLightDirection = normalize(light.direction);
+        vec3 eyeDirection       = normalize(-fs_in.GLOBAL_POSITION.xyz);
+        vec3 reflectedDirection = normalize(-reflect(unitLightDirection, normal));
+        float diffuseIntensity  = max(dot(normal, unitLightDirection), 0.0);
+        if (diffuseIntensity > 0) {
+            vec4 diffuseColor = vec4(clamp(color.rgb * light.color.rgb * light.color.w * df) * shadow, 0.0, 1.0);
+//            diffuse.r = clamp(diffuse.r, 0, color.r);
+//            diffuse.g = clamp(diffuse.g, 0, color.g);
+//            diffuse.b = clamp(diffuse.b, 0, color.b);
+            vec4 specularColor = clamp(vec4(specular, 1) * sf * shadow, 0.0, 1.0);
+            if (light.type == LIGHT_DIRECTIONAL)
+        }
+
     }
     vec3 emmissiveColor = material.emissiveFactor;
     if (textures.emissiveTexture.index != -1) {
