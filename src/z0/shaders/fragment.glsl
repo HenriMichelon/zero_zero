@@ -131,6 +131,7 @@ vec4 fragmentColor(vec4 color, bool useColor) {
                     break;
                 }
             }
+            diffuse = clamp(diffuse, 0.0, 1.0);
         }
         if (global.ambientIBL) {
             ambient = Ambient(ambient, normal, fs_in.VIEW_DIRECTION, metallic, roughness, F0, cosLo);

@@ -31,7 +31,7 @@ export namespace z0 {
 
         const VkFormat NORMAL_BUFFER_FORMATS[3] = {
             VK_FORMAT_R8G8B8A8_SNORM,
-            VK_FORMAT_R16G16B16A16_SNORM,
+            VK_FORMAT_R16G16B16A16_SFLOAT,
             VK_FORMAT_R32G32B32A32_SFLOAT,
         };
     };

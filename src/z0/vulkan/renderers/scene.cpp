@@ -1150,7 +1150,7 @@ namespace z0 {
         vkCmdBindShadersEXT(commandBuffer, 1, normalPrepassFragShader->getStage(), normalPrepassFragShader->getShader());
         vkCmdSetDepthWriteEnable(commandBuffer, !enableDepthPrepass);
 
-        drawModels(currentFrame, modelsToDraw, false);
+        drawModelsWithoutMaterial(currentFrame, modelsToDraw);
 
         vkCmdEndRendering(commandBuffer);
         Device::transitionImageLayout(commandBuffer,

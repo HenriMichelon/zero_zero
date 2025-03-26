@@ -168,16 +168,16 @@ void main() {
                 diffuseColor = color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow;
                 specularColor = specular * color.rgb * attenuation * sf * shadow;
             } else {
-                if (light.mapIndex != -1) {
-                    shadow = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
-                }
-                float attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
                 const float theta = dot(lightDirection, normalize(-light.direction));
-                const float epsilon = light.cutOff - light.outerCutOff;
-                const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
                 if (theta <= light.outerCutOff) {
                     continue;
                 } else {
+                    if (light.mapIndex != -1) {
+                        shadow = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
+                    }
+                    float attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
+                    const float epsilon = light.cutOff - light.outerCutOff;
+                    const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
                     diffuseColor = min(intensity *
                             color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow,
                             vec3(1.0));
@@ -186,7 +186,7 @@ void main() {
                             vec3(1.0));
                 }
             }
-            diffuseSpecular += clamp(diffuseColor, 0.0, 1.0) + clamp(diffuseSpecular, 0.0, 1.0);
+            diffuseSpecular = clamp(diffuseSpecular + diffuseColor + specularColor, 0.0, 1.0);
         }
 
     }

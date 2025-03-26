@@ -16,7 +16,7 @@ void main() {
     const Texture textures = textures.texture[pushConstants.materialIndex];
     vec4 color = material.albedoColor;
     if (textures.diffuseTexture.index != -1) {
-        color = texture(texSampler[textures.diffuseTexture.index], uvTransform(textures.diffuseTexture, UV));
+        color *= texture(texSampler[textures.diffuseTexture.index], uvTransform(textures.diffuseTexture, UV));
     }
     COLOR = vec4(color.rgb, 1.0);
 }
