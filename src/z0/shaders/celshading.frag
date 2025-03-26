@@ -16,21 +16,6 @@ float stepmix(const float edge0, const float edge1, const float E, const float x
     return mix(edge0, edge1, T);
 }
 
-vec3 calcPointLight(Light light, vec3 normal, vec3 viewDirection, vec3 fragPos) {
-    const float attenuation = clamp(1.0 - length(light.position - fragPos)/light.range, 0.0, 1.0);
-    const vec3 lightDir = normalize(light.position - fragPos);
-    const vec3 diffuse = light.color.rgb * light.color.w * attenuation;
-    if (light.type == LIGHT_SPOT) {
-        const float theta = dot(lightDir, normalize(-light.direction));
-        const float epsilon = light.cutOff - light.outerCutOff;
-        const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-        if (theta <= light.outerCutOff) return vec3(0.0f);
-        return min(intensity * diffuse, vec3(1.0f));
-    } else {
-        return min(diffuse, vec3(1.0f));
-    }
-}
-
 #define SHADOW_FACTOR 0.2f
 
 float shadowFactor(Light light, int cascadeIndex, vec4 fragPos) {
@@ -53,7 +38,6 @@ float shadowFactorCubemap(Light light, vec3 fragPos) {
     const float currentDepth = length(fragToLight);
     const float closestDepth = texture(shadowMapsCubemap[light.mapIndex], fragToLight).r * light.farPlane;
     return currentDepth - bias > closestDepth ? SHADOW_FACTOR : 1.0;
-
 }
 
 void main() {
@@ -69,12 +53,12 @@ void main() {
     }
     const float transparency = (material.transparency == TRANSPARENCY_ALPHA || material.transparency == TRANSPARENCY_SCISSOR_ALPHA) ? color.a : 1.0f;
 
-    vec3 N;
+    vec3 normal;
     if (textures.normalTexture.index != -1) {
-        N = normalize(2.0f * texture(texSampler[textures.normalTexture.index], uvTransform(textures.normalTexture, fs_in.UV)).rgb - 1.0f);
-        N = normalize(fs_in.TBN * N) * vec3(material.normalScale, material.normalScale, 1.0f);
+        normal = normalize(2.0f * texture(texSampler[textures.normalTexture.index], uvTransform(textures.normalTexture, fs_in.UV)).rgb - 1.0f);
+        normal = normalize(fs_in.TBN * normal) * vec3(material.normalScale, material.normalScale, 1.0f);
     } else {
-        N = fs_in.NORMAL;
+        normal = fs_in.NORMAL;
     }
 
     float specular;
@@ -96,8 +80,9 @@ void main() {
     vec3 diffuseSpecular = vec3(0.0f);
     for (uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
-        vec3 L;
-        float shadow = 1.0f;
+        vec3 lightDirection;
+        float attenuation;
+        float shadow;
         if (light.type == LIGHT_DIRECTIONAL) {
             if (light.mapIndex != -1) {
                 // We have a cascaded shadow map,
@@ -120,7 +105,8 @@ void main() {
                     if (nextFactor < 0.1f) shadow = nextFactor;
                 }
             }
-            L = normalize(-light.direction);
+            lightDirection = normalize(-light.direction);
+            attenuation = 1.0f;
         } else {
             if (distance(fs_in.GLOBAL_POSITION.xyz, light.position) > light.range) {
                 continue;
@@ -128,13 +114,14 @@ void main() {
             if (light.mapIndex != -1) {
                 shadow = light.type == LIGHT_SPOT ? shadowFactor(light, 0, fs_in.GLOBAL_POSITION) : shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
             }
-            L = normalize(light.position);
+            lightDirection = normalize(light.position - fs_in.GLOBAL_POSITION.xyz);
+            attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
         }
 
         // https://prideout.net/blog/old/blog/index.html@p=22.html
-        const vec3 H = normalize(L);
-        float df = max(0.0, dot(N, L));
-        float sf = max(0.0, dot(N, H));
+        const vec3 H = normalize(lightDirection + fs_in.VIEW_DIRECTION);
+        float df = max(0.0, dot(normal, lightDirection));
+        float sf = max(0.0, dot(normal, H));
         sf = pow(sf, glossiness);
 
         const float A = 0.1;
@@ -159,25 +146,31 @@ void main() {
             sf = step(0.5, sf);
         }
 
-        vec3 unitLightDirection = normalize(light.direction);
-        vec3 eyeDirection       = normalize(-fs_in.GLOBAL_POSITION.xyz);
-        vec3 reflectedDirection = normalize(-reflect(unitLightDirection, normal));
-        float diffuseIntensity  = max(dot(normal, unitLightDirection), 0.0);
+        vec3 reflectedDirection = normalize(-reflect(lightDirection, normal));
+        float diffuseIntensity  = max(dot(normal, lightDirection), 0.0);
         if (diffuseIntensity > 0) {
-            vec4 diffuseColor = vec4(clamp(color.rgb * light.color.rgb * light.color.w * df) * shadow, 0.0, 1.0);
+            vec3 diffuseColor = clamp(color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow, 0.0, 1.0);
 //            diffuse.r = clamp(diffuse.r, 0, color.r);
 //            diffuse.g = clamp(diffuse.g, 0, color.g);
 //            diffuse.b = clamp(diffuse.b, 0, color.b);
-            vec4 specularColor = clamp(vec4(specular, 1) * sf * shadow, 0.0, 1.0);
-            if (light.type == LIGHT_DIRECTIONAL)
+            vec3 specularColor = clamp(color.rgb * attenuation * sf * shadow, 0.0, 1.0);
+            if (light.type == LIGHT_SPOT) {
+                const float theta = dot(lightDirection, normalize(-light.direction));
+                const float epsilon = light.cutOff - light.outerCutOff;
+                const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+                if (theta > light.outerCutOff) {
+                    diffuseColor = min(intensity * diffuseColor, vec3(1.0f));
+                }
+            }
+            diffuseSpecular += diffuseColor + diffuseSpecular;
         }
 
     }
+    const vec3 ambient = color.rgb * global.ambient.w * global.ambient.rgb ;
     vec3 emmissiveColor = material.emissiveFactor;
     if (textures.emissiveTexture.index != -1) {
         emmissiveColor *= toLinear(texture(texSampler[textures.emissiveTexture.index], uvTransform(textures.emissiveTexture, fs_in.UV))).rgb;
     }
-    diffuseColor += emmissiveColor * material.emissiveStrength;
-    const vec3 ambient = color.rgb * global.ambient.w * global.ambient.rgb ;
-    COLOR = vec4(ambient + (diffuseColor + specularColor) * color.rgb, transparency);
+    diffuseSpecular += emmissiveColor * material.emissiveStrength;
+    COLOR = vec4(ambient + diffuseSpecular, transparency);
 }
