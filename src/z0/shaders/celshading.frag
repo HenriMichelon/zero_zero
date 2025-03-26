@@ -16,6 +16,23 @@ float stepmix(const float edge0, const float edge1, const float E, const float x
     return mix(edge0, edge1, T);
 }
 
+vec3 calcPointLight(Light light, vec3 albedo, vec3 normal,float metallic, float roughness, vec3 viewDirection, vec3 fragPos, vec3 F0, const float cosLo, const float alphaSq, const float alphaDirectLighting) {
+    const float attenuation = clamp(1.0 - length(light.position - fragPos)/light.range, 0.0, 1.0);
+    const vec3 lightDir = normalize(light.position - fragPos);
+    const vec3 diffuse = light.color.rgb * light.color.w * attenuation;
+    float intensity = 1.0f;
+    if (light.type == LIGHT_SPOT) {
+        const float theta = dot(lightDir, normalize(-light.direction));
+        const float epsilon = light.cutOff - light.outerCutOff;
+        const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+        if (theta <= light.outerCutOff) return vec3(0.0f);
+        return min(intensity * diffuse, vec3(1.0f));
+    } else {
+        return min(diffuse, vec3(1.0f));
+    }
+}
+
+
 #define SHADOW_FACTOR 0.2f
 
 float shadowFactor(Light light, int cascadeIndex, vec4 fragPos) {
@@ -81,41 +98,14 @@ void main() {
     for (uint i = 0; i < global.lightsCount; i++) {
         Light light = lights.light[i];
         vec3 lightDirection;
-        float attenuation;
-        float shadow;
+        float shadow = 1.0f;
         if (light.type == LIGHT_DIRECTIONAL) {
-            if (light.mapIndex != -1) {
-                // We have a cascaded shadow map,
-                // get cascade index maps for the current fragment's view Z position
-                int cascadeIndex = 0;
-                for (int index = 0; index < light.cascadesCount; index++) {
-                    if (fs_in.CLIPSPACE_Z > light.cascadeSplitDepth[index]) {
-                        cascadeIndex = index + 1;
-                    }
-                }
-                // Get the shadow factor for the cascade
-                shadow = shadowFactor(light, cascadeIndex, fs_in.GLOBAL_POSITION);
-                // If no shadow try the next cascades (for objets behind the light position in the cascade)
-                if ((shadow >= 0.1f) && (cascadeIndex < light.cascadesCount)) {
-                    float nextFactor = shadowFactor(light, cascadeIndex +1, fs_in.GLOBAL_POSITION);
-                    if (nextFactor < 0.1f) shadow = nextFactor;
-                }
-                if ((shadow >= 0.1f) && ((cascadeIndex+1) < light.cascadesCount)) {
-                    float nextFactor = shadowFactor(light, cascadeIndex +2, fs_in.GLOBAL_POSITION);
-                    if (nextFactor < 0.1f) shadow = nextFactor;
-                }
-            }
             lightDirection = normalize(-light.direction);
-            attenuation = 1.0f;
         } else {
             if (distance(fs_in.GLOBAL_POSITION.xyz, light.position) > light.range) {
                 continue;
             }
-            if (light.mapIndex != -1) {
-                shadow = light.type == LIGHT_SPOT ? shadowFactor(light, 0, fs_in.GLOBAL_POSITION) : shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
-            }
             lightDirection = normalize(light.position - fs_in.GLOBAL_POSITION.xyz);
-            attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
         }
 
         // https://prideout.net/blog/old/blog/index.html@p=22.html
@@ -146,27 +136,61 @@ void main() {
             sf = step(0.5, sf);
         }
 
-        vec3 reflectedDirection = normalize(-reflect(lightDirection, normal));
         float diffuseIntensity  = max(dot(normal, lightDirection), 0.0);
         if (diffuseIntensity > 0) {
-            vec3 diffuseColor = clamp(color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow, 0.0, 1.0);
-//            diffuse.r = clamp(diffuse.r, 0, color.r);
-//            diffuse.g = clamp(diffuse.g, 0, color.g);
-//            diffuse.b = clamp(diffuse.b, 0, color.b);
-            vec3 specularColor = clamp(color.rgb * attenuation * sf * shadow, 0.0, 1.0);
-            if (light.type == LIGHT_SPOT) {
+            vec3 diffuseColor;
+            vec3 specularColor;
+            if (light.type == LIGHT_DIRECTIONAL) {
+                if (light.mapIndex != -1) {
+                    int cascadeIndex = 0;
+                    for (int index = 0; index < light.cascadesCount; index++) {
+                        if (fs_in.CLIPSPACE_Z > light.cascadeSplitDepth[index]) {
+                            cascadeIndex = index + 1;
+                        }
+                    }
+                    shadow = shadowFactor(light, cascadeIndex, fs_in.GLOBAL_POSITION);
+                    if ((shadow >= 0.1f) && (cascadeIndex < light.cascadesCount)) {
+                        float nextFactor = shadowFactor(light, cascadeIndex +1, fs_in.GLOBAL_POSITION);
+                        if (nextFactor < 0.1f) shadow = nextFactor;
+                    }
+                    if ((shadow >= 0.1f) && ((cascadeIndex+1) < light.cascadesCount)) {
+                        float nextFactor = shadowFactor(light, cascadeIndex +2, fs_in.GLOBAL_POSITION);
+                        if (nextFactor < 0.1f) shadow = nextFactor;
+                    }
+                }
+                diffuseColor = color.rgb * light.color.rgb * light.color.w * df * shadow;
+                specularColor = specular * color.rgb * sf * shadow;
+            } else if (light.type == LIGHT_OMNI) {
+                if (light.mapIndex != -1) {
+                    shadow = shadowFactorCubemap(light, fs_in.GLOBAL_POSITION.xyz);
+                }
+                float attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
+                diffuseColor = color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow;
+                specularColor = specular * color.rgb * attenuation * sf * shadow;
+            } else {
+                if (light.mapIndex != -1) {
+                    shadow = shadowFactor(light, 0, fs_in.GLOBAL_POSITION);
+                }
+                float attenuation = clamp(1.0 - length(light.position - fs_in.GLOBAL_POSITION.xyz)/light.range, 0.0, 1.0);
                 const float theta = dot(lightDirection, normalize(-light.direction));
                 const float epsilon = light.cutOff - light.outerCutOff;
                 const float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-                if (theta > light.outerCutOff) {
-                    diffuseColor = min(intensity * diffuseColor, vec3(1.0f));
+                if (theta <= light.outerCutOff) {
+                    continue;
+                } else {
+                    diffuseColor = min(intensity *
+                            color.rgb * light.color.rgb * light.color.w * attenuation * df * shadow,
+                            vec3(1.0));
+                    specularColor = min(intensity *
+                            specular * color.rgb * attenuation * sf * shadow,
+                            vec3(1.0));
                 }
             }
-            diffuseSpecular += diffuseColor + diffuseSpecular;
+            diffuseSpecular += clamp(diffuseColor, 0.0, 1.0) + clamp(diffuseSpecular, 0.0, 1.0);
         }
 
     }
-    const vec3 ambient = color.rgb * global.ambient.w * global.ambient.rgb ;
+    const vec3 ambient = clamp(color.rgb * global.ambient.w * global.ambient.rgb, 0.0, 1.0);
     vec3 emmissiveColor = material.emissiveFactor;
     if (textures.emissiveTexture.index != -1) {
         emmissiveColor *= toLinear(texture(texSampler[textures.emissiveTexture.index], uvTransform(textures.emissiveTexture, fs_in.UV))).rgb;
