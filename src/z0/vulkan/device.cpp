@@ -320,6 +320,8 @@ namespace z0 {
         renderersToRemove.clear();
         for (const auto &renderer : renderers) { renderer->cleanup(); }
         renderers.clear();
+        for (const auto &renderer : postprocessingRenderers) { renderer->cleanup(); }
+        postprocessingRenderers.clear();
         for (const auto& data : framesData) {
             vkDestroySemaphore(device, data.renderFinishedSemaphore, nullptr);
             vkDestroySemaphore(device, data.imageAvailableSemaphore, nullptr);
