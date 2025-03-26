@@ -17,6 +17,7 @@ import z0.vulkan.Buffer;
 import z0.vulkan.DepthFrameBuffer;
 import z0.vulkan.Descriptors;
 import z0.vulkan.Device;
+import z0.vulkan.DiffuseFrameBuffer;
 import z0.vulkan.NormalFrameBuffer;
 import z0.vulkan.Renderer;
 import z0.vulkan.Renderpass;
@@ -35,7 +36,8 @@ export namespace z0 {
                                uint32_t                                       globalBufferSize,
                                const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachment,
                                const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachement,
-                               const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachement);
+                               const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachement,
+                               const vector<shared_ptr<DiffuseFrameBuffer>>&  diffuseColorAttachement);
 
         void setInputColorAttachments(const vector<shared_ptr<ColorFrameBufferHDR>> &input);
 
@@ -73,6 +75,7 @@ export namespace z0 {
             BINDING_INPUT_COLOR  = 1,
             BINDING_DEPTH_BUFFER = 2,
             BINDING_NORMAL_COLOR = 3,
+            BINDING_DIFFUSE_COLOR= 4,
         };
 
         const string                                  fragShaderName;
@@ -83,6 +86,7 @@ export namespace z0 {
         vector<shared_ptr<ColorFrameBufferHDR>>       inputColorAttachment;
         const vector<shared_ptr<DepthFrameBuffer>>    depthAttachment;
         const vector<shared_ptr<NormalFrameBuffer>>   normalColorAttachment;
+        const vector<shared_ptr<DiffuseFrameBuffer>>   diffuseColorAttachment;
 
         struct PushConstants {
             alignas(8) vec2 texelSize;

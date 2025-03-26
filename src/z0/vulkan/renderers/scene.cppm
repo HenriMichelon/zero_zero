@@ -33,6 +33,7 @@ import z0.vulkan.ColorFrameBuffer;
 import z0.vulkan.ColorFrameBufferHDR;
 import z0.vulkan.DebugRenderer;
 import z0.vulkan.DepthFrameBuffer;
+import z0.vulkan.DiffuseFrameBuffer;
 import z0.vulkan.Device;
 import z0.vulkan.Descriptors;
 import z0.vulkan.ModelsRenderer;
@@ -53,13 +54,18 @@ namespace z0 {
      */
     export class SceneRenderer : public ModelsRenderer {
     public:
-        SceneRenderer(Device &device, vec3 clearColor, bool enableDepthPrepass, bool enableNormalPrepass);
+        SceneRenderer(Device &device, vec3 clearColor,
+                    bool enableDepthPrepass,
+                    bool enableNormalPrepass,
+                    bool enableDiffusePrepass);
 
         [[nodiscard]] inline const auto& getColorAttachments() const { return colorFrameBufferHdr; }
 
         [[nodiscard]] inline const auto& getDepthAttachments() const { return resolvedDepthFrameBuffer; }
 
         [[nodiscard]] inline const auto& getNormalAttachments() const { return resolvedNormalFrameBuffer; }
+
+        [[nodiscard]] inline const auto& getDiffuseAttachments() const { return resolvedDiffuseFrameBuffer; }
 
         [[nodiscard]] inline VkImage getImage(const uint32_t currentFrame) const override { return colorFrameBufferHdr[currentFrame]->getImage(); }
 
@@ -263,6 +269,8 @@ namespace z0 {
         bool enableDepthPrepass;
         // Enable the normal pre-pass
         bool enableNormalPrepass;
+        // Enable the diffuse color pre-pass
+        bool enableDiffusePrepass;
         // One renderer per shadow map
         map<shared_ptr<Light>, shared_ptr<ShadowMapRenderer>> shadowMapRenderers;
         // Default blank image (for textures & optional frame buffers)
@@ -277,6 +285,10 @@ namespace z0 {
         unique_ptr<Shader> normalPrepassVertShader;
         // Fragment shader for the normal pre-pass
         unique_ptr<Shader> normalPrepassFragShader;
+        // Vertex shader for the diffuse pre-pass
+        unique_ptr<Shader> diffusePrepassVertShader;
+        // Fragment shader for the diffuse pre-pass
+        unique_ptr<Shader> diffusePrepassFragShader;
         // destination frame buffer
         vector<shared_ptr<ColorFrameBufferHDR>> colorFrameBufferHdr;
         // resolved depth buffer destination frame buffer
@@ -285,6 +297,10 @@ namespace z0 {
         vector<shared_ptr<NormalFrameBuffer>> normalFrameBuffer;
         // resolved normal buffer destination frame buffer
         vector<shared_ptr<NormalFrameBuffer>> resolvedNormalFrameBuffer;
+        // Diffuse color multi sampled off-screen buffer
+        vector<shared_ptr<DiffuseFrameBuffer>> diffuseFrameBuffer;
+        // resolved diffuse color buffer destination frame buffer
+        vector<shared_ptr<DiffuseFrameBuffer>> resolvedDiffuseFrameBuffer;
 
         void update(uint32_t currentFrame) override;
 
@@ -314,13 +330,15 @@ namespace z0 {
 
         void removeImage(const shared_ptr<Image> &image, uint32_t currentFrame);
 
-        void drawModels(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+        void drawModels(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw, bool withShaderMaterials);
 
         void drawOutlines(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         void depthPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         void normalPrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
+
+        void diffusePrepass(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 
         void drawModelsWithoutMaterial(uint32_t currentFrame, const map<Resource::id_t, list<shared_ptr<MeshInstance>>> &modelsToDraw);
 

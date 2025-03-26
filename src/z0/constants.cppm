@@ -221,7 +221,19 @@ export namespace z0 {
     enum class NormalBufferFormat : uint8_t {
         //! 8-bit signed normalized
         B8  = 0,
-        //! 16-bit signed float
+        //! 16-bit signed normalized
+        B16  = 1,
+        //! 32-bit signed float
+        B32  = 2,
+    };
+
+    /**
+     * Diffuse color frame buffers precision
+     */
+    enum class DiffuseBufferFormat : uint8_t {
+        //! 8-bit signed normalized
+        B8  = 0,
+        //! 16-bit signed normalized
         B16  = 1,
         //! 32-bit signed float
         B32  = 2,

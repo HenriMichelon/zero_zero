@@ -62,6 +62,10 @@ export namespace z0 {
         NormalBufferFormat normalBufferFormat       = NormalBufferFormat::B16;
         //! Use a normal pre-pass in the main renderer
         bool             useNormalPrepass           = false;
+        //! Diffuse color frame buffer format
+        DiffuseBufferFormat diffuseBufferFormat     = DiffuseBufferFormat::B8;
+        //! Use a Diffuse color pre-pass in the main renderer
+        bool             useDiffusePrepass          = false;
         //! Window clear color
         vec3             clearColor                 = WINDOW_CLEAR_COLOR;
         //! Number of simultaneous frames during rendering

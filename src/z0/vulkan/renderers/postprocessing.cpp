@@ -30,7 +30,8 @@ namespace z0 {
         const uint32_t                                 globalBufferSize,
         const vector<shared_ptr<ColorFrameBufferHDR>>& inputColorAttachment,
         const vector<shared_ptr<DepthFrameBuffer>>&    depthAttachment,
-        const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachment) :
+        const vector<shared_ptr<NormalFrameBuffer>>&   normalColorAttachment,
+        const vector<shared_ptr<DiffuseFrameBuffer>>&  diffuseColorAttachment) :
         Renderpass{device, WINDOW_CLEAR_COLOR},
         Renderer{false},
         fragShaderName{fragShaderName},
@@ -38,7 +39,8 @@ namespace z0 {
         globalBufferSize{globalBufferSize == 0 ? 1 : globalBufferSize},
         inputColorAttachment{inputColorAttachment},
         depthAttachment{depthAttachment},
-        normalColorAttachment{normalColorAttachment} {
+        normalColorAttachment{normalColorAttachment},
+        diffuseColorAttachment{diffuseColorAttachment} {
         outputColorAttachment.resize(device.getFramesInFlight());
         globalBuffer.resize(device.getFramesInFlight());
         createImagesResources();
@@ -99,13 +101,14 @@ namespace z0 {
                                      device.getFramesInFlight())
                                  .addPoolSize(
                                      VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                     device.getFramesInFlight() * (BINDING_NORMAL_COLOR + 1))
+                                     device.getFramesInFlight() * (BINDING_DIFFUSE_COLOR + 1))
                                  .build();
         setLayout = DescriptorSetLayout::Builder(device)
                             .addBinding(BINDING_GLOBAL_BUFFER, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
                             .addBinding(BINDING_INPUT_COLOR, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .addBinding(BINDING_DEPTH_BUFFER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .addBinding(BINDING_NORMAL_COLOR, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+                            .addBinding(BINDING_DIFFUSE_COLOR, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
                             .build();
         if (blankImage == nullptr) {
             blankImage = reinterpret_pointer_cast<VulkanImage>(Image::createBlankImage(device));
@@ -125,11 +128,15 @@ namespace z0 {
             auto normalInfo = normalColorAttachment[i] ?
                 normalColorAttachment[i]->imageInfo() :
                 blankImage->getImageInfo();
+            auto diffuseInfo = diffuseColorAttachment[i] ?
+                diffuseColorAttachment[i]->imageInfo() :
+                blankImage->getImageInfo();
             auto writer    = DescriptorWriter(*setLayout, *descriptorPool)
                 .writeBuffer(BINDING_GLOBAL_BUFFER, &globalBufferInfo)
                 .writeImage(BINDING_INPUT_COLOR, &imageInfo)
                 .writeImage(BINDING_DEPTH_BUFFER, &depthInfo)
-                .writeImage(BINDING_NORMAL_COLOR, &normalInfo);
+                .writeImage(BINDING_NORMAL_COLOR, &normalInfo)
+                .writeImage(BINDING_DIFFUSE_COLOR, &diffuseInfo);
             if (!writer.build(descriptorSet[i], create)) {
                 die("Cannot allocate descriptor set for PostprocessingRenderer");
             }

@@ -51,6 +51,7 @@ void main() {
     if (edge > global.threshold) {
         COLOR = vec4(global.color, 1.0);
     } else {
+//        COLOR = vec4(1.0f);
         COLOR = texture(inputImage, UV);
     }
 }

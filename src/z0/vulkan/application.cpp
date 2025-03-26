@@ -76,7 +76,8 @@ namespace z0 {
             *device,
             applicationConfig.clearColor,
             applicationConfig.useDepthPrepass,
-            applicationConfig.useNormalPrepass);
+            applicationConfig.useNormalPrepass,
+            applicationConfig.useDiffusePrepass);
         // create the vector renderer used by the UI components
         vectorRenderer = make_shared<VectorRenderer>(
             *device,
@@ -119,7 +120,8 @@ namespace z0 {
                 sceneRenderer->getColorAttachments() :
                 postprocessingRenderersOrder.back()->getColorAttachments(),
              sceneRenderer->getDepthAttachments(),
-             sceneRenderer->getNormalAttachments());
+             sceneRenderer->getNormalAttachments(),
+             sceneRenderer->getDiffuseAttachments());
         postprocessingRenderers[fragShaderName] = renderer;
         postprocessingRenderersOrder.push_back(renderer);
 
