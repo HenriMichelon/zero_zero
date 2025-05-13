@@ -317,10 +317,6 @@ namespace z0 {
 
     void Node::_updateTransform(const mat4 &parentMatrix) {
         worldTransform = parentMatrix * localTransform;
-        const auto rot = getRotation();
-        if (getName().contains("cabinet1") && rot != VEC3ZERO) {
-            _LOG("_updateTransform ", TypeNames[getType()], " ", getName(), " ", to_string(rot));
-        }
         for (const auto &child : children) {
             child->_updateTransform(worldTransform);
         }
